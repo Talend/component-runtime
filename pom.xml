@@ -42,6 +42,16 @@
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
+    <repository>
+      <id>asf-snapshot</id>
+      <url>http://repository.apache.org/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>

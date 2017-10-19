@@ -10,4 +10,22 @@
       <password>${env.OSSRH_PASS}</password>
     </server>
   </servers>
+
+  <profiles>
+    <profile>
+      <id>ossrh</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <additionalparam>-Xdoclint:none</additionalparam>
+        <gpg.executable>gpg</gpg.executable>
+        <gpg.defaultKeyring>false</gpg.defaultKeyring>
+        <gpg.keyname>${env.GPG_KEYNAME}</gpg.keyname>
+        <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+        <gpg.publicKeyring>${env.HOME}/.gpg/travis.pub</gpg.publicKeyring>
+        <gpg.secretKeyring>${env.HOME}/.gpg/travis.priv</gpg.secretKeyring>
+      </properties>
+    </profile>
+  </profiles>
 </settings>
