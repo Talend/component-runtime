@@ -1,0 +1,33 @@
+= Talend Component Reference Guide
+Romain Manni-Bucau
+:toc:
+:toclevels: 4
+:source-highlighter: prettify
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation, manual
+:jbake-status: published
+
+Version: {project_version}
+
+include::design.adoc[]
+
+include::documentation-overview.adoc[]
+
+include::getting-started.adoc[]
+
+include::documentation.adoc[]
+
+include::documentation-testing.adoc[]
+
+include::best-practices.adoc[]
+
+include::documentation-rest.adoc[]
+
+include::wrapping-a-beam-io.adoc[]
+
+include::appendix.adoc[]

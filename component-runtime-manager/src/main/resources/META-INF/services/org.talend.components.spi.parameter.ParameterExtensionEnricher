@@ -1,0 +1,5 @@
+org.talend.components.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher
+org.talend.components.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher
+org.talend.components.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher
+org.talend.components.runtime.manager.reflect.parameterenricher.ActionParameterEnricher
+org.talend.components.runtime.manager.reflect.parameterenricher.UiParameterEnricher

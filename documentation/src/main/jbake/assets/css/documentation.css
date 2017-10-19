@@ -1,0 +1,14 @@
+h5 {
+    font-weight: bold;
+}
+
+.github-fork-ribbon {
+    position: fixed !important;
+}
+.github-fork-ribbon:before, .github-fork-ribbon:after {
+    box-sizing: content-box !important;
+}
+
+.github-fork-ribbon:before {
+  background-color: #B6CC1F !important;
+}

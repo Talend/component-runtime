@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>component-runtime</artifactId>
+    <groupId>org.talend.components</groupId>
+    <version>@project.version@</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>sample</artifactId>
+  <name>Component Runtime :: Maven Plugin :: IT :: Failure i18n Wrong Key</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.talend.components</groupId>
+      <artifactId>component-api</artifactId>
+      <version>@project.version@</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>@junit.version@</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.talend.components</groupId>
+        <artifactId>talend-component-maven-plugin</artifactId>
+        <version>@project.version@</version>
+        <executions>
+          <execution>
+            <id>generate-input</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <type>input</type>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate-output</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <type>output</type>
+            </configuration>
+          </execution>
+          <execution> <!-- ensure generated components are valid -->
+            <id>talend@validate</id>
+            <goals>
+              <goal>validate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+

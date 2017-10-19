@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>component-runtime</artifactId>
+    <groupId>org.talend.components</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>org.talend.components.studio-integration</artifactId>
+  <packaging>bundle</packaging> <!-- let's not use yet eclipse-plugin which implies a p2 repo which is a pain -->
+  <name>Component Runtime :: Studio Integration</name>
+
+  <properties>
+    <studio.version>6.5.0-M3</studio.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>gef</artifactId>
+      <version>3.2.100-v20070620</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>3.3.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Require-Bundle>
+              org.eclipse.core.runtime,
+              org.eclipse.emf.common,
+              org.eclipse.gef,
+              org.eclipse.ui.views.properties.tabbed;visibility:=reexport,
+              org.talend.core,
+              org.talend.core.ui,
+              org.talend.core.runtime;visibility:=reexport,
+              org.talend.core.repository,
+              org.talend.designer.core,
+              org.talend.librariesmanager,
+              org.talend.model,
+              org.talend.commons.ui,
+              org.talend.repository,
+              org.talend.metadata.managment.ui
+            </Require-Bundle>
+            <Import-Package />
+            <Bundle-SymbolicName>${project.artifactId};singleton=true</Bundle-SymbolicName>
+            <Bundle-Vendor>.Talend SA.</Bundle-Vendor>
+            <Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+          </instructions>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <id>setup-deps</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <scripts>
+            <script>${project.basedir}/src/build/StudioDependencies.groovy</script>
+          </scripts>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>2.6.0-alpha-1</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile> <!-- this is what the groovy script outputs, it allows to develop in the IDE -->
+      <id>ide</id>
+      <repositories>
+        <repository>
+          <id>p2-local</id>
+          <url>file:${project.basedir}/.p2localrepository</url>
+        </repository>
+      </repositories>
+      <dependencies>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.core.ui</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.core.runtime</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.commons.runtime</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.designer.core</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.common.ui.runtime</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.model</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+</project>

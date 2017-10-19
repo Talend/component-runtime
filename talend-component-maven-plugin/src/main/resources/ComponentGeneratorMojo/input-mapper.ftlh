@@ -1,0 +1,44 @@
+
+//
+// This class was generated using Talend Component Generator Maven plugin
+//
+<#if configuration.packageName?has_content>
+package ${configuration.packageName};
+</#if>
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.ArrayList;
+
+import org.talend.component.api.component.Icon;
+import org.talend.component.api.component.Version;
+import org.talend.component.api.input.Assessor;
+import org.talend.component.api.input.Emitter;
+import org.talend.component.api.input.PartitionSize;
+import org.talend.component.api.input.PartitionMapper;
+import org.talend.component.api.input.Split;
+
+@Version
+@Icon(Icon.IconType.SEARCH)
+@PartitionMapper(family = "${configuration.family}", name = "${configuration.className}${configuration.template}")
+public class ${configuration.className}${configuration.template} implements Serializable {
+    @Assessor
+    public long estimateSize() {
+        // TODO: try to estimate the dataset size
+        return 0;
+    }
+
+    @Split
+    public List<${configuration.className}${configuration.template}> split(@PartitionSize final long sizeByPartition) {
+        final List<${configuration.className}${configuration.template}> partitions = new ArrayList<>();
+        // TODO: split in a clever way the overall dataset recreating ${configuration.className}${configuration.template} instances
+        partitions.add(this); // this is a workaround to ensure the component works but defeats the goal
+        return partitions;
+    }
+
+    @Emitter
+    public ${configuration.className}Emitter createInput() {
+        // create the actual "reader", you can pass configuration here
+        return new ${configuration.className}Emitter();
+    }
+}

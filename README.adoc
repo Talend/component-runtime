@@ -1,0 +1,5 @@
+= Component Runtime
+
+This brick provides all the integration around `component-api` to run components.
+
+Documentation is in documentation module.

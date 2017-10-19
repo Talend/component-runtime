@@ -1,0 +1,88 @@
+= Talend Component REST API Documentation
+:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation
+:jbake-status: published
+
+== REST API
+
+The REST API intends to expose over HTTP most of Talend Component features, it is a standalone Java HTTP server.
+
+Here is the API:
+
+include::../../../../../component-server/target/jaxrs-analyzer/rest-resources.adoc[leveloffset=2]
+
+IMPORTANT: to ensure the migration can be activated you need to set in the execution configuration you send to the server
+the version it was created with (component version, it is in component detail endpoint) with the key `tcomp::component::version`.
+
+== Web forms and REST API
+
+`component-form` library provides a way to build a component REST API facade compatible with react form library.
+
+A trivial facade can be:
+
+[source,java]
+----
+@Path("tcomp-facade")
+@ApplicationScoped
+public class ComponentFacade {
+
+    @Inject
+    private Client client;
+
+    @Inject
+    private UiSpecService uiSpecService;
+
+    @Inject
+    private ActionService actionService;
+
+    @POST
+    @Path("action")
+    public UiActionResult action(@QueryParam("family") final String family, @QueryParam("type") final String type,
+            @QueryParam("action") final String action, final Map<String, Object> params) {
+        try {
+            return actionService.map(type, client.action(family, type, action, params));
+        } catch (final WebException exception) {
+            final UiActionResult payload = actionService.map(exception);
+            throw new WebApplicationException(Response.status(exception.getStatus()).entity(payload).build());
+        }
+    }
+
+    @GET
+    @Path("index")
+    public ComponentIndices getIndex(@QueryParam("language") @DefaultValue("en") final String language) {
+        final ComponentIndices index = client.index(language);
+        // our mapping is a bit different so rewrite links
+        index.getComponents().stream().flatMap(c -> c.getLinks().stream()).forEach(link -> link.setPath(
+                link.getPath().replaceFirst("\\/component\\/", "\\/tcomp-facade\\/").replace("/details?identifiers=", "/detail/")));
+        return index;
+    }
+
+    @GET
+    @Path("detail/{id}")
+    public UiSpecPayload getDetail(@QueryParam("language") @DefaultValue("en") final String language,
+            @PathParam("id") final String id) {
+        final List<ComponentDetail> details = client.details(language, id, new String[0]).getDetails();
+        if (details.isEmpty()) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        return uiSpecService.convert(details.iterator().next());
+    }
+}
+----
+
+NOTE: the `Client` can be created using `ClientFactory.createDefault(System.getProperty("app.components.base", "http://localhost:8080/api/v1"))`
+and the service can be a simple `new UiSpecService()`.
+
+All the conversion between component model (REST API) and uiSpec model is done through the `UiSpecService`. It is based on the object model
+which will be mapped to a ui model. The advantage to have a flat model in the component REST API is to make these layers easy to customize.
+
+You can completely control the available components, tune the rendering switching the `uiSchema` if desired or add/remove part of the form.
+You can also add custom actions/buttons for specific needs of the application.
+
+NOTE: the  `/migrate` endpoint has nothing special so was not shown in previous snippet but if you need it you must add it as well.

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>component-runtime</artifactId>
+    <groupId>org.talend.components</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>component-runtime-di</artifactId>
+  <name>Component Runtime :: DI</name>
+  <description>
+    For now it is a placeholder module until we decide if we rely on javajet for the runtime
+    or the opposite. It just defines a stable dependency for the studio.
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.talend.components</groupId>
+      <artifactId>component-runtime-manager</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+</project>

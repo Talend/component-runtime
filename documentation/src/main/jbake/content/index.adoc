@@ -1,0 +1,26 @@
+= Talend Component Reference Guide
+Romain Manni-Bucau
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation, index
+:jbake-status: published
+
+Version: {project_version}
+
+NOTE: if you prefer you can use the <<all-in-one.adoc#, single page>> documentation.
+
+= Documentation index
+
+* <<documentation-overview.adoc#, Overview>>
+* <<getting-started.adoc#, Getting Started>>
+* <<documentation.adoc#, Reference Guide>>
+* <<documentation-testing.adoc#, Testing>>
+* <<best-practices.adoc#, Best Practices>>
+* <<design.adoc#, Design choices>>
+* <<wrapping-a-beam-io.adoc#, How to wrap a Beam I/O>>
+* <<documentation-rest.adoc#, Web>>
+* <<appendix.adoc#, Appendix>>

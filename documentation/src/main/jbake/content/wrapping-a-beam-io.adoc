@@ -1,0 +1,124 @@
+= Wrapping a Beam I/O
+:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation, getting started
+:jbake-status: published
+
+[[wrapping-a-beam-io__start]]
+== Limitations
+
+This part is limited to particular kinds of link:https://beam.apache.org/[Beam] `PTransform`:
+
+- the `PTransform<PBegin, PCollection<?>>` for the inputs
+- the `PTransform<PCollection<?>, PDone>` for the outputs. The outputs also must use a single (composite or not) `DoFn` in their `apply` method.
+
+== Wrap an input
+
+Assume you want to wrap an input like this one (based on existing Beam ones):
+
+[source,java]
+----
+@AutoValue
+public abstract [static] class Read extends PTransform<PBegin, PCollection<String>> {
+
+  // config
+
+  @Override
+  public PCollection<String> expand(final PBegin input) {
+    return input.apply(
+        org.apache.beam.sdk.io.Read.from(new BoundedElasticsearchSource(this, null)));
+  }
+
+  // ... other transform methods
+}
+----
+
+To wrap the Read in a framework component you create a transform delegating to this one with a `@PartitionMapper` annotation
+at least (you likely want to follow the best practices as well adding `@Icon` and `@Version`) and using `@Option` constructor injections
+to configure the component:
+
+[source,java]
+----
+@PartitionMapper(family = "myfamily", name = "myname")
+public class WrapRead extends PTransform<PBegin, PCollection<String>> {
+  private PTransform<PBegin, PCollection<String>> delegate;
+
+  public WrapRead(@Option("dataset") final WrapReadDataSet dataset) {
+    delegate = TheIO.read().withConfiguration(this.createConfigurationFrom(dataset));
+  }
+
+  @Override
+  public PCollection<String> expand(final PBegin input) {
+    return delegate.expand(input);
+  }
+
+  // ... other methods like the mapping with the native configuration (createConfigurationFrom)
+}
+----
+
+== Wrap an output
+
+Assume you want to wrap an output like this one (based on existing Beam ones):
+
+[source,java]
+----
+@AutoValue
+public abstract [static] class Write extends PTransform<PCollection<String>, PDone> {
+
+
+    // configuration withXXX(...)
+
+    @Override
+    public PDone expand(final PCollection<String> input) {
+      input.apply(ParDo.of(new WriteFn(this)));
+      return PDone.in(input.getPipeline());
+    }
+
+    // other methods of the transform
+}
+----
+
+You can wrap this output exactly the same way than for the inputs but using `@Processor` this time:
+
+[source,java]
+----
+@PartitionMapper(family = "myfamily", name = "myname")
+public class WrapRead extends PTransform<PCollection<String>, PDone> {
+  private PTransform<PCollection<String>, PDone> delegate;
+
+  public WrapRead(@Option("dataset") final WrapReadDataSet dataset) {
+    delegate = TheIO.write().withConfiguration(this.createConfigurationFrom(dataset));
+  }
+
+  @Override
+  public PDone expand(final PCollection<String> input) {
+    return delegate.expand(input);
+  }
+
+  // ... other methods like the mapping with the native configuration (createConfigurationFrom)
+}
+----
+
+== Tip
+
+Note that the class `org.talend.components.runtime.beam.transform.DelegatingTransform` fully delegates
+to another transform the "expansion". Therefore you can extend it and just implement the configuration mapping:
+
+[source,java]
+----
+@Processor(family = "beam", name = "file")
+public class BeamFileOutput extends DelegatingTransform<PCollection<String>, PDone> {
+
+    public BeamFileOutput(@Option("output") final String output) {
+        super(TextIO.write()
+            .withSuffix("test")
+            .to(FileBasedSink.convertToFileResourceIfPossible(output)));
+    }
+}
+----
+

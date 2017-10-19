@@ -1,0 +1,50 @@
+= Talend Component Overview
+Romain Manni-Bucau
+:revnumber: {project_version}
+
+== Goal
+
+[%step]
+* Unify the development of _components_
+** Standalone
+** BEAM/big data
+* Simplify the testing of _components_ and their _representation_ (UI)
+* Provide a centralized metadata repository
+
+== Programming Model
+
+[%step]
+* Declarative
+** Limit the required code as much as possible
+** No required registration classes
+** Extensible (allows to support new features of underlying runtimes)
+* Minimal
+** No duplication of metadata (runtime configuration and UI for instance)
+** Ensure support for all target environments
+
+== Runtime
+
+[%step]
+* Isolate plugins to limit their conflicts (dependencies)
+* Tree classloading to not bring in the graph (OSGi for instance) linking complexity
+
+== Build
+
+[%step]
+* Stay close to Maven (repository) but local:
+** Limit the duplication of artifacts
+** Known layout and resolution
+* Fatjar friendly (big data target)
+* Maven plugin(s)
+** Common validations of components (model, i18n etc...)
+** Packaging (fatjar with nested maven repository, plugin listing etc...)
+
+== Testing
+
+[%step]
+* JUnit support
+** Ability to reuse existing features (`Parameterized`, `@Rule`, ...)
+** Component easy to test (like any code)
+** Advanced testing with big data cluster testing? (see spark IT in runtime project)
+
+== Thanks

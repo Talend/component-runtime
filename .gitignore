@@ -1,0 +1,14 @@
+target
+*.iml
+*.iws
+.idea
+.asciidoctor
+diag-*.png
+generated-*.png
+work
+.node
+package-lock.json
+yarn.lock
+node_modules
+dist
+.p2localrepository

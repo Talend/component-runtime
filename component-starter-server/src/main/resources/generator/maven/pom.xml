@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+          http://maven.apache.org/POM/4.0.0
+          http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>{{build.group}}</groupId>
+  <artifactId>{{build.artifact}}</artifactId>
+  <version>{{build.version}}</version>
+  <packaging>{{build.packaging}}</packaging>
+
+  <name>{{build.name}}</name>
+  <description>{{build.description}}</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>{{#dependencies}}
+    <dependency>
+      <groupId>{{group}}</groupId>
+      <artifactId>{{artifact}}</artifactId>
+      <version>{{version}}</version>{{#classifier}}
+      <classifier>{{classifier}}</classifier>{{/classifier}}{{#scope}}
+      <scope>{{scope}}</scope>{{/scope}}{{#type}}
+      <type>{{type}}</type>{{/type}}
+    </dependency>{{/dependencies}}
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.7.0</version>
+        <configuration>
+          <source>{{build.javaVersion}}</source>
+          <target>{{build.javaVersion}}</target>
+        </configuration>
+      </plugin>{{#plugins}}
+      <plugin>
+        <groupId>{{groupId}}</groupId>
+        <artifactId>{{artifactId}}</artifactId>
+        <version>{{version}}</version>{{#executions}}
+        <executions>
+          <execution>
+            <id>{{id}}</id>
+            <phase>{{phase}}</phase>
+            <goals>
+              <goal>{{goal}}</goal>
+            </goals>
+          </execution>
+        </executions>{{/executions}}
+        <configuration>{{#configuration}}
+          <{{key}}>{{value}}</{{key}}>{{/configuration}}
+        </configuration>
+      </plugin>{{/plugins}}
+    </plugins>
+  </build>
+</project>

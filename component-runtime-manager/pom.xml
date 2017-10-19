@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>component-runtime</artifactId>
+    <groupId>org.talend.components</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>component-runtime-manager</artifactId>
+  <packaging>bundle</packaging>
+  <name>Component Runtime :: Manager</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.talend.components</groupId>
+      <artifactId>component-spi</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.talend.components</groupId>
+      <artifactId>component-runtime-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.talend.components</groupId>
+      <artifactId>container-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-finder-shaded</artifactId>
+      <version>${xbean.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-reflect</artifactId>
+      <version>${xbean.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomee</groupId>
+      <artifactId>ziplock</artifactId>
+      <version>${ziplock.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.0.1</version>
+        <executions>
+          <execution>
+            <id>copy-test-container-dependencies</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <!-- tests jars for modules -->
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.apache.tomee</groupId>
+                  <artifactId>openejb-itests-beans</artifactId>
+                  <version>7.0.3</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>
+                    ${project.build.directory}/test-dependencies/org/apache/tomee/openejb-itests-beans/7.0.3
+                  </outputDirectory>
+                  <destFileName>openejb-itests-beans-7.0.3.jar</destFileName>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.tomee</groupId>
+                  <artifactId>arquillian-tomee-codi-tests</artifactId>
+                  <version>7.0.3</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>
+                    ${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/7.0.3
+                  </outputDirectory>
+                  <destFileName>arquillian-tomee-codi-tests-7.0.3.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
