@@ -1,6 +1,9 @@
 language: java
 jdk:
 - oraclejdk8
+env:
+  global:
+    - MAVEN_OPTS=-Dmaven.artifact.threads=64
 cache:
   directories:
   - "$HOME/.m2"
