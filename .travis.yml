@@ -14,7 +14,7 @@ notifications:
     secure: MS3jwqvACvjLAa2pT8OdmylmqK0N+zMg7URmatJYHa+HXTr3dTlKNVSCDTUGc5OIYUhzca15SYAtXjUMYcyJ5UQETE6bxS5995GBbTsErEOFDYIZU5coFz1/21+b0E72QDHKOVWntSPVujNB2ZA8aJVLgpmdSC0t83b85Nds9R0Skaag8ehkVGWw57MI7xy+Bo3CXkLS3A8Mjucy1Ht7hgtrlE+hzBMVZeJbLVWZkYD1p0QguXaSD7Ub3Uab7sDiINZv4DDZSGz7lkv0IUh8bQhsfrwFKbks2TtavcuQcbHIKXG00LZpTPLfXIgGXD6hGtD4WgCbfXacsri+yoiQbE8oVXriTWCOusXTjQd2RgtKbUPOOKSAQ4BW+yXHu8exb+tqx87onpGI9w339BY/zCUbnMJruKWVO3G0LISg1b1AkPC+s6PCi8T3PrXV0o7/53hSDM1xmS0ZO8BgqsvqorYDiun11+yTl+OZNGcm85dyLVKonzuG3o+2EiqI8nfrxK11S2c+37BLJSrgHRhmV0VESW1JF0VaSZOUCCO2KkWl7tNTIYkfG0nqdq6q1E+uo5Wz61Wc6oqcS9MCvh133bqDlK3ecQ4h7cBeD3iZdT1+wbRRnOJ/sGtCrB2pvzWC9rkwx5UcS8m7TR3EdXD9hllhfBtR9aCGtRx/p4YwJfo=
 before_install:
 - chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-install: mvn clean install -DskipTests -T8 --batch-mode --settings .travis/settings.xml -Possrh
+install: mvn clean install -DskipTests --batch-mode --settings .travis/settings.xml -Possrh
 script: mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh
 after_success:
 - "echo TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST && echo TRAVIS_TAG=$TRAVIS_TAG && [[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} == '' ]] && mvn clean deploy -DskipTests --settings .travis/settings.xml -Possrh -Prelease --batch-mode"
