@@ -12,6 +12,7 @@ cache:
   - "$HOME/build/Talend/component-runtime/component-runtime/component-form/component-form-demo/src/main/frontend/node_modules"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-starter-server/.node"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-starter-server/src/main/frontend/node_modules"
+  - "$HOME/build/Talend/component-runtime/component-studio-integration/.p2localrepository"
 notifications:
   email: false
   slack:
