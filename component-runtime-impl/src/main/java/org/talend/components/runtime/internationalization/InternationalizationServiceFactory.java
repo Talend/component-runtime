@@ -116,8 +116,10 @@ public class InternationalizationServiceFactory {
         }
 
         private Function<Object[], Locale> createLocaleExtractor(final Method method) {
+            Parameter[] parameters = method.getParameters();
             for (int i = 0; i < method.getParameterCount(); i++) {
-                if (method.isAnnotationPresent(Language.class)) {
+                Parameter p = parameters[i];
+                if (p.isAnnotationPresent(Language.class)) {
                     final int idx = i;
                     return params -> Locale.class.cast(params[idx]);
                 }

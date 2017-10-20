@@ -32,7 +32,10 @@ public class ResolverImplTest {
             final Collection<File> deps = new ResolverImpl(null, coord -> new File("maven2", coord))
                     .resolveFromDescriptor(stream);
             assertEquals(1, deps.size());
-            assertEquals("maven2/junit/junit/4.12/junit-4.12.jar", deps.iterator().next().getPath());
+            String sep = File.separator;
+            StringBuilder expectedPath = new StringBuilder().append("maven2").append(sep).append("junit").append(sep)
+                    .append("junit").append(sep).append("4.12").append(sep).append("junit-4.12.jar");
+            assertEquals(expectedPath.toString(), deps.iterator().next().getPath());
         }
     }
 }

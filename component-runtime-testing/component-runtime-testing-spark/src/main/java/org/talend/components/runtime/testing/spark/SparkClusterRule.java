@@ -416,7 +416,8 @@ public class SparkClusterRule extends TemporaryFolder {
                 new Thread(new SurefireWorkaroundOutput(getName(), process.getInputStream())).start();
 
                 int maxRetries = 500;
-                while (!healthCheck.getAsBoolean() && maxRetries-- > 0) {
+                // First try will always return true in Windows, even if the port isn't accessible.
+                while (!healthCheck.getAsBoolean() || !healthCheck.getAsBoolean() && maxRetries-- > 0) {
                     try {
                         process.exitValue();
                         break;

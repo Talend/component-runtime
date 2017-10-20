@@ -97,4 +97,15 @@ class VolatilePipelineOptions implements PipelineOptions {
     public void populateDisplayData(final DisplayData.Builder builder) {
         // no-op
     }
+
+    @Override
+    public String getUserAgent() {
+        // Stub
+        return null;
+    }
+
+    @Override
+    public void setUserAgent(String arg0) {
+        // Stub
+    }
 }

@@ -866,7 +866,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 .filter(Objects::nonNull).findFirst().orElseThrow(
                         () -> new IllegalStateException("No maven environment set, please set one before launching the build"));
         final File mvnScript = new File(mavenHome,
-                "bin/" + (System.getProperty("os.name", "unknown").toLowerCase(ENGLISH).contains("win") ? "mvn.exe" : "mvn"));
+                "bin/" + (System.getProperty("os.name", "unknown").toLowerCase(ENGLISH).contains("win") ? "mvn.cmd" : "mvn"));
         if (!mvnScript.exists()) {
             throw new IllegalStateException(
                     "mvn is not setup on your machine, please set M2_HOME environment variable or maven.home system property");
