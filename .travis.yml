@@ -7,6 +7,11 @@ env:
 cache:
   directories:
   - "$HOME/.m2"
+  - "$HOME/.cache/yarn"
+  - "$HOME/build/Talend/component-runtime/component-runtime/component-form/component-form-demo/.node"
+  - "$HOME/build/Talend/component-runtime/component-runtime/component-form/component-form-demo/src/main/frontend/node_modules"
+  - "$HOME/build/Talend/component-runtime/component-runtime/component-starter-server/.node"
+  - "$HOME/build/Talend/component-runtime/component-runtime/component-starter-server/src/main/frontend/node_modules"
 notifications:
   email: false
   slack:
@@ -15,6 +20,6 @@ notifications:
 before_install:
 - chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
 install: mvn clean install -DskipTests --batch-mode --settings .travis/settings.xml -Possrh
-script: mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh
+script: mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh -Dinvoker.streamLogs=false
 after_success:
 - "echo TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST && echo TRAVIS_TAG=$TRAVIS_TAG && [[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} == '' ]] && mvn clean deploy -DskipTests --settings .travis/settings.xml -Possrh -Prelease --batch-mode"

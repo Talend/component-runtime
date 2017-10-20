@@ -16,6 +16,8 @@
   <properties>
     <maven.version>3.5.0</maven.version>
     <components.version>0.19.7</components.version>
+
+    <invoker.streamLogs>true</invoker.streamLogs>
   </properties>
 
   <dependencies>
@@ -297,7 +299,6 @@ file.write(file.text
             </goals>
             <configuration>
               <showErrors>true</showErrors>
-              <streamLogs>true</streamLogs>
               <projectsDirectory>src/it</projectsDirectory>
               <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
               <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
