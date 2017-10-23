@@ -1,4 +1,10 @@
 = Component Runtime
+:gh-name: Talend/component-api
+:gh-branch: master
+
+ifdef::env-github[]
+image:https://travis-ci.org/{gh-name}.svg?branch={gh-branch}["Build Status", link="https://travis-ci.org/{gh-name}"]
+endif::env-github[]
 
 This brick provides all the integration around `component-api` to run components.
 
