@@ -23,7 +23,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>org.talend.components.studio-integration</artifactId>
+  <artifactId>org.talend.component.studio-integration</artifactId>
   <packaging>bundle</packaging> <!-- let's not use yet eclipse-plugin which implies a p2 repo which is a pain -->
   <name>Component Runtime :: Studio Integration</name>
 

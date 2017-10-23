@@ -52,11 +52,11 @@ import org.talend.component.api.service.completion.Values;
 import org.talend.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.component.api.service.schema.Schema;
 import org.talend.component.api.service.schema.Type;
-import org.talend.components.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
-import org.talend.components.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
-import org.talend.components.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
-import org.talend.components.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
-import org.talend.components.spi.parameter.ParameterExtensionEnricher;
+import org.talend.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
+import org.talend.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
+import org.talend.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
+import org.talend.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
+import org.talend.component.spi.parameter.ParameterExtensionEnricher;
 
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;

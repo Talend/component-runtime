@@ -24,8 +24,8 @@ final INode node = INode.class.cast(codeGenArgument.getArgument());
 final String cid = node.getUniqueName();
 %>
 
-final org.talend.components.runtime.input.Mapper mapper_<%=cid%> = org.talend.components.runtime.input.Mapper.class.cast(globalMap.remove("mapper_<%=cid%>"));
-final org.talend.components.runtime.input.Input input_<%=cid%> = org.talend.components.runtime.input.Input.class.cast(globalMap.remove("input_<%=cid%>"));
+final org.talend.component.runtime.input.Mapper mapper_<%=cid%> = org.talend.component.runtime.input.Mapper.class.cast(globalMap.remove("mapper_<%=cid%>"));
+final org.talend.component.runtime.input.Input input_<%=cid%> = org.talend.component.runtime.input.Input.class.cast(globalMap.remove("input_<%=cid%>"));
 
 boolean swallowNextException_<%=cid%> = false;
 try {

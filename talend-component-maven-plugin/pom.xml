@@ -293,7 +293,7 @@ file.write(file.text
           </execution>
         </executions>
         <configuration>
-          <packageName>org.talend.components.maven.legacy.model</packageName>
+          <packageName>org.talend.component.maven.legacy.model</packageName>
           <sources>
             <source>${project.build.directory}/unpacked/model</source>
           </sources>

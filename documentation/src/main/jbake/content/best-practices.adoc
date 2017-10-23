@@ -18,7 +18,7 @@ Few recommandations apply to the way a component packages are organized:
 [source,java]
 ----
 @Components(family = "jdbc", categories = "Database")
-package org.talend.components.jdbc;
+package org.talend.component.jdbc;
 
 import org.talend.component.api.component.Components;
 ----

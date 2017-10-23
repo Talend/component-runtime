@@ -39,10 +39,10 @@ import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.runtime.avro.ComponentModelToIndexeredRecordConverter;
-import org.talend.components.runtime.input.Input;
-import org.talend.components.runtime.manager.ComponentManager;
-import org.talend.components.runtime.input.Mapper;
+import org.talend.component.runtime.avro.ComponentModelToIndexeredRecordConverter;
+import org.talend.component.runtime.input.Input;
+import org.talend.component.runtime.manager.ComponentManager;
+import org.talend.component.runtime.input.Mapper;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.ValidationResult;
 

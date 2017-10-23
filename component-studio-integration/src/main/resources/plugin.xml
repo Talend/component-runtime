@@ -16,6 +16,6 @@
 <?eclipse version="3.4"?>
 <plugin>
   <extension point="org.talend.designer.core.process_provider">
-    <ProcessProvider pluginId="${project.artifactId}" class="org.talend.components.studio.TaCoKitGenericProvider" />
+    <ProcessProvider pluginId="${project.artifactId}" class="org.talend.component.studio.TaCoKitGenericProvider" />
   </extension>
 </plugin>

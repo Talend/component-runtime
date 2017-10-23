@@ -98,7 +98,7 @@ Then you can define a standard JUnit test and use the `SimpleComponentRule` rule
 public class MyComponentTest {
 
     @Rule <1>
-    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.components.mycomponent.");
+    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.component.mycomponent.");
 
     @Test
     public void produce() {
@@ -135,7 +135,7 @@ The input mocking is symmetric to the output but here you provide the data you w
 public class MyComponentTest {
 
     @Rule
-    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.components.mycomponent.");
+    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.component.mycomponent.");
 
     @Test
     public void produce() {

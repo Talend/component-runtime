@@ -38,7 +38,7 @@ for (final IConnection connection : node.getIncomingConnections(EConnectionType.
 %>
 final java.util.concurrent.atomic.AtomicReference<<%= connection.getName() %>Struct> <%= connection.getName() %>InputRef_<%=cid%> = new java.util.concurrent.atomic.AtomicReference<>(<%= connection.getName() %>);
 <% } %>
-final org.talend.components.runtime.output.InputFactory inputs_<%=cid%> = new org.talend.components.runtime.output.InputFactory() {
+final org.talend.component.runtime.output.InputFactory inputs_<%=cid%> = new org.talend.component.runtime.output.InputFactory() {
     private final java.util.Iterator<java.util.concurrent.atomic.AtomicReference<?>> values = new java.util.ArrayList<java.util.concurrent.atomic.AtomicReference<?>>() {{
         <%
         for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
@@ -58,7 +58,7 @@ final org.talend.components.runtime.output.InputFactory inputs_<%=cid%> = new or
         }
         return org.talend.component.api.processor.data.ObjectMap.class.isInstance(value)?
             org.talend.component.api.processor.data.ObjectMap.class.cast(value) :
-            new org.talend.components.runtime.output.data.ObjectMapImpl(
+            new org.talend.component.runtime.output.data.ObjectMapImpl(
                           processor_<%=cid%>.plugin(), value,
                           accessorCache_<%=cid%>);
     }
@@ -75,7 +75,7 @@ final java.util.concurrent.atomic.AtomicReference<> <%= connection.getName() %>O
 <% } %>
 
 <%/*here the assumption is tcomp only calls create once per output which should be the case*/%>
-final org.talend.components.runtime.output.OutputFactory outputs_<%=cid%> = new org.talend.components.runtime.output.OutputFactory() {
+final org.talend.component.runtime.output.OutputFactory outputs_<%=cid%> = new org.talend.component.runtime.output.OutputFactory() {
     <%/* link the studio indexed outputs to the tcomp ones which should rely on names, for now assume ordering is respected (guaranteed by getParameters() */%>
     private final java.util.Iterator<org.talend.component.api.processor.OutputEmitter> emitters = new java.util.ArrayList<org.talend.component.api.processor.OutputEmitter>() {{
         <%
@@ -91,7 +91,7 @@ final org.talend.components.runtime.output.OutputFactory outputs_<%=cid%> = new 
                 final org.talend.component.api.processor.data.ObjectMap objectMap =
                     org.talend.component.api.processor.data.ObjectMap.class.isInstance(value)?
                     org.talend.component.api.processor.data.ObjectMap.class.cast(value) :
-                    new org.talend.components.runtime.output.data.ObjectMapImpl(
+                    new org.talend.component.runtime.output.data.ObjectMapImpl(
                                   processor_<%=cid%>.plugin(), value,
                                   accessorCache_<%=cid%>)
 

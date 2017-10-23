@@ -106,7 +106,7 @@ public class WrapRead extends PTransform<PCollection<String>, PDone> {
 
 == Tip
 
-Note that the class `org.talend.components.runtime.beam.transform.DelegatingTransform` fully delegates
+Note that the class `org.talend.component.runtime.beam.transform.DelegatingTransform` fully delegates
 to another transform the "expansion". Therefore you can extend it and just implement the configuration mapping:
 
 [source,java]

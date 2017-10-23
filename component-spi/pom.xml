@@ -39,7 +39,7 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Import-Package>!org.talend.components.spi.*</Import-Package>
+            <Import-Package>!org.talend.component.spi.*</Import-Package>
           </instructions>
         </configuration>
       </plugin>

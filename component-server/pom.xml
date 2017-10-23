@@ -224,7 +224,7 @@
             <configuration>
               <classifier>model</classifier>
               <includes>
-                <include>org/talend/components/server/front/model/**/*.class</include>
+                <include>org/talend/component/server/front/model/**/*.class</include>
               </includes>
             </configuration>
           </execution>

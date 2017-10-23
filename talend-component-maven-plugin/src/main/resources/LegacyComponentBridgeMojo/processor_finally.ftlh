@@ -22,7 +22,7 @@
 final String cid = INode.class.cast(CodeGeneratorArgument.class.cast(argument).getArgument()).getUniqueName();
 %>
 
-final org.talend.components.runtime.di.AutoChunkProcessor processor_<%=cid%> = org.talend.components.runtime.di.AutoChunkProcessor.class.cast(globalMap.remove("processor_<%=cid%>"));
+final org.talend.component.runtime.di.AutoChunkProcessor processor_<%=cid%> = org.talend.component.runtime.di.AutoChunkProcessor.class.cast(globalMap.remove("processor_<%=cid%>"));
 try {
     if (processor_<%=cid%> != null) {
         processor_<%=cid%>.stop();

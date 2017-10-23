@@ -125,7 +125,7 @@
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
                 <transformer
-                    implementation="org.talend.components.container.maven.shade.ContainerDependenciesTransformer">
+                    implementation="org.talend.component.container.maven.shade.ContainerDependenciesTransformer">
                   <session>${session}</session>
                   <userArtifacts>
                     <artifact>
@@ -136,7 +136,7 @@
                     </artifact>
                   </userArtifacts>
                 </transformer>
-                <transformer implementation="org.talend.components.container.maven.shade.PluginTransformer">
+                <transformer implementation="org.talend.component.container.maven.shade.PluginTransformer">
                   <session>${session}</session>
                   <userArtifacts>
                     <artifact>
