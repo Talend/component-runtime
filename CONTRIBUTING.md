@@ -31,7 +31,7 @@ We have an official message board with a detailed FAQ and where the community ch
 ### Design Decisions
 
 If you want to do a change which is impacting the overall design of the project,
-you can want to open an issue and start discussing the changes before creating
+you may want to open an issue and start discussing the changes before creating
 a pull-request.
 
 ## How Can I Contribute?
