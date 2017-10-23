@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+   Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -87,7 +101,7 @@
         <artifactId>maven-install-plugin</artifactId>
         <version>2.5.2</version>
         <configuration>
-          <skip>true</skip> <!-- until we know how we deploy it -->
+          <skip>true</skip>
         </configuration>
       </plugin>
       <plugin>
@@ -118,7 +132,7 @@
         <executions>
           <execution>
             <id>generate-doc</id>
-            <phase>pre-site</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>generate</goal>
             </goals>
@@ -167,7 +181,7 @@
         <executions>
           <execution>
             <id>install-asciidoctor-revealjs</id>
-            <phase>pre-site</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>wget</goal>
             </goals>
@@ -181,7 +195,7 @@
           </execution>
           <execution>
             <id>install-revealjs</id>
-            <phase>pre-site</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>wget</goal>
             </goals>
@@ -201,7 +215,7 @@
         <executions>
           <execution><!-- ensure we don't have the reveal.js version to override easily the theme -->
             <id>setup-reveal.js</id>
-            <phase>pre-site</phase>
+            <phase>prepare-package</phase>
             <configuration>
               <target>
                 <copy todir="${project.build.directory}/${project.build.finalName}/presentations/overview/reveal.js">
@@ -243,7 +257,7 @@
         <executions>
           <execution> <!-- mvn asciidoctor:http@slides#overview -->
             <id>slides#overview</id>
-            <phase>pre-site</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>process-asciidoc</goal>
             </goals>
@@ -267,7 +281,7 @@
           </execution>
           <execution>
             <id>slides#programming-model</id>
-            <phase>pre-site</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>process-asciidoc</goal>
             </goals>
@@ -294,7 +308,7 @@
           </execution>
           <execution>
             <id>slides#packaging</id>
-            <phase>pre-site</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>process-asciidoc</goal>
             </goals>
@@ -321,7 +335,7 @@
           </execution>
           <execution>
             <id>slides#testing</id>
-            <phase>pre-site</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>process-asciidoc</goal>
             </goals>

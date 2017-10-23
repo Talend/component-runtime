@@ -4,3 +4,4 @@
 package {{package}};
 
 import org.talend.component.api.component.Components;
+

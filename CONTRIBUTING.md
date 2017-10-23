@@ -2,7 +2,7 @@
 
 :+1::tada: First off, thanks for taking the time to contribute! :tada::+1:
 
-The following is a set of guidelines for contributing to Component API on Github.
+The following is a set of guidelines for contributing to Component Runtime project on Github.
 These are mostly guidelines, not rules.
 Use your best judgment, and feel free to propose changes to this document in a pull request.
 
@@ -58,7 +58,7 @@ To enable maintainers to work on it faster, the minimum to explain in the issue 
 ### Suggesting Enhancements
 
 The framework follows user needs and will evolve from time to time. It has been designed for that
-and it should be painless to enrich the API. However before adding an enhancement we must ensure a few things:
+and it should be painless to enrich the framework. However before adding an enhancement we must ensure a few things:
 
 - for runtime features, it is doable in standalone **and** in big data context
 - for UI features, it is implementable for web frontends as well as standalone (Eclipse RCP) frontends
