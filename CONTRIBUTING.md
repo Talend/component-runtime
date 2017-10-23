@@ -53,7 +53,7 @@ To enable maintainers to work on it faster, the minimum to explain in the issue 
 - the expected behavior
 - the encountered behavior
 - the steps to let them reproduce the issue.
-- (if you can) push on github a small project reproducing the issue (with a failling unit test), it will increase a lot the resolution speed.
+- (if you can) push on github a small project reproducing the issue (with a failing unit test), it will increase a lot the resolution speed.
 
 ### Suggesting Enhancements
 
@@ -71,7 +71,7 @@ describing the enhancement as precisely as possible.
 To contribute any code, the process is fully aligned on standard github practices:
 
 - you fork the project on your own github account
-- you create a branch, it is recommanded to name it `fix/<issue number>_<description>` for a bugfix or `feature/<issue number>_<description>` for an enhancement
+- you create a branch, it is recommended to name it `fix/<issue number>_<description>` for a bugfix or `feature/<issue number>_<description>` for an enhancement
 - you push your local branch on your personal repository
 - you create a pull request from this branch on this repository (upstream). Don't forget to reference the issue number in the PR title.
 
