@@ -1148,6 +1148,7 @@ adding the corresponding flags to `false` in the `<configuration>` block of the 
 |validateMetadata|Ensure components define an `@Icon` and `@Version`.|true
 |validateDataStore|Ensure any  `@DataStore` defines a `@HealthCheck`.|true
 |validateComponent|Ensure native programming model is respected, you can disable it when using another programming model like in beam case.|true
+|validateActions|Validate actions signatures for the ones not tolerating dynamic binding (`@HealthCheck`, `@DynamicValues`, ...). It is recommanded to keep it `true`.|true
 |===
 
 === Prepare
