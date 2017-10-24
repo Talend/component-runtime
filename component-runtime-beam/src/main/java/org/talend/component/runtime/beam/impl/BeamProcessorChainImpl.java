@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import org.apache.beam.sdk.coders.CannotProvideCoderException;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.CoderRegistry;
+import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
@@ -193,7 +194,7 @@ public class BeamProcessorChainImpl implements Processor, Serializable, Delegate
 
     private static Collection<DoFn<?, ?>> extractDoFn(final PTransform<PCollection<?>, ?> transform,
             final CoderRegistry coderRegistry) {
-        final CapturingPipeline capturingPipeline = new CapturingPipeline(new VolatilePipelineOptions());
+        final CapturingPipeline capturingPipeline = new CapturingPipeline(PipelineOptionsFactory.create());
         if (coderRegistry != null) {
             capturingPipeline.setCoderRegistry(coderRegistry);
         }

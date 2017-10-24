@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.component.runtime.beam.impl;
 
@@ -30,6 +30,8 @@ import org.apache.beam.sdk.io.BoundedSource;
 import org.apache.beam.sdk.io.Read;
 import org.apache.beam.sdk.io.Source;
 import org.apache.beam.sdk.io.UnboundedSource;
+import org.apache.beam.sdk.options.PipelineOptions;
+import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.talend.component.runtime.base.Delegated;
@@ -45,7 +47,7 @@ import lombok.Data;
 
 public class BeamMapperImpl implements Mapper, Serializable, Delegated {
 
-    private final VolatilePipelineOptions options = new VolatilePipelineOptions();
+    private final PipelineOptions options = PipelineOptionsFactory.create();
 
     private final Object original;
 
@@ -77,7 +79,9 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
     public long assess() {
         return execute(() -> {
             try {
-                return BoundedSource.class.isInstance(flow.source) ? BoundedSource.class.cast(flow.source).getEstimatedSizeBytes(options) : 1;
+                return BoundedSource.class.isInstance(flow.source)
+                        ? BoundedSource.class.cast(flow.source).getEstimatedSizeBytes(options)
+                        : 1;
             } catch (final Exception e) {
                 throw new IllegalStateException(e);
             }
@@ -93,9 +97,9 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
     public Input create() {
         return execute(() -> {
             try {
-                final Source.Reader<?> reader = BoundedSource.class.isInstance(flow.source) ?
-                        BoundedSource.class.cast(flow.source).createReader(options) :
-                        UnboundedSource.class.cast(flow.source).createReader(options, null);
+                final Source.Reader<?> reader = BoundedSource.class.isInstance(flow.source)
+                        ? BoundedSource.class.cast(flow.source).createReader(options)
+                        : UnboundedSource.class.cast(flow.source).createReader(options, null);
                 return new BeamInput(reader, flow.processor, plugin, family, name, loader);
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
@@ -155,7 +159,7 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
 
     private static FlowDefinition createFlowDefinition(final PTransform<PBegin, ?> begin, final String plugin,
             final String family, final String name) {
-        final CapturingPipeline capturingPipeline = new CapturingPipeline(new VolatilePipelineOptions());
+        final CapturingPipeline capturingPipeline = new CapturingPipeline(PipelineOptionsFactory.create());
         final CapturingPipeline.SourceExtractor sourceExtractor = new CapturingPipeline.SourceExtractor();
         capturingPipeline.apply(begin);
         capturingPipeline.traverseTopologically(sourceExtractor);
