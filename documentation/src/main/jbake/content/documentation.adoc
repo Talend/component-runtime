@@ -1146,6 +1146,8 @@ adding the corresponding flags to `false` in the `<configuration>` block of the 
 |validateModel|Ensure components pass validations of the `ComponentManager` and Talend Component runtime|true
 |validateSerializable|Ensure components are `Serializable` - note this is a sanity check, the component is not actually serialized here, if you have a doubt ensure to test it. It also checks any `@Internationalized` class is valid and has its keys.|true
 |validateMetadata|Ensure components define an `@Icon` and `@Version`.|true
+|validateDataStore|Ensure any  `@DataStore` defines a `@HealthCheck`.|true
+|validateComponent|Ensure native programming model is respected, you can disable it when using another programming model like in beam case.|true
 |===
 
 === Prepare

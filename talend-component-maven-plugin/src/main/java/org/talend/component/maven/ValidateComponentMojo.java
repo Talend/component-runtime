@@ -28,11 +28,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -43,7 +45,9 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.component.api.component.Components;
 import org.talend.component.api.component.Icon;
 import org.talend.component.api.component.Version;
+import org.talend.component.api.configuration.type.DataStore;
 import org.talend.component.api.internationalization.Internationalized;
+import org.talend.component.api.service.healthcheck.HealthCheck;
 import org.talend.component.runtime.visitor.ModelListener;
 import org.talend.component.runtime.visitor.ModelVisitor;
 
@@ -83,6 +87,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
      */
     @Parameter(defaultValue = "true", property = "talend.validation.component")
     private boolean validateComponent;
+
+    /**
+     * Should component model be validated deeply or not (useful for beam components).
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.datastore")
+    private boolean validateDataStore;
 
     /**
      * Should component actions be validated .
@@ -174,6 +184,20 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
                     throw new IllegalArgumentException("Component " + component + " should use @Icon and @Version");
                 }
             });
+        }
+
+        if (validateDataStore) {
+            final Set<String> datastores = finder.findAnnotatedClasses(DataStore.class).stream()
+                                                 .map(d -> d.getAnnotation(DataStore.class).value())
+                                                 .collect(toSet());
+            final Set<String> healthchecks = finder.findAnnotatedMethods(HealthCheck.class).stream()
+                                                   .map(m -> m.getAnnotation(HealthCheck.class).value())
+                                                   .collect(toSet());
+            if (!healthchecks.containsAll(datastores)) {
+                final Set<String> missing = new HashSet<>(datastores);
+                datastores.removeAll(healthchecks);
+                throw new MojoExecutionException("No @HealthCheck for " + missing + " datastores");
+            }
         }
     }
 
