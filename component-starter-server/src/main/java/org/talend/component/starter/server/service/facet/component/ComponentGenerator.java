@@ -16,9 +16,11 @@
 package org.talend.component.starter.server.service.facet.component;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 
 import java.util.ArrayList;
@@ -44,9 +46,8 @@ public class ComponentGenerator {
     @Inject
     private TemplateRenderer tpl;
 
-    public Stream<FacetGenerator.InMemoryFile> create(final String packageBase, final Build build,
-            final Collection<String> facets, final String family, final String category,
-            final Collection<ProjectRequest.SourceConfiguration> sources,
+    public Stream<FacetGenerator.InMemoryFile> create(final String packageBase, final Build build, final String family,
+            final String category, final Collection<ProjectRequest.SourceConfiguration> sources,
             final Collection<ProjectRequest.ProcessorConfiguration> processors) {
         final String mainJava = build.getMainJavaDirectory() + '/' + packageBase.replace('.', '/');
 
@@ -67,79 +68,106 @@ public class ComponentGenerator {
                     }
                 }));
 
-        return Stream
-                .concat(Stream.of(packageInfo, new FacetGenerator.InMemoryFile(mainJava + "/service/" + serviceName + ".java",
-                        tpl.render("generator/component/Service.java", new HashMap<String, Object>() {
+        final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
+        files.add(packageInfo);
+        files.add(new FacetGenerator.InMemoryFile(mainJava + "/service/" + serviceName + ".java",
+                tpl.render("generator/component/Service.java", new HashMap<String, Object>() {
 
-                            {
-                                put("className", serviceName);
-                                put("package", packageBase + ".service");
-                            }
-                        }))),
-                        Stream.concat(
-                                sources == null ? Stream.empty() : createSourceFiles(packageBase, sources, mainJava, serviceName),
-                                processors == null ? Stream.empty()
-                                        : createProcessorFiles(packageBase, processors, mainJava, serviceName)));
+                    {
+                        put("className", serviceName);
+                        put("package", packageBase + ".service");
+                    }
+                })));
+
+        // boolean needsObjectMapImpl = false; // we have a default impl in api, no need to generate one
+        if (sources != null && !sources.isEmpty()) {
+            files.addAll(createSourceFiles(packageBase, sources, mainJava, serviceName).collect(toList()));
+            // needsObjectMapImpl = sources.stream().anyMatch(ProjectRequest.SourceConfiguration::isGenericOutput);
+        }
+        if (processors != null && !processors.isEmpty()) {
+            files.addAll(createProcessorFiles(packageBase, processors, mainJava, serviceName).collect(toList()));
+            /*
+             * if (!needsObjectMapImpl) {
+             * needsObjectMapImpl = processors.stream().anyMatch(ProjectRequest.ProcessorConfiguration::isGenericOutputs);
+             * }
+             */
+        }
+
+        return files.stream();
     }
 
     private Stream<FacetGenerator.InMemoryFile> createProcessorFiles(final String packageBase,
             final Collection<ProjectRequest.ProcessorConfiguration> processors, final String mainJava, final String serviceName) {
         return processors.stream().flatMap(processor -> {
+            final boolean isOutput = processor.getOutputStructures() == null || processor.getOutputStructures().isEmpty();
+
             final String baseName = toJavaName(processor.getName());
             final String className = baseName + "Processor";
             final String configurationClassName = className + "Configuration";
-            final String modelClassName = baseName + "Record";
-            // todo: inputs/outputs/templates etc
+            final String processorFinalPackage = isOutput ? "output" : "processor";
+            final String processorPackage = packageBase + "." + processorFinalPackage;
 
-            return Stream.of(new FacetGenerator.InMemoryFile(mainJava + "/processor/" + className + ".java",
+            final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
+
+            final Collection<Connection> outputNames = !isOutput ? processor.getOutputStructures().entrySet().stream().map(e -> {
+                final String javaName = sanitizeConnectionName(e.getKey());
+                if (e.getValue().isGeneric()) {
+                    return new Connection(e.getKey(), javaName, "ObjectMap");
+                }
+
+                final String outputClassName = capitalize(processor.getName() + capitalize(javaName + "Output"));
+                generateModel(null, processorPackage, mainJava, e.getValue().getStructure(), outputClassName, files);
+                return new Connection(e.getKey(), javaName, outputClassName);
+            }).collect(toSet()) : emptySet();
+
+            final Collection<Connection> inputNames = processor.getInputStructures() != null
+                    ? processor.getInputStructures().entrySet().stream().map(e -> {
+                        final String javaName = sanitizeConnectionName(e.getKey());
+                        if (e.getValue().isGeneric()) {
+                            return new Connection(e.getKey(), javaName, "ObjectMap");
+                        }
+
+                        final String inputClassName = capitalize(processor.getName() + capitalize(javaName + "Input"));
+                        generateModel(null, processorPackage, mainJava, e.getValue().getStructure(), inputClassName, files);
+                        return new Connection(e.getKey(), javaName, inputClassName);
+                    }).collect(toSet())
+                    : emptySet();
+
+            generateConfiguration(null, processorPackage, mainJava, processor.getConfiguration(), configurationClassName, files);
+
+            files.add(new FacetGenerator.InMemoryFile(mainJava + "/" + processorFinalPackage + "/" + className + ".java",
                     tpl.render("generator/component/Processor.java", new HashMap<String, Object>() {
 
                         {
+                            put("name", processor.getName());
                             put("className", className);
-                            put("package", packageBase + ".source");
+                            put("package", packageBase + "." + processorFinalPackage);
                             put("serviceName", serviceName);
                             put("servicePackage", packageBase + ".service");
                             put("configurationName", configurationClassName);
-                            put("modelName", modelClassName);
+                            put("outputs", outputNames);
+                            put("inputs", inputNames);
+                            put("icon", ofNullable(processor.getIcon()).filter(s -> !s.isEmpty()).orElse("Icon.IconType.STAR"));
+                            put("generic", outputNames.stream().anyMatch(o -> o.type.equals("ObjectMap"))
+                                    || inputNames.stream().anyMatch(o -> o.type.equals("ObjectMap")));
                         }
-                    })), new FacetGenerator.InMemoryFile(mainJava + "/processor/" + configurationClassName + ".java",
-                            tpl.render("generator/component/Configuration.java", new HashMap<String, Object>() {
+                    })));
 
-                                {
-                                    put("className", className);
-                                    put("package", packageBase + ".source");
-                                    // TODO: configurable configuration
-                                }
-                            })));
-            /*
-             * ,
-             * new InMemoryFile(mainJava + "/source/" + modelClassName + ".java",
-             * tpl.render("generator/component/Model.java", new HashMap<String, Object>() {
-             * 
-             * {
-             * put("className", className);
-             * put("package", packageBase + ".source");
-             * put("generic", processor.isGenericOutput());
-             * if (!processor.isGenericOutput() && processor.getOutputStructure() != null
-             * && processor.getOutputStructure().getEntries() != null) {
-             * put("structure", processor.getOutputStructure().getEntries().stream()
-             * .map(e -> new Property(e.getName(), capitalize(e.getName()), toJavaType(e.getType())))
-             * .collect(toList()));
-             * }
-             * }
-             * }))
-             */
+            return files.stream();
         });
     }
 
     private Stream<FacetGenerator.InMemoryFile> createSourceFiles(final String packageBase,
             final Collection<ProjectRequest.SourceConfiguration> sources, final String mainJava, final String serviceName) {
         return sources.stream().flatMap(source -> {
+            final boolean generic = source.getOutputStructure() == null || source.getOutputStructure().isGeneric()
+                    || source.getOutputStructure().getStructure() == null;
+
             final String baseName = toJavaName(source.getName());
             final String sourceName = baseName + "Source";
             final String mapperName = baseName + "Mapper";
             final String configurationClassName = sourceName + "Configuration";
-            final String modelClassName = source.isGenericOutput() ? "ObjectMap" : baseName + "Record";
+            final String modelClassName = generic ? "ObjectMap" : baseName + "Record";
             final String sourcePackage = packageBase + ".source";
 
             final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
@@ -147,6 +175,7 @@ public class ComponentGenerator {
                     tpl.render("generator/component/Mapper.java", new HashMap<String, Object>() {
 
                         {
+                            put("name", source.getName());
                             put("className", mapperName);
                             put("package", sourcePackage);
                             put("serviceName", serviceName);
@@ -166,11 +195,11 @@ public class ComponentGenerator {
                             put("servicePackage", packageBase + ".service");
                             put("configurationName", configurationClassName);
                             put("modelName", modelClassName);
-                            put("generic", source.isGenericOutput());
+                            put("generic", generic);
                         }
                     })));
             generateConfiguration(null, sourcePackage, mainJava, source.getConfiguration(), configurationClassName, files);
-            generateModel(null, sourcePackage, mainJava, source.isGenericOutput() ? null : source.getOutputStructure(),
+            generateModel(null, sourcePackage, mainJava, generic ? null : source.getOutputStructure().getStructure(),
                     modelClassName, files);
             return files.stream();
         });
@@ -179,7 +208,8 @@ public class ComponentGenerator {
     private void generateModel(final String root, final String packageBase, final String mainJava,
             final ProjectRequest.DataStructure structure, final String modelClassName,
             final Collection<FacetGenerator.InMemoryFile> files) {
-        files.add(new FacetGenerator.InMemoryFile(mainJava + "/source/" + modelClassName + ".java",
+        files.add(new FacetGenerator.InMemoryFile(
+                mainJava + "/" + packageBase.substring(packageBase.lastIndexOf('.') + 1) + "/" + modelClassName + ".java",
                 tpl.render("generator/component/Model.java", new HashMap<String, Object>() {
 
                     {
@@ -203,7 +233,8 @@ public class ComponentGenerator {
     private void generateConfiguration(final String root, final String packageBase, final String mainJava,
             final ProjectRequest.DataStructure structure, final String configurationClassName,
             final Collection<FacetGenerator.InMemoryFile> files) {
-        files.add(new FacetGenerator.InMemoryFile(mainJava + "/source/" + configurationClassName + ".java",
+        files.add(new FacetGenerator.InMemoryFile(
+                mainJava + "/" + packageBase.substring(packageBase.lastIndexOf('.') + 1) + "/" + configurationClassName + ".java",
                 tpl.render("generator/component/Configuration.java", new HashMap<String, Object>() {
 
                     {
@@ -240,6 +271,7 @@ public class ComponentGenerator {
             return "boolean";
         case "double":
             return "double";
+        case "int":
         case "integer":
             return "int";
         case "uri": // todo: import
@@ -258,6 +290,10 @@ public class ComponentGenerator {
         return capitalize(name.replace("-", "_").replace(" ", "_"));
     }
 
+    private String sanitizeConnectionName(final String name) {
+        return name.replace("_", "").replace(" ", "");
+    }
+
     @Data
     @AllArgsConstructor
     public static class Property {
@@ -265,6 +301,17 @@ public class ComponentGenerator {
         private final String name;
 
         private final String methodName;
+
+        private final String type;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class Connection {
+
+        private final String name;
+
+        private final String javaName;
 
         private final String type;
     }

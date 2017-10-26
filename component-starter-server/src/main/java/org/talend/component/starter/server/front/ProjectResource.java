@@ -16,6 +16,7 @@
 package org.talend.component.starter.server.front;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -105,25 +106,39 @@ public class ProjectResource {
                         ofNullable(model.getVersion()).orElse("0.0.1-SNAPSHOT"), "1.8"),
                 ofNullable(model.getPackageBase()).orElse("com.application").replace('/', '.'),
                 ofNullable(model.getFacets()).orElse(emptyList()),
-                ofNullable(model.getSources()).map(s -> s.stream()
-                        .map(i -> new ProjectRequest.SourceConfiguration(i.getName(), i.getIcon(), i.isGenericOutput(),
-                                toStructure(i.getConfigurationStructure()), toStructure(i.getOutputStructure())))
-                        .collect(toList())).orElse(emptyList()),
-                ofNullable(model.getProcessors()).map(s -> s.stream()
-                        .map(i -> new ProjectRequest.ProcessorConfiguration(i.getName(), i.getIcon(),
-                                toStructure(i.getConfigurationStructure()), i.isGenericInputs(), i.isGenericOutputs(),
-                                i.getInputs(), i.getOutputs(),
-                                ofNullable(i.getInputStructures()).map(is -> is.stream().map(this::toStructure).collect(toList()))
-                                        .orElse(emptyList()),
-                                ofNullable(i.getOutputStructures())
-                                        .map(is -> is.stream().map(this::toStructure).collect(toList())).orElse(emptyList())))
-                        .collect(toList())).orElse(emptyList()),
+                ofNullable(model.getSources())
+                        .map(s -> s.stream()
+                                .map(i -> new ProjectRequest.SourceConfiguration(i.getName(), i.getIcon(),
+                                        toStructure(false, i.getConfigurationStructure()).getStructure(),
+                                        toStructure(i.isGenericOutput(), i.getOutputStructure())))
+                                .collect(toList()))
+                        .orElse(emptyList()),
+                ofNullable(model.getProcessors())
+                        .map(s -> s.stream()
+                                .map(i -> new ProjectRequest.ProcessorConfiguration(i.getName(), i.getIcon(),
+                                        toStructure(false, i.getConfigurationStructure()).getStructure(),
+                                        ofNullable(i.getInputStructures())
+                                                .map(is -> is.stream()
+                                                        .collect(toMap(ProjectModel.NamedModel::getName,
+                                                                nm -> toStructure(nm.isGeneric(), nm.getStructure()))))
+                                                .orElse(emptyMap()),
+                                        ofNullable(i.getOutputStructures())
+                                                .map(is -> is.stream()
+                                                        .collect(toMap(ProjectModel.NamedModel::getName,
+                                                                nm -> toStructure(nm.isGeneric(), nm.getStructure()))))
+                                                .orElse(emptyMap())))
+                                .collect(toList()))
+                        .orElse(emptyList()),
                 model.getFamily(), model.getCategory());
     }
 
-    private ProjectRequest.DataStructure toStructure(final ProjectModel.Model model) {
-        return new ProjectRequest.DataStructure(model.getEntries() == null ? emptyList()
-                : model.getEntries().stream().map(e -> new ProjectRequest.Entry(e.getName(), e.getType(),
-                        e.getModel() != null ? toStructure(e.getModel()) : null)).collect(toList()));
+    private ProjectRequest.StructureConfiguration toStructure(final boolean generic, final ProjectModel.Model model) {
+        return new ProjectRequest.StructureConfiguration(!generic ? new ProjectRequest.DataStructure(model.getEntries() == null
+                ? emptyList()
+                : model.getEntries().stream()
+                        .map(e -> new ProjectRequest.Entry(e.getName(), e.getType(),
+                                e.getModel() != null ? toStructure(false, e.getModel()).getStructure() : null))
+                        .collect(toList()))
+                : null, generic);
     }
 }
