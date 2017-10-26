@@ -3,22 +3,24 @@ package {{package}};
 import java.util.List;
 
 import org.talend.component.api.configuration.Option;
-import org.talend.component.api.configuration.ui.OptionsOrder;
+import org.talend.component.api.configuration.ui.layout.GridLayout;
 
 // generated configuration with query and addresses options, customize it to your need
-@OptionsOrder({ "query", "addresses" })
+@GridLayout({
+    // the generated layout put one configuration entry per line,
+    // customize it as much as needed{{#structure}}
+    @GridLayout.Row({ "{{name}}" }){{^-last}},{{/-last}}{{/structure}}
+})
 public class {{className}} {
+    {{#structure}}
     @Option
-    private String query;
+    private {{type}} {{name}};{{^-last}}
 
-    @Option
-    private List<String> addresses;
+{{/-last}}{{/structure}}
+    {{#structure}}
 
-    public String getQuery() {
-        return query;
+    public {{type}} {{methodName}}() {
+        return {{name}};
     }
-
-    public List<String> getAddresses() {
-        return addresses;
-    }
+{{/structure}}
 }

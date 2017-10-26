@@ -138,11 +138,10 @@ public class ProjectGenerator {
             files.put("README.adoc", readmeGenerator.createReadme(request.getBuildConfiguration().getName(), filePerFacet));
         }
 
-        filePerFacet.put(componentGenerator,
-                componentGenerator.create(request.getPackageBase(), build, facets, request.getSources(), request.getProcessors())
-                                  .peek(file -> files.put(file.getPath(), file.getContent()))
-                                  .map(FacetGenerator.InMemoryFile::getPath)
-                                  .collect(toList()));
+        componentGenerator.create(
+                request.getPackageBase(), build, facets, request.getFamily(), request.getCategory(),
+                request.getSources(), request.getProcessors())
+                          .forEach(file -> files.put(file.getPath(), file.getContent()));
 
         // now create the zip prefixing it with the artifact value
         final String rootName = request.getBuildConfiguration().getArtifact();

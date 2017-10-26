@@ -30,6 +30,8 @@ public class ProjectModel {
     private String name;
     private String description;
     private String packageBase;
+    private String family;
+    private String category;
     // private String packaging; // jar only for now
     // private String javaVersion; // enforce to java 8 for now
     private Collection<String> facets;
@@ -42,7 +44,11 @@ public class ProjectModel {
 
         private final String name;
 
+        private final String icon;
+
         private final boolean genericOutput;
+
+        private final Model configurationStructure;
 
         private final Model outputStructure;
     }
@@ -61,6 +67,8 @@ public class ProjectModel {
         private final String name;
 
         private final String type;
+
+        private final Model model;
     }
 
     @Getter
@@ -68,6 +76,10 @@ public class ProjectModel {
     public static class Processor {
 
         private final String name;
+
+        private final String icon;
+
+        private final Model configurationStructure;
 
         private final boolean genericInputs;
 

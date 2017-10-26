@@ -16,8 +16,8 @@ import {{servicePackage}}.{{serviceName}};
 //
 // this class role is to enable the work to be distributed in environments supporting it.
 //
-@Version
-@Icon(Icon.IconType.DB_INPUT)
+@Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
+@Icon({{icon}}) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename_icon32.png in resources
 @PartitionMapper(name = "input")
 public class {{className}} implements Serializable {
     private final {{configurationName}} configuration;

@@ -3,7 +3,8 @@ package {{package}};
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.talend.component.api.input.Producer;
+import org.talend.component.api.input.Producer;{{#generic}}
+import org.talend.component.api.processor.data.ObjectMap;{{/generic}}
 
 import {{servicePackage}}.{{serviceName}};
 
@@ -24,7 +25,7 @@ public class {{className}} implements Serializable {
     }
 
     @Producer
-    public {{modelName} next() {
+    public {{modelName}} next() {
         // this is the method allowing you to go through the dataset associated
         // to the component configuration
         //
