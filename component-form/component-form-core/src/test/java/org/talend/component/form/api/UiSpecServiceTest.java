@@ -1,21 +1,23 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.component.form.api;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -52,6 +54,9 @@ public class UiSpecServiceTest {
         @Override
         public Map<String, Object> action(final String family, final String type, final String action,
                 final Map<String, Object> params) {
+            if ("jdbc".equals(family) && "dynamic_values".equals(type) && "driver".equals(action)) {
+                return singletonMap("items", singleton(singletonMap("value", "some.driver.Jdbc")));
+            }
             return params;
         }
 
@@ -181,6 +186,12 @@ public class UiSpecServiceTest {
                 assertUiSchema(connectionIt.next(), "datalist", "driver", "configuration.connection.driver", 0, driver -> {
                     assertNotNull(driver.getTriggers());
                     assertEquals(1, driver.getTriggers().size());
+                    final Collection<UiSpecPayload.NameValue> titleMap = driver.getTitleMap();
+                    assertEquals(1, titleMap.size());
+                    final UiSpecPayload.NameValue firstTitleMap = titleMap.iterator().next();
+                    assertEquals("some.driver.Jdbc", firstTitleMap.getName());
+                    assertEquals("some.driver.Jdbc", firstTitleMap.getValue());
+
                     final UiSpecPayload.Trigger trigger = driver.getTriggers().iterator().next();
                     assertEquals("driver", trigger.getAction());
                     assertEquals("jdbc", trigger.getFamily());
