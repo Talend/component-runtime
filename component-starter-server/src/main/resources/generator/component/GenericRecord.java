@@ -1,9 +1,6 @@
 package {{package}};
 
-import java.util.List;
-
-import org.talend.component.api.configuration.Option;
-import org.talend.component.api.configuration.ui.layout.GridLayout;
+import org.talend.component.api.processor.data.ObjectMap;
 
 // generated configuration with query and addresses options, customize it to your need
 @GridLayout({

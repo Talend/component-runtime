@@ -64,6 +64,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("axis-");
             add("axis2-");
             add("batchee-jbatch");
+            add("batik-");
             add("bcprov-");
             add("beam-sdks-");
             add("beam-runners-");
@@ -80,6 +81,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("charsets.jar");
             add("cldrdata");
             add("commons-");
+            add("components-api");
             add("component-api");
             add("component-spi");
             add("component-runtime");
@@ -91,7 +93,9 @@ public class KnownJarsFilter implements Predicate<String> {
             add("cssparser-");
             add("curator-");
             add("cxf-");
+            add("cdi-");
             add("deploy.jar");
+            add("deltaspike-");
             add("derby-");
             add("derbyclient-");
             add("derbynet-");
@@ -103,6 +107,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("ehcache-");
             add("error_prone_annotations");
             add("FastInfoset");
+            add("freemarker-");
             add("j2objc-annotations");
             add("jackson-");
             add("jaxb-");
@@ -110,6 +115,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("jets3t");
             add("jfr.jar");
             add("jfxrt.jar");
+            add("jmustache");
             add("jna-");
             add("jnr-");
             add("johnzon-");
@@ -118,6 +124,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("jolokia-serv");
             add("json-simple-");
             add("json4s-");
+            add("jsr250-");
             add("fusemq-leveldb-");
             add("geronimo-");
             add("google-");
@@ -213,8 +220,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("mapstruct-");
             add("maven-");
             add("mbean-annotation-api-");
-            add("meecrowave-maven-");
-            add("meecrowave-gradle-");
+            add("meecrowave-");
             add("mesos-");
             add("metrics-");
             add("mimepull-");
@@ -294,6 +300,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("swizzle-");
             add("sxc-");
             add("tachyon-");
+            add("talend-icon");
             add("testng-");
             add("tomcat-annotations");
             add("tomcat-api");
@@ -338,6 +345,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("xml-resolver-");
             add("xmlbeans-");
             add("xmlenc-");
+            add("xmlgraphics-");
             add("xmlpull-");
             add("xmlrpc-");
             add("xmlschema-");
