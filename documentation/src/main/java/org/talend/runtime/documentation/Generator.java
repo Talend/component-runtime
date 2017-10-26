@@ -133,7 +133,8 @@ public class Generator {
             list.setItems(new ArrayList<>());
 
             final Values.Item item = new Values.Item();
-            item.setValue("a value");
+            item.setId("value");
+            item.setLabel("label");
             list.getItems().add(item);
 
             return new MapperBuilder().setPretty(false).build().writeObjectAsString(list);
