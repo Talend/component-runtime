@@ -9,7 +9,7 @@ Use your best judgment, and feel free to propose changes to this document in a p
 #### Table Of Contents
 
 
-[I just have a question!!!](#i-have-a-questoin)
+[I just have a question!!!](#i-have-a-question)
 
 [Design Decisions](#design-decisions)
 
@@ -27,6 +27,7 @@ We have an official message board with a detailed FAQ and where the community ch
 
 * Our [Forum](https://www.talendforge.org/forum/) or where you can ask any question
 * Our [documentation center](https://help.talend.com/)
+* Our [bugtracker](https://jira.talendforge.org/projects/TCOMP/)
 
 ### Design Decisions
 
@@ -46,7 +47,7 @@ the same thing that you're experiencing, open a new issue and
 include a link to the original issue in the body of your new one.
 
 If you are on the last release and no issue is referencing the bug you are encountering,
-open an issue on the project.
+open an issue on the project (see [I just have a question!!!](#i-have-a-question) part).
 
 To enable maintainers to work on it faster, the minimum to explain in the issue text are:
 - the environment you are running on (OS, Java version, ...)
@@ -73,7 +74,7 @@ To contribute any code, the process is fully aligned on standard github practice
 - you fork the project on your own github account
 - you create a branch, it is recommended to name it `fix/<issue number>_<description>` for a bugfix or `feature/<issue number>_<description>` for an enhancement
 - you push your local branch on your personal repository
-- you create a pull request from this branch on this repository (upstream). Don't forget to reference the issue number in the PR title.
+- you create a pull request from this branch on this repository (upstream). Don't forget to reference the issue name (from jira) in the PR title.
 
 You can find more information on github documentation and for example this page [Creating a Pull Request from a fork](https://help.github.com/articles/creating-a-pull-request-from-a-fork/).
 
