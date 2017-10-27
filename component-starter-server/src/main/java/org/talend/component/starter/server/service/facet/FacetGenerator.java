@@ -24,6 +24,7 @@ import org.talend.component.starter.server.service.domain.ProjectRequest;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 public interface FacetGenerator {
 
@@ -48,6 +49,7 @@ public interface FacetGenerator {
     }
 
     @Getter
+    @ToString
     @RequiredArgsConstructor
     class InMemoryFile {
 

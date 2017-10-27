@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.component.starter.server.model;
 
@@ -23,17 +23,31 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 public class ProjectModel {
+
     private String buildType;
+
     private String version;
+
     private String group;
+
     private String artifact;
+
     private String name;
+
     private String description;
+
     private String packageBase;
+
+    private String family;
+
+    private String category;
+
     // private String packaging; // jar only for now
     // private String javaVersion; // enforce to java 8 for now
     private Collection<String> facets;
+
     private Collection<Source> sources;
+
     private Collection<Processor> processors;
 
     @Getter
@@ -42,7 +56,11 @@ public class ProjectModel {
 
         private final String name;
 
+        private final String icon;
+
         private final boolean genericOutput;
+
+        private final Model configurationStructure;
 
         private final Model outputStructure;
     }
@@ -61,6 +79,8 @@ public class ProjectModel {
         private final String name;
 
         private final String type;
+
+        private final Model model;
     }
 
     @Getter
@@ -69,16 +89,23 @@ public class ProjectModel {
 
         private final String name;
 
-        private final boolean genericInputs;
+        private final String icon;
 
-        private final boolean genericOutputs;
+        private final Model configurationStructure;
 
-        private final Collection<String> inputs;
+        private final Collection<NamedModel> inputStructures;
 
-        private final Collection<String> outputs;
+        private final Collection<NamedModel> outputStructures;
+    }
 
-        private final Collection<Model> inputStructures;
+    @Getter
+    @RequiredArgsConstructor
+    public static class NamedModel {
 
-        private final Collection<Model> outputStructures;
+        private final String name;
+
+        private final boolean generic;
+
+        private final Model structure;
     }
 }

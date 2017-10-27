@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.component.starter.server.service;
 
@@ -55,6 +55,7 @@ import lombok.Getter;
 
 @ApplicationScoped
 public class ProjectGenerator {
+
     @Getter
     private final Map<String, BuildGenerator> generators = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -90,12 +91,10 @@ public class ProjectGenerator {
 
         // build dependencies to give them to the build
         final Collection<String> facets = ofNullable(request.getFacets()).orElse(emptyList());
-        final List<Dependency> dependencies = new ArrayList<>(facets.stream()
-                                                                    .map(this.facets::get)
-                                                                    .flatMap(f -> f.dependencies(facets))
-                                                                    .collect(toSet()));
+        final List<Dependency> dependencies = new ArrayList<>(
+                facets.stream().map(this.facets::get).flatMap(f -> f.dependencies(facets)).collect(toSet()));
         dependencies.sort((o1, o2) -> {
-            {   // by scope
+            { // by scope
                 final int scope1 = scopesOrdering.indexOf(o1.getScope());
                 final int scope2 = scopesOrdering.indexOf(o2.getScope());
                 final int scopeDiff = scope1 - scope2;
@@ -104,7 +103,7 @@ public class ProjectGenerator {
                 }
             }
 
-            {   // by group
+            { // by group
                 final int comp = o1.getGroup().compareTo(o2.getGroup());
                 if (comp != 0) {
                     return comp;
@@ -119,30 +118,26 @@ public class ProjectGenerator {
         dependencies.add(0, Dependency.componentApi());
 
         // create the build to be able to generate the files
-        final Build build = generator.createBuild(request.getBuildConfiguration(), request.getPackageBase(), dependencies, facets);
+        final Build build = generator.createBuild(request.getBuildConfiguration(), request.getPackageBase(), dependencies,
+                facets);
         files.put(build.getBuildFileName(), build.getBuildFileContent());
 
         // generate facet files
-        final Map<FacetGenerator, List<String>> filePerFacet = facets.stream()
-                                .map(s -> s.toLowerCase(Locale.ENGLISH))
-                                .collect(toMap(this.facets::get, f -> {
-                                     final FacetGenerator g = this.facets.get(f);
-                                     return g.create(request.getPackageBase(), build, facets, request.getSources(), request.getProcessors())
-                                             .peek(file -> files.put(file.getPath(), file.getContent()))
-                                             .map(FacetGenerator.InMemoryFile::getPath)
-                                             .collect(toList());
-                                 }));
+        final Map<FacetGenerator, List<String>> filePerFacet = facets.stream().map(s -> s.toLowerCase(Locale.ENGLISH))
+                .collect(toMap(this.facets::get, f -> {
+                    final FacetGenerator g = this.facets.get(f);
+                    return g.create(request.getPackageBase(), build, facets, request.getSources(), request.getProcessors())
+                            .peek(file -> files.put(file.getPath(), file.getContent())).map(FacetGenerator.InMemoryFile::getPath)
+                            .collect(toList());
+                }));
 
         // generate README.adoc if needed
         if (!files.containsKey("README.adoc")) {
             files.put("README.adoc", readmeGenerator.createReadme(request.getBuildConfiguration().getName(), filePerFacet));
         }
 
-        filePerFacet.put(componentGenerator,
-                componentGenerator.create(request.getPackageBase(), build, facets, request.getSources(), request.getProcessors())
-                                  .peek(file -> files.put(file.getPath(), file.getContent()))
-                                  .map(FacetGenerator.InMemoryFile::getPath)
-                                  .collect(toList()));
+        componentGenerator.create(request.getPackageBase(), build, request.getFamily(), request.getCategory(),
+                request.getSources(), request.getProcessors()).forEach(file -> files.put(file.getPath(), file.getContent()));
 
         // now create the zip prefixing it with the artifact value
         final String rootName = request.getBuildConfiguration().getArtifact();
@@ -175,7 +170,7 @@ public class ProjectGenerator {
             files.forEach((path, content) -> {
                 try {
                     zip.putNextEntry(new ZipEntry(rootName + '/' + path));
-                    zip.write(content.replace("\r", "")/*avoid side effect of the OS*/.getBytes(StandardCharsets.UTF_8));
+                    zip.write(content.replace("\r", "")/* avoid side effect of the OS */.getBytes(StandardCharsets.UTF_8));
                     zip.closeEntry();
                 } catch (final IOException e) {
                     throw new IllegalStateException(e);
