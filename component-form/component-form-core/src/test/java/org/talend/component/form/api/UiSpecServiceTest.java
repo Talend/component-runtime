@@ -26,13 +26,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -55,7 +49,10 @@ public class UiSpecServiceTest {
         public Map<String, Object> action(final String family, final String type, final String action,
                 final Map<String, Object> params) {
             if ("jdbc".equals(family) && "dynamic_values".equals(type) && "driver".equals(action)) {
-                return singletonMap("items", singleton(singletonMap("value", "some.driver.Jdbc")));
+                Map<String, String> item = new HashMap<>();
+                item.put("id", "some.driver.Jdbc");
+                item.put("label", "Jdbc driver");
+                return singletonMap("items", singleton(item));
             }
             return params;
         }
@@ -190,7 +187,7 @@ public class UiSpecServiceTest {
                     assertEquals(1, titleMap.size());
                     final UiSpecPayload.NameValue firstTitleMap = titleMap.iterator().next();
                     assertEquals("some.driver.Jdbc", firstTitleMap.getName());
-                    assertEquals("some.driver.Jdbc", firstTitleMap.getValue());
+                    assertEquals("Jdbc driver", firstTitleMap.getValue());
 
                     final UiSpecPayload.Trigger trigger = driver.getTriggers().iterator().next();
                     assertEquals("driver", trigger.getAction());
