@@ -32,7 +32,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
@@ -212,20 +211,22 @@ public class UiSpecService {
                 final Map<String, Object> values = client.action(detail.getId().getFamily(), "dynamic_values",
                         prop.getMetadata().get("action::dynamic_values"), emptyMap());
 
-                final List<String> items = ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance)
+                final List<UiSpecPayload.NameValue> namedValues = ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance)
                         .map(c -> {
                             final Collection<?> dynamicValues = Collection.class.cast(c);
-                            return dynamicValues.stream().filter(Map.class::isInstance).map(m -> Map.class.cast(m).get("value"))
-                                    .filter(Objects::nonNull).filter(String.class::isInstance).map(String.class::cast).sorted()
+                            return dynamicValues.stream().filter(Map.class::isInstance)//.map(m -> Map.class.cast(m).get("id"))
+                                    .filter(m -> Map.class.cast(m).get("id") != null && Map.class.cast(m).get("id") instanceof String)
+                                    .map(Map.class::cast)
+                                    .map(entry -> {
+                                        UiSpecPayload.NameValue val = new UiSpecPayload.NameValue();
+                                        val.setName((String)entry.get("id"));
+                                        val.setValue(entry.get("label") == null ? (String)entry.get("id") : (String)entry.get("label"));
+                                        return val;
+                                    })
                                     .collect(toList());
                         }).orElse(emptyList());
-                schema.setTitleMap(items.stream().map(v -> {
-                    final UiSpecPayload.NameValue nameValue = new UiSpecPayload.NameValue();
-                    nameValue.setValue(v);
-                    nameValue.setName(v);
-                    return nameValue;
-                }).collect(toList()));
-                jsonSchema.setEnumValues(items);
+                schema.setTitleMap(namedValues);
+                jsonSchema.setEnumValues(namedValues.stream().map(c -> c.getName()).sorted().collect(toList()));
             } else {
                 schema.setTitleMap(emptyList());
                 jsonSchema.setEnumValues(emptyList());
