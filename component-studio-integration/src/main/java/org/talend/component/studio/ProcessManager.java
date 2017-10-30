@@ -19,12 +19,13 @@ import static java.util.Arrays.asList;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,10 +37,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.URIUtil;
 import org.talend.core.runtime.maven.MavenConstants;
 import org.talend.osgi.hook.maven.MavenResolver;
+
+import lombok.Getter;
 
 public class ProcessManager implements AutoCloseable {
 
@@ -47,8 +48,11 @@ public class ProcessManager implements AutoCloseable {
 
     private final String artifactId;
 
+    private final File studioConfigDir;
+
     private MavenResolver mavenResolver;
 
+    @Getter
     private int port;
 
     private Process process;
@@ -57,10 +61,12 @@ public class ProcessManager implements AutoCloseable {
 
     private CountDownLatch ready;
 
-    public ProcessManager(final String groupId, final String artifactId, final MavenResolver resolver) {
+    public ProcessManager(final String groupId, final String artifactId, final MavenResolver resolver,
+            final File studioConfigDir) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.mavenResolver = resolver;
+        this.studioConfigDir = studioConfigDir;
     }
 
     public void waitForServer() { // useful for the client, to ensure we are ready
@@ -104,13 +110,6 @@ public class ProcessManager implements AutoCloseable {
     }
 
     public synchronized void start() {
-        final File studioConfigDir;
-        try {
-            studioConfigDir = URIUtil.toFile(Platform.getConfigurationLocation().getURL().toURI());
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("bad configuration configuration", e);
-        }
-
         final Collection<String> paths;
         try {
             paths = createClasspath();
@@ -178,7 +177,7 @@ public class ProcessManager implements AutoCloseable {
                     }
 
                     try (final Socket s = new Socket("localhost", port)) {
-                        s.getInputStream().close();
+                        new URL("http://localhost:" + port + "/api/v1/component/index").openStream().close();
                         ready.countDown();
                         return; // opened :)
                     } catch (final IOException e) {
@@ -203,38 +202,15 @@ public class ProcessManager implements AutoCloseable {
         }
 
         final Collection<String> paths = new ArrayList<>();
-        try (final JarFile jar = new JarFile(serverJar)) {
-            final ZipEntry entry = jar.getEntry("TALEND-INF/dependencies.txt");
-            try (final InputStream deps = jar.getInputStream(entry)) {
-                try (final BufferedReader reader = new BufferedReader(new InputStreamReader(deps))) {
-                    String line;
-
-                    do {
-                        line = reader.readLine();
-                        if (line == null) {
-                            break;
-                        }
-                        line = line.trim();
-                        if (line.isEmpty()) {
-                            continue;
-                        }
-
-                        if (line.split(":").length < 4) {
-                            continue;
-                        }
-                        if (line.endsWith(":test") || line.endsWith(":provided")) {
-                            continue;
-                        }
-
-                        final String[] segments = line.split(":");
-                        if (segments.length < 4) {
-                            throw new IllegalArgumentException("Invalid coordinate: " + line);
-                        }
-
-                        paths.add(resolve(line).getAbsolutePath());
-                    } while (true);
-                } catch (final IOException e) {
-                    throw new IllegalStateException(e);
+        if (serverJar.isDirectory()) {
+            try (final InputStream deps = new FileInputStream(new File(serverJar, "TALEND-INF/dependencies.txt"))) {
+                addDependencies(paths, deps);
+            }
+        } else {
+            try (final JarFile jar = new JarFile(serverJar)) {
+                final ZipEntry entry = jar.getEntry("TALEND-INF/dependencies.txt");
+                try (final InputStream deps = jar.getInputStream(entry)) {
+                    addDependencies(paths, deps);
                 }
             }
         }
@@ -243,7 +219,40 @@ public class ProcessManager implements AutoCloseable {
         return paths;
     }
 
-    public File resolve(final String gav) {
+    private void addDependencies(Collection<String> paths, InputStream deps) {
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(deps))) {
+            String line;
+
+            do {
+                line = reader.readLine();
+                if (line == null) {
+                    break;
+                }
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue;
+                }
+
+                if (line.split(":").length < 4) {
+                    continue;
+                }
+                if (line.endsWith(":test") || line.endsWith(":provided")) {
+                    continue;
+                }
+
+                final String[] segments = line.split(":");
+                if (segments.length < 4) {
+                    throw new IllegalArgumentException("Invalid coordinate: " + line);
+                }
+
+                paths.add(resolve(line).getAbsolutePath());
+            } while (true);
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private File resolve(final String gav) {
         try { // convert to pax-url syntax
             final String[] split = gav.split("\\:"); // assuming we dont use classifiers for now
             final String paxUrl = "mvn:" + MavenConstants.LOCAL_RESOLUTION_URL + '!' + split[0] + '/' + split[1] + '/' + split[3];

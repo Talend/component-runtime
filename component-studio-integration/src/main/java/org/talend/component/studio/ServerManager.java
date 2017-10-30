@@ -15,21 +15,24 @@
  */
 package org.talend.component.studio;
 
+import static org.talend.component.studio.GAV.ARTIFACT_ID;
+import static org.talend.component.studio.GAV.GROUP_ID;
+
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.talend.osgi.hook.URIUtil;
 import org.talend.osgi.hook.maven.MavenResolver;
 
 public class ServerManager extends AbstractUIPlugin {
-
-    private final String groupId = "${project.groupId}";
-
-    private final String artifactId = "${project.artifactId}";
 
     private ProcessManager manager;
 
@@ -39,7 +42,7 @@ public class ServerManager extends AbstractUIPlugin {
     public void start(final BundleContext context) throws Exception {
         super.start(context);
 
-        manager = new ProcessManager(groupId, artifactId, findMavenResolver());
+        manager = new ProcessManager(GROUP_ID, ARTIFACT_ID, findMavenResolver(), findConfigDir());
         manager.start();
         services.add(getBundle().getBundleContext().registerService(ProcessManager.class.getName(), manager, new Hashtable<>()));
         // todo: create a client (and register it as a service?), potentially reuse component-form-core if OSGified
@@ -60,6 +63,14 @@ public class ServerManager extends AbstractUIPlugin {
         }
     }
 
+    private File findConfigDir() {
+        try {
+            return URIUtil.toFile(Platform.getConfigurationLocation().getURL().toURI());
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("bad configuration configuration", e);
+        }
+    }
+
     private MavenResolver findMavenResolver() {
         final BundleContext bundleContext = getBundle().getBundleContext();
         final ServiceReference<MavenResolver> serviceReference = bundleContext.getServiceReference(MavenResolver.class);
@@ -71,5 +82,10 @@ public class ServerManager extends AbstractUIPlugin {
             throw new IllegalArgumentException("No MavenResolver found");
         }
         return mavenResolver;
+    }
+
+    public int getPort() {
+        manager.waitForServer();
+        return manager.getPort();
     }
 }
