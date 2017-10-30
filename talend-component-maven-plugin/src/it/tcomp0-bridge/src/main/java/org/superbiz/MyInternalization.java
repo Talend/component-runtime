@@ -15,7 +15,7 @@
  */
 package org.superbiz;
 
-import org.talend.component.api.internationalization.Internationalized;
+import org.talend.sdk.component.api.internationalization.Internationalized;
 
 @Internationalized
 public interface MyInternalization {

@@ -18,7 +18,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>component-runtime</artifactId>
-    <groupId>org.talend.components</groupId>
+    <groupId>org.talend.sdk.component</groupId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -36,11 +36,11 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -138,7 +138,7 @@
       <optional>true</optional>
       <exclusions>
         <exclusion>
-          <groupId>org.talend.components</groupId>
+          <groupId>org.talend.sdk.component</groupId>
           <artifactId>components-api</artifactId>
         </exclusion>
       </exclusions>
@@ -165,13 +165,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency> <!-- just to ensure the reactor order -->
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-avro-integration</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-di</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
@@ -248,12 +248,12 @@
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.5</version>
+        <version>${gmavenplus.version}</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-            <version>2.4.9</version>
+            <version>${groovy.version}</version>
             <scope>runtime</scope>
           </dependency>
         </dependencies>
@@ -293,7 +293,7 @@ file.write(file.text
           </execution>
         </executions>
         <configuration>
-          <packageName>org.talend.component.maven.legacy.model</packageName>
+          <packageName>org.talend.sdk.component.maven.legacy.model</packageName>
           <sources>
             <source>${project.build.directory}/unpacked/model</source>
           </sources>

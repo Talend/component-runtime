@@ -17,10 +17,10 @@ package org.talend.test;
 
 import java.io.Serializable;
 
-import org.talend.component.api.processor.ElementListener;
-import org.talend.component.api.processor.Output;
-import org.talend.component.api.processor.OutputEmitter;
-import org.talend.component.api.processor.Processor;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.Processor;
 
 @Processor(family = "chain", name = "count")
 public class CounterProcessor implements Serializable {

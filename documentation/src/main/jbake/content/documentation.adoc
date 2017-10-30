@@ -299,9 +299,9 @@ the categories the component belongs to (default is `Misc` if not set). Here is 
 [source,java]
 ----
 @Components(name = "my_component_family", categories = "My Category")
-package org.talend.component.sample;
+package org.talend.sdk.component.sample;
 
-import org.talend.component.api.component.Components;
+import org.talend.sdk.component.api.component.Components;
 ----
 
 For an existing component it can look like:
@@ -309,15 +309,15 @@ For an existing component it can look like:
 [source,java]
 ----
 @Components(name = "Salesforce", categories = {"Business", "Cloud"})
-package org.talend.component.sample;
+package org.talend.sdk.component.sample;
 
-import org.talend.component.api.component.Components;
+import org.talend.sdk.component.api.component.Components;
 ----
 
 === Components metadata
 
 Components can require a few metadata to be integrated in Talend Studio or Cloud platform. Here is how to provide these information.
-These metadata are set on the component class and belongs to `org.talend.component.api.component` package.
+These metadata are set on the component class and belongs to `org.talend.sdk.component.api.component` package.
 
 [options="header,autowidth"]
 |====
@@ -548,7 +548,7 @@ If you check your jar once built you will see that the file contains something l
 $ unzip -p target/mycomponent-1.0.0-SNAPSHOT.jar TALEND-INF/dependencies.txt
 
 The following files have been resolved:
-   org.talend.components:component-api:jar:1.0.0-SNAPSHOT:provided
+   org.talend.sdk.component:component-api:jar:1.0.0-SNAPSHOT:provided
    org.apache.geronimo.specs:geronimo-annotation_1.0_spec:jar:1.1.1:provided
    org.superbiz:awesome-project:jar:1.2.3:compile
    junit:junit:jar:4.12:test
@@ -614,7 +614,7 @@ To create the nested `MAVEN-INF/repository` repository you can use `nested-maven
       </goals>
       <configuration>
         <transformers>
-          <transformer implementation="org.talend.component.container.maven.shade.ContainerDependenciesTransformer">
+          <transformer implementation="org.talend.sdk.component.container.maven.shade.ContainerDependenciesTransformer">
             <session>${session}</project>
           </transformer>
         </transformers>
@@ -623,7 +623,7 @@ To create the nested `MAVEN-INF/repository` repository you can use `nested-maven
   </executions>
   <dependencies>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>nested-maven-repository</artifactId>
       <version>${the.plugin.version}</version>
     </dependency>
@@ -653,7 +653,7 @@ Here again we can enrich `maven-shade-plugin` to do it:
       </goals>
       <configuration>
         <transformers>
-          <transformer implementation="org.talend.component.container.maven.shade.PluginTransformer">
+          <transformer implementation="org.talend.sdk.component.container.maven.shade.PluginTransformer">
             <session>${session}</project>
           </transformer>
         </transformers>
@@ -662,7 +662,7 @@ Here again we can enrich `maven-shade-plugin` to do it:
   </executions>
   <dependencies>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>nested-maven-repository</artifactId>
       <version>${the.plugin.version}</version>
     </dependency>
@@ -703,22 +703,22 @@ Here is a final job/application bundle based on maven shade plugin:
         <shadedClassifierName>shaded</shadedClassifierName>
         <transformers>
           <transformer
-              implementation="org.talend.component.container.maven.shade.ContainerDependenciesTransformer">
+              implementation="org.talend.sdk.component.container.maven.shade.ContainerDependenciesTransformer">
             <session>${session}</session>
             <userArtifacts>
               <artifact>
-                <groupId>org.talend.components</groupId>
+                <groupId>org.talend.sdk.component</groupId>
                 <artifactId>sample-component</artifactId>
                 <version>1.0</version>
                 <type>jar</type>
               </artifact>
             </userArtifacts>
           </transformer>
-          <transformer implementation="org.talend.component.container.maven.shade.PluginTransformer">
+          <transformer implementation="org.talend.sdk.component.container.maven.shade.PluginTransformer">
             <session>${session}</session>
             <userArtifacts>
               <artifact>
-                <groupId>org.talend.components</groupId>
+                <groupId>org.talend.sdk.component</groupId>
                 <artifactId>sample-component</artifactId>
                 <version>1.0</version>
                 <type>jar</type>
@@ -731,7 +731,7 @@ Here is a final job/application bundle based on maven shade plugin:
   </executions>
   <dependencies>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>nested-maven-repository-maven-plugin</artifactId>
       <version>${the.version}</version>
     </dependency>
@@ -776,9 +776,9 @@ Example: if you want to list only the plugins you use you can configure this tra
 
 [source,xml,indent=0,subs="verbatim,quotes,attributes"]
 ----
-<transformer implementation="org.talend.component.container.maven.shade.PluginTransformer">
+<transformer implementation="org.talend.sdk.component.container.maven.shade.PluginTransformer">
   <session>${session}</session>
-  <include>org.talend.components:component-x,org.talend.components:component-y,org.talend.components:component-z</include>
+  <include>org.talend.sdk.component:component-x,org.talend.sdk.component:component-y,org.talend.sdk.component:component-z</include>
 </transformer>
 ----
 
@@ -902,7 +902,7 @@ with an object) don't use it.
 === Constraints and validation on the configuration/input
 
 It is common to need to add as metadata a field is required, another has a minimum size etc. This is done with the
-validation in `org.talend.component.api.configuration.constraint` package:
+validation in `org.talend.sdk.component.api.configuration.constraint` package:
 
 include::{generated_adoc}/constraints.adoc[]
 
@@ -1075,12 +1075,12 @@ For beam case, you need to rely on beam pipeline definition and use `component-r
 
 ==== I/O
 
-`org.talend.component.runtime.beam.TalendIO` provides a way to convert a partition mapper or a processor to an input or processor
+`org.talend.sdk.component.runtime.beam.TalendIO` provides a way to convert a partition mapper or a processor to an input or processor
 using the `read` or `write` methods.
 
 ==== Processors
 
-`org.talend.component.runtime.beam.TalendFn` provides the way to wrap a processor in a Beam `PTransform` and integrate it in the pipeline.
+`org.talend.sdk.component.runtime.beam.TalendFn` provides the way to wrap a processor in a Beam `PTransform` and integrate it in the pipeline.
 
 ==== Deployment
 
@@ -1109,7 +1109,7 @@ Here is how to use it:
 [source,xml]
 ----
 <plugin>
-  <groupId>org.talend.components</groupId>
+  <groupId>org.talend.sdk.component</groupId>
   <artifactId>talend-component-maven-plugin</artifactId>
   <version>${component.version}</version>
 </plugin>
@@ -1122,7 +1122,7 @@ The first goal is here to help you to validate the common programming model of t
 [source,xml]
 ----
 <plugin>
-  <groupId>org.talend.components</groupId>
+  <groupId>org.talend.sdk.component</groupId>
   <artifactId>talend-component-maven-plugin</artifactId>
   <version>${component.version}</version>
   <executions>
@@ -1159,7 +1159,7 @@ until the framework programming model is fully integrated in Talend suite.
 [source,xml]
 ----
 <plugin>
-  <groupId>org.talend.components</groupId>
+  <groupId>org.talend.sdk.component</groupId>
   <artifactId>talend-component-maven-plugin</artifactId>
   <version>${component.version}</version>
   <executions>
@@ -1205,7 +1205,7 @@ The Mojo `generate` (maven plugin goal) of the same plugin also embeds a generat
 [source,xml]
 ----
 <plugin>
-  <groupId>org.talend.components</groupId>
+  <groupId>org.talend.sdk.component</groupId>
   <artifactId>talend-component-maven-plugin</artifactId>
   <version>${talend-component.version}</version>
   <executions>
@@ -1257,7 +1257,7 @@ For this command to work you will need to just register the plugin:
 [source,xml]
 ----
 <plugin>
-  <groupId>org.talend.components</groupId>
+  <groupId>org.talend.sdk.component</groupId>
   <artifactId>talend-component-maven-plugin</artifactId>
   <version>${talend-component.version}</version>
 </plugin>

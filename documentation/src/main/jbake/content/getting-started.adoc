@@ -54,7 +54,7 @@ To code a component the only needed dependency is the API:
 [source,xml]
 ----
 <dependency>
-  <groupId>org.talend.components</groupId>
+  <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-api</artifactId>
   <version>${project.version}</version>
 </dependency>
@@ -79,7 +79,7 @@ This is done in a method dedicated to read *next* element which is decorated wit
 include::{sample_project}/PersonReader.java[tag=next]
 ----
 
-NOTE: if you need to rely on a buffer because you load multiple data at once you can reuse `org.talend.component.api.base.BufferizedProducerSupport` class
+NOTE: if you need to rely on a buffer because you load multiple data at once you can reuse `org.talend.sdk.component.api.base.BufferizedProducerSupport` class
 to implement your producer method.
 
 Finally closing the connection once work was done (dataset was completely browsed) can be done in a method decorated with `@PreDestroy`:
@@ -173,7 +173,7 @@ To run the code we just created you will need the runtime dependency of the fram
 [source,xml]
 ----
 <dependency>
-  <groupId>org.talend.components</groupId>
+  <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime-manager</artifactId>
   <version>${talend-component-runtime.version}</version>
 </dependency>

@@ -20,9 +20,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.talend.component.api.configuration.Option;
-import org.talend.component.api.input.Emitter;
-import org.talend.component.api.input.Producer;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.Producer;
 
 @Emitter(family = "chain", name = "list")
 public class ListInput implements Serializable {

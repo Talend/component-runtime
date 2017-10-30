@@ -15,11 +15,10 @@
  */
 package org.talend.test;
 
-import org.talend.test.input.GeneratorMapper;
-import org.talend.test.input.GeneratorEmitter;
-import org.talend.test.output.GeneratorOutput;
-
 import org.junit.Test;
+import org.talend.test.input.GeneratorEmitter;
+import org.talend.test.input.GeneratorMapper;
+import org.talend.test.output.GeneratorOutput;
 
 public class ValidateGenerationIT {
 

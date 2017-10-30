@@ -3,16 +3,16 @@ package {{package}};
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.talend.component.api.component.Icon;
-import org.talend.component.api.component.Version;
-import org.talend.component.api.configuration.Option;
-import org.talend.component.api.processor.AfterGroup;
-import org.talend.component.api.processor.BeforeGroup;
-import org.talend.component.api.processor.Processor;{{#inputs.length}}
-import org.talend.component.api.processor.Input;{{/inputs.length}}{{#outputs.length}}
-import org.talend.component.api.processor.Output;
-import org.talend.component.api.processor.OutputEmitter;{{/outputs.length}}{{#generic}}
-import org.talend.component.api.processor.data.ObjectMap;{{/generic}}
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.processor.AfterGroup;
+import org.talend.sdk.component.api.processor.BeforeGroup;
+import org.talend.sdk.component.api.processor.Processor;{{#inputs.length}}
+import org.talend.sdk.component.api.processor.Input;{{/inputs.length}}{{#outputs.length}}
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;{{/outputs.length}}{{#generic}}
+import org.talend.sdk.component.api.processor.data.ObjectMap;{{/generic}}
 
 import {{servicePackage}}.{{serviceName}};
 

@@ -24,7 +24,7 @@ import java.io.Serializable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.talend.component.api.input.Producer;
+import org.talend.sdk.component.api.input.Producer;
 
 public class ${configuration.className}${configuration.template} implements Serializable {
     @PostConstruct

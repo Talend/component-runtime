@@ -3,8 +3,8 @@ package {{package}};
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.talend.component.api.input.Producer;{{#generic}}
-import org.talend.component.api.processor.data.ObjectMap;{{/generic}}
+import org.talend.sdk.component.api.input.Producer;{{#generic}}
+import org.talend.sdk.component.api.processor.data.ObjectMap;{{/generic}}
 
 import {{servicePackage}}.{{serviceName}};
 

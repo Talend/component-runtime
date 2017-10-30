@@ -1,6 +1,6 @@
 package {{package}};
 
-import org.talend.component.api.processor.data.ObjectMap;
+import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 // generated configuration with query and addresses options, customize it to your need
 @GridLayout({

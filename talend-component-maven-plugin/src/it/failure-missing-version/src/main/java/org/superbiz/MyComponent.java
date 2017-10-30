@@ -15,13 +15,13 @@
  */
 package org.superbiz;
 
-import static org.talend.component.api.component.Icon.IconType.FILE_JOB_O;
+import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
 import java.io.Serializable;
 
-import org.talend.component.api.component.Icon;
-import org.talend.component.api.processor.ElementListener;
-import org.talend.component.api.processor.Processor;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Processor;
 
 @Icon(FILE_JOB_O)
 @Processor(family = "test", name = "my")

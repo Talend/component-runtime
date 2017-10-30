@@ -18,7 +18,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>component-runtime</artifactId>
-    <groupId>org.talend.components</groupId>
+    <groupId>org.talend.sdk.component</groupId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -81,7 +81,7 @@
       <scope>test</scope>
     </dependency>
     <dependency> <!-- just for the order -->
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>documentation</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>

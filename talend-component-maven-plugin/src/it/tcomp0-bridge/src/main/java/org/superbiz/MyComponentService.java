@@ -17,10 +17,10 @@ package org.superbiz;
 
 import static java.util.Collections.singletonList;
 
-import org.talend.component.api.service.Service;
-import org.talend.component.api.service.schema.DiscoverSchema;
-import org.talend.component.api.service.schema.Schema;
-import org.talend.component.api.service.schema.Type;
+import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.api.service.schema.Schema;
+import org.talend.sdk.component.api.service.schema.Type;
 
 @Service
 public class MyComponentService {

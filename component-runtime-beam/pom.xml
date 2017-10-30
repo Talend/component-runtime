@@ -18,7 +18,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>component-runtime</artifactId>
-    <groupId>org.talend.components</groupId>
+    <groupId>org.talend.sdk.component</groupId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -33,12 +33,12 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-spi</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -69,27 +69,27 @@
 
     <!-- for IT -->
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-standalone</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-testing-spark</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>sample</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>

@@ -24,9 +24,9 @@ import java.io.Writer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.talend.component.api.configuration.Option;
-import org.talend.component.api.processor.ElementListener;
-import org.talend.component.api.processor.Processor;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Processor;
 
 @Processor(family = "chain", name = "file")
 public class FileOutput implements Serializable {
