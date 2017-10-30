@@ -45,16 +45,12 @@
 
   <repositories>
     <repository>
-      <id>snapshots</id>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/</url>
-    </repository>
-    <repository>
-      <id>releases</id>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases/</url>
-    </repository>
-    <repository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+    </repository>
+    <repository>
+      <id>TalendOpenSourceSnapshot</id>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
     </repository>
     <repository>
       <id>asf-snapshot</id>
@@ -79,12 +75,28 @@
   </repositories>
   <pluginRepositories>
     <pluginRepository>
-      <id>snapshots</id>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/</url>
+      <id>TalendOpenSourceRelease</id>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </pluginRepository>
     <pluginRepository>
-      <id>releases</id>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases/</url>
+      <id>TalendOpenSourceSnapshot</id>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>ossrh-snapshot</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
     </pluginRepository>
   </pluginRepositories>
 
