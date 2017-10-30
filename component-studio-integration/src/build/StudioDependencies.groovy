@@ -26,12 +26,14 @@ println('Preparing project dependencies from p2 repository')
 println('Don\'t forget to activate the "ide" profile to be able to develop it')
 
 def dependencies = [
+        'org.talend.osgi.lib.loader',
         'org.talend.model',
         'org.talend.core.ui',
         'org.talend.core.runtime',
         'org.talend.designer.core',
         'org.talend.commons.runtime',
-        'org.talend.common.ui.runtime'
+        'org.talend.common.ui.runtime',
+        'org.talend.maven.resolver'
 ]
 
 def studioVersion = project.properties['studio.version'].replace('-', '.');
@@ -161,5 +163,5 @@ dependencies.each {
     addArtifact(project, art)
 
     // log it to ensure it is easy to "dev"
-    println("    <dependency>\n      <groupId>${dep.groupId}</groupId>\n      <artifactId>${dep.artifactId}</artifactId>\n      <version>${dep.version}</version>\n      <scope>provided</scope>\n    </dependency>")
+    println("    <dependency>\n      <groupId>${dep.groupId}</groupId>\n      <artifactId>${dep.artifactId}</artifactId>\n      <version>\${studio.version}</version>\n      <scope>provided</scope>\n    </dependency>")
 }
