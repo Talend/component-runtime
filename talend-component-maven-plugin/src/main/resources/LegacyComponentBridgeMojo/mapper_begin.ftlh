@@ -33,18 +33,18 @@ final INode node = INode.class.cast(codeGenArgument.getArgument());
 final String cid = node.getUniqueName();
 %>
 
-final org.talend.component.runtime.manager.ComponentManager mgr_<%=cid%> = org.talend.component.runtime.manager.ComponentManager.instance();
+final org.talend.sdk.component.runtime.manager.ComponentManager mgr_<%=cid%> = org.talend.sdk.component.runtime.manager.ComponentManager.instance();
 
 <#include "configuration.ftlh">
 
-final org.talend.component.runtime.input.Mapper mapper_<%=cid%> = mgr_<%=cid%>.findMapper("${mapper.parent.name}", "${mapper.name}", ${mapper.version}, configuration_<%=cid%>)
+final org.talend.sdk.component.runtime.input.Mapper mapper_<%=cid%> = mgr_<%=cid%>.findMapper("${mapper.parent.name}", "${mapper.name}", ${mapper.version}, configuration_<%=cid%>)
     .orElseThrow(() -> new IllegalArgumentException("Can't find ${mapper.parent.name}#${mapper.name}"));
 
 int nbLineInput_<%=cid%> = 0;
 mapper_<%=cid%>.start();
 globalMap.put("mapper_<%=cid%>", mapper_<%=cid%>);
 
-final org.talend.component.runtime.input.Input input_<%=cid%> = mapper_<%=cid%>.create();
+final org.talend.sdk.component.runtime.input.Input input_<%=cid%> = mapper_<%=cid%>.create();
 input_<%=cid%>.start();
 globalMap.put("input_<%=cid%>", mapper_<%=cid%>);
 
@@ -56,8 +56,8 @@ if (connections.isEmpty()) {
 final String output = connections.iterator().next().getName();
 %>
 
-final org.talend.component.runtime.output.data.AccessorCache accessorCache_<%=cid%> = org.talend.component.runtime.output.data.AccessorCache.class.cast(globalMap.computeIfAbsent("__TCOMP_ACCESSOR_CACHE__", org.talend.component.runtime.output.data.AccessorCache::new));
-final org.talend.component.runtime.di.ModelMapper modelMapper_<%=cid%> = new org.talend.component.runtime.di.ModelMapper();
+final org.talend.sdk.component.runtime.output.data.AccessorCache accessorCache_<%=cid%> = org.talend.sdk.component.runtime.output.data.AccessorCache.class.cast(globalMap.computeIfAbsent("__TCOMP_ACCESSOR_CACHE__", org.talend.sdk.component.runtime.output.data.AccessorCache::new));
+final org.talend.sdk.component.runtime.di.ModelMapper modelMapper_<%=cid%> = new org.talend.sdk.component.runtime.di.ModelMapper();
 
 Object data_<%=cid%>;
 while ((data_<%=cid%> = input_<%=cid%>.next()) != null) {
@@ -65,8 +65,8 @@ while ((data_<%=cid%> = input_<%=cid%>.next()) != null) {
     globalMap.put("<%=cid %>_NB_LINE", nbLineInput_<%=cid%>);
 
     // map data_<%=cid%> to the associated structure using the generic object map accessor
-    final org.talend.component.api.processor.data.ObjectMap objectMap_<%=cid%> =
-        new org.talend.component.runtime.output.data.ObjectMapImpl(
+    final org.talend.sdk.component.api.processor.data.ObjectMap objectMap_<%=cid%> =
+        new org.talend.sdk.component.runtime.output.data.ObjectMapImpl(
             mapper_<%=cid%>.plugin(), data_<%=cid%>,
             accessorCache_<%=cid%>);
     modelMapper_<%=cid%>.map(objectMap_<%=cid%>, <%=output%>);

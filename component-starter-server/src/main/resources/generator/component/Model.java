@@ -3,7 +3,7 @@ package {{package}};
 {{#generic}}
 import static java.util.Collections.emptySet;
 
-import org.talend.component.api.processor.data.ObjectMap;
+import org.talend.sdk.component.api.processor.data.ObjectMap;
 {{/generic}}
 // this is the pojo which will be used to represent your data
 public class {{className}} {{#generic}}implements ObjectMap {{/generic}}{

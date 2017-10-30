@@ -16,23 +16,22 @@
 package org.superbiz;
 
 import static java.util.Collections.singletonList;
-
-import static org.talend.component.api.component.Icon.IconType.FILE_JOB_O;
+import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import org.talend.component.api.component.Icon;
-import org.talend.component.api.component.Version;
-import org.talend.component.api.configuration.Option;
-import org.talend.component.api.configuration.action.Discoverable;
-import org.talend.component.api.configuration.type.DataSet;
-import org.talend.component.api.input.Assessor;
-import org.talend.component.api.input.Emitter;
-import org.talend.component.api.input.PartitionMapper;
-import org.talend.component.api.input.Producer;
-import org.talend.component.api.input.Split;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.action.Discoverable;
+import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.input.Assessor;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.input.Split;
 
 @Version
 @Icon(FILE_JOB_O)

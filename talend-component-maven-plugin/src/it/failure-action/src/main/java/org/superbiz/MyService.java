@@ -17,9 +17,8 @@ package org.superbiz;
 
 import java.io.Serializable;
 
-import org.talend.component.api.service.Service;
-import org.talend.component.api.service.healthcheck.HealthCheck;
-import org.talend.component.api.service.healthcheck.HealthCheckStatus ;
+import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 
 @Service
 public class MyService implements Serializable {

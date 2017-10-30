@@ -24,13 +24,13 @@ import java.io.Serializable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.talend.component.api.component.Icon;
-import org.talend.component.api.component.Version;
-import org.talend.component.api.processor.AfterGroup;
-import org.talend.component.api.processor.BeforeGroup;
-import org.talend.component.api.processor.ElementListener;
-import org.talend.component.api.processor.Processor;
-import org.talend.component.api.processor.data.ObjectMap;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.processor.AfterGroup;
+import org.talend.sdk.component.api.processor.BeforeGroup;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 @Version
 @Icon(Icon.IconType.FILTER)

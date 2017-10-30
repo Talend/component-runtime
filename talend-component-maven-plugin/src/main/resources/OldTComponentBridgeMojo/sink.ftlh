@@ -37,12 +37,12 @@ import org.talend.components.api.component.runtime.Writer;
 import org.talend.components.api.component.runtime.WriterWithFeedback;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.component.runtime.avro.ComponentModelToIndexeredRecordConverter;
-import org.talend.component.runtime.di.AutoChunkProcessor;
-import org.talend.component.runtime.manager.ComponentManager;
-import org.talend.component.runtime.manager.processor.SubclassesCache;
-import org.talend.component.runtime.output.Branches;
-import org.talend.component.runtime.serialization.LightContainer;
+import org.talend.sdk.component.runtime.avro.ComponentModelToIndexeredRecordConverter;
+import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.processor.SubclassesCache;
+import org.talend.sdk.component.runtime.output.Branches;
+import org.talend.sdk.component.runtime.serialization.LightContainer;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.ValidationResult;
 

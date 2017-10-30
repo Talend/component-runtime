@@ -18,7 +18,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>component-runtime</artifactId>
-    <groupId>org.talend.components</groupId>
+    <groupId>org.talend.sdk.component</groupId>
     <version>@project.version@</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -28,7 +28,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.talend.components</groupId>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-api</artifactId>
       <version>@project.version@</version>
       <scope>provided</scope>
@@ -43,7 +43,7 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.talend.components</groupId>
+        <groupId>org.talend.sdk.component</groupId>
         <artifactId>talend-component-maven-plugin</artifactId>
         <version>@project.version@</version>
         <executions>

@@ -1,6 +1,6 @@
 package {{package}};
 
-import org.talend.component.api.service.Service;
+import org.talend.sdk.component.api.service.Service;
 
 @Service
 public class SalesforceService {

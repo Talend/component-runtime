@@ -13,11 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import java.util.jar.JarInputStream
+
 import org.apache.maven.artifact.DefaultArtifact
 import org.apache.maven.artifact.handler.DefaultArtifactHandler
 import org.apache.maven.model.Dependency
 import org.apache.maven.model.Repository
+
+import java.util.jar.JarInputStream
 
 // note: we can extract that logic into a small lib instead of inlining it here
 // technical note: we avoid to use tycho which is too impacting on the build process

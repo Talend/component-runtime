@@ -83,7 +83,7 @@ To import it add to your project the following dependency:
 [source,xml]
 ----
 <dependency>
-  <groupId>org.talend.components</groupId>
+  <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime-junit</artifactId>
   <version>${talend-component.version}</version>
   <scope>test</scope>
@@ -98,7 +98,7 @@ Then you can define a standard JUnit test and use the `SimpleComponentRule` rule
 public class MyComponentTest {
 
     @Rule <1>
-    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.component.mycomponent.");
+    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.sdk.component.mycomponent.");
 
     @Test
     public void produce() {
@@ -135,7 +135,7 @@ The input mocking is symmetric to the output but here you provide the data you w
 public class MyComponentTest {
 
     @Rule
-    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.component.mycomponent.");
+    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.sdk.component.mycomponent.");
 
     @Test
     public void produce() {
@@ -163,7 +163,7 @@ The folowing artifact will allow you to test against a spark cluster:
 [source,xml]
 ----
 <dependency>
-  <groupId>org.talend.components</groupId>
+  <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime-testing-spark</artifactId>
   <version>${talend-component.version}</version>
   <scope>test</scope>

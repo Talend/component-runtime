@@ -17,7 +17,7 @@ package org.superbiz;
 
 import java.io.Serializable;
 
-import org.talend.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.type.DataStore;
 
 @DataStore
 public class MyDataStore implements Serializable {

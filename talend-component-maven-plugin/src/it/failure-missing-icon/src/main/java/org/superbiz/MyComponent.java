@@ -17,9 +17,9 @@ package org.superbiz;
 
 import java.io.Serializable;
 
-import org.talend.component.api.component.Version;
-import org.talend.component.api.processor.ElementListener;
-import org.talend.component.api.processor.Processor;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Processor;
 
 @Version
 @Processor(family = "test", name = "my")

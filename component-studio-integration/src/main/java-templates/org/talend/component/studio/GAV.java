@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.component.studio;
+package org.talend.sdk.component.studio;
 
 public interface GAV {
 
