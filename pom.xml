@@ -113,6 +113,9 @@
 
     <talend-icon.version>0.121.0</talend-icon.version>
 
+    <groovy.version>2.6.0-alpha-1</groovy.version>
+    <gmavenplus.version>1.6</gmavenplus.version>
+
     <node.version>v8.4.0</node.version>
     <yarn.version>v0.28.4</yarn.version>
     <frontend.version>1.5</frontend.version>
