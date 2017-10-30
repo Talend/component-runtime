@@ -111,7 +111,7 @@
     <meecrowave.version>1.1.0</meecrowave.version>
     <log4j2.version>2.9.0</log4j2.version>
 
-    <talend-icon.version>0.102.4-SNAPSHOT</talend-icon.version>
+    <talend-icon.version>0.121.0</talend-icon.version>
 
     <node.version>v8.4.0</node.version>
     <yarn.version>v0.28.4</yarn.version>
