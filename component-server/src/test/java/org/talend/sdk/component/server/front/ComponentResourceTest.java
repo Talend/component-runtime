@@ -63,7 +63,7 @@ public class ComponentResourceTest {
     private WebsocketClient ws;
 
     @Test
-    public void getIndexWebSocket() throws IOException, DeploymentException {
+    public void webSocketGetIndex() throws IOException, DeploymentException {
         assertIndex(ws.read(ComponentIndices.class, "get", "/component/index", ""));
     }
 

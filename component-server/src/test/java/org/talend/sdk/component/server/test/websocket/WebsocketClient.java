@@ -113,8 +113,9 @@ public class WebsocketClient {
 
         try {
             final RemoteEndpoint.Async asyncRemote = session.getAsyncRemote();
-            asyncRemote.sendBinary(ByteBuffer.wrap(("SEND\r\ndestination:" + uri + "\r\nAccept: " + type
-                    + "\r\nContent-Type: application/json\r\n\r\n" + body + "^@").getBytes(StandardCharsets.UTF_8)));
+            final String payload = "SEND\r\ndestination:" + uri + "\r\nAccept: " + type + "\r\nContent-Type: "
+                    + "application/json\r\n\r\n" + body + "^@";
+            asyncRemote.sendBinary(ByteBuffer.wrap(payload.getBytes(StandardCharsets.UTF_8)));
 
             latch.await(1, MINUTES);
         } catch (final InterruptedException e) {
@@ -124,7 +125,7 @@ public class WebsocketClient {
         try {
             final String index = indexHolder.get();
             assertTrue(index, index.startsWith("MESSAGE\r\n"));
-            assertTrue(index, index.contains("Content-Type: application/json\r\n"));
+            assertTrue(index, index.contains("Content-Type: " + type + "\r\n"));
             final int startJson = index.indexOf('{');
             final int endJson = index.indexOf("^@");
             assertTrue(index, startJson > 0);

@@ -43,10 +43,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
@@ -69,6 +72,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
+import javax.websocket.CloseReason;
 import javax.websocket.DeploymentException;
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
@@ -76,17 +80,37 @@ import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
 import javax.ws.rs.core.HttpHeaders;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.continuations.Continuation;
+import org.apache.cxf.continuations.ContinuationCallback;
+import org.apache.cxf.continuations.ContinuationProvider;
 import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.jaxrs.JAXRSServiceFactoryBean;
+import org.apache.cxf.message.ExchangeImpl;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.AbstractDestination;
+import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.apache.cxf.transport.http.ContinuationProviderFactory;
 import org.apache.cxf.transport.http.DestinationRegistry;
+import org.apache.cxf.transport.http.HTTPSession;
 import org.apache.cxf.transport.http.HTTPTransportFactory;
 import org.apache.cxf.transport.servlet.ServletController;
+import org.apache.cxf.transport.servlet.ServletDestination;
 import org.apache.cxf.transport.servlet.servicelist.ServiceListGeneratorServlet;
+import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.tomcat.util.http.FastHttpDateFormat;
 
 import lombok.Data;
@@ -101,6 +125,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
     @Inject
     private Bus bus;
 
+    @Inject
+    private Instance<Application> applications;
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         final ServerContainer container = ServerContainer.class
@@ -108,6 +135,11 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         final JAXRSServiceFactoryBean factory = JAXRSServiceFactoryBean.class.cast(bus.getExtension(ServerRegistry.class)
                 .getServers().iterator().next().getEndpoint().get(JAXRSServiceFactoryBean.class.getName()));
+
+        final String appBase = applications.stream().filter(a -> a.getClass().isAnnotationPresent(ApplicationPath.class))
+                .map(a -> a.getClass().getAnnotation(ApplicationPath.class)).map(ApplicationPath::value).findFirst()
+                .map(s -> !s.startsWith("/") ? "/" + s : s).orElse("/api/v1");
+        final String version = appBase.replaceFirst("/api", "");
 
         final DestinationRegistry registry;
         try {
@@ -121,7 +153,8 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         final ServletContext servletContext = sce.getServletContext();
 
-        final ServletController controller = new ServletController(registry, new ServletConfig() {
+        final WebSocketRegistry webSocketRegistry = new WebSocketRegistry(registry);
+        final ServletController controller = new ServletController(webSocketRegistry, new ServletConfig() {
 
             @Override
             public String getServletName() {
@@ -143,6 +176,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 return emptyEnumeration();
             }
         }, new ServiceListGeneratorServlet(registry, bus));
+        webSocketRegistry.controller = controller;
 
         factory.getClassResourceInfo().stream().flatMap(cri -> cri.getMethodDispatcher().getOperationResourceInfos().stream())
                 .map(ori -> {
@@ -150,7 +184,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                     return ServerEndpointConfig.Builder
                             // todo: add version
                             .create(Endpoint.class,
-                                    "/websocket/v1/" + String.valueOf(ori.getHttpMethod()).toLowerCase(ENGLISH) + uri)
+                                    "/websocket" + version + "/" + String.valueOf(ori.getHttpMethod()).toLowerCase(ENGLISH) + uri)
                             .configurator(new ServerEndpointConfig.Configurator() {
 
                                 @Override
@@ -164,7 +198,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                                         headers.put(HttpHeaders.ACCEPT,
                                                 singletonList(ori.getConsumeTypes().iterator().next().toString()));
                                     }
-                                    return (T) new JAXRSEndpoint(controller, servletContext, ori.getHttpMethod(), uri, 8080,
+                                    return (T) new JAXRSEndpoint(appBase, controller, servletContext, ori.getHttpMethod(), uri,
                                             headers);
                                 }
                             }).build();
@@ -181,6 +215,8 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
     @Data
     private static class JAXRSEndpoint extends Endpoint {
 
+        private final String appBase;
+
         private final ServletController controller;
 
         private final ServletContext context;
@@ -189,12 +225,11 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         private final String defaultUri;
 
-        private final int port;
-
         private final Map<String, List<String>> baseHeaders;
 
         @Override
         public void onOpen(final Session session, final EndpointConfig endpointConfig) {
+            log.debug("Opened session {}", session.getId());
             session.addMessageHandler(InputStream.class, message -> {
                 final Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                 headers.putAll(baseHeaders);
@@ -237,13 +272,23 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 }
 
                 try {
-                    final WebSocketRequest request = new WebSocketRequest(method, headers, uri, "/api/v1" + uri, "/api/v1", null,
-                            port, context, new WebSocketInputStream(message), session);
+                    final WebSocketRequest request = new WebSocketRequest(method, headers, uri, appBase + uri, appBase,
+                            session.getQueryString(), 8080, context, new WebSocketInputStream(message), session);
                     controller.invoke(request, new WebSocketResponse(session));
                 } catch (final ServletException e) {
                     throw new IllegalArgumentException(e);
                 }
             });
+        }
+
+        @Override
+        public void onClose(final Session session, final CloseReason closeReason) {
+            log.debug("Closed session {}", session.getId());
+        }
+
+        @Override
+        public void onError(final Session session, final Throwable throwable) {
+            log.warn("Error for session {}", session.getId(), throwable);
         }
 
         private static String readLine(final StringBuilder buffer, final InputStream in) throws IOException {
@@ -698,6 +743,8 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         private boolean finished;
 
+        private int previous = Integer.MAX_VALUE;
+
         private WebSocketInputStream(final InputStream delegate) {
             this.delegate = delegate;
         }
@@ -719,7 +766,21 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         @Override
         public int read() throws IOException {
+            if (finished) {
+                return -1;
+            }
+            if (previous != Integer.MAX_VALUE) {
+                previous = Integer.MAX_VALUE;
+                return previous;
+            }
             final int read = delegate.read();
+            if (read == '^') {
+                previous = delegate.read();
+                if (previous == '@') {
+                    finished = true;
+                    return -1;
+                }
+            }
             if (read < 0) {
                 finished = true;
             }
@@ -884,18 +945,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         @Override
         public PrintWriter getWriter() throws IOException {
-            return writer == null ? (writer = new PrintWriter(sosi) {
-
-                @Override
-                public void flush() {
-                    super.flush();
-                }
-
-                @Override
-                public void close() {
-                    super.close();
-                }
-            }) : writer;
+            return writer == null ? (writer = new PrintWriter(sosi)) : writer;
         }
 
         @Override
@@ -1074,6 +1124,321 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
             if (basicRemote.getBatchingAllowed()) {
                 basicRemote.flushBatch();
             }
+        }
+    }
+
+    private static class WebSocketRegistry implements DestinationRegistry {
+
+        private final DestinationRegistry delegate;
+
+        private ServletController controller;
+
+        private WebSocketRegistry(final DestinationRegistry registry) {
+            this.delegate = registry;
+        }
+
+        @Override
+        public void addDestination(final AbstractHTTPDestination destination) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void removeDestination(final String path) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public AbstractHTTPDestination getDestinationForPath(final String path) {
+            return wrap(delegate.getDestinationForPath(path));
+        }
+
+        @Override
+        public AbstractHTTPDestination getDestinationForPath(final String path, final boolean tryDecoding) {
+            return wrap(delegate.getDestinationForPath(path, tryDecoding));
+        }
+
+        @Override
+        public AbstractHTTPDestination checkRestfulRequest(final String address) {
+            return wrap(delegate.checkRestfulRequest(address));
+        }
+
+        @Override
+        public Collection<AbstractHTTPDestination> getDestinations() {
+            return delegate.getDestinations();
+        }
+
+        @Override
+        public AbstractDestination[] getSortedDestinations() {
+            return delegate.getSortedDestinations();
+        }
+
+        @Override
+        public Set<String> getDestinationsPaths() {
+            return delegate.getDestinationsPaths();
+        }
+
+        private AbstractHTTPDestination wrap(final AbstractHTTPDestination destination) {
+            try {
+                return destination == null ? null : new WebSocketDestination(destination, this);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+    }
+
+    private static class WebSocketDestination extends AbstractHTTPDestination {
+
+        static final Logger LOG = LogUtils.getL7dLogger(ServletDestination.class);
+
+        private final AbstractHTTPDestination delegate;
+
+        private WebSocketDestination(final AbstractHTTPDestination delegate, final WebSocketRegistry registry)
+                throws IOException {
+            super(delegate.getBus(), registry, new EndpointInfo(), delegate.getPath(), false);
+            this.delegate = delegate;
+            this.cproviderFactory = new WebSocketContinuationFactory(registry);
+        }
+
+        @Override
+        public EndpointReferenceType getAddress() {
+            return delegate.getAddress();
+        }
+
+        @Override
+        public Conduit getBackChannel(Message inMessage) throws IOException {
+            return delegate.getBackChannel(inMessage);
+        }
+
+        @Override
+        public EndpointInfo getEndpointInfo() {
+            return delegate.getEndpointInfo();
+        }
+
+        @Override
+        public void shutdown() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setMessageObserver(final MessageObserver observer) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public MessageObserver getMessageObserver() {
+            return delegate.getMessageObserver();
+        }
+
+        @Override
+        protected Logger getLogger() {
+            return LOG;
+        }
+
+        @Override
+        public Bus getBus() {
+            return delegate.getBus();
+        }
+
+        @Override
+        public void invoke(final ServletConfig config, final ServletContext context, final HttpServletRequest req,
+                final HttpServletResponse resp) throws IOException {
+            // eager create the message to ensure we set our continuation for @Suspended
+            Message inMessage = retrieveFromContinuation(req);
+            if (inMessage == null) {
+                inMessage = new MessageImpl();
+
+                final ExchangeImpl exchange = new ExchangeImpl();
+                exchange.setInMessage(inMessage);
+                setupMessage(inMessage, config, context, req, resp);
+
+                exchange.setSession(new HTTPSession(req));
+                MessageImpl.class.cast(inMessage).setDestination(this);
+            }
+
+            delegate.invoke(config, context, req, resp);
+        }
+
+        @Override
+        public void finalizeConfig() {
+            delegate.finalizeConfig();
+        }
+
+        @Override
+        public String getBeanName() {
+            return delegate.getBeanName();
+        }
+
+        @Override
+        public EndpointReferenceType getAddressWithId(final String id) {
+            return delegate.getAddressWithId(id);
+        }
+
+        @Override
+        public String getId(final Map<String, Object> context) {
+            return delegate.getId(context);
+        }
+
+        @Override
+        public String getContextMatchStrategy() {
+            return delegate.getContextMatchStrategy();
+        }
+
+        @Override
+        public boolean isFixedParameterOrder() {
+            return delegate.isFixedParameterOrder();
+        }
+
+        @Override
+        public boolean isMultiplexWithAddress() {
+            return delegate.isMultiplexWithAddress();
+        }
+
+        @Override
+        public HTTPServerPolicy getServer() {
+            return delegate.getServer();
+        }
+
+        @Override
+        public void assertMessage(final Message message) {
+            delegate.assertMessage(message);
+        }
+
+        @Override
+        public boolean canAssert(final QName type) {
+            return delegate.canAssert(type);
+        }
+
+        @Override
+        public String getPath() {
+            return delegate.getPath();
+        }
+    }
+
+    private static class WebSocketContinuationFactory implements ContinuationProviderFactory {
+
+        private static final String KEY = WebSocketContinuationFactory.class.getName();
+
+        private final WebSocketRegistry registry;
+
+        private WebSocketContinuationFactory(final WebSocketRegistry registry) {
+            this.registry = registry;
+        }
+
+        @Override
+        public ContinuationProvider createContinuationProvider(final Message inMessage, final HttpServletRequest req,
+                final HttpServletResponse resp) {
+            return new WebSocketContinuation(inMessage, req, resp, registry);
+        }
+
+        @Override
+        public Message retrieveFromContinuation(final HttpServletRequest req) {
+            return Message.class.cast(req.getAttribute(KEY));
+        }
+    }
+
+    private static class WebSocketContinuation implements ContinuationProvider, Continuation {
+
+        private final Message message;
+
+        private final HttpServletRequest request;
+
+        private final HttpServletResponse response;
+
+        private final WebSocketRegistry registry;
+
+        private final ContinuationCallback callback;
+
+        private Object object;
+
+        private boolean resumed;
+
+        private boolean pending;
+
+        private boolean isNew;
+
+        private WebSocketContinuation(final Message message, final HttpServletRequest request, final HttpServletResponse response,
+                final WebSocketRegistry registry) {
+            this.message = message;
+            this.request = request;
+            this.response = response;
+            this.registry = registry;
+            this.request.setAttribute(AbstractHTTPDestination.CXF_CONTINUATION_MESSAGE, message.getExchange().getInMessage());
+            this.callback = message.getExchange().get(ContinuationCallback.class);
+        }
+
+        @Override
+        public Continuation getContinuation() {
+            return this;
+        }
+
+        @Override
+        public void complete() {
+            message.getExchange().getInMessage().remove(AbstractHTTPDestination.CXF_CONTINUATION_MESSAGE);
+            if (callback != null) {
+                final Exception ex = message.getExchange().get(Exception.class);
+                if (ex == null) {
+                    callback.onComplete();
+                } else {
+                    callback.onError(ex);
+                }
+            }
+            try {
+                response.getWriter().close();
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        @Override
+        public boolean suspend(final long timeout) {
+            isNew = false;
+            resumed = false;
+            pending = true;
+            message.getExchange().getInMessage().getInterceptorChain().suspend();
+            return true;
+        }
+
+        @Override
+        public void resume() {
+            resumed = true;
+            try {
+                registry.controller.invoke(request, response);
+            } catch (final ServletException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        @Override
+        public void reset() {
+            pending = false;
+            resumed = false;
+            isNew = false;
+            object = null;
+        }
+
+        @Override
+        public boolean isNew() {
+            return isNew;
+        }
+
+        @Override
+        public boolean isPending() {
+            return pending;
+        }
+
+        @Override
+        public boolean isResumed() {
+            return resumed;
+        }
+
+        @Override
+        public Object getObject() {
+            return object;
+        }
+
+        @Override
+        public void setObject(final Object o) {
+            object = o;
         }
     }
 }
