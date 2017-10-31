@@ -109,6 +109,8 @@
     <ziplock.version>7.0.3</ziplock.version>
     <johnzon.version>1.1.4</johnzon.version>
     <meecrowave.version>1.1.0</meecrowave.version>
+    <cxf.version>3.1.12</cxf.version>
+    <tomcat.version>9.0.0.M26</tomcat.version>
     <log4j2.version>2.9.0</log4j2.version>
 
     <talend-icon.version>0.121.0</talend-icon.version>

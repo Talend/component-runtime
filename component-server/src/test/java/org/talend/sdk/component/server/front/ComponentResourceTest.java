@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.server.front;
 
@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import javax.inject.Inject;
+import javax.websocket.DeploymentException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
@@ -49,6 +51,7 @@ import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
 @RunWith(MonoMeecrowave.Runner.class)
 public class ComponentResourceTest {
@@ -56,21 +59,17 @@ public class ComponentResourceTest {
     @Inject
     private WebTarget base;
 
+    @Inject
+    private WebsocketClient ws;
+
+    @Test
+    public void getIndexWebSocket() throws IOException, DeploymentException {
+        assertIndex(ws.read(ComponentIndices.class, "get", "/component/index", ""));
+    }
+
     @Test
     public void getIndex() {
-        final ComponentIndices index = fetchIndex();
-        assertEquals(6, index.getComponents().size());
-
-        final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
-        list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));
-
-        final Iterator<ComponentIndex> component = list.iterator();
-        assertComponent("the-test-component", "chain", "count", "count", component, 1);
-        assertComponent("the-test-component", "chain", "file", "file", component, 1);
-        assertComponent("the-test-component", "chain", "list", "The List Component", component, 1);
-        assertComponent("another-test-component", "comp", "proc", "proc", component, 1);
-        assertComponent("file-component", "file", "output", "output", component, 1);
-        assertComponent("jdbc-component", "jdbc", "input", "input", component, 2);
+        assertIndex(fetchIndex());
     }
 
     @Test
@@ -182,5 +181,20 @@ public class ComponentResourceTest {
         } else {
             assertEquals("default", data.getIcon());
         }
+    }
+
+    private void assertIndex(final ComponentIndices index) {
+        assertEquals(6, index.getComponents().size());
+
+        final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
+        list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));
+
+        final Iterator<ComponentIndex> component = list.iterator();
+        assertComponent("the-test-component", "chain", "count", "count", component, 1);
+        assertComponent("the-test-component", "chain", "file", "file", component, 1);
+        assertComponent("the-test-component", "chain", "list", "The List Component", component, 1);
+        assertComponent("another-test-component", "comp", "proc", "proc", component, 1);
+        assertComponent("file-component", "file", "output", "output", component, 1);
+        assertComponent("jdbc-component", "jdbc", "input", "input", component, 2);
     }
 }

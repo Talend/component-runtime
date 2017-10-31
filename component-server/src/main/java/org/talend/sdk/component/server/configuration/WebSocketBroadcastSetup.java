@@ -1,0 +1,1079 @@
+/**
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.talend.sdk.component.server.configuration;
+
+import static java.util.Collections.emptyEnumeration;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.enumeration;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+import static java.util.Locale.ENGLISH;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.Principal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
+import javax.servlet.ReadListener;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.WriteListener;
+import javax.servlet.annotation.WebListener;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpUpgradeHandler;
+import javax.servlet.http.Part;
+import javax.websocket.DeploymentException;
+import javax.websocket.Endpoint;
+import javax.websocket.EndpointConfig;
+import javax.websocket.RemoteEndpoint;
+import javax.websocket.Session;
+import javax.websocket.server.ServerContainer;
+import javax.websocket.server.ServerEndpointConfig;
+import javax.ws.rs.core.HttpHeaders;
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
+import org.apache.cxf.endpoint.ServerRegistry;
+import org.apache.cxf.jaxrs.JAXRSServiceFactoryBean;
+import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.transport.http.DestinationRegistry;
+import org.apache.cxf.transport.http.HTTPTransportFactory;
+import org.apache.cxf.transport.servlet.ServletController;
+import org.apache.cxf.transport.servlet.servicelist.ServiceListGeneratorServlet;
+import org.apache.tomcat.util.http.FastHttpDateFormat;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+// ensure any JAX-RS command can use websockets
+@Slf4j
+@Dependent
+@WebListener
+public class WebSocketBroadcastSetup implements ServletContextListener {
+
+    @Inject
+    private Bus bus;
+
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        final ServerContainer container = ServerContainer.class
+                .cast(sce.getServletContext().getAttribute(ServerContainer.class.getName()));
+
+        final JAXRSServiceFactoryBean factory = JAXRSServiceFactoryBean.class.cast(bus.getExtension(ServerRegistry.class)
+                .getServers().iterator().next().getEndpoint().get(JAXRSServiceFactoryBean.class.getName()));
+
+        final DestinationRegistry registry;
+        try {
+            final HTTPTransportFactory transportFactory = HTTPTransportFactory.class
+                    .cast(bus.getExtension(DestinationFactoryManager.class)
+                            .getDestinationFactory("http://cxf.apache.org/transports/http" + "/configuration"));
+            registry = transportFactory.getRegistry();
+        } catch (final BusException e) {
+            throw new IllegalStateException(e);
+        }
+
+        final ServletContext servletContext = sce.getServletContext();
+
+        final ServletController controller = new ServletController(registry, new ServletConfig() {
+
+            @Override
+            public String getServletName() {
+                return "Talend Component Kit Websocket Transport";
+            }
+
+            @Override
+            public ServletContext getServletContext() {
+                return servletContext;
+            }
+
+            @Override
+            public String getInitParameter(final String s) {
+                return null;
+            }
+
+            @Override
+            public Enumeration<String> getInitParameterNames() {
+                return emptyEnumeration();
+            }
+        }, new ServiceListGeneratorServlet(registry, bus));
+
+        factory.getClassResourceInfo().stream().flatMap(cri -> cri.getMethodDispatcher().getOperationResourceInfos().stream())
+                .map(ori -> {
+                    final String uri = ori.getClassResourceInfo().getURITemplate().getValue() + ori.getURITemplate().getValue();
+                    return ServerEndpointConfig.Builder
+                            // todo: add version
+                            .create(Endpoint.class,
+                                    "/websocket/v1/" + String.valueOf(ori.getHttpMethod()).toLowerCase(ENGLISH) + uri)
+                            .configurator(new ServerEndpointConfig.Configurator() {
+
+                                @Override
+                                public <T> T getEndpointInstance(final Class<T> clazz) throws InstantiationException {
+                                    final Map<String, List<String>> headers = new HashMap<>();
+                                    if (!ori.getProduceTypes().isEmpty()) {
+                                        headers.put(HttpHeaders.CONTENT_TYPE,
+                                                singletonList(ori.getProduceTypes().iterator().next().toString()));
+                                    }
+                                    if (!ori.getConsumeTypes().isEmpty()) {
+                                        headers.put(HttpHeaders.ACCEPT,
+                                                singletonList(ori.getConsumeTypes().iterator().next().toString()));
+                                    }
+                                    return (T) new JAXRSEndpoint(controller, servletContext, ori.getHttpMethod(), uri, 8080,
+                                            headers);
+                                }
+                            }).build();
+                }).sorted(Comparator.comparing(ServerEndpointConfig::getPath))
+                .peek(e -> log.info("Deploying WebSocket(path={})", e.getPath())).forEach(config -> {
+                    try {
+                        container.addEndpoint(config);
+                    } catch (final DeploymentException e) {
+                        throw new IllegalStateException(e);
+                    }
+                });
+    }
+
+    @Data
+    private static class JAXRSEndpoint extends Endpoint {
+
+        private final ServletController controller;
+
+        private final ServletContext context;
+
+        private final String method;
+
+        private final String defaultUri;
+
+        private final int port;
+
+        private final Map<String, List<String>> baseHeaders;
+
+        @Override
+        public void onOpen(final Session session, final EndpointConfig endpointConfig) {
+            session.addMessageHandler(InputStream.class, message -> {
+                final Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                headers.putAll(baseHeaders);
+
+                final StringBuilder buffer = new StringBuilder(128);
+                try { // read headers from the message
+                    if (!"SEND".equalsIgnoreCase(readLine(buffer, message))) {
+                        throw new IllegalArgumentException("not a message");
+                    }
+
+                    String line;
+                    int del;
+                    while ((line = readLine(buffer, message)) != null) {
+                        final boolean done = line.endsWith("^@");
+                        if (done) {
+                            line = line.substring(0, line.length() - "^@".length());
+                        }
+                        if (!line.isEmpty()) {
+                            del = line.indexOf(':');
+                            if (del < 0) {
+                                headers.put(line.trim(), emptyList());
+                            } else {
+                                headers.put(line.substring(0, del).trim(), singletonList(line.substring(del + 1).trim()));
+                            }
+                        }
+                        if (done) {
+                            break;
+                        }
+                    }
+                } catch (final IOException ioe) {
+                    throw new IllegalStateException(ioe);
+                }
+
+                final List<String> uris = headers.get("destination");
+                final String uri;
+                if (uris == null || uris.isEmpty()) {
+                    uri = defaultUri;
+                } else {
+                    uri = uris.iterator().next();
+                }
+
+                try {
+                    final WebSocketRequest request = new WebSocketRequest(method, headers, uri, "/api/v1" + uri, "/api/v1", null,
+                            port, context, new WebSocketInputStream(message), session);
+                    controller.invoke(request, new WebSocketResponse(session));
+                } catch (final ServletException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            });
+        }
+
+        private static String readLine(final StringBuilder buffer, final InputStream in) throws IOException {
+            int c;
+            while ((c = in.read()) != -1) {
+                if (c == '\n') {
+                    break;
+                } else if (c != '\r') {
+                    buffer.append((char) c);
+                }
+            }
+
+            if (buffer.length() == 0) {
+                return null;
+            }
+            final String string = buffer.toString();
+            buffer.setLength(0);
+            return string;
+        }
+    }
+
+    private static class WebSocketRequest implements HttpServletRequest {
+
+        private static final Cookie[] NO_COOKIE = new Cookie[0];
+
+        private static final SimpleDateFormat DATE_FORMATS[] = { new SimpleDateFormat(FastHttpDateFormat.RFC1123_DATE, Locale.US),
+                new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
+                new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US) };
+
+        private final Map<String, Object> attributes = new HashMap<>();
+
+        private final String method;
+
+        private final Map<String, List<String>> headers;
+
+        private final String requestUri;
+
+        private final String pathInfo;
+
+        private final String servletPath;
+
+        private final String query;
+
+        private final int port;
+
+        private final ServletContext servletContext;
+
+        private final ServletInputStream inputStream;
+
+        private final Session session;
+
+        private String encoding;
+
+        private long length;
+
+        private String type;
+
+        private Map<String, String[]> parameters = new HashMap<>();
+
+        private Locale locale = Locale.getDefault();
+
+        private BufferedReader reader;
+
+        private WebSocketRequest(final String method, final Map<String, List<String>> headers, final String requestUri,
+                final String pathInfo, final String servletPath, final String query, final int port,
+                final ServletContext servletContext, final ServletInputStream inputStream, final Session session) {
+            this.method = method;
+            this.headers = headers;
+            this.requestUri = requestUri;
+            this.pathInfo = pathInfo;
+            this.servletPath = servletPath;
+            this.query = query;
+            this.port = port;
+            this.servletContext = servletContext;
+            this.inputStream = inputStream;
+            this.session = session;
+        }
+
+        @Override
+        public String getAuthType() {
+            return null;
+        }
+
+        @Override
+        public Cookie[] getCookies() {
+            return NO_COOKIE;
+        }
+
+        @Override
+        public long getDateHeader(final String name) {
+            final String value = getHeader(name);
+            if (value == null) {
+                return -1L;
+            }
+
+            final SimpleDateFormat[] formats = new SimpleDateFormat[DATE_FORMATS.length];
+            for (int i = 0; i < formats.length; i++) {
+                formats[i] = SimpleDateFormat.class.cast(DATE_FORMATS[i].clone());
+            }
+
+            final long result = FastHttpDateFormat.parseDate(value, formats);
+            if (result != -1L) {
+                return result;
+            }
+            throw new IllegalArgumentException(value);
+        }
+
+        @Override
+        public String getHeader(final String s) {
+            final List<String> strings = headers.get(s);
+            return strings == null || strings.isEmpty() ? null : strings.iterator().next();
+        }
+
+        @Override
+        public Enumeration<String> getHeaders(final String s) {
+            final List<String> strings = headers.get(s);
+            return strings == null || strings.isEmpty() ? null : enumeration(strings);
+        }
+
+        @Override
+        public Enumeration<String> getHeaderNames() {
+            return enumeration(headers.keySet());
+        }
+
+        @Override
+        public int getIntHeader(final String s) {
+            final String value = getHeader(s);
+            if (value == null) {
+                return -1;
+            }
+
+            return Integer.parseInt(value);
+        }
+
+        @Override
+        public String getMethod() {
+            return method;
+        }
+
+        @Override
+        public String getPathInfo() {
+            return pathInfo;
+        }
+
+        @Override
+        public String getPathTranslated() {
+            return pathInfo;
+        }
+
+        @Override
+        public String getContextPath() {
+            return servletContext.getContextPath();
+        }
+
+        @Override
+        public String getQueryString() {
+            return query;
+        }
+
+        @Override
+        public String getRemoteUser() {
+            final Principal principal = getUserPrincipal();
+            return principal == null ? null : principal.getName();
+        }
+
+        @Override
+        public boolean isUserInRole(final String s) {
+            return false; // if needed do it with the original request
+        }
+
+        @Override
+        public Principal getUserPrincipal() {
+            return session.getUserPrincipal();
+        }
+
+        @Override
+        public String getRequestedSessionId() {
+            return null;
+        }
+
+        @Override
+        public String getRequestURI() {
+            return requestUri;
+        }
+
+        @Override
+        public StringBuffer getRequestURL() {
+            return new StringBuffer(requestUri);
+        }
+
+        @Override
+        public String getServletPath() {
+            return servletPath;
+        }
+
+        @Override
+        public HttpSession getSession(final boolean b) {
+            return null;
+        }
+
+        @Override
+        public HttpSession getSession() {
+            return null;
+        }
+
+        @Override
+        public String changeSessionId() {
+            return null;
+        }
+
+        @Override
+        public boolean isRequestedSessionIdValid() {
+            return false;
+        }
+
+        @Override
+        public boolean isRequestedSessionIdFromCookie() {
+            return false;
+        }
+
+        @Override
+        public boolean isRequestedSessionIdFromURL() {
+            return false;
+        }
+
+        @Override
+        public boolean isRequestedSessionIdFromUrl() {
+            return false;
+        }
+
+        @Override
+        public boolean authenticate(final HttpServletResponse httpServletResponse) throws IOException, ServletException {
+            return false;
+        }
+
+        @Override
+        public void login(final String s, final String s1) throws ServletException {
+            // no-op
+        }
+
+        @Override
+        public void logout() throws ServletException {
+            // no-op
+        }
+
+        @Override
+        public Collection<Part> getParts() throws IOException, ServletException {
+            return emptySet();
+        }
+
+        @Override
+        public Part getPart(final String s) throws IOException, ServletException {
+            return null;
+        }
+
+        @Override
+        public <T extends HttpUpgradeHandler> T upgrade(final Class<T> aClass) throws IOException, ServletException {
+            return null;
+        }
+
+        @Override
+        public Object getAttribute(final String s) {
+            return attributes.get(s);
+        }
+
+        @Override
+        public Enumeration<String> getAttributeNames() {
+            return enumeration(attributes.keySet());
+        }
+
+        @Override
+        public String getCharacterEncoding() {
+            return encoding;
+        }
+
+        @Override
+        public void setCharacterEncoding(final String s) throws UnsupportedEncodingException {
+            encoding = s;
+        }
+
+        @Override
+        public int getContentLength() {
+            return (int) length;
+        }
+
+        @Override
+        public long getContentLengthLong() {
+            return length;
+        }
+
+        @Override
+        public String getContentType() {
+            return type;
+        }
+
+        @Override
+        public ServletInputStream getInputStream() throws IOException {
+            return inputStream;
+        }
+
+        @Override
+        public String getParameter(final String s) {
+            final String[] strings = parameters.get(s);
+            return strings == null || strings.length == 0 ? null : strings[0];
+        }
+
+        @Override
+        public Enumeration<String> getParameterNames() {
+            return enumeration(parameters.keySet());
+        }
+
+        @Override
+        public String[] getParameterValues(final String s) {
+            return parameters.get(s);
+        }
+
+        @Override
+        public Map<String, String[]> getParameterMap() {
+            return parameters;
+        }
+
+        @Override
+        public String getProtocol() {
+            return "HTTP/1.1";
+        }
+
+        @Override
+        public String getScheme() {
+            return "http";
+        }
+
+        @Override
+        public String getServerName() {
+            return servletContext.getVirtualServerName();
+        }
+
+        @Override
+        public int getServerPort() {
+            return port;
+        }
+
+        @Override
+        public BufferedReader getReader() throws IOException {
+            return reader == null ? (reader = new BufferedReader(new InputStreamReader(getInputStream()))) : reader;
+        }
+
+        @Override
+        public String getRemoteAddr() {
+            return null;
+        }
+
+        @Override
+        public String getRemoteHost() {
+            return null;
+        }
+
+        @Override
+        public void setAttribute(final String s, final Object o) {
+            attributes.put(s, o);
+        }
+
+        @Override
+        public void removeAttribute(final String s) {
+            attributes.remove(s);
+        }
+
+        @Override
+        public Locale getLocale() {
+            return locale;
+        }
+
+        @Override
+        public Enumeration<Locale> getLocales() {
+            return locale == null ? emptyEnumeration() : enumeration(singleton(locale));
+        }
+
+        @Override
+        public boolean isSecure() {
+            return false;
+        }
+
+        @Override
+        public String getRealPath(final String s) {
+            return null;
+        }
+
+        @Override
+        public int getRemotePort() {
+            return 0;
+        }
+
+        @Override
+        public String getLocalName() {
+            return null;
+        }
+
+        @Override
+        public String getLocalAddr() {
+            return null;
+        }
+
+        @Override
+        public int getLocalPort() {
+            return 0;
+        }
+
+        @Override
+        public ServletContext getServletContext() {
+            return servletContext;
+        }
+
+        @Override
+        public RequestDispatcher getRequestDispatcher(final String s) {
+            return servletContext.getRequestDispatcher(s);
+        }
+
+        @Override
+        public AsyncContext startAsync() throws IllegalStateException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+                throws IllegalStateException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isAsyncStarted() {
+            return false;
+        }
+
+        @Override
+        public boolean isAsyncSupported() {
+            return false;
+        }
+
+        @Override
+        public AsyncContext getAsyncContext() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public DispatcherType getDispatcherType() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private static class WebSocketInputStream extends ServletInputStream {
+
+        private final InputStream delegate;
+
+        private boolean finished;
+
+        private WebSocketInputStream(final InputStream delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public boolean isFinished() {
+            return finished;
+        }
+
+        @Override
+        public boolean isReady() {
+            return true;
+        }
+
+        @Override
+        public void setReadListener(final ReadListener readListener) {
+            // no-op
+        }
+
+        @Override
+        public int read() throws IOException {
+            final int read = delegate.read();
+            if (read < 0) {
+                finished = true;
+            }
+            return read;
+        }
+    }
+
+    private static class WebSocketResponse implements HttpServletResponse {
+
+        private final Session session;
+
+        private String responseString = "OK";
+
+        private int code = HttpServletResponse.SC_OK;
+
+        private final Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+        private transient PrintWriter writer;
+
+        private transient ServletByteArrayOutputStream sosi;
+
+        private boolean commited = false;
+
+        private String encoding = "UTF-8";
+
+        private Locale locale = Locale.getDefault();
+
+        private WebSocketResponse(final Session session) {
+            this.session = session;
+        }
+
+        /**
+         * sets a header to be sent back to the browser
+         *
+         * @param name the name of the header
+         * @param value the value of the header
+         */
+        public void setHeader(final String name, final String value) {
+            headers.put(name, new ArrayList<>(singletonList(value)));
+        }
+
+        @Override
+        public void setIntHeader(final String s, final int i) {
+            setHeader(s, Integer.toString(i));
+        }
+
+        @Override
+        public void setStatus(final int i) {
+            setCode(i);
+        }
+
+        @Override
+        public void setStatus(final int i, final String s) {
+            setCode(i);
+        }
+
+        @Override
+        public void addCookie(final Cookie cookie) {
+            setHeader(cookie.getName(), cookie.getValue());
+        }
+
+        @Override
+        public void addDateHeader(final String s, final long l) {
+            setHeader(s, Long.toString(l));
+        }
+
+        @Override
+        public void addHeader(final String s, final String s1) {
+            Collection<String> list = headers.get(s);
+            if (list == null) {
+                setHeader(s, s1);
+            } else {
+                list.add(s1);
+            }
+        }
+
+        @Override
+        public void addIntHeader(final String s, final int i) {
+            setIntHeader(s, i);
+        }
+
+        @Override
+        public boolean containsHeader(final String s) {
+            return headers.containsKey(s);
+        }
+
+        @Override
+        public String encodeURL(final String s) {
+            return toEncoded(s);
+        }
+
+        @Override
+        public String encodeRedirectURL(final String s) {
+            return toEncoded(s);
+        }
+
+        @Override
+        public String encodeUrl(final String s) {
+            return toEncoded(s);
+        }
+
+        @Override
+        public String encodeRedirectUrl(final String s) {
+            return encodeRedirectURL(s);
+        }
+
+        public String getHeader(final String name) {
+            final Collection<String> strings = headers.get(name);
+            return strings == null ? null : strings.iterator().next();
+        }
+
+        @Override
+        public Collection<String> getHeaderNames() {
+            return headers.keySet();
+        }
+
+        @Override
+        public Collection<String> getHeaders(final String s) {
+            return headers.get(s);
+        }
+
+        @Override
+        public int getStatus() {
+            return getCode();
+        }
+
+        @Override
+        public void sendError(final int i) throws IOException {
+            setCode(i);
+        }
+
+        @Override
+        public void sendError(final int i, final String s) throws IOException {
+            setCode(i);
+        }
+
+        @Override
+        public void sendRedirect(final String path) throws IOException {
+            if (commited) {
+                throw new IllegalStateException("response already committed");
+            }
+            resetBuffer();
+
+            try {
+                setStatus(SC_FOUND);
+
+                setHeader("Location", toEncoded(path));
+            } catch (final IllegalArgumentException e) {
+                setStatus(SC_NOT_FOUND);
+            }
+        }
+
+        @Override
+        public void setDateHeader(final String s, final long l) {
+            addDateHeader(s, l);
+        }
+
+        @Override
+        public ServletOutputStream getOutputStream() {
+            return sosi == null ? (sosi = createOutputStream()) : sosi;
+        }
+
+        @Override
+        public PrintWriter getWriter() throws IOException {
+            return writer == null ? (writer = new PrintWriter(sosi) {
+
+                @Override
+                public void flush() {
+                    super.flush();
+                }
+
+                @Override
+                public void close() {
+                    super.close();
+                }
+            }) : writer;
+        }
+
+        @Override
+        public boolean isCommitted() {
+            return commited;
+        }
+
+        @Override
+        public void reset() {
+            createOutputStream();
+        }
+
+        private ServletByteArrayOutputStream createOutputStream() {
+            return sosi = new ServletByteArrayOutputStream(session, () -> {
+                final RemoteEndpoint.Basic basicRemote = session.getBasicRemote();
+                try {
+                    basicRemote.sendBinary(ByteBuffer.wrap("MESSAGE\r\n".getBytes(StandardCharsets.UTF_8)));
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+                headers.forEach((k, v) -> {
+                    try {
+                        basicRemote.sendBinary(ByteBuffer.wrap((k + ": " + v.stream().collect(Collectors.joining(",")) + "\r\n")
+                                .getBytes(StandardCharsets.UTF_8)));
+                    } catch (final IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                });
+                try {
+                    basicRemote.sendBinary(ByteBuffer.wrap("\r\n".getBytes(StandardCharsets.UTF_8)));
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+        }
+
+        public void flushBuffer() throws IOException {
+            if (writer != null) {
+                writer.flush();
+            }
+        }
+
+        @Override
+        public int getBufferSize() {
+            return sosi.outputStream.size();
+        }
+
+        @Override
+        public String getCharacterEncoding() {
+            return encoding;
+        }
+
+        public void setCode(final int code) {
+            this.code = code;
+            commited = true;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public void setContentType(final String type) {
+            setHeader("Content-Type", type);
+        }
+
+        @Override
+        public void setLocale(final Locale loc) {
+            locale = loc;
+        }
+
+        public String getContentType() {
+            return getHeader("Content-Type");
+        }
+
+        @Override
+        public Locale getLocale() {
+            return locale;
+        }
+
+        @Override
+        public void resetBuffer() {
+            sosi.outputStream.reset();
+        }
+
+        @Override
+        public void setBufferSize(final int i) {
+            // no-op
+        }
+
+        @Override
+        public void setCharacterEncoding(final String s) {
+            encoding = s;
+        }
+
+        @Override
+        public void setContentLength(final int i) {
+            // no-op
+        }
+
+        @Override
+        public void setContentLengthLong(final long length) {
+            // no-op
+        }
+
+        private String toEncoded(final String url) {
+            return url;
+        }
+    }
+
+    private static class ServletByteArrayOutputStream extends ServletOutputStream {
+
+        private static final ByteBuffer EOM = ByteBuffer.wrap("^@".getBytes(StandardCharsets.UTF_8));
+
+        private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        private final Session session;
+
+        private final Runnable preWrite;
+
+        private boolean headerSent;
+
+        private ServletByteArrayOutputStream(final Session session, final Runnable preWrite) {
+            this.session = session;
+            this.preWrite = preWrite;
+        }
+
+        @Override
+        public boolean isReady() {
+            return true;
+        }
+
+        @Override
+        public void setWriteListener(final WriteListener listener) {
+            // no-op
+        }
+
+        @Override
+        public void write(final int b) throws IOException {
+            outputStream.write(b);
+        }
+
+        @Override
+        public void write(final byte[] b, final int off, final int len) {
+            outputStream.write(b, off, len);
+        }
+
+        public void writeTo(final OutputStream out) throws IOException {
+            outputStream.writeTo(out);
+        }
+
+        public void reset() {
+            outputStream.reset();
+        }
+
+        @Override
+        public void flush() throws IOException {
+            if (!session.isOpen()) {
+                return;
+            }
+            if (!headerSent) {
+                preWrite.run();
+                headerSent = true;
+            }
+            final byte[] array = outputStream.toByteArray();
+            if (array.length > 0) {
+                outputStream.reset();
+                session.getBasicRemote().sendBinary(ByteBuffer.wrap(array));
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            flush();
+            final RemoteEndpoint.Basic basicRemote = session.getBasicRemote();
+            basicRemote.sendBinary(EOM);
+            if (basicRemote.getBatchingAllowed()) {
+                basicRemote.flushBatch();
+            }
+        }
+    }
+}
