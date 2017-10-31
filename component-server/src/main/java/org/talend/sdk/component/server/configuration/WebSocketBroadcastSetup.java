@@ -182,7 +182,6 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 .map(ori -> {
                     final String uri = ori.getClassResourceInfo().getURITemplate().getValue() + ori.getURITemplate().getValue();
                     return ServerEndpointConfig.Builder
-                            // todo: add version
                             .create(Endpoint.class,
                                     "/websocket" + version + "/" + String.valueOf(ori.getHttpMethod()).toLowerCase(ENGLISH) + uri)
                             .configurator(new ServerEndpointConfig.Configurator() {
