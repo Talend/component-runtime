@@ -82,7 +82,6 @@ public class Generator {
 
     private static void generatedServerConfiguration(final File generatedDir)
             throws FileNotFoundException, MalformedURLException {
-        // todo: org.apache.deltaspike.core.api.config.Configuration
         final File file = new File(generatedDir, "server-configuration.adoc");
         try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
             stream.println("");
