@@ -1,7 +1,16 @@
+# Maven
 target
+
+# Intellij
 *.iml
 *.iws
 .idea
+
+# Eclipse
+.classpath
+.project
+.settings/
+
 .asciidoctor
 diag-*.png
 generated-*.png
