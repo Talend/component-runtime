@@ -85,6 +85,8 @@ public class KnownJarsFilter implements Predicate<String> {
             add("component-api");
             add("component-spi");
             add("component-runtime");
+            add("component-server");
+            add("component-studio");
             add("compress-lzf");
             add("config");
             add("container-core");
@@ -319,7 +321,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("tomcat-servlet");
             add("tomcat-spdy");
             add("tomcat-util");
-            add("tomcat-websocket-api");
+            add("tomcat-websocket");
             add("tomee-");
             add("tools.jar");
             add("twitter4j-");

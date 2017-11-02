@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
+import org.eclipse.m2e.core.MavenPlugin;
 import org.talend.core.runtime.maven.MavenConstants;
 import org.talend.osgi.hook.maven.MavenResolver;
 
@@ -128,12 +129,38 @@ public class ProcessManager implements AutoCloseable {
                 .of(new File(studioConfigDir, "log4j2-components.xml"), new File(studioConfigDir, "log4j2.xml"))
                 .filter(File::exists).findFirst().orElse(null);
 
+        String m2Repo = System.getProperty("component.java.m2");
+        if (m2Repo == null) {
+            m2Repo = MavenPlugin.getMaven().getLocalRepositoryPath();
+        }
+
+        final String components = System.getProperty("component.java.coordinates");
+        final String registry = System.getProperty("component.java.registry");
+
         final List<String> command = new ArrayList<>();
         command.add(java);
         command.addAll(asList(jvmOptions));
+
         if (log4j2Config != null) {
             command.add("-Dlog4j.configurationFile=" + log4j2Config.getAbsolutePath());
         } // else it will log into the console
+        if (m2Repo != null) {
+            command.add("-Dtalend.component.server.maven.repository=" + m2Repo);
+        }
+        if (components != null) {
+            command.add("-Dtalend.component.server.component.coordinates=" + components);
+        }
+        if (components != null) {
+            command.add("-Dtalend.component.server.component.registry=" + registry);
+        }
+        if (Boolean.getBoolean("component.java.debug")) {
+            command.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address="
+                    + Integer.getInteger("component.java.debug.port", 5005));
+        }
+        // passthrough names matching the server config, can be redundant with previous component.java.xx but easier to understand
+        System.getProperties().stringPropertyNames().stream().filter(n -> n.startsWith("talend.component.server."))
+                .forEach(key -> command.add("-D" + key + "=" + System.getProperty(key, "")));
+
         command.add("-classpath");
         command.add(paths.stream().collect(Collectors.joining(File.pathSeparator)));
         command.add("org.apache.meecrowave.runner.Cli");
@@ -219,7 +246,7 @@ public class ProcessManager implements AutoCloseable {
         return paths;
     }
 
-    private void addDependencies(Collection<String> paths, InputStream deps) {
+    private void addDependencies(final Collection<String> paths, final InputStream deps) {
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(deps))) {
             String line;
 

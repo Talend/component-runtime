@@ -35,6 +35,7 @@
             <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/documentation-testing.html">Testing</a></li>
             <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/documentation-rest.html">REST API</a></li>
             <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/wrapping-a-beam-io.html">How to wrap a Beam I/O</a></li>
+            <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/studio.html">Studio Integration</a></li>
             <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/appendix.html">Appendix</a></li>
           </ul>
         </li>

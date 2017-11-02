@@ -31,6 +31,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.talend.osgi.hook.URIUtil;
 import org.talend.osgi.hook.maven.MavenResolver;
+import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 public class ServerManager extends AbstractUIPlugin {
 
@@ -38,14 +39,20 @@ public class ServerManager extends AbstractUIPlugin {
 
     private final Collection<ServiceRegistration<?>> services = new ArrayList<>();
 
+    private WebSocketClient client;
+
     @Override
     public void start(final BundleContext context) throws Exception {
         super.start(context);
 
         manager = new ProcessManager(GROUP_ID, ARTIFACT_ID, findMavenResolver(), findConfigDir());
         manager.start();
-        services.add(getBundle().getBundleContext().registerService(ProcessManager.class.getName(), manager, new Hashtable<>()));
-        // todo: create a client (and register it as a service?), potentially reuse component-form-core if OSGified
+
+        client = new WebSocketClient("ws://localhost:" + manager.getPort() + "/websocket/v1");
+
+        final BundleContext ctx = getBundle().getBundleContext();
+        services.add(ctx.registerService(ProcessManager.class.getName(), manager, new Hashtable<>()));
+        services.add(ctx.registerService(WebSocketClient.class.getName(), client, new Hashtable<>()));
     }
 
     @Override
@@ -54,9 +61,28 @@ public class ServerManager extends AbstractUIPlugin {
             services.forEach(ServiceRegistration::unregister);
             services.clear();
 
-            if (manager != null) {
-                manager.close();
-                manager = null;
+            RuntimeException error = null;
+            try {
+                if (manager != null) {
+                    manager.close();
+                    manager = null;
+                }
+            } catch (final RuntimeException re) {
+                error = re;
+            }
+            try {
+                if (client != null) {
+                    client.close();
+                    client = null;
+                }
+            } catch (final RuntimeException ioe) {
+                if (error != null) {
+                    throw error;
+                }
+                throw ioe;
+            }
+            if (error != null) {
+                throw error;
             }
         } finally {
             super.stop(context);

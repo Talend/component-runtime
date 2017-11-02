@@ -38,9 +38,9 @@
     <module>component-form</module>
     <module>component-avro-integration</module>
     <module>talend-component-maven-plugin</module>
-    <module>documentation</module>
     <module>component-starter-server</module>
     <module>component-studio-integration</module>
+    <module>documentation</module>
   </modules>
 
   <repositories>
