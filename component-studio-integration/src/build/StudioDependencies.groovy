@@ -35,7 +35,8 @@ def dependencies = [
         'org.talend.designer.core',
         'org.talend.commons.runtime',
         'org.talend.common.ui.runtime',
-        'org.talend.maven.resolver'
+        'org.talend.maven.resolver',
+        'org.eclipse.m2e.core'
 ]
 
 def studioVersion = project.properties['studio.version'].replace('-', '.');
@@ -59,8 +60,8 @@ def doIndex= { base ->
             throw new IllegalStateException('No artifacts.xml found')
         }
 
-        def artifactIndex = new XmlParser().parseText(artifactsJar.text).artifacts.artifact
-                .findAll {
+        def parsedArtifacts = new XmlParser().parseText(artifactsJar.text).artifacts.artifact
+        def artifactIndex = parsedArtifacts.findAll {
             it.version != null && it.id != null &&
                     it.properties != null && it.properties.property != null &&
                     it.properties.property.findIndexOf { p -> p.@name == 'maven-groupId' } >= 0
@@ -74,6 +75,14 @@ def doIndex= { base ->
             def value = "${it.@id}_${it.@version}"
 
             [(key): value]
+        }
+
+        parsedArtifacts.findAll {
+            it.version != null && it.id != null && it.properties != null &&
+                    it.properties.@size.size() == 1 && it.properties.@size.iterator().next() == '1'
+        }
+        .each {
+            artifactIndex.put("${it.@id}", "${it.@id}_${it.@version}")
         }
 
         artifactIndex
@@ -90,10 +99,18 @@ def addDependency = { base, localRepo, gav, index ->
             index.putAll(doIndex(studioRepo))
         }
 
+        def jarName = index.get(gav)
+        if (jarName == null) {
+            jarName = index.get("${gavSplit[1]}")
+        }
+        if (jarName == null) {
+            throw new IllegalArgumentException("Didn't find ${gav} nor ${gavSplit[1]}, available: ${index.keySet().toString()}")
+        }
+
         localPathJar.parentFile.mkdirs()
         def os = localPathJar.newOutputStream()
         try {
-            os << new URL("${base}/plugins/${index.get(gav)}.jar").openStream()
+            os << new URL("${base}/plugins/${jarName}.jar").openStream()
         } finally { // todo: be resilient if download fails instead of storing a corrupted jar and have to delete localPathJar
             os.close()
         }

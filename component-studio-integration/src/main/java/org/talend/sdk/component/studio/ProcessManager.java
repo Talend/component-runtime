@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
+import org.eclipse.m2e.core.MavenPlugin;
 import org.talend.core.runtime.maven.MavenConstants;
 import org.talend.osgi.hook.maven.MavenResolver;
 
@@ -128,7 +129,11 @@ public class ProcessManager implements AutoCloseable {
                 .of(new File(studioConfigDir, "log4j2-components.xml"), new File(studioConfigDir, "log4j2.xml"))
                 .filter(File::exists).findFirst().orElse(null);
 
-        final String m2Repo = System.getProperty("component.java.m2");
+        String m2Repo = System.getProperty("component.java.m2");
+        if (m2Repo == null) {
+            m2Repo = MavenPlugin.getMaven().getLocalRepositoryPath();
+        }
+
         final String components = System.getProperty("component.java.coordinates");
         final String registry = System.getProperty("component.java.registry");
 
@@ -149,7 +154,8 @@ public class ProcessManager implements AutoCloseable {
             command.add("-Dtalend.component.server.component.registry=" + registry);
         }
         if (Boolean.getBoolean("component.java.debug")) {
-            command.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=" + Integer.getInteger("component.java.debug.port", 5005));
+            command.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address="
+                    + Integer.getInteger("component.java.debug.port", 5005));
         }
         // passthrough names matching the server config, can be redundant with previous component.java.xx but easier to understand
         System.getProperties().stringPropertyNames().stream().filter(n -> n.startsWith("talend.component.server."))
@@ -240,7 +246,7 @@ public class ProcessManager implements AutoCloseable {
         return paths;
     }
 
-    private void addDependencies(Collection<String> paths, InputStream deps) {
+    private void addDependencies(final Collection<String> paths, final InputStream deps) {
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(deps))) {
             String line;
 

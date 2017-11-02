@@ -74,7 +74,7 @@ public class ServerManagerTest {
         protected void before() throws Throwable {
             super.before();
             createM2();
-            System.setProperty("talend.component.server.maven.repository", getRoot().getAbsolutePath());
+            System.setProperty("component.java.m2", getRoot().getAbsolutePath());
             System.setProperty("talend.component.server.component.coordinates", "test:test-component:1.0");
         }
 

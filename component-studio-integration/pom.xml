@@ -44,6 +44,12 @@
       <version>3.10.100.v20150521-1310</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.swt.org.eclipse.swt.gtk.linux.x86_64.4.3.swt</groupId>
+      <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+      <version>4.3</version>
+      <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -97,8 +103,17 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.talend.ui</groupId>
+      <artifactId>talend-icon</artifactId>
+      <version>${talend-icon.version}</version>
+    </dependency>
 
-    <!-- to OSGify somehow -> shade? -->
+    <dependency> <!-- needed by tomcat-websocket -->
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-api</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.tomcat</groupId>
       <artifactId>tomcat-websocket</artifactId>
@@ -167,6 +182,8 @@
               org.eclipse.emf.common,
               org.eclipse.gef,
               org.eclipse.ui.views.properties.tabbed;visibility:=reexport,
+              org.eclipse.m2e.core,
+              org.eclipse.m2e.maven.runtime,
               org.talend.core,
               org.talend.core.ui,
               org.talend.core.runtime;visibility:=reexport,
@@ -178,7 +195,7 @@
               org.talend.repository,
               org.talend.metadata.managment.ui
             </Require-Bundle>
-            <Import-Package />
+            <Import-Package/>
             <Bundle-SymbolicName>${project.artifactId};singleton=true</Bundle-SymbolicName>
             <Bundle-Vendor>.Talend SA.</Bundle-Vendor>
             <Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
@@ -309,6 +326,12 @@
         <dependency>
           <groupId>org.talend.studio</groupId>
           <artifactId>org.talend.maven.resolver</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.eclipse.m2e.core</artifactId>
           <version>${studio.version}</version>
           <scope>provided</scope>
         </dependency>
