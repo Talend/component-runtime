@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.runtime.documentation;
 
@@ -23,26 +23,25 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.apache.deltaspike.core.api.config.ConfigProperty;
+import org.apache.deltaspike.core.api.config.Configuration;
 import org.apache.johnzon.mapper.Mapper;
 import org.apache.johnzon.mapper.MapperBuilder;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.JarArchive;
-import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
-import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
-import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
-import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
-import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 import org.talend.sdk.component.api.configuration.condition.meta.Condition;
 import org.talend.sdk.component.api.configuration.constraint.meta.Validation;
 import org.talend.sdk.component.api.configuration.constraint.meta.Validations;
@@ -57,6 +56,12 @@ import org.talend.sdk.component.api.service.completion.Values;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
 import org.talend.sdk.component.api.service.schema.Type;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
+import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
+import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -72,6 +77,40 @@ public class Generator {
         generatedConditions(generatedDir);
         generatedActions(generatedDir);
         generatedUi(generatedDir);
+        generatedServerConfiguration(generatedDir);
+    }
+
+    private static void generatedServerConfiguration(final File generatedDir)
+            throws FileNotFoundException, MalformedURLException {
+        // todo: org.apache.deltaspike.core.api.config.Configuration
+        final File file = new File(generatedDir, "server-configuration.adoc");
+        try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+            stream.println("");
+            stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
+            stream.println("");
+            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
+            stream.println("|====");
+            stream.println("|Key|Description|Default");
+            final File api = jarLocation(ComponentServerConfiguration.class);
+            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            final AnnotationFinder finder = new AnnotationFinder(
+                    api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
+            finder.findAnnotatedClasses(Configuration.class).stream()
+                    .sorted(Comparator.comparing(t -> t.getAnnotation(Configuration.class).prefix()))
+                    .flatMap(c -> Stream.of(c.getMethods())).forEach(method -> {
+                        final ConfigProperty configProperty = method.getAnnotation(ConfigProperty.class);
+                        final String name = method.getDeclaringClass().getAnnotation(Configuration.class).prefix()
+                                + configProperty.name();
+
+                        stream.println("|" + name + "|" + method.getAnnotation(Documentation.class).value() + "|"
+                                + (ConfigProperty.NULL.equalsIgnoreCase(configProperty.defaultValue()) ? "-"
+                                        : configProperty.defaultValue()));
+                    });
+            stream.println("|====");
+            stream.println();
+
+        }
+        System.out.println("Generated " + file);
     }
 
     private static void generatedActions(final File generatedDir) throws Exception {

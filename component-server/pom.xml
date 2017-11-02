@@ -157,6 +157,47 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>${gmavenplus.version}</version>
+        <executions>
+          <execution>
+            <id>setup-deps</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <scripts>
+            <script>
+              project.properties.setProperty('osgiVersion', project.version.replace('-', '.'))
+              project.properties.setProperty('osgiExportedVersion', project.version.replace('-SNAPSHOT', ''))
+              project.properties.setProperty('osgiLicence', project.licenses[0].url)
+              project.properties.setProperty('osgiTimestamp', Long.toString(System.currentTimeMillis()))
+            </script>
+          </scripts>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.talend.sdk.component</groupId>
+            <artifactId>component-server</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.tomee</groupId>
+            <artifactId>ziplock</artifactId>
+            <version>${ziplock.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.0.0</version>
@@ -249,6 +290,21 @@
               <includes>
                 <include>org/talend/sdk/component/server/front/model/**/*.class</include>
               </includes>
+              <archive>
+                <manifestEntries>
+                  <Build-Jdk>${java.version}</Build-Jdk>
+                  <Built-By>${user.name}</Built-By>
+                  <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+                  <Bundle-Name>${project.name}</Bundle-Name>
+                  <Bundle-SymbolicName>${project.groupId}.server.model</Bundle-SymbolicName>
+                  <Created-By>Talend Component Kit Build</Created-By>
+                  <Require-Capability>osgi.ee;filter:="(&amp;(osgi.ee=JavaSE)(version=1.8))"</Require-Capability>
+                  <Export-Package>org.talend.sdk.component.server.front.model;version="${osgiExportedVersion}",org.talend.sdk.component.server.front.model.error;version="${osgiExportedVersion}",org.talend.sdk.component.server.front.model.execution;version="${osgiExportedVersion}"</Export-Package>
+                  <Bnd-LastModified>${osgiTimestamp}</Bnd-LastModified>
+                  <Bundle-License>${osgiLicence}</Bundle-License>
+                  <Bundle-Version>${osgiVersion}</Bundle-Version>
+                </manifestEntries>
+              </archive>
             </configuration>
           </execution>
         </executions>

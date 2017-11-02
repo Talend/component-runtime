@@ -45,6 +45,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -121,6 +122,8 @@ import lombok.extern.slf4j.Slf4j;
 @Dependent
 @WebListener
 public class WebSocketBroadcastSetup implements ServletContextListener {
+
+    private static final String EOM = "^@";
 
     @Inject
     private Bus bus;
@@ -242,9 +245,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                     String line;
                     int del;
                     while ((line = readLine(buffer, message)) != null) {
-                        final boolean done = line.endsWith("^@");
+                        final boolean done = line.endsWith(EOM);
                         if (done) {
-                            line = line.substring(0, line.length() - "^@".length());
+                            line = line.substring(0, line.length() - EOM.length());
                         }
                         if (!line.isEmpty()) {
                             del = line.indexOf(':');
@@ -270,9 +273,20 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                     uri = uris.iterator().next();
                 }
 
+                final String queryString;
+                final String path;
+                final int query = uri.indexOf('?');
+                if (query > 0) {
+                    queryString = uri.substring(query + 1);
+                    path = uri.substring(0, query);
+                } else {
+                    queryString = null;
+                    path = uri;
+                }
+
                 try {
-                    final WebSocketRequest request = new WebSocketRequest(method, headers, uri, appBase + uri, appBase,
-                            session.getQueryString(), 8080, context, new WebSocketInputStream(message), session);
+                    final WebSocketRequest request = new WebSocketRequest(method, headers, path, appBase + path, appBase,
+                            queryString, 8080, context, new WebSocketInputStream(message), session);
                     controller.invoke(request, new WebSocketResponse(session));
                 } catch (final ServletException e) {
                     throw new IllegalArgumentException(e);
@@ -959,25 +973,12 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         private ServletByteArrayOutputStream createOutputStream() {
             return sosi = new ServletByteArrayOutputStream(session, () -> {
-                final RemoteEndpoint.Basic basicRemote = session.getBasicRemote();
-                try {
-                    basicRemote.sendBinary(ByteBuffer.wrap("MESSAGE\r\n".getBytes(StandardCharsets.UTF_8)));
-                } catch (final IOException e) {
-                    throw new IllegalStateException(e);
-                }
-                headers.forEach((k, v) -> {
-                    try {
-                        basicRemote.sendBinary(ByteBuffer.wrap((k + ": " + v.stream().collect(Collectors.joining(",")) + "\r\n")
-                                .getBytes(StandardCharsets.UTF_8)));
-                    } catch (final IOException e) {
-                        throw new IllegalStateException(e);
-                    }
-                });
-                try {
-                    basicRemote.sendBinary(ByteBuffer.wrap("\r\n".getBytes(StandardCharsets.UTF_8)));
-                } catch (final IOException e) {
-                    throw new IllegalStateException(e);
-                }
+                final StringBuilder top = new StringBuilder("MESSAGE\r\n");
+                top.append("status: ").append(getStatus()).append("\r\n");
+                headers.forEach(
+                        (k, v) -> top.append(k).append(": ").append(v.stream().collect(Collectors.joining(","))).append("\r\n"));
+                top.append("\r\n");// empty line, means the next bytes are the payload
+                return top.toString();
             });
         }
 
@@ -1056,17 +1057,21 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
     private static class ServletByteArrayOutputStream extends ServletOutputStream {
 
-        private static final ByteBuffer EOM = ByteBuffer.wrap("^@".getBytes(StandardCharsets.UTF_8));
+        private static final byte[] EOM_BYTES = EOM.getBytes(StandardCharsets.UTF_8);
+
+        private static final int BUFFER_SIZE = 1024 * 8;
 
         private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         private final Session session;
 
-        private final Runnable preWrite;
+        private final Supplier<String> preWrite;
 
-        private boolean headerSent;
+        private boolean closed;
 
-        private ServletByteArrayOutputStream(final Session session, final Runnable preWrite) {
+        private boolean headerWritten;
+
+        private ServletByteArrayOutputStream(final Session session, final Supplier<String> preWrite) {
             this.session = session;
             this.preWrite = preWrite;
         }
@@ -1104,23 +1109,40 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
             if (!session.isOpen()) {
                 return;
             }
-            if (!headerSent) {
-                preWrite.run();
-                headerSent = true;
-            }
-            final byte[] array = outputStream.toByteArray();
-            if (array.length > 0) {
-                outputStream.reset();
-                session.getBasicRemote().sendBinary(ByteBuffer.wrap(array));
+            if (outputStream.size() >= BUFFER_SIZE) {
+                doFlush();
             }
         }
 
         @Override
         public void close() throws IOException {
-            flush();
+            if (closed) {
+                return;
+            }
+
+            outputStream.write(EOM_BYTES);
+            doFlush();
+            closed = true;
+        }
+
+        private void doFlush() throws IOException {
             final RemoteEndpoint.Basic basicRemote = session.getBasicRemote();
-            basicRemote.sendBinary(EOM);
-            if (basicRemote.getBatchingAllowed()) {
+
+            final byte[] array = outputStream.toByteArray();
+            final boolean written = array.length > 0 || !headerWritten;
+
+            if (!headerWritten) {
+                final String headers = preWrite.get();
+                basicRemote.sendBinary(ByteBuffer.wrap(headers.getBytes(StandardCharsets.UTF_8)));
+                headerWritten = true;
+            }
+
+            if (array.length > 0) {
+                outputStream.reset();
+                basicRemote.sendBinary(ByteBuffer.wrap(array));
+            }
+
+            if (written && basicRemote.getBatchingAllowed()) {
                 basicRemote.flushBatch();
             }
         }

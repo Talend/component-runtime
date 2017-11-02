@@ -24,8 +24,8 @@ import java.util.jar.JarInputStream
 // note: we can extract that logic into a small lib instead of inlining it here
 // technical note: we avoid to use tycho which is too impacting on the build process
 
-println('Preparing project dependencies from p2 repository')
-println('Don\'t forget to activate the "ide" profile to be able to develop it')
+log.info 'Preparing project dependencies from p2 repository'
+log.info 'Don\'t forget to activate the "ide" profile to be able to develop it'
 
 def dependencies = [
         'org.talend.osgi.lib.loader',

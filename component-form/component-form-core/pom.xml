@@ -66,6 +66,22 @@
           <groupId>org.talend.sdk.component</groupId>
           <artifactId>component-runtime-manager</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.talend.ui</groupId>
+          <artifactId>talend-icon</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.xmlgraphics</groupId>
+          <artifactId>batik-codec</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.tomcat</groupId>
+          <artifactId>tomcat-websocket</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 

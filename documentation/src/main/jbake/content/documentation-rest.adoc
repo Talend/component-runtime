@@ -13,12 +13,51 @@
 
 The REST API intends to expose over HTTP most of Talend Component features, it is a standalone Java HTTP server.
 
+TIP: WebSocket protocol is activated for the endpoints as well, instead of `/api/v1` they uses the base `/websocket/v1`, see WebSocket part for more details.
+
 Here is the API:
 
 include::../../../../../component-server/target/jaxrs-analyzer/rest-resources.adoc[leveloffset=2]
 
 IMPORTANT: to ensure the migration can be activated you need to set in the execution configuration you send to the server
 the version it was created with (component version, it is in component detail endpoint) with the key `tcomp::component::version`.
+
+=== WebSocket transport
+
+You can connect on any endpoint replacing `/api` by `/websocket` and appending `/<http method>` for the URL and formatting the request as:
+
+[source]
+----
+SEND
+destination: <endpoint after v1>
+<headers>
+
+<payload>^@
+----
+
+For instance:
+
+[source]
+----
+SEND
+destination: /component/index
+Accept: application/json
+
+^@
+----
+
+The response is formatted as follow:
+
+[source]
+----
+MESSAGE
+status: <http status code>
+<headers>
+
+<payload>^@
+----
+
+TIP: if you have a doubt about the endpoint, they are all logged during startup and you can find them in the logs.
 
 == Web forms and REST API
 
