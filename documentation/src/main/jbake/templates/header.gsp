@@ -32,7 +32,7 @@
     </style>
   </head>
   <body>
-    <a class="github-fork-ribbon"
-        href="https://github.com/talend/component-api" data-ribbon="Fork me on GitHub"
+    <a class="github-fork-ribbon" target="_blank"
+        href="https://github.com/talend/component-runtime" data-ribbon="Fork me on GitHub"
         title="Fork me on GitHub">Fork me on GitHub</a>
     <div class="col-sm-offset-1 col-sm-10">
