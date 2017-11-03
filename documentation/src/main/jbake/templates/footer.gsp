@@ -24,8 +24,8 @@
     </footer>
     </div>
 
-    <script src="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/js/jquery-1.10.2.min.js"></script>
-    <script src="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/js/bootstrap.min.js"></script>
-    <script src="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/js/bootstrap.js"></script>
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.js"></script>
   </body>
 </html>
