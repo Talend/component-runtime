@@ -41,6 +41,7 @@
     <module>component-starter-server</module>
     <module>component-studio-integration</module>
     <module>documentation</module>
+    <module>i18n-loader</module>
   </modules>
 
   <repositories>
