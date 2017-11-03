@@ -13,4 +13,4 @@
 
 i18n extension intends to allow you to plug a custom resource bundle loading.
 
-<<i18n-extension.adoc, Read More>>
+<<i18n-extension.adoc#, Read More>>
