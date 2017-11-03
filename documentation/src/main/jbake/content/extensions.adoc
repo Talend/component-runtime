@@ -1,0 +1,16 @@
+= Talend Component Extensions
+:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation, extension, i18n
+:jbake-status: published
+
+== i18n extension
+
+i18n extension intends to allow you to plug a custom resource bundle loading.
+
+<<i18n-extension.adoc, Read More>>
