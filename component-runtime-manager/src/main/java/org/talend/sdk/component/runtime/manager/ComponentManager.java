@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager;
 
@@ -31,6 +31,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
@@ -72,6 +73,18 @@ import org.apache.xbean.finder.archive.JarArchive;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
+import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.MigrationHandler;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.api.internationalization.Internationalized;
+import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.service.ActionType;
+import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.dependency.Resolver;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
@@ -99,18 +112,6 @@ import org.talend.sdk.component.runtime.serialization.LightContainer;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import org.talend.sdk.component.spi.component.ComponentExtension;
-import org.talend.sdk.component.api.component.Components;
-import org.talend.sdk.component.api.component.Icon;
-import org.talend.sdk.component.api.component.MigrationHandler;
-import org.talend.sdk.component.api.component.Version;
-import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.input.Emitter;
-import org.talend.sdk.component.api.input.PartitionMapper;
-import org.talend.sdk.component.api.internationalization.Internationalized;
-import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.service.ActionType;
-import org.talend.sdk.component.api.service.Service;
-import org.talend.sdk.component.api.service.dependency.Resolver;
 import org.w3c.dom.Document;
 
 import lombok.AllArgsConstructor;
@@ -124,6 +125,24 @@ public class ComponentManager implements AutoCloseable {
     private static final MigrationHandler NO_MIGRATION = (incomingVersion, incomingData) -> incomingData;
 
     private static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
+
+    private static final Components DEFAULT_COMPONENT = new Components() {
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return Components.class;
+        }
+
+        @Override
+        public String family() {
+            return "";
+        }
+
+        @Override
+        public String[] categories() {
+            return new String[] { "Misc" };
+        }
+    };
 
     protected final ContainerManager container;
 
@@ -562,7 +581,7 @@ public class ComponentManager implements AutoCloseable {
                 }
             });
 
-            final Map<String, Components> componentDefaults = new HashMap<>();
+            final Map<String, AnnotatedElement> componentDefaults = new HashMap<>();
 
             finder.findAnnotatedClasses(Internationalized.class).forEach(proxy -> {
                 final Object instance = javaProxyEnricherFactory.asSerializable(container.getLoader(), container.getId(),
@@ -594,7 +613,8 @@ public class ComponentManager implements AutoCloseable {
                                                     .anyMatch(a -> a.annotationType().isAnnotationPresent(ActionType.class)))
                                             .map(serviceMethod -> {
                                                 final Components components = findComponentsConfig(componentDefaults,
-                                                        serviceMethod.getDeclaringClass(), container.getLoader());
+                                                        serviceMethod.getDeclaringClass(), container.getLoader(),
+                                                        Components.class, DEFAULT_COMPONENT);
 
                                                 final Annotation marker = Stream.of(serviceMethod.getAnnotations())
                                                         .filter(a -> a.annotationType().isAnnotationPresent(ActionType.class))
@@ -673,7 +693,8 @@ public class ComponentManager implements AutoCloseable {
 
             Stream.of(PartitionMapper.class, Processor.class, Emitter.class).flatMap(a -> finder.findAnnotatedClasses(a).stream())
                     .forEach(type -> {
-                        final Components components = findComponentsConfig(componentDefaults, type, container.getLoader());
+                        final Components components = findComponentsConfig(componentDefaults, type, container.getLoader(),
+                                Components.class, DEFAULT_COMPONENT);
 
                         final ComponentContextImpl context = new ComponentContextImpl(type);
                         extensions.forEach(e -> {
@@ -686,7 +707,7 @@ public class ComponentManager implements AutoCloseable {
                         });
 
                         final ComponentMetaBuilder builder = new ComponentMetaBuilder(container.getId(), services, components,
-                                context);
+                                componentDefaults.get(getAnnotatedElementCacheKey(type)), context);
 
                         final Thread thread = Thread.currentThread();
                         final ClassLoader old = thread.getContextClassLoader();
@@ -799,14 +820,14 @@ public class ComponentManager implements AutoCloseable {
                 new SubclassesCache(container.getId(), proxyGenerator, container.getLoader(), new ConcurrentHashMap<>()));
     }
 
-    private Components findComponentsConfig(final Map<String, Components> componentDefaults, final Class<?> type,
-            final ConfigurableClassLoader loader) {
-        return componentDefaults.computeIfAbsent(ofNullable(type.getPackage().getName()).orElse(""), p -> {
+    private <T extends Annotation> T findComponentsConfig(final Map<String, AnnotatedElement> componentDefaults,
+            final Class<?> type, final ConfigurableClassLoader loader, final Class<T> annotation, final T defaultValue) {
+
+        final AnnotatedElement annotatedElement = componentDefaults.computeIfAbsent(getAnnotatedElementCacheKey(type), p -> {
             Package current = loader.findPackage(p);
             do {
-                final Components config = current.getAnnotation(Components.class);
-                if (config != null) {
-                    return config;
+                if (current.isAnnotationPresent(annotation)) {
+                    break;
                 }
                 final int endPreviousPackage = current.getName().lastIndexOf('.');
                 if (endPreviousPackage < 0) {
@@ -815,9 +836,8 @@ public class ComponentManager implements AutoCloseable {
                     final String parentPck = current.getName().substring(0, endPreviousPackage);
                     try { // try to ensure the package is initialized
                         final Class<?> pckInfo = loader.loadClass(parentPck + ".package-info");
-                        final Components packageInfoConfig = pckInfo.getAnnotation(Components.class);
-                        if (packageInfoConfig != null) {
-                            return packageInfoConfig;
+                        if (pckInfo.isAnnotationPresent(annotation)) {
+                            break;
                         }
                     } catch (final ClassNotFoundException e) {
                         // no-op
@@ -826,25 +846,33 @@ public class ComponentManager implements AutoCloseable {
                 }
             } while (current != null);
 
-            // default is no value (fail if not set on the component itself) and Misc category
-            return new Components() {
+            if (current == null) {
+                return new AnnotatedElement() {
 
-                @Override
-                public Class<? extends Annotation> annotationType() {
-                    return Components.class;
-                }
+                    @Override
+                    public <T extends Annotation> T getAnnotation(final Class<T> annotationClass) {
+                        return annotationClass.isInstance(defaultValue) ? annotationClass.cast(defaultValue) : null;
+                    }
 
-                @Override
-                public String family() {
-                    return "";
-                }
+                    @Override
+                    public Annotation[] getAnnotations() {
+                        throw new UnsupportedOperationException();
+                    }
 
-                @Override
-                public String[] categories() {
-                    return new String[] { "Misc" };
-                }
-            };
+                    @Override
+                    public Annotation[] getDeclaredAnnotations() {
+                        throw new UnsupportedOperationException();
+                    }
+                };
+            }
+
+            return current;
         });
+        return annotatedElement.getAnnotation(annotation);
+    }
+
+    private String getAnnotatedElementCacheKey(final Class<?> type) {
+        return ofNullable(type.getPackage().getName()).orElse("");
     }
 
     private Class<?> enforceSerializable(final Container container, final Class<?> type) {
@@ -874,6 +902,8 @@ public class ComponentManager implements AutoCloseable {
         private final Map<Class<?>, Object> services;
 
         private final Components components;
+
+        private final AnnotatedElement familyAnnotationElement;
 
         private final ComponentContextImpl context;
 
@@ -967,7 +997,7 @@ public class ComponentManager implements AutoCloseable {
             return ofNullable(type.getAnnotation(Version.class)).map(Version::value).orElse(1);
         }
 
-        private String findIcon(final Class<?> type) {
+        private String findIcon(final AnnotatedElement type) {
             return ofNullable(type.getAnnotation(Icon.class))
                     .map(i -> i.value() == Icon.IconType.CUSTOM ? of(i.custom()).filter(s -> !s.isEmpty()).orElse("default")
                             : i.value().getKey())
@@ -1002,7 +1032,8 @@ public class ComponentManager implements AutoCloseable {
                 throw new IllegalArgumentException("Missing component");
             }
             return this.component == null || !component.equals(this.component.getName())
-                    ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()), comp))
+                    ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()),
+                            findIcon(familyAnnotationElement), comp))
                     : this.component;
         }
 

@@ -27,16 +27,16 @@
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="entries">Documentation <span class="caret"></span></a>
           <ul class="dropdown-menu" aria-labelledby="entries">
-            <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/index.html">Home</a></li>
-            <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/documentation-overview.html">Overview</a></li>
-            <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/getting-started.html">Getting Started</a></li>
-            <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/documentation.html">Reference</a></li>
-            <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/best-practices.html">Best Practices</a></li>
-            <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/documentation-testing.html">Testing</a></li>
-            <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/documentation-rest.html">REST API</a></li>
-            <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/wrapping-a-beam-io.html">How to wrap a Beam I/O</a></li>
-            <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/studio.html">Studio Integration</a></li>
-            <li><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>/appendix.html">Appendix</a></li>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="documentation-overview.html">Overview</a></li>
+            <li><a href="getting-started.html">Getting Started</a></li>
+            <li><a href="documentation.html">Reference</a></li>
+            <li><a href="best-practices.html">Best Practices</a></li>
+            <li><a href="documentation-testing.html">Testing</a></li>
+            <li><a href="documentation-rest.html">REST API</a></li>
+            <li><a href="wrapping-a-beam-io.html">How to wrap a Beam I/O</a></li>
+            <li><a href="studio.html">Studio Integration</a></li>
+            <li><a href="appendix.html">Appendix</a></li>
           </ul>
         </li>
       </ul>

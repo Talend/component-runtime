@@ -47,7 +47,7 @@ public class ComponentModel extends AbstractBasicComponent {
     public ComponentModel(final ComponentIndex component, final ComponentService service) {
         this.service = service;
         this.index = component;
-        this.image = service.toEclipseIcon(component);
+        this.image = service.toEclipseIcon(component.getIcon());
         this.image24 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(24, 24));
         this.image16 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(16, 16));
     }
