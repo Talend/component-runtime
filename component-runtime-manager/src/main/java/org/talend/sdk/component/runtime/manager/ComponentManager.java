@@ -829,6 +829,7 @@ public class ComponentManager implements AutoCloseable {
                 if (current.isAnnotationPresent(annotation)) {
                     break;
                 }
+
                 final int endPreviousPackage = current.getName().lastIndexOf('.');
                 if (endPreviousPackage < 0) {
                     current = null;
@@ -846,22 +847,22 @@ public class ComponentManager implements AutoCloseable {
                 }
             } while (current != null);
 
-            if (current == null) {
+            if (current == null || !current.isAnnotationPresent(annotation)) {
                 return new AnnotatedElement() {
 
                     @Override
                     public <T extends Annotation> T getAnnotation(final Class<T> annotationClass) {
-                        return annotationClass.isInstance(defaultValue) ? annotationClass.cast(defaultValue) : null;
+                        return annotationClass == annotation ? annotationClass.cast(defaultValue) : null;
                     }
 
                     @Override
                     public Annotation[] getAnnotations() {
-                        throw new UnsupportedOperationException();
+                        return new Annotation[] { defaultValue };
                     }
 
                     @Override
                     public Annotation[] getDeclaredAnnotations() {
-                        throw new UnsupportedOperationException();
+                        return getAnnotations();
                     }
                 };
             }
