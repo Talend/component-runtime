@@ -25,6 +25,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,8 +43,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.xbean.finder.AnnotationFinder;
-import org.talend.sdk.component.runtime.visitor.ModelListener;
-import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -51,10 +50,13 @@ import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.ActionType;
+import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.runtime.visitor.ModelListener;
+import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 
 /**
  * Validate ComponentManager constraints to ensure a component doesn't have any "simple" error before being packaged.
@@ -205,36 +207,39 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
             final Set<String> errors = new HashSet<>();
 
             // returned types
-            errors.addAll(Stream
-                    .of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class).flatMap(action -> {
+            errors.addAll(Stream.of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class)
+                    .flatMap(action -> {
                         final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
                         return finder.findAnnotatedMethods(action).stream()
-                                     .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
-                                     .map(m -> m + " doesn't return a " + returnedType + ", please fix it").collect(toSet()).stream();
+                                .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
+                                .map(m -> m + " doesn't return a " + returnedType + ", please fix it").collect(toSet()).stream();
                     }).collect(toSet()));
 
             // parameters for @DynamicValues
-            errors.addAll(finder.findAnnotatedMethods(DynamicValues.class).stream()
-                  .filter(m -> m.getParameterCount() != 0)
-                  .map(m -> m + " should have no parameter")
-                  .collect(toSet()));
+            errors.addAll(finder.findAnnotatedMethods(DynamicValues.class).stream().filter(m -> countParameters(m) != 0)
+                    .map(m -> m + " should have no parameter").collect(toSet()));
 
             // parameters for @HealthCheck
             errors.addAll(finder.findAnnotatedMethods(HealthCheck.class).stream()
-                  .filter(m -> m.getParameterCount() != 1 || !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
-                  .map(m -> m + " should have a datastore parameter (marked with @DataStore)")
-                  .collect(toSet()));
+                    .filter(m -> countParameters(m) != 1 || !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
+                    .map(m -> m + " should have its first parameter being a datastore (marked with @DataStore)")
+                    .collect(toSet()));
 
             // parameters for @DiscoverSchema
             errors.addAll(finder.findAnnotatedMethods(DiscoverSchema.class).stream()
-                  .filter(m -> m.getParameterCount() != 1 || !m.getParameterTypes()[0].isAnnotationPresent(DataSet.class))
-                  .map(m -> m + " should have a dataset parameter (marked with @DataSet)")
-                  .collect(toSet()));
+                    .filter(m -> countParameters(m) != 1 || !m.getParameterTypes()[0].isAnnotationPresent(DataSet.class))
+                    .map(m -> m + " should have its first parameter being a dataset (marked with @DataSet)").collect(toSet()));
 
             if (!errors.isEmpty()) {
                 throw new MojoExecutionException(errors.stream().collect(joining("\n- ", "\n- ", "")));
             }
         }
+    }
+
+    private int countParameters(final Method m) {
+        return (int) Stream.of(m.getParameterTypes()).filter(
+                p -> !p.getName().startsWith("org.talend.sdk.component.api.service") && !p.isAnnotationPresent(Service.class))
+                .count();
     }
 
     private String validateComponentResourceBundle(final Class<?> component) {

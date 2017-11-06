@@ -16,6 +16,8 @@
 package org.talend.sdk.component.studio.websocket;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,12 +29,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
@@ -48,13 +52,18 @@ import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
+import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
+import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.studio.lang.Pair;
 
 // we shouldn't need the execution runtime so don't even include it here
 //
 // technical note: this client includes the transport (websocket) but also the protocol/payload formatting/parsing
 // todo: better error handling, can need some server bridge love too to support ERROR responses
+//
+// todo: some caching here instead of the server side?
 public class WebSocketClient implements AutoCloseable {
 
     private static final byte[] EOM = "^@".getBytes(StandardCharsets.UTF_8);
@@ -67,10 +76,13 @@ public class WebSocketClient implements AutoCloseable {
 
     private final Jsonb jsonb;
 
-    public WebSocketClient(final String base) {
+    private final Runnable synch;
+
+    public WebSocketClient(final String base, final Runnable synch) {
         this.base = base;
         this.container = ContainerProvider.getWebSocketContainer();
         this.jsonb = JsonbProvider.provider("org.apache.johnzon.jsonb.JohnzonProvider").create().build();
+        this.synch = synch;
     }
 
     private String buildRequest(final String uri, final Object payload) {
@@ -126,6 +138,8 @@ public class WebSocketClient implements AutoCloseable {
     }
 
     private Session getOrCreateSession(final String id, final String uri) {
+        synch.run();
+
         final Queue<Session> session = sessions.computeIfAbsent(id, key -> new ConcurrentLinkedQueue<>());
         Session poll = session.poll();
         if (poll != null && !poll.isOpen()) {
@@ -224,6 +238,8 @@ public class WebSocketClient implements AutoCloseable {
 
     public static class V1Component {
 
+        private static final int BUNDLE_SIZE = 25;
+
         private final WebSocketClient root;
 
         private V1Component(final WebSocketClient root) {
@@ -242,6 +258,24 @@ public class WebSocketClient implements AutoCloseable {
         public ComponentDetailList getDetail(final String language, final String[] identifiers) {
             return root.sendAndWait("/v1/get/component/details", "/component/details?language=" + language + "&identifiers="
                     + Stream.of(identifiers).collect(Collectors.joining(",")), null, ComponentDetailList.class);
+        }
+
+        public Stream<Pair<ComponentIndex, ComponentDetail>> details(final String language) {
+            final List<ComponentIndex> components = getIndex(language).getComponents();
+
+            // create bundles
+            int bundleCount = components.size() / BUNDLE_SIZE;
+            bundleCount = bundleCount * BUNDLE_SIZE >= components.size() ? bundleCount : (bundleCount + 1);
+
+            return IntStream.range(0, bundleCount).mapToObj(i -> {
+                final int from = BUNDLE_SIZE * i;
+                final int to = from + BUNDLE_SIZE;
+                return components.subList(from, Math.min(to, components.size()));
+            }).flatMap(bundle -> {
+                final Map<String, ComponentIndex> byId = bundle.stream().collect(toMap(c -> c.getId().getId(), identity()));
+                return getDetail(language, bundle.stream().map(i -> i.getId().getId()).toArray(String[]::new)).getDetails()
+                        .stream().map(d -> new Pair<>(byId.get(d.getId().getId()), d));
+            });
         }
 
         public Map<String, String> migrate(final String id, final int configurationVersion, final Map<String, String> payload) {

@@ -31,6 +31,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.talend.osgi.hook.URIUtil;
 import org.talend.osgi.hook.maven.MavenResolver;
+import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 public class ServerManager extends AbstractUIPlugin {
@@ -40,19 +41,23 @@ public class ServerManager extends AbstractUIPlugin {
     private final Collection<ServiceRegistration<?>> services = new ArrayList<>();
 
     private WebSocketClient client;
+    private Runnable reset;
 
     @Override
     public void start(final BundleContext context) throws Exception {
         super.start(context);
 
+        reset = Lookups.init();
+
         manager = new ProcessManager(GROUP_ID, ARTIFACT_ID, findMavenResolver(), findConfigDir());
         manager.start();
 
-        client = new WebSocketClient("ws://localhost:" + manager.getPort() + "/websocket/v1");
+        client = new WebSocketClient("ws://localhost:" + manager.getPort() + "/websocket/v1", () -> manager.waitForServer());
 
         final BundleContext ctx = getBundle().getBundleContext();
         services.add(ctx.registerService(ProcessManager.class.getName(), manager, new Hashtable<>()));
         services.add(ctx.registerService(WebSocketClient.class.getName(), client, new Hashtable<>()));
+        services.add(ctx.registerService(ComponentService.class.getName(), new ComponentService(), new Hashtable<>()));
     }
 
     @Override
@@ -81,6 +86,11 @@ public class ServerManager extends AbstractUIPlugin {
                 }
                 throw ioe;
             }
+
+            if (reset != null) {
+                reset.run();
+            }
+
             if (error != null) {
                 throw error;
             }

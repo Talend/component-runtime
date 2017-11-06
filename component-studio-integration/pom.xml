@@ -307,7 +307,19 @@
         </dependency>
         <dependency>
           <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.commons.ui</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
           <artifactId>org.talend.common.ui.runtime</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.metadata.managment.ui</artifactId>
           <version>${studio.version}</version>
           <scope>provided</scope>
         </dependency>
@@ -331,7 +343,49 @@
         </dependency>
         <dependency>
           <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.core.repository</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.repository.view</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.repository.view.di</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.eclipse.emf.ecore</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.eclipse.emf.common</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
           <artifactId>org.eclipse.m2e.core</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.eclipse.ui.workbench</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.eclipse.ui.navigator</artifactId>
           <version>${studio.version}</version>
           <scope>provided</scope>
         </dependency>

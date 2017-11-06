@@ -27,6 +27,7 @@ import org.talend.core.model.process.IGenericProvider;
 import org.talend.core.ui.component.ComponentsFactoryProvider;
 import org.talend.repository.ProjectManager;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 // note: for now we load the component on the server but
@@ -46,11 +47,12 @@ public class TaCoKitGenericProvider implements IGenericProvider {
             return;
         }
 
+        final ComponentService service = Lookups.service();
         final IComponentsFactory factory = ComponentsFactoryProvider.getInstance();
         final Set<IComponent> components = factory.getComponents();
         synchronized (components) {
             components.removeIf(ComponentModel.class::isInstance);
-            indices.getComponents().forEach(component -> components.add(new ComponentModel(component)));
+            indices.getComponents().forEach(component -> components.add(new ComponentModel(component, service)));
         }
     }
 

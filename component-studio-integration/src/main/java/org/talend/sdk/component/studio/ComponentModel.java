@@ -17,17 +17,9 @@ package org.talend.sdk.component.studio;
 
 import static java.util.Collections.emptyList;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.graphics.ImageData;
-import org.talend.commons.ui.runtime.image.EImage;
-import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.core.model.components.EComponentType;
 import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.process.IElementParameter;
@@ -37,11 +29,12 @@ import org.talend.core.model.process.INodeReturn;
 import org.talend.core.model.temp.ECodePart;
 import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
+import org.talend.sdk.component.studio.service.ComponentService;
 
 // TODO: finish the impl
 public class ComponentModel extends AbstractBasicComponent {
 
-    private static final ImageDescriptor DEFAULT_IMAGE = ImageProvider.getImageDesc(EImage.COMPONENT_MISSING);
+    private final ComponentService service;
 
     private final ComponentIndex index;
 
@@ -51,27 +44,12 @@ public class ComponentModel extends AbstractBasicComponent {
 
     private final ImageDescriptor image16;
 
-    public ComponentModel(final ComponentIndex component) {
-        index = component;
-        if (component.getCustomIcon() != null) {
-            try (final InputStream in = new ByteArrayInputStream(component.getCustomIcon())) {
-                image = ImageDescriptor.createFromImageData(new ImageData(in));
-            } catch (final IOException e) {
-                throw new IllegalArgumentException(e);
-            }
-        } else {
-            if (component.getIcon() != null) {
-                final ClassLoader loader = ComponentModel.class.getClassLoader();
-                final String icon = component.getIcon();
-                image = Stream.of(icon + "_icon32.png", "icons/" + icon + "_icon32.png")
-                        .map(pattern -> String.format(pattern, icon)).map(loader::getResourceAsStream).filter(Objects::nonNull)
-                        .findFirst().map(in -> ImageDescriptor.createFromImageData(new ImageData(in))).orElse(DEFAULT_IMAGE);
-            } else {
-                image = DEFAULT_IMAGE;
-            }
-        }
-        image24 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(24, 24));
-        image16 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(16, 16));
+    public ComponentModel(final ComponentIndex component, final ComponentService service) {
+        this.service = service;
+        this.index = component;
+        this.image = service.toEclipseIcon(component);
+        this.image24 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(24, 24));
+        this.image16 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(16, 16));
     }
 
     @Override
