@@ -34,9 +34,18 @@ def dependencies = [
         'org.talend.core.runtime',
         'org.talend.designer.core',
         'org.talend.commons.runtime',
+        'org.talend.commons.ui',
         'org.talend.common.ui.runtime',
         'org.talend.maven.resolver',
-        'org.eclipse.m2e.core'
+        'org.talend.core.repository',
+        'org.talend.repository.view',
+        'org.talend.repository.view.di',
+        'org.talend.metadata.managment.ui',
+        'org.eclipse.emf.ecore',
+        'org.eclipse.emf.common',
+        'org.eclipse.m2e.core',
+        'org.eclipse.ui.workbench',
+        'org.eclipse.ui.navigator'
 ]
 
 def studioVersion = project.properties['studio.version'].replace('-', '.');

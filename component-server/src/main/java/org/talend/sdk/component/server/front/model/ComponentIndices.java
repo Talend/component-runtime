@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.server.front.model;
 
-import java.util.Collection;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,5 +26,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ComponentIndices {
 
-    private Collection<ComponentIndex> components;
+    private List<ComponentIndex> components;
 }

@@ -152,7 +152,7 @@ public class ComponentResource {
         return componentManagerService.findMetaById(id).getMigrationHandler().migrate(version, config);
     }
 
-    @GET
+    @GET // TODO: max ids.length
     @Path("details") // bulk mode to avoid to fetch components one by one when reloading a pipeline/job
     public ComponentDetailList getDetail(@QueryParam("language") @DefaultValue("en") final String language,
             @QueryParam("identifiers") final String[] ids) {

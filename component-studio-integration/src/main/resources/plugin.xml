@@ -16,6 +16,49 @@
 <?eclipse version="3.4"?>
 <plugin>
   <extension point="org.talend.designer.core.process_provider">
-    <ProcessProvider pluginId="${project.artifactId}" class="org.talend.sdk.component.studio.TaCoKitGenericProvider" />
+    <ProcessProvider pluginId="${project.artifactId}" class="org.talend.sdk.component.studio.TaCoKitGenericProvider"/>
   </extension>
+  <extension point="org.eclipse.ui.navigator.navigatorContent">
+    <navigatorContent id="org.talend.repository.viewer.metadata.genericConnection"
+                      activeByDefault="true" priority="higher"
+                      appearsBefore="org.talend.repository.viewer.metadata.genericSchemas"
+                      contentProvider="org.talend.sdk.component.studio.metadata.MetadataContentProvider"
+                      labelProvider="org.talend.repository.viewer.label.RepositoryViewLabelProvider"
+                      name="TaCoKit Connection">
+      <triggerPoints>
+        <and>
+          <instanceof value="org.talend.repository.model.RepositoryNode"/>
+          <or>
+            <test forcePluginActivation="true" property="org.talend.repository.node.isMetadataTopNode"/>
+            <test property="org.talend.repository.node.metadata.isGenericConnection"/>
+          </or>
+        </and>
+      </triggerPoints>
+      <possibleChildren>
+        <and>
+          <instanceof value="org.talend.repository.model.RepositoryNode"/>
+          <or>
+            <test property="org.talend.repository.node.metadata.isGenericConnection"/>
+          </or>
+        </and>
+      </possibleChildren>
+      <actionProvider id="org.talend.sdk.component.studio.metadata.NodeActionProvider"
+                      class="org.talend.sdk.component.studio.metadata.NodeActionProvider">
+        <enablement>
+          <and>
+            <instanceof value="org.talend.repository.model.RepositoryNode"/>
+            <test property="org.talend.repository.node.metadata.isGenericConnection" forcePluginActivation="true"/>
+            <not>
+              <test property="org.talend.repository.node.isDeleted" forcePluginActivation="true"/>
+            </not>
+          </and>
+        </enablement>
+      </actionProvider>
+    </navigatorContent>
+  </extension>
+  <!-- don't use it since there is already one which is integrated and studio doesnt support composition here
+  <extension point="org.talend.core.runtime.service">
+    <Service serviceId="IGenericWizardService" class="org.talend.sdk.component.studio.metadata.WizardRegistry" />
+  </extension>
+  -->
 </plugin>

@@ -60,7 +60,7 @@ public class ProcessManager implements AutoCloseable {
 
     private Thread hook;
 
-    private CountDownLatch ready;
+    private volatile CountDownLatch ready;
 
     public ProcessManager(final String groupId, final String artifactId, final MavenResolver resolver,
             final File studioConfigDir) {
@@ -71,13 +71,20 @@ public class ProcessManager implements AutoCloseable {
     }
 
     public void waitForServer() { // useful for the client, to ensure we are ready
-        if (ready == null) {
+        final CountDownLatch latch = this.ready;
+        if (latch == null) {
             return;
         }
-        try {
-            ready.await(10, TimeUnit.MINUTES);
-        } catch (final InterruptedException e) {
-            Thread.interrupted();
+        final int steps = 250;
+        for (int i = 0; i < TimeUnit.MINUTES.toMillis(10) / steps; i++) {
+            try {
+                if (latch.await(steps, TimeUnit.MILLISECONDS)) {
+                    return;
+                }
+            } catch (final InterruptedException e) {
+                Thread.interrupted();
+                break;
+            }
         }
     }
 
@@ -206,6 +213,7 @@ public class ProcessManager implements AutoCloseable {
                     try (final Socket s = new Socket("localhost", port)) {
                         new URL("http://localhost:" + port + "/api/v1/component/index").openStream().close();
                         ready.countDown();
+                        ready = null; // fast exit condition in the synchro method for "runtime"
                         return; // opened :)
                     } catch (final IOException e) {
                         try { // try again
