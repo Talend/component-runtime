@@ -195,6 +195,7 @@
               org.talend.repository,
               org.talend.metadata.managment.ui
             </Require-Bundle>
+            <Include-Resource>{maven-resources},icons=${project.build.directory}/icons</Include-Resource>
             <Import-Package/>
             <Bundle-SymbolicName>${project.artifactId};singleton=true</Bundle-SymbolicName>
             <Bundle-Vendor>.Talend SA.</Bundle-Vendor>
@@ -238,6 +239,7 @@
         <configuration>
           <scripts>
             <script>${project.basedir}/src/build/StudioDependencies.groovy</script>
+            <script>${project.basedir}/src/build/Icons.groovy</script>
           </scripts>
         </configuration>
         <dependencies>
@@ -255,6 +257,25 @@
             <groupId>org.apache.tomee</groupId>
             <artifactId>ziplock</artifactId>
             <version>${ziplock.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-codec</artifactId>
+            <version>${batik.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>xml-apis</groupId>
+                <artifactId>xml-apis</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>xalan</groupId>
+                <artifactId>xalan</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>xerces</groupId>
+                <artifactId>xercesImpl</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
         </dependencies>
       </plugin>
