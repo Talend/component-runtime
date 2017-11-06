@@ -470,7 +470,7 @@ public class SparkClusterRule extends TemporaryFolder {
                     // classpath
                     environment.put("SPARK_CLASSPATH", classpath);
                 }
-                if (isWin()) {
+                if (isWin() && installWinUtils) {
                     environment.put("HADOOP_HOME", sparkHome.getAbsolutePath());
                 }
                 process = builder.start();
