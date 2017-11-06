@@ -143,8 +143,8 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
             }
 
             setText(current.getSecond().getDisplayName());
-            setImageDescriptor(
-                    ImageDescriptor.createFromImage(service.toEclipseIcon(current.getFirst().getFirst()).createImage()));
+            setImageDescriptor(ImageDescriptor
+                    .createFromImage(service.toEclipseIcon(current.getFirst().getFirst().getIcon()).createImage()));
 
             final IProxyRepositoryFactory factory = ProxyRepositoryFactory.getInstance();
             switch (node.getType()) {
@@ -283,7 +283,7 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
         @Override
         public void addPages() {
             setWindowTitle(data.getSecond().getDisplayName());
-            setDefaultPageImageDescriptor(service.toEclipseIcon(data.getFirst().getFirst()));
+            setDefaultPageImageDescriptor(service.toEclipseIcon(data.getFirst().getFirst().getIcon()));
 
             // todo: do the equivalent than GenericConnWizardPage based on the meta of the properties in data
             // -> this task depends the form integration into the studio

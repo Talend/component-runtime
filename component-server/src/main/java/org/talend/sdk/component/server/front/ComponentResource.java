@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.server.front;
 
@@ -63,6 +63,7 @@ import org.talend.sdk.component.server.front.model.ComponentId;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
+import org.talend.sdk.component.server.front.model.Icon;
 import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.service.ComponentManagerService;
@@ -211,10 +212,15 @@ public class ComponentResource {
     private ComponentIndex toComponentIndex(final ClassLoader loader, final Locale locale, final String plugin,
             final ComponentFamilyMeta.BaseMeta meta) {
         final String icon = meta.getIcon();
+        final String familyIcon = meta.getParent().getIcon();
         final SvgIconResolver.Icon iconContent = svgIconResolver.resolve(loader, icon);
+        final SvgIconResolver.Icon iconFamilyContent = svgIconResolver.resolve(loader, familyIcon);
         return new ComponentIndex(new ComponentId(meta.getId(), plugin, meta.getParent().getName(), meta.getName()),
-                meta.findBundle(loader, locale).displayName().orElse(meta.getName()), icon,
-                iconContent == null ? null : iconContent.getType(), iconContent == null ? null : iconContent.getBytes(),
+                meta.findBundle(loader, locale).displayName().orElse(meta.getName()),
+                new Icon(icon, iconContent == null ? null : iconContent.getType(),
+                        iconContent == null ? null : iconContent.getBytes()),
+                new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
+                        iconFamilyContent == null ? null : iconFamilyContent.getBytes()),
                 meta.getVersion(), meta.getParent().getCategories(),
                 singletonList(new Link("Detail", "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
     }

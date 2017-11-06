@@ -26,7 +26,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;
 import org.talend.commons.ui.runtime.image.EImage;
 import org.talend.commons.ui.runtime.image.ImageProvider;
-import org.talend.sdk.component.server.front.model.ComponentIndex;
+import org.talend.sdk.component.server.front.model.Icon;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.ComponentModel;
 
@@ -42,23 +42,23 @@ public class ComponentService {
         return prop.getMetadata().containsKey("dataset") || prop.getMetadata().containsKey("datastore");
     }
 
-    public ImageDescriptor toEclipseIcon(final ComponentIndex component) {
-        if (component.getCustomIcon() != null) {
-            try (final InputStream in = new ByteArrayInputStream(component.getCustomIcon())) {
+    public ImageDescriptor toEclipseIcon(final Icon componentIcon) {
+        if (componentIcon != null && componentIcon.getCustomIcon() != null) {
+            try (final InputStream in = new ByteArrayInputStream(componentIcon.getCustomIcon())) {
                 return ImageDescriptor.createFromImageData(new ImageData(in));
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }
         } else {
-            if (component.getIcon() == null) {
+            if (componentIcon == null) {
                 return DEFAULT_IMAGE;
             }
 
             final ClassLoader loader = ComponentModel.class.getClassLoader();
-            final String icon = component.getIcon();
+            final String icon = componentIcon.getIcon();
             return Stream.of(icon + "_icon32.png", "icons/" + icon + "_icon32.png").map(pattern -> String.format(pattern, icon))
-                    .map(loader::getResourceAsStream).filter(Objects::nonNull).findFirst()
-                    .map(in -> ImageDescriptor.createFromImageData(new ImageData(in))).orElse(DEFAULT_IMAGE);
+                         .map(loader::getResourceAsStream).filter(Objects::nonNull).findFirst()
+                         .map(in -> ImageDescriptor.createFromImageData(new ImageData(in))).orElse(DEFAULT_IMAGE);
         }
     }
 

@@ -19,7 +19,7 @@
     <ProcessProvider pluginId="${project.artifactId}" class="org.talend.sdk.component.studio.TaCoKitGenericProvider"/>
   </extension>
   <extension point="org.eclipse.ui.navigator.navigatorContent">
-    <navigatorContent id="org.talend.repository.viewer.metadata.genericConnection"
+    <navigatorContent id="${project.groupId}.metadata.connection"
                       activeByDefault="true" priority="higher"
                       appearsBefore="org.talend.repository.viewer.metadata.genericSchemas"
                       contentProvider="org.talend.sdk.component.studio.metadata.MetadataContentProvider"
@@ -30,7 +30,7 @@
           <instanceof value="org.talend.repository.model.RepositoryNode"/>
           <or>
             <test forcePluginActivation="true" property="org.talend.repository.node.isMetadataTopNode"/>
-            <test property="org.talend.repository.node.metadata.isGenericConnection"/>
+            <test property="${project.groupId}.node.metadata"/>
           </or>
         </and>
       </triggerPoints>
@@ -38,7 +38,7 @@
         <and>
           <instanceof value="org.talend.repository.model.RepositoryNode"/>
           <or>
-            <test property="org.talend.repository.node.metadata.isGenericConnection"/>
+            <test property="${project.groupId}.node.metadata"/>
           </or>
         </and>
       </possibleChildren>
@@ -47,7 +47,7 @@
         <enablement>
           <and>
             <instanceof value="org.talend.repository.model.RepositoryNode"/>
-            <test property="org.talend.repository.node.metadata.isGenericConnection" forcePluginActivation="true"/>
+            <test property="${project.groupId}.node.metadata" forcePluginActivation="true"/>
             <not>
               <test property="org.talend.repository.node.isDeleted" forcePluginActivation="true"/>
             </not>

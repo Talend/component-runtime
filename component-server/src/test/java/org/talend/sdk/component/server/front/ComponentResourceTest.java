@@ -175,11 +175,11 @@ public class ComponentResourceTest {
         assertEquals(MediaType.APPLICATION_JSON, link.getContentType());
 
         if ("jdbc".equals(data.getId().getFamily()) && "input".equals(data.getId().getName())) {
-            assertEquals("db-input", data.getIcon());
-            assertNotNull(data.getCustomIcon());
-            assertEquals("application/svg+xml", data.getCustomIconType());
+            assertEquals("db-input", data.getIcon().getIcon());
+            assertNotNull(data.getIcon().getCustomIcon());
+            assertEquals("application/svg+xml", data.getIcon().getCustomIconType());
         } else {
-            assertEquals("default", data.getIcon());
+            assertEquals("default", data.getIcon().getIcon());
         }
     }
 
