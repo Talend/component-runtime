@@ -1,22 +1,23 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.testing.spark;
 
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.asList;
+import static java.util.Locale.ENGLISH;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
@@ -31,9 +32,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,10 +84,31 @@ public class SparkClusterRule extends TemporaryFolder {
 
     private final String sparkVersion;
 
+    private String hadoopBase = "https://github.com/steveloughran/winutils/blob/master";
+
+    private String hadoopVersion = "2.6.4";
+
+    private boolean installWinUtils = true;
+
     public SparkClusterRule(final String scalaVersion, final String sparkVersion, final int slaves) {
         this.scalaVersion = scalaVersion;
         this.sparkVersion = sparkVersion;
         this.slaves = slaves;
+    }
+
+    public SparkClusterRule withHadoopVersion(final String version) {
+        this.hadoopVersion = version;
+        return this;
+    }
+
+    public SparkClusterRule withHadoopBase(final String base) {
+        this.hadoopBase = base;
+        return this;
+    }
+
+    public SparkClusterRule skipWinUtils() {
+        this.installWinUtils = false;
+        return this;
     }
 
     @Override
@@ -182,6 +207,33 @@ public class SparkClusterRule extends TemporaryFolder {
             } catch (final IOException e) {
                 fail(e.getMessage());
             }
+        }
+
+        if (isWin() && installWinUtils) {
+            LOGGER.info("Downloading Hadoop winutils");
+
+            // ensure hadoop winutils is locatable
+            final String dll = hadoopBase + "/hadoop-" + hadoopVersion + "/bin/hadoop.dll";
+            final String exe = hadoopBase + "/hadoop-" + hadoopVersion + "/bin/winutils.exe";
+            new File(sparkHome, "bin").mkdirs();
+            Stream.of(dll, exe).forEach(from -> {
+                final File target = new File(sparkHome, "bin/" + from.substring(from.lastIndexOf('/') + 1));
+
+                try {
+                    final URL url = new URL(from);
+                    try (final InputStream stream = url.openStream(); final OutputStream out = new FileOutputStream(target)) {
+                        final byte[] buffer = new byte[8192];
+                        int read;
+                        while ((read = stream.read(buffer)) >= 0) {
+                            out.write(read);
+                        }
+                    } catch (final IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                } catch (final MalformedURLException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            });
         }
 
         return sparkHome;
@@ -321,6 +373,10 @@ public class SparkClusterRule extends TemporaryFolder {
         return config.get().masterPort;
     }
 
+    private static boolean isWin() {
+        return System.getProperty("os.name").toLowerCase(ENGLISH).contains("win");
+    }
+
     private static boolean isOpen(final String host, final int port) {
         try (final Socket client = new Socket(host, port)) {
             client.getInputStream().close();
@@ -413,6 +469,9 @@ public class SparkClusterRule extends TemporaryFolder {
                 if (config.version == Version.SPARK_1) { // classpath is relying on assemblies not on maven so force the right
                     // classpath
                     environment.put("SPARK_CLASSPATH", classpath);
+                }
+                if (isWin()) {
+                    environment.put("HADOOP_HOME", sparkHome.getAbsolutePath());
                 }
                 process = builder.start();
 
