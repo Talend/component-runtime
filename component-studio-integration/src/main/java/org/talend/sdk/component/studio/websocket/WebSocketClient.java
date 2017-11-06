@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.studio.websocket;
 
+import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -256,8 +257,13 @@ public class WebSocketClient implements AutoCloseable {
         }
 
         public ComponentDetailList getDetail(final String language, final String[] identifiers) {
-            return root.sendAndWait("/v1/get/component/details", "/component/details?language=" + language + "&identifiers="
-                    + Stream.of(identifiers).collect(Collectors.joining(",")), null, ComponentDetailList.class);
+            if (identifiers == null || identifiers.length == 0) {
+                return new ComponentDetailList(emptyList());
+            }
+            return root.sendAndWait("/v1/get/component/details",
+                    "/component/details?language=" + language
+                            + Stream.of(identifiers).map(i -> "identifiers=" + i).collect(Collectors.joining("&", "&", "")),
+                    null, ComponentDetailList.class);
         }
 
         public Stream<Pair<ComponentIndex, ComponentDetail>> details(final String language) {
