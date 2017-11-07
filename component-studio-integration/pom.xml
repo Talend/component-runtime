@@ -239,7 +239,7 @@
         <configuration>
           <scripts>
             <script>${project.basedir}/src/build/StudioDependencies.groovy</script>
-            <script>${project.basedir}/src/build/Icons.groovy</script>
+            <script>${project.parent.basedir}/build/CreatePNGIcons.groovy</script>
           </scripts>
         </configuration>
         <dependencies>
