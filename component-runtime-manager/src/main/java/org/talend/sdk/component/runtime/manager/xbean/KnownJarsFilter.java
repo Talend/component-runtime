@@ -28,6 +28,7 @@ public class KnownJarsFilter implements Predicate<String> {
         {
             add("tools.jar");
             add("bootstrap.jar");
+            add("brave-");
             add("ApacheJMeter");
             add("XmlSchema-");
             add("activation-");
@@ -357,8 +358,9 @@ public class KnownJarsFilter implements Predicate<String> {
             add("xmlunit-");
             add("xz-");
             add("xstream-");
-            add("ziplock-");
             add("zipfs.jar");
+            add("zipkin-");
+            add("ziplock-");
             add("zookeeper-");
         }
     };
