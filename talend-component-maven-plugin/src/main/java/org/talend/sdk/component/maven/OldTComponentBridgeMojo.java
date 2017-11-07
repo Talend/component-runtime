@@ -1471,7 +1471,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private void addObjectParameter(final String formName, final String form, final StringBuilder output, final String name) {
-        output.append("        ").append(form).append(".addRow(").append(name).append(".getForm(").append(formName)
+        output.append("        ").append(form).append(".addRow(").append(name).append(")").append(".getForm(").append(formName)
                 .append("));\n");
     }
 
