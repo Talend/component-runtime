@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.studio;
 
+import static java.lang.Thread.sleep;
 import static java.util.Arrays.asList;
 
 import java.io.BufferedReader;
@@ -70,20 +71,24 @@ public class ProcessManager implements AutoCloseable {
         this.studioConfigDir = studioConfigDir;
     }
 
-    public void waitForServer() { // useful for the client, to ensure we are ready
-        final CountDownLatch latch = this.ready;
-        if (latch == null) {
-            return;
-        }
+    public void waitForServer(final Runnable healthcheck) { // useful for the client, to ensure we are ready
         final int steps = 250;
         for (int i = 0; i < TimeUnit.MINUTES.toMillis(10) / steps; i++) {
             try {
-                if (latch.await(steps, TimeUnit.MILLISECONDS)) {
+                if (ready.await(steps, TimeUnit.MILLISECONDS)) {
                     return;
                 }
+                healthcheck.run();
             } catch (final InterruptedException e) {
                 Thread.interrupted();
                 break;
+            } catch (final RuntimeException re) {
+                try {
+                    sleep(500); // wait and retry
+                } catch (final InterruptedException e) {
+                    Thread.interrupted();
+                    break;
+                }
             }
         }
     }
@@ -175,6 +180,8 @@ public class ProcessManager implements AutoCloseable {
         command.add(Integer.toString(port));
         command.addAll(asList(arguments));
 
+        ready = new CountDownLatch(1);
+
         final ProcessBuilder pb = new ProcessBuilder(command);
         pb.inheritIO();
         try {
@@ -182,8 +189,6 @@ public class ProcessManager implements AutoCloseable {
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
-
-        ready = new CountDownLatch(1);
 
         hook = new Thread() { // in case of a ctrl+C/kill+X on the studio
 
@@ -213,7 +218,6 @@ public class ProcessManager implements AutoCloseable {
                     try (final Socket s = new Socket("localhost", port)) {
                         new URL("http://localhost:" + port + "/api/v1/component/index").openStream().close();
                         ready.countDown();
-                        ready = null; // fast exit condition in the synchro method for "runtime"
                         return; // opened :)
                     } catch (final IOException e) {
                         try { // try again

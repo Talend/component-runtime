@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Locale;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -41,6 +42,7 @@ public class ServerManager extends AbstractUIPlugin {
     private final Collection<ServiceRegistration<?>> services = new ArrayList<>();
 
     private WebSocketClient client;
+
     private Runnable reset;
 
     @Override
@@ -52,7 +54,8 @@ public class ServerManager extends AbstractUIPlugin {
         manager = new ProcessManager(GROUP_ID, ARTIFACT_ID, findMavenResolver(), findConfigDir());
         manager.start();
 
-        client = new WebSocketClient("ws://localhost:" + manager.getPort() + "/websocket/v1", () -> manager.waitForServer());
+        client = new WebSocketClient("ws://localhost:" + manager.getPort() + "/websocket/v1");
+        client.setSynch(() -> manager.waitForServer(() -> client.v1().component().getIndex(Locale.getDefault().getLanguage())));
 
         final BundleContext ctx = getBundle().getBundleContext();
         services.add(ctx.registerService(ProcessManager.class.getName(), manager, new Hashtable<>()));
@@ -118,10 +121,5 @@ public class ServerManager extends AbstractUIPlugin {
             throw new IllegalArgumentException("No MavenResolver found");
         }
         return mavenResolver;
-    }
-
-    public int getPort() {
-        manager.waitForServer();
-        return manager.getPort();
     }
 }

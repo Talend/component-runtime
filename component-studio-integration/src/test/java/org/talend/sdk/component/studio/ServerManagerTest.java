@@ -128,7 +128,7 @@ public class ServerManagerTest {
                         }, new File("target/conf_missing"))) {
             thread.setContextClassLoader(buildLoader);
             mgr.start();
-            mgr.waitForServer();
+            mgr.waitForServer(() -> {});
             port = mgr.getPort();
             assertTrue(isStarted(port));
 
@@ -140,8 +140,7 @@ public class ServerManagerTest {
     }
 
     private void assertClient(final int port) {
-        try (final WebSocketClient client = new WebSocketClient("ws://localhost:" + port + "/websocket/v1", () -> {
-        })) {
+        try (final WebSocketClient client = new WebSocketClient("ws://localhost:" + port + "/websocket/v1")) {
             // we loop since we reuse the same session so we must ensure this reuse works
 
             for (int i = 0; i < 2; i++) { // simple endpoint

@@ -77,12 +77,15 @@ public class WebSocketClient implements AutoCloseable {
 
     private final Jsonb jsonb;
 
-    private final Runnable synch;
+    private Runnable synch;
 
-    public WebSocketClient(final String base, final Runnable synch) {
+    public WebSocketClient(final String base) {
         this.base = base;
         this.container = ContainerProvider.getWebSocketContainer();
         this.jsonb = JsonbProvider.provider("org.apache.johnzon.jsonb.JohnzonProvider").create().build();
+    }
+
+    public void setSynch(final Runnable synch) {
         this.synch = synch;
     }
 
@@ -139,7 +142,14 @@ public class WebSocketClient implements AutoCloseable {
     }
 
     private Session getOrCreateSession(final String id, final String uri) {
-        synch.run();
+        if (synch != null) {
+            synchronized (this) {
+                if (synch != null) {
+                    synch.run();
+                    synch = null;
+                }
+            }
+        }
 
         final Queue<Session> session = sessions.computeIfAbsent(id, key -> new ConcurrentLinkedQueue<>());
         Session poll = session.poll();
