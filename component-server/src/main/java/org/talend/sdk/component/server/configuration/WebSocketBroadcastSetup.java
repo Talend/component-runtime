@@ -44,10 +44,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
@@ -139,7 +142,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         final JAXRSServiceFactoryBean factory = JAXRSServiceFactoryBean.class.cast(bus.getExtension(ServerRegistry.class)
                 .getServers().iterator().next().getEndpoint().get(JAXRSServiceFactoryBean.class.getName()));
 
-        final String appBase = applications.stream().filter(a -> a.getClass().isAnnotationPresent(ApplicationPath.class))
+        final String appBase = StreamSupport
+                .stream(Spliterators.spliteratorUnknownSize(applications.iterator(), Spliterator.IMMUTABLE), false)
+                .filter(a -> a.getClass().isAnnotationPresent(ApplicationPath.class))
                 .map(a -> a.getClass().getAnnotation(ApplicationPath.class)).map(ApplicationPath::value).findFirst()
                 .map(s -> !s.startsWith("/") ? "/" + s : s).orElse("/api/v1");
         final String version = appBase.replaceFirst("/api", "");

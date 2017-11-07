@@ -68,16 +68,16 @@ if (!icons.exists()) {
     throw new IllegalArgumentException("No talend-icon jar found")
 }
 
+def rootOutput = new File(project.properties.containsKey('talend.icon.output') ? project.properties['talend.icon.output'] : project.build.directory)
+
 def jar = new JarFile(icons)
 jar.entries().findAll {
     !it.isDirectory() && it.name.startsWith("icons/") && it.name.endsWith(".svg")
 }.each {
-    def png = new File(project.build.directory, it.name.substring(0, it.name.lastIndexOf('.')) + '_icon32.png')
+    def png = new File(rootOutput, it.name.substring(0, it.name.lastIndexOf('.')) + '_icon32.png')
     png.parentFile.mkdirs()
 
     def out = new FileOutputStream(png)
     out.write(toPng(jar.getInputStream(it).bytes))
     out.close()
 }
-
-

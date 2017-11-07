@@ -299,6 +299,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("sunjce_provider");
             add("sunpkcs11");
             add("surefire-");
+            add("swagger-");
             add("swizzle-");
             add("sxc-");
             add("tachyon-");
