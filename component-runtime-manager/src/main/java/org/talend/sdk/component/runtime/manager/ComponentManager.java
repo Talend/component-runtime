@@ -824,50 +824,44 @@ public class ComponentManager implements AutoCloseable {
             final Class<?> type, final ConfigurableClassLoader loader, final Class<T> annotation, final T defaultValue) {
 
         final AnnotatedElement annotatedElement = componentDefaults.computeIfAbsent(getAnnotatedElementCacheKey(type), p -> {
-            Package current = loader.findPackage(p);
-            do {
-                if (current.isAnnotationPresent(annotation)) {
-                    break;
-                }
-
-                final int endPreviousPackage = current.getName().lastIndexOf('.');
-                if (endPreviousPackage < 0) {
-                    current = null;
-                } else {
-                    final String parentPck = current.getName().substring(0, endPreviousPackage);
-                    try { // try to ensure the package is initialized
-                        final Class<?> pckInfo = loader.loadClass(parentPck + ".package-info");
+            if (p != null) {
+                String currentPackage = p;
+                do {
+                    try {
+                        final Class<?> pckInfo = loader.loadClass(currentPackage + ".package-info");
                         if (pckInfo.isAnnotationPresent(annotation)) {
-                            break;
+                            return pckInfo;
                         }
                     } catch (final ClassNotFoundException e) {
                         // no-op
                     }
-                    current = loader.findPackage(parentPck);
-                }
-            } while (current != null);
 
-            if (current == null || !current.isAnnotationPresent(annotation)) {
-                return new AnnotatedElement() {
-
-                    @Override
-                    public <T extends Annotation> T getAnnotation(final Class<T> annotationClass) {
-                        return annotationClass == annotation ? annotationClass.cast(defaultValue) : null;
+                    final int endPreviousPackage = currentPackage.lastIndexOf('.');
+                    if (endPreviousPackage < 0) { // we don't accept default package since it is not specific enough
+                        break;
                     }
 
-                    @Override
-                    public Annotation[] getAnnotations() {
-                        return new Annotation[] { defaultValue };
-                    }
-
-                    @Override
-                    public Annotation[] getDeclaredAnnotations() {
-                        return getAnnotations();
-                    }
-                };
+                    currentPackage = currentPackage.substring(0, endPreviousPackage);
+                } while (true);
             }
 
-            return current;
+            return new AnnotatedElement() {
+
+                @Override
+                public <T extends Annotation> T getAnnotation(final Class<T> annotationClass) {
+                    return annotationClass == annotation ? annotationClass.cast(defaultValue) : null;
+                }
+
+                @Override
+                public Annotation[] getAnnotations() {
+                    return new Annotation[] { defaultValue };
+                }
+
+                @Override
+                public Annotation[] getDeclaredAnnotations() {
+                    return getAnnotations();
+                }
+            };
         });
         return annotatedElement.getAnnotation(annotation);
     }
