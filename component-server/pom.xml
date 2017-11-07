@@ -116,6 +116,12 @@
     </dependency>
 
     <dependency>
+      <groupId>io.zipkin.brave</groupId>
+      <artifactId>brave-instrumentation-jaxrs2</artifactId>
+      <version>4.9.1</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.meecrowave</groupId>
       <artifactId>meecrowave-junit</artifactId>
       <version>${meecrowave.version}</version>

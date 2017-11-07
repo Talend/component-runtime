@@ -52,4 +52,34 @@ public interface ComponentServerConfiguration {
     @Documentation("How long the read execution endpoint can last (max)")
     @ConfigProperty(name = "execution.dataset.retriever.timeout", defaultValue = "180") // in sec
     long datasetRetrieverTimeout();
+
+    @Documentation("The name used by the brave integration (zipkin)")
+    @ConfigProperty(name = "monitoring.brave.service.name", defaultValue = "component-server")
+    String serviceName();
+
+    @Documentation("The accuracy rate of the sampling.")
+    @ConfigProperty(name = "monitoring.brave.sampling.rate", defaultValue = "0.1")
+    float samplerRate();
+
+    @Documentation("The accuracy rate of the sampling for component endpoints.")
+    @ConfigProperty(name = "monitoring.brave.sampling.rate", defaultValue = "0.2")
+    float samplerComponentRate();
+
+    @Documentation("The accuracy rate of the sampling for action endpoints.")
+    @ConfigProperty(name = "monitoring.brave.sampling.rate", defaultValue = "0.8")
+    float samplerActionRate();
+
+    @Documentation("The accuracy rate of the sampling for execution endpoints.")
+    @ConfigProperty(name = "monitoring.brave.sampling.rate", defaultValue = "1")
+    float samplerExecutionRate();
+
+    @Documentation("The brave reporter to use to send the spans. Supported values are [console, noop, url]. When configuration is needed,"
+            + "you can use this syntax to configure the repoter if needed: `<name>(config1=value1, config2=value2)`, for example: `url(endpoint=http://brave.company.com`.")
+    @ConfigProperty(name = "monitoring.brave.reporter.type", defaultValue = "console")
+    String reporter();
+
+    @Documentation("When using url or kafka reporter, you can configure the async reporter with properties passed to this configuration entry." +
+            "Ex: `messageTimeout=5000,closeTimeout=5000`.")
+    @ConfigProperty(name = "monitoring.brave.reporter.type", defaultValue = "console")
+    String reporterAsyncConfiguration();
 }
