@@ -259,6 +259,7 @@ module.exports = {
             loader: require.resolve('file-loader'),
             include: [/favicon\.ico$/],
             options: {
+              limit: 1,
               name: '[name].[ext]',
             },
           },
@@ -286,9 +287,10 @@ module.exports = {
     // In production, it will be an empty string unless you specify "homepage"
     // in `package.json`, in which case it will be the pathname of that URL.
     new InterpolateHtmlPlugin(env.raw),
-    // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
       inject: true,
+      title: 'Component Starter Kit',
+      favicon: paths.favicon,
       template: paths.appHtml,
       minify: {
         removeComments: true,
@@ -301,7 +303,7 @@ module.exports = {
         minifyJS: true,
         minifyCSS: true,
         minifyURLs: true,
-      },
+      }
     }),
     // Makes some environment variables available to the JS code, for example:
     // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.

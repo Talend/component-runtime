@@ -115,6 +115,7 @@
           <httpPort>8080</httpPort>
           <webapp>${project.basedir}/src/main/frontend/dist</webapp>
           <webResourceCached>false</webResourceCached>
+          <cdiConversation>false</cdiConversation>
         </configuration>
         <dependencies>
           <dependency>

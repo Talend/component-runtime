@@ -372,6 +372,7 @@
           </execution>
         </executions>
         <configuration>
+          <cdiConversation>false</cdiConversation>
           <webapp>${project.basedir}/src/dev/webapp</webapp>
           <!-- in sandbox for now
           <properties>
