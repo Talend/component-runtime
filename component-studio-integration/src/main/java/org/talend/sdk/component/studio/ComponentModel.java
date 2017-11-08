@@ -18,6 +18,7 @@ package org.talend.sdk.component.studio;
 import static java.util.Collections.emptyList;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.talend.core.model.components.EComponentType;
@@ -43,6 +44,14 @@ public class ComponentModel extends AbstractBasicComponent {
     private final ImageDescriptor image24;
 
     private final ImageDescriptor image16;
+    
+    /**
+     * All palette entries for component joined by "|"
+     * Component palette entry is computed as category + "/" + familyName
+     * E.g. "Business/Salesforce|Cloud/Salesforce", where "Business", "Cloud" are categories,
+     * "Salesforce" - is familyName
+     */
+    private final String familyName;
 
     public ComponentModel(final ComponentIndex component, final ComponentService service) {
         this.service = service;
@@ -50,6 +59,22 @@ public class ComponentModel extends AbstractBasicComponent {
         this.image = service.toEclipseIcon(component.getIcon());
         this.image24 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(24, 24));
         this.image16 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(16, 16));
+        this.familyName = computeFamilyName();
+    }
+    
+    ComponentModel(final ComponentIndex component) {
+        this.service = null;
+        this.index = component;
+        this.image = null;
+        this.image24 = null;
+        this.image16 = null;
+        this.familyName = computeFamilyName();
+    }
+    
+    private String computeFamilyName() {
+        return index.getCategories().stream()
+                .map(category -> category + "/" + index.getId().getFamily())
+                .collect(Collectors.joining("|"));
     }
 
     /**
@@ -80,14 +105,15 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     /**
-     * Returns string which is concatenation of all component family names
+     * Returns string which is concatenation of all component palette entries
+     * Component palette entry is computed as category + "/" + familyName
      * E.g. "Business/Salesforce|Cloud/Salesforce"
      * 
-     * @return all family names
+     * @return all palette entries for this component
      */
     @Override
     public String getOriginalFamilyName() {
-        return index.getId().getFamily();
+        return familyName;
     }
 
     /**
