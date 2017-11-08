@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -63,6 +64,12 @@ import org.talend.sdk.component.runtime.visitor.ModelVisitor;
  */
 @Mojo(name = "validate", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class ValidateComponentMojo extends ClasspathMojoBase {
+
+    /**
+     * Ensures each family has an icon.
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.family")
+    private boolean validateFamily;
 
     /**
      * By default the plugin ensures the components are serializable. Skip this validation if this flag is true.
@@ -113,6 +120,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         final List<Class<?>> components = componentMarkers().flatMap(a -> finder.findAnnotatedClasses(a).stream())
                 .collect(toList());
         components.forEach(c -> getLog().debug("Found component: " + c));
+
+        if (validateFamily) {
+            // todo: better fix is to get the pcakage with @Components then check it has icon
+            // but it should be enough for now
+            components.forEach(c -> findPackageOrFail(c, Icon.class));
+        }
 
         if (validateSerializable) {
             final Collection<Class<?>> copy = new ArrayList<>(components);
@@ -250,8 +263,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
                     + ".properties at least.";
         }
 
-        final String prefix = componentMarkers().map(component::getAnnotation).filter(Objects::nonNull).findFirst()
-                .map(this::asComponent).map(c -> findFamily(c, component) + "." + c.name())
+        final String prefix = components(component).map(c -> findFamily(c, component) + "." + c.name())
                 .orElseThrow(() -> new IllegalStateException(component.getName()));
         final Collection<String> missingKeys = Stream.of("_displayName").map(n -> prefix + "." + n)
                 .filter(k -> !bundle.containsKey(k)).collect(toList());
@@ -261,31 +273,40 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         return null;
     }
 
-    private String findFamily(final Component c, final Class<?> component) {
-        return of(c.family()).filter(name -> !name.isEmpty()).orElseGet(() -> {
-            final AccessibleClassLoader loader = AccessibleClassLoader.class.cast(Thread.currentThread().getContextClassLoader());
-            Package current = component.getPackage();
-            do {
-                final Components config = current.getAnnotation(Components.class);
-                if (config != null) {
-                    return config.family();
-                }
-                final int endPreviousPackage = current.getName().lastIndexOf('.');
-                if (endPreviousPackage < 0) {
-                    current = null;
-                } else {
-                    final String parentPck = current.getName().substring(0, endPreviousPackage);
-                    try { // try to ensure the package is initialized
-                        loader.loadClass(parentPck + ".package-info");
-                    } catch (final ClassNotFoundException e) {
-                        // no-op
-                    }
-                    current = loader.findPackage(parentPck);
-                }
-            } while (current != null);
+    private Optional<Component> components(final Class<?> component) {
+        return componentMarkers().map(component::getAnnotation).filter(Objects::nonNull).findFirst().map(this::asComponent);
+    }
 
-            throw new IllegalArgumentException("No family for " + component);
-        });
+    private String findFamily(final Component c, final Class<?> component) {
+        return of(c.family()).filter(name -> !name.isEmpty())
+                .orElseGet(() -> findPackageOrFail(component, Components.class).family());
+    }
+
+    private <A extends Annotation> A findPackageOrFail(final Class<?> component, final Class<A> api) {
+        final AccessibleClassLoader loader = AccessibleClassLoader.class.cast(Thread.currentThread().getContextClassLoader());
+        final String pck = component.getPackage() == null ? null : component.getPackage().getName();
+        if (pck != null) {
+            String currentPackage = pck;
+            do {
+                try {
+                    final Class<?> pckInfo = loader.loadClass(currentPackage + ".package-info");
+                    if (pckInfo.isAnnotationPresent(api)) {
+                        return pckInfo.getAnnotation(api);
+                    }
+                } catch (final ClassNotFoundException e) {
+                    // no-op
+                }
+
+                final int endPreviousPackage = currentPackage.lastIndexOf('.');
+                if (endPreviousPackage < 0) { // we don't accept default package since it is not specific enough
+                    break;
+                }
+
+                currentPackage = currentPackage.substring(0, endPreviousPackage);
+            } while (true);
+        }
+        throw new IllegalArgumentException("No @" + api.getName() + " on " + component + ", add it or disable this validation" +
+                " (which can have side effects in integrations/designers)");
     }
 
     private ResourceBundle findResourceBundle(final Class<?> component) {
