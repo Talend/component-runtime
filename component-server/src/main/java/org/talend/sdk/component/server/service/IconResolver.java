@@ -28,7 +28,7 @@ import javax.ws.rs.core.MediaType;
 import lombok.Data;
 
 @ApplicationScoped
-public class SvgIconResolver {
+public class IconResolver {
 
     public Icon resolve(final ClassLoader loader, final String icon) {
         if (icon == null) {
