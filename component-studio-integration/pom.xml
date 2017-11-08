@@ -103,11 +103,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>org.talend.ui</groupId>
-      <artifactId>talend-icon</artifactId>
-      <version>${talend-icon.version}</version>
-    </dependency>
 
     <dependency> <!-- needed by tomcat-websocket -->
       <groupId>org.apache.tomcat</groupId>
@@ -195,7 +190,7 @@
               org.talend.repository,
               org.talend.metadata.managment.ui
             </Require-Bundle>
-            <Include-Resource>{maven-resources},icons=${project.build.directory}/icons</Include-Resource>
+            <Include-Resource>{maven-resources}</Include-Resource>
             <Import-Package/>
             <Bundle-SymbolicName>${project.artifactId};singleton=true</Bundle-SymbolicName>
             <Bundle-Vendor>.Talend SA.</Bundle-Vendor>
@@ -239,7 +234,6 @@
         <configuration>
           <scripts>
             <script>${project.basedir}/src/build/StudioDependencies.groovy</script>
-            <script>${project.parent.basedir}/build/CreatePNGIcons.groovy</script>
           </scripts>
         </configuration>
         <dependencies>

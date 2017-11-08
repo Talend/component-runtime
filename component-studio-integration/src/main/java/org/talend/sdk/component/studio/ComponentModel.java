@@ -52,61 +52,107 @@ public class ComponentModel extends AbstractBasicComponent {
         this.image16 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(16, 16));
     }
 
+    /**
+     * @return component name (e.g. "tSalesforceInput")
+     */
     @Override
     public String getName() {
         return index.getId().getName();
     }
 
+    /**
+     * Looks the same as {@link #getName()}
+     */
     @Override
     public String getOriginalName() {
         return getName();
     }
 
+    /**
+     * Returns long component name, aka title (e.g. "Salesforce Input"). It is i18n title.
+     * In v0 component it is specified by "component.{compName}.title" message key
+     * 
+     * @return long component name, aka title (e.g. "") or translated
+     */
     @Override
     public String getLongName() {
         return getName();
     }
 
+    /**
+     * Returns string which is concatenation of all component family names
+     * E.g. "Business/Salesforce|Cloud/Salesforce"
+     * 
+     * @return all family names
+     */
     @Override
     public String getOriginalFamilyName() {
         return index.getId().getFamily();
     }
 
+    /**
+     * Returns i18n family names
+     */
     @Override
     public String getTranslatedFamilyName() {
         return getOriginalFamilyName();
     }
 
+    /**
+     * Returns short component name, which is obtained in following way
+     * All capital letters are picked and converted to lower case
+     * E.g. the short name for "tSalesforceInput" is "si"
+     * 
+     * @return short component name
+     */
     @Override
     public String getShortName() {
         return getName();
     }
 
+    /**
+     * @return original component icon
+     */
     @Override
     public ImageDescriptor getIcon32() {
         return image;
     }
 
+    /**
+     * @return component icon scaled to 24x24
+     */
     @Override
     public ImageDescriptor getIcon24() {
         return image24;
     }
 
+    /**
+     * @return component icon scaled to 16x16
+     */
     @Override
     public ImageDescriptor getIcon16() {
         return image16;
     }
 
+    /**
+     * Creates component parameters aka Properties/Configuration
+     */
     @Override // TODO
     public List<? extends IElementParameter> createElementParameters(final INode iNode) {
         return emptyList();
     }
 
+    /**
+     * Creates component return properties
+     */
     @Override // TODO
     public List<? extends INodeReturn> createReturns(final INode iNode) {
         return emptyList();
     }
 
+    /**
+     * Creates component connectors including "ITERATE", "ON_COMPONENT_OK" etc 
+     */
     @Override // TODO
     public List<? extends INodeConnector> createConnectors(final INode iNode) {
         return emptyList();
@@ -122,21 +168,39 @@ public class ComponentModel extends AbstractBasicComponent {
         return false;
     }
 
+    /**
+     * Get the default modules needed for the component.
+     * @return common v1 components Job dependencies
+     */
     @Override // TODO
     public List<ModuleNeeded> getModulesNeeded() {
         return emptyList();
     }
 
+    /**
+     * Get the modules needed according component configuration
+     * This method should no have sense for v1 as Job classpath should contain only common API dependencies
+     * All component specific dependencies will be resolved by ComponentManager class
+     * 
+     * @return
+     */
     @Override // TODO
     public List<ModuleNeeded> getModulesNeeded(final INode iNode) {
         return emptyList();
     }
 
+    /**
+     * Returns code parts (.javajet templates) for this component.
+     * All v1 component should have the same set of common templates
+     */
     @Override // TODO
     public List<ECodePart> getAvailableCodeParts() {
         return emptyList();
     }
 
+    /**
+     * Returns component type, which is EComponentType.GENERIC
+     */
     @Override // TODO
     public EComponentType getComponentType() {
         return EComponentType.GENERIC;

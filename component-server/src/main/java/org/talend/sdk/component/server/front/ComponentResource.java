@@ -69,7 +69,7 @@ import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
-import org.talend.sdk.component.server.service.SvgIconResolver;
+import org.talend.sdk.component.server.service.IconResolver;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -93,7 +93,7 @@ public class ComponentResource {
     private PropertiesService propertiesService;
 
     @Inject
-    private SvgIconResolver svgIconResolver;
+    private IconResolver iconResolver;
 
     private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
 
@@ -136,7 +136,7 @@ public class ComponentResource {
                     .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE).build();
         }
-        final SvgIconResolver.Icon iconContent = svgIconResolver
+        final IconResolver.Icon iconContent = iconResolver
                 .resolve(manager.findPlugin(meta.getParent().getPlugin()).get().getLoader(), meta.getIcon());
         if (iconContent == null) {
             return Response.status(Response.Status.NOT_FOUND)
@@ -213,8 +213,8 @@ public class ComponentResource {
             final ComponentFamilyMeta.BaseMeta meta) {
         final String icon = meta.getIcon();
         final String familyIcon = meta.getParent().getIcon();
-        final SvgIconResolver.Icon iconContent = svgIconResolver.resolve(loader, icon);
-        final SvgIconResolver.Icon iconFamilyContent = svgIconResolver.resolve(loader, familyIcon);
+        final IconResolver.Icon iconContent = iconResolver.resolve(loader, icon);
+        final IconResolver.Icon iconFamilyContent = iconResolver.resolve(loader, familyIcon);
         return new ComponentIndex(new ComponentId(meta.getId(), plugin, meta.getParent().getName(), meta.getName()),
                 meta.findBundle(loader, locale).displayName().orElse(meta.getName()),
                 new Icon(icon, iconContent == null ? null : iconContent.getType(),
