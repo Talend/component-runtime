@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -110,8 +111,9 @@ public class WebSocketClient implements AutoCloseable {
         }
     }
 
-    private <T> T sendAndWait(final String id, final String uri, final Object payload, final Class<T> expectedResponse) {
-        final Session session = getOrCreateSession(id, uri);
+    private <T> T sendAndWait(final String id, final String uri, final Object payload, final Class<T> expectedResponse,
+            final boolean doCheck) {
+        final Session session = getOrCreateSession(id, uri, doCheck);
 
         final PayloadHandler handler = new PayloadHandler();
         session.getUserProperties().put("handler", handler);
@@ -141,8 +143,8 @@ public class WebSocketClient implements AutoCloseable {
         sessions.get(id).add(session);
     }
 
-    private Session getOrCreateSession(final String id, final String uri) {
-        if (synch != null) {
+    private Session getOrCreateSession(final String id, final String uri, final boolean doCheck) {
+        if (doCheck && synch != null) {
             synchronized (this) {
                 if (synch != null) {
                     synch.run();
@@ -230,6 +232,12 @@ public class WebSocketClient implements AutoCloseable {
         public V1Component component() {
             return new V1Component(root);
         }
+
+        public boolean healthCheck() {
+            root.sendAndWait("/v1/get/component/index", "/component/index?language=" + Locale.getDefault().getLanguage(), null,
+                    ComponentIndices.class, false);
+            return true;
+        }
     }
 
     public static class V1Action {
@@ -243,7 +251,7 @@ public class WebSocketClient implements AutoCloseable {
         public <T> T execute(final Class<T> expectedResponse, final String family, final String type, final String action,
                 final Map<String, String> payload) {
             return root.sendAndWait("/v1/post/action/execute",
-                    "/action/execute?family=" + family + "&type=" + type + "&action=" + action, payload, expectedResponse);
+                    "/action/execute?family=" + family + "&type=" + type + "&action=" + action, payload, expectedResponse, true);
         }
     }
 
@@ -259,11 +267,11 @@ public class WebSocketClient implements AutoCloseable {
 
         public ComponentIndices getIndex(final String language) {
             return root.sendAndWait("/v1/get/component/index", "/component/index?language=" + language, null,
-                    ComponentIndices.class);
+                    ComponentIndices.class, true);
         }
 
         public byte[] icon(final String id) {
-            return root.sendAndWait("/v1/get/component/icon/{id}", "/icon/" + id, null, byte[].class);
+            return root.sendAndWait("/v1/get/component/icon/{id}", "/icon/" + id, null, byte[].class, true);
         }
 
         public ComponentDetailList getDetail(final String language, final String[] identifiers) {
@@ -273,7 +281,7 @@ public class WebSocketClient implements AutoCloseable {
             return root.sendAndWait("/v1/get/component/details",
                     "/component/details?language=" + language
                             + Stream.of(identifiers).map(i -> "identifiers=" + i).collect(Collectors.joining("&", "&", "")),
-                    null, ComponentDetailList.class);
+                    null, ComponentDetailList.class, true);
         }
 
         public Stream<Pair<ComponentIndex, ComponentDetail>> details(final String language) {
@@ -296,7 +304,7 @@ public class WebSocketClient implements AutoCloseable {
 
         public Map<String, String> migrate(final String id, final int configurationVersion, final Map<String, String> payload) {
             return root.sendAndWait("/v1/post/component/migrate/{id}/{configurationVersion}",
-                    "/component/migrate/" + id + "/" + configurationVersion, payload, Map.class);
+                    "/component/migrate/" + id + "/" + configurationVersion, payload, Map.class, true);
         }
     }
 

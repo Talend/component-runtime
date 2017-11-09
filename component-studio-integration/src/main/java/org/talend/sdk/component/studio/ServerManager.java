@@ -23,7 +23,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.Locale;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -55,7 +54,7 @@ public class ServerManager extends AbstractUIPlugin {
         manager.start();
 
         client = new WebSocketClient("ws://localhost:" + manager.getPort() + "/websocket/v1");
-        client.setSynch(() -> manager.waitForServer(() -> client.v1().component().getIndex(Locale.getDefault().getLanguage())));
+        client.setSynch(() -> manager.waitForServer(() -> client.v1().healthCheck()));
 
         final BundleContext ctx = getBundle().getBundleContext();
         services.add(ctx.registerService(ProcessManager.class.getName(), manager, new Hashtable<>()));
