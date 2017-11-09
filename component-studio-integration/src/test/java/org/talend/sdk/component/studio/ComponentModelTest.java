@@ -23,6 +23,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.talend.core.model.process.INodeConnector;
 import org.talend.core.model.process.INodeReturn;
+import org.talend.core.model.temp.ECodePart;
 import org.talend.sdk.component.server.front.model.ComponentId;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 
@@ -82,5 +83,20 @@ public class ComponentModelTest {
         Assert.assertEquals("Number of line", numberLines.getDisplayName());
         Assert.assertEquals("!!!NodeReturn.Availability.AFTER!!!", numberLines.getAvailability());
         Assert.assertEquals("int | Integer", numberLines.getType());
+    }
+    
+    @Test
+    public void testGetAvailableCodeParts() {
+        
+        ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
+        ComponentModel componentModel = new ComponentModel(idx);
+        
+        List<ECodePart> codeParts = componentModel.getAvailableCodeParts();
+        Assert.assertEquals(4, codeParts.size());
+        Assert.assertTrue(codeParts.contains(ECodePart.BEGIN));
+        Assert.assertTrue(codeParts.contains(ECodePart.MAIN));
+        Assert.assertTrue(codeParts.contains(ECodePart.END));
+        Assert.assertTrue(codeParts.contains(ECodePart.FINALLY));
     }
 }

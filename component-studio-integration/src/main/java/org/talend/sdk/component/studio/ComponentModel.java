@@ -31,6 +31,7 @@ import static org.talend.sdk.component.studio.model.ReturnVariables.RETURN_TOTAL
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -73,6 +74,7 @@ public class ComponentModel extends AbstractBasicComponent {
     public ComponentModel(final ComponentIndex component, final ImageDescriptor image32) {
         this.index = component;
         this.familyName = computeFamilyName();
+        this.codePartListX = createCodePartList();
         this.image = image32;
         this.image24 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(24, 24));
         this.image16 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(16, 16));
@@ -81,9 +83,11 @@ public class ComponentModel extends AbstractBasicComponent {
     ComponentModel(final ComponentIndex component) {
         this.index = component;
         this.familyName = computeFamilyName();
+        this.codePartListX = createCodePartList();
         this.image = null;
         this.image24 = null;
         this.image16 = null;
+        createCodePartList();
     }
 
     /**
@@ -94,6 +98,22 @@ public class ComponentModel extends AbstractBasicComponent {
                 .collect(Collectors.joining("|"));
     }
 
+    /**
+     * Creates unmodifiable list of code part templates (.javajet)
+     * All Tacokit component have following 4 parts by default:
+     * <ul>
+     *      <li>BEGIN</li>
+     *      <li>MAIN</li>
+     *      <li>END</li>
+     *      <li>FINALLYS</li>
+     * </ul>
+     * 
+     * @return
+     */
+    private List<ECodePart> createCodePartList() {
+        return Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY));
+    }
+    
     /**
      * @return component name (e.g. "tSalesforceInput")
      */
@@ -365,11 +385,17 @@ public class ComponentModel extends AbstractBasicComponent {
 
     /**
      * Returns code parts (.javajet templates) for this component.
-     * All v1 component should have the same set of common templates
+     * All Tacokit componenta have same set of common templates:
+     * <ul>
+     *      <li>BEGIN</li>
+     *      <li>MAIN</li>
+     *      <li>END</li>
+     *      <li>FINALLYS</li>
+     * </ul>
      */
-    @Override // TODO
+    @Override
     public List<ECodePart> getAvailableCodeParts() {
-        return emptyList();
+        return this.codePartListX;
     }
 
     /**
