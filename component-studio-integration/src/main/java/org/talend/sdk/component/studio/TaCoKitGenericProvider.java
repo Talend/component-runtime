@@ -52,7 +52,8 @@ public class TaCoKitGenericProvider implements IGenericProvider {
         final Set<IComponent> components = factory.getComponents();
         synchronized (components) {
             components.removeIf(ComponentModel.class::isInstance);
-            indices.getComponents().forEach(component -> components.add(new ComponentModel(component, service)));
+            indices.getComponents().forEach(
+                    component -> components.add(new ComponentModel(component, service.toEclipseIcon(component.getIcon()))));
         }
     }
 

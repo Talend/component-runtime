@@ -25,7 +25,9 @@ import static org.talend.core.model.process.EConnectionType.ON_SUBJOB_ERROR;
 import static org.talend.core.model.process.EConnectionType.ON_SUBJOB_OK;
 import static org.talend.core.model.process.EConnectionType.REJECT;
 import static org.talend.core.model.process.EConnectionType.RUN_IF;
-import static org.talend.sdk.component.studio.model.ReturnVariables.*;
+import static org.talend.sdk.component.studio.model.ReturnVariables.AFTER;
+import static org.talend.sdk.component.studio.model.ReturnVariables.RETURN_ERROR_MESSAGE;
+import static org.talend.sdk.component.studio.model.ReturnVariables.RETURN_TOTAL_RECORD_COUNT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,13 +50,9 @@ import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.NodeConnector;
 import org.talend.designer.core.model.components.NodeReturn;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
-import org.talend.sdk.component.studio.model.ReturnVariables;
-import org.talend.sdk.component.studio.service.ComponentService;
 
 // TODO: finish the impl
 public class ComponentModel extends AbstractBasicComponent {
-
-    private final ComponentService service;
 
     private final ComponentIndex index;
 
@@ -72,22 +70,20 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     private final String familyName;
 
-    public ComponentModel(final ComponentIndex component, final ComponentService service) {
-        this.service = service;
+    public ComponentModel(final ComponentIndex component, final ImageDescriptor image32) {
         this.index = component;
-        this.image = service.toEclipseIcon(component.getIcon());
+        this.familyName = computeFamilyName();
+        this.image = image32;
         this.image24 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(24, 24));
         this.image16 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(16, 16));
-        this.familyName = computeFamilyName();
     }
 
     ComponentModel(final ComponentIndex component) {
-        this.service = null;
         this.index = component;
+        this.familyName = computeFamilyName();
         this.image = null;
         this.image24 = null;
         this.image16 = null;
-        this.familyName = computeFamilyName();
     }
 
     /**
@@ -329,14 +325,20 @@ public class ComponentModel extends AbstractBasicComponent {
         return iterate;
     }
 
-    @Override // TODO
+    /**
+     * TODO decide about API for this feature
+     */
+    @Override
     public boolean isSchemaAutoPropagated() {
-        return false;
+        return true;
     }
 
-    @Override // TODO
+    /**
+     * TODO decide about API for this feature
+     */
+    @Override
     public boolean isDataAutoPropagated() {
-        return false;
+        return true;
     }
 
     /**
@@ -373,7 +375,7 @@ public class ComponentModel extends AbstractBasicComponent {
     /**
      * Returns component type, which is EComponentType.GENERIC
      */
-    @Override // TODO
+    @Override
     public EComponentType getComponentType() {
         return EComponentType.GENERIC;
     }
