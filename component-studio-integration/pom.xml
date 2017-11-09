@@ -157,9 +157,9 @@
     </dependency>
     <!-- Required by Studio plugins. TODO replace with slf4j-over-log4j if possible -->
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>${log4j.version}</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
     
