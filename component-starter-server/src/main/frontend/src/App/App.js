@@ -14,10 +14,11 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import IconsProvider from '@talend/react-components/lib/IconsProvider';
 import AppHeaderBar from '@talend/react-components/lib/AppHeaderBar';
 import Generator from '../Generator';
+import Missing from '../Missing';
 
 import theme from './App.scss';
 
@@ -32,7 +33,11 @@ export default function App() {
         </div>
 
         <div className={theme.content}>
-          <Route exact path="/" component={Generator}/>
+          <Switch>
+            <Route exact path="/" component={Generator}/>
+            <Route exact path="/index.html" component={Generator}/>
+            <Route component={Missing} />
+          </Switch>
         </div>
       </div>
     </Router>

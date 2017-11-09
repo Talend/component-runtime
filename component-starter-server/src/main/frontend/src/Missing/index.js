@@ -13,17 +13,5 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-.App {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-
-  .header {
-    flex: 0 0 48px;
-  }
-
-  .content {
-    height: 100vh;
-    overflow: auto;
-  }
-}
+import Missing from './Missing';
+export default Missing;

@@ -180,6 +180,7 @@
             <configuration>
               <arguments>run watch</arguments>
               <environmentVariables>
+                <GENERATE_SOURCEMAP>true</GENERATE_SOURCEMAP>
                 <NODE_ENV>production</NODE_ENV>
               </environmentVariables>
             </configuration>

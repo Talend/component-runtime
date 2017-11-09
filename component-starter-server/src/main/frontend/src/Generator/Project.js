@@ -96,7 +96,7 @@ export default class Project extends React.Component {
   handleSubmit(event) {
     fetch(`${GENERATOR_URL}`, {
         method: 'POST',
-        body: JSON.stringify(this.state.value),
+        body: JSON.stringify(this.state.project),
         headers: new Headers({'Accept': 'application/zip', 'Content-Type': 'application/json'})
       })
       .then(response => response.blob())

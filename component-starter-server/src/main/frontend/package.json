@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@talend/bootstrap-theme": "0.107.0",
-    "@talend/icons": "0.107.0",
-    "@talend/react-components": "0.107.0",
+    "@talend/bootstrap-theme": "0.124.0",
+    "@talend/icons": "0.124.0",
+    "@talend/react-components": "0.124.0",
     "autoprefixer": "7.1.2",
     "babel-core": "6.25.0",
     "babel-eslint": "7.2.3",
@@ -37,12 +37,15 @@
     "postcss-loader": "2.0.6",
     "promise": "8.0.1",
     "react": "15.5.4",
+    "react-i18next": "6.1.0",
     "react-addons-css-transition-group": "15.5.2",
     "react-bootstrap": "0.31.0",
     "react-css-transition": "^0.7.4",
     "react-dev-utils": "^4.0.0",
     "react-dom": "15.5.4",
     "react-router-dom": "^4.2.2",
+    "react-stepzilla": "4.6.3",
+    "i18next": "10.0.7",
     "resolve-url-loader": "^2.1.0",
     "sass-loader": "^6.0.6",
     "style-loader": "0.18.2",
@@ -57,13 +60,8 @@
   },
   "proxy": "http://localhost:8080/",
   "scripts": {
-    "build-css": "node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/",
-    "watch-css": "yarn run build-css && node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/ --watch --recursive",
-    "start-js": "node scripts/start.js",
-    "start": "npm-run-all -p watch-css start-js",
     "build": "yarn run build-css && node scripts/build.js",
-    "test": "node scripts/test.js --env=jsdom",
-    "watch": "webpack --config config/webpack.config.prod.js --bail --progress --colors --watch --display-error-details --display-chunks"
+    "watch": "webpack --config webpack.config.js --bail --progress --colors --watch --display-error-details --display-chunks"
   },
   "jest": {
     "collectCoverageFrom": [

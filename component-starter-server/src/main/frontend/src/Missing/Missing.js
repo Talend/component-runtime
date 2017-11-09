@@ -13,17 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-.App {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+import React from 'react';
+import HttpError from '@talend/react-components/lib/HttpError';
 
-  .header {
-    flex: 0 0 48px;
-  }
-
-  .content {
-    height: 100vh;
-    overflow: auto;
-  }
+export default function Missing() {
+  return <HttpError status="404" title="Oops ..." message="The page you are looking for cannot be found" />;
 }
