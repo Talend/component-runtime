@@ -307,6 +307,12 @@
       <dependencies>
         <dependency>
           <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.core</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>	  
+        <dependency>
+          <groupId>org.talend.studio</groupId>
           <artifactId>org.talend.core.ui</artifactId>
           <version>${studio.version}</version>
           <scope>provided</scope>

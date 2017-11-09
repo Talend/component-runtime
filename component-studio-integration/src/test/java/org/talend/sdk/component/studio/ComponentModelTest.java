@@ -16,9 +16,13 @@
 package org.talend.sdk.component.studio;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.talend.core.model.process.INodeConnector;
+import org.talend.core.model.process.INodeReturn;
 import org.talend.sdk.component.server.front.model.ComponentId;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 
@@ -33,8 +37,8 @@ public class ComponentModelTest {
 
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-
         ComponentModel componentModel = new ComponentModel(idx);
+
         Assert.assertEquals(expectedFamilyName, componentModel.getOriginalFamilyName());
     }
 
@@ -44,9 +48,39 @@ public class ComponentModelTest {
 
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-
         ComponentModel componentModel = new ComponentModel(idx);
+
         Assert.assertEquals(expectedName, componentModel.getLongName());
     }
 
+    @Ignore("Cannot be tested as CorePlugin is null")
+    @Test
+    public void testCreateConnectors() {
+
+        ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
+        ComponentModel componentModel = new ComponentModel(idx);
+
+        List<? extends INodeConnector> connectors = componentModel.createConnectors(null);
+        Assert.assertEquals(22, connectors.size());
+    }
+
+    @Test
+    public void testCreateReturns() {
+
+        ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
+        ComponentModel componentModel = new ComponentModel(idx);
+
+        List<? extends INodeReturn> returnVariables = componentModel.createReturns(null);
+        Assert.assertEquals(2, returnVariables.size());
+        INodeReturn errorMessage = returnVariables.get(0);
+        Assert.assertEquals("Error Message", errorMessage.getDisplayName());
+        Assert.assertEquals("!!!NodeReturn.Availability.AFTER!!!", errorMessage.getAvailability());
+        Assert.assertEquals("String", errorMessage.getType());
+        INodeReturn numberLines = returnVariables.get(1);
+        Assert.assertEquals("Number of line", numberLines.getDisplayName());
+        Assert.assertEquals("!!!NodeReturn.Availability.AFTER!!!", numberLines.getAvailability());
+        Assert.assertEquals("int | Integer", numberLines.getType());
+    }
 }

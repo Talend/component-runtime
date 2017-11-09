@@ -16,20 +16,39 @@
 package org.talend.sdk.component.studio;
 
 import static java.util.Collections.emptyList;
+import static org.talend.core.model.process.EConnectionType.FLOW_MAIN;
+import static org.talend.core.model.process.EConnectionType.FLOW_MERGE;
+import static org.talend.core.model.process.EConnectionType.FLOW_REF;
+import static org.talend.core.model.process.EConnectionType.ON_COMPONENT_ERROR;
+import static org.talend.core.model.process.EConnectionType.ON_COMPONENT_OK;
+import static org.talend.core.model.process.EConnectionType.ON_SUBJOB_ERROR;
+import static org.talend.core.model.process.EConnectionType.ON_SUBJOB_OK;
+import static org.talend.core.model.process.EConnectionType.REJECT;
+import static org.talend.core.model.process.EConnectionType.RUN_IF;
+import static org.talend.sdk.component.studio.model.ReturnVariables.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.talend.core.model.components.EComponentType;
 import org.talend.core.model.general.ModuleNeeded;
+import org.talend.core.model.metadata.types.JavaTypesManager;
+import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
 import org.talend.core.model.process.INodeConnector;
 import org.talend.core.model.process.INodeReturn;
 import org.talend.core.model.temp.ECodePart;
+import org.talend.core.runtime.util.ComponentReturnVariableUtils;
 import org.talend.designer.core.model.components.AbstractBasicComponent;
+import org.talend.designer.core.model.components.NodeConnector;
+import org.talend.designer.core.model.components.NodeReturn;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
+import org.talend.sdk.component.studio.model.ReturnVariables;
 import org.talend.sdk.component.studio.service.ComponentService;
 
 // TODO: finish the impl
@@ -171,19 +190,143 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     /**
-     * Creates component return properties
+     * Creates component return variables
+     * For the moment it returns only ERROR_MESSAGE and NB_LINE after variables
+     * 
+     * @return list of component return variables
      */
-    @Override // TODO
+    @Override
     public List<? extends INodeReturn> createReturns(final INode iNode) {
-        return emptyList();
+        List<NodeReturn> returnVariables = new ArrayList<>();
+
+        NodeReturn errorMessage = new NodeReturn();
+        errorMessage.setType(JavaTypesManager.STRING.getLabel());
+        errorMessage.setDisplayName(
+                ComponentReturnVariableUtils.getTranslationForVariable(RETURN_ERROR_MESSAGE, RETURN_ERROR_MESSAGE));
+        errorMessage.setName(ComponentReturnVariableUtils.getStudioNameFromVariable(RETURN_ERROR_MESSAGE));
+        errorMessage.setAvailability(AFTER);
+        returnVariables.add(errorMessage);
+
+        NodeReturn numberLinesMessage = new NodeReturn();
+        numberLinesMessage.setType(JavaTypesManager.INTEGER.getLabel());
+        numberLinesMessage.setDisplayName(
+                ComponentReturnVariableUtils.getTranslationForVariable(RETURN_TOTAL_RECORD_COUNT, RETURN_TOTAL_RECORD_COUNT));
+        numberLinesMessage.setName(ComponentReturnVariableUtils.getStudioNameFromVariable(RETURN_TOTAL_RECORD_COUNT));
+        numberLinesMessage.setAvailability(AFTER);
+        returnVariables.add(numberLinesMessage);
+
+        return returnVariables;
     }
 
     /**
      * Creates component connectors including "ITERATE", "ON_COMPONENT_OK" etc
+     * TODO It is stub implementation. It creates connectors based on OUTGOING topology (i.e. for input component)
+     * 
+     * @param node component node - object representing component instance on design canvas
      */
-    @Override // TODO
-    public List<? extends INodeConnector> createConnectors(final INode iNode) {
-        return emptyList();
+    @Override
+    public List<? extends INodeConnector> createConnectors(final INode node) {
+        ArrayList<INodeConnector> connectors = new ArrayList<>();
+
+        // create connectors for Input component
+        INodeConnector main = creatInputConnector(FLOW_MAIN, node);
+        // see org.talend.designer.core.generic.model.Component.createConnectors(INode)
+        main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
+        main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
+
+        connectors.add(main);
+        connectors.add(creatInputConnector(REJECT, node));
+        connectors.add(createIterateConnector(node));
+
+        // create Standard
+        connectors.add(createConnector(RUN_IF, node));
+        connectors.add(createConnector(ON_COMPONENT_OK, node));
+        connectors.add(createConnector(ON_COMPONENT_ERROR, node));
+        connectors.add(createConnector(ON_SUBJOB_OK, node));
+        connectors.add(createConnector(ON_SUBJOB_ERROR, node));
+
+        // create others
+        Set<EConnectionType> existingConnectors = connectors.stream() //
+                .map(connector -> connector.getDefaultConnectionType()) //
+                .collect(Collectors.toSet()); //
+
+        Arrays.stream(EConnectionType.values()) //
+                .filter(type -> !existingConnectors.contains(type)) //
+                .forEach(type -> { //
+                    INodeConnector connector = createOtherConnector(type, node); //
+                    if ((type == EConnectionType.PARALLELIZE) || (type == EConnectionType.SYNCHRONIZE)) { //
+                        connector.setMaxLinkInput(1); //
+                    } //
+                    connectors.add(connector); //
+                });
+        return connectors;
+    }
+
+    /**
+     * Creates connector with infinite (-1) incoming and outgoing connections
+     *
+     * @param type connector type
+     * @param node component node - object representing component instance on design canvas
+     * @return connector
+     */
+    private INodeConnector createConnector(EConnectionType type, INode node) {
+        NodeConnector nodeConnector = new NodeConnector(node);
+        nodeConnector.setName(type.getName());
+        nodeConnector.setBaseSchema(type.getName());
+        nodeConnector.setDefaultConnectionType(type);
+        nodeConnector.setLinkName(type.getDefaultLinkName());
+        nodeConnector.setMenuName(type.getDefaultMenuName());
+        nodeConnector.addConnectionProperty(type, type.getRGB(), type.getDefaultLineStyle());
+        return nodeConnector;
+    }
+
+    /**
+     * Creates connector with 0 incoming and 1 outgoing connections
+     * 
+     * @param type connector type
+     * @param node component node - object representing component instance on design canvas
+     * @return connector
+     */
+    private INodeConnector creatInputConnector(EConnectionType type, INode node) {
+        INodeConnector connector = createConnector(type, node);
+        connector.setMinLinkInput(0);
+        connector.setMaxLinkInput(0);
+        connector.setMinLinkOutput(0);
+        connector.setMaxLinkOutput(1);
+        return connector;
+    }
+
+    /**
+     * Creates connector which is not applicable for Tacokit component.
+     * Thus, such connector has 0 incoming and 0 outgoing connections
+     * 
+     * @param type connector type
+     * @param node component node - object representing component instance on design canvas
+     * @return connector
+     */
+    private INodeConnector createOtherConnector(EConnectionType type, INode node) {
+        INodeConnector connector = createConnector(type, node);
+        connector.setMinLinkInput(0);
+        connector.setMaxLinkInput(0);
+        connector.setMinLinkOutput(0);
+        connector.setMaxLinkOutput(0);
+        return connector;
+    }
+
+    /**
+     * Creates {@link EConnectionType#ITERATE} connector for outgoing topology (i.e. for input component)
+     * Input components have 1 incoming iterate connections and infinite outgoing connections
+     * 
+     * @param node node component node - object representing component instance on design canvas
+     * @return iterate connector
+     */
+    private INodeConnector createIterateConnector(INode node) {
+        INodeConnector iterate = createConnector(EConnectionType.ITERATE, node);
+        iterate.setMinLinkInput(0);
+        iterate.setMaxLinkInput(1);
+        iterate.setMinLinkOutput(0);
+        iterate.setMaxLinkOutput(-1);
+        return iterate;
     }
 
     @Override // TODO
