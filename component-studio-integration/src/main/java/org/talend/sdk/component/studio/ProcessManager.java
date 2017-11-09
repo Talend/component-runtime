@@ -76,15 +76,19 @@ public class ProcessManager implements AutoCloseable {
         for (int i = 0; i < TimeUnit.MINUTES.toMillis(10) / steps; i++) {
             try {
                 if (ready.await(steps, TimeUnit.MILLISECONDS)) {
+                    healthcheck.run();
                     return;
                 }
-                healthcheck.run();
+                if (i> 0 && i % 12 == 0) {
+                    System.out.println("Component server not yet ready, will wait again"); // no logger!
+                }
+                sleep(steps);
             } catch (final InterruptedException e) {
                 Thread.interrupted();
                 break;
             } catch (final RuntimeException re) {
                 try {
-                    sleep(500); // wait and retry
+                    sleep(500); // wait and retry, the healthcheck failed
                 } catch (final InterruptedException e) {
                     Thread.interrupted();
                     break;
