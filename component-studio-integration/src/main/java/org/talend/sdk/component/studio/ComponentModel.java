@@ -51,6 +51,7 @@ import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.NodeConnector;
 import org.talend.designer.core.model.components.NodeReturn;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
+import org.talend.sdk.component.studio.model.ElementParameterCreator;
 
 // TODO: finish the impl
 public class ComponentModel extends AbstractBasicComponent {
@@ -72,6 +73,7 @@ public class ComponentModel extends AbstractBasicComponent {
     private final String familyName;
 
     public ComponentModel(final ComponentIndex component, final ImageDescriptor image32) {
+        setPaletteType("DI");
         this.index = component;
         this.familyName = computeFamilyName();
         this.codePartListX = createCodePartList();
@@ -81,6 +83,7 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     ComponentModel(final ComponentIndex component) {
+        setPaletteType("DI");
         this.index = component;
         this.familyName = computeFamilyName();
         this.codePartListX = createCodePartList();
@@ -102,10 +105,10 @@ public class ComponentModel extends AbstractBasicComponent {
      * Creates unmodifiable list of code part templates (.javajet)
      * All Tacokit component have following 4 parts by default:
      * <ul>
-     *      <li>BEGIN</li>
-     *      <li>MAIN</li>
-     *      <li>END</li>
-     *      <li>FINALLYS</li>
+     * <li>BEGIN</li>
+     * <li>MAIN</li>
+     * <li>END</li>
+     * <li>FINALLYS</li>
      * </ul>
      * 
      * @return
@@ -113,7 +116,7 @@ public class ComponentModel extends AbstractBasicComponent {
     private List<ECodePart> createCodePartList() {
         return Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY));
     }
-    
+
     /**
      * @return component name (e.g. "tSalesforceInput")
      */
@@ -200,9 +203,9 @@ public class ComponentModel extends AbstractBasicComponent {
     /**
      * Creates component parameters aka Properties/Configuration
      */
-    @Override // TODO
-    public List<? extends IElementParameter> createElementParameters(final INode iNode) {
-        return emptyList();
+    @Override // TODO This is dummy implementation. Correct impl should be added soon
+    public List<? extends IElementParameter> createElementParameters(final INode node) {
+        return new ElementParameterCreator(this, node).createParameters();
     }
 
     /**
@@ -387,10 +390,10 @@ public class ComponentModel extends AbstractBasicComponent {
      * Returns code parts (.javajet templates) for this component.
      * All Tacokit componenta have same set of common templates:
      * <ul>
-     *      <li>BEGIN</li>
-     *      <li>MAIN</li>
-     *      <li>END</li>
-     *      <li>FINALLYS</li>
+     * <li>BEGIN</li>
+     * <li>MAIN</li>
+     * <li>END</li>
+     * <li>FINALLYS</li>
      * </ul>
      */
     @Override
