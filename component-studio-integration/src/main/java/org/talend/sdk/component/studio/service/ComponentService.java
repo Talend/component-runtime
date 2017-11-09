@@ -43,16 +43,19 @@ public class ComponentService {
     }
 
     public ImageDescriptor toEclipseIcon(final Icon componentIcon) {
-        if (componentIcon != null && componentIcon.getCustomIcon() != null) {
+        if (componentIcon == null) {
+            return DEFAULT_IMAGE;
+        }
+        
+        // component-server return byte[] for both: custom icon and preinstalled
+        if (componentIcon.getCustomIcon() != null) {
             try (final InputStream in = new ByteArrayInputStream(componentIcon.getCustomIcon())) {
                 return ImageDescriptor.createFromImageData(new ImageData(in));
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }
+        // TODO deadcode. Remove it
         } else {
-            if (componentIcon == null) {
-                return DEFAULT_IMAGE;
-            }
 
             final ClassLoader loader = ComponentModel.class.getClassLoader();
             final String icon = componentIcon.getIcon();
