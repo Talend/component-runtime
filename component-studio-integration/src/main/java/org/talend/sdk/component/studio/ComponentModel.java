@@ -44,7 +44,7 @@ public class ComponentModel extends AbstractBasicComponent {
     private final ImageDescriptor image24;
 
     private final ImageDescriptor image16;
-    
+
     /**
      * All palette entries for component joined by "|"
      * Component palette entry is computed as category + "/" + familyName
@@ -61,7 +61,7 @@ public class ComponentModel extends AbstractBasicComponent {
         this.image16 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(16, 16));
         this.familyName = computeFamilyName();
     }
-    
+
     ComponentModel(final ComponentIndex component) {
         this.service = null;
         this.index = component;
@@ -70,10 +70,12 @@ public class ComponentModel extends AbstractBasicComponent {
         this.image16 = null;
         this.familyName = computeFamilyName();
     }
-    
+
+    /**
+     * TODO change to StringBuilder impl? Seems, here StringBuilder instance is created per category
+     */
     private String computeFamilyName() {
-        return index.getCategories().stream()
-                .map(category -> category + "/" + index.getId().getFamily())
+        return index.getCategories().stream().map(category -> category + "/" + index.getId().getFamily())
                 .collect(Collectors.joining("|"));
     }
 
@@ -101,7 +103,7 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     @Override
     public String getLongName() {
-        return getName();
+        return index.getDisplayName();
     }
 
     /**
@@ -177,7 +179,7 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     /**
-     * Creates component connectors including "ITERATE", "ON_COMPONENT_OK" etc 
+     * Creates component connectors including "ITERATE", "ON_COMPONENT_OK" etc
      */
     @Override // TODO
     public List<? extends INodeConnector> createConnectors(final INode iNode) {
@@ -196,6 +198,7 @@ public class ComponentModel extends AbstractBasicComponent {
 
     /**
      * Get the default modules needed for the component.
+     * 
      * @return common v1 components Job dependencies
      */
     @Override // TODO
