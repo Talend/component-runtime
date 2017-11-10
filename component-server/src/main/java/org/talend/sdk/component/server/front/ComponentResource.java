@@ -185,6 +185,8 @@ public class ComponentResource {
                                                     toMap(e -> e.getKey().substring(ActionParameterEnricher.META_PREFIX.length()),
                                                             Map.Entry::getValue)),
                                     container, locale),
+                            meta.getInputFlows(),
+                            meta.getOutputFlows(),
                             /* todo? */emptyList());
                 }).collect(toList()));
         if (!errors.isEmpty()) {
