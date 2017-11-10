@@ -24,6 +24,7 @@ import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -134,6 +135,26 @@ public class ComponentFamilyMeta {
                 }
             });
         }
+        
+        /**
+         * Returns a {@link Collection} of input flows names of this Component
+         * Should be overridden in inheritors
+         * 
+         * @return input flows names collection
+         */
+        public Collection<String> getInputFlows() {
+            return Collections.emptySet();
+        }
+        
+        /**
+         * Returns a {@link Collection} of output flows names of this Component
+         * Should be overridden in inheritors
+         * 
+         * @return output flows names collection
+         */
+        public Collection<String> getOutputFlows() {
+            return Collections.emptySet();
+        }
     }
 
     @Data
@@ -145,6 +166,14 @@ public class ComponentFamilyMeta {
                 final Function<Map<String, String>, Mapper> instantiator, final MigrationHandler migrationHandler,
                 final boolean validated) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Collection<String> getOutputFlows() {
+            return Collections.singleton(Branches.DEFAULT_BRANCH);
         }
     }
 
@@ -170,10 +199,9 @@ public class ComponentFamilyMeta {
         }
 
         /**
-         * Returns a {@link Collection} of input flows names of this {@link Processor}
-         * 
-         * @return input flows names collection
+         * {@inheritDoc}
          */
+        @Override
         public Collection<String> getInputFlows() {
             return getInputParameters()
                     .map(p -> ofNullable(p.getAnnotation(Input.class)).map(Input::value).orElse(Branches.DEFAULT_BRANCH))
@@ -181,10 +209,9 @@ public class ComponentFamilyMeta {
         }
 
         /**
-         * Returns a {@link Collection} of output flows names of this {@link Processor}
-         * 
-         * @return output flows names collection
+         * {@inheritDoc}
          */
+        @Override
         public Collection<String> getOutputFlows() {
             Method listener = getListener();
             return Stream.concat(listener.getReturnType() != null ? Stream.of(Branches.DEFAULT_BRANCH) : Stream.empty(),
