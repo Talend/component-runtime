@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.talend.core.model.process.INodeConnector;
 import org.talend.core.model.process.INodeReturn;
 import org.talend.core.model.temp.ECodePart;
+import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentId;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 
@@ -38,7 +39,8 @@ public class ComponentModelTest {
 
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-        ComponentModel componentModel = new ComponentModel(idx);
+        ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
+        ComponentModel componentModel = new ComponentModel(idx, detail);
 
         Assert.assertEquals(expectedFamilyName, componentModel.getOriginalFamilyName());
     }
@@ -49,7 +51,8 @@ public class ComponentModelTest {
 
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-        ComponentModel componentModel = new ComponentModel(idx);
+        ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
+        ComponentModel componentModel = new ComponentModel(idx, detail);
 
         Assert.assertEquals(expectedName, componentModel.getLongName());
     }
@@ -60,7 +63,8 @@ public class ComponentModelTest {
 
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-        ComponentModel componentModel = new ComponentModel(idx);
+        ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
+        ComponentModel componentModel = new ComponentModel(idx, detail);
 
         List<? extends INodeConnector> connectors = componentModel.createConnectors(null);
         Assert.assertEquals(22, connectors.size());
@@ -71,7 +75,8 @@ public class ComponentModelTest {
 
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-        ComponentModel componentModel = new ComponentModel(idx);
+        ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
+        ComponentModel componentModel = new ComponentModel(idx, detail);
 
         List<? extends INodeReturn> returnVariables = componentModel.createReturns(null);
         Assert.assertEquals(2, returnVariables.size());
@@ -90,7 +95,8 @@ public class ComponentModelTest {
         
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-        ComponentModel componentModel = new ComponentModel(idx);
+        ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
+        ComponentModel componentModel = new ComponentModel(idx, detail);
         
         List<ECodePart> codeParts = componentModel.getAvailableCodeParts();
         Assert.assertEquals(4, codeParts.size());

@@ -50,6 +50,7 @@ import org.talend.core.runtime.util.ComponentReturnVariableUtils;
 import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.NodeConnector;
 import org.talend.designer.core.model.components.NodeReturn;
+import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.studio.model.ElementParameterCreator;
 
@@ -57,6 +58,8 @@ import org.talend.sdk.component.studio.model.ElementParameterCreator;
 public class ComponentModel extends AbstractBasicComponent {
 
     private final ComponentIndex index;
+    
+    private final ComponentDetail detail;
 
     private final ImageDescriptor image;
 
@@ -72,9 +75,10 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     private final String familyName;
 
-    public ComponentModel(final ComponentIndex component, final ImageDescriptor image32) {
+    public ComponentModel(final ComponentIndex component, final ComponentDetail detail, final ImageDescriptor image32) {
         setPaletteType("DI");
         this.index = component;
+        this.detail = detail;
         this.familyName = computeFamilyName();
         this.codePartListX = createCodePartList();
         this.image = image32;
@@ -82,9 +86,10 @@ public class ComponentModel extends AbstractBasicComponent {
         this.image16 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(16, 16));
     }
 
-    ComponentModel(final ComponentIndex component) {
+    ComponentModel(final ComponentIndex component, final ComponentDetail detail) {
         setPaletteType("DI");
         this.index = component;
+        this.detail = detail;
         this.familyName = computeFamilyName();
         this.codePartListX = createCodePartList();
         this.image = null;
