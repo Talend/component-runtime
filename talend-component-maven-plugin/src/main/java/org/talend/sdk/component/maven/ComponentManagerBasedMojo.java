@@ -15,25 +15,18 @@
  */
 package org.talend.sdk.component.maven;
 
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toSet;
-
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.stream.Stream;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.talend.sdk.component.container.Container;
-import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
-import org.talend.sdk.component.runtime.manager.ComponentManager;
-import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
-import org.talend.sdk.component.runtime.output.Branches;
-import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 
 public abstract class ComponentManagerBasedMojo extends ClasspathMojoBase {
 
@@ -70,28 +63,10 @@ public abstract class ComponentManagerBasedMojo extends ClasspathMojoBase {
     protected abstract void doWork(ComponentManager manager, Container container, ContainerComponentRegistry registry)
             throws MojoExecutionException, MojoFailureException;
 
-    protected Method findListener(final ComponentFamilyMeta.ProcessorMeta p) {
-        return Stream.of(p.getType().getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + p.getType()));
-    }
-
-    protected Collection<String> buildInputs(final Method listener) {
-        return findInputs(listener)
-                .map(p -> ofNullable(p.getAnnotation(Input.class)).map(Input::value).orElse(Branches.DEFAULT_BRANCH))
-                .collect(toSet());
-    }
-
     // an input is a parameter without any @Input/@Output or an @Input parameter
     protected Stream<java.lang.reflect.Parameter> findInputs(final Method listener) {
         return Stream.of(listener.getParameters())
                      .filter(p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
     }
 
-    // an output is either the returned value of the method or an @Output parameter
-    protected Collection<String> buildOutputs(final Method listener) {
-        return Stream.concat(listener.getReturnType() != null ? Stream.of(Branches.DEFAULT_BRANCH) : Stream.empty(),
-                Stream.of(listener.getParameters()).filter(p -> p.isAnnotationPresent(Output.class))
-                        .map(p -> p.getAnnotation(Output.class).value()))
-                .collect(toSet());
-    }
 }

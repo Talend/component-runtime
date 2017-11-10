@@ -232,9 +232,9 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
                 internationalization.setProperty("NB_LINE.NAME", "Number of Line");
                 internationalization.setProperty("SCHEMA.NAME", "Schema");
                 doWrite(componentRoot, name + "_java.xml", stream -> {
-                    final Method listener = findListener(processor);
+                    final Method listener = processor.getListener();
                     try {
-                        toXml(modelContext, stream, toModel(name, processor, buildInputs(listener), buildOutputs(listener),
+                        toXml(modelContext, stream, toModel(name, processor, processor.getInputFlows(), processor.getOutputFlows(),
                                 internationalization, container, configKeys));
                     } catch (final JAXBException e) {
                         throw new IllegalStateException(e);
