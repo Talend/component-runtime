@@ -14,84 +14,71 @@
  *  limitations under the License.
  */
 import React from 'react';
-import StepZilla from 'react-stepzilla';
 
 import theme from './Generator.scss';
 
-// import Project from './Project';
-
-function WrappingContent (props) {
-  return <div className={theme.content}>{props.value}</div>;
-}
-
-function Sample (props) {
-  return <div>{props.value}</div>;
-}
-
-
-// override the theme to use our customization
-class StyledStepZilla extends StepZilla {
-  renderSteps() {
-    const jumpUsingParentDomElement = evt => {
-      evt.target = evt.target.parentElement.parentElement;
-      this.jumpToStep(evt);
-    };
-
-    return this.props.steps.map((s, i)=> {
-      const classes = [this.getClassName(theme.progtrckr, i)];
-      if (this.state.navState.current === i) {
-        classes.push(theme.active);
-      }
-      return (
-          <li className={classes.join(' ')} key={i} value={i}>
-            <div>
-              <span className={theme.stepCounter} onClick={e => jumpUsingParentDomElement(e)}>{i + 1}</span>
-              <span className={theme.sectionLabel} onClick={e => jumpUsingParentDomElement(e)}>{this.props.steps[i].name}</span>
-            </div>
-        </li>
-      )
-    });
-  }
-
-  render() {
-    let result = super.render();
-    if (!!result) {
-      if (result.type === 'div') {
-        result.props.className = theme.container;
-        result.props.children[0].props.className = theme.progtrckr; // tc-layout-two-columns-left
-      }
-    }
-    return result;
-  }
-}
+import ProjectMetadata from './ProjectMetadata';
 
 export default class Generator extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-         project: {
-           buildType: 'Maven',
-           version: '0.0.1-SNAPSHOT',
-           group: 'com.company',
-           artifact: 'company-component',
-           name: 'A Component',
-           description: 'A generated component project',
-           packageBase: 'com.company.talend.components',
-           facets: []
-         },
-         steps: [
-           {name: 'Start', component: <WrappingContent value={<Sample value="s1" />} />},
-           {name: 'Step 2', component: <WrappingContent value={<Sample value="s2" />} />},
-           {name: 'Finish', component: <WrappingContent value={<Sample value="s3" />} />}
-         ]
+
+    let project = {
+      buildType: 'Maven',
+      version: '0.0.1-SNAPSHOT',
+      group: 'com.company',
+      artifact: 'company-component',
+      name: 'A Component',
+      description: 'A generated component project',
+      packageBase: 'com.company.talend.components',
+      facets: []
     };
+
+    this.state = {
+        currentStep: 0,
+        project: project,
+        configuration: {
+         buildTypes: []
+       },
+       steps: [
+       ]
+    };
+    this.state.steps.push({name: 'Start', component: <ProjectMetadata project={this.state.project} buildTypes={this.state.configuration.buildTypes} />});
+    this.state.steps.push({name: 'Finish', component: <div>Hello</div>});
   }
 
   // <Project project={this.state.project} />
   render() {
+    const onClick = (evt, index) => {
+      evt.preventDefault();
+      this.setState({currentStep: index});
+    };
     return (
       <div className={theme.Generator}>
-        <StyledStepZilla showNavigation={false} steps={this.state.steps} />
+        <div className={theme.container}>
+          <div className={theme.wizard}>
+            <nav>
+              <ol>
+                {
+                  this.state.steps.map((step, i) => {
+                    const classes = [];
+                    if (this.state.currentStep === i) {
+                      classes.push(theme.active);
+                    }
+                    return (
+                      <li className={classes.join(' ')} onClick={e => onClick(e, i)} key={i}>
+                        <span className={theme.sectionLabel}>{this.state.steps[i].name}</span>
+                      </li>
+                    );
+                  })
+                }
+              </ol>
+            </nav>
+          </div>
+          <div className={theme.content}>
+            {this.state.steps[this.state.currentStep].component}
+          </div>
+        </div>
       </div>
     );
   }

@@ -16,6 +16,7 @@ const getClientEnvironment = require('./config/env');
 const SASS_DATA = `
 $brand-primary: #4F93A7;
 $brand-success: #B9BF15;
+$brand-blue: #266092;
 @import '~@talend/bootstrap-theme/src/theme/guidelines';
 `;
 
@@ -259,7 +260,7 @@ module.exports = {
                 }
               ],
             }),
-            exclude: /@talend/,
+            //exclude: /@talend/,
           },
           // "file" loader makes sure assets end up in the `build` folder.
           // When you `import` an asset, you get its filename.
