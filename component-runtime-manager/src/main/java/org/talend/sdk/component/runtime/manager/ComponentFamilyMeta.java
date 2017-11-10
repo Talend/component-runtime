@@ -17,7 +17,10 @@ package org.talend.sdk.component.runtime.manager;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
@@ -31,10 +34,15 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Input;
+import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.internationalization.ComponentBundle;
+import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.Data;
@@ -149,6 +157,50 @@ public class ComponentFamilyMeta {
                 final Function<Map<String, String>, Processor> instantiator, final MigrationHandler migrationHandler,
                 final boolean validated) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
+        }
+
+        /**
+         * Returns {@link Processor} class method annotated with {@link ElementListener}
+         * 
+         * @return listener method
+         */
+        public Method getListener() {
+            return Stream.of(getType().getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + getType()));
+        }
+
+        /**
+         * Returns a {@link Collection} of input flows names of this {@link Processor}
+         * 
+         * @return input flows names collection
+         */
+        public Collection<String> getInputFlows() {
+            return getInputParameters()
+                    .map(p -> ofNullable(p.getAnnotation(Input.class)).map(Input::value).orElse(Branches.DEFAULT_BRANCH))
+                    .collect(toSet());
+        }
+
+        /**
+         * Returns a {@link Collection} of output flows names of this {@link Processor}
+         * 
+         * @return output flows names collection
+         */
+        public Collection<String> getOutputFlows() {
+            Method listener = getListener();
+            return Stream.concat(listener.getReturnType() != null ? Stream.of(Branches.DEFAULT_BRANCH) : Stream.empty(),
+                    Stream.of(listener.getParameters()).filter(p -> p.isAnnotationPresent(Output.class))
+                            .map(p -> p.getAnnotation(Output.class).value()))
+                    .collect(toSet());
+        }
+
+        /**
+         * Returns all {@link ElementListener} method parameters, which are not annotated with {@link Output}
+         * 
+         * @return listener method input parameters
+         */
+        private Stream<Parameter> getInputParameters() {
+            return Stream.of(getListener().getParameters())
+                    .filter(p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
         }
     }
 }
