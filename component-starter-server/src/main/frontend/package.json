@@ -55,12 +55,15 @@
     "webpack": "3.5.1",
     "webpack-dev-server": "2.7.1",
     "webpack-manifest-plugin": "1.2.1",
+    "webpack-livereload-plugin": "1.0.0",
+    "livereload": "0.6.3",
     "whatwg-fetch": "2.0.3",
-    "bloodhound-js": "1.2.2"
+    "bloodhound-js": "1.2.2",
+    "react-bootstrap-typeahead": "2.0.0-rc.4"
   },
   "proxy": "http://localhost:8080/",
   "scripts": {
-    "build": "yarn run build-css && node scripts/build.js",
+    "build": "webpack --config webpack.config.js --bail --progress --colors --display-error-details --display-chunks",
     "watch": "webpack --config webpack.config.js --bail --progress --colors --watch --display-error-details --display-chunks"
   },
   "jest": {

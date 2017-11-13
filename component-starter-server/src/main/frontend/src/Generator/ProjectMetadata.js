@@ -17,6 +17,7 @@ import React from 'react';
 import { Actions, Icon, IconsProvider } from '@talend/react-components';
 import { CONFIGURATION_URL } from '../constants';
 import FacetSelector from './FacetSelector';
+import CategorySelector from './CategorySelector';
 import Input from '../Component/Input';
 
 import theme from './ProjectMetadata.scss';
@@ -38,7 +39,7 @@ export default class ProjectMetadata extends React.Component {
     fetch(`${CONFIGURATION_URL}`)
       .then(resp => resp.json())
       .then(payload => {
-          this.setState((current) => {
+          this.setState(current => {
               current.configuration = payload;
 
               payload.buildTypes.forEach(item => current.buildToolActions.push(
@@ -71,18 +72,22 @@ export default class ProjectMetadata extends React.Component {
       });
   }
 
+  onCategoryUpdate(value) {
+    this.setState(current => current.project.category = value.value )
+  }
+
   onBuildTypeChange(event) {
       const value = event.target.value;
-      this.setState((current) => current.project.buildType = value);
+      this.setState(current => current.project.buildType = value);
   }
 
   showAll(event) {
-      this.setState((current) => current.view.light = false);
+      this.setState(current => current.view.light = false);
       event.preventDefault();
   }
 
   showLight(event) {
-      this.setState((current) => current.view.light = true);
+      this.setState(current => current.view.light = true);
       event.preventDefault();
   }
 
@@ -105,6 +110,19 @@ export default class ProjectMetadata extends React.Component {
             (!!this.state.configuration && <FacetSelector facets={this.state.configuration.facets} selected={this.state.project.facets} />)
           }
         </div>
+
+        <p className={[theme.title, theme['form-row']].join(' ')}>Component Metadata</p>
+        <form novalidate submit={e => e.preventDefault()}>
+          <div className="field">
+            <label forHtml="projectFamily">Component Family</label>
+            <Input className="form-control" id="projectFamily" type="text" placeholder="Enter the component family..."
+                   required="required" aggregate={this.state.project} accessor="family"/>
+          </div>
+          <div className="field">
+            <label forHtml="projectCategory">Category</label>
+            <CategorySelector initialValue={this.state.project.category} onChange={(value) => this.onCategoryUpdate(value)} />
+          </div>
+        </form>
 
         <p className={[theme.title, theme['form-row']].join(' ')}>Project Metadata</p>
         <form novalidate submit={e => e.preventDefault()}>
