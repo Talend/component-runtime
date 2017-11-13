@@ -21,7 +21,7 @@
     $light-blue: #C9D7E4;
     $error-color: red;
     $width: 242px;
-    $grey: #bbb;
+    $grey: #ccc;
     $color-inverse: white;
     $border-left-width__active: 0.5rem;
     $step-link-width: 0.1rem;
@@ -34,12 +34,30 @@
 
       .content {
         flex-grow: 1;
-        height: 100%;
-        padding-left: 25px;
+
+        display: flex;
+        flex-direction: column;
+        height: auto;
+
+        > main {
+          flex: 1;
+          overflow: auto;
+          padding-left: 25px;
+        }
+
+        > footer {
+          flex: 0;
+          padding: 15px 25px 15px;
+          border-top: 1px solid $grey;
+
+          > button {
+            margin-right: 15px;
+          }
+        }
       }
 
       .footer {
-        
+
       }
 
       div.wizard {
@@ -70,6 +88,11 @@
             border: none;
             border-left: $step-link-width solid $wizard-blue;
             border-radius: 0;
+            display: flex;
+
+            trashIcon {
+              display: inherit;
+            }
 
             &:hover {
               cursor: pointer;
@@ -127,7 +150,7 @@
                 }
               }
 
-              span {
+              sectionLabel {
                 color: $wizard-blue;
               }
             }

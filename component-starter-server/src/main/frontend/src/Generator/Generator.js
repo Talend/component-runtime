@@ -14,10 +14,12 @@
  *  limitations under the License.
  */
 import React from 'react';
+import { Action, Icon } from '@talend/react-components';
 
 import theme from './Generator.scss';
 
 import ProjectMetadata from './ProjectMetadata';
+import Component from './Component';
 
 export default class Generator extends React.Component {
   constructor(props) {
@@ -47,6 +49,28 @@ export default class Generator extends React.Component {
     };
     this.state.steps.push({name: 'Start', component: <ProjectMetadata project={this.state.project} buildTypes={this.state.configuration.buildTypes} />});
     this.state.steps.push({name: 'Finish', component: <div>Hello</div>});
+
+    ['onAddComponent', 'onGoToFinishPage'].forEach(action => this[action] = this[action].bind(this));
+  }
+
+  onAddComponent() {
+    this.setState(state => {
+      let component = {
+        type: 'Mapper',
+        configuration: {
+          name: `New Component #${state.steps.length}`
+        }
+      };
+      state.steps.splice(state.steps.length - 1, 0, ({component: <Component component={component} />}));
+    });
+  }
+
+  deleteComponent(index) {
+    this.setState(state => state.steps.splice(index, 1));
+  }
+
+  onGoToFinishPage() {
+    this.setState({currentStep: this.state.steps.length - 1});
   }
 
   // <Project project={this.state.project} />
@@ -67,9 +91,22 @@ export default class Generator extends React.Component {
                     if (this.state.currentStep === i) {
                       classes.push(theme.active);
                     }
+                    const fixedItem = i === 0 || (i + 1) === this.state.steps.length;
                     return (
                       <li className={classes.join(' ')} onClick={e => onClick(e, i)} key={i}>
-                        <span className={theme.sectionLabel}>{this.state.steps[i].name}</span>
+                        <sectionLabel>
+                        {
+                          (fixedItem && step.name) ||
+                          (!fixedItem && step.component.props.component.configuration.name)
+                        }
+                        </sectionLabel>
+                        {
+                          !fixedItem && (
+                            <trashIcon onClick={() => this.deleteComponent(i)}>
+                              <Icon name="talend-trash" />
+                            </trashIcon>
+                          )
+                        }
                       </li>
                     );
                   })
@@ -78,12 +115,13 @@ export default class Generator extends React.Component {
             </nav>
           </div>
           <div className={theme.content}>
-            <div>
+            <main>
               {this.state.steps[this.state.currentStep].component}
-            </div>
-            <div className={theme.footer}>
-            Footer!
-            </div>
+            </main>
+            <footer>
+              <Action id="add-component-button" label="Add A Component" bsStyle="info" onClick={() => this.onAddComponent()} />
+              <Action id="go-to-finish-button" label="Finished" bsStyle="primary" onClick={() => this.onGoToFinishPage()} />
+            </footer>
           </div>
         </div>
       </div>
