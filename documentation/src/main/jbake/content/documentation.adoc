@@ -1096,11 +1096,11 @@ public class Main {
         Pipeline pipeline = Pipeline.create();
         //Create beam input from mapper and apply input to pipeline
         pipeline.apply(TalendIO.read(manager.findMapper(manager.findMapper("sample", "reader", 1, new HashMap<String, String>() {{
-                    put("file", "/tmp/input.csv");
+                    put("fileprefix", "input");
                 }}).get()))
         //Create beam processor from talend processor and apply to pipeline
                 .apply(TalendIO.write(manager.findProcessor("test", "writer", 1, new HashMap<String, String>() {{
-                    put("file", "/tmp/output.csv");
+                    put("fileprefix", "output");
                 }}).get(), emptyMap()));
 
         //... run pipeline
