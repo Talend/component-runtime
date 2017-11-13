@@ -214,7 +214,7 @@ public class ComponentFamilyMeta {
         @Override
         public Collection<String> getOutputFlows() {
             Method listener = getListener();
-            return Stream.concat(listener.getReturnType() != null ? Stream.of(Branches.DEFAULT_BRANCH) : Stream.empty(),
+            return Stream.concat(listener.getReturnType().equals(Void.TYPE) ? Stream.empty() : Stream.of(Branches.DEFAULT_BRANCH),
                     Stream.of(listener.getParameters()).filter(p -> p.isAnnotationPresent(Output.class))
                             .map(p -> p.getAnnotation(Output.class).value()))
                     .collect(toSet());
