@@ -30,13 +30,16 @@
     .container {
       display: flex;
       flex-direction: row;
-      height: calc(100vh - 48px);
+      max-height: calc(100vh - 48px);
 
       .content {
         flex-grow: 1;
-        min-height: 0;
-        overflow-y: auto;
+        height: 100%;
         padding-left: 25px;
+      }
+
+      .footer {
+        
       }
 
       div.wizard {

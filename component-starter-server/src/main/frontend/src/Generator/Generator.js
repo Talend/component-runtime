@@ -78,7 +78,12 @@ export default class Generator extends React.Component {
             </nav>
           </div>
           <div className={theme.content}>
-            {this.state.steps[this.state.currentStep].component}
+            <div>
+              {this.state.steps[this.state.currentStep].component}
+            </div>
+            <div className={theme.footer}>
+            Footer!
+            </div>
           </div>
         </div>
       </div>

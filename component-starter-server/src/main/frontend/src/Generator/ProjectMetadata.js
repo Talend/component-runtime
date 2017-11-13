@@ -100,82 +100,84 @@ export default class ProjectMetadata extends React.Component {
       <div className={theme.ProjectMetadata}>
         <IconsProvider />
 
-        <p className={[theme.title, theme['form-row']].join(' ')}>Create a Talend Component Kit Project</p>
-        <div>
-          <Actions actions={this.state.buildToolActions} />
-        </div>
-
-        <div className={theme['form-row']}>
-          {
-            (!!this.state.configuration && <FacetSelector facets={this.state.configuration.facets} selected={this.state.project.facets} />)
-          }
-        </div>
-
-        <p className={[theme.title, theme['form-row']].join(' ')}>Component Metadata</p>
-        <form novalidate submit={e => e.preventDefault()}>
-          <div className="field">
-            <label forHtml="projectFamily">Component Family</label>
-            <Input className="form-control" id="projectFamily" type="text" placeholder="Enter the component family..."
-                   required="required" aggregate={this.state.project} accessor="family"/>
-          </div>
-          <div className="field">
-            <label forHtml="projectCategory">Category</label>
-            <CategorySelector initialValue={this.state.project.category} onChange={(value) => this.onCategoryUpdate(value)} />
-          </div>
-        </form>
-
-        <p className={[theme.title, theme['form-row']].join(' ')}>Project Metadata</p>
-        <form novalidate submit={e => e.preventDefault()}>
-          <div className="field">
-            <label forHtml="projectGroup">Group</label>
-            <Input className="form-control" id="projectGroup" type="text" placeholder="Enter the project group..."
-                   required="required" aggregate={this.state.project} accessor="group"/>
-          </div>
-          <div className="field">
-            <label forHtml="projectArtifact">Artifact</label>
-            <Input className="form-control" id="projectArtifact" type="text" placeholder="Enter the project artifact..."
-                   required="required" aggregate={this.state.project} accessor="artifact"/>
-          </div>
-          <div className="field">
-            <label forHtml="projectPackage">Package</label>
-            <Input className="form-control" id="projectPackage" type="text" placeholder="Enter the project base package..."
-                   required="required" aggregate={this.state.project} accessor="packageBase"/>
+        <div className={theme.main}>
+          <p className={[theme.title, theme['form-row']].join(' ')}>Create a Talend Component Kit Project</p>
+          <div>
+            <Actions actions={this.state.buildToolActions} />
           </div>
 
-          {
-            this.state.view.light && (
-              <div className="field" onClick={e => this.showAll(e)}>
-                <Icon name="talend-plus-circle" />
-                <span>See more options</span>
-              </div>
-            )
-          }
+          <div className={theme['form-row']}>
+            {
+              (!!this.state.configuration && <FacetSelector facets={this.state.configuration.facets} selected={this.state.project.facets} />)
+            }
+          </div>
 
-          {
-            !this.state.view.light &&
-              [
-                <div className="field">
-                  <label forHtml="projectVersion">Version</label>
-                  <Input className="form-control" id="projectVersion" type="text" placeholder="Enter the project group..."
-                         aggregate={this.state.project} accessor="version"/>
-                </div>,
-                <div className="field">
-                  <label forHtml="projectName">Name</label>
-                  <Input className="form-control" id="projectName" type="text" placeholder="Enter the project name..."
-                         aggregate={this.state.project} accessor="name"/>
-                </div>,
-                <div className="field">
-                  <label forHtml="projectDescription">Description</label>
-                  <Input className="form-control" id="projectDescription" type="text" placeholder="Enter the project description..."
-                         aggregate={this.state.project} accessor="description"/>
-                </div>,
-                <div className="field" onClick={e => this.showLight(e)}>
-                  <Icon name="talend-zoomout" />
-                  <span>See less options</span>
+          <p className={[theme.title, theme['form-row']].join(' ')}>Component Metadata</p>
+          <form novalidate submit={e => e.preventDefault()}>
+            <div className="field">
+              <label forHtml="projectFamily">Component Family</label>
+              <Input className="form-control" id="projectFamily" type="text" placeholder="Enter the component family..."
+                     required="required" aggregate={this.state.project} accessor="family"/>
+            </div>
+            <div className="field">
+              <label forHtml="projectCategory">Category</label>
+              <CategorySelector initialValue={this.state.project.category} onChange={(value) => this.onCategoryUpdate(value)} />
+            </div>
+          </form>
+
+          <p className={[theme.title, theme['form-row']].join(' ')}>Project Metadata</p>
+          <form novalidate submit={e => e.preventDefault()}>
+            <div className="field">
+              <label forHtml="projectGroup">Group</label>
+              <Input className="form-control" id="projectGroup" type="text" placeholder="Enter the project group..."
+                     required="required" aggregate={this.state.project} accessor="group"/>
+            </div>
+            <div className="field">
+              <label forHtml="projectArtifact">Artifact</label>
+              <Input className="form-control" id="projectArtifact" type="text" placeholder="Enter the project artifact..."
+                     required="required" aggregate={this.state.project} accessor="artifact"/>
+            </div>
+            <div className="field">
+              <label forHtml="projectPackage">Package</label>
+              <Input className="form-control" id="projectPackage" type="text" placeholder="Enter the project base package..."
+                     required="required" aggregate={this.state.project} accessor="packageBase"/>
+            </div>
+
+            {
+              this.state.view.light && (
+                <div className="field" onClick={e => this.showAll(e)}>
+                  <Icon name="talend-plus-circle" />
+                  <span>See more options</span>
                 </div>
-              ]
-          }
-        </form>
+              )
+            }
+
+            {
+              !this.state.view.light &&
+                [
+                  <div className="field">
+                    <label forHtml="projectVersion">Version</label>
+                    <Input className="form-control" id="projectVersion" type="text" placeholder="Enter the project group..."
+                           aggregate={this.state.project} accessor="version"/>
+                  </div>,
+                  <div className="field">
+                    <label forHtml="projectName">Name</label>
+                    <Input className="form-control" id="projectName" type="text" placeholder="Enter the project name..."
+                           aggregate={this.state.project} accessor="name"/>
+                  </div>,
+                  <div className="field">
+                    <label forHtml="projectDescription">Description</label>
+                    <Input className="form-control" id="projectDescription" type="text" placeholder="Enter the project description..."
+                           aggregate={this.state.project} accessor="description"/>
+                  </div>,
+                  <div className="field" onClick={e => this.showLight(e)}>
+                    <Icon name="talend-zoomout" />
+                    <span>See less options</span>
+                  </div>
+                ]
+            }
+          </form>
+        </div>
       </div>
     );
   }

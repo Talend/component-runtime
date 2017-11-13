@@ -31,6 +31,11 @@ $grey: #ccc;
     border: 0;
   }
 
+  .main {
+    min-height:100%;
+    overflow-y: auto;
+  }
+
   .facet {
   }
 
