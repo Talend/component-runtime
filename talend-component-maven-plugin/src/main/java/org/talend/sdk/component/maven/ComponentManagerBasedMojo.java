@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.maven;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
@@ -25,6 +27,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.design.extension.DesignModel;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 
@@ -69,4 +73,8 @@ public abstract class ComponentManagerBasedMojo extends ClasspathMojoBase {
                      .filter(p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
     }
 
+    protected static DesignModel getDesignModel(final ComponentFamilyMeta.ProcessorMeta processor) {
+        return ofNullable(processor.get(DesignModel.class))
+                .orElseThrow(() -> new IllegalArgumentException("Processor doesn't contain DesignModel"));
+    }
 }

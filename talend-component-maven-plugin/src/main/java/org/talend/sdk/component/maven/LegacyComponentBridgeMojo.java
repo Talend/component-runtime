@@ -64,6 +64,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.xbean.finder.AnnotationFinder;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.maven.legacy.model.CODEGENERATION;
 import org.talend.sdk.component.maven.legacy.model.COLUMN;
@@ -83,12 +85,11 @@ import org.talend.sdk.component.maven.legacy.model.PARAMETERS;
 import org.talend.sdk.component.maven.legacy.model.RETURN;
 import org.talend.sdk.component.maven.legacy.model.RETURNS;
 import org.talend.sdk.component.maven.legacy.model.TABLE;
+
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
-import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.Output;
 
 // todo: move it to an utility able to work from a .jar?
 @Deprecated
@@ -234,8 +235,8 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
                 doWrite(componentRoot, name + "_java.xml", stream -> {
                     final Method listener = processor.getListener();
                     try {
-                        toXml(modelContext, stream, toModel(name, processor, processor.getInputFlows(), processor.getOutputFlows(),
-                                internationalization, container, configKeys));
+                        toXml(modelContext, stream, toModel(name, processor, getDesignModel(processor).getInputFlows(),
+                                getDesignModel(processor).getOutputFlows(), internationalization, container, configKeys));
                     } catch (final JAXBException e) {
                         throw new IllegalStateException(e);
                     }

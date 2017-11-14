@@ -896,11 +896,6 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     private boolean hasOutput(final ComponentFamilyMeta.ProcessorMeta processor) {
         return !getDesignModel(processor).getOutputFlows().isEmpty();
     }
-    
-    private static DesignModel getDesignModel(final ComponentFamilyMeta.ProcessorMeta processor) {
-        return ofNullable(processor.get(DesignModel.class))
-                .orElseThrow(() -> new IllegalArgumentException("Processor doesn't contain DesignModel"));
-    }
 
     private void generateI18n(final Container container, final File componentRoot, final ComponentFamilyMeta.BaseMeta<?> meta,
             final String packageForJava) {
