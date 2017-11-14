@@ -47,7 +47,6 @@ public class DesignContainerListener implements ContainerListenerExtension {
                         family.getProcessors().values().stream()) //
                 ).forEach(meta -> models.getModels().put(meta.getId(), new DesignModel( //
                         meta.getId(), //
-                        meta.getName(), //
                         meta.getInputFlows(), //
                         meta.getOutputFlows()))); //
 

@@ -25,15 +25,7 @@ import lombok.Data;
 @Data
 public class DesignModel {
 
-    /**
-     * Component unique id
-     */
     private final String id;
-    
-    /**
-     * Component name
-     */
-    private final String name;
     
     /**
      * Input flow (connection) names

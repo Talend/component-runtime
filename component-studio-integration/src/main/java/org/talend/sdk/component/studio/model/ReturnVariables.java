@@ -15,9 +15,14 @@
  */
 package org.talend.sdk.component.studio.model;
 
+import static lombok.AccessLevel.PRIVATE;
+
+import lombok.NoArgsConstructor;
+
 /**
  * Stores return variables constants
  */
+@NoArgsConstructor(access=PRIVATE)
 public final class ReturnVariables {
 
     public static final String RETURN_ERROR_MESSAGE = "errorMessage";
