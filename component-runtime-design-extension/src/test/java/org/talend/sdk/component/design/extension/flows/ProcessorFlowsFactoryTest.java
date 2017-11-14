@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.manager;
+package org.talend.sdk.component.design.extension.flows;
 
-import java.lang.reflect.Method;
-import java.util.Collections;
+import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,15 +31,24 @@ import lombok.Data;
 /**
  * Unit-tests for {@link ProcessorMeta}
  */
-public class ProcessorMetaTest {
+public class ProcessorFlowsFactoryTest {
 
     @Test
-    public void testGetListener() {
-        ComponentFamilyMeta parent = new ComponentFamilyMeta("plugin", Collections.emptyList(), "default", "name");
-        ProcessorMeta meta = new ProcessorMeta(parent, "name", "default", 1, TestProcessor.class, null, null, null, true);
-        Method listener = meta.getListener();
-        Assert.assertEquals("map", listener.getName());
-        Assert.assertEquals(4, listener.getParameterCount());
+    public void testGetInputFlows() {
+        ProcessorFlowsFactory factory = new ProcessorFlowsFactory(TestProcessor.class);
+        Collection<String> inputs = factory.getInputFlows();
+        Assert.assertEquals(2, inputs.size());
+        Assert.assertTrue(inputs.contains("__default__"));
+        Assert.assertTrue(inputs.contains("REJECT"));
+    }
+
+    @Test
+    public void testGetOutputFlows() {
+        ProcessorFlowsFactory factory = new ProcessorFlowsFactory(TestProcessor.class);
+        Collection<String> outputs = factory.getOutputFlows();
+        Assert.assertEquals(2, outputs.size());
+        Assert.assertTrue(outputs.contains("__default__"));
+        Assert.assertTrue(outputs.contains("OUTPUT"));
     }
 
     @Processor
