@@ -380,15 +380,15 @@ public class ComponentManager implements AutoCloseable {
      * @param jmxNamePattern a pattern to register the plugins (containers) in JMX, null otherwise.
      */
     public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
+        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration.builder()
                 .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource)).rootRepositoryLocation(m2).create(),
-                ContainerManager.ClassLoaderConfiguration.builder().parent(Thread.currentThread().getContextClassLoader())
+                ContainerManager.ClassLoaderConfiguration.builder().parent(tccl)
                         .parentClassesFilter(this::isContainerClass).classesFilter(name -> !isContainerClass(name))
                         .supportsResourceDependencies(true).create());
         this.container.registerListener(new Updater());
         ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty())
                 .ifPresent(p -> this.container.registerListener(new JmxManager(p, ManagementFactory.getPlatformMBeanServer())));
-        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         toStream(loadServiceProviders(ContainerListenerExtension.class, tccl)).forEach(listener -> container.registerListener(listener));  
         this.extensions =  toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
     }
