@@ -46,8 +46,10 @@ import org.talend.sdk.component.runtime.internationalization.ComponentBundle;
 import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.Processor;
 
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
@@ -92,6 +94,12 @@ public class ComponentFamilyMeta {
         private final List<ParameterMeta> parameterMetas;
 
         private final ConcurrentMap<Locale, ComponentBundle> bundles = new ConcurrentHashMap<>();
+        
+        /**
+         * Stores data provided by extensions like ContainerListenerExtension 
+         */
+        @Getter(AccessLevel.NONE)
+        private final ConcurrentMap<Class<?>, Object> extensionsData = new ConcurrentHashMap<>();
 
         private final String id;
 
@@ -134,6 +142,27 @@ public class ComponentFamilyMeta {
                     return NO_COMPONENT_BUNDLE;
                 }
             });
+        }
+        
+        /**
+         * Sets data provided by extension
+         * 
+         * @param key {@link Class} of data provided
+         * @param instance data instance
+         * @return data instance
+         */
+        public <D> D set(final Class<D> key, final D instance) {
+            return (D) extensionsData.put(key, instance);
+        }
+
+        /**
+         * Returns extension data instance
+         * 
+         * @param key {@link Class} of data instance to return
+         * @return data instance
+         */
+        public <D> D get(final Class<D> key) {
+            return (D) extensionsData.get(key);
         }
         
         /**
