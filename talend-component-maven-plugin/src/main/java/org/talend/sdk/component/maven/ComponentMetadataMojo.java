@@ -73,10 +73,10 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
                                                         .orElse(p.getName()),
                                                 p.getIcon(), emptyList(), singletonList("MAIN"))),
                                 c.getProcessors().values().stream().map(p -> {
-                                    final Method listener = findListener(p);
+                                    final Method listener = p.getListener();
                                     return new Component(p.getParent().getCategories(), p.getParent().getName(), p.getName(),
                                             p.findBundle(container.getLoader(), Locale.ENGLISH).displayName().orElse(p.getName()),
-                                            p.getIcon(), buildInputs(listener), buildOutputs(listener));
+                                            p.getIcon(), getDesignModel(p).getInputFlows(), getDesignModel(p).getOutputFlows());
                                 })))
                 .collect(toList());
 

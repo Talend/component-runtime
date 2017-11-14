@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.manager;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
@@ -31,14 +32,18 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
+import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.internationalization.ComponentBundle;
 import org.talend.sdk.component.runtime.output.Processor;
 
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
@@ -83,6 +88,12 @@ public class ComponentFamilyMeta {
         private final List<ParameterMeta> parameterMetas;
 
         private final ConcurrentMap<Locale, ComponentBundle> bundles = new ConcurrentHashMap<>();
+        
+        /**
+         * Stores data provided by extensions like ContainerListenerExtension 
+         */
+        @Getter(AccessLevel.NONE)
+        private final ConcurrentMap<Class<?>, Object> extensionsData = new ConcurrentHashMap<>();
 
         private final String id;
 
@@ -126,6 +137,27 @@ public class ComponentFamilyMeta {
                 }
             });
         }
+        
+        /**
+         * Sets data provided by extension
+         * 
+         * @param key {@link Class} of data provided
+         * @param instance data instance
+         * @return data instance
+         */
+        public <D> D set(final Class<D> key, final D instance) {
+            return (D) extensionsData.put(key, instance);
+        }
+
+        /**
+         * Returns extension data instance
+         * 
+         * @param key {@link Class} of data instance to return
+         * @return data instance
+         */
+        public <D> D get(final Class<D> key) {
+            return (D) extensionsData.get(key);
+        }
     }
 
     @Data
@@ -149,6 +181,16 @@ public class ComponentFamilyMeta {
                 final Function<Map<String, String>, Processor> instantiator, final MigrationHandler migrationHandler,
                 final boolean validated) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
+        }
+
+        /**
+         * Returns {@link Processor} class method annotated with {@link ElementListener}
+         * 
+         * @return listener method
+         */
+        public Method getListener() {
+            return Stream.of(getType().getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + getType()));
         }
     }
 }

@@ -13,15 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+package org.talend.sdk.component.design.extension;
 
-public enum ErrorDictionary {
-    PLUGIN_MISSING,
-    COMPONENT_MISSING,
-    ICON_MISSING,
-    ACTION_MISSING,
-    ACTION_ERROR,
-    BAD_FORMAT,
-    DESIGN_MODEL_MISSING,
-    UNEXPECTED
+import java.util.Collection;
+
+import lombok.Data;
+
+/**
+ * Stores component meta information required at design time
+ */
+@Data
+public class DesignModel {
+
+    private final String id;
+    
+    /**
+     * Input flow (connection) names
+     */
+    private final Collection<String> inputFlows;
+    
+    /**
+     * Output flow (connection) names
+     */
+    private final Collection<String> outputFlows;
 }

@@ -44,6 +44,11 @@
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency> <!-- extends runtime manager with design time data -->
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-runtime-design-extension</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>

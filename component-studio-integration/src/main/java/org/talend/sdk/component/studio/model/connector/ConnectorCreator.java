@@ -13,15 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+package org.talend.sdk.component.studio.model.connector;
 
-public enum ErrorDictionary {
-    PLUGIN_MISSING,
-    COMPONENT_MISSING,
-    ICON_MISSING,
-    ACTION_MISSING,
-    ACTION_ERROR,
-    BAD_FORMAT,
-    DESIGN_MODEL_MISSING,
-    UNEXPECTED
+import java.util.List;
+
+import org.talend.core.model.process.INodeConnector;
+
+/**
+ * Strategy for component connectors creating.
+ * Component should have connectors for all types listed in EConnectionType
+ * When some connector type is not applicable for the component, then this connector has 0 max incoming and outgoing links
+ * 
+ */
+public interface ConnectorCreator {
+
+    /**
+     * Creates component connectors
+     * 
+     * @return component connectors
+     */
+    List<INodeConnector> createConnectors();
+
 }

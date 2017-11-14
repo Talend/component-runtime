@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+package org.talend.sdk.component.runtime.manager.spi;
 
-public enum ErrorDictionary {
-    PLUGIN_MISSING,
-    COMPONENT_MISSING,
-    ICON_MISSING,
-    ACTION_MISSING,
-    ACTION_ERROR,
-    BAD_FORMAT,
-    DESIGN_MODEL_MISSING,
-    UNEXPECTED
+import org.talend.sdk.component.container.ContainerListener;
+
+/**
+ * SPI which provides way to extend ContainerManager with listeners, which enrich Container onCreate and onClose
+ */
+public interface ContainerListenerExtension extends ContainerListener {
+
 }

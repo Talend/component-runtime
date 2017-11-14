@@ -315,8 +315,8 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                         }));
 
                 // properties
-                final Method processorListener = findListener(processor);
-                final Collection<String> inputs = buildInputs(processorListener);
+                final Method processorListener = processor.getListener();
+                final Collection<String> inputs = getDesignModel(processor).getInputFlows();
                 inputs.remove(Branches.DEFAULT_BRANCH);
                 if (!inputs.isEmpty()) {
                     throw new IllegalArgumentException(
@@ -893,7 +893,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private boolean hasOutput(final ComponentFamilyMeta.ProcessorMeta processor) {
-        return !buildOutputs(findListener(processor)).isEmpty();
+        return !getDesignModel(processor).getOutputFlows().isEmpty();
     }
 
     private void generateI18n(final Container container, final File componentRoot, final ComponentFamilyMeta.BaseMeta<?> meta,

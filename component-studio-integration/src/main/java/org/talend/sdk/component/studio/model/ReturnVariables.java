@@ -13,15 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+package org.talend.sdk.component.studio.model;
 
-public enum ErrorDictionary {
-    PLUGIN_MISSING,
-    COMPONENT_MISSING,
-    ICON_MISSING,
-    ACTION_MISSING,
-    ACTION_ERROR,
-    BAD_FORMAT,
-    DESIGN_MODEL_MISSING,
-    UNEXPECTED
+import static lombok.AccessLevel.PRIVATE;
+
+import lombok.NoArgsConstructor;
+
+/**
+ * Stores return variables constants
+ */
+@NoArgsConstructor(access=PRIVATE)
+public final class ReturnVariables {
+
+    public static final String RETURN_ERROR_MESSAGE = "errorMessage";
+
+    public static final String RETURN_TOTAL_RECORD_COUNT = "totalRecordCount";
+
+    /**
+     * Denote return variable "AFTER" availability. I.e. such variable is available after current subjob
+     */
+    public static final String AFTER = "AFTER";
 }

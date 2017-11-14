@@ -20,13 +20,16 @@ import static java.util.Collections.emptyList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.talend.core.model.components.IComponent;
 import org.talend.core.model.components.IComponentsFactory;
 import org.talend.core.model.process.IGenericProvider;
 import org.talend.core.ui.component.ComponentsFactoryProvider;
 import org.talend.repository.ProjectManager;
-import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.server.front.model.ComponentDetail;
+import org.talend.sdk.component.server.front.model.ComponentIndex;
+import org.talend.sdk.component.studio.lang.Pair;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
@@ -42,17 +45,23 @@ public class TaCoKitGenericProvider implements IGenericProvider {
         }
 
         final WebSocketClient client = Lookups.client();
-        final ComponentIndices indices = client.v1().component().getIndex(Locale.getDefault().getLanguage());
-        if (indices.getComponents().isEmpty()) {
-            return;
-        }
+        // TODO How to check isEmpty() now?
+//        final ComponentIndices indices = client.v1().component().getIndex(Locale.getDefault().getLanguage());
+//        if (indices.getComponents().isEmpty()) {
+//            return;
+//        }
+        Stream<Pair<ComponentIndex, ComponentDetail>> details = client.v1().component().details(Locale.getDefault().getLanguage());
 
         final ComponentService service = Lookups.service();
         final IComponentsFactory factory = ComponentsFactoryProvider.getInstance();
         final Set<IComponent> components = factory.getComponents();
         synchronized (components) {
             components.removeIf(ComponentModel.class::isInstance);
-            indices.getComponents().forEach(component -> components.add(new ComponentModel(component, service)));
+            details.forEach(pair -> {
+                ComponentIndex index = pair.getFirst();
+                ComponentDetail detail = pair.getSecond();
+                components.add(new ComponentModel(index, detail, service.toEclipseIcon(index.getIcon())));
+            });
         }
     }
 

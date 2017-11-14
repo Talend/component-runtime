@@ -30,6 +30,7 @@ log.info 'Don\'t forget to activate the "ide" profile to be able to develop it'
 def dependencies = [
         'org.talend.osgi.lib.loader',
         'org.talend.model',
+        'org.talend.core',
         'org.talend.core.ui',
         'org.talend.core.runtime',
         'org.talend.designer.core',

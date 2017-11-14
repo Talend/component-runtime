@@ -40,6 +40,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -104,6 +105,7 @@ import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
+import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
 import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
@@ -378,17 +380,25 @@ public class ComponentManager implements AutoCloseable {
      * @param jmxNamePattern a pattern to register the plugins (containers) in JMX, null otherwise.
      */
     public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
+        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration.builder()
                 .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource)).rootRepositoryLocation(m2).create(),
-                ContainerManager.ClassLoaderConfiguration.builder().parent(Thread.currentThread().getContextClassLoader())
+                ContainerManager.ClassLoaderConfiguration.builder().parent(tccl)
                         .parentClassesFilter(this::isContainerClass).classesFilter(name -> !isContainerClass(name))
                         .supportsResourceDependencies(true).create());
         this.container.registerListener(new Updater());
         ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty())
                 .ifPresent(p -> this.container.registerListener(new JmxManager(p, ManagementFactory.getPlatformMBeanServer())));
-        this.extensions = StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-                ServiceLoader.load(ComponentExtension.class, Thread.currentThread().getContextClassLoader()).iterator(),
-                Spliterator.IMMUTABLE), false).collect(toList());
+        toStream(loadServiceProviders(ContainerListenerExtension.class, tccl)).forEach(listener -> container.registerListener(listener));  
+        this.extensions =  toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
+    }
+    
+    private static <T> Stream<T> toStream(Iterator<T> iterator) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.IMMUTABLE), false);
+    }
+    
+    private static <T> Iterator<T> loadServiceProviders(Class<T> service, ClassLoader classLoader) {
+        return ServiceLoader.load(service, classLoader).iterator();
     }
 
     public <T> Stream<T> find(final Function<Container, Stream<T>> mapper) {

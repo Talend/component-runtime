@@ -34,6 +34,7 @@
     <module>component-runtime-manager</module>
     <module>component-runtime-standalone</module>
     <module>component-runtime-testing</module>
+    <module>component-runtime-design-extension</module>
     <module>component-server</module>
     <module>component-form</module>
     <module>component-avro-integration</module>

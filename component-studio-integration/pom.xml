@@ -154,6 +154,14 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <!-- Replaces log4j dep which is used in Studio plugin -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
   </dependencies>
 
   <build>
@@ -296,6 +304,12 @@
         </repository>
       </repositories>
       <dependencies>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.core</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>	  
         <dependency>
           <groupId>org.talend.studio</groupId>
           <artifactId>org.talend.core.ui</artifactId>
