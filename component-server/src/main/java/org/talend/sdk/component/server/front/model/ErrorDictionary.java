@@ -22,5 +22,6 @@ public enum ErrorDictionary {
     ACTION_MISSING,
     ACTION_ERROR,
     BAD_FORMAT,
+    DESIGN_MODEL_MISSING,
     UNEXPECTED
 }

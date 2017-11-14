@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
+import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
 
 import java.util.Collection;
@@ -50,6 +51,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
@@ -67,9 +69,9 @@ import org.talend.sdk.component.server.front.model.Icon;
 import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.service.ComponentManagerService;
+import org.talend.sdk.component.server.service.IconResolver;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
-import org.talend.sdk.component.server.service.IconResolver;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -170,6 +172,11 @@ public class ComponentResource {
                     }
                     final Container container = plugin.get();
                     final Locale locale = localeMapper.mapLocale(language);
+                    final DesignModel model = ofNullable(meta.get(DesignModel.class)).orElseGet(() -> {
+                        errors.put(meta.getId(), new ErrorPayload(DESIGN_MODEL_MISSING, "No design model '" + meta.getId() + "'"));
+                        return new DesignModel("dummyId", emptyList(), emptyList());
+                    });
+                    
                     return new ComponentDetail(
                             new ComponentId(meta.getId(), meta.getParent().getPlugin(), meta.getParent().getName(),
                                     meta.getName()),
@@ -185,8 +192,8 @@ public class ComponentResource {
                                                     toMap(e -> e.getKey().substring(ActionParameterEnricher.META_PREFIX.length()),
                                                             Map.Entry::getValue)),
                                     container, locale),
-                            meta.getInputFlows(),
-                            meta.getOutputFlows(),
+                            model.getInputFlows(),
+                            model.getOutputFlows(),
                             /* todo? */emptyList());
                 }).collect(toList()));
         if (!errors.isEmpty()) {
