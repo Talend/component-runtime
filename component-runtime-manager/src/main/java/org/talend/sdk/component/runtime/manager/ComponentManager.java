@@ -388,16 +388,17 @@ public class ComponentManager implements AutoCloseable {
         this.container.registerListener(new Updater());
         ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty())
                 .ifPresent(p -> this.container.registerListener(new JmxManager(p, ManagementFactory.getPlatformMBeanServer())));
-        toStream(loadServiceProviders(ContainerListenerExtension.class)).forEach(listener -> container.registerListener(listener));  
-        this.extensions =  toStream(loadServiceProviders(ComponentExtension.class)).collect(toList());
+        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        toStream(loadServiceProviders(ContainerListenerExtension.class, tccl)).forEach(listener -> container.registerListener(listener));  
+        this.extensions =  toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
     }
     
     private static <T> Stream<T> toStream(Iterator<T> iterator) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.IMMUTABLE), false);
     }
     
-    private static <T> Iterator<T> loadServiceProviders(Class<T> service) {
-        return ServiceLoader.load(service, Thread.currentThread().getContextClassLoader()).iterator();
+    private static <T> Iterator<T> loadServiceProviders(Class<T> service, ClassLoader classLoader) {
+        return ServiceLoader.load(service, classLoader).iterator();
     }
 
     public <T> Stream<T> find(final Function<Container, Stream<T>> mapper) {
