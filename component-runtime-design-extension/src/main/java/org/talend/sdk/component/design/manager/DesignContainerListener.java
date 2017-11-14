@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.design.manager;
 
-import static java.util.Optional.ofNullable;
-
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.container.Container;
@@ -39,29 +37,23 @@ public class DesignContainerListener implements ContainerListenerExtension {
             throw new IllegalArgumentException("container doesn't contain ContainerComponentRegistry");
         }
 
-        DesignModelRegistry models = new DesignModelRegistry();
-
         componentRegistry.getComponents().values().stream()
                 .flatMap(family -> Stream.concat( //
                         family.getPartitionMappers().values().stream(), //
                         family.getProcessors().values().stream()) //
-                ).forEach(meta -> models.getModels().put(meta.getId(), new DesignModel( //
+                ).forEach(meta -> meta.set(DesignModel.class, new DesignModel( //
                         meta.getId(), //
                         meta.getInputFlows(), //
                         meta.getOutputFlows()))); //
-
-        container.set(DesignModelRegistry.class, models);
     }
 
     /**
-     * Removes {@link DesignModelRegistry} from {@link Container} and cleans it
+     * It relies on Updater listener onClose() method which removes all ComponentFamilyMeta from Container
+     * Thus, this listener has nothing to do on close
      */
     @Override
     public void onClose(Container container) {
-        ofNullable(container.get(DesignModelRegistry.class)).ifPresent(r -> {
-            final DesignModelRegistry registry = container.remove(DesignModelRegistry.class);
-            registry.getModels().clear();
-        });
+        // no-op
     }
 
 }
