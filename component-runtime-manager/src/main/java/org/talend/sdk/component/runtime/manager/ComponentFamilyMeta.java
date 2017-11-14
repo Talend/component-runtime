@@ -164,26 +164,6 @@ public class ComponentFamilyMeta {
         public <D> D get(final Class<D> key) {
             return (D) extensionsData.get(key);
         }
-        
-        /**
-         * Returns a {@link Collection} of input flows names of this Component
-         * Should be overridden in inheritors
-         * 
-         * @return input flows names collection
-         */
-        public Collection<String> getInputFlows() {
-            return Collections.emptySet();
-        }
-        
-        /**
-         * Returns a {@link Collection} of output flows names of this Component
-         * Should be overridden in inheritors
-         * 
-         * @return output flows names collection
-         */
-        public Collection<String> getOutputFlows() {
-            return Collections.emptySet();
-        }
     }
 
     @Data
@@ -195,14 +175,6 @@ public class ComponentFamilyMeta {
                 final Function<Map<String, String>, Mapper> instantiator, final MigrationHandler migrationHandler,
                 final boolean validated) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Collection<String> getOutputFlows() {
-            return Collections.singleton(Branches.DEFAULT_BRANCH);
         }
     }
 
@@ -225,38 +197,6 @@ public class ComponentFamilyMeta {
         public Method getListener() {
             return Stream.of(getType().getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + getType()));
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Collection<String> getInputFlows() {
-            return getInputParameters()
-                    .map(p -> ofNullable(p.getAnnotation(Input.class)).map(Input::value).orElse(Branches.DEFAULT_BRANCH))
-                    .collect(toSet());
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Collection<String> getOutputFlows() {
-            Method listener = getListener();
-            return Stream.concat(listener.getReturnType().equals(Void.TYPE) ? Stream.empty() : Stream.of(Branches.DEFAULT_BRANCH),
-                    Stream.of(listener.getParameters()).filter(p -> p.isAnnotationPresent(Output.class))
-                            .map(p -> p.getAnnotation(Output.class).value()))
-                    .collect(toSet());
-        }
-
-        /**
-         * Returns all {@link ElementListener} method parameters, which are not annotated with {@link Output}
-         * 
-         * @return listener method input parameters
-         */
-        private Stream<Parameter> getInputParameters() {
-            return Stream.of(getListener().getParameters())
-                    .filter(p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
         }
     }
 }
