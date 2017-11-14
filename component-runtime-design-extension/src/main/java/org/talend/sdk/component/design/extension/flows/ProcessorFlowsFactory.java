@@ -27,7 +27,6 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.runtime.output.Branches;
-import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.AllArgsConstructor;
 
@@ -66,7 +65,7 @@ class ProcessorFlowsFactory extends FlowsFactory {
     }
 
     /**
-     * Returns {@link Processor} class method annotated with {@link ElementListener}
+     * Returns Processor class method annotated with {@link ElementListener}
      * 
      * @return listener method
      */
