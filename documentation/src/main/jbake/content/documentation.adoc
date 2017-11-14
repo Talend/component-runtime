@@ -20,6 +20,28 @@ IMPORTANT: in distributed environments class' constructor will be called on driv
 `@PostConstruct` and `@PreDestroy` annotations will be called on worker nodes. Thus, partition plan computation and pipeline task
 will be performed on different nodes.
 
+[ditaa, deployment-diagram, png]
+....
+                +-----------------+
+                |   Driver node   |
+                |(Cluster manager)|
+         +----->|-----------------|<--------+
+         |      |  Partition plan |         |
+         |      |   computation   |         |
+         |      +-----------------+         |
+         |                ^                 |
+      Serialized          |            Serialized
+      instances       Serialized        instances
+         |            instances             |
+         |                |                 |
+         V                V                 V
++--------------+    +--------------+    +--------------+
+| Worker node  |    | Worker node  |    | Worker node  |
+|--------------|    |--------------|    |--------------|
+|Flow Execution|    |Flow Execution|    |Flow Execution|
++--------------+    +--------------+    +--------------+
+....
+
 [ditaa, driver-processing-workflow, png]
 ....
  /----------------------\
