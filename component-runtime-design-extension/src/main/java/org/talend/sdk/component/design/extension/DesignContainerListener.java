@@ -18,6 +18,7 @@ package org.talend.sdk.component.design.extension;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.design.extension.flows.FlowsFactory;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 
@@ -41,11 +42,15 @@ public class DesignContainerListener implements ContainerListenerExtension {
                 .flatMap(family -> Stream.concat( //
                         family.getPartitionMappers().values().stream(), //
                         family.getProcessors().values().stream())) //
-                .forEach(meta -> meta.set(DesignModel.class,
-                        new DesignModel( //
-                                meta.getId(), //
-                                meta.getInputFlows(), //
-                                meta.getOutputFlows()))); //
+                .forEach(meta -> {
+                    FlowsFactory factory = FlowsFactory.get(meta);
+                    meta.set(DesignModel.class,
+                            new DesignModel( //
+                                    meta.getId(), //
+                                    factory.getInputFlows(), //
+                                    factory.getOutputFlows())); //
+                });
+
     }
 
     /**
