@@ -22,61 +22,65 @@ will be performed on different nodes.
 
 [ditaa, deployment-diagram, png]
 ....
-                +-----------------+
-                |   Driver node   |
-                |(Cluster manager)|
-         +----->|-----------------|<--------+
-         |      |  Partition plan |         |
-         |      |   computation   |         |
-         |      +-----------------+         |
-         |                ^                 |
-      Serialized          |            Serialized
-      instances       Serialized        instances
-         |            instances             |
-         |                |                 |
-         V                V                 V
-+--------------+    +--------------+    +--------------+
-| Worker node  |    | Worker node  |    | Worker node  |
-|--------------|    |--------------|    |--------------|
-|Flow Execution|    |Flow Execution|    |Flow Execution|
-+--------------+    +--------------+    +--------------+
+                 /-------------------------\
+                 |       Create and        |
+                 |Submit task to cluster(1)|
+                 \-------------------------/
+                             |
+                             V
+                +---------------------------+
+                |       Driver node         |
+                |    (Cluster manager)      |
+                |---------------------------|
+                |     Partition plan        |
+                |     computation(2)        |
+                |                           |
+                +---------------------------+
+                             ^
+                             |
+                          Serialized
+                          instances
+                             |
+                             V
+                    +-----------------+
+                    |   Worker node   |
+                    |-----------------|
+                    |Flow Execution(3)|
+                    +-----------------+
+
+
+1. Created task consists of Jar file, containing class, which describes pipeline(flow) which should be processed in cluster.
+2. During partition plan computation step pipeline is analyzed and split into stages. Driver(Manager) node instantiates mappers/processors
+gets estimated data size using mappers, splits created mappers according to the estimated data size. All instances are serialized and
+sent to Worker nodes afterwards.
+3. Serialized instances are received and deserialized, methods annotated with @PostConstruct annotation are called. After that,
+pipeline execution is performed. After pipeline is processed, methods annotated with @PreDestroy annotation are called.
 ....
 
 [ditaa, driver-processing-workflow, png]
 ....
- /----------------------\
- |Submit task on cluster|
- \----------------------/
+Partition plan computation(2)
+    +----------------+
+    | Create Mappers |
+    +----------------+
             |
             V
-     +-------------+
-     |Create Mapper|
-     +-------------+
++-------------------------+
+|Compute partition plan(2)|
++-------------------------+
             |
             V
-+------------------------+
-| Compute partition plan |
-+------------------------+
-            |
-            V
- +----------------------+
- |  Serialize splitted  |
- |mappers and processors|
- +----------------------+
+  +----------------------+
+  |  Serialize splitted  |
+  |mappers and processors|
+  +----------------------+
 ....
-
-IMPORTANT: After splitting mappers at main cluster node, splitted mappers are serialized to secondary(worker) nodes, where the
-pipeline process is performed.
 
 [ditaa, worker-processing-workflow, png]
 ....
- +----------------+
- |Serialize mapper|
- +----------------+
-         |
-         V
+Flow Execution(3)
 +------------------+
-|Call PostConstruct|
+|  @PostConstruct  |
 |     methods      |
 +------------------+
          |
@@ -89,7 +93,7 @@ pipeline process is performed.
          |
          V
 +------------------+
-|  Call PreDestroy |
+|   @PreDestroy    |
 |     methods      |
 +------------------+
 ....
