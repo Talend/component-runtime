@@ -17,7 +17,60 @@ They can all use `@PostConstruct` and `@PreDestroy` to initialize/release
 some underlying resource at the beginning/end of the processing.
 
 IMPORTANT: in distributed environments class' constructor will be called on driver node, methods annotated with
-`@PostConstruct` and `@PreDestroy` annotations will be called on worker nodes.
+`@PostConstruct` and `@PreDestroy` annotations will be called on worker nodes. Thus, partition plan computation and pipeline task
+will be performed on different nodes.
+
+[ditaa, driver-processing-workflow, png]
+....
+ /----------------------\
+ |Submit task on cluster|
+ \----------------------/
+            |
+            V
+     +-------------+
+     |Create Mapper|
+     +-------------+
+            |
+            V
++------------------------+
+| Compute partition plan |
++------------------------+
+            |
+            V
+ +----------------------+
+ |  Serialize splitted  |
+ |mappers and processors|
+ +----------------------+
+....
+
+IMPORTANT: After splitting mappers at main cluster node, splitted mappers are serialized to secondary(worker) nodes, where the
+pipeline process is performed.
+
+[ditaa, worker-processing-workflow, png]
+....
+ +----------------+
+ |Serialize mapper|
+ +----------------+
+         |
+         V
++------------------+
+|Call PostConstruct|
+|     methods      |
++------------------+
+         |
+         V
++------------------+
+|   Perform task   |
+|   described in   |
+|     pipeline     |
++------------------+
+         |
+         V
++------------------+
+|  Call PreDestroy |
+|     methods      |
++------------------+
+....
 
 IMPORTANT: all framework managed methods `MUST` be public too. Private methods are ignored.
 
