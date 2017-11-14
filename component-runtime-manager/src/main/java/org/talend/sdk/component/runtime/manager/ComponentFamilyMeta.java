@@ -17,14 +17,11 @@ package org.talend.sdk.component.runtime.manager;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toSet;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -39,11 +36,8 @@ import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.Input;
-import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.internationalization.ComponentBundle;
-import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.AccessLevel;
