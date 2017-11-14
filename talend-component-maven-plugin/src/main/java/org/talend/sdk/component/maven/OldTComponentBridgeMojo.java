@@ -78,6 +78,7 @@ import org.apache.maven.shared.utils.io.IOUtil;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
@@ -316,7 +317,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 
                 // properties
                 final Method processorListener = processor.getListener();
-                final Collection<String> inputs = processor.getInputFlows();
+                final Collection<String> inputs = getDesignModel(processor).getInputFlows();
                 inputs.remove(Branches.DEFAULT_BRANCH);
                 if (!inputs.isEmpty()) {
                     throw new IllegalArgumentException(
@@ -893,7 +894,12 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private boolean hasOutput(final ComponentFamilyMeta.ProcessorMeta processor) {
-        return !processor.getOutputFlows().isEmpty();
+        return !getDesignModel(processor).getOutputFlows().isEmpty();
+    }
+    
+    private static DesignModel getDesignModel(final ComponentFamilyMeta.ProcessorMeta processor) {
+        return ofNullable(processor.get(DesignModel.class))
+                .orElseThrow(() -> new IllegalArgumentException("Processor doesn't contain DesignModel"));
     }
 
     private void generateI18n(final Container container, final File componentRoot, final ComponentFamilyMeta.BaseMeta<?> meta,
