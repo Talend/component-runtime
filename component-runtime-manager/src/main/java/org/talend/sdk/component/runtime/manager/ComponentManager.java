@@ -75,7 +75,6 @@ import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
 import org.talend.sdk.component.api.component.Components;
-import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
@@ -931,7 +930,7 @@ public class ComponentManager implements AutoCloseable {
                                     partitionMapper.infinite(), doInvoke(constructor, parameterFactory.apply(config)));
 
             component.getPartitionMappers().put(name,
-                    new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type), type,
+                    new ComponentFamilyMeta.PartitionMapperMeta(component, name, findVersion(type), type,
                             parameterModelService.buildParameterMetas(constructor, getPackage(type)), instantiator,
                             findMigrationHandler(type), !context.isNoValidation()));
         }
@@ -951,7 +950,7 @@ public class ComponentManager implements AutoCloseable {
                             : config -> new LocalPartitionMapper(component.getName(), name, plugin,
                                     doInvoke(constructor, parameterFactory.apply(config)));
             component.getPartitionMappers().put(name,
-                    new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type), type,
+                    new ComponentFamilyMeta.PartitionMapperMeta(component, name, findVersion(type), type,
                             parameterModelService.buildParameterMetas(constructor, getPackage(type)), instantiator,
                             findMigrationHandler(type), !context.isNoValidation()));
         }
@@ -974,7 +973,7 @@ public class ComponentManager implements AutoCloseable {
                             : config -> new AdvancedProcessorImpl(this.component.getName(), name, plugin,
                                     doInvoke(constructor, parameterFactory.apply(config)));
             component.getProcessors().put(name,
-                    new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type), type,
+                    new ComponentFamilyMeta.ProcessorMeta(component, name, findVersion(type), type,
                             parameterModelService.buildParameterMetas(constructor, getPackage(type)), instantiator,
                             findMigrationHandler(type), !context.isNoValidation()));
         }
@@ -1000,13 +999,6 @@ public class ComponentManager implements AutoCloseable {
 
         private int findVersion(final Class<?> type) {
             return ofNullable(type.getAnnotation(Version.class)).map(Version::value).orElse(1);
-        }
-
-        private String findIcon(final AnnotatedElement type) {
-            return ofNullable(type.getAnnotation(Icon.class))
-                    .map(i -> i.value() == Icon.IconType.CUSTOM ? of(i.custom()).filter(s -> !s.isEmpty()).orElse("default")
-                            : i.value().getKey())
-                    .orElse("default");
         }
 
         private Constructor<?> findConstructor(final Class<?> type) {
@@ -1037,8 +1029,8 @@ public class ComponentManager implements AutoCloseable {
                 throw new IllegalArgumentException("Missing component");
             }
             return this.component == null || !component.equals(this.component.getName())
-                    ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()),
-                            findIcon(familyAnnotationElement), comp))
+                    ? (this.component = new ComponentFamilyMeta(plugin, familyAnnotationElement, asList(components.categories()),
+                            comp))
                     : this.component;
         }
 

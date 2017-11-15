@@ -15,27 +15,14 @@
  */
 package org.talend.sdk.component.design.extension;
 
-import java.util.Collection;
-
 import lombok.Data;
 
 /**
- * Stores component meta information required at design time
+ * Stores family information required as design time
  */
 @Data
-public class DesignModel {
-
-    private final String id;
+public class DesignFamilyModel {
     
     private final String icon;
-    
-    /**
-     * Input flow (connection) names
-     */
-    private final Collection<String> inputFlows;
-    
-    /**
-     * Output flow (connection) names
-     */
-    private final Collection<String> outputFlows;
+
 }
