@@ -16,7 +16,7 @@ Talend Component framework relies on several primitive components.
 They can all use `@PostConstruct` and `@PreDestroy` to initialize/release
 some underlying resource at the beginning/end of the processing.
 
-IMPORTANT: in distributed environments class' constructor will be called on driver node, methods annotated with
+IMPORTANT: in distributed environments class' constructor will be called on cluster manager node, methods annotated with
 `@PostConstruct` and `@PreDestroy` annotations will be called on worker nodes. Thus, partition plan computation and pipeline task
 will be performed on different nodes.
 
@@ -29,8 +29,7 @@ will be performed on different nodes.
                              |
                              V
                 +---------------------------+
-                |       Driver node         |
-                |    (Cluster manager)      |
+                |     Cluster manager       |
                 |---------------------------|
                 |     Partition plan        |
                 |     computation(2)        |
@@ -50,11 +49,13 @@ will be performed on different nodes.
 
 
 1. Created task consists of Jar file, containing class, which describes pipeline(flow) which should be processed in cluster.
-2. During partition plan computation step pipeline is analyzed and split into stages. Driver(Manager) node instantiates mappers/processors
+2. During partition plan computation step pipeline is analyzed and split into stages. Cluster Manager node instantiates mappers/processors
 gets estimated data size using mappers, splits created mappers according to the estimated data size. All instances are serialized and
 sent to Worker nodes afterwards.
 3. Serialized instances are received and deserialized, methods annotated with @PostConstruct annotation are called. After that,
-pipeline execution is performed. After pipeline is processed, methods annotated with @PreDestroy annotation are called.
+pipeline execution is started. Processor's @BeforeGroup annotated method is called before processing first element in chunk.
+After processing number of records estimated as chunk size, Processor's @AfterGroup annotated method called. Chunk size is calculated
+depending on environment the pipeline is processed by. After pipeline is processed, methods annotated with @PreDestroy annotation are called.
 ....
 
 [ditaa, driver-processing-workflow, png]
@@ -86,9 +87,21 @@ Flow Execution(3)
          |
          V
 +------------------+
+|  @BeforeGroup    |
+|     methods      |
++------------------+
+         |
+         V
++------------------+
 |   Perform task   |
 |   described in   |
 |     pipeline     |
++------------------+
+         |
+         V
++------------------+
+|   @AfterGroup    |
+|     methods      |
 +------------------+
          |
          V
