@@ -43,8 +43,10 @@ public class DesignContainerListener implements ContainerListenerExtension {
             throw new IllegalArgumentException("container doesn't contain ContainerComponentRegistry");
         }
 
+        componentRegistry.getComponents().values().stream().forEach(
+                family -> family.set(DesignFamilyModel.class, new DesignFamilyModel(findIcon(family.getFamilyPackage()))));
+
         componentRegistry.getComponents().values().stream() //
-                .peek(family -> family.set(DesignFamilyModel.class, new DesignFamilyModel(findIcon(family.getFamilyPackage()))))
                 .flatMap(family -> Stream.concat( //
                         family.getPartitionMappers().values().stream(), //
                         family.getProcessors().values().stream())) //
