@@ -78,6 +78,7 @@ import org.apache.maven.shared.utils.io.IOUtil;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
@@ -211,15 +212,16 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 final String runtimeName = baseName + "Source";
                 final String runtimePackage = type.getPackage().getName().replace('.', '/') + "/runtime";
                 final String definitionPackage = type.getPackage().getName().replace('.', '/') + "/definition";
+                final DesignModel model = getDesignModel(mapper);
 
-                final byte[] iconContent = Icons.findIcon(mapper.getIcon(), downloadIconsFromGithub, svgRepository);
+                final byte[] iconContent = Icons.findIcon(model.getIcon(), downloadIconsFromGithub, svgRepository);
                 final String packageForJava = definitionPackage.replace('/', '.');
                 final Definition definition = new Definition(definitionName, packageForJava, mapper.getParent().getName(),
                         mapper.getName(),
                         ofNullable(mapper.getParent().getCategories()).orElseGet(Collections::emptyList).stream()
                                 .map(c -> c + '/' + mapper.getParent().getName()).collect(toList()),
                         packageForJava + '.' + propertyName, runtimePackage.replace('/', '.') + '.' + runtimeName,
-                        singleton("OUTGOING"), mapper.getIcon(), iconContent != null);
+                        singleton("OUTGOING"), model.getIcon(), iconContent != null);
                 definitions.add(definition);
 
                 final File definitionFile = new File(definitionRootFolder,
@@ -249,7 +251,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 // icon
                 if (iconContent != null) {
                     final File iconFile = new File(definitionRootFolder,
-                            "src/main/resources/" + packageForJava.replace('.', '/') + "/" + mapper.getIcon() + "_icon32.png");
+                            "src/main/resources/" + packageForJava.replace('.', '/') + "/" + model.getIcon() + "_icon32.png");
                     mkdirP(iconFile.getParentFile());
                     try (final OutputStream out = new FileOutputStream(iconFile)) {
                         IOUtil.copy(iconContent, out);
@@ -287,8 +289,9 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 final String runtimeName = baseName + "Sink";
                 final String definitionPackage = type.getPackage().getName().replace('.', '/') + "/definition";
                 final String runtimePackage = type.getPackage().getName().replace('.', '/') + "/runtime";
+                DesignModel designModel = getDesignModel(processor);
 
-                final byte[] iconContent = Icons.findIcon(processor.getIcon(), downloadIconsFromGithub, svgRepository);
+                final byte[] iconContent = Icons.findIcon(designModel.getIcon(), downloadIconsFromGithub, svgRepository);
                 final String packageForJava = definitionPackage.replace('/', '.');
                 final boolean hasOutput = hasOutput(processor);
                 final Definition definition = new Definition(definitionName, packageForJava, processor.getParent().getName(),
@@ -296,7 +299,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                         ofNullable(processor.getParent().getCategories()).orElseGet(Collections::emptyList).stream()
                                 .map(c -> c + '/' + processor.getParent().getName()).collect(toList()),
                         packageForJava + '.' + propertyName, runtimePackage.replace('/', '.') + '.' + runtimeName,
-                        hasOutput ? singleton("INCOMING_AND_OUTGOING") : singleton("INCOMING"), processor.getIcon(),
+                        hasOutput ? singleton("INCOMING_AND_OUTGOING") : singleton("INCOMING"), designModel.getIcon(),
                         iconContent != null);
                 definitions.add(definition);
 
@@ -339,7 +342,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 // icon
                 if (iconContent != null) {
                     final File iconFile = new File(definitionRootFolder,
-                            "src/main/resources/" + packageForJava.replace('.', '/') + "/" + processor.getIcon() + "_icon32.png");
+                            "src/main/resources/" + packageForJava.replace('.', '/') + "/" + designModel.getIcon() + "_icon32.png");
                     mkdirP(iconFile.getParentFile());
                     try (final OutputStream out = new FileOutputStream(iconFile)) {
                         IOUtil.copy(iconContent, out);
