@@ -24,6 +24,7 @@ export default class Mapper extends React.Component {
 
     this.state = {
     };
+
     this.drawerActions = {
       actions: {
         right: [
@@ -36,7 +37,8 @@ export default class Mapper extends React.Component {
       }
     };
 
-    ['onStreamChange', 'onConfigurationButtonClick'].forEach(i => this[i] = this[i].bind(this));
+    ['onStreamChange', 'onConfigurationButtonClick', 'onRecordTypeChange', 'onRecordButtonClick']
+      .forEach(i => this[i] = this[i].bind(this));
   }
 
   onStreamChange() {
@@ -47,9 +49,29 @@ export default class Mapper extends React.Component {
   onConfigurationButtonClick() {
     this.props.onUpdateDrawers([
       <Drawer title={`${this.props.component.configuration.name} Configuration Model`} footerActions={this.drawerActions}>
-        <Schema schema={this.props.component.source.configurationStructure} onlyChildren={true} />
+        <Schema schema={this.props.component.source.configurationStructure} readOnly={true} name="configuration" />
       </Drawer>
     ]);
+  }
+
+  onRecordButtonClick() {
+    this.props.onUpdateDrawers([
+      <Drawer title={`${this.props.component.configuration.name} Record Model`} footerActions={this.drawerActions}>
+        <Schema schema={this.props.component.source.outputStructure} readOnly={true} name="root" />
+      </Drawer>
+    ]);
+  }
+
+  onRecordTypeChange(event) {
+    this.props.component.source.genericOutput = event.target.value === 'generic';
+    if (this.props.component.source.genericOutput) {
+      delete this.props.component.source.outputStructure;
+    } else {
+      this.props.component.source.outputStructure = {
+        entries: []
+      };
+    }
+    this.setState({recordType: event.target.value});
   }
 
   render() {
@@ -59,6 +81,16 @@ export default class Mapper extends React.Component {
         <div className={this.props.theme['form-row']}>
           <p className={this.props.theme.title}>Stream</p>
           <Toggle checked={this.props.component.source.stream} onChange={() => this.onStreamChange()} />
+        </div>
+        <div className={this.props.theme['form-row']}>
+          <p className={this.props.theme.title}>Record Type</p>
+          <select className={this.props.theme.recordSelector} value={this.state.recordType} onChange={this.onRecordTypeChange}>
+            <option selected={!!this.props.component.source.genericOutput} value="generic">Generic</option>
+            <option selected={!this.props.component.source.genericOutput} value="custom">Custom</option>
+          </select>
+          {
+            !this.props.component.source.genericOutput && <SchemaButton text="Record Model" onClick={this.onRecordButtonClick} />
+          }
         </div>
       </mapper>
     );

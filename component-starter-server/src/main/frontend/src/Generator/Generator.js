@@ -62,21 +62,13 @@ export default class Generator extends React.Component {
           name: `New Component #${state.steps.length}`
         },
         source: {
+          genericOutput: true,
           stream: false,
           configurationStructure: {
-            entries: [
-              {
-                name: 'configuration',
-                model: {
-                  entries: []
-                }
-              }
-            ]
+            entries: []
           },
           outputStructure: {
-            entries: [
-
-            ]
+            entries: []
           }
         },
         processor: {

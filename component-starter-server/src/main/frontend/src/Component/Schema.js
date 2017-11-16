@@ -14,7 +14,9 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { IconsProvider, Icon } from '@talend/react-components';
+import { Icon } from '@talend/react-components';
+import keycode from 'keycode';
+import Input from './Input';
 
 import theme from './Schema.scss';
 
@@ -22,43 +24,121 @@ class Node extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      opened: this.props.onlyChildren,
-      entries: (this.props.node.model || this.props.node).entries
+      opened: !!this.props.parent || !!this.props.readOnly,
+      type: this.props.node.type || 'object',
+      edited: false,
+      entries: (this.props.node.model || this.props.node).entries,
     };
-    ['addChild'].forEach(i => this[i] = this[i].bind(this));
+
+    this.nodeTypes = ['object', 'boolean', 'double', 'integer', 'uri', 'url', 'string'] // don't support file yet, this is not big data friendly
+      .map(i => {return {value: i, label: i.substring(0, 1).toUpperCase() + i.substring(1)}});
+
+    ['addChild', 'onTypeChange', 'onEdit', 'deleteNode', 'onDeleteChild', 'validEdition']
+      .forEach(i => this[i] = this[i].bind(this));
+  }
+
+  onTypeChange(event) {
+    const type = event.target.value;
+    switch (type) {
+      case 'object':
+        this.props.node.model = this.props.node.model || this.props.node._model || { entries: [] };
+        delete this.props.node.type;
+        break;
+      default:
+        this.props.node.type = type;
+        this.props.node._model = this.props.node.model || this.props.node._model;
+        delete this.props.node.model;
+    }
+    this.setState({type, entries: !!this.props.node.model ? this.props.node.model.entries : undefined});
   }
 
   addChild() {
     this.setState(state => state.entries.push({
-      name: 'newAttribute',
+      name: 'configuration' + (state.entries.length + 1),
       type: 'string'
     }));
   }
 
+  onEdit() {
+    if (!!this.props.readOnly) {
+      return;
+    }
+    this.setState({edited: true})
+  }
+
+  deleteNode() {
+    !!this.props.onDeleteChild && this.props.onDeleteChild(this.props.node);
+  }
+
+  onDeleteChild(node) {
+    const idx = this.state.entries.indexOf(node);
+    if (idx >= 0) {
+      this.setState(state => {
+        state.entries.splice(idx, 1);
+        (this.props.node.model || this.props.node).entries = state.entries;
+      });
+    }
+  }
+
+  validEdition(event) {
+    switch (event.which) {
+      case keycode.codes.enter:
+        this.setState({edited: false});
+        break;
+      default:
+        break;
+    }
+  }
+
   render() {
     const nodeIcon = !!this.state.opened ? 'talend-caret-down': 'talend-chevron-left';
+    let nodeView;
+    if (!!this.state.edited) {
+      nodeView = (
+        <span>
+          <Input type="text" placeholder="Enter the configuration name..." required="required" minLength="1"
+                 aggregate={this.props.node} accessor="name" initialValue={this.props.node.name || this.props.name} onChange={() => this.setState({})}
+                 onKeyDown={this.validEdition} />
+          ({
+            <select value={this.state.type} onChange={this.onTypeChange}>
+              {this.nodeTypes.map(t => <option selected={this.state.value === t.value} value={t.value}>{t.label}</option>)}
+            </select>
+          })
+          <Icon name="talend-check" onClick={() => this.setState({edited: false})} />
+        </span>
+      );
+    } else {
+      nodeView = <span>
+        <span onClick={this.onEdit}>{this.props.node.name || this.props.name} ({this.props.node.type || 'object'})</span>
+        {!this.props.readOnly && <Icon className={theme.nodeIcon} name="talend-trash" onClick={this.deleteNode} />}
+      </span>;
+    }
     return (
       <div>
-        <IconsProvider icons={['talend-chevron-left', 'talend-caret-down', 'talend-plus-circle']}/>
-
+        <span>
+          {
+            !this.props.node.type && <Icon className={theme.nodeIcon} name={nodeIcon} onClick={() => this.setState({opened: !this.state.opened})} />
+          }
+          <nodeLabel>
+            {nodeView}
+          </nodeLabel>
+        </span>
         {
-          !this.props.onlyChildren && (
-            <span>
-            {
-              !this.props.node.type && <Icon className={theme.nodeIcon} name={nodeIcon} onClick={() => this.setState({opened: !this.state.opened})} />
-            }
-            {this.props.node.name} ({this.props.node.type || 'object'})
-            </span>
+          (!this.props.parent || !!this.state.entries) && (
+              <ul className={theme.vLine}>
+                {!!this.state.opened && this.state.entries.map((node, index) => {
+                  return (
+                    <li key={index}>
+                      <Node node={node} parent={this.props.node} onDeleteChild={this.onDeleteChild} />
+                    </li>
+                  );
+                })}
+                {!!this.state.opened && !!this.state.entries && this.state.entries.length === 0 && <li>No configuration yet, click on the plus bellow</li>}
+              </ul>
           )
         }
         {
-          (!!this.props.onlyChildren || (!!this.state.entries && !!this.state.opened)) &&
-            <ul>
-              {this.state.entries.map((node, index) => <li key={index}><Node node={node} /></li>)}
-            </ul>
-        }
-        {
-          !!this.props.node.model &&
+          (!this.props.node.type || this.props.node.type === 'object') &&
             <Icon name="talend-plus-circle" onClick={() => {this.addChild(); !this.state.opened && this.setState({opened: true});}} />
         }
       </div>
@@ -66,20 +146,10 @@ class Node extends React.Component {
   }
 }
 
-export default class Schema extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-    };
-
-    // [].forEach(i => this[i] = this[i].bind(this));
-  }
-
-  render() {
-    return (
-      <div className={theme.Schema}>
-        <Node node={this.props.schema} onlyChildren={this.props.onlyChildren} />
-      </div>
-    );
-  }
+export default function Schema (props) {
+  return (
+    <div className={theme.Schema}>
+      <Node node={props.schema} readOnly={props.readOnly || !!props.parent} name={props.name} />
+    </div>
+  );
 }

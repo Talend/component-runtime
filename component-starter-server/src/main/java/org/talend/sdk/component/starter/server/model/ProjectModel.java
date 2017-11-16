@@ -17,9 +17,10 @@ package org.talend.sdk.component.starter.server.model;
 
 import java.util.Collection;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Data
 public class ProjectModel {
@@ -51,63 +52,68 @@ public class ProjectModel {
     private Collection<Processor> processors;
 
     @Getter
-    @RequiredArgsConstructor
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Source {
 
-        private final String name;
+        private String name;
 
-        private final String icon;
+        private String icon;
 
-        private final boolean stream;
+        private boolean stream;
 
-        private final boolean genericOutput;
+        private boolean genericOutput;
 
-        private final Model configurationStructure;
+        private Model configurationStructure;
 
-        private final Model outputStructure;
+        private Model outputStructure;
     }
 
     @Getter
-    @RequiredArgsConstructor
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Model {
 
-        private final Collection<Entry> entries;
+        private Collection<Entry> entries;
     }
 
     @Getter
-    @RequiredArgsConstructor
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Entry {
 
-        private final String name;
+        private String name;
 
-        private final String type;
+        private String type;
 
-        private final Model model;
+        private Model model;
     }
 
     @Getter
-    @RequiredArgsConstructor
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Processor {
 
-        private final String name;
+        private String name;
 
-        private final String icon;
+        private String icon;
 
-        private final Model configurationStructure;
+        private Model configurationStructure;
 
-        private final Collection<NamedModel> inputStructures;
+        private Collection<NamedModel> inputStructures;
 
-        private final Collection<NamedModel> outputStructures;
+        private Collection<NamedModel> outputStructures;
     }
 
     @Getter
-    @RequiredArgsConstructor
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class NamedModel {
 
-        private final String name;
+        private String name;
 
-        private final boolean generic;
+        private boolean generic;
 
-        private final Model structure;
+        private Model structure;
     }
 }

@@ -42,7 +42,7 @@ export default class Input extends React.Component {
   render() {
     return (
       <span className={theme.Input}>
-        <input {...this.props} onChange={e => this.onChange(e)} value={!!this.props.aggregate ?  this.props.aggregate[this.props.accessor] : this.state.value} />
+        <input {...this.props} onChange={e => this.onChange(e)} value={!!this.props.aggregate ?  this.props.aggregate[this.props.accessor] : this.state.value}/>
         {
           !!this.state.message && <span className={theme.error}>{this.state.message}</span>
         }
