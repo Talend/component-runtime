@@ -28,7 +28,7 @@
   <name>Component Runtime :: Studio Integration</name>
 
   <properties>
-    <studio.version>6.5.0-M3</studio.version>
+    <studio.version>6.5.1-M4</studio.version>
   </properties>
 
   <dependencies>

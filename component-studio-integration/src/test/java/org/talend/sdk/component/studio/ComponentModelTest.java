@@ -78,7 +78,7 @@ public class ComponentModelTest {
         ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
-        List<? extends INodeReturn> returnVariables = componentModel.createReturns(null);
+        List<? extends INodeReturn> returnVariables = componentModel.createReturns();
         Assert.assertEquals(2, returnVariables.size());
         INodeReturn errorMessage = returnVariables.get(0);
         Assert.assertEquals("Error Message", errorMessage.getDisplayName());
