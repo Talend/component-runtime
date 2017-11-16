@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.manager;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -48,13 +49,14 @@ import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
-public class ComponentFamilyMeta {
+@EqualsAndHashCode(callSuper = false)
+public class ComponentFamilyMeta extends Meta {
 
     private final String plugin;
+    
+    private final AnnotatedElement familyPackage;
 
     private final Collection<String> categories;
-
-    private final String icon;
 
     private final String name;
 
@@ -62,8 +64,17 @@ public class ComponentFamilyMeta {
 
     private final Map<String, ProcessorMeta> processors = new HashMap<>();
 
+    public ComponentFamilyMeta(String plugin, AnnotatedElement familyPackage, Collection<String> categories, String
+            name) {
+        this.plugin = plugin;
+        this.familyPackage = familyPackage;
+        this.categories = categories;
+        this.name = name;
+    }
+
     @Data
-    public static class BaseMeta<T> {
+    @EqualsAndHashCode(callSuper = false)
+    public static class BaseMeta<T> extends Meta {
 
         private static final ComponentBundle NO_COMPONENT_BUNDLE = new ComponentBundle(null, null) {
 
@@ -77,8 +88,6 @@ public class ComponentFamilyMeta {
 
         private final String name;
 
-        private final String icon;
-
         private final int version;
 
         private final String packageName;
@@ -88,12 +97,6 @@ public class ComponentFamilyMeta {
         private final List<ParameterMeta> parameterMetas;
 
         private final ConcurrentMap<Locale, ComponentBundle> bundles = new ConcurrentHashMap<>();
-        
-        /**
-         * Stores data provided by extensions like ContainerListenerExtension 
-         */
-        @Getter(AccessLevel.NONE)
-        private final ConcurrentMap<Class<?>, Object> extensionsData = new ConcurrentHashMap<>();
 
         private final String id;
 
@@ -103,12 +106,11 @@ public class ComponentFamilyMeta {
 
         private final boolean validated;
 
-        BaseMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version, final Class<?> type,
+        BaseMeta(final ComponentFamilyMeta parent, final String name, final int version, final Class<?> type,
                 final List<ParameterMeta> parameterMetas, final MigrationHandler migrationHandler,
                 final Function<Map<String, String>, T> instantiator, final boolean validated) {
             this.parent = parent;
             this.name = name;
-            this.icon = icon;
             this.version = version;
             this.packageName = ofNullable(type.getPackage()).map(Package::getName).orElse("");
             this.parameterMetas = parameterMetas;
@@ -137,38 +139,18 @@ public class ComponentFamilyMeta {
                 }
             });
         }
-        
-        /**
-         * Sets data provided by extension
-         * 
-         * @param key {@link Class} of data provided
-         * @param instance data instance
-         * @return data instance
-         */
-        public <D> D set(final Class<D> key, final D instance) {
-            return (D) extensionsData.put(key, instance);
-        }
 
-        /**
-         * Returns extension data instance
-         * 
-         * @param key {@link Class} of data instance to return
-         * @return data instance
-         */
-        public <D> D get(final Class<D> key) {
-            return (D) extensionsData.get(key);
-        }
     }
 
     @Data
     @EqualsAndHashCode(callSuper = true)
     public static class PartitionMapperMeta extends BaseMeta<Mapper> {
 
-        PartitionMapperMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
+        PartitionMapperMeta(final ComponentFamilyMeta parent, final String name, final int version,
                 final Class<?> type, final List<ParameterMeta> parameterMetas,
                 final Function<Map<String, String>, Mapper> instantiator, final MigrationHandler migrationHandler,
                 final boolean validated) {
-            super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
+            super(parent, name, version, type, parameterMetas, migrationHandler, instantiator, validated);
         }
     }
 
@@ -176,11 +158,11 @@ public class ComponentFamilyMeta {
     @EqualsAndHashCode(callSuper = true)
     public static class ProcessorMeta extends BaseMeta<Processor> {
 
-        ProcessorMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
+        ProcessorMeta(final ComponentFamilyMeta parent, final String name, final int version,
                 final Class<?> type, final List<ParameterMeta> parameterMetas,
                 final Function<Map<String, String>, Processor> instantiator, final MigrationHandler migrationHandler,
                 final boolean validated) {
-            super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
+            super(parent, name, version, type, parameterMetas, migrationHandler, instantiator, validated);
         }
 
         /**
@@ -192,5 +174,38 @@ public class ComponentFamilyMeta {
             return Stream.of(getType().getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + getType()));
         }
+    }
+}
+
+/**
+ * Parent class for all Meta classes. Allows to extend meta with additional data via {@link Meta#set(Class, Object)}
+ */
+class Meta {
+    
+    /**
+     * Stores data provided by extensions like ContainerListenerExtension 
+     */
+    @Getter(AccessLevel.NONE)
+    private final ConcurrentMap<Class<?>, Object> extensionsData = new ConcurrentHashMap<>();
+    
+    /**
+     * Sets data provided by extension
+     * 
+     * @param key {@link Class} of data provided
+     * @param instance data instance
+     * @return data instance
+     */
+    public <D> D set(final Class<D> key, final D instance) {
+        return (D) extensionsData.put(key, instance);
+    }
+
+    /**
+     * Returns extension data instance
+     * 
+     * @param key {@link Class} of data instance to return
+     * @return data instance
+     */
+    public <D> D get(final Class<D> key) {
+        return (D) extensionsData.get(key);
     }
 }

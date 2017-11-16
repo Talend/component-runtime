@@ -75,7 +75,6 @@ import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
 import org.talend.sdk.component.api.component.Components;
-import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
@@ -383,20 +382,19 @@ public class ComponentManager implements AutoCloseable {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration.builder()
                 .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource)).rootRepositoryLocation(m2).create(),
-                ContainerManager.ClassLoaderConfiguration.builder().parent(tccl)
-                        .parentClassesFilter(this::isContainerClass).classesFilter(name -> !isContainerClass(name))
-                        .supportsResourceDependencies(true).create());
+                ContainerManager.ClassLoaderConfiguration.builder().parent(tccl).parentClassesFilter(this::isContainerClass)
+                        .classesFilter(name -> !isContainerClass(name)).supportsResourceDependencies(true).create());
         this.container.registerListener(new Updater());
         ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty())
                 .ifPresent(p -> this.container.registerListener(new JmxManager(p, ManagementFactory.getPlatformMBeanServer())));
-        toStream(loadServiceProviders(ContainerListenerExtension.class, tccl)).forEach(listener -> container.registerListener(listener));  
-        this.extensions =  toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
+        toStream(loadServiceProviders(ContainerListenerExtension.class, tccl)).forEach(container::registerListener);
+        this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
     }
-    
+
     private static <T> Stream<T> toStream(Iterator<T> iterator) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.IMMUTABLE), false);
     }
-    
+
     private static <T> Iterator<T> loadServiceProviders(Class<T> service, ClassLoader classLoader) {
         return ServiceLoader.load(service, classLoader).iterator();
     }
@@ -701,6 +699,7 @@ public class ComponentManager implements AutoCloseable {
                 log.info("Added @Service " + service + " for container-id=" + container.getId());
             });
 
+            final AtomicReference<ComponentFamilyMeta> familyRef = new AtomicReference<>();
             Stream.of(PartitionMapper.class, Processor.class, Emitter.class).flatMap(a -> finder.findAnnotatedClasses(a).stream())
                     .forEach(type -> {
                         final Components components = findComponentsConfig(componentDefaults, type, container.getLoader(),
@@ -717,7 +716,7 @@ public class ComponentManager implements AutoCloseable {
                         });
 
                         final ComponentMetaBuilder builder = new ComponentMetaBuilder(container.getId(), services, components,
-                                componentDefaults.get(getAnnotatedElementCacheKey(type)), context);
+                                componentDefaults.get(getAnnotatedElementCacheKey(type)), context, familyRef);
 
                         final Thread thread = Thread.currentThread();
                         final ClassLoader old = thread.getContextClassLoader();
@@ -728,13 +727,13 @@ public class ComponentManager implements AutoCloseable {
                             thread.setContextClassLoader(old);
                         }
 
-                        ofNullable(builder.component).ifPresent(c -> {
+                        ofNullable(familyRef.get()).ifPresent(c -> {
                             // for now we assume one family per module, we can remove this constraint if really needed
                             // but kind of enforce a natural modularity
 
                             final ComponentFamilyMeta componentFamilyMeta = registry.getComponents().computeIfAbsent(c.getName(),
                                     n -> c);
-                            if (componentFamilyMeta != c) {
+                            if (familyRef.get() != c) {
                                 if (componentFamilyMeta.getProcessors().keySet().stream()
                                         .anyMatch(k -> c.getProcessors().keySet().contains(k))) {
                                     throw new IllegalArgumentException("Conflicting processors in " + c);
@@ -912,7 +911,7 @@ public class ComponentManager implements AutoCloseable {
 
         private final ComponentContextImpl context;
 
-        private ComponentFamilyMeta component;
+        private final AtomicReference<ComponentFamilyMeta> component;
 
         @Override
         public void onPartitionMapper(final Class<?> type, final PartitionMapper partitionMapper) {
@@ -931,7 +930,7 @@ public class ComponentManager implements AutoCloseable {
                                     partitionMapper.infinite(), doInvoke(constructor, parameterFactory.apply(config)));
 
             component.getPartitionMappers().put(name,
-                    new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type), type,
+                    new ComponentFamilyMeta.PartitionMapperMeta(component, name, findVersion(type), type,
                             parameterModelService.buildParameterMetas(constructor, getPackage(type)), instantiator,
                             findMigrationHandler(type), !context.isNoValidation()));
         }
@@ -951,7 +950,7 @@ public class ComponentManager implements AutoCloseable {
                             : config -> new LocalPartitionMapper(component.getName(), name, plugin,
                                     doInvoke(constructor, parameterFactory.apply(config)));
             component.getPartitionMappers().put(name,
-                    new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type), type,
+                    new ComponentFamilyMeta.PartitionMapperMeta(component, name, findVersion(type), type,
                             parameterModelService.buildParameterMetas(constructor, getPackage(type)), instantiator,
                             findMigrationHandler(type), !context.isNoValidation()));
         }
@@ -971,10 +970,10 @@ public class ComponentManager implements AutoCloseable {
                                             new ComponentInstanceImpl(doInvoke(constructor, parameterFactory.apply(config)),
                                                     plugin, component.getName(), name),
                                             org.talend.sdk.component.runtime.output.Processor.class))
-                            : config -> new AdvancedProcessorImpl(this.component.getName(), name, plugin,
+                            : config -> new AdvancedProcessorImpl(this.component.get().getName(), name, plugin,
                                     doInvoke(constructor, parameterFactory.apply(config)));
             component.getProcessors().put(name,
-                    new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type), type,
+                    new ComponentFamilyMeta.ProcessorMeta(component, name, findVersion(type), type,
                             parameterModelService.buildParameterMetas(constructor, getPackage(type)), instantiator,
                             findMigrationHandler(type), !context.isNoValidation()));
         }
@@ -1000,13 +999,6 @@ public class ComponentManager implements AutoCloseable {
 
         private int findVersion(final Class<?> type) {
             return ofNullable(type.getAnnotation(Version.class)).map(Version::value).orElse(1);
-        }
-
-        private String findIcon(final AnnotatedElement type) {
-            return ofNullable(type.getAnnotation(Icon.class))
-                    .map(i -> i.value() == Icon.IconType.CUSTOM ? of(i.custom()).filter(s -> !s.isEmpty()).orElse("default")
-                            : i.value().getKey())
-                    .orElse("default");
         }
 
         private Constructor<?> findConstructor(final Class<?> type) {
@@ -1036,10 +1028,11 @@ public class ComponentManager implements AutoCloseable {
             if (comp.isEmpty()) {
                 throw new IllegalArgumentException("Missing component");
             }
-            return this.component == null || !component.equals(this.component.getName())
-                    ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()),
-                            findIcon(familyAnnotationElement), comp))
-                    : this.component;
+            final ComponentFamilyMeta current = this.component.get();
+            return current == null || !component.equals(current.getName())
+                    ? (this.component.updateAndGet(
+                            c -> new ComponentFamilyMeta(plugin, familyAnnotationElement, asList(components.categories()), comp)))
+                    : current;
         }
 
         private Serializable doInvoke(final Constructor<?> constructor, Object[] args) {

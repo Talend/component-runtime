@@ -139,7 +139,6 @@ public class ComponentManagerTest {
                 assertEquals(1, component.getProcessors().size());
                 component.getProcessors().forEach((procName, processorMeta) -> {
                     assertEquals("proc", procName);
-                    assertEquals("default", processorMeta.getIcon());
 
                     final String packageName = pluginGenerator.toPackage(container.getId());
 

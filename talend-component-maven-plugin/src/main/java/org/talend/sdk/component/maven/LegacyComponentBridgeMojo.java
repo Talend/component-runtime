@@ -208,7 +208,7 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
                     }
                 });
 
-                final byte[] iconStream = Icons.findIcon(mapper.getIcon(), downloadIconsFromGithub, svgRepository);
+                final byte[] iconStream = Icons.findIcon(getDesignModel(mapper).getIcon(), downloadIconsFromGithub, svgRepository);
                 if (iconStream != null) {
                     doWrite(componentRoot, name + "_icon32.png", stream -> {
                         try {
@@ -248,7 +248,7 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
                         throw new IllegalStateException(e);
                     }
                 });
-                final byte[] iconStream = Icons.findIcon(processor.getIcon(), downloadIconsFromGithub, svgRepository);
+                final byte[] iconStream = Icons.findIcon(getDesignModel(processor).getIcon(), downloadIconsFromGithub, svgRepository);
                 if (iconStream != null) {
                     doWrite(componentRoot, name + "_icon32.png", stream -> {
                         try {

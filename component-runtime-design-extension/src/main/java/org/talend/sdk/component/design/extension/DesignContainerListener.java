@@ -15,8 +15,13 @@
  */
 package org.talend.sdk.component.design.extension;
 
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
+
+import java.lang.reflect.AnnotatedElement;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.flows.FlowsFactory;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
@@ -28,7 +33,7 @@ import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 public class DesignContainerListener implements ContainerListenerExtension {
 
     /**
-     * Enriches {@link Container} with {@link DesignModelRegistry}
+     * Enriches {@link Container} with {@link DesignFamilyModel}
      * It depends on Updater listener which adds {@link ContainerComponentRegistry} class to {@link Container}
      */
     @Override
@@ -38,7 +43,10 @@ public class DesignContainerListener implements ContainerListenerExtension {
             throw new IllegalArgumentException("container doesn't contain ContainerComponentRegistry");
         }
 
-        componentRegistry.getComponents().values().stream()
+        componentRegistry.getComponents().values().forEach(
+                family -> family.set(DesignFamilyModel.class, new DesignFamilyModel(findIcon(family.getFamilyPackage()))));
+
+        componentRegistry.getComponents().values().stream() //
                 .flatMap(family -> Stream.concat( //
                         family.getPartitionMappers().values().stream(), //
                         family.getProcessors().values().stream())) //
@@ -47,6 +55,7 @@ public class DesignContainerListener implements ContainerListenerExtension {
                     meta.set(DesignModel.class,
                             new DesignModel( //
                                     meta.getId(), //
+                                    findIcon(meta.getType()), //
                                     factory.getInputFlows(), //
                                     factory.getOutputFlows())); //
                 });
@@ -60,6 +69,11 @@ public class DesignContainerListener implements ContainerListenerExtension {
     @Override
     public void onClose(Container container) {
         // no-op
+    }
+
+    private String findIcon(final AnnotatedElement type) {
+        return ofNullable(type.getAnnotation(Icon.class)).map(i -> i.value() == Icon.IconType.CUSTOM
+                ? of(i.custom()).filter(s -> !s.isEmpty()).orElse("default") : i.value().getKey()).orElse("default");
     }
 
 }

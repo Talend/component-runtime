@@ -51,6 +51,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.design.extension.DesignFamilyModel;
 import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -131,15 +132,16 @@ public class ComponentResource {
     @GET
     @Path("icon/{id}")
     public Response icon(@PathParam("id") final String id) {
-        // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
+        // todo: add caching if IconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta.BaseMeta<Object> meta = componentManagerService.findMetaById(id);
         if (meta == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE).build();
         }
+        final DesignModel model = getModel(meta);
         final IconResolver.Icon iconContent = iconResolver
-                .resolve(manager.findPlugin(meta.getParent().getPlugin()).get().getLoader(), meta.getIcon());
+                .resolve(manager.findPlugin(meta.getParent().getPlugin()).get().getLoader(), model.getIcon());
         if (iconContent == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for identifier: " + id))
@@ -172,15 +174,11 @@ public class ComponentResource {
                     }
                     final Container container = plugin.get();
                     final Locale locale = localeMapper.mapLocale(language);
-                    final DesignModel model = ofNullable(meta.get(DesignModel.class)).orElseGet(() -> {
-                        errors.put(meta.getId(), new ErrorPayload(DESIGN_MODEL_MISSING, "No design model '" + meta.getId() + "'"));
-                        return new DesignModel("dummyId", emptyList(), emptyList());
-                    });
-                    
+                    final DesignModel model = getModel(meta);
                     return new ComponentDetail(
                             new ComponentId(meta.getId(), meta.getParent().getPlugin(), meta.getParent().getName(),
                                     meta.getName()),
-                            meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()), meta.getIcon(),
+                            meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()), model.getIcon(),
                             ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor"
                                     : "input"/* PartitionMapperMeta */,
                             meta.getVersion(),
@@ -219,9 +217,9 @@ public class ComponentResource {
     }
 
     private ComponentIndex toComponentIndex(final ClassLoader loader, final Locale locale, final String plugin,
-            final ComponentFamilyMeta.BaseMeta meta) {
-        final String icon = meta.getIcon();
-        final String familyIcon = meta.getParent().getIcon();
+            final ComponentFamilyMeta.BaseMeta<?> meta) {
+        final String icon = getModel(meta).getIcon();
+        final String familyIcon = getFamilyModel(meta.getParent()).getIcon();
         final IconResolver.Icon iconContent = iconResolver.resolve(loader, icon);
         final IconResolver.Icon iconFamilyContent = iconResolver.resolve(loader, familyIcon);
         return new ComponentIndex(new ComponentId(meta.getId(), plugin, meta.getParent().getName(), meta.getName()),
@@ -233,4 +231,20 @@ public class ComponentResource {
                 meta.getVersion(), meta.getParent().getCategories(),
                 singletonList(new Link("Detail", "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
     }
+    
+    private static DesignModel getModel(final ComponentFamilyMeta.BaseMeta<?> meta) {
+        return ofNullable(meta.get(DesignModel.class)).orElseThrow(() -> //
+        new WebApplicationException(
+                Response.serverError().entity(new ErrorPayload(DESIGN_MODEL_MISSING, "No DesignModel for meta: " + meta.getId()))
+                        .type(APPLICATION_JSON_TYPE).build()));
+
+    }
+
+    private static DesignFamilyModel getFamilyModel(final ComponentFamilyMeta familyMeta) {
+        return ofNullable(familyMeta.get(DesignFamilyModel.class)).orElseThrow(() -> //
+            new WebApplicationException(Response.serverError() //
+                    .entity(new ErrorPayload(DESIGN_MODEL_MISSING, "No DesignFamilyModel for meta: " + familyMeta.getName()))
+                    .type(APPLICATION_JSON_TYPE).build()));
+    }
+    
 }

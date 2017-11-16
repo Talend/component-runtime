@@ -73,8 +73,8 @@ public abstract class ComponentManagerBasedMojo extends ClasspathMojoBase {
                      .filter(p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
     }
 
-    protected static DesignModel getDesignModel(final ComponentFamilyMeta.ProcessorMeta processor) {
-        return ofNullable(processor.get(DesignModel.class))
-                .orElseThrow(() -> new IllegalArgumentException("Processor doesn't contain DesignModel"));
+    protected static DesignModel getDesignModel(final ComponentFamilyMeta.BaseMeta meta) {
+        return ofNullable(meta.get(DesignModel.class))
+                .orElseThrow(() -> new IllegalArgumentException("Meta doesn't contain DesignModel"));
     }
 }
