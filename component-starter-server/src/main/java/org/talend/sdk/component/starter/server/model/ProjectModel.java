@@ -87,6 +87,8 @@ public class ProjectModel {
         private String type;
 
         private Model model;
+
+        // todo: support @ObjectMap.Any, list etc...
     }
 
     @Getter
