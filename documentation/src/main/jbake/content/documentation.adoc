@@ -16,6 +16,101 @@ Talend Component framework relies on several primitive components.
 They can all use `@PostConstruct` and `@PreDestroy` to initialize/release
 some underlying resource at the beginning/end of the processing.
 
+IMPORTANT: in distributed environments class' constructor will be called on cluster manager node, methods annotated with
+`@PostConstruct` and `@PreDestroy` annotations will be called on worker nodes. Thus, partition plan computation and pipeline task
+will be performed on different nodes.
+
+[ditaa, deployment-diagram, png]
+....
+                 /-------------------------\
+                 |       Create and        |
+                 |Submit task to cluster(1)|
+                 \-------------------------/
+                             |
+                             V
+                +---------------------------+
+                |     Cluster manager       |
+                |---------------------------|
+                |     Partition plan        |
+                |     computation(2)        |
+                |                           |
+                +---------------------------+
+                             ^
+                             |
+                          Serialized
+                          instances
+                             |
+                             V
+                    +-----------------+
+                    |   Worker node   |
+                    |-----------------|
+                    |Flow Execution(3)|
+                    +-----------------+
+
+
+1. Created task consists of Jar file, containing class, which describes pipeline(flow) which should be processed in cluster.
+2. During partition plan computation step pipeline is analyzed and split into stages. Cluster Manager node instantiates mappers/processors
+gets estimated data size using mappers, splits created mappers according to the estimated data size. All instances are serialized and
+sent to Worker nodes afterwards.
+3. Serialized instances are received and deserialized, methods annotated with @PostConstruct annotation are called. After that,
+pipeline execution is started. Processor's @BeforeGroup annotated method is called before processing first element in chunk.
+After processing number of records estimated as chunk size, Processor's @AfterGroup annotated method called. Chunk size is calculated
+depending on environment the pipeline is processed by. After pipeline is processed, methods annotated with @PreDestroy annotation are called.
+....
+
+[ditaa, driver-processing-workflow, png]
+....
+Partition plan computation(2)
+    +----------------+
+    | Create Mappers |
+    +----------------+
+            |
+            V
++-------------------------+
+|Compute partition plan(2)|
++-------------------------+
+            |
+            V
+  +----------------------+
+  |  Serialize splitted  |
+  |mappers and processors|
+  +----------------------+
+....
+
+[ditaa, worker-processing-workflow, png]
+....
+Flow Execution(3)
++------------------+
+|  @PostConstruct  |
+|     methods      |
++------------------+
+         |
+         V
++------------------+
+|  @BeforeGroup    |
+|     methods      |
++------------------+
+         |
+         V
++------------------+
+|   Perform task   |
+|   described in   |
+|     pipeline     |
++------------------+
+         |
+         V
++------------------+
+|   @AfterGroup    |
+|     methods      |
++------------------+
+         |
+         V
++------------------+
+|   @PreDestroy    |
+|     methods      |
++------------------+
+....
+
 IMPORTANT: all framework managed methods `MUST` be public too. Private methods are ignored.
 
 NOTE: in term of design the framework tries to be as declarative as possible but also to stay extensible
@@ -981,9 +1076,16 @@ public class PersonReader implements Serializable {
         this.service = service;
     }
 
-    // ... use the service
+    // use the service
+    @PostConstruct
+    public void open() throws FileNotFoundException {
+        reader = service.createInput(file);
+    }
+
 }
 ----
+
+TIP: service is passed to constructor automatically, it can be used as a bean. Only call of service's method is required.
 
 === Particular action types
 
@@ -1078,9 +1180,43 @@ For beam case, you need to rely on beam pipeline definition and use `component-r
 `org.talend.sdk.component.runtime.beam.TalendIO` provides a way to convert a partition mapper or a processor to an input or processor
 using the `read` or `write` methods.
 
+[source,java]
+----
+public class Main {
+    public static void main(final String[] args) {
+        final ComponentManager manager = ComponentManager.instance()
+        Pipeline pipeline = Pipeline.create();
+        //Create beam input from mapper and apply input to pipeline
+        pipeline.apply(TalendIO.read(manager.findMapper(manager.findMapper("sample", "reader", 1, new HashMap<String, String>() {{
+                    put("fileprefix", "input");
+                }}).get()))
+        //Create beam processor from talend processor and apply to pipeline
+                .apply(TalendIO.write(manager.findProcessor("test", "writer", 1, new HashMap<String, String>() {{
+                    put("fileprefix", "output");
+                }}).get(), emptyMap()));
+
+        //... run pipeline
+    }
+}
+----
+
 ==== Processors
 
 `org.talend.sdk.component.runtime.beam.TalendFn` provides the way to wrap a processor in a Beam `PTransform` and integrate it in the pipeline.
+
+[source,java]
+----
+public class Main {
+    public static void main(final String[] args) {
+        //Component manager and pipeline initialization...
+
+        //Create beam PTransform from processor and apply input to pipeline
+        pipeline.apply(TalendFn.asFn(manager.findProcessor("sample", "mapper", 1, emptyMap())).get())), emptyMap());
+
+        //... run pipeline
+    }
+}
+----
 
 ==== Deployment
 
