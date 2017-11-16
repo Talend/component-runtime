@@ -64,6 +64,14 @@ public class ComponentFamilyMeta extends Meta {
 
     private final Map<String, ProcessorMeta> processors = new HashMap<>();
 
+    public ComponentFamilyMeta(String plugin, AnnotatedElement familyPackage, Collection<String> categories, String
+            name) {
+        this.plugin = plugin;
+        this.familyPackage = familyPackage;
+        this.categories = categories;
+        this.name = name;
+    }
+
     @Data
     @EqualsAndHashCode(callSuper = false)
     public static class BaseMeta<T> extends Meta {

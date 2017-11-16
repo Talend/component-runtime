@@ -33,7 +33,7 @@ import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 public class DesignContainerListener implements ContainerListenerExtension {
 
     /**
-     * Enriches {@link Container} with {@link DesignModelRegistry}
+     * Enriches {@link Container} with {@link DesignFamilyModel}
      * It depends on Updater listener which adds {@link ContainerComponentRegistry} class to {@link Container}
      */
     @Override
@@ -43,7 +43,7 @@ public class DesignContainerListener implements ContainerListenerExtension {
             throw new IllegalArgumentException("container doesn't contain ContainerComponentRegistry");
         }
 
-        componentRegistry.getComponents().values().stream().forEach(
+        componentRegistry.getComponents().values().forEach(
                 family -> family.set(DesignFamilyModel.class, new DesignFamilyModel(findIcon(family.getFamilyPackage()))));
 
         componentRegistry.getComponents().values().stream() //

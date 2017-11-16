@@ -242,9 +242,9 @@ public class ComponentResource {
 
     private static DesignFamilyModel getFamilyModel(final ComponentFamilyMeta familyMeta) {
         return ofNullable(familyMeta.get(DesignFamilyModel.class)).orElseThrow(() -> //
-        new WebApplicationException(Response.serverError() //
-                .entity(new ErrorPayload(DESIGN_MODEL_MISSING, "No DesignFamilyModel for meta: " + familyMeta.getName()))
-                .type(APPLICATION_JSON_TYPE).build()));
+            new WebApplicationException(Response.serverError() //
+                    .entity(new ErrorPayload(DESIGN_MODEL_MISSING, "No DesignFamilyModel for meta: " + familyMeta.getName()))
+                    .type(APPLICATION_JSON_TYPE).build()));
     }
     
 }
