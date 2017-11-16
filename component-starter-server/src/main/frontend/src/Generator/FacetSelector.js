@@ -52,7 +52,8 @@ export default class FacetSelector extends React.Component {
     };
 
     this.state = {
-      facetTypeahead: typeaheadConfig
+      facetTypeahead: typeaheadConfig,
+      selected: []
     };
 
     this.onChange = this.onChange.bind(this);
@@ -95,13 +96,21 @@ export default class FacetSelector extends React.Component {
   }
 
   onAddTag(event, { itemIndex }) {
-    this.props.selected = this.props.selected.concat(this.state.suggestions.map(item => item.suggestions).reduce((a, b) => a.concat(b), [])[itemIndex]);
+    // ensure to keep selected reference
+    this.state.suggestions.map(item => item.suggestions.filter(s => this.props.selected.indexOf(s) <= 0))
+      .reduce((a, b) => {
+        b.forEach(i => {
+          a.push(i);
+          this.props.selected.push(i.title);
+        });
+        return a;
+      }, this.state.selected);
     this.updateSuggestions();
   }
 
   onRemoveTag(event, itemIndex) {
     this.props.selected.splice(itemIndex, 1);
-    this.setState({});
+    this.setState(state => state.selected.splice(itemIndex, 1));
   }
 
   resetSuggestions() {
@@ -175,7 +184,7 @@ export default class FacetSelector extends React.Component {
           />
 
           <div className={theme.badges}>{
-              this.props.selected.map((item, index) => {
+              this.state.selected.map((item, index) => {
                 return <Badge label={item.title} category={item.category} key={index} onDelete={event => this.onRemoveTag(event, index)} />;
               })
           }</div>

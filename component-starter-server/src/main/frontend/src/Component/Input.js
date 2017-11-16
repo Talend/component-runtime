@@ -15,15 +15,38 @@
  */
 import React from 'react';
 
+import theme from './Input.scss';
+
 export default class Input extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: this.props.initialValue
+    };
+    this.onChange = this.onChange.bind(this);
+  }
+
   onChange(evt) {
-    this.props.aggregate[this.props.accessor] = evt.target.value;
-    this.setState({});
+    let diff = {};
+    if (!!this.props.aggregate) {
+      this.props.aggregate[this.props.accessor] = evt.target.value;
+    } else {
+      diff.value = evt.target.value;
+    }
+
+    this.props.onChange && this.props.onChange(evt.target.value);
+    diff.message = evt.target.checkValidity() ? undefined: evt.target.validationMessage;
+    this.setState(diff);
   }
 
   render() {
     return (
-      <input {...this.props} onChange={e => this.onChange(e)} value={this.props.aggregate[this.props.accessor]} />
+      <span className={theme.Input}>
+        <input {...this.props} onChange={e => this.onChange(e)} value={!!this.props.aggregate ?  this.props.aggregate[this.props.accessor] : this.state.value} />
+        {
+          !!this.state.message && <span className={theme.error}>{this.state.message}</span>
+        }
+      </span>
     );
   }
 }

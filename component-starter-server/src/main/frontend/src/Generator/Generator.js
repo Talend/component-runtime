@@ -20,6 +20,7 @@ import theme from './Generator.scss';
 
 import ProjectMetadata from './ProjectMetadata';
 import Component from './Component';
+import Finish from './Finish';
 
 export default class Generator extends React.Component {
   constructor(props) {
@@ -44,11 +45,12 @@ export default class Generator extends React.Component {
         configuration: {
          buildTypes: []
        },
+       components: [],
        steps: [
        ]
     };
     this.state.steps.push({name: 'Start', component: <ProjectMetadata project={this.state.project} buildTypes={this.state.configuration.buildTypes} />});
-    this.state.steps.push({name: 'Finish', component: <div>Hello</div>});
+    this.state.steps.push({name: 'Finish', component: <Finish project={this.state.project} components={this.state.components} />});
 
     ['onAddComponent', 'onGoToFinishPage'].forEach(action => this[action] = this[action].bind(this));
   }
@@ -56,13 +58,38 @@ export default class Generator extends React.Component {
   onAddComponent() {
     this.setState(state => {
       let component = {
-        type: 'Mapper',
         configuration: {
           name: `New Component #${state.steps.length}`
+        },
+        source: {
+          stream: false,
+          configurationStructure: {
+            entries: [
+              {
+                name: 'configuration',
+                model: {
+                  entries: []
+                }
+              }
+            ]
+          },
+          outputStructure: {
+            entries: [
+
+            ]
+          }
+        },
+        processor: {
         }
       };
-      state.steps.splice(state.steps.length - 1, 0, ({component: <Component component={component} />}));
+      state.components.push(component);
+      state.steps.splice(state.steps.length - 1, 0, ({component: <Component component={component} onChange={() => this.updateComponent(component)} />}));
+      state.currentStep = state.steps.length - 2;
     });
+  }
+
+  updateComponent(component) {
+    this.setState({});
   }
 
   deleteComponent(index) {
@@ -118,10 +145,12 @@ export default class Generator extends React.Component {
             <main>
               {this.state.steps[this.state.currentStep].component}
             </main>
-            <footer>
-              <Action id="add-component-button" label="Add A Component" bsStyle="info" onClick={() => this.onAddComponent()} />
-              <Action id="go-to-finish-button" label="Finished" bsStyle="primary" onClick={() => this.onGoToFinishPage()} />
-            </footer>
+            {
+              (this.state.currentStep + 1) !== this.state.steps.length && <footer>
+                <Action id="add-component-button" label="Add A Component" bsStyle="info" onClick={() => this.onAddComponent()} />
+                <Action id="go-to-finish-button" label="Go to Finish" bsStyle="primary" onClick={() => this.onGoToFinishPage()} />
+              </footer>
+            }
           </div>
         </div>
       </div>

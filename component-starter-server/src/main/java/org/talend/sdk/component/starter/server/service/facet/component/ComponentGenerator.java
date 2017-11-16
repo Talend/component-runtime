@@ -182,6 +182,7 @@ public class ComponentGenerator {
                             put("servicePackage", packageBase + ".service");
                             put("configurationName", configurationClassName);
                             put("sourceName", sourceName);
+                            put("infinite", source.isStream());
                             put("icon", ofNullable(source.getIcon()).filter(s -> !s.isEmpty()).orElse("Icon.IconType.STAR"));
                         }
                     })));

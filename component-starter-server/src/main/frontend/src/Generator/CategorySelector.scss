@@ -26,6 +26,14 @@ $tf-typeahead-no-result-color: $silver !default;
     align-items: center;
     width: 100%;
 
+    span:nth-child(3) {
+      width: 100%;
+
+      input {
+        width: 100%;
+      }
+    }
+
     .categorySeparator {
       margin-left: 1em;
       margin-right: 1em;

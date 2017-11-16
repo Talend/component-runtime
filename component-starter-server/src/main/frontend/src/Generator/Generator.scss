@@ -152,12 +152,16 @@
 
               sectionLabel {
                 color: $wizard-blue;
+                word-wrap: break-word;
+                max-width: 150px;
+                min-width: 150px;
               }
             }
 
             > * {
               display: block;
-              padding-top: 0.2rem;
+              padding-left: 0.4rem;
+              padding-top: 0.4rem;
             }
           }
         }

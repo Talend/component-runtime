@@ -51,6 +51,8 @@ public class ProjectRequest {
 
         private final String icon;
 
+        private final boolean stream;
+
         private final DataStructure configuration;
 
         private final StructureConfiguration outputStructure;

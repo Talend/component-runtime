@@ -44,11 +44,15 @@ export default class CategorySelector extends React.Component {
       itemsList: theme.items,
     };
 
+    const init = props.initialValue.split('/');
+    const rootCat = init[0];
+    const specificCat = init.length >= 2 ? init[1] : 'ComponentCategory';
     this.state = {
-      previousValue: props.initialValue,
-      value: props.initialValue,
+      previousValue: rootCat,
+      value: rootCat,
       specific: {
-        value: 'ComponentCategory'
+        previousValue: specificCat,
+        value: specificCat
       },
       allSuggestions: [
         {
@@ -83,18 +87,20 @@ export default class CategorySelector extends React.Component {
     };
   }
 
+  hasChanged() {
+    return this.state.value !== this.state.previousValue || this.state.specific.value !== this.state.specific.previousValue;
+  }
+
   onBlur(event) {
     this.resetSuggestions();
-    const { value, previousValue } = this.state;
-
-    if (value !== previousValue) {
-      this.updateValue(event, value);
+    if (this.hasChanged()) {
+      this.updateValue(this.state.value);
     }
   }
 
   onChange(event, { value }) {
     this.updateSuggestions(value);
-    this.updateValue(event, (value.title || value) + (!!this.specific.value ? '/' + this.specific.value : ''));
+    this.updateValue(value.title || (!!value && value.length > 0 ? value : ''));
   }
 
   onFocus() {
@@ -115,10 +121,10 @@ export default class CategorySelector extends React.Component {
         if (Number.isInteger(focusedItemIndex)) {
           // suggestions are displayed and an item has the focus : we select it
           this.onSelect(event, { itemIndex: focusedItemIndex });
-        } else if (this.state.value !== this.state.previousValue) {
+        } else if (this.hasChanged()) {
           // there is no focused item and the current value is not persisted
           // we persist it
-          this.updateValue(event, this.state.value);
+          this.updateValue(this.state.value);
         }
         this.resetSuggestions();
         break;
@@ -141,19 +147,24 @@ export default class CategorySelector extends React.Component {
 
   onSelect(event, { itemIndex }) {
     const newValue = this.state.suggestions[itemIndex];
-    this.updateValue(event, newValue.title);
+    this.updateValue(newValue.title);
   }
 
-  updateValue(event, value, persist) {
-    const previousValue = persist ? value.title : this.state.previousValue;
+  updateValue(value) {
+    const previousValue = value;
+    this.propagateChange(value, this.state.specific.value);
     this.setState({ value, previousValue });
-    this.props.onChange({ value });
+  }
+
+  propagateChange(value, specificValue) {
+    const aggregate = (value.title || (!!value && value.length > 0 ? value : 'Misc')) + (!!specificValue ? '/' + specificValue : '');
+    this.props.onChange({ value: aggregate });
   }
 
   resetValue() {
     this.setState({
       suggestions: undefined,
-      value: this.state.previousValue,
+      value: this.state.previousValue
     });
   }
 
@@ -172,6 +183,14 @@ export default class CategorySelector extends React.Component {
     this.setState({
       suggestions: undefined,
       focusedItemIndex: undefined,
+    });
+  }
+
+  onSpecificChange(value) {
+    this.setState(state => {
+      state.specific.previousValue = state.specific.value;
+      state.specific.value = value;
+      this.propagateChange(state.value, state.specific.value);
     });
   }
 
@@ -196,7 +215,7 @@ export default class CategorySelector extends React.Component {
           />
           <span className={theme.categorySeparator}>/</span>
           <Input className="form-control" type="text" placeholder="Enter the component family specific category..."
-                 aggregate={this.state.specific} accessor="value"/>
+                 required onChange={value => this.onSpecificChange(value)} initialValue={this.state.specific.value} />
         </div>
       </div>
     );

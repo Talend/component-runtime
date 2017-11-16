@@ -58,6 +58,8 @@ public class ProjectModel {
 
         private final String icon;
 
+        private final boolean stream;
+
         private final boolean genericOutput;
 
         private final Model configurationStructure;

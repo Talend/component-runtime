@@ -108,7 +108,7 @@ public class ProjectResource {
                 ofNullable(model.getFacets()).orElse(emptyList()),
                 ofNullable(model.getSources())
                         .map(s -> s.stream()
-                                .map(i -> new ProjectRequest.SourceConfiguration(i.getName(), i.getIcon(),
+                                .map(i -> new ProjectRequest.SourceConfiguration(i.getName(), i.getIcon(), i.isStream(),
                                         toStructure(false, i.getConfigurationStructure()).getStructure(),
                                         toStructure(i.isGenericOutput(), i.getOutputStructure())))
                                 .collect(toList()))
