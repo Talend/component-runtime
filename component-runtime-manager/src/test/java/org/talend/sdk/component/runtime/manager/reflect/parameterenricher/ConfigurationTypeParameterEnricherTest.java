@@ -32,7 +32,6 @@ public class ConfigurationTypeParameterEnricherTest {
         assertEquals(new HashMap<String, String>() {{
             put("tcomp::configurationtype::type", "dataset");
             put("tcomp::configurationtype::name", "test");
-            put("tcomp::configurationtype::displayName", "test");
         }}, enricher.onParameterAnnotation("testParam", null, new DataSet() {
 
             @Override

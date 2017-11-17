@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.design.extension.repository;
+package org.talend.sdk.component.runtime.internationalization;
 
-import lombok.Data;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
-import java.util.ArrayList;
-import java.util.List;
+// a simple facade to get standardized properties of a family
+public class FamilyBundle extends InternalBundle {
 
-import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
+    public FamilyBundle(final ResourceBundle bundle, final String prefix) {
+        super(bundle, prefix);
+    }
 
-/**
- * Family is a group of multiple components
- */
-@Data
-public class Family {
+    public Optional<String> displayName() {
+        return readValue("_displayName");
+    }
 
-    private String id;
-
-    private ComponentFamilyMeta meta;
-
-    private List<Config> configs = new ArrayList<>();
-
+    public Optional<String> configurationDisplayName(final String type, final String name) {
+        return readValue(type + "." + name + "._displayName");
+    }
 }

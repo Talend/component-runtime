@@ -36,6 +36,7 @@ import org.junit.rules.TestName;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 
 import static java.util.Optional.ofNullable;
 import static org.apache.xbean.asm5.ClassReader.EXPAND_FRAMES;
@@ -69,11 +70,23 @@ public class RepositoryModelBuilderTest {
             assertNotNull(rm);
             assertEquals(1, rm.getFamilies().size());
             Family family = rm.getFamilies().get(0);
-            assertEquals(2, family.getConfigs().size());// 2 data store
-            assertEquals(1, family.getConfigs().get(0).getChildConfigs().size()); //1 data set
-            assertEquals(1, family.getConfigs().get(1).getChildConfigs().size());// 1 data set
-            assertEquals(4, family.getConfigs().get(0).getProperties().size());
-            assertEquals(2, family.getConfigs().get(1).getProperties().size());
+            String ds1Id = IdGenerator.get("family1", "datastore", "dataStore1");
+            Config dataStore1Config = family.getConfigs().stream().filter(c -> c.getId().equals(ds1Id)).findFirst().get();
+            assertNotNull(dataStore1Config);
+            assertEquals(1, dataStore1Config.getChildConfigs().size());
+            assertEquals("configuration1", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
+            assertEquals(1, dataStore1Config.getChildConfigs().get(0).getProperties().size());
+            assertEquals("query", dataStore1Config.getChildConfigs().get(0).getProperties().get(0).getName());
+            assertEquals(3, dataStore1Config.getChildConfigs().get(0).getProperties().get(0).getNestedParameters().size());
+            assertEquals(4, dataStore1Config.getProperties().size());
+
+            String ds2Id = IdGenerator.get("family1", "datastore", "dataStore2");
+            Config dataStore2Config = family.getConfigs().stream().filter(c -> c.getId().equals(ds2Id)).findFirst().get();
+            assertNotNull(dataStore2Config);
+            assertEquals(1, dataStore2Config.getChildConfigs().size());
+            assertEquals("configuration2", dataStore2Config.getChildConfigs().get(0).getMeta().getName());
+            assertEquals(0, dataStore2Config.getChildConfigs().get(0).getProperties().size());
+            assertEquals(2, dataStore2Config.getProperties().size());
         }
 
     }

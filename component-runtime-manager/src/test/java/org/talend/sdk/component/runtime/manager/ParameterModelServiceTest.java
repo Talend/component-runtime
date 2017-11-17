@@ -166,7 +166,6 @@ public class ParameterModelServiceTest {
         HashMap<String, String> expectedDataSet = new HashMap<String, String>() {{
             put("tcomp::configurationtype::type", "dataset");
             put("tcomp::configurationtype::name", "test");
-            put("tcomp::configurationtype::displayName", "test");
         }};
         final List<ParameterMeta> params = service.buildParameterMetas(
                 MethodsHolder.class.getMethod("object", MethodsHolder.Config.class, MethodsHolder.Config.class), "def");

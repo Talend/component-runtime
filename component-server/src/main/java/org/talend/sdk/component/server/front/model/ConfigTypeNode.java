@@ -1,3 +1,14 @@
+package org.talend.sdk.component.server.front.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  * <p>
@@ -13,35 +24,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.design.extension.repository;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.talend.sdk.component.runtime.manager.ParameterMeta;
-
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = "parent")
-public class Config {
+@AllArgsConstructor
+public class ConfigTypeNode {
 
     private String id;
 
-    private ConfigKey key;
+    private String parentId;
 
-    private Config parent;
+    private String name;
 
-    private String icon;
+    private String displayName;
 
-    private ParameterMeta meta;
+    private Set<String> edges = new HashSet<>();
 
-    private List<ParameterMeta> properties = new ArrayList<>();
-
-    private List<Config> childConfigs = new ArrayList<>();
+    private List<SimplePropertyDefinition> properties = new ArrayList<>();
 }

@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 
 import static java.util.stream.Collectors.toList;
 
@@ -32,23 +33,25 @@ import static java.util.stream.Collectors.toList;
  */
 public class RepositoryModelBuilder {
 
-    public RepositoryModel create(Collection<ComponentFamilyMeta> FamiliesMeta) {
+    public static final String CONFIG_TYPE_TYPE = "tcomp::configurationtype::type";
+
+    public static final String CONFIG_TYPE_NAME = "tcomp::configurationtype::name";
+
+    public RepositoryModel create(Collection<ComponentFamilyMeta> familyMetas) {
         RepositoryModel repositoryModel = new RepositoryModel(new ArrayList<>());
-        FamiliesMeta.stream().forEach((ComponentFamilyMeta fMeta) -> {//foreach family metadata
+        familyMetas.stream().forEach((ComponentFamilyMeta familyMeta) -> {//foreach family metadata
             Family family = new Family();
-            family.setName(fMeta.getName());
-            family.setDisplayName(fMeta.getName());
-            family.setIcon(family.getIcon());
-            repositoryModel.getFamilies().add(family);
+            family.setId(IdGenerator.get(familyMeta.getName()));
+            family.setMeta(familyMeta);
 
             //Unique Configuration parameters by family
             Set<ParameterMeta> allFlatMetas = new HashSet<>();
             Map<ConfigKey, ParameterMeta> configurations = new HashMap<>();
-            Stream.concat(fMeta.getPartitionMappers().values().stream(), fMeta.getProcessors().values().stream())
+            Stream.concat(familyMeta.getPartitionMappers().values().stream(), familyMeta.getProcessors().values().stream())
                   .forEach(cMeta ->
                           cMeta.getParameterMetas().stream()
                                .filter(RepositoryModelBuilder::isConfiguration)
-                               .forEach(meta -> addConfiguration(family.getName(), meta, configurations)
+                               .forEach(meta -> addConfiguration(family.getMeta().getName(), meta, configurations)
                                ));
 
             configurations.values().forEach(c -> addParameterMeta(c, allFlatMetas));
@@ -64,11 +67,11 @@ public class RepositoryModelBuilder {
                 if (family.getConfigs().isEmpty()) {//first root elements
                     family.getConfigs().addAll(configMetaWithoutNP
                             .stream()
-                            .map(config -> createConfig(config, family.getName(), family.getIcon()))
+                            .map(config -> createConfig(config, family.getMeta().getName(), family.getMeta().getIcon()))
                             .collect(toList()));
                 } else {
                     configMetaWithoutNP.forEach(meta -> {
-                        addNode(meta, family.getConfigs(), family.getName(), family.getIcon());
+                        addNode(meta, family.getConfigs(), family.getMeta().getName(), family.getMeta().getIcon());
                     });
                 }
                 allFlatMetas.removeAll(configMetaWithoutNP);
@@ -80,6 +83,10 @@ public class RepositoryModelBuilder {
                     });
                     allFlatMetas.clear();
                 }
+            }
+
+            if (!family.getConfigs().isEmpty()) {
+                repositoryModel.getFamilies().add(family);
             }
         });
 
@@ -113,7 +120,7 @@ public class RepositoryModelBuilder {
 
     private void addNode(ParameterMeta meta, List<Config> configs, String familyName, String familyIcon) {
         configs.forEach(config -> {
-            if (config.getPath().startsWith(meta.getPath())
+            if (config.getMeta().getPath().startsWith(meta.getPath())
                     && meta.getNestedParameters().stream()
                            .filter(np -> getKey(familyName, np.getMetadata()).equals(config.getKey()))
                            .findFirst().isPresent()) {
@@ -129,11 +136,10 @@ public class RepositoryModelBuilder {
 
     private Config createConfig(ParameterMeta config, String familyName, String familyIcon) {
         Config c = new Config();
-        c.setName(config.getName());
-        c.setDisplayName(config.getName()); //todo how to get that
         c.setIcon(familyIcon);
-        c.setPath(config.getPath());
         c.setKey(getKey(familyName, config.getMetadata()));
+        c.setMeta(config);
+        c.setId(IdGenerator.get(c.getKey().getFamily(), c.getKey().getConfigType(), c.getKey().getConfigName()));
         return c;
     }
 
@@ -173,8 +179,7 @@ public class RepositoryModelBuilder {
      * @return unique key for a Configuration parameter
      */
     private ConfigKey getKey(String family, Map<String, String> meta) {
-        return new ConfigKey(family, meta.get("tcomp::configurationtype::type"),
-                meta.get("tcomp::configurationtype::name"));
+        return new ConfigKey(family, meta.get(CONFIG_TYPE_NAME), meta.get(CONFIG_TYPE_TYPE));
     }
 
     private static boolean isConfiguration(ParameterMeta parameterMeta) {

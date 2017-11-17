@@ -41,8 +41,6 @@ public class ConfigurationTypeParameterEnricher implements ParameterExtensionEnr
                 return new HashMap<String, String>() {{
                     put(META_PREFIX + "type", type);
                     put(META_PREFIX + "name", name);
-                    put(META_PREFIX + "displayName",
-                            name); // todo: use resource bundle "family.configutype.type._displayName=xxx"
                 }};
             }
         }

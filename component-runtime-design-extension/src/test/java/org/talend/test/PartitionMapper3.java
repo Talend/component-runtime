@@ -31,7 +31,7 @@ import org.talend.sdk.component.api.input.Split;
 @org.talend.sdk.component.api.input.PartitionMapper(family = "family1", name = "input3")
 public class PartitionMapper3 implements Serializable {
 
-    public PartitionMapper3(@Option("configuration3") final DataSet1 dataSet) {
+    public PartitionMapper3(@Option("configuration1") final DataSet1 dataSet) {
 
     }
 
