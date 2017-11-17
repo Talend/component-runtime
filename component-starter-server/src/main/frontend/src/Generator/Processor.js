@@ -37,7 +37,7 @@ class EmbeddableToggle extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      checked: !!props.checked
+      checked: !!props.connection.generic
     };
     this.onChange = this.onChange.bind(this);
   }
@@ -60,7 +60,19 @@ class EmbeddableToggle extends React.Component {
 
   render() {
     return (
-      <Toggle checked={this.state.checked} onChange={this.onChange} />
+      <schemaConfiguration>
+        <div className={this.props.theme['form-row']}>
+          <p className={this.props.theme.title}>Generic</p>
+          <Toggle checked={this.state.checked} onChange={this.onChange} />
+        </div>
+        {
+          !this.state.checked &&
+            <div className={this.props.theme['form-row']}>
+              <p className={this.props.theme.title}>Structure</p>
+              <Schema schema={this.props.connection.structure} readOnly={true} name="root" />
+            </div>
+        }
+      </schemaConfiguration>
     );
   }
 }
@@ -98,17 +110,7 @@ class Connection extends React.Component {
           <Input className="form-control" type="text" placeholder="Enter the connection name..."
                  aggregate={this.props.connection} accessor="name" />
         </div>
-        <div className={this.props.theme['form-row']}>
-          <p className={this.props.theme.title}>Generic</p>
-          <EmbeddableToggle checked={this.props.connection.generic} onChange={this.switchStructureType} />
-        </div>
-        {
-          !!this.state.custom &&
-            <div className={this.props.theme['form-row']}>
-              <p className={this.props.theme.title}>Structure</p>
-              <Schema schema={this.props.connection.structure} readOnly={true} name="root" />
-            </div>
-        }
+        <EmbeddableToggle connection={this.props.connection} theme={this.props.theme} onChange={this.switchStructureType} />
       </Drawer>
     ]);
   }
