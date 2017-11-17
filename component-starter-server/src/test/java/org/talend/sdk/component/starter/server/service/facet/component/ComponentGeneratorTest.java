@@ -22,8 +22,10 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toMap;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -53,13 +55,15 @@ public class ComponentGeneratorTest {
                 new ProjectRequest.StructureConfiguration(
                         new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("name", "string", null))), false)));
         final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory", sources, emptyList())
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath, FacetGenerator.InMemoryFile::getContent));
-        assertEquals(6, files.size());
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+        assertEquals(7, files.size());
         assertEquals(
                 "// this tells the framework in which family (group of components) and categories (UI grouping)\n"
                         + "// the components in the nested packages belong to\n"
-                        + "@Components(family = \"superfamily\", categories = \"supercategory\")\n" + "package com.foo.service;\n"
-                        + "\n" + "import org.talend.sdk.component.api.component.Components;\n",
+                        + "@Components(family = \"superfamily\", categories = \"supercategory\")\n"
+                        + "@Icon(value = Icon.IconType.CUSTOM, custom = \"superfamily\")\n" + "package com.foo.service;\n" + "\n"
+                        + "import org.talend.sdk.component.api.component.Components;\n"
+                        + "import org.talend.sdk.component.api.component.Icon;\n",
                 files.get("src/main/java/com/foo/package-info.java"));
         assertEquals(
                 "package com.foo.service;\n" + "\n" + "import org.talend.sdk.component.api.service.Service;\n" + "\n"
@@ -132,17 +136,20 @@ public class ComponentGeneratorTest {
                 + "        return name;\n" + "    }\n" + "\n" + "    public void setName(final String name) {\n"
                 + "        this.name = name;\n" + "    }\n" + "    \n" + "}",
                 files.get("src/main/java/com/foo/source/MycompRecord.java"));
+        assertNotNull(files.get("src/main/resources/icons/superfamily_icon32.png"));
     }
 
     @Test
     public void sourceComplexConfiguration() {
-        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory",
-                singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false,
-                        new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("person", "",
-                                new ProjectRequest.DataStructure(asList(new ProjectRequest.Entry("name", "string", null),
-                                        new ProjectRequest.Entry("age", "int", null)))))),
-                        new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(emptyList()), false))),
-                emptyList()).collect(toMap(FacetGenerator.InMemoryFile::getPath, FacetGenerator.InMemoryFile::getContent));
+        final Map<String, String> files = generator
+                .create("com.foo", build, "superfamily", "supercategory",
+                        singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false,
+                                new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("person", "",
+                                        new ProjectRequest.DataStructure(asList(new ProjectRequest.Entry("name", "string", null),
+                                                new ProjectRequest.Entry("age", "int", null)))))),
+                                new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(emptyList()), false))),
+                        emptyList())
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals("package com.foo.source;\n" + "\n" + "import java.util.List;\n" + "\n"
                 + "import org.talend.sdk.component.api.configuration.Option;\n"
@@ -172,7 +179,7 @@ public class ComponentGeneratorTest {
         final Map<String, String> files = generator
                 .create("com.foo", build, "superfamily", "supercategory",
                         singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false, null, null)), emptyList())
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath, FacetGenerator.InMemoryFile::getContent));
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals("package com.foo.source;\n" + "\n" + "import javax.annotation.PostConstruct;\n"
                 + "import javax.annotation.PreDestroy;\n" + "\n" + "import org.talend.sdk.component.api.input.Producer;\n"
@@ -199,7 +206,7 @@ public class ComponentGeneratorTest {
         final Map<String, String> files = generator
                 .create("com.foo", build, "superfamily", "supercategory",
                         singleton(new ProjectRequest.SourceConfiguration("mycomp", "", true, null, null)), emptyList())
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath, FacetGenerator.InMemoryFile::getContent));
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals("package com.foo.source;\n" + "\n" + "import static java.util.Collections.singletonList;\n" + "\n"
                 + "import org.talend.sdk.component.api.component.Icon;\n"
@@ -243,7 +250,7 @@ public class ComponentGeneratorTest {
         final Map<String, String> files = generator
                 .create("com.foo", build, "superfamily", "supercategory", emptyList(),
                         singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, null, null)))
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath, FacetGenerator.InMemoryFile::getContent));
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals("package com.foo.output;\n" + "\n" + "import javax.annotation.PostConstruct;\n"
                 + "import javax.annotation.PreDestroy;\n" + "\n" + "import org.talend.sdk.component.api.component.Icon;\n"
@@ -291,7 +298,7 @@ public class ComponentGeneratorTest {
                                         singletonList(new ProjectRequest.Entry("name", "string", null))), false));
                             }
                         })))
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath, FacetGenerator.InMemoryFile::getContent));
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals("package com.foo.processor;\n" + "\n" + "import javax.annotation.PostConstruct;\n"
                 + "import javax.annotation.PreDestroy;\n" + "\n" + "import org.talend.sdk.component.api.component.Icon;\n"
@@ -340,7 +347,7 @@ public class ComponentGeneratorTest {
                 .create("com.foo", build, "superfamily", "supercategory", emptyList(),
                         singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, null,
                                 singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)))))
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath, FacetGenerator.InMemoryFile::getContent));
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals("package com.foo.processor;\n" + "\n" + "import javax.annotation.PostConstruct;\n"
                 + "import javax.annotation.PreDestroy;\n" + "\n" + "import org.talend.sdk.component.api.component.Icon;\n"
@@ -389,7 +396,7 @@ public class ComponentGeneratorTest {
                                         new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(
                                                 singleton(new ProjectRequest.Entry("name", "string", null))), false)),
                                 null)))
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath, FacetGenerator.InMemoryFile::getContent));
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals("package com.foo.output;\n" + "\n" + "import javax.annotation.PostConstruct;\n"
                 + "import javax.annotation.PreDestroy;\n" + "\n" + "import org.talend.sdk.component.api.component.Icon;\n"
@@ -437,7 +444,7 @@ public class ComponentGeneratorTest {
                 .create("com.foo", build, "superfamily", "supercategory", emptyList(),
                         singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null,
                                 singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)), null)))
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath, FacetGenerator.InMemoryFile::getContent));
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals("package com.foo.output;\n" + "\n" + "import javax.annotation.PostConstruct;\n"
                 + "import javax.annotation.PreDestroy;\n" + "\n" + "import org.talend.sdk.component.api.component.Icon;\n"
@@ -489,7 +496,7 @@ public class ComponentGeneratorTest {
                                 put("reject", new ProjectRequest.StructureConfiguration(null, true));
                             }
                         })))
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath, FacetGenerator.InMemoryFile::getContent));
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals("package com.foo.processor;\n" + "\n" + "import javax.annotation.PostConstruct;\n"
                 + "import javax.annotation.PreDestroy;\n" + "\n" + "import org.talend.sdk.component.api.component.Icon;\n"

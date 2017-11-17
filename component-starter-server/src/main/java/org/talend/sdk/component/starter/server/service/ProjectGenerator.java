@@ -87,7 +87,7 @@ public class ProjectGenerator {
 
     public void generate(final ProjectRequest request, final OutputStream outputStream) {
         final BuildGenerator generator = generators.get(request.getBuildType());
-        final Map<String, String> files = new HashMap<>();
+        final Map<String, byte[]> files = new HashMap<>();
 
         // build dependencies to give them to the build
         final Collection<String> facets = ofNullable(request.getFacets()).orElse(emptyList());
@@ -120,7 +120,7 @@ public class ProjectGenerator {
         // create the build to be able to generate the files
         final Build build = generator.createBuild(request.getBuildConfiguration(), request.getPackageBase(), dependencies,
                 facets);
-        files.put(build.getBuildFileName(), build.getBuildFileContent());
+        files.put(build.getBuildFileName(), build.getBuildFileContent().getBytes(StandardCharsets.UTF_8));
 
         // generate facet files
         final Map<FacetGenerator, List<String>> filePerFacet = facets.stream().map(s -> s.toLowerCase(Locale.ENGLISH))
@@ -133,7 +133,8 @@ public class ProjectGenerator {
 
         // generate README.adoc if needed
         if (!files.containsKey("README.adoc")) {
-            files.put("README.adoc", readmeGenerator.createReadme(request.getBuildConfiguration().getName(), filePerFacet));
+            files.put("README.adoc", readmeGenerator.createReadme(request.getBuildConfiguration().getName(), filePerFacet)
+                    .getBytes(StandardCharsets.UTF_8));
         }
 
         componentGenerator.create(request.getPackageBase(), build, request.getFamily(), request.getCategory(),
@@ -170,7 +171,7 @@ public class ProjectGenerator {
             files.forEach((path, content) -> {
                 try {
                     zip.putNextEntry(new ZipEntry(rootName + '/' + path));
-                    zip.write(content.replace("\r", "")/* avoid side effect of the OS */.getBytes(StandardCharsets.UTF_8));
+                    zip.write(content);
                     zip.closeEntry();
                 } catch (final IOException e) {
                     throw new IllegalStateException(e);

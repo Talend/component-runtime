@@ -72,6 +72,19 @@ export default class Generator extends React.Component {
           }
         },
         processor: {
+          configurationStructure: {
+            entries: []
+          },
+          inputStructures: [
+            {
+              name: 'MAIN',
+              generic: false,
+              structure: {
+                entries: []
+              }
+            }
+          ],
+          outputStructures: []
         }
       };
       state.components.push(component);
@@ -81,7 +94,7 @@ export default class Generator extends React.Component {
   }
 
   updateComponent(component) {
-    this.setState({});
+    this.setState({components: [].concat(this.state.components)});
   }
 
   deleteComponent(index) {

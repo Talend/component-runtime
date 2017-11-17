@@ -70,4 +70,79 @@
     background-image: none;
     color: #202020;
   }
+
+  .Processor {
+    .InlineDocumentation {
+      font-style: italic;
+      padding-bottom: 1rem;
+    }
+
+    .ComponentWrapper {
+      display: flex;
+      flex-direction: row;
+      padding-bottom: 1rem;
+
+      .Inputs, .Outputs {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .Outputs {
+        text-align: right;
+      }
+
+      .Inputs, .Outputs, .ComponentBox {
+        flex-grow: 1;
+        padding-right: 0;
+        padding-left: 0;
+
+        ul.Connections {
+          padding: 0;
+
+          li.Connection {
+            list-style: none;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-bottom: 1rem;
+            border-top: 1px solid $brand-blue;
+          }
+        }
+      }
+
+      .ComponentBox {
+        background-color: $brand-blue;
+        border-radius: 6px;
+
+        button {
+          padding: 0;
+          position: absolute;
+          line-height: normal;
+          background-color: transparent;
+          box-shadow: none;
+          color: $rio-grande;
+
+          svg {
+            margin: 0;
+          }
+
+          &:focus {
+            outline: 0;
+          }
+        }
+
+        button:first-child {
+          left: 0;
+        }
+
+        button:last-child {
+          right: 0;
+
+          svg {
+            position: absolute;
+            right: 0;
+          }
+        }
+      }
+    }
+  }
 }

@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -46,6 +47,13 @@ public class ComponentGenerator {
     @Inject
     private TemplateRenderer tpl;
 
+    private byte[] defaultIconContent;
+
+    @PostConstruct
+    private void init() {
+        defaultIconContent = new byte[0];
+    }
+
     public Stream<FacetGenerator.InMemoryFile> create(final String packageBase, final Build build, final String family,
             final String category, final Collection<ProjectRequest.SourceConfiguration> sources,
             final Collection<ProjectRequest.ProcessorConfiguration> processors) {
@@ -57,19 +65,20 @@ public class ComponentGenerator {
         }
 
         final String serviceName = toJavaName(build.getArtifact()) + "Service";
+        final String usedFamily = ofNullable(family).orElse(build.getArtifact());
 
-        final FacetGenerator.InMemoryFile packageInfo = new FacetGenerator.InMemoryFile(mainJava + "/package-info.java",
+        final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
+        files.add(new FacetGenerator.InMemoryFile(mainJava + "/package-info.java",
                 tpl.render("generator/component/package-info.java", new HashMap<String, Object>() {
 
                     {
                         put("package", packageBase + ".service");
-                        put("family", ofNullable(family).orElse(build.getArtifact()));
+                        put("family", usedFamily);
                         put("category", ofNullable(category).orElse(build.getArtifact()));
                     }
-                }));
-
-        final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
-        files.add(packageInfo);
+                })));
+        files.add(new FacetGenerator.InMemoryFile(build.getMainResourcesDirectory() + "/icons/" + usedFamily + "_icon32.png",
+                defaultIconContent));
         files.add(new FacetGenerator.InMemoryFile(mainJava + "/service/" + serviceName + ".java",
                 tpl.render("generator/component/Service.java", new HashMap<String, Object>() {
 

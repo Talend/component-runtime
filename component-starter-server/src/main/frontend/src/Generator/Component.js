@@ -18,6 +18,7 @@ import { Actions, WithDrawer } from '@talend/react-components';
 
 import Input from '../Component/Input';
 import Mapper from './Mapper';
+import Processor from './Processor';
 
 import theme from './Component.scss';
 
@@ -34,7 +35,9 @@ export default class Component extends React.Component {
         },
         {
           label: 'Processor',
-          _view: component => <div>TODO</div>
+          _view: component => <Processor component={component} theme={theme}
+                                         onUpdateDrawers={this.updateDrawers}
+                                         onChange={() => !!this.props.onChange && this.props.onChange()} />
         }
       ]
     };
@@ -54,6 +57,7 @@ export default class Component extends React.Component {
       const ref = item;
       item.onClick = () => this.setState(state => {
         oldAction(state);
+        state.drawers = [];
         state.componentTypeActions.forEach(i => {
           if (i.label !== ref.label) {
             delete i.className;

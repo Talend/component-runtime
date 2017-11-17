@@ -33,9 +33,10 @@ export default class Input extends React.Component {
     } else {
       diff.value = evt.target.value;
     }
-
-    this.props.onChange && this.props.onChange(evt.target.value);
     diff.message = evt.target.checkValidity() ? undefined: evt.target.validationMessage;
+    if (!diff.message) {
+      this.props.onChange && this.props.onChange(evt.target.value);
+    }
     this.setState(diff);
   }
 
