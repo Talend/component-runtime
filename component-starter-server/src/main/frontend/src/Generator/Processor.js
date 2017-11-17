@@ -65,18 +65,6 @@ class EmbeddableToggle extends React.Component {
   }
 }
 
-class EmbeddableSchema extends React.Component {
-  render() {
-    return (
-      !!this.props.visible &&
-        <div className={this.props.theme['form-row']}>
-          <p className={this.props.theme.title}>Structure</p>
-          <Schema schema={this.props.connection.structure} readOnly={true} name="root" />
-        </div>
-    );
-  }
-}
-
 class Connection extends React.Component {
   constructor(props) {
     super(props);
@@ -114,7 +102,13 @@ class Connection extends React.Component {
           <p className={this.props.theme.title}>Generic</p>
           <EmbeddableToggle checked={this.props.connection.generic} onChange={this.switchStructureType} />
         </div>
-        <EmbeddableSchema theme={this.props.theme} connection={this.props.connection} visible={this.state.custom} />
+        {
+          !!this.state.custom &&
+            <div className={this.props.theme['form-row']}>
+              <p className={this.props.theme.title}>Structure</p>
+              <Schema schema={this.props.connection.structure} readOnly={true} name="root" />
+            </div>
+        }
       </Drawer>
     ]);
   }
