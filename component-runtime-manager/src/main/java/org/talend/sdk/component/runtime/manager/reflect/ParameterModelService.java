@@ -1,24 +1,19 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager.reflect;
-
-import static java.util.Collections.singletonList;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
@@ -43,6 +38,11 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
+import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
 public class ParameterModelService {
 
     private final Collection<ParameterExtensionEnricher> enrichers;
@@ -57,10 +57,10 @@ public class ParameterModelService {
     public List<ParameterMeta> buildParameterMetas(final Executable executable, final String i18nPackage) {
         return Stream.of(executable.getParameters()).filter(p -> !p.getType().isAnnotationPresent(Service.class)
                 && !p.getType().getName().startsWith("org.talend.sdk.component.api.service.")).map(parameter -> {
-                    final String name = findName(parameter);
-                    return buildParameter(name, name, parameter.getParameterizedType(), parameter.getType().getAnnotations(),
-                            i18nPackage);
-                }).collect(toList());
+            final String name = findName(parameter);
+            return buildParameter(name, name, parameter.getParameterizedType(), parameter.getType().getAnnotations(),
+                    i18nPackage);
+        }).collect(toList());
     }
 
     private ParameterMeta buildParameter(final String name, final String prefix, final Type genericType,
@@ -85,7 +85,7 @@ public class ParameterModelService {
             break;
         case ENUM:
             proposals.addAll(Stream.of(((Class<? extends Enum<?>>) genericType).getEnumConstants()).map(Enum::name).sorted()
-                    .collect(toList()));
+                                   .collect(toList()));
             break;
         default:
         }
@@ -98,14 +98,14 @@ public class ParameterModelService {
         return Stream.concat(Stream.of(annotations), Class.class.isInstance(genericType) // if a class concat its annotations
                 ? Stream.of(Class.class.cast(genericType).getAnnotations())
                 : (ParameterizedType.class.isInstance(genericType) // if a list concat the item type annotations
-                        && ParameterizedType.class.cast(genericType).getActualTypeArguments().length == 1
-                        && Class.class.isInstance(ParameterizedType.class.cast(genericType).getActualTypeArguments()[0])
-                                ? Stream.of(
-                                        Class.class.cast(ParameterizedType.class.cast(genericType).getActualTypeArguments()[0])
-                                                .getAnnotations())
-                                : Stream.empty()))
-                .distinct().flatMap(a -> enrichers.stream().map(e -> e.onParameterAnnotation(name, genericType, a)))
-                .flatMap(map -> map.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+                && ParameterizedType.class.cast(genericType).getActualTypeArguments().length == 1
+                && Class.class.isInstance(ParameterizedType.class.cast(genericType).getActualTypeArguments()[0])
+                ? Stream.of(
+                Class.class.cast(ParameterizedType.class.cast(genericType).getActualTypeArguments()[0])
+                           .getAnnotations())
+                : Stream.empty()))
+                     .distinct().flatMap(a -> enrichers.stream().map(e -> e.onParameterAnnotation(name, genericType, a)))
+                     .flatMap(map -> map.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private List<ParameterMeta> buildParametersMetas(final String name, final String prefix, final Type type,
@@ -155,7 +155,7 @@ public class ParameterModelService {
         Class<?> current = type;
         while (current != null && current != Object.class) {
             out.addAll(Stream.of(current.getDeclaredFields()).filter(f -> !"$jacocoData".equals(f.getName()))
-                    .filter(f -> fields.putIfAbsent(f.getName(), f) == null).map(f -> {
+                             .filter(f -> fields.putIfAbsent(f.getName(), f) == null).map(f -> {
                         final String path = prefix + f.getName();
                         return buildParameter(f.getName(), path + ".", f.getGenericType(), f.getAnnotations(), i18nPackage);
                     }).collect(toList()));
@@ -166,7 +166,7 @@ public class ParameterModelService {
 
     public String findName(final Parameter parameter) {
         return ofNullable(parameter.getAnnotation(Option.class)).map(Option::value).filter(v -> !v.isEmpty())
-                .orElseGet(parameter::getName);
+                                                                .orElseGet(parameter::getName);
     }
 
     private ParameterMeta.Type findType(final Type type) {

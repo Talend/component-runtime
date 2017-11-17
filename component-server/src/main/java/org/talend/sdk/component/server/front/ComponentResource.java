@@ -81,6 +81,8 @@ import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN
 @Produces(MediaType.APPLICATION_JSON)
 public class ComponentResource {
 
+    private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
+
     @Inject
     private ComponentManager manager;
 
@@ -95,8 +97,6 @@ public class ComponentResource {
 
     @Inject
     private IconResolver iconResolver;
-
-    private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
 
     @PostConstruct
     private void setupRuntime() {

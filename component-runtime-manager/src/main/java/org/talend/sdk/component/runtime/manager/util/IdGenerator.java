@@ -1,10 +1,3 @@
-package org.talend.sdk.component.runtime.manager.util;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.stream.Collectors;
-
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  * <p>
@@ -20,6 +13,13 @@ import java.util.stream.Collectors;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.talend.sdk.component.runtime.manager.util;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.stream.Collectors;
+
 public class IdGenerator {
 
     /**

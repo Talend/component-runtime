@@ -170,6 +170,32 @@ public class ComponentManager implements AutoCloseable {
     private final Collection<ComponentExtension> extensions;
 
     /**
+     * @param m2                   the maven repository location if on the file system.
+     * @param dependenciesResource the resource path containing dependencies.
+     * @param jmxNamePattern       a pattern to register the plugins (containers) in JMX, null otherwise.
+     */
+    public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
+        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration.builder()
+                                                                                                  .resolver(
+                                                                                                          new MvnDependencyListLocalRepositoryResolver(
+                                                                                                                  dependenciesResource))
+                                                                                                  .rootRepositoryLocation(m2)
+                                                                                                  .create(),
+                ContainerManager.ClassLoaderConfiguration.builder().parent(tccl)
+                                                         .parentClassesFilter(this::isContainerClass)
+                                                         .classesFilter(name -> !isContainerClass(name))
+                                                         .supportsResourceDependencies(true).create());
+        this.container.registerListener(new Updater());
+        ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty())
+                                  .ifPresent(p -> this.container
+                                          .registerListener(new JmxManager(p, ManagementFactory.getPlatformMBeanServer())));
+        toStream(loadServiceProviders(ContainerListenerExtension.class, tccl))
+                .forEach(listener -> container.registerListener(listener));
+        this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
+    }
+
+    /**
      * Creates a default manager with default maven local repository, TALEND-INF/dependencies.txt file
      * to find the dependencies of the plugins and a default JMX pattern for plugins. It also adds the caller as a plugin.
      */
@@ -303,6 +329,20 @@ public class ComponentManager implements AutoCloseable {
                 + ManagementFactory.getRuntimeMXBean().getName() + ")";
     }
 
+    private static <T> Stream<T> toStream(Iterator<T> iterator) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.IMMUTABLE), false);
+    }
+
+    private static <T> Iterator<T> loadServiceProviders(Class<T> service, ClassLoader classLoader) {
+        return ServiceLoader.load(service, classLoader).iterator();
+    }
+
+    private static File toFile(final String classFileName, final URL url) {
+        String path = url.getFile();
+        path = path.substring(0, path.length() - classFileName.length());
+        return new File(decode(path));
+    }
+
     public void addCallerAsPlugin() {
         try {
             final ClassLoader tmpLoader = ofNullable(Thread.currentThread().getContextClassLoader())
@@ -378,40 +418,6 @@ public class ComponentManager implements AutoCloseable {
                 }
             }));
         }
-    }
-
-    /**
-     * @param m2                   the maven repository location if on the file system.
-     * @param dependenciesResource the resource path containing dependencies.
-     * @param jmxNamePattern       a pattern to register the plugins (containers) in JMX, null otherwise.
-     */
-    public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
-        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration.builder()
-                                                                                                  .resolver(
-                                                                                                          new MvnDependencyListLocalRepositoryResolver(
-                                                                                                                  dependenciesResource))
-                                                                                                  .rootRepositoryLocation(m2)
-                                                                                                  .create(),
-                ContainerManager.ClassLoaderConfiguration.builder().parent(tccl)
-                                                         .parentClassesFilter(this::isContainerClass)
-                                                         .classesFilter(name -> !isContainerClass(name))
-                                                         .supportsResourceDependencies(true).create());
-        this.container.registerListener(new Updater());
-        ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty())
-                                  .ifPresent(p -> this.container
-                                          .registerListener(new JmxManager(p, ManagementFactory.getPlatformMBeanServer())));
-        toStream(loadServiceProviders(ContainerListenerExtension.class, tccl))
-                .forEach(listener -> container.registerListener(listener));
-        this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
-    }
-
-    private static <T> Stream<T> toStream(Iterator<T> iterator) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.IMMUTABLE), false);
-    }
-
-    private static <T> Iterator<T> loadServiceProviders(Class<T> service, ClassLoader classLoader) {
-        return ServiceLoader.load(service, classLoader).iterator();
     }
 
     public <T> Stream<T> find(final Function<Container, Stream<T>> mapper) {
@@ -526,12 +532,6 @@ public class ComponentManager implements AutoCloseable {
         container.close();
     }
 
-    private static File toFile(final String classFileName, final URL url) {
-        String path = url.getFile();
-        path = path.substring(0, path.length() - classFileName.length());
-        return new File(decode(path));
-    }
-
     private <T> T executeInContainer(final String plugin, final Supplier<T> supplier) {
         final Thread thread = Thread.currentThread();
         final ClassLoader old = thread.getContextClassLoader();
@@ -545,6 +545,115 @@ public class ComponentManager implements AutoCloseable {
 
     public List<String> availablePlugins() {
         return container.findAll().stream().map(Container::getId).collect(toList());
+    }
+
+    protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
+        services.put(ProxyGenerator.class, proxyGenerator);
+        services.put(AccessorCache.class, new AccessorCache(container.getId()));
+        services.put(Resolver.class, new ResolverImpl(container.getId(), container.getLocalDependencyRelativeResolver()));
+        services.put(SubclassesCache.class,
+                new SubclassesCache(container.getId(), proxyGenerator, container.getLoader(), new ConcurrentHashMap<>()));
+    }
+
+    private <T extends Annotation> T findComponentsConfig(final Map<String, AnnotatedElement> componentDefaults,
+            final Class<?> type, final ConfigurableClassLoader loader, final Class<T> annotation, final T defaultValue) {
+
+        final AnnotatedElement annotatedElement = componentDefaults.computeIfAbsent(getAnnotatedElementCacheKey(type), p -> {
+            if (p != null) {
+                String currentPackage = p;
+                do {
+                    try {
+                        final Class<?> pckInfo = loader.loadClass(currentPackage + ".package-info");
+                        if (pckInfo.isAnnotationPresent(annotation)) {
+                            return pckInfo;
+                        }
+                    } catch (final ClassNotFoundException e) {
+                        // no-op
+                    }
+
+                    final int endPreviousPackage = currentPackage.lastIndexOf('.');
+                    if (endPreviousPackage < 0) { // we don't accept default package since it is not specific enough
+                        break;
+                    }
+
+                    currentPackage = currentPackage.substring(0, endPreviousPackage);
+                } while (true);
+            }
+
+            return new AnnotatedElement() {
+
+                @Override
+                public <T extends Annotation> T getAnnotation(final Class<T> annotationClass) {
+                    return annotationClass == annotation ? annotationClass.cast(defaultValue) : null;
+                }
+
+                @Override
+                public Annotation[] getAnnotations() {
+                    return new Annotation[] { defaultValue };
+                }
+
+                @Override
+                public Annotation[] getDeclaredAnnotations() {
+                    return getAnnotations();
+                }
+            };
+        });
+        return annotatedElement.getAnnotation(annotation);
+    }
+
+    private String getAnnotatedElementCacheKey(final Class<?> type) {
+        return ofNullable(type.getPackage().getName()).orElse("");
+    }
+
+    private Class<?> enforceSerializable(final Container container, final Class<?> type) {
+        if (Serializable.class.isAssignableFrom(type)) {
+            return type;
+        }
+        try {
+            type.getMethod("writeReplace");
+            return type;
+        } catch (final NoSuchMethodException e) {
+            // no-op, let's try to generate a proxy
+        }
+        return container
+                .execute(() -> proxyGenerator.generateProxy(container.getLoader(), type, container.getId(), type.getName()));
+    }
+
+    private Function<Map<String, String>, Object[]> createParametersFactory(final String plugin, final Executable method,
+            final Map<Class<?>, Object> services) {
+        return executeInContainer(plugin, () -> reflections.parameterFactory(method, services));
+    }
+
+    public enum ComponentType {
+        MAPPER {
+            @Override
+            Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
+                return family.getPartitionMappers();
+            }
+        },
+        PROCESSOR {
+            @Override
+            Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
+                return family.getProcessors();
+            }
+        };
+
+        abstract Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(ComponentFamilyMeta family);
+    }
+
+    @AllArgsConstructor
+    private static class SerializationReplacer implements Serializable {
+
+        Object readResolve() throws ObjectStreamException {
+            return instance();
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class AllServices {
+
+        private final Map<Class<?>, Object> services;
     }
 
     private class Updater implements ContainerListener {
@@ -857,83 +966,6 @@ public class ComponentManager implements AutoCloseable {
         }
     }
 
-    protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
-        services.put(ProxyGenerator.class, proxyGenerator);
-        services.put(AccessorCache.class, new AccessorCache(container.getId()));
-        services.put(Resolver.class, new ResolverImpl(container.getId(), container.getLocalDependencyRelativeResolver()));
-        services.put(SubclassesCache.class,
-                new SubclassesCache(container.getId(), proxyGenerator, container.getLoader(), new ConcurrentHashMap<>()));
-    }
-
-    private <T extends Annotation> T findComponentsConfig(final Map<String, AnnotatedElement> componentDefaults,
-            final Class<?> type, final ConfigurableClassLoader loader, final Class<T> annotation, final T defaultValue) {
-
-        final AnnotatedElement annotatedElement = componentDefaults.computeIfAbsent(getAnnotatedElementCacheKey(type), p -> {
-            if (p != null) {
-                String currentPackage = p;
-                do {
-                    try {
-                        final Class<?> pckInfo = loader.loadClass(currentPackage + ".package-info");
-                        if (pckInfo.isAnnotationPresent(annotation)) {
-                            return pckInfo;
-                        }
-                    } catch (final ClassNotFoundException e) {
-                        // no-op
-                    }
-
-                    final int endPreviousPackage = currentPackage.lastIndexOf('.');
-                    if (endPreviousPackage < 0) { // we don't accept default package since it is not specific enough
-                        break;
-                    }
-
-                    currentPackage = currentPackage.substring(0, endPreviousPackage);
-                } while (true);
-            }
-
-            return new AnnotatedElement() {
-
-                @Override
-                public <T extends Annotation> T getAnnotation(final Class<T> annotationClass) {
-                    return annotationClass == annotation ? annotationClass.cast(defaultValue) : null;
-                }
-
-                @Override
-                public Annotation[] getAnnotations() {
-                    return new Annotation[] { defaultValue };
-                }
-
-                @Override
-                public Annotation[] getDeclaredAnnotations() {
-                    return getAnnotations();
-                }
-            };
-        });
-        return annotatedElement.getAnnotation(annotation);
-    }
-
-    private String getAnnotatedElementCacheKey(final Class<?> type) {
-        return ofNullable(type.getPackage().getName()).orElse("");
-    }
-
-    private Class<?> enforceSerializable(final Container container, final Class<?> type) {
-        if (Serializable.class.isAssignableFrom(type)) {
-            return type;
-        }
-        try {
-            type.getMethod("writeReplace");
-            return type;
-        } catch (final NoSuchMethodException e) {
-            // no-op, let's try to generate a proxy
-        }
-        return container
-                .execute(() -> proxyGenerator.generateProxy(container.getLoader(), type, container.getId(), type.getName()));
-    }
-
-    private Function<Map<String, String>, Object[]> createParametersFactory(final String plugin, final Executable method,
-            final Map<Class<?>, Object> services) {
-        return executeInContainer(plugin, () -> reflections.parameterFactory(method, services));
-    }
-
     @RequiredArgsConstructor
     private class ComponentMetaBuilder implements ModelListener {
 
@@ -1101,37 +1133,5 @@ public class ComponentManager implements AutoCloseable {
                 }
             });
         }
-    }
-
-    @AllArgsConstructor
-    private static class SerializationReplacer implements Serializable {
-
-        Object readResolve() throws ObjectStreamException {
-            return instance();
-        }
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class AllServices {
-
-        private final Map<Class<?>, Object> services;
-    }
-
-    public enum ComponentType {
-        MAPPER {
-            @Override
-            Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
-                return family.getPartitionMappers();
-            }
-        },
-        PROCESSOR {
-            @Override
-            Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
-                return family.getProcessors();
-            }
-        };
-
-        abstract Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(ComponentFamilyMeta family);
     }
 }

@@ -50,6 +50,19 @@ import static java.util.Optional.ofNullable;
 @Slf4j
 public class ComponentFamilyMeta {
 
+    private static final FamilyBundle NO_COMPONENT_BUNDLE = new FamilyBundle(null, null) {
+
+        @Override
+        public Optional<String> configurationDisplayName(String type, String name) {
+            return empty();
+        }
+
+        @Override
+        public Optional<String> displayName() {
+            return empty();
+        }
+    };
+
     private final String plugin;
 
     private final Collection<String> categories;
@@ -66,18 +79,20 @@ public class ComponentFamilyMeta {
 
     private final ConcurrentMap<Locale, FamilyBundle> bundles = new ConcurrentHashMap<>();
 
-    private static final FamilyBundle NO_COMPONENT_BUNDLE = new FamilyBundle(null, null) {
-
-        @Override
-        public Optional<String> configurationDisplayName(String type, String name) {
-            return empty();
-        }
-
-        @Override
-        public Optional<String> displayName() {
-            return empty();
-        }
-    };
+    public FamilyBundle findBundle(final ClassLoader loader, final Locale locale) {
+        return bundles.computeIfAbsent(locale, l -> {
+            try {
+                final ResourceBundle bundle = ResourceBundle
+                        .getBundle((packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
+                return new FamilyBundle(bundle, name + '.');
+            } catch (final MissingResourceException mre) {
+                log.warn("No bundle for " + packageName + " (" + name
+                        + "), means the display names will be the technical names");
+                log.debug(mre.getMessage(), mre);
+                return NO_COMPONENT_BUNDLE;
+            }
+        });
+    }
 
     @Data
     public static class BaseMeta<T> {
@@ -207,20 +222,5 @@ public class ComponentFamilyMeta {
             return Stream.of(getType().getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).findFirst()
                          .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + getType()));
         }
-    }
-
-    public FamilyBundle findBundle(final ClassLoader loader, final Locale locale) {
-        return bundles.computeIfAbsent(locale, l -> {
-            try {
-                final ResourceBundle bundle = ResourceBundle
-                        .getBundle((packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
-                return new FamilyBundle(bundle, name + '.');
-            } catch (final MissingResourceException mre) {
-                log.warn("No bundle for " + packageName + " (" + name
-                        + "), means the display names will be the technical names");
-                log.debug(mre.getMessage(), mre);
-                return NO_COMPONENT_BUNDLE;
-            }
-        });
     }
 }

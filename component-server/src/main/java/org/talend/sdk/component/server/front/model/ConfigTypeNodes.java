@@ -1,12 +1,3 @@
-package org.talend.sdk.component.server.front.model;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  * <p>
@@ -22,6 +13,15 @@ import java.util.Map;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.talend.sdk.component.server.front.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.HashMap;
+import java.util.Map;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

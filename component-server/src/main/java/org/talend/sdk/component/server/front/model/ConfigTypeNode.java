@@ -1,14 +1,3 @@
-package org.talend.sdk.component.server.front.model;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  * <p>
@@ -24,6 +13,17 @@ import java.util.Set;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.talend.sdk.component.server.front.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
