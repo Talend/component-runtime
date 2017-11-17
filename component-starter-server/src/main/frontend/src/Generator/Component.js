@@ -74,9 +74,7 @@ export default class Component extends React.Component {
   }
 
   updateDrawers(drawers) {
-    (this.state.drawers.length !== drawers.length ||
-        (this.state.drawers.length === 1 && drawers[0].props.title !== this.state.drawers[0].props.title)) &&
-      this.setState({drawers});
+    this.setState({drawers});
   }
 
   componentWillMount() {

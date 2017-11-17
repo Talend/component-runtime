@@ -23,6 +23,8 @@ export default class Mapper extends React.Component {
     super(props);
 
     this.state = {
+      configurationStructure: props.component.source.configurationStructure,
+      outputStructure: props.component.source.outputStructure
     };
 
     this.drawerActions = {
@@ -41,6 +43,15 @@ export default class Mapper extends React.Component {
       .forEach(i => this[i] = this[i].bind(this));
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props !== nextProps) {
+      this.setState({
+        configurationStructure: nextProps.component.source.configurationStructure,
+        outputStructure: nextProps.component.source.outputStructure
+      });
+    }
+  }
+
   onStreamChange() {
     this.props.component.source.stream = !this.props.component.source.stream;
     this.setState({});
@@ -49,7 +60,7 @@ export default class Mapper extends React.Component {
   onConfigurationButtonClick() {
     this.props.onUpdateDrawers([
       <Drawer title={`${this.props.component.configuration.name} Configuration Model`} footerActions={this.drawerActions}>
-        <Schema schema={this.props.component.source.configurationStructure} readOnly={true} name="configuration" />
+        <Schema schema={this.state.configurationStructure} readOnly={true} name="configuration" />
       </Drawer>
     ]);
   }
@@ -57,7 +68,7 @@ export default class Mapper extends React.Component {
   onRecordButtonClick() {
     this.props.onUpdateDrawers([
       <Drawer title={`${this.props.component.configuration.name} Record Model`} footerActions={this.drawerActions}>
-        <Schema schema={this.props.component.source.outputStructure} readOnly={true} name="root" />
+        <Schema schema={this.state.outputStructure} readOnly={true} name="root" />
       </Drawer>
     ]);
   }
@@ -71,7 +82,7 @@ export default class Mapper extends React.Component {
         entries: []
       };
     }
-    this.setState({recordType: event.target.value});
+    this.setState({recordType: event.target.value, outputStructure: this.props.component.source.outputStructure});
   }
 
   render() {

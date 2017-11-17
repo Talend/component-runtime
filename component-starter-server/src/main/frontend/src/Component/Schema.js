@@ -146,10 +146,27 @@ class Node extends React.Component {
   }
 }
 
-export default function Schema (props) {
-  return (
-    <div className={theme.Schema}>
-      <Node node={props.schema} readOnly={props.readOnly || !!props.parent} name={props.name} />
-    </div>
-  );
+export default class Schema extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      schema: props.schema
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props !== nextProps) {
+      this.setState({
+        schema: nextProps.schema
+      });
+    }
+  }
+
+  render() {
+    return (
+      <div className={theme.Schema}>
+        <Node node={this.state.schema} readOnly={this.props.readOnly || !!this.props.parent} name={this.props.name} />
+      </div>
+    );
+  }
 }

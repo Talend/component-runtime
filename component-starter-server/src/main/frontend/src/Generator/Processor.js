@@ -37,7 +37,8 @@ class EmbeddableToggle extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      checked: !!props.connection.generic
+      checked: !!props.connection.generic,
+      structure: props.connection.structure
     };
     this.onChange = this.onChange.bind(this);
   }
@@ -45,17 +46,17 @@ class EmbeddableToggle extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (this.props !== nextProps) {
       this.setState({
-        checked: !!nextProps.checked
+        checked: !!nextProps.connection.generic,
+        structure: nextProps.connection.structure
       });
     }
   }
 
   onChange() {
     this.setState(({checked}) => {
-      const updated = !checked;
-      !!this.props.onChange && this.props.onChange();
-      return {checked: updated};
-    })
+      return {checked: !checked};
+    });
+    !!this.props.onChange && this.props.onChange();
   }
 
   render() {
@@ -69,7 +70,7 @@ class EmbeddableToggle extends React.Component {
           !this.state.checked &&
             <div className={this.props.theme['form-row']}>
               <p className={this.props.theme.title}>Structure</p>
-              <Schema schema={this.props.connection.structure} readOnly={true} name="root" />
+              <Schema schema={this.state.structure} readOnly={true} name="root" />
             </div>
         }
       </schemaConfiguration>
