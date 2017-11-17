@@ -562,6 +562,8 @@ of supported keys:
 [options="header,autowidth"]
 |====
 |Name Pattern|Description
+|${family}._displayName|the display name of the family
+|${family}.${configurationType}.${name}._displayName|the display name of a configuration type (dataStore or dataSet)
 |${family}.${component_name}._displayName|the display name of the component (used by the GUIs)
 |${property_path}._displayName|the display name of the option.
 |====

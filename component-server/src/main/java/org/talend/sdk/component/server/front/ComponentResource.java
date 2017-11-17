@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,15 +15,7 @@
  */
 package org.talend.sdk.component.server.front;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
-import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
-import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,7 +26,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -73,7 +64,15 @@ import org.talend.sdk.component.server.service.IconResolver;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
+import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
+import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
 
 @Slf4j
 @Path("component")
@@ -81,6 +80,8 @@ import lombok.extern.slf4j.Slf4j;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ComponentResource {
+
+    private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
 
     @Inject
     private ComponentManager manager;
@@ -96,8 +97,6 @@ public class ComponentResource {
 
     @Inject
     private IconResolver iconResolver;
-
-    private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
 
     @PostConstruct
     private void setupRuntime() {
@@ -117,15 +116,36 @@ public class ComponentResource {
                                 .find(c -> c
                                         .execute(
                                                 () -> Stream.of(c.get(ContainerComponentRegistry.class))
-                                                        .flatMap(registry -> registry.getComponents().values().stream())
-                                                        .flatMap(component -> Stream.concat(
-                                                                component.getPartitionMappers().values().stream()
-                                                                        .map(mapper -> toComponentIndex(c.getLoader(), locale,
-                                                                                c.getId(), mapper)),
-                                                                component.getProcessors().values().stream()
-                                                                        .map(proc -> toComponentIndex(c.getLoader(), locale,
-                                                                                c.getId(), proc))))))
+                                                            .flatMap(registry -> registry.getComponents().values().stream())
+                                                            .flatMap(component -> Stream.concat(
+                                                                    component.getPartitionMappers().values().stream()
+                                                                             .map(mapper -> toComponentIndex(c.getLoader(),
+                                                                                     locale,
+                                                                                     c.getId(), mapper)),
+                                                                    component.getProcessors().values().stream()
+                                                                             .map(proc -> toComponentIndex(c.getLoader(), locale,
+                                                                                     c.getId(), proc))))))
                                 .collect(toList())));
+    }
+
+    @GET
+    @Path("icon/family/{id}")
+    public Response familyIcon(@PathParam("id") final String id) {
+        // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
+        final ComponentFamilyMeta meta = componentManagerService.findFamilyMetaById(id);
+        if (meta == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                           .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No family for identifier: " + id))
+                           .type(APPLICATION_JSON_TYPE).build();
+        }
+        final IconResolver.Icon iconContent = iconResolver
+                .resolve(manager.findPlugin(meta.getPlugin()).get().getLoader(), meta.getIcon());
+        if (iconContent == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                           .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family identifier: " + id))
+                           .type(APPLICATION_JSON_TYPE).build();
+        }
+        return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
     }
 
     @GET
@@ -135,15 +155,15 @@ public class ComponentResource {
         final ComponentFamilyMeta.BaseMeta<Object> meta = componentManagerService.findMetaById(id);
         if (meta == null) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component for identifier: " + id))
-                    .type(APPLICATION_JSON_TYPE).build();
+                           .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component for identifier: " + id))
+                           .type(APPLICATION_JSON_TYPE).build();
         }
         final IconResolver.Icon iconContent = iconResolver
                 .resolve(manager.findPlugin(meta.getParent().getPlugin()).get().getLoader(), meta.getIcon());
         if (iconContent == null) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for identifier: " + id))
-                    .type(APPLICATION_JSON_TYPE).build();
+                           .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for identifier: " + id))
+                           .type(APPLICATION_JSON_TYPE).build();
         }
         return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
     }
@@ -173,10 +193,11 @@ public class ComponentResource {
                     final Container container = plugin.get();
                     final Locale locale = localeMapper.mapLocale(language);
                     final DesignModel model = ofNullable(meta.get(DesignModel.class)).orElseGet(() -> {
-                        errors.put(meta.getId(), new ErrorPayload(DESIGN_MODEL_MISSING, "No design model '" + meta.getId() + "'"));
+                        errors.put(meta.getId(),
+                                new ErrorPayload(DESIGN_MODEL_MISSING, "No design model '" + meta.getId() + "'"));
                         return new DesignModel("dummyId", emptyList(), emptyList());
                     });
-                    
+
                     return new ComponentDetail(
                             new ComponentId(meta.getId(), meta.getParent().getPlugin(), meta.getParent().getName(),
                                     meta.getName()),
@@ -185,12 +206,13 @@ public class ComponentResource {
                                     : "input"/* PartitionMapperMeta */,
                             meta.getVersion(),
                             propertiesService.buildProperties(meta.getParameterMetas(), container.getLoader(), locale)
-                                    .collect(toList()),
+                                             .collect(toList()),
                             findActions(meta.getParent().getName(),
                                     toStream(meta.getParameterMetas()).flatMap(p -> p.getMetadata().entrySet().stream())
-                                            .filter(e -> e.getKey().startsWith(ActionParameterEnricher.META_PREFIX)).collect(
-                                                    toMap(e -> e.getKey().substring(ActionParameterEnricher.META_PREFIX.length()),
-                                                            Map.Entry::getValue)),
+                                                                      .filter(e -> e.getKey().startsWith(
+                                                                              ActionParameterEnricher.META_PREFIX)).collect(
+                                            toMap(e -> e.getKey().substring(ActionParameterEnricher.META_PREFIX.length()),
+                                                    Map.Entry::getValue)),
                                     container, locale),
                             model.getInputFlows(),
                             model.getOutputFlows(),
@@ -212,10 +234,11 @@ public class ComponentResource {
             final Container container, final Locale locale) {
         final ContainerComponentRegistry registry = container.get(ContainerComponentRegistry.class);
         return registry.getServices().stream().flatMap(s -> s.getActions().stream()).filter(s -> s.getFamily().equals(family))
-                .filter(s -> actions.containsKey(s.getType()) && actions.get(s.getType()).equals(s.getAction()))
-                .map(s -> new ActionReference(s.getFamily(), s.getAction(), s.getType(),
-                        propertiesService.buildProperties(s.getParameters(), container.getLoader(), locale).collect(toList())))
-                .collect(toList());
+                       .filter(s -> actions.containsKey(s.getType()) && actions.get(s.getType()).equals(s.getAction()))
+                       .map(s -> new ActionReference(s.getFamily(), s.getAction(), s.getType(),
+                               propertiesService.buildProperties(s.getParameters(), container.getLoader(), locale)
+                                                .collect(toList())))
+                       .collect(toList());
     }
 
     private ComponentIndex toComponentIndex(final ClassLoader loader, final Locale locale, final String plugin,
