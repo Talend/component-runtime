@@ -27,7 +27,7 @@ class Node extends React.Component {
       opened: !!this.props.parent || !!this.props.readOnly,
       type: this.props.node.type || 'object',
       edited: false,
-      entries: (this.props.node.model || this.props.node).entries,
+      entries: (this.props.node.model || this.props.node).entries
     };
 
     this.nodeTypes = ['object', 'boolean', 'double', 'integer', 'uri', 'url', 'string'] // don't support file yet, this is not big data friendly
@@ -35,6 +35,17 @@ class Node extends React.Component {
 
     ['addChild', 'onTypeChange', 'onEdit', 'deleteNode', 'onDeleteChild', 'validEdition']
       .forEach(i => this[i] = this[i].bind(this));
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props !== nextProps) {
+      this.setState({
+        opened: !!nextProps.parent || !!nextProps.readOnly,
+        type: nextProps.node.type || 'object',
+        edited: false,
+        entries: (nextProps.node.model || nextProps.node).entries
+      });
+    }
   }
 
   onTypeChange(event) {
@@ -159,6 +170,7 @@ export default class Schema extends React.Component {
       this.setState({
         schema: nextProps.schema
       });
+      !!this.props.onReload && this.props.onReload();
     }
   }
 

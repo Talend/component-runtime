@@ -56,7 +56,6 @@ class EmbeddableToggle extends React.Component {
     this.setState(({checked}) => {
       return {checked: !checked};
     });
-    !!this.props.onChange && this.props.onChange();
   }
 
   render() {
@@ -192,7 +191,7 @@ export default class Processor extends React.Component {
           <div className={[this.props.theme.ComponentWrapper, 'col-sm-12'].join(' ')}>
             <div className={[this.props.theme.Inputs, 'col-sm-5'].join(' ')}>
               <Connections connections={this.props.component.processor.inputStructures} theme={this.props.theme}
-                           onUpdateDrawers={this.props.onUpdateDrawers} type="Input" onChange={() => !!this.props.onChange && this.props.onChange()} />
+                           onUpdateDrawers={this.props.onUpdateDrawers} type="Input" />
             </div>
             <div className={[this.props.theme.ComponentBox, 'col-sm-1'].join(' ')}>
               <Action icon="talend-plus-circle" onClick={() => this.setState(s => s.inputs = this.newStructure('input', this.state.inputs))} />
@@ -200,7 +199,7 @@ export default class Processor extends React.Component {
             </div>
             <div className={[this.props.theme.Outputs, 'col-sm-5'].join(' ')}>
               <Connections connections={this.props.component.processor.outputStructures} theme={this.props.theme}
-                           onUpdateDrawers={this.props.onUpdateDrawers} type="Output" onChange={() => !!this.props.onChange && this.props.onChange()} />
+                           onUpdateDrawers={this.props.onUpdateDrawers} type="Output" />
             </div>
           </div>
         </div>

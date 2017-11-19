@@ -36,8 +36,7 @@ export default class Component extends React.Component {
         {
           label: 'Processor',
           _view: component => <Processor component={component} theme={theme}
-                                         onUpdateDrawers={this.updateDrawers}
-                                         onChange={() => !!this.props.onChange && this.props.onChange()} />
+                                         onUpdateDrawers={this.updateDrawers} />
         }
       ]
     };
