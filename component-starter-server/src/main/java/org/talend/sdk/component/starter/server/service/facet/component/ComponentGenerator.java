@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.starter.server.service.facet.component;
 
+import static java.beans.Introspector.decapitalize;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Locale.ENGLISH;
@@ -119,7 +120,7 @@ public class ComponentGenerator {
             final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
 
             final Collection<Connection> outputNames = !isOutput ? processor.getOutputStructures().entrySet().stream().map(e -> {
-                final String javaName = sanitizeConnectionName(e.getKey());
+                final String javaName = decapitalize(baseName) + capitalize(sanitizeConnectionName(e.getKey()));
                 if (e.getValue().isGeneric()) {
                     return new Connection(e.getKey(), javaName, "ObjectMap");
                 }
@@ -131,7 +132,7 @@ public class ComponentGenerator {
 
             final Collection<Connection> inputNames = processor.getInputStructures() != null
                     ? processor.getInputStructures().entrySet().stream().map(e -> {
-                        final String javaName = sanitizeConnectionName(e.getKey());
+                        final String javaName = decapitalize(baseName) + capitalize(sanitizeConnectionName(e.getKey()));
                         if (e.getValue().isGeneric()) {
                             return new Connection(e.getKey(), javaName, "ObjectMap");
                         }
@@ -176,7 +177,7 @@ public class ComponentGenerator {
             final String sourceName = baseName + "Source";
             final String mapperName = baseName + "Mapper";
             final String configurationClassName = sourceName + "Configuration";
-            final String modelClassName = generic ? "ObjectMap" : baseName + "Record";
+            final String modelClassName = generic ? baseName + "GenericRecord" : (baseName + "Record");
             final String sourcePackage = packageBase + ".source";
 
             final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
@@ -297,11 +298,11 @@ public class ComponentGenerator {
     }
 
     private String toJavaName(final String name) {
-        return capitalize(name.replace("-", "_").replace(" ", "_"));
+        return capitalize(name.replace("-", "_").replace(" ", "_").replace("#", "_"));
     }
 
     private String sanitizeConnectionName(final String name) {
-        return name.replace("_", "").replace(" ", "");
+        return name.replace("_", "").replace("#", "").replace(" ", "");
     }
 
     @Data

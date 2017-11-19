@@ -40,12 +40,12 @@ export default class Finish extends React.Component {
     let lightCopyModel = Object.assign({}, this.props.project);
     lightCopyModel.sources = this.props.components.filter(c => c.type === 'Input').map(c => {
       let source = Object.assign({}, c.source);
-      source.name = c.name;
+      source.name = c.configuration.name;
       return source;
     });
     lightCopyModel.processors = this.props.components.filter(c => c.type === 'Processor').map(c => {
       let processor = Object.assign({}, c.processor);
-      processor.name = c.name;
+      processor.name = c.configuration.name;
       return processor;
     });
     return lightCopyModel;
@@ -78,7 +78,7 @@ export default class Finish extends React.Component {
             document.body.appendChild(a);
             a.style = "display: none";
             a.href = url;
-            a.download = this.state.value.project.artifact + '.zip';
+            a.download = this.state.project.artifact + '.zip';
             a.click();
           } finally {
             window.URL.revokeObjectURL(url);
