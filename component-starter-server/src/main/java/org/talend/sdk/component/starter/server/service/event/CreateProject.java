@@ -16,11 +16,9 @@
 package org.talend.sdk.component.starter.server.service.event;
 
 import lombok.Data;
-
-import java.util.Collection;
+import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 
 @Data
 public class CreateProject {
-    private final String name;
-    private final Collection<String> facets;
+    private final ProjectRequest request;
 }

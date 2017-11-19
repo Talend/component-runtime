@@ -1,44 +1,60 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.starter.server.service.statistic;
 
-import static java.lang.Thread.sleep;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.deltaspike.core.api.config.ConfigProperty;
+import org.talend.sdk.component.starter.server.service.event.CreateProject;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
-import org.apache.deltaspike.core.api.config.ConfigProperty;
-import org.talend.sdk.component.starter.server.service.event.CreateProject;
-
-import lombok.extern.slf4j.Slf4j;
+import static java.lang.Thread.sleep;
+import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @Slf4j
 @ApplicationScoped
 public class StatisticService {
 
     // TODO: move to an actual backend like elasticsearch
-    public void save(final CreateProject project) {
-        project.getFacets().forEach(f -> log.info("[STATISTICS][facet=" + f + "][project=" + project.getName() + "]"));
+    public void save(final CreateProject event) {
+        /*
+        request.getBuildConfiguration().getGroup() + ':' + request.getBuildConfiguration().getArtifact(),
+                request.getSources() == null ? 0 : request.getSources().size(),
+                request.getProcessors() == null ? 0 : request.getProcessors().size(),
+                facets
+         */
+        final String project = event.getRequest().getBuildConfiguration().getGroup() + ':' +
+                event.getRequest().getBuildConfiguration().getArtifact();
+        final String id = UUID.randomUUID().toString().replace("-", "");
+        log.info("[STATISTICS][id=" + id + "][project=" + project + "]" +
+                "[sourceCount=" + (event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size() + "]") +
+                "[processorCount=" + (event.getRequest().getProcessors() == null ? 0 : event.getRequest().getProcessors().size() + "]"));
+        ofNullable(event.getRequest().getFacets()).map(Collection::stream).orElseGet(Stream::empty)
+                .map(facet -> "[STATISTICS][id=" + id + "][facet=" + facet + "]")
+                .forEach(log::info);
     }
 
     @ApplicationScoped
