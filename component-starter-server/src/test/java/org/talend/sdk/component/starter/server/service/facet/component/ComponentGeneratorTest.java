@@ -67,7 +67,7 @@ public class ComponentGeneratorTest {
                 files.get("src/main/java/com/foo/package-info.java"));
         assertEquals(
                 "package com.foo.service;\n" + "\n" + "import org.talend.sdk.component.api.service.Service;\n" + "\n"
-                        + "@Service\n" + "public class SalesforceService {\n" + "\n"
+                        + "@Service\n" + "public class TestService {\n" + "\n"
                         + "    // you can put logic here you can reuse in components\n" + "\n" + "}",
                 files.get("src/main/java/com/foo/service/TestService.java"));
         assertEquals("package com.foo.source;\n" + "\n" + "import javax.annotation.PostConstruct;\n"
