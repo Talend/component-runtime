@@ -552,7 +552,7 @@ public interface Translator {
 
 <1> `@Internationalized` allows to mark a class as a i18n service
 <2> you can pass parameters and the message will use `MessageFormat` syntax to be resolved based on the `ResourceBundle` template
-<3> you can use `@Language` on a `Locale` parameter to specify manually the locale to use, note that a single value will be used (the first parameter taggeg as such).
+<3> you can use `@Language` on a `Locale` parameter to specify manually the locale to use, note that a single value will be used (the first parameter tagged as such).
 
 === Default components keys
 
