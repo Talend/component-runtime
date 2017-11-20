@@ -125,3 +125,94 @@ You can completely control the available components, tune the rendering switchin
 You can also add custom actions/buttons for specific needs of the application.
 
 NOTE: the  `/migrate` endpoint has nothing special so was not shown in previous snippet but if you need it you must add it as well.
+
+== Logging
+
+The logging uses Log4j2, you can specify a custom configuration using the system property `-Dlog4j.configurationFile`
+or adding a `log4j2.xml` file into the classpath.
+
+Here are some common configurations:
+
+- Console logging:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<Configuration status="INFO">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO">
+      <AppenderRef ref="Console"/>
+    </Root>
+  </Loggers>
+</Configuration>
+----
+
+This outputs messages looking like:
+
+[source]
+----
+[16:59:58.198][INFO ][           main][oyote.http11.Http11NioProtocol] Initializing ProtocolHandler ["http-nio-34763"]
+----
+
+- JSON logging:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<Configuration status="INFO">
+  <Properties>
+    <!-- DO NOT PUT logSource there, it is useless and slow -->
+    <Property name="jsonLayout">{"severity":"%level","logMessage":"%encode{%message}{JSON}","logTimestamp":"%d{ISO8601}{UTC}","eventUUID":"%uuid{RANDOM}","@version":"1","logger.name":"%encode{%logger}{JSON}","host.name":"${hostName}","threadName":"%encode{%thread}{JSON}","stackTrace":"%encode{%xThrowable{full}}{JSON}"}%n</Property>
+  </Properties>
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${jsonLayout}"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO">
+      <AppenderRef ref="Console"/>
+    </Root>
+  </Loggers>
+</Configuration>
+----
+
+Output messages look like:
+
+[source]
+----
+{"severity":"INFO","logMessage":"Initializing ProtocolHandler [\"http-nio-46421\"]","logTimestamp":"2017-11-20T16:04:01,763","eventUUID":"8b998e17-7045-461c-8acb-c43f21d995ff","@version":"1","logger.name":"org.apache.coyote.http11.Http11NioProtocol","host.name":"TLND-RMANNIBUCAU","threadName":"main","stackTrace":""}
+----
+
+- Rolling file appender
+
+[source]
+----
+<?xml version="1.0"?>
+<Configuration status="INFO">
+  <Appenders>
+    <RollingRandomAccessFile name="File" fileName="${LOG_PATH}/application.log" filePattern="${LOG_PATH}/application-%d{yyyy-MM-dd}.log">
+      <PatternLayout pattern="[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
+      <Policies>
+        <SizeBasedTriggeringPolicy size="100 MB" />
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+    </RollingRandomAccessFile>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO">
+      <AppenderRef ref="File"/>
+    </Root>
+  </Loggers>
+</Configuration>
+----
+
+More details are available on link:https://logging.apache.org/log4j/2.x/manual/appenders.html#RollingFileAppender[RollingFileAppender] documentation.
+
+
+TIP: of course you can compose previous layout (message format) and appenders (where logs are written).

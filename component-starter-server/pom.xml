@@ -125,6 +125,15 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
         <version>${meecrowave.version}</version>
