@@ -209,7 +209,7 @@ public class ComponentModel extends AbstractBasicComponent {
      * @return list of component return variables
      */
     @Override
-    public List<? extends INodeReturn> createReturns() {
+    public List<? extends INodeReturn> createReturns(INode node) {
         List<NodeReturn> returnVariables = new ArrayList<>();
 
         NodeReturn errorMessage = new NodeReturn();
