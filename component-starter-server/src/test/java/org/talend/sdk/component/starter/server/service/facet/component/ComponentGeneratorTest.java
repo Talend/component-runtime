@@ -124,9 +124,8 @@ public class ComponentGeneratorTest {
         assertEquals(
                 "package com.foo.source;\n" + "\n" + "import java.util.List;\n" + "\n"
                         + "import org.talend.sdk.component.api.configuration.Option;\n"
-                        + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
-                        + "// generated configuration with query and addresses options, customize it to your need\n"
-                        + "@GridLayout({\n" + "    // the generated layout put one configuration entry per line,\n"
+                        + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n" + "@GridLayout({\n"
+                        + "    // the generated layout put one configuration entry per line,\n"
                         + "    // customize it as much as needed\n" + "    @GridLayout.Row({ \"name\" })\n" + "})\n"
                         + "public class MycompSourceConfiguration {\n" + "    @Option\n" + "    private String name;\n" + "\n"
                         + "    public String getName() {\n" + "        return name;\n" + "    }\n" + "}",
@@ -153,8 +152,7 @@ public class ComponentGeneratorTest {
 
         assertEquals("package com.foo.source;\n" + "\n" + "import java.util.List;\n" + "\n"
                 + "import org.talend.sdk.component.api.configuration.Option;\n"
-                + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
-                + "// generated configuration with query and addresses options, customize it to your need\n" + "@GridLayout({\n"
+                + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n" + "@GridLayout({\n"
                 + "    // the generated layout put one configuration entry per line,\n"
                 + "    // customize it as much as needed\n" + "    @GridLayout.Row({ \"person\" })\n" + "})\n"
                 + "public class MycompSourceConfiguration {\n" + "    @Option\n" + "    private PersonConfiguration person;\n"
@@ -164,7 +162,6 @@ public class ComponentGeneratorTest {
                 "package com.foo.source;\n" + "\n" + "import java.util.List;\n" + "\n"
                         + "import org.talend.sdk.component.api.configuration.Option;\n"
                         + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
-                        + "// generated configuration with query and addresses options, customize it to your need\n"
                         + "@GridLayout({\n" + "    // the generated layout put one configuration entry per line,\n"
                         + "    // customize it as much as needed\n" + "    @GridLayout.Row({ \"name\" }),\n"
                         + "    @GridLayout.Row({ \"age\" })\n" + "})\n" + "public class PersonConfiguration {\n" + "    @Option\n"
