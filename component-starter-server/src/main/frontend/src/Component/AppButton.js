@@ -13,12 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.talend.sdk.component.starter.server.service.event;
+import React from 'react';
+import { Action } from '@talend/react-components';
 
-import lombok.Data;
-import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
+import theme from './AppButton.scss';
 
-@Data
-public class CreateProject {
-    private final ProjectRequest request;
+export default class AppButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+    };
+  }
+
+  render() {
+    return (
+      <div className={theme.AppButton}>
+        <Action onClick={e => e.preventDefault() || (!!this.props.onClick && this.props.onClick())}
+                icon={this.props.icon} iconPosition={this.props.iconPosition || 'right'}
+                className={this.props.className}
+                label={this.props.text || 'Schema'} />
+      </div>
+    );
+  }
 }

@@ -13,12 +13,5 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.talend.sdk.component.starter.server.service.event;
-
-import lombok.Data;
-import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
-
-@Data
-public class CreateProject {
-    private final ProjectRequest request;
-}
+import Missing from './Missing';
+export default Missing;

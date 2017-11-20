@@ -14,28 +14,32 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import IconsProvider from '@talend/react-components/lib/IconsProvider';
-import HeaderBar from '@talend/react-components/lib/HeaderBar';
+import AppHeaderBar from '@talend/react-components/lib/AppHeaderBar';
 import Generator from '../Generator';
+import Missing from '../Missing';
 
 import theme from './App.scss';
-import './favicon.ico';
 
 export default function App() {
-	return (
-		<Router>
-			<div className={theme.App}>
-				<IconsProvider/>
+  return (
+    <Router>
+      <div className={theme.App}>
+        <IconsProvider/>
 
-				<div className={theme.header}>
-					<HeaderBar logo={{ isFull: true }} brand={{ name: 'Component Kit Starter' }} />
-				</div>
+        <div className={theme.header}>
+          <AppHeaderBar logo={{ isFull: true }} brand={{ name: 'Component Kit Starter' }} app="Component Kit Starter" />
+        </div>
 
-				<div className={theme.content}>
-					<Route exact path="/" component={Generator}/>
-				</div>
-			</div>
-		</Router>
-	);
+        <div className={theme.content}>
+          <Switch>
+            <Route exact path="/" component={Generator}/>
+            <Route exact path="/index.html" component={Generator}/>
+            <Route component={Missing} />
+          </Switch>
+        </div>
+      </div>
+    </Router>
+  );
 }

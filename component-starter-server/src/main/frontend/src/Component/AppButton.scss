@@ -13,12 +13,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.talend.sdk.component.starter.server.service.event;
+$grey: #999;
 
-import lombok.Data;
-import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
+.AppButton {
+  margin-top: 10px;
 
-@Data
-public class CreateProject {
-    private final ProjectRequest request;
+  button {
+    height: auto;
+    box-shadow: none;
+    text-decoration: none;
+    border-radius: 6px;
+    border: 2px solid #bdc3c7;
+    background-color: #fff;
+    border: 1px solid $grey;
+    color: $grey;
+    font-weight: bolder;
+    text-transform: uppercase;
+
+    &:hover {
+      box-shadow: none;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:hover, &:focus {
+      background-color: white;
+    }
+  }
 }

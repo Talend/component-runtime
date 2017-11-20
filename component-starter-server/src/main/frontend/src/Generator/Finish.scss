@@ -13,12 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.talend.sdk.component.starter.server.service.event;
 
-import lombok.Data;
-import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
+.Finish {
+  height: calc(100vh - 48px);
 
-@Data
-public class CreateProject {
-    private final ProjectRequest request;
+  summary {
+
+  }
+
+  .bigButton {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    > button {
+      font-size: 25px;
+    }
+  }
 }

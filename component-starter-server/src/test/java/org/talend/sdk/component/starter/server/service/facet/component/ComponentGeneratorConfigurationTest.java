@@ -51,7 +51,6 @@ public class ComponentGeneratorConfigurationTest {
                         "package demo.source;\n" + "\n" + "import java.util.List;\n" + "\n"
                                 + "import org.talend.sdk.component.api.configuration.Option;\n"
                                 + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
-                                + "// generated configuration with query and addresses options, customize it to your need\n"
                                 + "@GridLayout({\n" + "    // the generated layout put one configuration entry per line,\n"
                                 + "    // customize it as much as needed\n" + "})\n" + "public class Demo {\n" + "\n" + "}"),
                 // string field
@@ -59,7 +58,6 @@ public class ComponentGeneratorConfigurationTest {
                         "package demo.source;\n" + "\n" + "import java.util.List;\n" + "\n"
                                 + "import org.talend.sdk.component.api.configuration.Option;\n"
                                 + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
-                                + "// generated configuration with query and addresses options, customize it to your need\n"
                                 + "@GridLayout({\n" + "    // the generated layout put one configuration entry per line,\n"
                                 + "    // customize it as much as needed\n" + "    @GridLayout.Row({ \"name\" })\n" + "})\n"
                                 + "public class Demo {\n" + "    @Option\n" + "    private String name;\n" + "\n"
@@ -71,7 +69,6 @@ public class ComponentGeneratorConfigurationTest {
                         "package demo.source;\n" + "\n" + "import java.util.List;\n" + "\n"
                                 + "import org.talend.sdk.component.api.configuration.Option;\n"
                                 + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
-                                + "// generated configuration with query and addresses options, customize it to your need\n"
                                 + "@GridLayout({\n" + "    // the generated layout put one configuration entry per line,\n"
                                 + "    // customize it as much as needed\n" + "    @GridLayout.Row({ \"name\" }),\n"
                                 + "    @GridLayout.Row({ \"age\" })\n" + "})\n" + "public class Demo {\n" + "    @Option\n"

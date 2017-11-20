@@ -25,7 +25,7 @@ public class {{className}} implements Serializable {
     }
 
     @Producer
-    public {{modelName}} next() {
+    public {{#generic}}ObjectMap{{/generic}}{{^generic}}{{modelName}}{{/generic}} next() {
         // this is the method allowing you to go through the dataset associated
         // to the component configuration
         //

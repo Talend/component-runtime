@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,11 +15,9 @@
  */
 package org.talend.sdk.component.starter.server.model;
 
-import java.util.Collection;
-
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+
+import java.util.Collection;
 
 @Data
 public class ProjectModel {
@@ -50,62 +48,61 @@ public class ProjectModel {
 
     private Collection<Processor> processors;
 
-    @Getter
-    @RequiredArgsConstructor
+    @Data
     public static class Source {
 
-        private final String name;
+        private String name;
 
-        private final String icon;
+        private String icon;
 
-        private final boolean genericOutput;
+        private boolean stream;
 
-        private final Model configurationStructure;
+        private boolean genericOutput;
 
-        private final Model outputStructure;
+        private Model configurationStructure;
+
+        private Model outputStructure;
     }
 
-    @Getter
-    @RequiredArgsConstructor
+    @Data
     public static class Model {
 
-        private final Collection<Entry> entries;
+        private Collection<Entry> entries;
     }
 
-    @Getter
-    @RequiredArgsConstructor
+    @Data
     public static class Entry {
 
-        private final String name;
+        private String name;
 
-        private final String type;
+        private String type;
 
-        private final Model model;
+        private Model model;
+
+        // todo: support @ObjectMap.Any, list etc...
     }
 
-    @Getter
-    @RequiredArgsConstructor
+    @Data
     public static class Processor {
 
-        private final String name;
+        private String name;
 
-        private final String icon;
+        private String icon;
 
-        private final Model configurationStructure;
+        private Model configurationStructure;
 
-        private final Collection<NamedModel> inputStructures;
+        private Collection<NamedModel> inputStructures;
 
-        private final Collection<NamedModel> outputStructures;
+        private Collection<NamedModel> outputStructures;
     }
 
-    @Getter
-    @RequiredArgsConstructor
+    @Data
     public static class NamedModel {
 
-        private final String name;
+        private String name;
 
-        private final boolean generic;
+        private boolean generic;
 
-        private final Model structure;
+        private Model structure;
     }
 }

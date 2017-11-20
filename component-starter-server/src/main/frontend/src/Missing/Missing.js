@@ -13,12 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.talend.sdk.component.starter.server.service.event;
+import React from 'react';
+import HttpError from '@talend/react-components/lib/HttpError';
 
-import lombok.Data;
-import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
-
-@Data
-public class CreateProject {
-    private final ProjectRequest request;
+export default function Missing() {
+  return <HttpError status="404" title="Oops ..." message="The page you are looking for cannot be found" />;
 }

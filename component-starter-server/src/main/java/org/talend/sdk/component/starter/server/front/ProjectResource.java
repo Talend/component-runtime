@@ -108,7 +108,7 @@ public class ProjectResource {
                 ofNullable(model.getFacets()).orElse(emptyList()),
                 ofNullable(model.getSources())
                         .map(s -> s.stream()
-                                .map(i -> new ProjectRequest.SourceConfiguration(i.getName(), i.getIcon(),
+                                .map(i -> new ProjectRequest.SourceConfiguration(i.getName(), i.getIcon(), i.isStream(),
                                         toStructure(false, i.getConfigurationStructure()).getStructure(),
                                         toStructure(i.isGenericOutput(), i.getOutputStructure())))
                                 .collect(toList()))
@@ -119,17 +119,24 @@ public class ProjectResource {
                                         toStructure(false, i.getConfigurationStructure()).getStructure(),
                                         ofNullable(i.getInputStructures())
                                                 .map(is -> is.stream()
-                                                        .collect(toMap(ProjectModel.NamedModel::getName,
+                                                        .collect(toMap(n -> unifiedName(n.getName()),
                                                                 nm -> toStructure(nm.isGeneric(), nm.getStructure()))))
                                                 .orElse(emptyMap()),
                                         ofNullable(i.getOutputStructures())
                                                 .map(is -> is.stream()
-                                                        .collect(toMap(ProjectModel.NamedModel::getName,
+                                                        .collect(toMap(n -> unifiedName(n.getName()),
                                                                 nm -> toStructure(nm.isGeneric(), nm.getStructure()))))
                                                 .orElse(emptyMap())))
                                 .collect(toList()))
                         .orElse(emptyList()),
                 model.getFamily(), model.getCategory());
+    }
+
+    private String unifiedName(final String name) {
+        if ("MAIN".equalsIgnoreCase(name)) {
+            return "__default__";
+        }
+        return name;
     }
 
     private ProjectRequest.StructureConfiguration toStructure(final boolean generic, final ProjectModel.Model model) {

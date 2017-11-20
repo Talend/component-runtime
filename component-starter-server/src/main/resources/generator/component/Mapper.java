@@ -18,7 +18,7 @@ import {{servicePackage}}.{{serviceName}};
 //
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
 @Icon({{icon}}) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename_icon32.png in resources
-@PartitionMapper(name = "{{name}}")
+@PartitionMapper(name = "{{name}}"{{#infinite}}, infinite = true{{/infinite}})
 public class {{className}} implements Serializable {
     private final {{configurationName}} configuration;
     private final {{serviceName}} service;

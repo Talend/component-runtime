@@ -106,7 +106,24 @@
         <targetPath>META-INF/resources/documentation</targetPath>
       </resource>
     </resources>
+
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>clean-frontend</id>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <configuration>
+              <directory>${project.basedir}/src/main/frontend/dist</directory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
@@ -115,6 +132,7 @@
           <httpPort>8080</httpPort>
           <webapp>${project.basedir}/src/main/frontend/dist</webapp>
           <webResourceCached>false</webResourceCached>
+          <cdiConversation>false</cdiConversation>
         </configuration>
         <dependencies>
           <dependency>
@@ -168,6 +186,11 @@
             </goals>
             <configuration>
               <arguments>run build</arguments>
+              <environmentVariables>
+                <NODE_ENV>production</NODE_ENV>
+                <GENERATE_SOURCEMAP>false</GENERATE_SOURCEMAP>
+                <USE_LIVERELOAD>false</USE_LIVERELOAD>
+              </environmentVariables>
             </configuration>
           </execution>
           <execution> <!-- mvn frontend:yarn@watch -->
@@ -179,6 +202,8 @@
             <configuration>
               <arguments>run watch</arguments>
               <environmentVariables>
+                <GENERATE_SOURCEMAP>true</GENERATE_SOURCEMAP>
+                <USE_LIVERELOAD>true</USE_LIVERELOAD>
                 <NODE_ENV>production</NODE_ENV>
               </environmentVariables>
             </configuration>
