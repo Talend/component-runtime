@@ -9,7 +9,7 @@
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  WITHOUT WARRANTIES OR CONhttps://svn.apache.org/repos/asf/geronimo/xbean/tags/xbean-4.6/DITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
@@ -59,6 +59,9 @@ public class SparkClusterRuleTest {
     @Test
     public void classpathSubmit() throws IOException {
         final File out = new File(jarLocation(SparkClusterRuleTest.class).getParentFile(), testName.getMethodName() + ".out");
+        if (out.exists()) {
+            out.delete();
+        }
         SPARK.submitClasspath(SubmittableMain.class, SPARK.getSparkMaster(), out.getAbsolutePath());
 
         await().atMost(5, MINUTES).until(

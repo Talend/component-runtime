@@ -467,7 +467,7 @@ public class SparkClusterRule extends TemporaryFolder {
                 environment.put("SPARK_HOME", sparkHome.getAbsolutePath());
                 environment.put("SPARK_SCALA_VERSION", scalaVersion); // using jarLocation we can determine it if needed
                 if (config.version == Version.SPARK_1) { // classpath is relying on assemblies not on maven so force the right
-                    // classpath
+                    // classpath - todo: move to --driver-class-path
                     environment.put("SPARK_CLASSPATH", classpath);
                 }
                 if (isWin() && installWinUtils) {
