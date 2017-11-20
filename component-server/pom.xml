@@ -407,6 +407,7 @@
             <version>2.19.1</version>
             <configuration>
               <systemPropertyVariables>
+                <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
                 <component.server.test.logging.skip>true</component.server.test.logging.skip>
               </systemPropertyVariables>
             </configuration>
