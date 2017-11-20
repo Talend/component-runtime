@@ -16,7 +16,6 @@
 package org.talend.sdk.component.studio.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.talend.core.CorePlugin;
@@ -57,7 +56,7 @@ public class ElementParameterCreator {
 
     public List<? extends IElementParameter> createParameters() {
         addMainParameters();
-        return Collections.unmodifiableList(parameters);
+        return parameters;
     }
 
     private void addMainParameters() {

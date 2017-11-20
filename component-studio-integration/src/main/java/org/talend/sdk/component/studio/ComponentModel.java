@@ -30,6 +30,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.talend.core.model.components.EComponentType;
 import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.metadata.types.JavaTypesManager;
+import org.talend.core.model.process.EComponentCategory;
+import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
 import org.talend.core.model.process.INodeConnector;
@@ -37,6 +39,7 @@ import org.talend.core.model.process.INodeReturn;
 import org.talend.core.model.temp.ECodePart;
 import org.talend.core.runtime.util.ComponentReturnVariableUtils;
 import org.talend.designer.core.model.components.AbstractBasicComponent;
+import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.components.NodeReturn;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
@@ -202,7 +205,22 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     @Override // TODO This is dummy implementation. Correct impl should be added soon
     public List<? extends IElementParameter> createElementParameters(final INode node) {
-        return new ElementParameterCreator(this, node).createParameters();
+        List<IElementParameter> parameters = (List<IElementParameter>) new ElementParameterCreator(this, node).createParameters();
+        
+        ElementParameter dummy = new ElementParameter(node);
+        dummy.setCategory(EComponentCategory.BASIC);
+        dummy.setCurrentRow(0);
+        dummy.setDisplayName("Host URL");
+        dummy.setFieldType(EParameterFieldType.TEXT);
+        dummy.setName("connection.hostUrl");
+        dummy.setNumRow(2);
+        dummy.setShow(true);
+        dummy.setContextMode(true);
+        dummy.setValue("http://jira");
+        
+        parameters.add(dummy);
+        
+        return parameters;
     }
 
     /**
