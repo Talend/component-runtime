@@ -63,7 +63,7 @@ public class ParameterModelService {
         }).collect(toList());
     }
 
-    private ParameterMeta buildParameter(final String name, final String prefix, final Type genericType,
+    protected ParameterMeta buildParameter(final String name, final String prefix, final Type genericType,
             final Annotation[] annotations, final String i18nPackage) {
         final ParameterMeta.Type type = findType(genericType);
         final String normalizedPrefix = prefix.endsWith(".") ? prefix.substring(0, prefix.length() - 1) : prefix;
