@@ -40,51 +40,45 @@ export default class Component extends React.Component {
         }
       ]
     };
-    this.state.componentTypeActions.forEach(a => a.onClick = state => {
-      this.props.component.type = a.label;
-      this.setState({});
-    });
 
     this.componentPerType = this.state.componentTypeActions.reduce((a, i) => {
       a[i.label] = i;
       return a;
     }, {});
 
+    const onSelect = (ref, state, optProps) => {
+      let props = optProps || this.props;
+      props.component.type = ref.label;
+      state.type = ref.label;
+      state.drawers = [];
+      state.componentTypeActions.forEach(i => {
+        if (i.label !== ref.label) {
+          delete i.className;
+        } else {
+          i.className = theme.selected;
+        }
+      });
+    };
     // ensure the selected class is used when clicking on the component type buildToolActions
     this.state.componentTypeActions.forEach(item => {
-      const oldAction = item.onClick;
       const ref = item;
-      item.onClick = () => this.setState(state => {
-        oldAction(state);
-        state.drawers = [];
-        state.componentTypeActions.forEach(i => {
-          if (i.label !== ref.label) {
-            delete i.className;
-          } else {
-            i.className = theme.selected;
-          }
-        });
-      });
+      item.onClick = () => this.setState(state => onSelect(ref, state, this.props));
+      item.init = props => this.setState(state => onSelect(ref, state, props));
     });
 
-    this.componentWillReceiveProps(this.props);
-
     this.updateDrawers = this.updateDrawers.bind(this);
+
+    const selectedType = this.props.component.type || this.state.componentTypeActions[0].label;
+    onSelect(this.state.componentTypeActions.filter(i => i.label === selectedType)[0], this.state);
   }
 
   updateDrawers(drawers) {
     this.setState({drawers});
   }
 
-  componentWillMount() {
-    this.state.componentTypeActions[0].onClick();
-  }
-
   componentWillReceiveProps(nextProps) {
-    if (!nextProps.component.type) {
-      nextProps.component.type = this.state.componentTypeActions[0].label;
-    }
-    this.updateDrawers([]);
+    const selectedType = nextProps.component.type || this.state.componentTypeActions[0].label;
+    this.state.componentTypeActions.filter(i => i.label === selectedType)[0].init(nextProps);
   }
 
   render() {

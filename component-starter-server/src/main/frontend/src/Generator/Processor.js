@@ -54,7 +54,8 @@ class EmbeddableToggle extends React.Component {
 
   onChange() {
     this.setState(({checked}) => {
-      return {checked: !checked};
+      this.props.connection.generic = !this.props.connection.generic;
+      return {checked: this.props.connection.generic};
     });
   }
 
