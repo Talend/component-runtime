@@ -1019,6 +1019,37 @@ include::{generated_adoc}/configuration-types.adoc[]
 IMPORTANT: the component family associated with a configuration type (datastore/dataset) is always the one related
 to the component using that configuration.
 
+Those configuration types can be composed to provide one configuration item. For example a dataset type will often need a datastore
+type to be provided. and a datastore type (that provides the connection information) will be used to create a dataset type.
+
+Those configuration types will also be used at design time to create shared configuration that can be stored and used at runtime.
+
+For example, we can think about a relational database that support JDBC:
+
+- A datastore may provide:
+* jdbc url, username, password
+- A dataset may be:
+* datastore (that will provide the connection data to the database)
+* table name, data []
+
+The component server will scan all those configuration types and provide a configuration type index. This index can be used for the integration
+into the targeted platforms (studio, web applications...)
+
+The configuration type index is represented as a flat tree that contains all the configuration types represented as nodes and indexed by their ids.
+
+Also, every node can point to other nodes. This relation is represented as an array of edges that provide the childes ids.
+
+For example, a configuration type index for the above example will be:
+
+[source,json]
+----
+{nodes: {
+             "idForDstore": { datastore:"datastore data", edges:[id:"idForDset"] },
+             "idForDset":   { dataset:"dataset data" }
+    }
+}
+----
+
 === Define links between properties
 
 It can be needed to define a binding between properties, a set of annotations allows to do it:
