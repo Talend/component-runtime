@@ -14,8 +14,8 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { Drawer, Action, Toggle } from '@talend/react-components';
-import SchemaButton from '../Component/SchemaButton';
+import { Drawer, Toggle, Icon } from '@talend/react-components';
+import AppButton from '../Component/AppButton';
 import Input from '../Component/Input';
 import Schema from '../Component/Schema';
 
@@ -118,22 +118,60 @@ class Connection extends React.Component {
 
   render() {
     return (
-      <li className={this.props.theme.Connection} onClick={this.showDrawer}>
-        {this.props.connection.name} (todo: trash)
+      <li className={this.props.theme.Connection}>
+        <div>
+          <span onClick={this.showDrawer}>
+            {this.props.connection.name}&nbsp;
+            <span className={this.props.theme.recordType}>({!this.props.connection.generic ? 'custom' : 'generic'})</span>&nbsp;
+          </span>
+          {!this.props.readOnly && (<span>(<Icon name="talend-trash" onClick={e => {e.preventDefault(); this.props.removeConnection(this.props.connection);}} />)</span>)}
+        </div>
       </li>
     );
   }
 }
 
-function Connections (props) {
-  return (
-    <ul className={props.theme.Connections}>
-      {props.connections.map(connection =>
-        <Connection connection={connection} theme={props.theme}
-                    type={props.type} onUpdateDrawers={props.onUpdateDrawers}
-                    onChange={() => !!props.onChange && props.onChange()} />)}
-    </ul>
-  );
+class Connections extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      connections: props.connections
+    };
+    this.removeConnection = this.removeConnection.bind(this);
+  }
+
+  removeConnection(connection) {
+    this.props.connections.splice(this.props.connections.indexOf(connection), 1);
+    this.setState({
+      connections: this.props.connections.map(i => i)
+    })
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props !== nextProps) {
+      this.setState({
+        connections: nextProps.connections
+      });
+    }
+  }
+
+  render (props) {
+    return (
+      <ul className={this.props.theme.Connections}>
+        {
+          this.props.connections.map(connection =>
+            <Connection connection={connection} theme={this.props.theme}
+                        readOnly={this.props.type === 'Input' && connection.name === 'MAIN'}
+                        type={this.props.type} onUpdateDrawers={this.props.onUpdateDrawers}
+                        removeConnection={this.removeConnection}  />)
+        }
+        {
+          (!this.props.connections || this.props.connections.length === 0) &&
+            <li className={this.props.theme.ConnectionEnd}></li>
+        }
+      </ul>
+    );
+  }
 }
 
 export default class Processor extends React.Component {
@@ -182,21 +220,26 @@ export default class Processor extends React.Component {
   render() {
     return (
       <processor className={this.props.theme.Processor}>
-        <SchemaButton text="Configuration Model" onClick={this.onConfigurationButtonClick} />
+        <AppButton text="Configuration Model" onClick={this.onConfigurationButtonClick} />
 
         <div className={this.props.theme['form-row']}>
-          <p className={this.props.theme.title}>Connectivity</p>
-          <div className={this.props.theme.InlineDocumentation}>
-            <p>Click on plus buttons to add input(s)/output(s) and on a branch to edit it.</p>
+          <p className={this.props.theme.title}>Input(s) / Ouput(s)</p>
+          <div className={[this.props.theme.ComponentButtons, 'col-sm-12'].join(' ')}>
+            <div className="col-sm-6">
+              <AppButton text="Add Input" icon="talend-plus-circle" onClick={() => this.setState(s => s.inputs = this.newStructure('input', this.state.inputs))} />
+            </div>
+            <div className="col-sm-6">
+              <AppButton text="Add Ouput" icon="talend-plus-circle" className="pull-right" iconPosition="left"
+                         onClick={() => this.setState(s => s.outputs = this.newStructure('output', this.state.outputs))} />
+            </div>
           </div>
           <div className={[this.props.theme.ComponentWrapper, 'col-sm-12'].join(' ')}>
             <div className={[this.props.theme.Inputs, 'col-sm-5'].join(' ')}>
               <Connections connections={this.props.component.processor.inputStructures} theme={this.props.theme}
                            onUpdateDrawers={this.props.onUpdateDrawers} type="Input" />
             </div>
-            <div className={[this.props.theme.ComponentBox, 'col-sm-1'].join(' ')}>
-              <Action icon="talend-plus-circle" onClick={() => this.setState(s => s.inputs = this.newStructure('input', this.state.inputs))} />
-              <Action icon="talend-plus-circle" onClick={() => this.setState(s => s.outputs = this.newStructure('output', this.state.outputs))} />
+            <div className={[this.props.theme.ComponentBox, 'col-sm-2'].join(' ')}>
+              <componentBox>T</componentBox>
             </div>
             <div className={[this.props.theme.Outputs, 'col-sm-5'].join(' ')}>
               <Connections connections={this.props.component.processor.outputStructures} theme={this.props.theme}

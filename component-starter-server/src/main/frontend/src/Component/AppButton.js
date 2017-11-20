@@ -13,26 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-$grey: #aaa;
+import React from 'react';
+import { Action } from '@talend/react-components';
 
-.SchemaButton {
-  margin-top: 10px;
+import theme from './AppButton.scss';
 
-  a {
-    text-decoration: none;
-    border-radius: 6px;
-    height: 42px;
-    border: 2px solid #bdc3c7;
-    background-color: #fff;
-    border: 1px solid $grey;
-    padding: 5px 30px 5px;
-    color: $grey;
-    font-weight: bolder;
-    text-transform: uppercase;
+export default class AppButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+    };
   }
 
-  a:hover, a:focus {
-    text-decoration: none;
-    color: #888;
+  render() {
+    return (
+      <div className={theme.AppButton}>
+        <Action onClick={e => e.preventDefault() || (!!this.props.onClick && this.props.onClick())}
+                icon={this.props.icon} iconPosition={this.props.iconPosition || 'right'}
+                className={this.props.className}
+                label={this.props.text || 'Schema'} />
+      </div>
+    );
   }
 }

@@ -15,7 +15,7 @@
  */
 import React from 'react';
 import { Toggle, Drawer } from '@talend/react-components';
-import SchemaButton from '../Component/SchemaButton';
+import AppButton from '../Component/AppButton';
 import Schema from '../Component/Schema';
 
 export default class Mapper extends React.Component {
@@ -88,7 +88,7 @@ export default class Mapper extends React.Component {
   render() {
     return (
       <mapper className={this.props.theme.Mapper}>
-        <SchemaButton text="Configuration Model" onClick={this.onConfigurationButtonClick} />
+        <AppButton text="Configuration Model" onClick={this.onConfigurationButtonClick} />
         <div className={this.props.theme['form-row']}>
           <p className={this.props.theme.title}>Stream</p>
           <Toggle checked={this.props.component.source.stream} onChange={() => this.onStreamChange()} />
@@ -100,7 +100,7 @@ export default class Mapper extends React.Component {
             <option selected={!this.props.component.source.genericOutput} value="custom">Custom</option>
           </select>
           {
-            !this.props.component.source.genericOutput && <SchemaButton text="Record Model" onClick={this.onRecordButtonClick} />
+            !this.props.component.source.genericOutput && <AppButton text="Record Model" onClick={this.onRecordButtonClick} />
           }
         </div>
       </mapper>

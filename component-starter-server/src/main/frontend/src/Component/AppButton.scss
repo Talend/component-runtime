@@ -13,24 +13,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import React from 'react';
+$grey: #999;
 
-import theme from './SchemaButton.scss';
+.AppButton {
+  margin-top: 10px;
 
-export default class SchemaButton extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-    };
-  }
+  button {
+    height: auto;
+    box-shadow: none;
+    text-decoration: none;
+    border-radius: 6px;
+    border: 2px solid #bdc3c7;
+    background-color: #fff;
+    border: 1px solid $grey;
+    color: $grey;
+    font-weight: bolder;
+    text-transform: uppercase;
 
-  render() {
-    return (
-      <div className={theme.SchemaButton}>
-        <a href onClick={e => e.preventDefault() || (!!this.props.onClick && this.props.onClick())}>
-          {this.props.text || 'Schema'}
-        </a>
-      </div>
-    );
+    &:hover {
+      box-shadow: none;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:hover, &:focus {
+      background-color: white;
+    }
   }
 }
