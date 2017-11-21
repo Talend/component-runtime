@@ -14,8 +14,9 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { Actions, Icon, IconsProvider } from '@talend/react-components';
+import { Actions, Icon } from '@talend/react-components';
 import { CONFIGURATION_URL } from '../constants';
+import Help from '../Component/Help';
 import FacetSelector from './FacetSelector';
 import CategorySelector from './CategorySelector';
 import Input from '../Component/Input';
@@ -93,13 +94,22 @@ export default class ProjectMetadata extends React.Component {
 
     return (
       <div className={theme.ProjectMetadata}>
-        <IconsProvider />
 
         <div className={theme.main}>
           <div className={theme['form-row']}>
             <p className={theme.title}>Create a Talend Component Kit Project</p>
             <div>
               <Actions actions={this.state.buildToolActions} />
+              <Help title="Build Tool" content={
+                <span>
+                  <p>Maven is the most commonly used build tool and Talend Component Kit integrates with it smoothly.</p>
+                  <p>Gradle is less used but get more and more attraction because it is communicated as being faster than Maven.</p>
+                  <p>
+                    <Icon name="talend-warning" /> Talend Component Kit does not provide as much features with Gradle than with Maven. The
+                    components validation is not yet supported for instance.
+                  </p>
+                </span>
+              } />
             </div>
           </div>
 
@@ -114,11 +124,27 @@ export default class ProjectMetadata extends React.Component {
             <form novalidate submit={e => e.preventDefault()}>
               <div className="field">
                 <label forHtml="projectFamily">Component Family</label>
+                <Help title="Family" content={
+                  <span>
+                    <p>The family groups multiple components altogether.</p>
+                    <p>
+                    <Icon name="talend-info-circle"/> It is recommanded to use a single family name per component module. The name must be a valid
+                                     java name (no space, special characters, ...).
+                    </p>
+                  </span>
+                } />
                 <Input className="form-control" id="projectFamily" type="text" placeholder="Enter the component family..."
                        required="required" aggregate={this.state.project} accessor="family"/>
               </div>
               <div className="field">
                 <label forHtml="projectCategory">Category</label>
+                <Help title="Category" content={
+                  <span>
+                    <p>The category is a group used by the Studio to organize components of different families in the same bucket into the <code>Palette</code>.</p>
+                    <p>It is recommanded to use a two level category. The first level is generally very general and the second one is close to the family name.</p>
+                    <Icon name="talend-info-circle"/> The names must be valid java names (no space, special characters, ...).
+                  </span>
+                } />
                 <CategorySelector initialValue={this.state.project.category} onChange={(value) => this.onCategoryUpdate(value)} />
               </div>
             </form>
@@ -128,16 +154,39 @@ export default class ProjectMetadata extends React.Component {
           <form novalidate submit={e => e.preventDefault()}>
             <div className="field">
               <label forHtml="projectGroup">Group</label>
+              <Help title="Project Group" content={
+                <span>
+                  <p>The project group used when deployed on a repository (like a Nexus or central).</p>
+                  <p>The best practice recommands to use the reversed commpany hostname suffixed with something specific to the project.</p>
+                  <p>
+                  Example: <code>company.com</code> would lead to <code>com.company</code> package and for a component the used package would be,
+                  for instance, <code>com.company.talend.component</code>.
+                  </p>
+                </span>
+              } />
               <Input className="form-control" id="projectGroup" type="text" placeholder="Enter the project group..."
                      required="required" aggregate={this.state.project} accessor="group"/>
             </div>
             <div className="field">
               <label forHtml="projectArtifact">Artifact</label>
+              <Help title="Project Artifact" content={
+                <span>
+                  <p>The project artifact used when deployed on a repository (like a Nexus or central).</p>
+                  <p>It must be a unique identifier in the group namespace.</p>
+                  <p>Talend recommandation is to follow the pattern <code>${'{'}component{'}'}-component</code> but you can use whatever you want.</p>
+                </span>
+              } />
               <Input className="form-control" id="projectArtifact" type="text" placeholder="Enter the project artifact..."
                      required="required" aggregate={this.state.project} accessor="artifact"/>
             </div>
             <div className="field">
               <label forHtml="projectPackage">Package</label>
+              <Help title="Project Root package" content={
+                <span>
+                  <p>The root package represents a unique namespace in term of code.</p>
+                  <p>Talend recommandation is to align it on the selected group.</p>
+                </span>
+              } />
               <Input className="form-control" id="projectPackage" type="text" placeholder="Enter the project base package..."
                      required="required" aggregate={this.state.project} accessor="packageBase"/>
             </div>
@@ -156,16 +205,32 @@ export default class ProjectMetadata extends React.Component {
                 [
                   <div className="field">
                     <label forHtml="projectVersion">Version</label>
+                    <Help title="Project Version" content={
+                      <span>
+                        <p>The version to use when deploying the artifact.</p>
+                        <p>Generally this generator is used for a first version so the default should fit without modification.</p>
+                      </span>
+                    } />
                     <Input className="form-control" id="projectVersion" type="text" placeholder="Enter the project group..."
                            aggregate={this.state.project} accessor="version"/>
                   </div>,
                   <div className="field">
                     <label forHtml="projectName">Name</label>
+                    <Help title="Project Name" content={
+                      <span>
+                        <p>Giving a human readable name to the project is more friendly in an IDE or continuous integration platform.</p>
+                      </span>
+                    } />
                     <Input className="form-control" id="projectName" type="text" placeholder="Enter the project name..."
                            aggregate={this.state.project} accessor="name"/>
                   </div>,
                   <div className="field">
                     <label forHtml="projectDescription">Description</label>
+                    <Help title="Project Description" content={
+                      <span>
+                        <p>Giving a human readable description to the project allows to share some goals of the project with other developers in a standard fashion.</p>
+                      </span>
+                    } />
                     <Input className="form-control" id="projectDescription" type="text" placeholder="Enter the project description..."
                            aggregate={this.state.project} accessor="description"/>
                   </div>,

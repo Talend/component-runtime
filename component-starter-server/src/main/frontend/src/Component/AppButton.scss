@@ -42,4 +42,10 @@ $grey: #999;
       background-color: white;
     }
   }
+
+  &.right {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+  }
 }

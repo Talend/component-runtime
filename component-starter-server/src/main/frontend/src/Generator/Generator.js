@@ -59,7 +59,7 @@ export default class Generator extends React.Component {
     this.setState(state => {
       let component = {
         configuration: {
-          name: `New Component #${state.steps.length}`
+          name: `CompanyComponent${state.steps.length}`
         },
         source: {
           genericOutput: true,

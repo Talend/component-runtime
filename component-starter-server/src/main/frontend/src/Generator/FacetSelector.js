@@ -16,6 +16,7 @@
 import React from 'react';
 import keycode from 'keycode';
 import { Typeahead, Badge } from '@talend/react-components';
+import Help from '../Component/Help';
 
 import theme from './FacetSelector.scss';
 
@@ -130,7 +131,7 @@ export default class FacetSelector extends React.Component {
             icon: cat.icon,
             title: cat.title,
             suggestions: cat.suggestions.filter(item => {
-              return this.props.selected.indexOf(item) < 0;
+              return this.props.selected.indexOf(item.title) < 0;
             })
           }
         }).filter(category => category.suggestions.length > 0);
@@ -167,21 +168,31 @@ export default class FacetSelector extends React.Component {
 
     return (
         <div className={theme.wrapper}>
-          <Typeahead
-            icon={{name: "talend-search", title: "Toggle search input", bsStyle: "link"}}
-            placeholder="Select a facet to add to your project"
-            multiSection="false"
-            autoFocus={false}
-            value={this.state.value}
-            items={this.state.suggestions}
-            onBlur={this.resetSuggestions}
-            onChange={this.onChange}
-            onFocus={this.onFocus}
-            onKeyDown={this.onKeyDown}
-            onSelect={this.onAddTag}
-            theme={this.theme}
-            tabindex="-1"
-          />
+          <div>
+            <Typeahead
+              icon={{name: "talend-search", title: "Toggle search input", bsStyle: "link"}}
+              placeholder="Select a facet to add to your project"
+              multiSection="false"
+              autoFocus={false}
+              value={this.state.value}
+              items={this.state.suggestions}
+              onBlur={this.resetSuggestions}
+              onChange={this.onChange}
+              onFocus={this.onFocus}
+              onKeyDown={this.onKeyDown}
+              onSelect={this.onAddTag}
+              theme={this.theme}
+              tabindex="-1"
+            />
+            <div>
+              <Help title="Facets" content={
+                <span>
+                  <p>Selecting a facet allows you to adds some features to your generated project.</p>
+                  <p>A common use case is to activate the testing facet to have skeletons for tests.</p>
+                </span>
+              } />
+            </div>
+          </div>
 
           <div className={theme.badges}>{
               this.state.selected.map((item, index) => {

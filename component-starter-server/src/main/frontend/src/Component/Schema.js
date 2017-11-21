@@ -17,6 +17,7 @@ import React from 'react';
 import { Icon } from '@talend/react-components';
 import keycode from 'keycode';
 import Input from './Input';
+import Help from './Help';
 
 import theme from './Schema.scss';
 
@@ -122,6 +123,20 @@ class Node extends React.Component {
       nodeView = <span>
         <span onClick={this.onEdit}>{this.props.node.name || this.props.name} ({this.props.node.type || 'object'})</span>
         {!this.props.readOnly && <Icon className={theme.nodeIcon} name="talend-trash" onClick={this.deleteNode} />}
+        {
+          !this.props.parent && (
+            <Help title="Designing your model" content={
+              <span>
+                <p>This view allows you to modelize your model.</p>
+                <p>You can click on the <Icon name="talend-plus-circle" /> to add an object field, on the <Icon name="talend-trash" /> to delete one and on any field to edit its name and type.</p>
+                <p>To add a nested object just add a field, click on it, customize its name and select the type object into the select box then valid your updates.</p>
+                <p>
+                  <Icon name="talend-info-circle"/> The field names must be a valid java name (no space, special characters, ...).
+                </p>
+              </span>
+            } />
+          )
+        }
       </span>;
     }
     return (
