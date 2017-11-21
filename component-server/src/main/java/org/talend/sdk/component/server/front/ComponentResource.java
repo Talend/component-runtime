@@ -41,6 +41,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
@@ -108,6 +109,7 @@ public class ComponentResource {
 
     @GET
     @Path("index")
+    @Documentation("Returns the list of available components.")
     public ComponentIndices getIndex(@QueryParam("language") @DefaultValue("en") final String language) {
         final Locale locale = localeMapper.mapLocale(language);
         return indicesPerRequest
@@ -130,6 +132,7 @@ public class ComponentResource {
 
     @GET
     @Path("icon/family/{id}")
+    @Documentation("Returns a particular family icon in raw bytes.")
     public Response familyIcon(@PathParam("id") final String id) {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta meta = componentManagerService.findFamilyMetaById(id);
@@ -150,6 +153,7 @@ public class ComponentResource {
 
     @GET
     @Path("icon/{id}")
+    @Documentation("Returns a particular component icon in raw bytes.")
     public Response icon(@PathParam("id") final String id) {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta.BaseMeta<Object> meta = componentManagerService.findMetaById(id);
@@ -170,6 +174,7 @@ public class ComponentResource {
 
     @POST
     @Path("migrate/{id}/{configurationVersion}")
+    @Documentation("Allows to migrate a component configuration without calling any component execution.")
     public Map<String, String> migrate(@PathParam("id") final String id, @PathParam("configurationVersion") final int version,
             final Map<String, String> config) {
         return componentManagerService.findMetaById(id).getMigrationHandler().migrate(version, config);
@@ -177,6 +182,7 @@ public class ComponentResource {
 
     @GET // TODO: max ids.length
     @Path("details") // bulk mode to avoid to fetch components one by one when reloading a pipeline/job
+    @Documentation("Returns the set of metadata about a few components identified by their 'id'.")
     public ComponentDetailList getDetail(@QueryParam("language") @DefaultValue("en") final String language,
             @QueryParam("identifiers") final String[] ids) {
         final Map<String, ErrorPayload> errors = new HashMap<>();

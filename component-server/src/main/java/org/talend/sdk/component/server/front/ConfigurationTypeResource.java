@@ -15,11 +15,14 @@
  */
 package org.talend.sdk.component.server.front;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -29,6 +32,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.design.extension.repository.Config;
@@ -39,9 +43,7 @@ import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Path("configurationtype")
@@ -61,34 +63,33 @@ public class ConfigurationTypeResource {
 
     @GET
     @Path("index")
+    @Documentation("Returns all available configuration type - storable models.")
     public ConfigTypeNodes getRepositoryModel(@QueryParam("language") @DefaultValue("en") final String language) {
         final Locale locale = localeMapper.mapLocale(language);
         final ConfigTypeNodes root = new ConfigTypeNodes();
-        manager.find(container -> Stream.of(container)).forEach(c -> {
+        manager.find(Stream::of).forEach(c -> {
             RepositoryModel rp = c.get(RepositoryModel.class);
             if (rp != null) {
-                rp.getFamilies()
-                  .forEach(family -> {
-                      ConfigTypeNode node = new ConfigTypeNode();
-                      node.setId(family.getId());
-                      node.setName(family.getMeta().getName());
-                      FamilyBundle resourcesBundle = family.getMeta().findBundle(c.getLoader(), locale);
-                      node.setDisplayName(resourcesBundle.displayName().orElse(family.getMeta().getName()));
-                      if (family.getConfigs() != null) {
-                          node.setEdges(family.getConfigs().stream().map(config -> config.getId()).collect(toSet()));
-                          root.getNodes().put(node.getId(), node);
-                          createNode(family.getId(), family.getConfigs(), root, resourcesBundle, c.getLoader(),
-                                  locale);
-                      }
-                  });
+                rp.getFamilies().forEach(family -> {
+                    ConfigTypeNode node = new ConfigTypeNode();
+                    node.setId(family.getId());
+                    node.setName(family.getMeta().getName());
+                    FamilyBundle resourcesBundle = family.getMeta().findBundle(c.getLoader(), locale);
+                    node.setDisplayName(resourcesBundle.displayName().orElse(family.getMeta().getName()));
+                    if (family.getConfigs() != null) {
+                        node.setEdges(family.getConfigs().stream().map(Config::getId).collect(toSet()));
+                        root.getNodes().put(node.getId(), node);
+                        createNode(family.getId(), family.getConfigs(), root, resourcesBundle, c.getLoader(), locale);
+                    }
+                });
             }
         });
 
         return root;
     }
 
-    private void createNode(String parentId, List<Config> configs, ConfigTypeNodes root,
-            FamilyBundle resourcesBundle, ConfigurableClassLoader loader, Locale locale) {
+    private void createNode(String parentId, List<Config> configs, ConfigTypeNodes root, FamilyBundle resourcesBundle,
+            ConfigurableClassLoader loader, Locale locale) {
         if (configs == null) {
             return;
         }
@@ -98,7 +99,7 @@ public class ConfigurationTypeResource {
             node.setName(c.getMeta().getName());
             node.setParentId(parentId);
             node.setDisplayName(resourcesBundle.configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
-                                               .orElse(c.getKey().getConfigName()));
+                    .orElse(c.getKey().getConfigName()));
             if (c.getProperties() != null) {
                 node.setProperties(propertiesService.buildProperties(c.getProperties(), loader, locale).collect(toList()));
             }

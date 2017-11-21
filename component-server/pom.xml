@@ -208,6 +208,58 @@
               </scripts>
             </configuration>
           </execution>
+          <execution>
+            <id>enrich-adoc-with-descriptions</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <scripts>
+                <script><![CDATA[
+                  import javax.ws.rs.GET
+                  import javax.ws.rs.ApplicationPath
+                  import javax.ws.rs.Path
+                  import javax.ws.rs.POST
+                  import org.talend.sdk.component.api.meta.Documentation
+
+                  def doc = new File(project.build.directory, 'jaxrs-analyzer/rest-resources.adoc')
+                  if (!doc.exists()) {
+                    log.warn("${doc.absolutePath} doesn't exist")
+                    return
+                  }
+
+                  def content = doc.text
+                  def base = org.talend.sdk.component.server.front.TalendComponentApplication.class.getAnnotation(ApplicationPath.class).value()
+                  // for all endpoints replace the header appending the description
+                  [ // we could scan the resources but we'll never get a bunch so this is easier for now
+                    org.talend.sdk.component.server.front.ActionResource.class,
+                    org.talend.sdk.component.server.front.ComponentResource.class,
+                    org.talend.sdk.component.server.front.ConfigurationTypeResource.class,
+                    org.talend.sdk.component.server.front.ExecutionResource.class
+                  ].each { clazz ->
+                    clazz.methods.findAll { mtd ->
+                      mtd.isAnnotationPresent(Documentation.class) && mtd.isAnnotationPresent(Path.class)
+                    }.each { mtd ->
+                      def verb;
+                      if (mtd.isAnnotationPresent(POST.class)) {
+                        verb = 'POST'
+                      } else if (mtd.isAnnotationPresent(GET.class)) {
+                        verb = 'GET'
+                      } else {
+                        throw new IllegalArgumentException("Unkown verb for ${mtd.toGenericString()}")
+                      }
+                      def path = mtd.declaringClass.getAnnotation(Path.class).value() + '/' + mtd.getAnnotation(Path.class).value();
+                      def docContent = mtd.getAnnotation(Documentation.class).value()
+                      def token = "== `${verb} ${base}/${path}`"
+                      content = content.replace(token, "${token}\n\n${docContent}\n")
+                    }
+                  }
+                  doc.text = content
+                ]]></script>
+              </scripts>
+            </configuration>
+          </execution>
         </executions>
         <dependencies>
           <dependency>
