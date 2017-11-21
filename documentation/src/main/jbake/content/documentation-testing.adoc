@@ -156,6 +156,23 @@ public class MyComponentTest {
 
 <1> using `setInputData` you prepare the execution(s) to have a fake input when using "test"/"emitter" component.
 
+==== Creating runtime configuration from component configuration
+
+The component configuration is a POJO (using `@Option` on fields) and the runtime configuration (`ExecutionChainBuilder`) uses
+a `Map<String, String>`. To make the conversion easier, the JUnit integration provides a `SimpleFactory.configurationByExample` utility
+to get this map instance from a configuration instance.
+
+Example:
+
+[source,java]
+----
+final MyComponentConfig componentConfig = new MyComponentConfig();
+componentConfig.setUser("....");
+// .. other inits
+
+final Map<String, String> configuration = configurationByExample(componentConfig);
+----
+
 === component-runtime-testing-spark
 
 The folowing artifact will allow you to test against a spark cluster:
