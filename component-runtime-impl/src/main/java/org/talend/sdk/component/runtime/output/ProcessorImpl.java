@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.output;
 
@@ -29,18 +29,18 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-import org.talend.sdk.component.runtime.base.Delegated;
-import org.talend.sdk.component.runtime.base.LifecycleImpl;
-import org.talend.sdk.component.runtime.output.data.AccessorCache;
-import org.talend.sdk.component.runtime.output.data.ObjectMapImpl;
-import org.talend.sdk.component.runtime.serialization.ContainerFinder;
-import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.data.ObjectMap;
+import org.talend.sdk.component.runtime.base.Delegated;
+import org.talend.sdk.component.runtime.base.LifecycleImpl;
+import org.talend.sdk.component.runtime.output.data.AccessorCache;
+import org.talend.sdk.component.runtime.output.data.ObjectMapImpl;
+import org.talend.sdk.component.runtime.serialization.ContainerFinder;
+import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 
 import lombok.AllArgsConstructor;
 
@@ -79,7 +79,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                 }
 
                 final Class<?> parameterType = parameter.getType();
-                final boolean isObjectMap = parameterType == ObjectMap.class;
+                final boolean isObjectMap = ObjectMap.class.isAssignableFrom(parameterType);
                 final AccessorCache cache = ofNullable(
                         ContainerFinder.Instance.get().find(plugin()).findService(AccessorCache.class))
                                 .orElseGet(() -> new AccessorCache(plugin()));

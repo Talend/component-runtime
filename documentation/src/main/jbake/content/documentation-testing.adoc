@@ -173,6 +173,66 @@ componentConfig.setUser("....");
 final Map<String, String> configuration = configurationByExample(componentConfig);
 ----
 
+==== Testing a Mapper
+
+The `SimpleComponentRule` also allows to test a mapper unitarly, you can get an instance from a configuration
+and you can execute this instance to collect the output. Here is a snippet doing that:
+
+[source,java]
+----
+public class MapperTest {
+
+    @ClassRule
+    public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule(
+            "org.company.talend.component");
+
+    @Test
+    public void mapper() {
+        final Mapper mapper = COMPONENT_FACTORY.createMapper(MyMapper.class, new Source.Config() {{
+            values = asList("a", "b");
+        }});
+        assertEquals(asList("a", "b"), COMPONENT_FACTORY.collectAsList(String.class, mapper));
+    }
+}
+----
+
+==== Testing a Processor
+
+As for the mapper a processor is testable unitarly. The case is a bit more complex since you can have multiple
+inputs and outputs:
+
+[source,java]
+----
+public class ProcessorTest {
+
+    @ClassRule
+    public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule(
+            "org.company.talend.component");
+
+    @Test
+    public void processor() {
+        final Processor processor = COMPONENT_FACTORY.createProcessor(Transform.class, null);
+        final SimpleComponentRule.Outputs outputs = COMPONENT_FACTORY.collect(processor,
+                new JoinInputFactory(new HashMap<String, Iterator<?>>() {{
+                    put("__default__", asList(new Transform.Record("a"), new Transform.Record("bb")).iterator());
+                    put("second", asList(new Transform.Record("1"), new Transform.Record("2")).iterator());
+                }}));
+        assertEquals(2, outputs.size());
+        assertEquals(asList(2, 3), outputs.get(Integer.class, "size"));
+        assertEquals(asList("a1", "bb2"), outputs.get(String.class, "value"));
+    }
+}
+----
+
+Here again the rule allows you to instantiate a `Processor` from your code
+and then to `collect` the output from the inputs you pass in. There are two convenient implementation
+of the input factory:
+
+1. `MainInputFactory` for processors using only the default input.
+2. `JoinInputfactory` for processors using multiple inputs. This one takes a map of iterators. The key is the branch name and the value the data used by the branch.
+
+TIP: you can also implement your own input representation if needed implementing `org.talend.sdk.component.junit.ControllableInputFactory`.
+
 === component-runtime-testing-spark
 
 The folowing artifact will allow you to test against a spark cluster:

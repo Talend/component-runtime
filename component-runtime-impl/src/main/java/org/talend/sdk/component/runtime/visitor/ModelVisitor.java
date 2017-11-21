@@ -144,7 +144,7 @@ public class ModelVisitor {
                 return false;
             }
             return true;
-        }).count() != 1) {
+        }).count() < 1) {
             throw new IllegalArgumentException(input + " doesn't have the input parameter on its producer method");
         }
 

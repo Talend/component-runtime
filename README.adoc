@@ -1,5 +1,5 @@
 = Component Runtime
-:gh-name: Talend/component-api
+:gh-name: Talend/component-runtime
 :gh-branch: master
 
 ifdef::env-github[]

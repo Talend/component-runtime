@@ -1,40 +1,56 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.junit;
 
 import static java.util.Collections.emptyMap;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
+import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.talend.sdk.component.runtime.input.Input;
+import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.chain.CountingSuccessListener;
 import org.talend.sdk.component.runtime.manager.chain.ExecutionChainBuilder;
 import org.talend.sdk.component.runtime.manager.chain.ToleratingErrorHandler;
+import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 public class SimpleComponentRule implements TestRule {
 
@@ -59,6 +75,156 @@ public class SimpleComponentRule implements TestRule {
                 }
             }
         };
+    }
+
+    public Outputs collect(final Processor processor, final ControllableInputFactory inputs) {
+        return collect(processor, inputs, 10);
+    }
+
+    /**
+     * Collects all outputs of a processor.
+     *
+     * @param processor the processor to run while there are inputs.
+     * @param inputs the input factory, when an input will return null it will stop the processing.
+     * @param bundleSize the bundle size to use.
+     * @return a map where the key is the output name and the value a stream of the output values.
+     */
+    public Outputs collect(final Processor processor, final ControllableInputFactory inputs, final int bundleSize) {
+        final AutoChunkProcessor autoChunkProcessor = new AutoChunkProcessor(bundleSize, processor);
+        autoChunkProcessor.start();
+        final Outputs outputs = new Outputs();
+        try {
+            while (inputs.hasMoreData()) {
+                autoChunkProcessor.onElement(inputs, name -> value -> {
+                    final List aggregator = outputs.data.computeIfAbsent(name, n -> new ArrayList<>());
+                    aggregator.add(value);
+                });
+            }
+        } finally {
+            autoChunkProcessor.stop();
+        }
+        return outputs;
+    }
+
+    /**
+     * Collects data emitted from this mapper. If the split creates more than one mapper,
+     * it will create as much threads as mappers otherwise it will use the caller thread.
+     *
+     * IMPORTANT: don't forget to consume all the stream to ensure the underlying
+     * {@see org.talend.sdk.component.runtime.input.Input} is closed.
+     *
+     * @param recordType the record type to use to type the returned type.
+     * @param mapper the mapper to go through.
+     * @param <T> the returned type of the records of the mapper.
+     * @return all the records emitted by the mapper.
+     */
+    public <T> Stream<T> collect(final Class<T> recordType, final Mapper mapper) {
+        mapper.start();
+
+        final long assess = mapper.assess();
+        final int proc = Math.max(1, Runtime.getRuntime().availableProcessors());
+        final List<Mapper> mappers = mapper.split(Math.max(assess / proc, 1));
+        switch (mappers.size()) {
+        case 0:
+            return Stream.empty();
+        case 1:
+            return asStream(asIterator(mappers.iterator().next().create(), mapper::stop));
+        default:
+            final ExecutorService es = Executors.newFixedThreadPool(mappers.size());
+            final Runnable cleaner = new Runnable() {
+
+                private int remaining = mappers.size();
+
+                @Override
+                public void run() {
+                    synchronized (this) {
+                        remaining--;
+                        if (remaining > 0) {
+                            return;
+                        }
+                    }
+
+                    if (es.isShutdown()) {
+                        return;
+                    }
+
+                    es.shutdown();
+
+                    mapper.stop();
+
+                    try {
+                        final int timeout = Integer.getInteger("talend.component.junit.timeout", 5);
+                        if (!es.awaitTermination(timeout, MINUTES)) {
+                            throw new IllegalStateException("Mapper collection lasted for more than " + timeout
+                                    + "mn, you can customize "
+                                    + "this value setting the system property -Dtalend.component.junit.timeout=x, x in minutes.");
+                        }
+                    } catch (final InterruptedException e) {
+                        Thread.interrupted();
+                        throw new IllegalStateException(e);
+                    }
+                }
+            };
+            return mappers.stream().map(m -> asIterator(m.create(), cleaner)).map(this::asStream).collect(Stream::empty,
+                    Stream::concat, Stream::concat);
+        }
+    }
+
+    private <T> Stream<T> asStream(final Iterator<T> iterator) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.IMMUTABLE), false);
+    }
+
+    private <T> Iterator<T> asIterator(final Input input, final Runnable onLast) {
+        input.start();
+        return new Iterator<T>() {
+
+            private boolean closed;
+
+            private Object next;
+
+            @Override
+            public boolean hasNext() {
+                final boolean hasNext = (next = input.next()) != null;
+                if (!hasNext && !closed) {
+                    closed = true;
+                    try {
+                        input.stop();
+                    } finally {
+                        try {
+                            onLast.run();
+                        } catch (final RuntimeException re) {
+                            log.warn(re.getMessage(), re);
+                        }
+                    }
+                }
+                return hasNext;
+            }
+
+            @Override
+            public T next() {
+                return (T) next;
+            }
+        };
+    }
+
+    public <T> List<T> collectAsList(final Class<T> recordType, final Mapper mapper) {
+        return collect(recordType, mapper).collect(toList());
+    }
+
+    public Mapper createMapper(final Class<?> componentType, final Object configuration) {
+        return create(Mapper.class, componentType, configuration);
+    }
+
+    public Processor createProcessor(final Class<?> componentType, final Object configuration) {
+        return create(Processor.class, componentType, configuration);
+    }
+
+    private <C, T, A> A create(final Class<A> api, final Class<T> componentType, final C configuration) {
+        return api.cast(asManager().find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
+                .flatMap(f -> Stream.concat(f.getProcessors().values().stream(), f.getPartitionMappers().values().stream()))
+                .filter(m -> m.getType().getName().equals(componentType.getName())).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No component " + componentType)).getInstantiator()
+                .apply(configurationByExample(configuration)));
     }
 
     public <T> List<T> collect(final Class<T> recordType, final String family, final String component, final int version,
@@ -124,4 +290,20 @@ public class SimpleComponentRule implements TestRule {
         }
     }
 
+    public static class Outputs {
+
+        private final Map<String, List<?>> data = new HashMap<>();
+
+        public int size() {
+            return data.size();
+        }
+
+        public Set<String> keys() {
+            return data.keySet();
+        }
+
+        public <T> List<T> get(final Class<T> type, final String name) {
+            return (List<T>) data.get(name);
+        }
+    }
 }
