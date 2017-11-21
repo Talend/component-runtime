@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.server.front;
 
@@ -62,6 +62,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.ext.Providers;
 
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -73,7 +75,6 @@ import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.front.model.execution.PrimitiveWrapper;
 import org.talend.sdk.component.server.front.model.execution.WriteStatistics;
 import org.talend.sdk.component.server.service.objectmap.JsonObjectMap;
-import org.talend.sdk.component.api.processor.OutputEmitter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -126,6 +127,8 @@ public class ExecutionResource {
     @POST
     @Produces("talend/stream")
     @Path("read/{family}/{component}")
+    @Documentation("Read inputs from an instance of mapper. The number of returned records if enforced to be limited to 1000. "
+            + "The format is a JSON based format where each like is a json record.")
     public void read(@Suspended final AsyncResponse response, @Context final Providers providers,
             @PathParam("family") final String family, @PathParam("component") final String component,
             @QueryParam("size") @DefaultValue("50") final long size, final Map<String, String> configuration) {
@@ -177,6 +180,9 @@ public class ExecutionResource {
     @Consumes("talend/stream")
     @Produces(MediaType.APPLICATION_JSON)
     @Path("write/{family}/{component}")
+    @Documentation("Sends records using a processor instance. Note that the processor should have only an input. "
+            + "Behavior for other processors is undefined. "
+            + "The input format is a JSON based format where each like is a json record - same as for the symmetric endpoint.")
     public void write(@Suspended final AsyncResponse response, @Context final Providers providers,
             @PathParam("family") final String family, @PathParam("component") final String component,
             @QueryParam("group-size") @DefaultValue("50") final long chunkSize, final InputStream stream) throws IOException {
