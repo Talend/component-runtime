@@ -23,11 +23,18 @@ import java.lang.reflect.Proxy;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.IService;
+import org.talend.core.model.components.IComponent;
+import org.talend.core.model.process.EComponentCategory;
+import org.talend.core.model.process.Element;
+import org.talend.core.model.process.INode;
 import org.talend.core.runtime.services.IGenericWizardService;
+import org.talend.designer.core.ui.views.properties.composites.MissingSettingsMultiThreadDynamicComposite;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.sdk.component.studio.metadata.WizardRegistry;
 import org.talend.sdk.component.studio.service.ComponentService;
@@ -89,17 +96,29 @@ public class Lookups {
                                     .cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
                                             service.getClass().getInterfaces(), (proxy, method, args) -> {
                                                 try {
-                                                    final Object invoke = method.invoke(service, args);
                                                     switch (method.getName()) {
                                                     case "createNodesFromComponentService":
+                                                        final Object invoke = method.invoke(service, args);
                                                         if (args[0] != null) {
                                                             final Collection<RepositoryNode> nodes = customService
                                                                     .createNodes(RepositoryNode.class.cast(args[0]));
                                                             Collection.class.cast(invoke).addAll(nodes);
                                                         }
                                                         return invoke;
+                                                    case "creatDynamicComposite":
+                                                        if (args[1] != null && args[1] instanceof INode) {
+                                                            INode node = (INode) args[1];
+                                                            // decide whether it is v0 or v1
+                                                            IComponent component = node.getComponent();
+                                                            if (component instanceof ComponentModel) {
+                                                                return creatComposite((Composite) args[0], (Element) args[1], (EComponentCategory) args[2], (boolean) args[3]);
+                                                            } else { // it is v0 component, so call GenericWizardService original method
+                                                                return method.invoke(service, args);
+                                                            }
+                                                        }
+                                                        return null;
                                                     default:
-                                                        return invoke;
+                                                        return method.invoke(service, args);
                                                     }
                                                 } catch (final InvocationTargetException ite) {
                                                     throw ite.getTargetException();
@@ -112,5 +131,15 @@ public class Lookups {
             }
             return service;
         }
+
+        /**
+         * Substitutes {@link IGenericWizardService#creatDynamicComposite() original method
+         */
+        private Composite creatComposite(Composite parent, Element element, EComponentCategory category, boolean isCompactView) {
+            
+            return new MissingSettingsMultiThreadDynamicComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS,
+                    category, element, isCompactView);
+        }
     }
+    
 }
