@@ -44,6 +44,9 @@ public class SimpleFactory {
     }
 
     public static <T> Map<String, String> configurationByExample(final T instance, final String prefix) {
+        if (instance == null) {
+            return emptyMap();
+        }
         final ParameterMeta params = new SimpleParameterModelService().build(prefix, prefix, instance.getClass(),
                 new Annotation[0], instance.getClass().getPackage().getName());
         return computeConfiguration(params.getNestedParameters(), prefix, instance);
@@ -91,11 +94,18 @@ public class SimpleFactory {
             return instance;
         }
 
-        final Field declaredField;
-        try {
-            declaredField = instance.getClass().getDeclaredField(name);
-        } catch (final NoSuchFieldException e) {
-            throw new IllegalArgumentException(e);
+        Field declaredField = null;
+        Class<?> current = instance.getClass();
+        while (current != null && current != Object.class) {
+            try {
+                declaredField = current.getDeclaredField(name);
+                break;
+            } catch (final NoSuchFieldException e) {
+                current = current.getSuperclass();
+            }
+        }
+        if (declaredField == null) {
+            throw new IllegalArgumentException("No field '" + name + "' in " + instance);
         }
         if (!declaredField.isAccessible()) {
             declaredField.setAccessible(true);

@@ -15,6 +15,11 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect;
 
+import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -37,11 +42,6 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
-
-import static java.util.Collections.singletonList;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 public class ParameterModelService {
 
@@ -154,7 +154,8 @@ public class ParameterModelService {
         final List<ParameterMeta> out = new ArrayList<>();
         Class<?> current = type;
         while (current != null && current != Object.class) {
-            out.addAll(Stream.of(current.getDeclaredFields()).filter(f -> !"$jacocoData".equals(f.getName()))
+            out.addAll(Stream.of(current.getDeclaredFields())
+                             .filter(f -> !"$jacocoData".equals(f.getName()) && (f.getModifiers() & 0x00001000/*SYNTHETIC*/) == 0)
                              .filter(f -> fields.putIfAbsent(f.getName(), f) == null).map(f -> {
                         final String path = prefix + f.getName();
                         return buildParameter(f.getName(), path + ".", f.getGenericType(), f.getAnnotations(), i18nPackage);
