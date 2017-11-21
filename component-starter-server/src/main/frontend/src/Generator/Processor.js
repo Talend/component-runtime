@@ -15,6 +15,7 @@
  */
 import React from 'react';
 import { Drawer, Toggle, Icon } from '@talend/react-components';
+import Help from '../Component/Help';
 import AppButton from '../Component/AppButton';
 import Input from '../Component/Input';
 import Schema from '../Component/Schema';
@@ -63,7 +64,15 @@ class EmbeddableToggle extends React.Component {
     return (
       <schemaConfiguration>
         <div className={this.props.theme['form-row']}>
-          <p className={this.props.theme.title}>Generic</p>
+          <p className={this.props.theme.title}>
+            Generic
+            <Help title="Generic" content={
+              <span>
+                <p>Is this branch type generic, i.e. is the data strongly typed or can use a dynamic schema.</p>
+                <p>Using a dynamic schema will allow you to read data from a structure you do not know at development time.</p>
+              </span>
+            } />
+          </p>
           <Toggle checked={this.state.checked} onChange={this.onChange} />
         </div>
         {
@@ -108,6 +117,12 @@ class Connection extends React.Component {
       <Drawer title={`${this.props.connection.name} Record Model (${this.props.type})`} footerActions={drawerActions(this.props)}>
         <div className="field">
           <label>Name</label>
+          <Help title="Branch Name" content={
+            <span>
+              <p>The name of the connection/branch.</p>
+              <p>The main branch must be named <code>MAIN</code>.</p>
+            </span>
+          } />
           <Input className="form-control" type="text" placeholder="Enter the connection name..."
                  aggregate={this.props.connection} accessor="name" />
         </div>
@@ -220,17 +235,46 @@ export default class Processor extends React.Component {
   render() {
     return (
       <processor className={this.props.theme.Processor}>
-        <AppButton text="Configuration Model" onClick={this.onConfigurationButtonClick} />
+        <AppButton text="Configuration Model" onClick={this.onConfigurationButtonClick} help={(
+          <Help title="Configuration" content={
+            <span>
+              <p>The component configuration schema design can be configured by clicking on this button.</p>
+              <p>It allows you to define the data you need to be able to execute the component logic.</p>
+            </span>
+          } />
+        )} />
 
         <div className={this.props.theme['form-row']}>
-          <p className={this.props.theme.title}>Input(s) / Ouput(s)</p>
+          <p className={this.props.theme.title}>
+            Input(s) / Ouput(s)
+            <Help title="Connectivity" content={
+              <span>
+                <p>This section allows you to configure the processor connectivity.</p>
+                <p>Click on <Icon name="talend-plus-circle" /> buttons to add inputs/outputs and the <Icon name="talend-trash"/> to remove one.</p>
+                <p>Clicking on an input/output branch you can edit its specification (name, type).</p>
+              </span>
+            } />
+          </p>
           <div className={[this.props.theme.ComponentButtons, 'col-sm-12'].join(' ')}>
             <div className="col-sm-6">
-              <AppButton text="Add Input" icon="talend-plus-circle" onClick={() => this.setState(s => s.inputs = this.newStructure('input', this.state.inputs))} />
+              <AppButton text="Add Input" icon="talend-plus-circle" onClick={() => this.setState(s => s.inputs = this.newStructure('input', this.state.inputs))} help={(
+                <Help title="Inputs" content={
+                  <span>
+                    <p>Clicking on this button you add an input to the processor.</p>
+                    <p><Icon name="talend-info-circle" /> <code>MAIN</code> input is mandatory.</p>
+                  </span>
+                } />
+              )} />
             </div>
             <div className="col-sm-6">
-              <AppButton text="Add Ouput" icon="talend-plus-circle" className="pull-right" iconPosition="left"
-                         onClick={() => this.setState(s => s.outputs = this.newStructure('output', this.state.outputs))} />
+              <AppButton text="Add Ouput" icon="talend-plus-circle" side="right" iconPosition="left"
+                         onClick={() => this.setState(s => s.outputs = this.newStructure('output', this.state.outputs))} help={(
+                           <Help title="Outputs" placement="left" content={
+                             <span>
+                               <p>Clicking on this button you add an output to the processor.</p>
+                             </span>
+                           } />
+                         )} />
             </div>
           </div>
           <div className={[this.props.theme.ComponentWrapper, 'col-sm-12'].join(' ')}>
@@ -239,7 +283,7 @@ export default class Processor extends React.Component {
                            onUpdateDrawers={this.props.onUpdateDrawers} type="Input" />
             </div>
             <div className={[this.props.theme.ComponentBox, 'col-sm-2'].join(' ')}>
-              <componentBox>T</componentBox>
+              <componentBox>component</componentBox>
             </div>
             <div className={[this.props.theme.Outputs, 'col-sm-5'].join(' ')}>
               <Connections connections={this.props.component.processor.outputStructures} theme={this.props.theme}

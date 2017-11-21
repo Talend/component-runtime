@@ -14,9 +14,10 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { Actions, WithDrawer } from '@talend/react-components';
+import { Actions, WithDrawer, Icon } from '@talend/react-components';
 
 import Input from '../Component/Input';
+import Help from '../Component/Help';
 import Mapper from './Mapper';
 import Processor from './Processor';
 
@@ -91,6 +92,17 @@ export default class Component extends React.Component {
               <p className={theme.title}><em>{this.props.component.configuration.name || ''}</em> Configuration</p>
               <div>
                 <Actions actions={this.state.componentTypeActions} />
+                <Help title="Component Type" content={
+                  <span>
+                    <p>
+                      Talend Component Kit supports two types of components:
+                      <ul>
+                        <li>Input: it is a component creating records from itself. It only supports to create a main output branch of records.</li>
+                        <li>Processor: this component type can read from 1 or multiple inputs the data, process them and create 0 or multiple outputs.</li>
+                      </ul>
+                    </p>
+                  </span>
+                } />
               </div>
             </div>
 
@@ -99,6 +111,12 @@ export default class Component extends React.Component {
               <form novalidate submit={e => e.preventDefault()}>
                 <div className="field">
                   <label forHtml="componentName">Name</label>
+                  <Help title="Component Name" content={
+                    <span>
+                      <p>Each component has a name which must be unique into a family.</p>
+                      <p><Icon name="talend-info-circle"/> The name must be a valid java name (no space, special characters, ...).</p>
+                    </span>
+                  } />
                   <Input className="form-control" id="componentName" type="text" placeholder="Enter the component name..."
                          required="required" minLength="1" onChange={() => !!this.props.onChange && this.props.onChange()}
                          aggregate={this.props.component.configuration} accessor="name"/>

@@ -31,16 +31,23 @@ $tc-badge-margin: $padding-smaller !default;
   height: auto;
   padding: 0;
 
-  &:focus-within {
-    box-shadow: $form-focus-shadow;
-  }
-
-  .badges {
+  > div:first-child {
     display: flex;
+    flex-direction: row;
+    width: 100%;
 
-    .tc-badge {
-      display: inline-flex;
-      width: 100%;
+    > div:first-child {
+      flex: 1;
+      display: block;
+
+      &:focus-within {
+        box-shadow: $form-focus-shadow;
+      }
+    }
+
+    > div:last-child {
+      flex: 0;
+      padding-top: 0.6rem;
     }
   }
 
@@ -80,6 +87,15 @@ $tc-badge-margin: $padding-smaller !default;
       > li > div {
         padding: $padding-smaller;
       }
+    }
+  }
+
+  .badges {
+    display: flex;
+
+    .tc-badge {
+      display: inline-flex;
+      width: 100%;
     }
   }
 }

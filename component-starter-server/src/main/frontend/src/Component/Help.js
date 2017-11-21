@@ -13,14 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-}
+import React from 'react';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { Icon } from '@talend/react-components';
 
-:global {
-  .popover {
-    max-width: 100%
-  }
+import theme from './Help.scss';
+
+export default function Help(props) {
+  return (
+    <OverlayTrigger trigger={['hover', 'focus']} placement={props.placement || 'right'}
+                    overlay={<Popover title={props.title}>{<span className={theme.HelpContent}>{props.content}</span>}</Popover>}>
+      <span className={theme.Help}>
+        <Icon name="talend-question-circle" />
+      </span>
+    </OverlayTrigger>
+  );
 }

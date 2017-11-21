@@ -26,12 +26,17 @@ export default class AppButton extends React.Component {
   }
 
   render() {
+    const classes = [theme.AppButton];
+    if ('right' === this.props.side) {
+      classes.push(theme.right);
+    }
     return (
-      <div className={theme.AppButton}>
+      <div className={classes.join(' ')}>
         <Action onClick={e => e.preventDefault() || (!!this.props.onClick && this.props.onClick())}
                 icon={this.props.icon} iconPosition={this.props.iconPosition || 'right'}
                 className={this.props.className}
                 label={this.props.text || 'Schema'} />
+        {!!this.props.help && this.props.help}
       </div>
     );
   }
