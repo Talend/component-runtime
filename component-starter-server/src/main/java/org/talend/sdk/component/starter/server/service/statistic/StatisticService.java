@@ -15,48 +15,61 @@
  */
 package org.talend.sdk.component.starter.server.service.statistic;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.deltaspike.core.api.config.ConfigProperty;
-import org.talend.sdk.component.starter.server.service.event.CreateProject;
+import static java.lang.Thread.sleep;
+import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.util.Collection;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
+import javax.json.bind.Jsonb;
 
-import static java.lang.Thread.sleep;
-import static java.util.Optional.ofNullable;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import org.apache.deltaspike.core.api.config.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.talend.sdk.component.starter.server.service.event.CreateProject;
 
-@Slf4j
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
 @ApplicationScoped
 public class StatisticService {
 
+    @Inject
+    private Jsonb jsonb;
+
+    private final Logger logger = LoggerFactory.getLogger("talend.component.starter.statistics");
+
     // TODO: move to an actual backend like elasticsearch
     public void save(final CreateProject event) {
-        /*
-        request.getBuildConfiguration().getGroup() + ':' + request.getBuildConfiguration().getArtifact(),
-                request.getSources() == null ? 0 : request.getSources().size(),
-                request.getProcessors() == null ? 0 : request.getProcessors().size(),
-                facets
-         */
-        final String project = event.getRequest().getBuildConfiguration().getGroup() + ':' +
-                event.getRequest().getBuildConfiguration().getArtifact();
-        final String id = UUID.randomUUID().toString().replace("-", "");
-        log.info("[STATISTICS][id=" + id + "][project=" + project + "]" +
-                "[sourceCount=" + (event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size() + "]") +
-                "[processorCount=" + (event.getRequest().getProcessors() == null ? 0 : event.getRequest().getProcessors().size() + "]"));
-        ofNullable(event.getRequest().getFacets()).map(Collection::stream).orElseGet(Stream::empty)
-                .map(facet -> "[STATISTICS][id=" + id + "][facet=" + facet + "]")
-                .forEach(log::info);
+        final String project = event.getRequest().getBuildConfiguration().getGroup() + ':'
+                + event.getRequest().getBuildConfiguration().getArtifact();
+        logger.info(jsonb.toJson(
+                new Representation(project, event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size(),
+                        event.getRequest().getProcessors() == null ? 0 : event.getRequest().getProcessors().size(),
+                        ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList))));
     }
 
+    @Data
+    public static class Representation {
+
+        private final String id;
+
+        private final int sourcesCount;
+
+        private final int processorsCount;
+
+        private final Collection<String> facets;
+    }
+
+    @Slf4j
     @ApplicationScoped
     public static class ProjectListener {
 
