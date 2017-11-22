@@ -222,6 +222,7 @@
             <exclude>**/reveal.js/**/*</exclude>
             <exclude>**/talend-component-maven-plugin/src/it/generator/**/*</exclude>
             <exclude>**/src/main/resources/generator/**/*</exclude>
+            <exclude>**/src/test/resources/generated/**/*</exclude>
           </excludes>
         </configuration>
       </plugin>

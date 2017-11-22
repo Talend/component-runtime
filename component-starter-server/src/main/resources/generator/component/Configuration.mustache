@@ -1,0 +1,33 @@
+package {{package}};
+
+{{#structure.size}}
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+{{/structure.size}}
+
+@GridLayout({
+    // the generated layout put one configuration entry per line,
+    // customize it as much as needed
+ {{#structure}}
+    @GridLayout.Row({ "{{name}}" }){{^-last}},{{/-last}}
+ {{/structure}}
+})
+public class {{className}} {
+
+{{#structure}}
+    @Option
+    private {{type}} {{name}};
+{{/structure}}
+
+{{#structure}}
+    public {{type}} get{{methodName}}() {
+        return {{name}};
+    }
+
+    public {{className}}  set{{methodName}}({{type}} {{name}}) {
+         this.{{name}} = {{name}};
+         return this;
+    }
+
+ {{/structure}}
+}
