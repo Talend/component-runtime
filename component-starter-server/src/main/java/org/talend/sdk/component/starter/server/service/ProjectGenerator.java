@@ -15,20 +15,13 @@
  */
 package org.talend.sdk.component.starter.server.service;
 
-import lombok.Getter;
-import org.talend.sdk.component.starter.server.service.build.BuildGenerator;
-import org.talend.sdk.component.starter.server.service.domain.Build;
-import org.talend.sdk.component.starter.server.service.domain.Dependency;
-import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
-import org.talend.sdk.component.starter.server.service.event.CreateProject;
-import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
-import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
-import org.talend.sdk.component.starter.server.service.facet.component.ComponentGenerator;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -44,12 +37,21 @@ import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+
+import org.talend.sdk.component.starter.server.service.build.BuildGenerator;
+import org.talend.sdk.component.starter.server.service.domain.Build;
+import org.talend.sdk.component.starter.server.service.domain.Dependency;
+import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
+import org.talend.sdk.component.starter.server.service.event.CreateProject;
+import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
+import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+import org.talend.sdk.component.starter.server.service.facet.component.ComponentGenerator;
+
+import lombok.Getter;
 
 @ApplicationScoped
 public class ProjectGenerator {

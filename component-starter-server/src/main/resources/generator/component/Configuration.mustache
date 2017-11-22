@@ -13,21 +13,22 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
  {{/structure}}
 })
 public class {{className}} {
-
 {{#structure}}
     @Option
     private {{type}} {{name}};
-{{/structure}}
 
+{{/structure}}
 {{#structure}}
     public {{type}} get{{methodName}}() {
         return {{name}};
     }
 
-    public {{className}}  set{{methodName}}({{type}} {{name}}) {
-         this.{{name}} = {{name}};
-         return this;
+    public {{className}} set{{methodName}}({{type}} {{name}}) {
+        this.{{name}} = {{name}};
+        return this;
     }
+{{^-last}}
 
- {{/structure}}
+{{/-last}}
+{{/structure}}
 }

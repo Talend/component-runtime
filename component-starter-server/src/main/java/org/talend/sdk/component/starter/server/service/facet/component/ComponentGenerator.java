@@ -177,7 +177,7 @@ public class ComponentGenerator {
             final String baseName = toJavaName(source.getName());
             final String sourceName = baseName + "Source";
             final String mapperName = baseName + "Mapper";
-            final String configurationClassName = sourceName + "Configuration";
+            final String configurationClassName = mapperName + "Configuration";
             final String modelClassName = generic ? baseName + "GenericRecord" : (baseName + "Record");
             final String sourcePackage = packageBase + ".source";
 

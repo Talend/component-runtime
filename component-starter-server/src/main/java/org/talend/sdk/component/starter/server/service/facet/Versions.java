@@ -18,4 +18,6 @@ package org.talend.sdk.component.starter.server.service.facet;
 public interface Versions {
     String KIT = "1.0.0-SNAPSHOT";
     String SUREFIRE = "2.20.1";
+    String BEAM = "2.2.0";
+    String CXF = "3.2.1";
 }

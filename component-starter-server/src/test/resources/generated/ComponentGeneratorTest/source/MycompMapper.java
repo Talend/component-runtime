@@ -23,10 +23,10 @@ import com.foo.service.TestService;
 @Icon(Icon.IconType.STAR) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename_icon32.png in resources
 @PartitionMapper(name = "mycomp")
 public class MycompMapper implements Serializable {
-    private final MycompSourceConfiguration configuration;
+    private final MycompMapperConfiguration configuration;
     private final TestService service;
 
-    public MycompMapper(@Option("configuration") final MycompSourceConfiguration configuration, final TestService service) {
+    public MycompMapper(@Option("configuration") final MycompMapperConfiguration configuration, final TestService service) {
         this.configuration = configuration;
         this.service = service;
     }

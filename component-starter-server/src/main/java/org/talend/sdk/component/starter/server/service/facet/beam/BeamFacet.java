@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.starter.server.service.facet.testing;
+package org.talend.sdk.component.starter.server.service.facet.beam;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
@@ -25,6 +25,7 @@ import static org.talend.sdk.component.starter.server.service.facet.util.NameCon
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -42,46 +43,41 @@ import org.talend.sdk.component.starter.server.service.facet.Versions;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 @ApplicationScoped
-public class TalendComponentKitTesting implements FacetGenerator, Versions {
+public class BeamFacet implements FacetGenerator, Versions {
 
     @Inject
     private TemplateRenderer tpl;
 
-    private Collection<Dependency> dependencies;
+    private List<Dependency> dependencies;
 
     void register(@Observes final GeneratorRegistration init) {
         init.registerFacetType(this);
         dependencies = asList(Dependency.junit(),
-                new Dependency("org.talend.sdk.component", "component-runtime-junit", KIT, "test"));
-    }
-
-    @Override
-    public Stream<Dependency> dependencies(final Collection<String> facets) {
-        return dependencies.stream();
+                new Dependency("org.talend.sdk.component", "component-runtime-beam", KIT, "test"),
+                new Dependency("org.talend.sdk.component", "component-runtime-junit", KIT, "test"),
+                new Dependency("org.hamcrest", "hamcrest-all", "1.3", "test"),
+                new Dependency("org.apache.beam", "beam-runners-direct-java", BEAM, "test"));
     }
 
     @Override
     public Stream<InMemoryFile> create(final String packageBase, final Build build, final Collection<String> facets,
             final Collection<ProjectRequest.SourceConfiguration> sources,
             final Collection<ProjectRequest.ProcessorConfiguration> processors) {
-
         final boolean hasComponent = (sources != null && !sources.isEmpty()) || (processors != null && !processors.isEmpty());
         if (!hasComponent) {
             return Stream.empty();
         }
-
         final String testJava = build.getTestJavaDirectory() + '/' + packageBase.replace('.', '/');
         return Stream.concat(createSourceTest(testJava, packageBase, sources, build),
                 createProcessorsTest(testJava, packageBase, processors, build));
     }
 
-    private Stream<InMemoryFile> createSourceTest(String testJava, String packageBase,
-            Collection<ProjectRequest.SourceConfiguration> sources, Build build) {
+    private Stream<InMemoryFile> createSourceTest(final String testJava, final String packageBase,
+                                                  final Collection<ProjectRequest.SourceConfiguration> sources, final Build build) {
 
         return sources.stream().flatMap(source -> {
             final String baseName = toJavaName(source.getName()) + "Source";
             final String testClassName = baseName + "Test";
-
             final String configurationClassName = baseName + "Configuration";
             final String mapperName = baseName + "Mapper";
             final boolean isGeneric = source.getOutputStructure().isGeneric();
@@ -118,8 +114,8 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
         });
     }
 
-    private Stream<InMemoryFile> createProcessorsTest(String testJava, String packageBase,
-            Collection<ProjectRequest.ProcessorConfiguration> processors, Build build) {
+    private Stream<InMemoryFile> createProcessorsTest(final String testJava, final String packageBase,
+                                                      final Collection<ProjectRequest.ProcessorConfiguration> processors, final Build build) {
 
         return processors.stream().flatMap(processor -> {
             final boolean isOutput = processor.getOutputStructures() == null || processor.getOutputStructures().isEmpty();
@@ -193,22 +189,28 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
     }
 
     @Override
-    public String name() {
-        return "Talend Component Kit Testing";
-    }
-
-    @Override
-    public Category category() {
-        return Category.TEST;
-    }
-
-    @Override
-    public String readme() {
-        return "Talend Component Kit Testing skeleton generator. For each component selected it generates an associated test suffixed with `Test`.";
+    public Stream<Dependency> dependencies(final Collection<String> facets) {
+        return dependencies.stream();
     }
 
     @Override
     public String description() {
-        return "Generates test(s) for each component.";
+        return "Generates some tests using beam runtime instead of Talend Component Kit Testing framework.";
+    }
+
+    @Override
+    public String readme() {
+        return "Beam facet generates component tests using Apache Beam testing framework. It executes the tests using a real "
+                + "beam pipeline to go through the runtime constraints of Apache Beam which can be more strict than Talend Component Kit ones.";
+    }
+
+    @Override
+    public String name() {
+        return "Apache Beam";
+    }
+
+    @Override
+    public Category category() {
+        return Category.RUNTIME;
     }
 }

@@ -57,7 +57,7 @@ public class ComponentGeneratorConfigurationTest {
                                 + "import org.talend.sdk.component.api.configuration.Option;\n"
                                 + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
                                 + "@GridLayout({\n" + "    // the generated layout put one configuration entry per line,\n"
-                                + "    // customize it as much as needed\n" + "})\n" + "public class Demo {\n" + "\n\n" + "}"),
+                                + "    // customize it as much as needed\n" + "})\n" + "public class Demo {\n}"),
                 // string field
                 new Scenario(new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("name", "String", null))),
                         "package demo.source;\n"
@@ -71,7 +71,6 @@ public class ComponentGeneratorConfigurationTest {
                                 + "    @GridLayout.Row({ \"name\" })\n"
                                 + "})\n"
                                 + "public class Demo {\n"
-                                + "\n"
                                 + "    @Option\n"
                                 + "    private String name;\n"
                                 + "\n"
@@ -79,11 +78,10 @@ public class ComponentGeneratorConfigurationTest {
                                 + "        return name;\n"
                                 + "    }\n"
                                 + "\n"
-                                + "    public Demo  setName(String name) {\n"
-                                + "         this.name = name;\n"
-                                + "         return this;\n"
+                                + "    public Demo setName(String name) {\n"
+                                + "        this.name = name;\n"
+                                + "        return this;\n"
                                 + "    }\n"
-                                + "\n"
                                 + "}"),
                 // string field + int field
                 new Scenario(
@@ -101,9 +99,8 @@ public class ComponentGeneratorConfigurationTest {
                                 + "    @GridLayout.Row({ \"age\" })\n"
                                 + "})\n"
                                 + "public class Demo {\n"
-                                + "\n"
                                 + "    @Option\n"
-                                + "    private String name;\n"
+                                + "    private String name;\n\n"
                                 + "    @Option\n"
                                 + "    private int age;\n"
                                 + "\n"
@@ -111,20 +108,19 @@ public class ComponentGeneratorConfigurationTest {
                                 + "        return name;\n"
                                 + "    }\n"
                                 + "\n"
-                                + "    public Demo  setName(String name) {\n"
-                                + "         this.name = name;\n"
-                                + "         return this;\n"
+                                + "    public Demo setName(String name) {\n"
+                                + "        this.name = name;\n"
+                                + "        return this;\n"
                                 + "    }\n"
                                 + "\n"
                                 + "    public int getAge() {\n"
                                 + "        return age;\n"
                                 + "    }\n"
                                 + "\n"
-                                + "    public Demo  setAge(int age) {\n"
-                                + "         this.age = age;\n"
-                                + "         return this;\n"
+                                + "    public Demo setAge(int age) {\n"
+                                + "        this.age = age;\n"
+                                + "        return this;\n"
                                 + "    }\n"
-                                + "\n"
                                 + "}"));
     }
 

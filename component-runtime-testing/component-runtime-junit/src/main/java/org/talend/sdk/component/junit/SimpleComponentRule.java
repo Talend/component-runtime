@@ -32,6 +32,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -115,10 +116,11 @@ public class SimpleComponentRule implements TestRule {
      *
      * @param recordType the record type to use to type the returned type.
      * @param mapper the mapper to go through.
+     * @param maxRecords maximum number of records, allows to stop the source when infinite.
      * @param <T> the returned type of the records of the mapper.
      * @return all the records emitted by the mapper.
      */
-    public <T> Stream<T> collect(final Class<T> recordType, final Mapper mapper) {
+    public <T> Stream<T> collect(final Class<T> recordType, final Mapper mapper, final int maxRecords) {
         mapper.start();
 
         final long assess = mapper.assess();
@@ -128,7 +130,7 @@ public class SimpleComponentRule implements TestRule {
         case 0:
             return Stream.empty();
         case 1:
-            return asStream(asIterator(mappers.iterator().next().create(), mapper::stop));
+            return asStream(asIterator(mappers.iterator().next().create(), mapper::stop, new AtomicInteger(maxRecords)));
         default:
             final ExecutorService es = Executors.newFixedThreadPool(mappers.size());
             final Runnable cleaner = new Runnable() {
@@ -165,7 +167,8 @@ public class SimpleComponentRule implements TestRule {
                     }
                 }
             };
-            return mappers.stream().map(m -> asIterator(m.create(), cleaner)).map(this::asStream).collect(Stream::empty,
+            final AtomicInteger recordCounter = new AtomicInteger(maxRecords);
+            return mappers.stream().map(m -> asIterator(m.create(), cleaner, recordCounter)).map(this::asStream).collect(Stream::empty,
                     Stream::concat, Stream::concat);
         }
     }
@@ -174,7 +177,7 @@ public class SimpleComponentRule implements TestRule {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.IMMUTABLE), false);
     }
 
-    private <T> Iterator<T> asIterator(final Input input, final Runnable onLast) {
+    private <T> Iterator<T> asIterator(final Input input, final Runnable onLast, final AtomicInteger counter) {
         input.start();
         return new Iterator<T>() {
 
@@ -184,6 +187,11 @@ public class SimpleComponentRule implements TestRule {
 
             @Override
             public boolean hasNext() {
+                final int remaining = counter.get();
+                if (remaining <= 0) {
+                    return false;
+                }
+
                 final boolean hasNext = (next = input.next()) != null;
                 if (!hasNext && !closed) {
                     closed = true;
@@ -197,6 +205,7 @@ public class SimpleComponentRule implements TestRule {
                         }
                     }
                 }
+                counter.decrementAndGet();
                 return hasNext;
             }
 
@@ -208,7 +217,11 @@ public class SimpleComponentRule implements TestRule {
     }
 
     public <T> List<T> collectAsList(final Class<T> recordType, final Mapper mapper) {
-        return collect(recordType, mapper).collect(toList());
+        return collectAsList(recordType, mapper, 1000);
+    }
+
+    public <T> List<T> collectAsList(final Class<T> recordType, final Mapper mapper, final int maxRecords) {
+        return collect(recordType, mapper, maxRecords).collect(toList());
     }
 
     public Mapper createMapper(final Class<?> componentType, final Object configuration) {

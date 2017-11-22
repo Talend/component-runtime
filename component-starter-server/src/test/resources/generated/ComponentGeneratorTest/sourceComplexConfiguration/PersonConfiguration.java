@@ -10,9 +10,9 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
     @GridLayout.Row({ "age" })
 })
 public class PersonConfiguration {
-
     @Option
     private String name;
+
     @Option
     private int age;
 
@@ -20,18 +20,17 @@ public class PersonConfiguration {
         return name;
     }
 
-    public PersonConfiguration  setName(String name) {
-         this.name = name;
-         return this;
+    public PersonConfiguration setName(String name) {
+        this.name = name;
+        return this;
     }
 
     public int getAge() {
         return age;
     }
 
-    public PersonConfiguration  setAge(int age) {
-         this.age = age;
-         return this;
+    public PersonConfiguration setAge(int age) {
+        this.age = age;
+        return this;
     }
-
 }

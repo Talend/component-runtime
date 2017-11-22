@@ -8,8 +8,7 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
     // customize it as much as needed
     @GridLayout.Row({ "person" })
 })
-public class MycompSourceConfiguration {
-
+public class MycompMapperConfiguration {
     @Option
     private PersonConfiguration person;
 
@@ -17,9 +16,8 @@ public class MycompSourceConfiguration {
         return person;
     }
 
-    public MycompSourceConfiguration  setPerson(PersonConfiguration person) {
-         this.person = person;
-         return this;
+    public MycompMapperConfiguration setPerson(PersonConfiguration person) {
+        this.person = person;
+        return this;
     }
-
 }

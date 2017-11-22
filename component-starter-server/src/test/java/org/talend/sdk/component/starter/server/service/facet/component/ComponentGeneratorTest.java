@@ -15,13 +15,26 @@
  */
 package org.talend.sdk.component.starter.server.service.facet.component;
 
-import java.io.ByteArrayOutputStream;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toMap;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import javax.inject.Inject;
 
 import org.apache.meecrowave.junit.MonoMeecrowave;
@@ -30,16 +43,6 @@ import org.junit.runner.RunWith;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(MonoMeecrowave.Runner.class)
 public class ComponentGeneratorTest {
@@ -57,14 +60,13 @@ public class ComponentGeneratorTest {
                 new ProjectRequest.StructureConfiguration(
                         new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("name", "string", null))), false)));
         final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory", sources, emptyList())
-                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
         assertEquals(7, files.size());
 
-        assertTrue(files.keySet().stream().filter(k -> k.contains(".png")).findFirst().isPresent());
+        assertTrue(files.keySet().stream().anyMatch(k -> k.contains(".png")));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/package-info.java"),
-                files.get("src/main/java/com/foo/package-info.java"));
+                files.get("src/main/java/com/foo/package-info.java").trim());
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/TestService.java"),
                 files.get("src/main/java/com/foo/service/TestService.java"));
@@ -75,29 +77,21 @@ public class ComponentGeneratorTest {
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/MycompMapper.java"),
                 files.get("src/main/java/com/foo/source/MycompMapper.java"));
 
-        assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/MycompSourceConfiguration.java"),
-                files.get("src/main/java/com/foo/source/MycompSourceConfiguration.java"));
+        assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/MycompMapperConfiguration.java"),
+                files.get("src/main/java/com/foo/source/MycompMapperConfiguration.java"));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/MycompRecord.java"),
                 files.get("src/main/java/com/foo/source/MycompRecord.java"));
     }
 
-    private String resourceFileToString(String filePath) {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int nRead;
-        byte[] data = new byte[1024];
-        try {
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
-            while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-                buffer.write(data, 0, nRead);
-            }
-            buffer.flush();
-            byte[] byteArray = buffer.toByteArray();
-            return new String(byteArray, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
+    private String resourceFileToString(final String filePath) {
+        try (final BufferedReader reader = new BufferedReader(
+                new InputStreamReader(getClass().getClassLoader().getResourceAsStream(filePath)))) {
+            return reader.lines().collect(joining("\n"));
+        } catch (final IOException e) {
+            fail(e.getMessage());
+            throw new IllegalStateException(e);
         }
-        return null;
     }
 
     @Test
@@ -112,8 +106,10 @@ public class ComponentGeneratorTest {
                         emptyList())
                 .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
-        assertEquals(resourceFileToString("generated/ComponentGeneratorTest/sourceComplexConfiguration/MycompSourceConfiguration.java"),
-                files.get("src/main/java/com/foo/source/MycompSourceConfiguration.java"));
+        assertEquals(
+                resourceFileToString(
+                        "generated/ComponentGeneratorTest/sourceComplexConfiguration/MycompMapperConfiguration.java"),
+                files.get("src/main/java/com/foo/source/MycompMapperConfiguration.java"));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/sourceComplexConfiguration/PersonConfiguration.java"),
                 files.get("src/main/java/com/foo/source/PersonConfiguration.java"));
@@ -163,8 +159,7 @@ public class ComponentGeneratorTest {
                                         singletonList(new ProjectRequest.Entry("name", "string", null))), false));
                             }
                         })))
-                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/processorOutput/TProcProcessor.java"),
                 files.get("src/main/java/com/foo/processor/TProcProcessor.java"));
@@ -231,8 +226,7 @@ public class ComponentGeneratorTest {
                                 put("reject", new ProjectRequest.StructureConfiguration(null, true));
                             }
                         })))
-                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+                .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/standardProcessor/TProcProcessor.java"),
                 files.get("src/main/java/com/foo/processor/TProcProcessor.java"));
