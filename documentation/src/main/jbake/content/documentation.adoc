@@ -46,7 +46,7 @@ will be performed on different nodes.
                     |-----------------|
                     |Flow Execution(3)|
                     +-----------------+
-
+....
 
 1. Created task consists of Jar file, containing class, which describes pipeline(flow) which should be processed in cluster.
 2. During partition plan computation step pipeline is analyzed and split into stages. Cluster Manager node instantiates mappers/processors
@@ -56,7 +56,6 @@ sent to Worker nodes afterwards.
 pipeline execution is started. Processor's @BeforeGroup annotated method is called before processing first element in chunk.
 After processing number of records estimated as chunk size, Processor's @AfterGroup annotated method called. Chunk size is calculated
 depending on environment the pipeline is processed by. After pipeline is processed, methods annotated with @PreDestroy annotation are called.
-....
 
 [ditaa, generated-driver-processing-workflow, png]
 ....
