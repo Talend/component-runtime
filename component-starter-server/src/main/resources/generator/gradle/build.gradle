@@ -11,8 +11,12 @@ buildscript {
     {{/buildDependencies}}
   }
 }
+{{#imports}}
+import {{.}}
+{{/imports}}
 
 apply plugin: 'nebula.provided-base'
+apply plugin: 'java'
 {{#plugins}}
 apply plugin: '{{this}}'
 {{/plugins}}
@@ -34,18 +38,25 @@ configurations { {{/-first}}
   baseName = '{{build.artifact}}'
   version = '{{build.version}}'
 }
-{{#pluginConfigurations}}
 
 test {
   testLogging.showStandardStreams = true
 }
+{{#tasks}}
+{{.}}
+{{/tasks}}
+{{#javaMainSourceSets.size}}
 
-{{key}} {
-  {{#value}}
-  {{key}} {{value}}
-  {{/value}}
+sourceSets {
+  main {
+    java {
+      {{#javaMainSourceSets}}
+      {{.}}
+      {{/javaMainSourceSets}}
+    }
+  }
 }
-{{/pluginConfigurations}}
+{{/javaMainSourceSets.size}}
 
 sourceCompatibility = {{build.javaVersion}}
 targetCompatibility = {{build.javaVersion}}
