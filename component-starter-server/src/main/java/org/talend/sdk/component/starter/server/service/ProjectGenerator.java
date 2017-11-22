@@ -124,7 +124,7 @@ public class ProjectGenerator {
         final Map<FacetGenerator, List<String>> filePerFacet = facets.stream().map(s -> s.toLowerCase(Locale.ENGLISH))
                 .collect(toMap(this.facets::get, f -> {
                     final FacetGenerator g = this.facets.get(f);
-                    return g.create(request.getPackageBase(), build, facets, request.getSources(), request.getProcessors())
+                    return g.create(request.getPackageBase(), build, facets,  request.getSources(), request.getProcessors())
                             .peek(file -> files.put(file.getPath(), file.getContent())).map(FacetGenerator.InMemoryFile::getPath)
                             .collect(toList());
                 }));

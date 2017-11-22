@@ -1,30 +1,32 @@
-package {{package}};
+package com.foo.processor;
 
+import java.io.Serializable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
-import org.talend.sdk.component.api.processor.Processor;{{#inputs.length}}
-import org.talend.sdk.component.api.processor.Input;{{/inputs.length}}{{#outputs.length}}
+import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
-import org.talend.sdk.component.api.processor.OutputEmitter;{{/outputs.length}}{{#generic}}
-import org.talend.sdk.component.api.processor.data.ObjectMap;{{/generic}}
+import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.data.ObjectMap;
 
-import {{servicePackage}}.{{serviceName}};
+import com.foo.service.TestService;
 
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
-@Icon({{icon}}) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename_icon32.png in resources
-@Processor(name = "{{name}}")
-public class {{className}} implements Serializable {
-    private final {{configurationName}} configuration;
-    private final {{serviceName}} service;
+@Icon(Icon.IconType.STAR) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename_icon32.png in resources
+@Processor(name = "tProc")
+public class TProcProcessor implements Serializable {
+    private final TProcProcessorConfiguration configuration;
+    private final TestService service;
 
-    public {{className}}(@Option("configuration") final {{configurationName}} configuration,
-                         final {{serviceName}} service) {
+    public TProcProcessor(@Option("configuration") final TProcProcessorConfiguration configuration,
+                         final TestService service) {
         this.configuration = configuration;
         this.service = service;
     }
@@ -44,9 +46,10 @@ public class {{className}} implements Serializable {
     }
 
     @Producer
-    public void onNext({{#inputs}}
-        @Input("{{name}}") final {{type}} {{javaName}}Input{{^-last}},{{/-last}}{{/inputs}}{{#outputs}}
-        @Output("{{name}}") final OutputEmitter<{{type}}> {{javaName}}Output{{^-last}},{{/-last}}{{/outputs}}) {
+    public void onNext(
+        @Input("__default__") final ObjectMap defaultInput,
+        @Output("reject") final OutputEmitter<ObjectMap> rejectOutput,
+        @Output("__default__") final OutputEmitter<TProcDefaultOutput> defaultOutput) {
         // this is the method allowing you to handle the input(s) and emit the output(s)
         // after some custom logic you put here, to send a value to next element you can use an
         // output parameter and call emit(value).

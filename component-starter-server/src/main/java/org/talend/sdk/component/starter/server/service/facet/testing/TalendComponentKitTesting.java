@@ -1,26 +1,27 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.starter.server.service.facet.testing;
 
-import static java.util.Arrays.asList;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -33,8 +34,16 @@ import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.Versions;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.talend.sdk.component.starter.server.service.facet.util.NameConventions.sanitizeConnectionName;
+import static org.talend.sdk.component.starter.server.service.facet.util.NameConventions.toJavaName;
+
 @ApplicationScoped
 public class TalendComponentKitTesting implements FacetGenerator, Versions {
+
     @Inject
     private TemplateRenderer tpl;
 
@@ -53,39 +62,135 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
     }
 
     @Override
-    public Stream<InMemoryFile> create(final String packageBase, final Build build, final Collection<String> facets,
-                                       final Collection<ProjectRequest.SourceConfiguration> sources,
-                                       final Collection<ProjectRequest.ProcessorConfiguration> processors) {
+    public Stream<InMemoryFile> create(final String packageBase, final Build build,
+            final Collection<String> facets,
+            final Collection<ProjectRequest.SourceConfiguration> sources,
+            final Collection<ProjectRequest.ProcessorConfiguration> processors) {
+
+        final boolean hasService = (sources != null && !sources.isEmpty()) || (processors != null && !processors.isEmpty());
+        if (!hasService) {
+            return Stream.empty();
+        }
+
+        final String testJava = build.getTestJavaDirectory() + '/' + packageBase.replace('.', '/');
+
         final Collection<InMemoryFile> files = new ArrayList<>();
 
-        /* TODO: generate tests for each source/processor
-        final String testBase = build.getTestJavaDirectory() + '/' + packageBase.replace('.', '/');
-        final Map<String, String> model = new HashMap<String, String>() {{
-            put("package", packageBase);
-        }};
+        files.addAll(createSourceTest(testJava, packageBase, sources, build).collect(Collectors.toList()));
+        files.addAll(createProcessorsTest(testJava, packageBase, processors, build).collect(Collectors.toList()));
 
-        if (facets.contains(jaxrs.name())) {
-            files.add(new InMemoryFile(
-                    testBase + "/jaxrs/ArquillianHelloResourceTest.java",
-                    tpl.render("factory/jaxrs/ArquillianHelloResourceTest.java", model)));
-        }
-        if (facets.contains(openjpa.name())) {
-            files.add(new InMemoryFile(
-                    testBase + "/jpa/ArquillianHelloEntityTest.java",
-                    tpl.render("factory/openjpa/ArquillianHelloEntityTest.java", model)));
-        }
-        if (facets.contains(deltaspikeConfiguration.name())) {
-            files.add(new InMemoryFile(
-                    testBase + "/deltaspike/ArquillianConfigurationTest.java",
-                    tpl.render("factory/deltaspike/ArquillianConfigurationTest.java", model)));
-        }
-        files.add(new InMemoryFile(
-                build.getTestResourcesDirectory() + "/arquillian.xml",
-                tpl.render("factory/arquillian/arquillian.xml", new HashMap<String, String>() {{
-                    put("buildDir", build.getBuildDir());
-                }})));
-        */
         return files.stream();
+    }
+
+    private Stream<InMemoryFile> createSourceTest(String testJava, String packageBase,
+            Collection<ProjectRequest.SourceConfiguration> sources, Build build) {
+
+        return sources.stream().flatMap(source -> {
+            final String baseName = toJavaName(source.getName()) + "Source";
+            final String testClassName = baseName + "Test";
+            final String configurationClassName = baseName + "Configuration";
+            final String mapperName = baseName + "Mapper";
+            final boolean isGeneric = source.getOutputStructure().isGeneric();
+            final String outputRecordName = isGeneric ?
+                    capitalize(source.getName()) + "GenericRecord" :
+                    capitalize(source.getName()) + "Record";
+
+            //Configuration structure
+            boolean hasConfig = source.getConfiguration() != null && source.getConfiguration().getEntries() != null
+                    && !source.getConfiguration().getEntries().isEmpty();
+            Set<String> configFields = hasConfig ?
+                    source.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(toSet()) :
+                    emptySet();
+
+            final Collection<InMemoryFile> files = new ArrayList<>();
+            files.add(new FacetGenerator.InMemoryFile(testJava + "/source/" + testClassName + ".java",
+                    tpl.render("generator/component/SourceTest.mustache", new HashMap<String, Object>() {
+
+                        {
+                            put("rootPackage", packageBase);
+                            put("classPackage", packageBase + ".source");
+                            put("testClassName", testClassName);
+                            put("sourceClassName", baseName);
+                            put("sourceName", source.getName());
+                            put("mapperName", mapperName);
+                            put("hasConfig", hasConfig);
+                            put("configurationClassName", configurationClassName);
+                            put("configFields", configFields);
+                            put("outputRecordName", outputRecordName);
+                            put("isGeneric", isGeneric);
+                        }
+                    })));
+
+            return files.stream();
+        });
+    }
+
+    private Stream<InMemoryFile> createProcessorsTest(String testJava, String packageBase,
+            Collection<ProjectRequest.ProcessorConfiguration> processors, Build build) {
+
+        return processors.stream().flatMap(processor -> {
+            final boolean isOutput = processor.getOutputStructures() == null || processor.getOutputStructures().isEmpty();
+            final String baseName = toJavaName(processor.getName()) + (isOutput ? "Output" : "Processor");
+            final String testClassName = baseName + "Test";
+            final String configurationClassName = baseName + "Configuration";
+            final String classDir = isOutput ? "output" : "processor";
+
+            //Configuration structure
+            boolean hasConfig = processor.getConfiguration() != null && processor.getConfiguration().getEntries() != null
+                    && !processor.getConfiguration().getEntries().isEmpty();
+            Set<String> configFields = hasConfig ?
+                    processor.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(toSet()) :
+                    emptySet();
+
+            //input branches names
+            final Set<Map.Entry<String, String>> inputBranches = processor
+                    .getInputStructures().entrySet().stream()
+                    .flatMap(in -> {
+                        final String inName = in.getValue().isGeneric() ? "ObjectMap" :
+                                capitalize(processor.getName()) + capitalize(sanitizeConnectionName(in.getKey())) + "Input";
+                        Map<String, String> map = new HashMap<String, String>() {{
+                            put(in.getKey(), inName);
+                        }};
+
+                        return map.entrySet().stream();
+                    }).collect(toSet());
+
+            //outputNames
+            final Set<Map.Entry<String, String>> outputBranches = !isOutput ?
+                    processor.getOutputStructures().entrySet().stream().flatMap(e -> {
+                        final String outName = e.getValue().isGeneric() ? "ObjectMap" :
+                                capitalize(processor.getName()) + capitalize(sanitizeConnectionName(e.getKey())) + "Output";
+                        Map<String, String> map = new HashMap<String, String>() {{
+                            put(e.getKey(), outName);
+                        }};
+                        return map.entrySet().stream();
+                    }).collect(toSet()) : emptySet();
+
+            final boolean isGeneric = inputBranches.stream().anyMatch(e -> "ObjectMap".equals(e.getValue()))
+                    || outputBranches.stream().anyMatch(e -> "ObjectMap".equals(e.getValue()));
+
+            final Collection<InMemoryFile> files = new ArrayList<>();
+            files.add(new FacetGenerator.InMemoryFile(testJava + "/" + classDir + "/" + testClassName + ".java",
+                    tpl.render("generator/component/ProcessorTest.mustache", new HashMap<String, Object>() {
+
+                        {
+                            put("rootPackage", packageBase);
+                            put("classPackage", packageBase + "." + classDir);
+                            put("testClassName", testClassName);
+                            put("processorClassName", baseName);
+                            put("hasConfig", hasConfig);
+                            put("configurationClassName", configurationClassName);
+                            put("configFields", configFields);
+                            put("isOutput", isOutput);
+                            put("processorName", processor.getName());
+                            put("inputBranches", inputBranches);
+                            put("outputBranches", outputBranches);
+                            put("isGeneric", isGeneric);
+                        }
+                    })));
+
+            return files.stream();
+        });
     }
 
     @Override

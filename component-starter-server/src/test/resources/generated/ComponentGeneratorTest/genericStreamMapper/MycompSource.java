@@ -1,19 +1,19 @@
-package {{package}};
+package com.foo.source;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.talend.sdk.component.api.input.Producer;{{#generic}}
-import org.talend.sdk.component.api.processor.data.ObjectMap;{{/generic}}
+import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.processor.data.ObjectMap;
 
-import {{servicePackage}}.{{serviceName}};
+import com.foo.service.TestService;
 
-public class {{className}} implements Serializable {
-    private final {{configurationName}} configuration;
-    private final {{serviceName}} service;
+public class MycompSource implements Serializable {
+    private final MycompSourceConfiguration configuration;
+    private final TestService service;
 
-    public {{className}}(@Option("configuration") final {{configurationName}} configuration,
-                         final {{serviceName}} service) {
+    public MycompSource(@Option("configuration") final MycompSourceConfiguration configuration,
+                         final TestService service) {
         this.configuration = configuration;
         this.service = service;
     }
@@ -25,7 +25,7 @@ public class {{className}} implements Serializable {
     }
 
     @Producer
-    public {{#generic}}ObjectMap{{/generic}}{{^generic}}{{modelName}}{{/generic}} next() {
+    public ObjectMap next() {
         // this is the method allowing you to go through the dataset associated
         // to the component configuration
         //
