@@ -112,7 +112,22 @@ public class ProjectResourceTest {
 
         assertEquals(8, files.size());
         assertWadl(files);
-        // pom
+        Stream.of(
+                "    <dependency>\n" + "      <groupId>org.apache.cxf</groupId>\n"
+                        + "      <artifactId>cxf-rt-rs-client</artifactId>\n" + "      <version>3.2.1</version>\n"
+                        + "      <scope>compile</scope>\n" + "    </dependency>",
+                "      <plugin>\n" + "        <groupId>org.apache.cxf</groupId>\n"
+                        + "        <artifactId>cxf-wadl2java-plugin</artifactId>\n" + "        <version>3.2.1</version>\n"
+                        + "        <executions>\n" + "          <execution>\n"
+                        + "            <id>generate-http-client-from-wadl</id>\n"
+                        + "            <phase>generate-sources</phase>\n" + "            <goals>\n"
+                        + "              <goal>wadl2java</goal>\n" + "            </goals>\n" + "          </execution>\n"
+                        + "        </executions>\n" + "        <configuration>\n" + "          <wadlOptions>\n"
+                        + "            <wadlOption>\n"
+                        + "              <wadl>${project.basedir}/src/main/resources/wadl/client.xml</wadl>\n"
+                        + "              <packagename>com.application.client.wadl</packagename>\n" + "            </wadlOption>\n"
+                        + "          </wadlOptions>\n" + "        </configuration>\n" + "      </plugin>")
+                .forEach(string -> assertThat(files.get("application/pom.xml"), containsString(string)));
     }
 
     @Test
