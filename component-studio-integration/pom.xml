@@ -161,7 +161,7 @@
       <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
   </dependencies>
 
   <build>
@@ -208,23 +208,6 @@
             <Embed-Transitive>true</Embed-Transitive>
           </instructions>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>templating-maven-plugin</artifactId>
-        <version>1.0.0</version>
-        <executions>
-          <execution>
-            <id>filter-src</id>
-            <goals>
-              <goal>filter-sources</goal>
-            </goals>
-            <configuration>
-              <sourceDirectory>${project.basedir}/src/main/java-templates</sourceDirectory>
-              <outputDirectory>${project.build.directory}/generated-sources/java-templates</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
@@ -309,7 +292,7 @@
           <artifactId>org.talend.core</artifactId>
           <version>${studio.version}</version>
           <scope>provided</scope>
-        </dependency>	  
+        </dependency>
         <dependency>
           <groupId>org.talend.studio</groupId>
           <artifactId>org.talend.core.ui</artifactId>

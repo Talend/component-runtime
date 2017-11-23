@@ -15,8 +15,10 @@
  */
 package org.talend.sdk.component.starter.server;
 
-public interface ProjectMavenMeta {
+public interface Versions {
 
-    String PROJECT_VERSION = "${project.version}";
-    String BEAM_VERSION = "${beam.version}";
+    String KIT = "${project.version}";
+    String BEAM = "${beam.version}";
+    String SUREFIRE = "2.20.1";
+    String CXF = "3.2.1";
 }

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@ package org.talend.sdk.component.starter.server.service.facet.wadl;
 
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.joining;
+import static org.talend.sdk.component.starter.server.Versions.CXF;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,15 +33,9 @@ import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
-import org.talend.sdk.component.starter.server.service.facet.Versions;
 
 @ApplicationScoped
-public class WADLFacet implements FacetGenerator, Versions {
-
-    public interface Constants {
-
-        String NAME = "WADL Client Generation";
-    }
+public class WADLFacet implements FacetGenerator {
 
     private String specification;
 
@@ -99,5 +94,10 @@ public class WADLFacet implements FacetGenerator, Versions {
     @Override
     public Category category() {
         return Category.LIBRARIES;
+    }
+
+    public interface Constants {
+
+        String NAME = "WADL Client Generation";
     }
 }

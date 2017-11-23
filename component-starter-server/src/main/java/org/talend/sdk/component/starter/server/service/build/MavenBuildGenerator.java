@@ -29,19 +29,18 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.talend.sdk.component.starter.server.ProjectMavenMeta;
+import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
-import org.talend.sdk.component.starter.server.service.facet.Versions;
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 import lombok.Data;
 
 @ApplicationScoped
-public class MavenBuildGenerator implements BuildGenerator, Versions {
+public class MavenBuildGenerator implements BuildGenerator {
 
     @Inject
     private TemplateRenderer renderer;
@@ -69,12 +68,12 @@ public class MavenBuildGenerator implements BuildGenerator, Versions {
             final Collection<Plugin> plugins) {
         final Collection<Plugin> buildPlugins = new ArrayList<>(plugins);
 
-        buildPlugins.add(new Plugin("org.talend.sdk.component", "talend-component-maven-plugin", ProjectMavenMeta.PROJECT_VERSION,
+        buildPlugins.add(new Plugin("org.talend.sdk.component", "talend-component-maven-plugin", Versions.KIT,
                 new ArrayList<Execution>() {{
                     add(new Execution("validate+metadata", "package", "validate"));
                 }}, null));
 
-        buildPlugins.add(new Plugin("org.apache.maven.plugins", "maven-surefire-plugin", SUREFIRE, emptySet(),
+        buildPlugins.add(new Plugin("org.apache.maven.plugins", "maven-surefire-plugin", Versions.SUREFIRE, emptySet(),
                 new LinkedHashMap<String, String>() {
 
                     {
@@ -84,7 +83,7 @@ public class MavenBuildGenerator implements BuildGenerator, Versions {
                 }.entrySet()));
 
         if (facets.contains(WADLFacet.Constants.NAME)) {
-            buildPlugins.add(new Plugin("org.apache.cxf", "cxf-wadl2java-plugin", CXF,
+            buildPlugins.add(new Plugin("org.apache.cxf", "cxf-wadl2java-plugin", Versions.CXF,
                     singleton(new Execution("generate-http-client-from-wadl", "generate-sources", "wadl2java")),
                     new LinkedHashMap<String, String>() {
 

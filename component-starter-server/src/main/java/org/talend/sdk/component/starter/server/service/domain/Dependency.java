@@ -15,22 +15,20 @@
  */
 package org.talend.sdk.component.starter.server.service.domain;
 
-import org.talend.sdk.component.starter.server.ProjectMavenMeta;
-import org.talend.sdk.component.starter.server.service.facet.Versions;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import static org.talend.sdk.component.starter.server.Versions.KIT;
+
 @Getter
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public class Dependency implements Versions {
+public class Dependency {
 
     private static final Dependency JUNIT = new Dependency("junit", "junit", "4.12", "test");
 
-    private static final Dependency COMPONENT = new Dependency("org.talend.sdk.component", "component-api",
-            ProjectMavenMeta.PROJECT_VERSION, "provided");
+    private static final Dependency COMPONENT = new Dependency("org.talend.sdk.component", "component-api", KIT, "provided");
 
     private final String group;
 

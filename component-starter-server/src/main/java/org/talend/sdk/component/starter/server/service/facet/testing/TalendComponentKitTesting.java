@@ -33,17 +33,17 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.talend.sdk.component.starter.server.ProjectMavenMeta;
+import static org.talend.sdk.component.starter.server.Versions.KIT;
+
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
-import org.talend.sdk.component.starter.server.service.facet.Versions;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 @ApplicationScoped
-public class TalendComponentKitTesting implements FacetGenerator, Versions {
+public class TalendComponentKitTesting implements FacetGenerator {
 
     @Inject
     private TemplateRenderer tpl;
@@ -53,7 +53,7 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
     void register(@Observes final GeneratorRegistration init) {
         init.registerFacetType(this);
         dependencies = asList(Dependency.junit(),
-                new Dependency("org.talend.sdk.component", "component-runtime-junit", ProjectMavenMeta.PROJECT_VERSION, "test"));
+                new Dependency("org.talend.sdk.component", "component-runtime-junit", KIT, "test"));
     }
 
     @Override
@@ -103,7 +103,7 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
                             put("rootPackage", packageBase);
                             put("classPackage", packageBase + ".source");
                             put("testClassName", testClassName);
-                            put("sourceClassName", baseName +"Source");
+                            put("sourceClassName", baseName + "Source");
                             put("sourceName", source.getName());
                             put("mapperName", mapperName);
                             put("hasConfig", hasConfig);
