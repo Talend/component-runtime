@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.beam;
 
@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.beam.sdk.PipelineResult;
@@ -38,6 +40,7 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.junit.Rule;
 import org.junit.Test;
+import org.talend.sdk.component.runtime.beam.transform.ViewsMappingTransform;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.output.Branches;
@@ -72,7 +75,7 @@ public class TalendIOTest implements Serializable {
                 };
             }
         }));
-        PAssert.that(out.apply(ParDo.of(new DoFn<Sample, String>() {
+        PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Sample, String>() {
 
             @ProcessElement
             public void toData(final ProcessContext sample) {
@@ -85,13 +88,14 @@ public class TalendIOTest implements Serializable {
     @Test
     public void output() {
         Output.DATA.clear();
-        pipeline.apply(Create.of(new Sample("a"), new Sample("b"))).apply(TalendIO.write(new BaseTestProcessor() {
+        pipeline.apply(Create.of(new Sample("a"), new Sample("b"))).apply(new ViewsMappingTransform<>(emptyMap()))
+                .apply(TalendIO.write(new BaseTestProcessor() {
 
-            @Override
-            public void onNext(final InputFactory input, final OutputFactory factory) {
-                Output.DATA.add(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data);
-            }
-        }, emptyMap()));
+                    @Override
+                    public void onNext(final InputFactory input, final OutputFactory factory) {
+                        Output.DATA.add(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data);
+                    }
+                }));
         assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
         assertThat(Output.DATA, containsInAnyOrder("a", "b"));
     }
@@ -99,15 +103,48 @@ public class TalendIOTest implements Serializable {
     @Test
     public void processor() {
         final PCollection<SampleLength> out = pipeline.apply(Create.of(new Sample("a"), new Sample("bb")))
-                .apply(TalendFn.asFn(new BaseTestProcessor() {
+                .apply(new ViewsMappingTransform<>(emptyMap())).apply(TalendFn.asFn(new BaseTestProcessor() {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
                         factory.create(Branches.DEFAULT_BRANCH)
                                 .emit(new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
                     }
-                }, emptyMap()));
-        PAssert.that(out.apply(ParDo.of(new DoFn<SampleLength, Integer>() {
+                })).apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
+
+                    @ProcessElement
+                    public void onElement(final ProcessContext ctx) {
+                        ctx.output(SampleLength.class.cast(ctx.element().get("__default__").get(0)));
+                    }
+                }));
+        PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<SampleLength, Integer>() {
+
+            @ProcessElement
+            public void toInt(final ProcessContext pc) {
+                pc.output(pc.element().len);
+            }
+        }))).containsInAnyOrder(1, 2);
+        assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
+    }
+
+    @Test
+    public void processorMulti() {
+        final PCollection<SampleLength> out = pipeline.apply(Create.of(new Sample("a"), new Sample("bb")))
+                .apply(new ViewsMappingTransform<>(emptyMap())).apply(TalendFn.asFn(new BaseTestProcessor() {
+
+                    @Override
+                    public void onNext(final InputFactory input, final OutputFactory factory) {
+                        factory.create(Branches.DEFAULT_BRANCH)
+                                .emit(new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
+                    }
+                })).apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
+
+                    @ProcessElement
+                    public void onElement(final ProcessContext ctx) {
+                        ctx.output(SampleLength.class.cast(ctx.element().get("__default__").get(0)));
+                    }
+                }));
+        PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<SampleLength, Integer>() {
 
             @ProcessElement
             public void toInt(final ProcessContext pc) {
@@ -201,6 +238,7 @@ public class TalendIOTest implements Serializable {
     }
 
     private static abstract class TheTestMapper implements Serializable, Mapper {
+
         @Override
         public boolean isStream() {
             return false;

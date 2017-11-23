@@ -1,28 +1,31 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.beam;
 
+import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.beam.sdk.coders.CannotProvideCoderException;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.windowing.GlobalWindow;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.PCollectionView;
+import org.joda.time.Instant;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.NoArgsConstructor;
@@ -33,34 +36,41 @@ public final class TalendFn {
         // no-op
     }
 
-    public static <A, B> ProcessorTransform<A, B> asFn(final Processor processor, final Map<String, PCollectionView<?>> views) {
-        return new ProcessorTransform<>(new ProcessorFn<>(processor, views));
+    public static ProcessorTransform asFn(final Processor processor) {
+        return new ProcessorTransform(new ProcessorFn(processor));
     }
 
-    // todo: migrate to timer/state API for @FinishBundle to unify stream and batch when supported by all runners
     @NoArgsConstructor
-    private static class ProcessorFn<A, B> extends BaseProcessorFn<A, B> {
+    private static class ProcessorFn extends BaseProcessorFn<Map<String, List<Serializable>>, Map<String, List<Serializable>>> {
 
-        ProcessorFn(final Processor processor, final Map<String, PCollectionView<?>> views) {
-            super(processor, views);
+        ProcessorFn(final Processor processor) {
+            super(processor);
         }
 
         @ProcessElement
         public void processElement(final ProcessContext context) throws Exception {
-            processor.onNext(new BeamInputFactory(context, incomingViews), new BeamOutputFactory(context));
+            final BeamOutputFactory output = new BeamOutputFactory(context::output);
+            processor.onNext(new BeamInputFactory(context), output);
+            output.postProcessing();
+        }
+
+        @FinishBundle
+        public void finishBundle(final FinishBundleContext context) throws Exception {
+            processor.afterGroup(new BeamOutputFactory(record -> context.output(record, Instant.now(), GlobalWindow.INSTANCE)));
         }
     }
 
-    private static class ProcessorTransform<A, B> extends PTransform<PCollection<? extends A>, PCollection<B>> {
+    private static class ProcessorTransform
+            extends PTransform<PCollection<Map<String, List<Serializable>>>, PCollection<Map<String, List<Serializable>>>> {
 
-        private final ProcessorFn<A, B> fn;
+        private final ProcessorFn fn;
 
-        ProcessorTransform(final ProcessorFn<A, B> fn) {
+        ProcessorTransform(final ProcessorFn fn) {
             this.fn = fn;
         }
 
         @Override
-        public PCollection<B> expand(PCollection<? extends A> input) {
+        public PCollection<Map<String, List<Serializable>>> expand(final PCollection<Map<String, List<Serializable>>> input) {
             return input.apply(ParDo.of(fn));
         }
 

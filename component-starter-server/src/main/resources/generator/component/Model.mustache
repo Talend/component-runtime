@@ -1,5 +1,7 @@
 package {{package}};
 
+import java.io.Serializable;
+
 import java.util.Collection;
 import java.util.Set;
 
@@ -9,7 +11,7 @@ import static java.util.Collections.emptySet;
 import org.talend.sdk.component.api.processor.data.ObjectMap;
 {{/generic}}
 // this is the pojo which will be used to represent your data
-public class {{className}} {{#generic}}implements ObjectMap {{/generic}}{
+public class {{className}} implements {{#generic}}ObjectMap{{/generic}}{{^generic}}Serializable{{/generic}} {
 {{#generic}}
     @Override
     public Object get(final String location) {

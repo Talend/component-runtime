@@ -1,5 +1,7 @@
 package com.foo.source;
 
+import java.io.Serializable;
+
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 
@@ -8,7 +10,7 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
     // customize it as much as needed
     @GridLayout.Row({ "person" })
 })
-public class MycompMapperConfiguration {
+public class MycompMapperConfiguration implements Serializable {
     @Option
     private PersonConfiguration person;
 

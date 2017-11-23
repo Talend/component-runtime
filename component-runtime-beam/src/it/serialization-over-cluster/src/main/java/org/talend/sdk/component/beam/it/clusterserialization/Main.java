@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.beam.it.clusterserialization;
 
@@ -19,7 +19,10 @@ import static java.util.Collections.emptyMap;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
@@ -33,6 +36,7 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.talend.sdk.component.runtime.beam.TalendFn;
 import org.talend.sdk.component.runtime.beam.TalendIO;
+import org.talend.sdk.component.runtime.beam.transform.ViewsMappingTransform;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 
 public class Main {
@@ -51,19 +55,20 @@ public class Main {
                 put("old_file", options.getInputFile()); // will be migrated to "file" with the migration handler
             }
         }).orElseThrow(() -> new IllegalArgumentException("No reader sample#reader, existing: " + manager.availablePlugins()))))
+                .apply(new ViewsMappingTransform<>(emptyMap()))
                 .apply(TalendFn.asFn(manager.findProcessor("sample", "mapper", 1, emptyMap())
-                        .orElseThrow(() -> new IllegalStateException("didn't find the processor")), emptyMap()))
+                        .orElseThrow(() -> new IllegalStateException("didn't find the processor"))))
                 .apply(ParDo.of(new ToStringFn()))
                 .apply(TextIO.write().to(ValueProvider.StaticValueProvider.of(options.getOutputFile())));
         final PipelineResult.State state = pipeline.run().waitUntilFinish();
         System.out.println(state);
     }
 
-    static class ToStringFn extends DoFn<Object, String> {
+    static class ToStringFn extends DoFn<Map<String, List<Serializable>>, String> {
 
         @ProcessElement
         public void processElement(final ProcessContext context) throws Exception {
-            context.output(context.element().toString());
+            context.output(context.element().values().iterator().next().get(0).toString());
         }
     }
 

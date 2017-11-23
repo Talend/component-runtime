@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.runtime.input.Mapper;
 
-public class MycompSourceTest {
+public class MycompMapperTest {
 
     @ClassRule
     public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule("foo.bar");
@@ -25,7 +25,7 @@ public class MycompSourceTest {
         final MycompMapperConfiguration configuration =  new MycompMapperConfiguration();
 
         // We create the component mapper instance using the configuration filled above
-        final Mapper mapper = COMPONENT_FACTORY.createMapper(MycompSource.class, configuration);
+        final Mapper mapper = COMPONENT_FACTORY.createMapper(MycompMapper.class, configuration);
 
         // Collect the source as a list
         assertEquals(asList(/* TODO - give the expected data */), COMPONENT_FACTORY.collectAsList(MycompGenericRecord.class, mapper));

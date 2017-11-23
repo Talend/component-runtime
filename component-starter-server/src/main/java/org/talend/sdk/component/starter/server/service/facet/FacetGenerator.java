@@ -35,6 +35,10 @@ public interface FacetGenerator {
 
     Category category();
 
+    default String loggingScope() {
+        return "";
+    }
+
     default String readme() {
         return "";
     }

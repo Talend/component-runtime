@@ -1,0 +1,49 @@
+package {{classPackage}};
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.io.Serializable;
+
+import org.apache.beam.sdk.PipelineResult;
+import org.apache.beam.sdk.testing.PAssert;
+import org.apache.beam.sdk.testing.TestPipeline;
+import org.apache.beam.sdk.values.PCollection;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.talend.sdk.component.junit.SimpleComponentRule;
+import org.talend.sdk.component.runtime.beam.TalendIO;
+import org.talend.sdk.component.runtime.input.Mapper;
+
+public class {{testClassName}} implements Serializable {
+    @ClassRule
+    public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule("{{rootPackage}}");
+
+    @Rule
+    public transient final TestPipeline pipeline = TestPipeline.create();
+
+    @Test
+    @Ignore("You need to complete this test with your own data and assertions")
+    public void produce() throws IOException {
+        // Setup your component configuration for the test here
+        final {{configurationClassName}} configuration =  new {{configurationClassName}}(){{^hasConfig}};{{/hasConfig}}
+                                                                        {{#configFields}}
+                                                                            {{#-first}}/*{{/-first}}  .set{{.}}(){{#-last}} */;{{/-last}}
+                                                                        {{/configFields}}
+
+        // We create the component mapper instance using the configuration filled above
+        final Mapper mapper = COMPONENT_FACTORY.createMapper({{sourceClassName}}.class, configuration);
+
+        // create a pipeline starting with the mapper
+        final PCollection<{{outputRecordName}}> out = pipeline.apply(TalendIO.read(mapper));
+
+        // then append some assertions to the output of the mapper,
+        // PAssert is a beam utility to validate part of the pipeline
+        PAssert.that(out).containsInAnyOrder(/* TODO - give the expected data */);
+
+        // finally run the pipeline and ensure it was successful - i.e. data were validated
+        assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
+    }
+}

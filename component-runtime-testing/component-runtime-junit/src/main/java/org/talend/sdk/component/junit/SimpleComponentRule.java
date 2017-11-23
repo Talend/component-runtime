@@ -287,10 +287,23 @@ public class SimpleComponentRule implements TestRule {
 
     private static class EmbeddedComponentManager extends ComponentManager {
 
+        private final ComponentManager oldInstance;
+
         private EmbeddedComponentManager(final String componentPackage) {
             super(findM2(), "TALEND-INF/dependencies.txt", "org.talend.sdk.component:type=component,value=%s");
             addJarContaining(Thread.currentThread().getContextClassLoader(), componentPackage.replace('.', '/'));
             container.create("component-runtime-junit.jar", jarLocation(SimpleCollector.class).getAbsolutePath());
+            oldInstance = CONTEXTUAL_INSTANCE.get();
+            CONTEXTUAL_INSTANCE.set(this);
+        }
+
+        @Override
+        public void close() {
+            try {
+                super.close();
+            } finally {
+                CONTEXTUAL_INSTANCE.compareAndSet(this, oldInstance);
+            }
         }
 
         @Override

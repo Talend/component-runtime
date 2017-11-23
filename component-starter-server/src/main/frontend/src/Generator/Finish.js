@@ -25,25 +25,26 @@ export default class Finish extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      project: this.createModel()
+      project: this.createModel(this.props)
     };
 
     ['notifyProgressDone', 'createModel', 'onSave', 'onDownload'].forEach(i => this[i] = this[i].bind(this));
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({project: this.createModel()});
+    this.setState({project: this.createModel(nextProps)});
   }
 
-  createModel() {
+  createModel(props) {
     // we copy the model to compute sources and processors attributes
-    let lightCopyModel = Object.assign({}, this.props.project);
-    lightCopyModel.sources = this.props.components.filter(c => c.type === 'Input').map(c => {
+    let lightCopyModel = Object.assign({}, props.project);
+    const components = props.components();
+    lightCopyModel.sources = components.filter(c => c.type === 'Input').map(c => {
       let source = Object.assign({}, c.source);
       source.name = c.configuration.name;
       return source;
     });
-    lightCopyModel.processors = this.props.components.filter(c => c.type === 'Processor').map(c => {
+    lightCopyModel.processors = components.filter(c => c.type === 'Processor').map(c => {
       let processor = Object.assign({}, c.processor);
       processor.name = c.configuration.name;
       return processor;

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,15 +15,10 @@
  */
 package org.talend.sdk.component.starter.server.service.facet.beam;
 
-import static org.talend.sdk.component.starter.server.Versions.KIT;
-import static org.talend.sdk.component.starter.server.Versions.BEAM;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.capitalize;
-import static org.talend.sdk.component.starter.server.service.facet.util.NameConventions.sanitizeConnectionName;
-import static org.talend.sdk.component.starter.server.service.facet.util.NameConventions.toJavaName;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,18 +32,23 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+import org.talend.sdk.component.starter.server.service.facet.util.NameConventions;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 @ApplicationScoped
-public class BeamFacet implements FacetGenerator {
+public class BeamFacet implements FacetGenerator, Versions {
 
     @Inject
     private TemplateRenderer tpl;
+
+    @Inject
+    private NameConventions names;
 
     private List<Dependency> dependencies;
 
@@ -62,40 +62,44 @@ public class BeamFacet implements FacetGenerator {
     }
 
     @Override
+    public String loggingScope() {
+        return "test";
+    }
+
+    @Override
     public Stream<InMemoryFile> create(final String packageBase, final Build build, final Collection<String> facets,
-            final Collection<ProjectRequest.SourceConfiguration> sources,
-            final Collection<ProjectRequest.ProcessorConfiguration> processors) {
+                                       final Collection<ProjectRequest.SourceConfiguration> sources,
+                                       final Collection<ProjectRequest.ProcessorConfiguration> processors) {
         final boolean hasComponent = (sources != null && !sources.isEmpty()) || (processors != null && !processors.isEmpty());
         if (!hasComponent) {
             return Stream.empty();
         }
         final String testJava = build.getTestJavaDirectory() + '/' + packageBase.replace('.', '/');
-        return Stream.concat(createSourceTest(testJava, packageBase, sources, build),
-                createProcessorsTest(testJava, packageBase, processors, build));
+        return Stream.concat(createSourceTest(testJava, packageBase, sources),
+                createProcessorsTest(testJava, packageBase, processors));
     }
 
     private Stream<InMemoryFile> createSourceTest(final String testJava, final String packageBase,
-            final Collection<ProjectRequest.SourceConfiguration> sources, final Build build) {
+                                                  final Collection<ProjectRequest.SourceConfiguration> sources) {
 
         return sources.stream().flatMap(source -> {
-            final String baseName = toJavaName(source.getName()) + "Source";
-            final String testClassName = baseName + "Test";
-            final String configurationClassName = baseName + "Configuration";
-            final String mapperName = baseName + "Mapper";
-            final boolean isGeneric = source.getOutputStructure().isGeneric();
-            final String outputRecordName = isGeneric ? capitalize(source.getName()) + "GenericRecord"
-                    : capitalize(source.getName()) + "Record";
+            final String baseName = names.toMapperName(source.getName());
+            final String testClassName = baseName + "BeamTest";
+
+            final String configurationClassName = names.toConfigurationName(baseName);
+            final String mapperName = names.toMapperName(baseName);
+            final String outputRecordName = names.toMapperRecordName(source);
 
             // Configuration structure
-            boolean hasConfig = source.getConfiguration() != null && source.getConfiguration().getEntries() != null
+            final boolean hasConfig = source.getConfiguration() != null && source.getConfiguration().getEntries() != null
                     && !source.getConfiguration().getEntries().isEmpty();
-            Set<String> configFields = hasConfig
+            final Set<String> configFields = hasConfig
                     ? source.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(toSet())
                     : emptySet();
 
             final Collection<InMemoryFile> files = new ArrayList<>();
             files.add(new FacetGenerator.InMemoryFile(testJava + "/source/" + testClassName + ".java",
-                    tpl.render("generator.facet.test/SourceTest.mustache", new HashMap<String, Object>() {
+                    tpl.render("generator/facet/beam/BeamSourceTest.mustache", new HashMap<String, Object>() {
 
                         {
                             put("rootPackage", packageBase);
@@ -108,7 +112,7 @@ public class BeamFacet implements FacetGenerator {
                             put("configurationClassName", configurationClassName);
                             put("configFields", configFields);
                             put("outputRecordName", outputRecordName);
-                            put("isGeneric", isGeneric);
+                            put("isGeneric", source.getOutputStructure().isGeneric());
                         }
                     })));
 
@@ -117,32 +121,28 @@ public class BeamFacet implements FacetGenerator {
     }
 
     private Stream<InMemoryFile> createProcessorsTest(final String testJava, final String packageBase,
-            final Collection<ProjectRequest.ProcessorConfiguration> processors, final Build build) {
+                                                      final Collection<ProjectRequest.ProcessorConfiguration> processors) {
 
         return processors.stream().flatMap(processor -> {
             final boolean isOutput = processor.getOutputStructures() == null || processor.getOutputStructures().isEmpty();
-            final String baseName = toJavaName(processor.getName()) + (isOutput ? "Output" : "Processor");
-            final String testClassName = baseName + "Test";
-            final String configurationClassName = baseName + "Configuration";
+            final String baseName = names.toProcessorName(processor);
+            final String testClassName = baseName + "BeamTest";
+            final String configurationClassName = names.toConfigurationName(baseName);
             final String classDir = isOutput ? "output" : "processor";
 
             // Configuration structure
-            boolean hasConfig = processor.getConfiguration() != null && processor.getConfiguration().getEntries() != null
+            final boolean hasConfig = processor.getConfiguration() != null && processor.getConfiguration().getEntries() != null
                     && !processor.getConfiguration().getEntries().isEmpty();
-            Set<String> configFields = hasConfig
+            final Set<String> configFields = hasConfig
                     ? processor.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(toSet())
                     : emptySet();
 
             // input branches names
             final Set<Map.Entry<String, String>> inputBranches = processor.getInputStructures().entrySet().stream()
                                                                           .flatMap(in -> {
-                                                                              final String inName = in.getValue().isGeneric() ?
-                                                                                      "ObjectMap"
-                                                                                      :
-                                                                                      capitalize(processor.getName())
-                                                                                              + capitalize(
-                                                                                              sanitizeConnectionName(in.getKey()))
-                                                                                              + "Input";
+                                                                              final String inName = in.getValue().isGeneric() ? "ObjectMap"
+                                                                                      : capitalize(processor.getName()) + capitalize(names.sanitizeConnectionName(in.getKey()))
+                                                                                      + "Input";
                                                                               Map<String, String> map = new HashMap<String, String>() {
 
                                                                                   {
@@ -157,7 +157,8 @@ public class BeamFacet implements FacetGenerator {
             final Set<Map.Entry<String, String>> outputBranches = !isOutput
                     ? processor.getOutputStructures().entrySet().stream().flatMap(e -> {
                 final String outName = e.getValue().isGeneric() ? "ObjectMap"
-                        : capitalize(processor.getName()) + capitalize(sanitizeConnectionName(e.getKey())) + "Output";
+                        : capitalize(processor.getName()) + capitalize(names.sanitizeConnectionName(e.getKey()))
+                        + "Output";
                 Map<String, String> map = new HashMap<String, String>() {
 
                     {
@@ -173,7 +174,7 @@ public class BeamFacet implements FacetGenerator {
 
             final Collection<InMemoryFile> files = new ArrayList<>();
             files.add(new FacetGenerator.InMemoryFile(testJava + "/" + classDir + "/" + testClassName + ".java",
-                    tpl.render("generator.facet.test/ProcessorTest.mustache", new HashMap<String, Object>() {
+                    tpl.render("generator/facet/beam/BeamProcessorTest.mustache", new HashMap<String, Object>() {
 
                         {
                             put("rootPackage", packageBase);

@@ -7,9 +7,9 @@ import javax.annotation.PreDestroy;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
+import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
@@ -44,7 +44,7 @@ public class TProcProcessor implements Serializable {
         // Note: if you don't need it you can delete it
     }
 
-    @Producer
+    @ElementListener
     public void onNext(
         @Output("__default__") final OutputEmitter<TProcDefaultOutput> defaultOutput) {
         // this is the method allowing you to handle the input(s) and emit the output(s)
