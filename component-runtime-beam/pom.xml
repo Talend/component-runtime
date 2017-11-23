@@ -28,7 +28,7 @@
   <description>Component bridge to BEAM runtime, TBD: should tcomp own it?</description>
 
   <properties>
-    <beam.version>2.2.0</beam.version>
+
   </properties>
 
   <dependencies>
@@ -107,7 +107,8 @@
       <id>Release 2.2.0 RC4</id>
       <name>Release 2.2.0 RC4</name>
       <url>
-        https://repository.apache.org/content/repositories/orgapachebeam-1025/</url>
+        https://repository.apache.org/content/repositories/orgapachebeam-1025/
+      </url>
     </repository>
   </repositories>
 

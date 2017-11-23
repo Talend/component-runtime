@@ -115,6 +115,7 @@
     <tomcat.version>9.0.0.M26</tomcat.version>
     <log4j2.version>2.9.0</log4j2.version>
     <batik.version>1.9</batik.version>
+    <beam.version>2.2.0</beam.version>
 
     <talend-icon.version>0.121.0</talend-icon.version>
 

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import org.talend.sdk.component.starter.server.ProjectMavenMeta;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
@@ -58,15 +59,20 @@ public class MavenBuildGenerator implements BuildGenerator, Versions {
             final Collection<Dependency> dependencies, final Collection<String> facets) {
         return new Build(buildConfiguration.getArtifact(), "src/main/java", "src/test/java", "src/main/resources",
                 "src/test/resources", "src/main/webapp", "pom.xml", renderer
-                        .render("generator/maven/pom.xml",
-                                new Pom(buildConfiguration, dependencies,
-                                        createPlugins(facets, packageBase, plugins.get(buildConfiguration.getPackaging())))),
+                .render("generator/maven/pom.xml",
+                        new Pom(buildConfiguration, dependencies,
+                                createPlugins(facets, packageBase, plugins.get(buildConfiguration.getPackaging())))),
                 "target");
     }
 
     private Collection<Plugin> createPlugins(final Collection<String> facets, final String packageBase,
             final Collection<Plugin> plugins) {
         final Collection<Plugin> buildPlugins = new ArrayList<>(plugins);
+
+        buildPlugins.add(new Plugin("org.talend.sdk.component", "talend-component-maven-plugin", ProjectMavenMeta.PROJECT_VERSION,
+                new ArrayList<Execution>() {{
+                    add(new Execution("validate+metadata", "package", "validate"));
+                }}, null));
 
         buildPlugins.add(new Plugin("org.apache.maven.plugins", "maven-surefire-plugin", SUREFIRE, emptySet(),
                 new LinkedHashMap<String, String>() {

@@ -24,14 +24,14 @@ public class {{testClassName}} {
         // Setup your component configuration for the test here
         final {{configurationClassName}} configuration =  new {{configurationClassName}}(){{^hasConfig}};{{/hasConfig}}
                                                                         {{#configFields}}
-                                                                            {{#-first}}/*{{/-first}}  .set{{.}}(){{#-last}} */;{{/-last}}
+                                                                            {{#-first}}/* {{/-first}}{{^-first}}   {{/-first}}.set{{.}}(){{#-last}} */;{{/-last}}
                                                                         {{/configFields}}
 
         // We create the component mapper instance using the configuration filled above
         final Mapper mapper = COMPONENT_FACTORY.createMapper({{sourceClassName}}.class, configuration);
 
         // Collect the source as a list
-         assertEquals(asList(/* TODO - give the expected data */), COMPONENT_FACTORY.collectAsList({{outputRecordName}}.class, mapper));
+        assertEquals(asList(/* TODO - give the expected data */), COMPONENT_FACTORY.collectAsList({{outputRecordName}}.class, mapper));
     }
 
 }

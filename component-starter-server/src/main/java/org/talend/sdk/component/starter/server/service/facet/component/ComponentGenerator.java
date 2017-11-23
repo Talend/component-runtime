@@ -21,12 +21,15 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
@@ -36,6 +39,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.talend.sdk.component.starter.server.service.facet.util.NameConventions.sanitizeConnectionName;
@@ -50,6 +54,14 @@ public class ComponentGenerator {
 
     private byte[] defaultIconContent;
 
+    private static boolean isOutput(ProjectRequest.ProcessorConfiguration p) {
+        return p.getOutputStructures() == null || p.getOutputStructures().isEmpty();
+    }
+
+    private static boolean isProcessor(ProjectRequest.ProcessorConfiguration p) {
+        return !isOutput(p);
+    }
+
     @PostConstruct
     private void init() {
         defaultIconContent = new byte[0];
@@ -58,7 +70,13 @@ public class ComponentGenerator {
     public Stream<FacetGenerator.InMemoryFile> create(final String packageBase, final Build build, final String family,
             final String category, final Collection<ProjectRequest.SourceConfiguration> sources,
             final Collection<ProjectRequest.ProcessorConfiguration> processors) {
+
         final String mainJava = build.getMainJavaDirectory() + '/' + packageBase.replace('.', '/');
+        Map<String, Map<String, String>> messageProperties = new HashMap<>();//Package , list of configuration path for that package
+        messageProperties.put(packageBase, new TreeMap<>());
+        if (family != null && !family.isEmpty()) {
+            messageProperties.get(packageBase).put(family, family);
+        }
 
         final boolean hasService = (sources != null && !sources.isEmpty()) || (processors != null && !processors.isEmpty());
         if (!hasService) {
@@ -89,21 +107,87 @@ public class ComponentGenerator {
                     }
                 })));
 
-        // boolean needsObjectMapImpl = false; // we have a default impl in api, no need to generate one
         if (sources != null && !sources.isEmpty()) {
             files.addAll(createSourceFiles(packageBase, sources, mainJava, serviceName).collect(toList()));
-            // needsObjectMapImpl = sources.stream().anyMatch(ProjectRequest.SourceConfiguration::isGenericOutput);
-        }
-        if (processors != null && !processors.isEmpty()) {
-            files.addAll(createProcessorFiles(packageBase, processors, mainJava, serviceName).collect(toList()));
-            /*
-             * if (!needsObjectMapImpl) {
-             * needsObjectMapImpl = processors.stream().anyMatch(ProjectRequest.ProcessorConfiguration::isGenericOutputs);
-             * }
-             */
+
+            messageProperties.put(packageBase + ".source", new TreeMap<String, String>() {{
+                putAll(sources.stream().map(source -> Pair.of(family + "." + source.getName(), source.getName()))
+                              .collect(toMap(Pair::getKey, Pair::getValue)));
+
+                put("configuration", "configuration");
+                putAll(sources.stream()
+                              .filter(source -> source.getConfiguration() != null
+                                      && source.getConfiguration().getEntries() != null)
+                              .flatMap(source -> toProperties(packageBase + ".source",
+                                      source.getConfiguration().getEntries(), null))
+                              .collect(toMap(Pair::getKey, Pair::getValue)));
+            }});
         }
 
+        if (processors != null && !processors.isEmpty()) {
+            files.addAll(createProcessorFiles(packageBase, processors, mainJava, serviceName).collect(toList()));
+            messageProperties.put(packageBase + ".output", new TreeMap<String, String>() {{
+                putAll(processors.stream()
+                                 .filter(ComponentGenerator::isOutput)
+                                 .map(processor -> Pair.of(family + "." + processor.getName(), processor.getName()))
+                                 .collect(toMap(Pair::getKey, Pair::getValue)));
+                put("configuration", "configuration");
+                putAll(processors.stream()
+                                 .filter(processor -> processor.getConfiguration() != null
+                                         && processor.getConfiguration().getEntries() != null)
+                                 .filter(ComponentGenerator::isOutput)
+                                 .flatMap(p -> toProperties(packageBase + ".output",
+                                         p.getConfiguration().getEntries(), null))
+                                 .collect(toMap(Pair::getKey, Pair::getValue)));
+            }});
+
+            messageProperties.put(packageBase + ".processor", new TreeMap<String, String>() {{
+                put("configuration", "configuration");
+                putAll(processors.stream()
+                                 .filter(ComponentGenerator::isProcessor)
+                                 .map(processor -> Pair.of(family + "." + processor.getName(), processor.getName()))
+                                 .collect(toMap(Pair::getKey, Pair::getValue)));
+                putAll(processors.stream()
+                                 .filter(processor -> processor.getConfiguration() != null
+                                         && processor.getConfiguration().getEntries() != null)
+                                 .filter(ComponentGenerator::isProcessor)
+                                 .flatMap(p -> toProperties(packageBase + ".processor",
+                                         p.getConfiguration().getEntries(), null))
+                                 .collect(toMap(Pair::getKey, Pair::getValue)));
+            }});
+        }
+
+        files.addAll(generateProperties(build.getMainResourcesDirectory(), messageProperties).collect(toList()));
+
         return files.stream();
+    }
+
+    private Stream<Pair<String, String>> toProperties(final String pck, final Collection<ProjectRequest.Entry> structure,
+            final String parentPath) {
+        return structure.stream().flatMap(e -> {
+            final String prop = (parentPath == null || parentPath.isEmpty()) ? "configuration." + e.getName() :
+                    parentPath + "." + e.getName();
+            final Pair<String, String> pair = Pair.of(prop, e.getName());
+            if (e.getNestedType() != null) {
+                return Stream.concat(Stream.of(pair), toProperties(pck, e.getNestedType().getEntries(), prop));
+            }
+            return Stream.of(pair);
+        });
+    }
+
+    private Stream<FacetGenerator.InMemoryFile> generateProperties(String mainResourcesDirectory,
+            Map<String, Map<String, String>> messageProperties) {
+
+        return messageProperties.entrySet().stream().map(props ->
+                new FacetGenerator.InMemoryFile(
+                        mainResourcesDirectory + "/" + props.getKey().replace(".", "/") + "/Messages.properties",
+                        tpl.render("generator/component/Messages.mustache", new HashMap<String, Object>() {
+
+                            {
+                                put("properties", props.getValue().entrySet());
+                            }
+                        }))
+        );
     }
 
     private Stream<FacetGenerator.InMemoryFile> createProcessorFiles(final String packageBase,

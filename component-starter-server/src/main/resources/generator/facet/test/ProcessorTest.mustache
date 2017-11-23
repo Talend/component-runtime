@@ -31,9 +31,9 @@ public class {{testClassName}} {
         // {{#isOutput}}Output{{/isOutput}}{{^isOutput}}Processor{{/isOutput}} configuration
         // Setup your component configuration for the test here
         final {{configurationClassName}} configuration =  new {{configurationClassName}}(){{^hasConfig}};{{/hasConfig}}
-                                                                {{#configFields}}
-                                                                    {{#-first}}/*{{/-first}}  .set{{.}}(){{#-last}} */;{{/-last}}
-                                                                {{/configFields}}
+                                                                            {{#configFields}}
+                                                                                {{#-first}}/* {{/-first}}{{^-first}}   {{/-first}}.set{{.}}(){{#-last}} */;{{/-last}}
+                                                                            {{/configFields}}
 
         // We create the component processor instance using the configuration filled above
         final Processor processor = COMPONENT_FACTORY.createProcessor({{processorClassName}}.class, configuration);

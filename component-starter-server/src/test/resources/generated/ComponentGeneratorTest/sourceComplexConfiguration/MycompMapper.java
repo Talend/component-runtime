@@ -1,5 +1,8 @@
 package com.foo.source;
 
+import java.io.Serializable;
+import java.util.List;
+
 import static java.util.Collections.singletonList;
 
 import org.talend.sdk.component.api.component.Icon;
@@ -20,17 +23,16 @@ import com.foo.service.TestService;
 @Icon(Icon.IconType.STAR) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename_icon32.png in resources
 @PartitionMapper(name = "mycomp")
 public class MycompMapper implements Serializable {
-    private final MycompSourceConfiguration configuration;
+    private final MycompMapperConfiguration configuration;
     private final TestService service;
 
-    public MycompMapper(@Option("configuration") final MycompSourceConfiguration configuration,
-                         final TestService service) {
+    public MycompMapper(@Option("configuration") final MycompMapperConfiguration configuration, final TestService service) {
         this.configuration = configuration;
         this.service = service;
     }
 
     @Assessor
-    public long estimateSize() throws SQLException {
+    public long estimateSize() {
         // this method should return the estimation of the dataset size
         // it is recommanded to return a byte value
         // if you don't have the exact size you can use a rough estimation
@@ -38,7 +40,7 @@ public class MycompMapper implements Serializable {
     }
 
     @Split
-    public List<MycompMapper> split(@PartitionSize final long bundles) throws SQLException {
+    public List<MycompMapper> split(@PartitionSize final long bundles) {
         // overall idea here is to split the work related to configuration in bundles of size "bundles"
         //
         // for instance if your estimateSize() returned 1000 and you can run on 10 nodes
