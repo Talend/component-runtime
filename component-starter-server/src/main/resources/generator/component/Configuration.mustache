@@ -5,6 +5,9 @@ import java.io.Serializable;
 {{#structure.size}}
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+{{#hasCredential}}
+import org.talend.sdk.component.api.configuration.ui.widget.Credential;
+{{/hasCredential}}
 {{/structure.size}}
 
 @GridLayout({
@@ -16,6 +19,9 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 })
 public class {{className}} implements Serializable {
 {{#structure}}
+{{#isCredential}}
+    @Credential
+{{/isCredential}}
     @Option
     private {{type}} {{name}};
 
