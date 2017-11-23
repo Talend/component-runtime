@@ -152,7 +152,7 @@ public class ComponentGeneratorTest {
                 .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/isolatedProcessor/TProcProcessor.java"),
-                files.get("src/main/java/com/foo/output/TProcProcessor.java"));
+                files.get("src/main/java/com/foo/output/TProcOutput.java"));
     }
 
     @Test
@@ -202,7 +202,7 @@ public class ComponentGeneratorTest {
                 .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/processorInput/TProcProcessor.java"),
-                files.get("src/main/java/com/foo/output/TProcProcessor.java"));
+                files.get("src/main/java/com/foo/output/TProcOutput.java"));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/processorInput/TProcDefaultInput.java"),
                 files.get("src/main/java/com/foo/output/TProcDefaultInput.java"));
@@ -217,7 +217,7 @@ public class ComponentGeneratorTest {
                 .collect(toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/processorGenericInput/TProcProcessor.java"),
-                files.get("src/main/java/com/foo/output/TProcProcessor.java"));
+                files.get("src/main/java/com/foo/output/TProcOutput.java"));
     }
 
     @Test

@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.beam;
 
@@ -19,9 +19,11 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.beam.sdk.annotations.Experimental.Kind.SOURCE_SINK;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 
 import org.apache.beam.sdk.annotations.Experimental;
 import org.apache.beam.sdk.coders.Coder;
@@ -32,7 +34,6 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.PDone;
 import org.apache.beam.sdk.values.PInput;
 import org.apache.beam.sdk.values.POutput;
@@ -48,12 +49,12 @@ import lombok.NoArgsConstructor;
 @Experimental(SOURCE_SINK)
 public final class TalendIO {
 
-    public static <T> Base<PBegin, PCollection<T>, Mapper> read(final Mapper mapper) {
+    public static <T extends Serializable> Base<PBegin, PCollection<T>, Mapper> read(final Mapper mapper) {
         return mapper.isStream() ? new InfiniteRead<>(mapper) : new Read<>(mapper);
     }
 
-    public static <T> Write<T> write(final Processor output, final Map<String, PCollectionView<?>> incomingViews) {
-        return new Write<>(output, incomingViews);
+    public static Write write(final Processor output) {
+        return new Write(output);
     }
 
     private static abstract class Base<A extends PInput, B extends POutput, D extends Lifecycle> extends PTransform<A, B> {
@@ -108,32 +109,37 @@ public final class TalendIO {
         }
     }
 
-    private static class Write<T> extends Base<PCollection<T>, PDone, Processor> {
+    public static class Write extends Base<PCollection<Map<String, List<Serializable>>>, PDone, Processor> {
 
-        private Map<String, PCollectionView<?>> incomingViews;
-
-        private Write(final Processor delegate, final Map<String, PCollectionView<?>> incomingViews) {
+        private Write(final Processor delegate) {
             super(delegate);
-            this.incomingViews = incomingViews;
         }
 
         @Override
-        public PDone expand(final PCollection<T> incoming) {
-            incoming.apply(ParDo.of(new WriteFn<>(delegate, incomingViews)));
+        public PDone expand(final PCollection<Map<String, List<Serializable>>> incoming) {
+            incoming.apply(ParDo.of(new WriteFn(delegate)));
             return PDone.in(incoming.getPipeline());
         }
     }
 
     @NoArgsConstructor
-    private static class WriteFn<T> extends BaseProcessorFn<T, Void> {
+    private static class WriteFn extends BaseProcessorFn<Map<String, List<Serializable>>, Void> {
 
-        WriteFn(final Processor processor, final Map<String, PCollectionView<?>> incomingViews) {
-            super(processor, incomingViews);
+        private static final Consumer<Map<String, List<Serializable>>> NOOP_CONSUMER = record -> {
+        };
+
+        WriteFn(final Processor processor) {
+            super(processor);
         }
 
         @ProcessElement
         public void processElement(final ProcessContext context) throws Exception {
-            processor.onNext(new BeamInputFactory(context, incomingViews), new BeamOutputFactory(context));
+            processor.onNext(new BeamInputFactory(context), new BeamOutputFactory(NOOP_CONSUMER));
+        }
+
+        @FinishBundle
+        public void finishBundle(final FinishBundleContext context) throws Exception {
+            processor.afterGroup(new BeamOutputFactory(NOOP_CONSUMER));
         }
     }
 
@@ -192,7 +198,8 @@ public final class TalendIO {
         private Mapper mapper;
 
         @Override
-        public List<? extends UnboundedSource<T, EmptyCheckMark>> split(final int desiredNumSplits, final PipelineOptions options) throws Exception {
+        public List<? extends UnboundedSource<T, EmptyCheckMark>> split(final int desiredNumSplits, final PipelineOptions options)
+                throws Exception {
             mapper.start();
             try {
                 return mapper.split(desiredNumSplits).stream().map(i -> new UnBoundedSourceImpl<T>(i)).collect(toList());

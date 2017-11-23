@@ -1,5 +1,7 @@
 package com.foo.source;
 
+import java.io.Serializable;
+
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 
@@ -9,7 +11,7 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
     @GridLayout.Row({ "name" }),
     @GridLayout.Row({ "age" })
 })
-public class PersonConfiguration {
+public class PersonConfiguration implements Serializable {
     @Option
     private String name;
 

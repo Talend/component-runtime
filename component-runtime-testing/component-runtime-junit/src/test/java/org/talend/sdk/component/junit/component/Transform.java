@@ -15,10 +15,6 @@
  */
 package org.talend.sdk.component.junit.component;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
 
 import org.talend.sdk.component.api.processor.ElementListener;
@@ -26,6 +22,10 @@ import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Processor(family = "simple", name = "concat")
 public class Transform implements Serializable {
@@ -40,7 +40,7 @@ public class Transform implements Serializable {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Record {
+    public static class Record implements Serializable {
         private String value;
     }
 }

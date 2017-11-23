@@ -7,9 +7,9 @@ import javax.annotation.PreDestroy;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
+import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
@@ -21,11 +21,11 @@ import com.foo.service.TestService;
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
 @Icon(Icon.IconType.STAR) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename_icon32.png in resources
 @Processor(name = "tProc")
-public class TProcProcessor implements Serializable {
-    private final TProcProcessorConfiguration configuration;
+public class TProcOutput implements Serializable {
+    private final TProcOutputConfiguration configuration;
     private final TestService service;
 
-    public TProcProcessor(@Option("configuration") final TProcProcessorConfiguration configuration,
+    public TProcOutput(@Option("configuration") final TProcOutputConfiguration configuration,
                          final TestService service) {
         this.configuration = configuration;
         this.service = service;
@@ -45,7 +45,7 @@ public class TProcProcessor implements Serializable {
         // Note: if you don't need it you can delete it
     }
 
-    @Producer
+    @ElementListener
     public void onNext(
         @Input("__default__") final ObjectMap defaultInput) {
         // this is the method allowing you to handle the input(s) and emit the output(s)

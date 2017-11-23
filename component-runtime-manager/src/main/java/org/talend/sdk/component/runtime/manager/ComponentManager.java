@@ -125,7 +125,7 @@ public class ComponentManager implements AutoCloseable {
 
     private static final MigrationHandler NO_MIGRATION = (incomingVersion, incomingData) -> incomingData;
 
-    private static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
+    protected static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
 
     private static final Components DEFAULT_COMPONENT = new Components() {
 
@@ -191,7 +191,7 @@ public class ComponentManager implements AutoCloseable {
                                   .ifPresent(p -> this.container
                                           .registerListener(new JmxManager(p, ManagementFactory.getPlatformMBeanServer())));
         toStream(loadServiceProviders(ContainerListenerExtension.class, tccl))
-                .forEach(listener -> container.registerListener(listener));
+                .forEach(container::registerListener);
         this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
     }
 

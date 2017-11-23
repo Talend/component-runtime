@@ -17,6 +17,7 @@ package org.talend.sdk.component.starter.server.service;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -50,6 +51,7 @@ import org.talend.sdk.component.starter.server.service.event.CreateProject;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.component.ComponentGenerator;
+import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 import lombok.Getter;
 
@@ -73,6 +75,9 @@ public class ProjectGenerator {
 
     @Inject
     private ComponentGenerator componentGenerator;
+
+    @Inject
+    private TemplateRenderer tpl;
 
     private List<String> scopesOrdering;
 
@@ -126,7 +131,7 @@ public class ProjectGenerator {
         final Map<FacetGenerator, List<String>> filePerFacet = facets.stream().map(s -> s.toLowerCase(Locale.ENGLISH))
                 .collect(toMap(this.facets::get, f -> {
                     final FacetGenerator g = this.facets.get(f);
-                    return g.create(request.getPackageBase(), build, facets,  request.getSources(), request.getProcessors())
+                    return g.create(request.getPackageBase(), build, facets, request.getSources(), request.getProcessors())
                             .peek(file -> files.put(file.getPath(), file.getContent())).map(FacetGenerator.InMemoryFile::getPath)
                             .collect(toList());
                 }));
@@ -136,6 +141,27 @@ public class ProjectGenerator {
             files.put("README.adoc", readmeGenerator.createReadme(request.getBuildConfiguration().getName(), filePerFacet)
                     .getBytes(StandardCharsets.UTF_8));
         }
+
+        // handle logging - centralized since we want a single setup per project
+        filePerFacet.keySet().stream().map(FacetGenerator::loggingScope).reduce((s1, s2) -> {
+            final List<String> scopes = asList(s1, s2);
+            if (scopes.contains("compile")) {
+                return "compile";
+            }
+            if (scopes.contains("provided")) {
+                return "provided";
+            }
+            if (scopes.contains("test")) {
+                return "test";
+            }
+            return s1;
+        }).filter(s -> !s.isEmpty()).ifPresent(scope -> {
+            dependencies.add(new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", "2.9.1", scope));
+            files.put(
+                    ("test".equals(scope) ? build.getTestResourcesDirectory() : build.getMainResourcesDirectory())
+                            + "/log4j2.xml",
+                    tpl.render("generator/logging/log4j2.mustache", emptyMap()).getBytes(StandardCharsets.UTF_8));
+        });
 
         componentGenerator.create(request.getPackageBase(), build, request.getFamily(), request.getCategory(),
                 request.getSources(), request.getProcessors()).forEach(file -> files.put(file.getPath(), file.getContent()));

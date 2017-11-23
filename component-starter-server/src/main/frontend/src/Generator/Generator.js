@@ -50,7 +50,7 @@ export default class Generator extends React.Component {
        ]
     };
     this.state.steps.push({name: 'Start', component: <ProjectMetadata project={this.state.project} buildTypes={this.state.configuration.buildTypes} />});
-    this.state.steps.push({name: 'Finish', component: <Finish project={this.state.project} components={this.state.components} />});
+    this.state.steps.push({name: 'Finish', component: <Finish project={this.state.project} components={() => this.state.components} />});
 
     ['onAddComponent', 'onGoToFinishPage'].forEach(action => this[action] = this[action].bind(this));
   }

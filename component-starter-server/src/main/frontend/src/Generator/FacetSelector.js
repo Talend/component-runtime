@@ -54,7 +54,9 @@ export default class FacetSelector extends React.Component {
 
     this.state = {
       facetTypeahead: typeaheadConfig,
-      selected: []
+      selected: !props.selected ? [] : typeaheadConfig
+        .map(cat => cat.suggestions.filter(s => props.selected.indexOf(s.title) >= 0))
+        .reduce((a, i) => a.concat(i), [])
     };
 
     this.onChange = this.onChange.bind(this);
@@ -80,7 +82,7 @@ export default class FacetSelector extends React.Component {
         break;
       case keycode.codes.backspace:
         if (!this.state.value && this.props.selected.length > 0) {
-          this.onRemoveTag(event, this.props.selected.length - 1);
+          this.onRemoveTag(this.props.selected.length - 1);
         }
         break;
       default:
@@ -96,20 +98,13 @@ export default class FacetSelector extends React.Component {
     this.updateSuggestions('');
   }
 
-  onAddTag(event, { itemIndex }) {
-    // ensure to keep selected reference
-    this.state.suggestions.map(item => item.suggestions.filter(s => this.props.selected.indexOf(s) <= 0))
-      .reduce((a, b) => {
-        b.forEach(i => {
-          a.push(i);
-          this.props.selected.push(i.title);
-        });
-        return a;
-      }, this.state.selected);
+  onAddTag(event, { sectionIndex, itemIndex }) {
+    this.props.selected.push(this.state.suggestions[sectionIndex].suggestions[itemIndex].title);
+    this.setState(state => state.selected.push(this.state.suggestions[sectionIndex].suggestions[itemIndex]));
     this.updateSuggestions();
   }
 
-  onRemoveTag(event, itemIndex) {
+  onRemoveTag(itemIndex) {
     this.props.selected.splice(itemIndex, 1);
     this.setState(state => state.selected.splice(itemIndex, 1));
   }
@@ -196,7 +191,7 @@ export default class FacetSelector extends React.Component {
 
           <div className={theme.badges}>{
               this.state.selected.map((item, index) => {
-                return <Badge label={item.title} category={item.category} key={index} onDelete={event => this.onRemoveTag(event, index)} />;
+                return <Badge label={item.title} category={item.category} key={index} onDelete={event => this.onRemoveTag(index)} />;
               })
           }</div>
         </div>

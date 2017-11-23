@@ -1,5 +1,7 @@
 package {{package}};
 
+import java.io.Serializable;
+
 {{#structure.size}}
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
@@ -12,7 +14,7 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
     @GridLayout.Row({ "{{name}}" }){{^-last}},{{/-last}}
  {{/structure}}
 })
-public class {{className}} {
+public class {{className}} implements Serializable {
 {{#structure}}
     @Option
     private {{type}} {{name}};
