@@ -31,6 +31,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +99,8 @@ public class StatisticService {
 
         @PostConstruct
         private void init() {
-            executorService = Executors.newFixedThreadPool(threads);
+            executorService = Executors.newFixedThreadPool(threads,
+                    new BasicThreadFactory.Builder().namingPattern("statistcs-%d").build());
         }
 
         // don't block to return ASAP to the client, not very important if it fails for the end user

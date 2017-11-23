@@ -1,4 +1,4 @@
-package {{classPackage}};
+package com.foo.output;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
@@ -11,9 +11,6 @@ import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.coders.ListCoder;
 import org.apache.beam.sdk.coders.MapCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
-{{^isOutput}}
-import org.apache.beam.sdk.testing.PAssert;
-{{/isOutput}}
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.values.PCollection;
@@ -21,21 +18,16 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-{{#isGeneric}}
 import org.talend.sdk.component.api.processor.data.ObjectMap;
-{{/isGeneric}}
 import org.talend.sdk.component.junit.JoinInputFactory;
-{{^isOutput}}
-import org.talend.sdk.component.junit.RecordAsserts;
-{{/isOutput}}
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.runtime.beam.TalendCoder;
 import org.talend.sdk.component.runtime.beam.TalendFn;
 import org.talend.sdk.component.runtime.output.Processor;
 
-public class {{testClassName}} {
+public class TInOutputBeamTest {
     @ClassRule
-    public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule("{{rootPackage}}");
+    public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule("com.foo");
 
     @Rule
     public transient final TestPipeline pipeline = TestPipeline.create();
@@ -43,23 +35,18 @@ public class {{testClassName}} {
     @Test
     @Ignore("You need to complete this test with your own data and assertions")
     public void processor() {
-        // {{#isOutput}}Output{{/isOutput}}{{^isOutput}}Processor{{/isOutput}} configuration
+        // Output configuration
         // Setup your component configuration for the test here
-        final {{configurationClassName}} configuration =  new {{configurationClassName}}(){{^hasConfig}};{{/hasConfig}}
-            {{#configFields}}
-                {{#-first}}/*{{/-first}}  .set{{.}}(){{#-last}} */;{{/-last}}
-            {{/configFields}}
+        final TInOutputConfiguration configuration =  new TInOutputConfiguration();
 
         // We create the component processor instance using the configuration filled above
-        final Processor processor = COMPONENT_FACTORY.createProcessor({{processorClassName}}.class, configuration);
+        final Processor processor = COMPONENT_FACTORY.createProcessor(TInOutput.class, configuration);
 
         // The join input factory construct inputs test data for every input branch you have defined for this component
         // Make sure to fil in some test data for the branches you want to test
         // You can also remove the branches that you don't need from the factory below
         final JoinInputFactory joinInputFactory =  new JoinInputFactory()
-            {{#inputBranches}}
-                .withInput("{{key}}", asList(/* TODO - list of your input data for this branch. Instances of {{value}}.class */)){{#-last}};{{/-last}}
-            {{/inputBranches}}
+                .withInput("__default__", asList(/* TODO - list of your input data for this branch. Instances of ObjectMap.class */));
 
         // Convert it to a beam "source"
         final PCollection<Map<String, List<Serializable>>> inputs = pipeline.apply(
@@ -67,18 +54,8 @@ public class {{testClassName}} {
                     .withCoder(MapCoder.of(StringUtf8Coder.of(), ListCoder.of(TalendCoder.of()))));
 
         // add our processor right after to see each data as configured previously
-        {{^isOutput}}final PCollection<Map<String, List<Serializable>>> result = {{/isOutput}}inputs.apply(TalendFn.asFn(processor));
+        inputs.apply(TalendFn.asFn(processor));
 
-        {{^isOutput}}
-        PAssert.that(result)
-            .satisfies(new RecordAsserts()
-                {{#outputBranches}}
-                .withAsserts("{{key}}", dataList -> {
-                    // assert resulting data of the branch "{{key}}", for instance:
-                    // assertEquals(10, dataList.size());
-                }){{/outputBranches}}
-                ::apply);
-        {{/isOutput}}
 
         // run the pipeline and ensure the execution was successful
         assertEquals(PipelineResult.State.DONE, pipeline.run().getState());

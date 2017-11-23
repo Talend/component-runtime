@@ -15,9 +15,8 @@
  */
 package org.talend.sdk.component.starter.server.front;
 
-import static org.talend.sdk.component.starter.server.Versions.CXF;
-
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
@@ -25,11 +24,14 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.talend.sdk.component.starter.server.Versions.CXF;
+import static org.talend.sdk.component.starter.server.test.Resources.resourceFileToString;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +47,6 @@ import org.apache.meecrowave.junit.MonoMeecrowave;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.talend.sdk.component.starter.server.model.FactoryConfiguration;
 import org.talend.sdk.component.starter.server.model.ProjectModel;
 import org.talend.sdk.component.starter.server.test.ClientRule;
@@ -59,7 +60,7 @@ public class ProjectResourceTest {
     @Test
     public void configuration() {
         final FactoryConfiguration config = client.target().path("project/configuration").request(MediaType.APPLICATION_JSON_TYPE)
-                                                  .get(FactoryConfiguration.class);
+                .get(FactoryConfiguration.class);
         final String debug = config.toString();
         assertEquals(debug, new HashSet<>(asList("Gradle", "Maven")), new HashSet<>(config.getBuildTypes()));
         assertEquals(debug, new HashMap<String, List<FactoryConfiguration.Facet>>() {
@@ -84,7 +85,7 @@ public class ProjectResourceTest {
         assertEquals(Stream.of("application/", "application/pom.xml", "application/README.adoc").collect(toSet()),
                 files.keySet());
         Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>")
-              .forEach(token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
+                .forEach(token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
         assertEquals("= A Talend generated Component Starter Project\n", files.get("application/README.adoc"));
     }
 
@@ -99,7 +100,7 @@ public class ProjectResourceTest {
         assertEquals(Stream.of("application/", "application/pom.xml", "application/README.adoc").collect(toSet()),
                 files.keySet());
         Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>")
-              .forEach(token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
+                .forEach(token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
         assertEquals("= A Talend generated Component Starter Project\n" + "\n" + "== Test\n" + "\n"
                 + "=== Talend Component Kit Testing\n" + "\n"
                 + "Talend Component Kit Testing skeleton generator. For each component selected it generates an associated test suffixed with `Test`.\n"
@@ -129,7 +130,7 @@ public class ProjectResourceTest {
                         + "              <wadl>${project.basedir}/src/main/resources/wadl/client.xml</wadl>\n"
                         + "              <packagename>com.application.client.wadl</packagename>\n" + "            </wadlOption>\n"
                         + "          </wadlOptions>\n" + "        </configuration>\n" + "      </plugin>")
-              .forEach(string -> assertThat(files.get("application/pom.xml"), containsString(string)));
+                .forEach(string -> assertThat(files.get("application/pom.xml"), containsString(string)));
     }
 
     @Test
@@ -153,7 +154,68 @@ public class ProjectResourceTest {
                 "sourceSets {\n" + "  main {\n" + "    java {\n"
                         + "      project.tasks.compileJava.dependsOn project.tasks.generateWadlClient\n"
                         + "      srcDir wadlGeneratedFolder\n" + "    }\n" + "  }\n" + "}")
-              .forEach(string -> assertThat(files.get("application/build.gradle"), containsString(string)));
+                .forEach(string -> assertThat(files.get("application/build.gradle"), containsString(string)));
+    }
+
+    @Test
+    public void beamFacet() throws IOException {
+        final ProjectModel projectModel = new ProjectModel();
+        projectModel.setPackageBase("com.foo");
+        projectModel.setFacets(singletonList("Apache Beam"));
+        {
+            final ProjectModel.Source source = new ProjectModel.Source();
+            source.setName("tIn");
+            source.setGenericOutput(true);
+            projectModel.setSources(singletonList(source));
+        }
+        {
+            final ProjectModel.Processor proc = new ProjectModel.Processor();
+            proc.setName("tIn");
+            {
+                final ProjectModel.NamedModel in = new ProjectModel.NamedModel();
+                in.setName("__default__");
+                in.setGeneric(true);
+                proc.setInputStructures(singletonList(in));
+            }
+            proc.setOutputStructures(emptyList());
+            projectModel.setProcessors(singletonList(proc));
+        }
+
+        final Map<String, String> files = createZip(projectModel);
+
+        assertEquals(41, files.size());
+        assertTrue(files.toString(), files.get("application/README.adoc").contains("=== Apache Beam"));
+        assertEquals(resourceFileToString("generated/ProjectResourceTest/beamFacet/TInMapperBeamTest.java"), files.get("application/src/test/java/com/foo/source/TInMapperBeamTest.java"));
+        assertEquals(resourceFileToString("generated/ProjectResourceTest/beamFacet/TInOutputBeamTest.java"), files.get("application/src/test/java/com/foo/output/TInOutputBeamTest.java"));
+    }
+
+    @Test
+    public void beamFacetProcessorOutput() throws IOException {
+        final ProjectModel projectModel = new ProjectModel();
+        projectModel.setPackageBase("com.foo");
+        projectModel.setFacets(singletonList("Apache Beam"));
+        {
+            final ProjectModel.Processor proc = new ProjectModel.Processor();
+            proc.setName("tIn");
+            {
+                final ProjectModel.NamedModel in = new ProjectModel.NamedModel();
+                in.setName("__default__");
+                in.setGeneric(true);
+                proc.setInputStructures(singletonList(in));
+            }
+            {
+                final ProjectModel.NamedModel out = new ProjectModel.NamedModel();
+                out.setName("__default__");
+                out.setGeneric(true);
+                proc.setOutputStructures(singletonList(out));
+            }
+            projectModel.setProcessors(singletonList(proc));
+        }
+
+        final Map<String, String> files = createZip(projectModel);
+
+        assertEquals(32, files.size());
+        assertEquals(resourceFileToString("generated/ProjectResourceTest/beamFacetProcessorOutput/TInProcessorBeamTest.java"), files.get("application/src/test/java/com/foo/processor/TInProcessorBeamTest.java"));
     }
 
     private void assertWadl(final Map<String, String> files) {
@@ -167,7 +229,7 @@ public class ProjectResourceTest {
         final Map<String, String> files = new HashMap<>();
         try (final ZipInputStream stream = new ZipInputStream(
                 client.target().path("project/zip").request(MediaType.APPLICATION_JSON_TYPE).accept("application/zip")
-                      .post(Entity.entity(projectModel, MediaType.APPLICATION_JSON_TYPE), InputStream.class))) {
+                        .post(Entity.entity(projectModel, MediaType.APPLICATION_JSON_TYPE), InputStream.class))) {
             ZipEntry entry;
             while ((entry = stream.getNextEntry()) != null) {
                 files.put(entry.getName(), new BufferedReader(new InputStreamReader(stream)).lines().collect(joining("\n")));

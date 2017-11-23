@@ -1,4 +1,4 @@
-package {{classPackage}};
+package com.foo.source;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,9 +16,9 @@ import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.runtime.beam.TalendIO;
 import org.talend.sdk.component.runtime.input.Mapper;
 
-public class {{testClassName}} implements Serializable {
+public class TInMapperBeamTest implements Serializable {
     @ClassRule
-    public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule("{{rootPackage}}");
+    public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule("com.foo");
 
     @Rule
     public transient final TestPipeline pipeline = TestPipeline.create();
@@ -27,16 +27,13 @@ public class {{testClassName}} implements Serializable {
     @Ignore("You need to complete this test with your own data and assertions")
     public void produce() {
         // Setup your component configuration for the test here
-        final {{configurationClassName}} configuration =  new {{configurationClassName}}(){{^hasConfig}};{{/hasConfig}}
-            {{#configFields}}
-                {{#-first}}/*{{/-first}}  .set{{.}}(){{#-last}} */;{{/-last}}
-            {{/configFields}}
+        final TInMapperConfiguration configuration =  new TInMapperConfiguration();
 
         // We create the component mapper instance using the configuration filled above
-        final Mapper mapper = COMPONENT_FACTORY.createMapper({{sourceClassName}}.class, configuration);
+        final Mapper mapper = COMPONENT_FACTORY.createMapper(TInMapper.class, configuration);
 
         // create a pipeline starting with the mapper
-        final PCollection<{{outputRecordName}}> out = pipeline.apply(TalendIO.read(mapper));
+        final PCollection<TInGenericRecord> out = pipeline.apply(TalendIO.read(mapper));
 
         // then append some assertions to the output of the mapper,
         // PAssert is a beam utility to validate part of the pipeline

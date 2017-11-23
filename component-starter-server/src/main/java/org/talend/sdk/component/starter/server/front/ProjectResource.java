@@ -140,7 +140,7 @@ public class ProjectResource {
     }
 
     private ProjectRequest.StructureConfiguration toStructure(final boolean generic, final ProjectModel.Model model) {
-        return new ProjectRequest.StructureConfiguration(!generic ? new ProjectRequest.DataStructure(model.getEntries() == null
+        return new ProjectRequest.StructureConfiguration(!generic ? new ProjectRequest.DataStructure(model == null || model.getEntries() == null
                 ? emptyList()
                 : model.getEntries().stream()
                         .map(e -> new ProjectRequest.Entry(e.getName(), e.getType(),

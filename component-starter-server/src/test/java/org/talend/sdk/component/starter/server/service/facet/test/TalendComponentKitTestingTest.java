@@ -16,10 +16,20 @@
 
 package org.talend.sdk.component.starter.server.service.facet.test;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toMap;
+import static org.junit.Assert.assertEquals;
+import static org.talend.sdk.component.starter.server.test.Resources.resourceFileToString;
+
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import javax.inject.Inject;
 
 import org.apache.meecrowave.junit.MonoMeecrowave;
@@ -30,17 +40,8 @@ import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.testing.TalendComponentKitTesting;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toMap;
-import static org.junit.Assert.assertEquals;
-import static org.talend.sdk.component.starter.server.test.Resources.resourceFileToString;
-
 @RunWith(MonoMeecrowave.Runner.class)
-public class FacetTestGeneratorTest {
+public class TalendComponentKitTestingTest {
 
     @Inject
     private TalendComponentKitTesting generator;
@@ -58,8 +59,7 @@ public class FacetTestGeneratorTest {
                                    .findFirst().orElse(null);
 
         assertEquals(resourceFileToString(
-                "generated/FacetTestGeneratorTest/testSourceWithoutConf/MycompSourceTest.java",
-                getClass().getClassLoader()), testFile);
+                "generated/TalendComponentKitTesting/testSourceWithoutConf/MycompSourceTest.java"), testFile);
 
     }
 
@@ -74,8 +74,7 @@ public class FacetTestGeneratorTest {
                                    .findFirst().orElse(null);
 
         assertEquals(resourceFileToString(
-                "generated/FacetTestGeneratorTest/testSourceWithConf/MycompSourceTest.java",
-                getClass().getClassLoader()), testFile);
+                "generated/TalendComponentKitTesting/testSourceWithConf/MycompSourceTest.java"), testFile);
     }
 
     @Test
@@ -89,11 +88,9 @@ public class FacetTestGeneratorTest {
                                    .findFirst().orElse(null);
 
         assertEquals(resourceFileToString(
-                "generated/FacetTestGeneratorTest/testSourceWithNonGenericOutput/MycompSourceTest.java",
-                getClass().getClassLoader()), testFile);
+                "generated/TalendComponentKitTesting/testSourceWithNonGenericOutput/MycompSourceTest.java"), testFile);
     }
 
-    //TODO Processors
     @Test
     public void testProcessorWithoutConf() {
         final Set<ProjectRequest.ProcessorConfiguration> processors = singleton(
@@ -107,8 +104,7 @@ public class FacetTestGeneratorTest {
                                    .findFirst().orElse(null);
 
         assertEquals(resourceFileToString(
-                "generated/FacetTestGeneratorTest/testProcessorWithoutConf/MycompProcessorTest.java",
-                getClass().getClassLoader()), testFile);
+                "generated/TalendComponentKitTesting/testProcessorWithoutConf/MycompProcessorTest.java"), testFile);
 
     }
 
@@ -129,8 +125,7 @@ public class FacetTestGeneratorTest {
                                    .findFirst().orElse(null);
 
         assertEquals(resourceFileToString(
-                "generated/FacetTestGeneratorTest/testProcessorWithConf/MycompProcessorTest.java",
-                getClass().getClassLoader()), testFile);
+                "generated/TalendComponentKitTesting/testProcessorWithConf/MycompProcessorTest.java"), testFile);
     }
 
     @Test
@@ -154,8 +149,7 @@ public class FacetTestGeneratorTest {
                                    .findFirst().orElse(null);
 
         assertEquals(resourceFileToString(
-                "generated/FacetTestGeneratorTest/testProcessorWithNonGenericOutput/MycompProcessorTest.java",
-                getClass().getClassLoader()), testFile);
+                "generated/TalendComponentKitTesting/testProcessorWithNonGenericOutput/MycompProcessorTest.java"), testFile);
     }
 
     private ProjectRequest.DataStructure complexConfig() {
