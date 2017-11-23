@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.studio.metadata;
+package org.talend.sdk.component.studio.metadata.node;
 
-import org.talend.core.repository.model.ProjectRepositoryNode;
+import org.talend.commons.ui.runtime.image.IImage;
 import org.talend.repository.model.RepositoryNode;
-import org.talend.repository.viewer.content.ProjectRepoDirectChildrenNodeContentProvider;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 
-public class MetadataContentProvider extends ProjectRepoDirectChildrenNodeContentProvider {
+/**
+ * DOC cmeng class global comment. Detailled comment
+ */
+public class TaCoKitConfigurationRepositoryNode extends AbsTaCoKitRepositoryNode {
 
-    @Override
-    protected RepositoryNode
-            getTopLevelNodeFromProjectRepositoryNode(final ProjectRepositoryNode projectRepositoryNode) {
-        return null;
+    public TaCoKitConfigurationRepositoryNode(final RepositoryNode parent, final String label, final IImage icon,
+            final ConfigTypeNode configTypeNode) {
+        super(parent, label, icon, configTypeNode);
     }
+
 }

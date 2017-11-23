@@ -50,6 +50,12 @@
       <version>4.3</version>
       <scope>provided</scope>
     </dependency>
+	<dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-lang3</artifactId>
+		<version>3.4</version>
+		<scope>provided</scope>
+	</dependency>
 
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -182,6 +188,7 @@
           <instructions>
             <Require-Bundle>
               org.eclipse.core.runtime,
+              org.eclipse.core.resources,
               org.eclipse.emf.common,
               org.eclipse.gef,
               org.eclipse.ui.views.properties.tabbed;visibility:=reexport,
@@ -196,7 +203,8 @@
               org.talend.model,
               org.talend.commons.ui,
               org.talend.repository,
-              org.talend.metadata.managment.ui
+              org.talend.metadata.managment.ui,
+              org.talend.repository.view.di
             </Require-Bundle>
             <Include-Resource>{maven-resources}</Include-Resource>
             <Import-Package/>
