@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,7 @@
 package org.talend.sdk.component.starter.server.service.build;
 
 import static java.util.stream.Collectors.toList;
+import static org.talend.sdk.component.starter.server.Versions.CXF;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,14 +32,13 @@ import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
-import org.talend.sdk.component.starter.server.service.facet.Versions;
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 import lombok.Data;
 
 @ApplicationScoped
-public class GradleBuildGenerator implements BuildGenerator, Versions {
+public class GradleBuildGenerator implements BuildGenerator {
 
     @Inject
     private TemplateRenderer tpl;
@@ -75,7 +75,7 @@ public class GradleBuildGenerator implements BuildGenerator, Versions {
 
         final GradleBuild model = new GradleBuild(buildConfiguration,
                 dependencies.stream().map(d -> "test".equals(d.getScope()) ? new Dependency(d, "testCompile") : d)
-                        .map(d -> "runtime".equals(d.getScope()) ? new Dependency(d, "compile") : d).collect(toList()),
+                            .map(d -> "runtime".equals(d.getScope()) ? new Dependency(d, "compile") : d).collect(toList()),
                 buildDependencies, configurations, plugins, tasks, imports, javaMainSourceSets);
         return new Build(buildConfiguration.getArtifact(), "src/main/java", "src/test/java", "src/main/resources",
                 "src/test/resources", "src/main/webapp", "build.gradle", tpl.render("generator/gradle/build.gradle", model),

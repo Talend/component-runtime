@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.talend.sdk.component.starter.server.front;
+
+import static org.talend.sdk.component.starter.server.Versions.CXF;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -43,9 +45,9 @@ import org.apache.meecrowave.junit.MonoMeecrowave;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.talend.sdk.component.starter.server.model.FactoryConfiguration;
 import org.talend.sdk.component.starter.server.model.ProjectModel;
-import org.talend.sdk.component.starter.server.service.facet.Versions;
 import org.talend.sdk.component.starter.server.test.ClientRule;
 
 @RunWith(MonoMeecrowave.Runner.class)
@@ -57,7 +59,7 @@ public class ProjectResourceTest {
     @Test
     public void configuration() {
         final FactoryConfiguration config = client.target().path("project/configuration").request(MediaType.APPLICATION_JSON_TYPE)
-                .get(FactoryConfiguration.class);
+                                                  .get(FactoryConfiguration.class);
         final String debug = config.toString();
         assertEquals(debug, new HashSet<>(asList("Gradle", "Maven")), new HashSet<>(config.getBuildTypes()));
         assertEquals(debug, new HashMap<String, List<FactoryConfiguration.Facet>>() {
@@ -82,7 +84,7 @@ public class ProjectResourceTest {
         assertEquals(Stream.of("application/", "application/pom.xml", "application/README.adoc").collect(toSet()),
                 files.keySet());
         Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>")
-                .forEach(token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
+              .forEach(token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
         assertEquals("= A Talend generated Component Starter Project\n", files.get("application/README.adoc"));
     }
 
@@ -97,7 +99,7 @@ public class ProjectResourceTest {
         assertEquals(Stream.of("application/", "application/pom.xml", "application/README.adoc").collect(toSet()),
                 files.keySet());
         Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>")
-                .forEach(token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
+              .forEach(token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
         assertEquals("= A Talend generated Component Starter Project\n" + "\n" + "== Test\n" + "\n"
                 + "=== Talend Component Kit Testing\n" + "\n"
                 + "Talend Component Kit Testing skeleton generator. For each component selected it generates an associated test suffixed with `Test`.\n"
@@ -127,7 +129,7 @@ public class ProjectResourceTest {
                         + "              <wadl>${project.basedir}/src/main/resources/wadl/client.xml</wadl>\n"
                         + "              <packagename>com.application.client.wadl</packagename>\n" + "            </wadlOption>\n"
                         + "          </wadlOptions>\n" + "        </configuration>\n" + "      </plugin>")
-                .forEach(string -> assertThat(files.get("application/pom.xml"), containsString(string)));
+              .forEach(string -> assertThat(files.get("application/pom.xml"), containsString(string)));
     }
 
     @Test
@@ -140,7 +142,7 @@ public class ProjectResourceTest {
 
         assertEquals(8, files.size());
         assertWadl(files);
-        Stream.of("    classpath \"org.apache.cxf:cxf-tools-wadlto-jaxrs:" + Versions.CXF,
+        Stream.of("    classpath \"org.apache.cxf:cxf-tools-wadlto-jaxrs:" + CXF,
                 "import org.apache.cxf.tools.common.ToolContext\n" + "import org.apache.cxf.tools.wadlto.WADLToJava\n",
                 "def wadlGeneratedFolder = \"$buildDir/generated-sources/cxf\"\n",
                 "task generateWadlClient {\n" + "  def wadl = \"$projectDir/src/main/resources/wadl/client.xml\"\n" + "\n"
@@ -151,7 +153,7 @@ public class ProjectResourceTest {
                 "sourceSets {\n" + "  main {\n" + "    java {\n"
                         + "      project.tasks.compileJava.dependsOn project.tasks.generateWadlClient\n"
                         + "      srcDir wadlGeneratedFolder\n" + "    }\n" + "  }\n" + "}")
-                .forEach(string -> assertThat(files.get("application/build.gradle"), containsString(string)));
+              .forEach(string -> assertThat(files.get("application/build.gradle"), containsString(string)));
     }
 
     private void assertWadl(final Map<String, String> files) {
@@ -165,7 +167,7 @@ public class ProjectResourceTest {
         final Map<String, String> files = new HashMap<>();
         try (final ZipInputStream stream = new ZipInputStream(
                 client.target().path("project/zip").request(MediaType.APPLICATION_JSON_TYPE).accept("application/zip")
-                        .post(Entity.entity(projectModel, MediaType.APPLICATION_JSON_TYPE), InputStream.class))) {
+                      .post(Entity.entity(projectModel, MediaType.APPLICATION_JSON_TYPE), InputStream.class))) {
             ZipEntry entry;
             while ((entry = stream.getNextEntry()) != null) {
                 files.put(entry.getName(), new BufferedReader(new InputStreamReader(stream)).lines().collect(joining("\n")));

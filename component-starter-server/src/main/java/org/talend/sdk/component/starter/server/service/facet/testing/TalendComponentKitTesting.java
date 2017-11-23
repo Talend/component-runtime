@@ -33,16 +33,17 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import static org.talend.sdk.component.starter.server.Versions.KIT;
+
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
-import org.talend.sdk.component.starter.server.service.facet.Versions;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 @ApplicationScoped
-public class TalendComponentKitTesting implements FacetGenerator, Versions {
+public class TalendComponentKitTesting implements FacetGenerator {
 
     @Inject
     private TemplateRenderer tpl;
@@ -79,11 +80,10 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
             Collection<ProjectRequest.SourceConfiguration> sources, Build build) {
 
         return sources.stream().flatMap(source -> {
-            final String baseName = toJavaName(source.getName()) + "Source";
-            final String testClassName = baseName + "Test";
-
-            final String configurationClassName = baseName + "Configuration";
+            final String baseName = toJavaName(source.getName());
+            final String testClassName = baseName + "SourceTest";
             final String mapperName = baseName + "Mapper";
+            final String configurationClassName = mapperName + "Configuration";
             final boolean isGeneric = source.getOutputStructure().isGeneric();
             final String outputRecordName = isGeneric ? capitalize(source.getName()) + "GenericRecord"
                     : capitalize(source.getName()) + "Record";
@@ -97,13 +97,13 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
 
             final Collection<InMemoryFile> files = new ArrayList<>();
             files.add(new FacetGenerator.InMemoryFile(testJava + "/source/" + testClassName + ".java",
-                    tpl.render("generator/component/SourceTest.mustache", new HashMap<String, Object>() {
+                    tpl.render("generator/facet/test/SourceTest.mustache", new HashMap<String, Object>() {
 
                         {
                             put("rootPackage", packageBase);
                             put("classPackage", packageBase + ".source");
                             put("testClassName", testClassName);
-                            put("sourceClassName", baseName);
+                            put("sourceClassName", baseName + "Source");
                             put("sourceName", source.getName());
                             put("mapperName", mapperName);
                             put("hasConfig", hasConfig);
@@ -137,32 +137,37 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
 
             // input branches names
             final Set<Map.Entry<String, String>> inputBranches = processor.getInputStructures().entrySet().stream()
-                    .flatMap(in -> {
-                        final String inName = in.getValue().isGeneric() ? "ObjectMap"
-                                : capitalize(processor.getName()) + capitalize(sanitizeConnectionName(in.getKey())) + "Input";
-                        Map<String, String> map = new HashMap<String, String>() {
+                                                                          .flatMap(in -> {
+                                                                              final String inName = in.getValue().isGeneric() ?
+                                                                                      "ObjectMap"
+                                                                                      :
+                                                                                      capitalize(processor.getName())
+                                                                                              + capitalize(
+                                                                                              sanitizeConnectionName(in.getKey()))
+                                                                                              + "Input";
+                                                                              Map<String, String> map = new HashMap<String, String>() {
 
-                            {
-                                put(in.getKey(), inName);
-                            }
-                        };
+                                                                                  {
+                                                                                      put(in.getKey(), inName);
+                                                                                  }
+                                                                              };
 
-                        return map.entrySet().stream();
-                    }).collect(toSet());
+                                                                              return map.entrySet().stream();
+                                                                          }).collect(toSet());
 
             // outputNames
             final Set<Map.Entry<String, String>> outputBranches = !isOutput
                     ? processor.getOutputStructures().entrySet().stream().flatMap(e -> {
-                        final String outName = e.getValue().isGeneric() ? "ObjectMap"
-                                : capitalize(processor.getName()) + capitalize(sanitizeConnectionName(e.getKey())) + "Output";
-                        Map<String, String> map = new HashMap<String, String>() {
+                final String outName = e.getValue().isGeneric() ? "ObjectMap"
+                        : capitalize(processor.getName()) + capitalize(sanitizeConnectionName(e.getKey())) + "Output";
+                Map<String, String> map = new HashMap<String, String>() {
 
-                            {
-                                put(e.getKey(), outName);
-                            }
-                        };
-                        return map.entrySet().stream();
-                    }).collect(toSet())
+                    {
+                        put(e.getKey(), outName);
+                    }
+                };
+                return map.entrySet().stream();
+            }).collect(toSet())
                     : emptySet();
 
             final boolean isGeneric = inputBranches.stream().anyMatch(e -> "ObjectMap".equals(e.getValue()))
@@ -170,7 +175,7 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
 
             final Collection<InMemoryFile> files = new ArrayList<>();
             files.add(new FacetGenerator.InMemoryFile(testJava + "/" + classDir + "/" + testClassName + ".java",
-                    tpl.render("generator/component/ProcessorTest.mustache", new HashMap<String, Object>() {
+                    tpl.render("generator/facet/test/ProcessorTest.mustache", new HashMap<String, Object>() {
 
                         {
                             put("rootPackage", packageBase);
