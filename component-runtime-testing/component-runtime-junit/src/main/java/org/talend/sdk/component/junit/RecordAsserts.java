@@ -30,12 +30,13 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public final class RecordAsserts implements Function<Iterable<Map<String, List<Serializable>>>, Void> {
+public final class RecordAsserts implements Function<Iterable<Map<String, List<Serializable>>>, Void>, Serializable {
 
-    private final Map<String, Consumer<List<?>>> validators = new HashMap<>();
+    private final Map<String, SerializableConsumer<List<? extends Serializable>>> validators = new HashMap<>();
 
-    public <R> RecordAsserts withAsserts(final String outputName, final Consumer<List<R>> validator) {
-        validators.put(outputName, Consumer.class.cast(validator));
+    public <R extends Serializable> RecordAsserts withAsserts(final String outputName,
+            final SerializableConsumer<List<R>> validator) {
+        validators.put(outputName, SerializableConsumer.class.cast(validator));
         return this;
     }
 
@@ -58,4 +59,8 @@ public final class RecordAsserts implements Function<Iterable<Map<String, List<S
 
         return null;
     }
+
+    public interface SerializableConsumer<A> extends Consumer<A>, Serializable {
+    }
+
 }

@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.junit;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,9 +26,9 @@ import java.util.Map;
  */
 public class JoinInputFactory implements ControllableInputFactory {
 
-    private final Map<String, Iterator<?>> data = new HashMap<>();
+    private final Map<String, Iterator<? extends Serializable>> data = new HashMap<>();
 
-    public JoinInputFactory withInput(String branch, Collection<?> branchData) {
+    public JoinInputFactory withInput(final String branch, final Collection<? extends Serializable> branchData) {
         data.put(branch, branchData.iterator());
         return this;
     }
@@ -40,6 +41,11 @@ public class JoinInputFactory implements ControllableInputFactory {
 
     @Override
     public boolean hasMoreData() {
-        return data.entrySet().stream().allMatch(e -> e.getValue().hasNext());
+        return !data.isEmpty() && data.entrySet().stream().allMatch(e -> e.getValue().hasNext());
+    }
+
+    @Override
+    public InputFactoryIterable asInputRecords() {
+        return new InputFactoryIterable(this, data);
     }
 }

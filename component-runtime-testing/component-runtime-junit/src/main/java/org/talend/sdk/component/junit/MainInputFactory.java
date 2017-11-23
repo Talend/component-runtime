@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.junit;
 
+import static java.util.Collections.singletonMap;
+
+import java.io.Serializable;
 import java.util.Iterator;
 
 import lombok.Data;
@@ -25,7 +28,7 @@ import lombok.Data;
 @Data
 public class MainInputFactory implements ControllableInputFactory {
 
-    private final Iterator<Object> main;
+    private final Iterator<Serializable> main;
 
     @Override
     public Object read(final String name) {
@@ -35,5 +38,10 @@ public class MainInputFactory implements ControllableInputFactory {
     @Override
     public boolean hasMoreData() {
         return main.hasNext();
+    }
+
+    @Override
+    public InputFactoryIterable asInputRecords() {
+        return new InputFactoryIterable(this, singletonMap("__default__", main));
     }
 }

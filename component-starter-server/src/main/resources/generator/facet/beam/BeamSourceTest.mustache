@@ -2,7 +2,6 @@ package {{classPackage}};
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.io.Serializable;
 
 import org.apache.beam.sdk.PipelineResult;
@@ -26,7 +25,7 @@ public class {{testClassName}} implements Serializable {
 
     @Test
     @Ignore("You need to complete this test with your own data and assertions")
-    public void produce() throws IOException {
+    public void produce() {
         // Setup your component configuration for the test here
         final {{configurationClassName}} configuration =  new {{configurationClassName}}(){{^hasConfig}};{{/hasConfig}}
                                                                         {{#configFields}}
