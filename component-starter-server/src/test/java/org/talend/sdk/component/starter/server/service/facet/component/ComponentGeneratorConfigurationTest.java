@@ -96,7 +96,7 @@ public class ComponentGeneratorConfigurationTest {
                 put("package", "demo.source");
                 put("structure",
                         scenario.structure.getEntries().stream()
-                                .map(e -> new ComponentGenerator.Property(e.getName(), capitalize(e.getName()), e.getType()))
+                                .map(e -> new ComponentGenerator.Property(e.getName(), capitalize(e.getName()), e.getType(), false))
                                 .collect(toList()));
             }
         });

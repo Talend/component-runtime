@@ -15,6 +15,29 @@
  */
 package org.talend.sdk.component.starter.server.service.facet.component;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Stream;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.talend.sdk.component.starter.server.configuration.StarterConfiguration;
+import org.talend.sdk.component.starter.server.service.domain.Build;
+import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
+import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+import org.talend.sdk.component.starter.server.service.facet.util.NameConventions;
+import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
+
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
@@ -23,30 +46,11 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Stream;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.talend.sdk.component.starter.server.service.domain.Build;
-import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
-import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
-import org.talend.sdk.component.starter.server.service.facet.util.NameConventions;
-import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 @ApplicationScoped
 public class ComponentGenerator {
+
+    @Inject
+    private StarterConfiguration config;
 
     @Inject
     private TemplateRenderer tpl;
@@ -55,6 +59,14 @@ public class ComponentGenerator {
     private NameConventions names;
 
     private byte[] defaultIconContent;
+
+    private static boolean isOutput(final ProjectRequest.ProcessorConfiguration p) {
+        return p.getOutputStructures() == null || p.getOutputStructures().isEmpty();
+    }
+
+    private static boolean isProcessor(final ProjectRequest.ProcessorConfiguration p) {
+        return !isOutput(p);
+    }
 
     @PostConstruct
     private void init() {
@@ -155,14 +167,6 @@ public class ComponentGenerator {
         return files.stream();
     }
 
-    private static boolean isOutput(final ProjectRequest.ProcessorConfiguration p) {
-        return p.getOutputStructures() == null || p.getOutputStructures().isEmpty();
-    }
-
-    private static boolean isProcessor(final ProjectRequest.ProcessorConfiguration p) {
-        return !isOutput(p);
-    }
-
     private Stream<Pair<String, String>> toProperties(final String pck, final Collection<ProjectRequest.Entry> structure,
             final String parentPath) {
         return structure.stream().flatMap(e -> {
@@ -216,15 +220,15 @@ public class ComponentGenerator {
 
             final Set<Connection> inputNames = processor.getInputStructures() != null
                     ? processor.getInputStructures().entrySet().stream().map(e -> {
-                        final String javaName = names.sanitizeConnectionName(e.getKey());
-                        if (e.getValue().isGeneric()) {
-                            return new Connection(e.getKey(), javaName, "ObjectMap");
-                        }
+                final String javaName = names.sanitizeConnectionName(e.getKey());
+                if (e.getValue().isGeneric()) {
+                    return new Connection(e.getKey(), javaName, "ObjectMap");
+                }
 
-                        final String inputClassName = capitalize(processor.getName() + capitalize(javaName + "Input"));
-                        generateModel(null, processorPackage, mainJava, e.getValue().getStructure(), inputClassName, files);
-                        return new Connection(e.getKey(), javaName, inputClassName);
-                    }).collect(toSet())
+                final String inputClassName = capitalize(processor.getName() + capitalize(javaName + "Input"));
+                generateModel(null, processorPackage, mainJava, e.getValue().getStructure(), inputClassName, files);
+                return new Connection(e.getKey(), javaName, inputClassName);
+            }).collect(toSet())
                     : emptySet();
 
             generateConfiguration(null, processorPackage, mainJava, processor.getConfiguration(), configurationClassName, files);
@@ -315,12 +319,12 @@ public class ComponentGenerator {
                         if (structure != null && structure.getEntries() != null) {
                             put("structure", structure.getEntries().stream().map(e -> new Property(e.getName(),
                                     capitalize(e.getName()), names.toJavaConfigType(root, packageBase, e, (fqn, nested) -> {
-                                        final int li = fqn.lastIndexOf('.');
-                                        final String pck = li > 0 ? fqn.substring(0, li) : "";
-                                        final String cn = li > 0 ? fqn.substring(li + 1) : fqn;
-                                        generateModel((root == null ? "" : root) + capitalize(cn), pck, mainJava,
-                                                e.getNestedType(), cn, files);
-                                    }))).collect(toList()));
+                                final int li = fqn.lastIndexOf('.');
+                                final String pck = li > 0 ? fqn.substring(0, li) : "";
+                                final String cn = li > 0 ? fqn.substring(li + 1) : fqn;
+                                generateModel((root == null ? "" : root) + capitalize(cn), pck, mainJava,
+                                        e.getNestedType(), cn, files);
+                            }), false)).collect(toList()));
                         }
                     }
                 })));
@@ -334,21 +338,43 @@ public class ComponentGenerator {
                 tpl.render("generator/component/Configuration.mustache", new HashMap<String, Object>() {
 
                     {
+
+                        List<Property> structures = structure != null && structure.getEntries() != null ?
+                                structure.getEntries().stream()
+                                         .map(e -> new Property(e.getName(), capitalize(e.getName()),
+                                                 names.toJavaConfigType(root, packageBase, e, (fqn, nested) -> {
+                                                     final int li = fqn.lastIndexOf('.');
+                                                     final String pck = li > 0 ?
+                                                             fqn.substring(0, li) :
+                                                             "";
+                                                     final String cn = li > 0 ?
+                                                             fqn.substring(li + 1) :
+                                                             fqn;
+                                                     generateConfiguration((root == null ?
+                                                                     "" :
+                                                                     root) + capitalize(cn), pck,
+                                                             mainJava, nested, cn, files);
+                                                 }), isCredential(e.getName(), e.getType())))
+                                         .collect(toList()) :
+                                emptyList();
+
                         put("className", configurationClassName);
                         put("package", packageBase);
-                        put("structure",
-                                structure != null && structure.getEntries() != null ? structure.getEntries().stream()
-                                        .map(e -> new Property(e.getName(), capitalize(e.getName()),
-                                                names.toJavaConfigType(root, packageBase, e, (fqn, nested) -> {
-                                                    final int li = fqn.lastIndexOf('.');
-                                                    final String pck = li > 0 ? fqn.substring(0, li) : "";
-                                                    final String cn = li > 0 ? fqn.substring(li + 1) : fqn;
-                                                    generateConfiguration((root == null ? "" : root) + capitalize(cn), pck,
-                                                            mainJava, nested, cn, files);
-                                                })))
-                                        .collect(toList()) : emptyList());
+                        put("structure", structures);
+                        put("hasCredential", structures.stream().anyMatch(s -> s.isCredential));
+
                     }
                 })));
+    }
+
+    public boolean isCredential(String name, String type) {
+        if (name == null || name.isEmpty() || !"string".equals(type)) {
+            return false;
+        }
+
+        return config.dictionaryCredentials().stream()
+                     .filter(word -> name.contains(word))
+                     .findFirst().isPresent();
     }
 
     @Data
@@ -360,6 +386,8 @@ public class ComponentGenerator {
         private final String methodName;
 
         private final String type;
+
+        private final boolean isCredential;
     }
 
     @Data

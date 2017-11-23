@@ -33,6 +33,7 @@ import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
@@ -242,5 +243,33 @@ public class ComponentGeneratorTest {
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/standardProcessor/TProcDefaultOutput.java"),
                 files.get("src/main/java/com/foo/processor/TProcDefaultOutput.java"));
+    }
+
+    @Test
+    public void configurationWithCredential() {
+
+        ProjectRequest.DataStructure config = new ProjectRequest.DataStructure(asList(
+                new ProjectRequest.Entry("host", "string", null),
+                new ProjectRequest.Entry("port", "string", null),
+                new ProjectRequest.Entry("credential", null,//type with nested
+                        new ProjectRequest.DataStructure(asList(
+                                new ProjectRequest.Entry("username", "string", null),
+                                new ProjectRequest.Entry("password", "string", null)
+                        )))));
+
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory", emptyList(),
+                singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", config,
+                        singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)), emptyMap())))
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+
+        assertEquals(
+                resourceFileToString("generated/ComponentGeneratorTest/configurationWithCredential/CredentialConfiguration.java"),
+                files.get("src/main/java/com/foo/output/CredentialConfiguration.java"));
+
+        assertEquals(resourceFileToString(
+                "generated/ComponentGeneratorTest/configurationWithCredential/TProcOutputConfiguration.java"),
+                files.get("src/main/java/com/foo/output/TProcOutputConfiguration.java"));
+
     }
 }
