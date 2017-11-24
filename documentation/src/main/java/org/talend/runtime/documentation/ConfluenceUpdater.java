@@ -51,7 +51,8 @@ import lombok.NoArgsConstructor;
 
 // NOTE: in progress until we find a way to have confluence 5 REST API
 /**
- * create in ~/.m2/settings.xml a server with the id "talend-confluence" to ensure this main can work.
+ * create in ~/.m2/settings.xml a server with the id "talend-confluence" to
+ * ensure this main can work.
  */
 // note: confluence 4.2.12 compatible
 public class ConfluenceUpdater implements Runnable {
@@ -72,8 +73,8 @@ public class ConfluenceUpdater implements Runnable {
     private String space = "rd";
 
     @Option(name = "--settings-security-location", usage = "Where confluence credentials master key is stored, default to ~/.m2/settings-security.xml")
-    private String settingsSecurityLocation = new File(System.getProperty("user.home"), ".m2/settings-security.xml")
-            .getAbsolutePath();
+    private String settingsSecurityLocation =
+        new File(System.getProperty("user.home"), ".m2/settings-security.xml").getAbsolutePath();
 
     @Option(name = "--settings-location", usage = "Where confluence credentials are read, default to ~/.m2/settings.xml")
     private String settingsLocation = new File(System.getProperty("user.home"), ".m2/settings.xml").getAbsolutePath();
@@ -105,7 +106,7 @@ public class ConfluenceUpdater implements Runnable {
         final File file = new File(settingsLocation);
         if (!file.exists()) {
             throw new IllegalArgumentException(
-                    "No " + settingsLocation + " found, ensure your credentials configuration is valid");
+                "No " + settingsLocation + " found, ensure your credentials configuration is valid");
         }
 
         final File securityFile = new File(settingsSecurityLocation);
@@ -136,7 +137,8 @@ public class ConfluenceUpdater implements Runnable {
 
         public static void main(final String[] args) {
             final ConfluenceUpdater confluenceUpdater = new ConfluenceUpdater();
-            final CmdLineParser parser = new CmdLineParser(confluenceUpdater, ParserProperties.defaults().withUsageWidth(80));
+            final CmdLineParser parser =
+                new CmdLineParser(confluenceUpdater, ParserProperties.defaults().withUsageWidth(80));
 
             try {
                 parser.parseArgument(args);
@@ -168,8 +170,8 @@ public class ConfluenceUpdater implements Runnable {
         }
 
         @Override
-        public void startElement(final String uri, final String localName, final String qName, final Attributes attributes)
-                throws SAXException {
+        public void startElement(final String uri, final String localName, final String qName,
+            final Attributes attributes) throws SAXException {
             if ("server".equalsIgnoreCase(qName)) {
                 server = new Server();
             } else if (server != null) {
@@ -275,8 +277,8 @@ public class ConfluenceUpdater implements Runnable {
         private StringBuilder current;
 
         @Override
-        public void startElement(final String uri, final String localName, final String qName, final Attributes attributes)
-                throws SAXException {
+        public void startElement(final String uri, final String localName, final String qName,
+            final Attributes attributes) throws SAXException {
             if ("master".equalsIgnoreCase(qName)) {
                 current = new StringBuilder();
             }

@@ -49,14 +49,16 @@ public class SchemaDiscovererTest {
 
     @Test
     public void populateSchema() {
-        final Schema schema = new SchemaDiscoverer().populateSchema("test-classes", "avrotest", "default", "schema", "testid",
-                new HashMap<>());
+        final Schema schema = new SchemaDiscoverer().populateSchema("test-classes", "avrotest", "default", "schema",
+            "testid", new HashMap<>());
         assertEquals("testid", schema.getName());
         assertEquals(3, schema.getFields().size());
         final Iterator<Schema.Field> fields = schema.getFields().iterator();
-        assertField(fields, "value", SchemaBuilder.builder().unionOf().nullType().and().stringType().endUnion().getTypes());
+        assertField(fields, "value",
+            SchemaBuilder.builder().unionOf().nullType().and().stringType().endUnion().getTypes());
         assertField(fields, "age", SchemaBuilder.builder().unionOf().nullType().and().intType().endUnion().getTypes());
-        assertField(fields, "amount", SchemaBuilder.builder().unionOf().nullType().and().doubleType().endUnion().getTypes());
+        assertField(fields, "amount",
+            SchemaBuilder.builder().unionOf().nullType().and().doubleType().endUnion().getTypes());
     }
 
     private void assertField(final Iterator<Schema.Field> fields, final String name, final Collection<Schema> schemas) {
@@ -72,9 +74,9 @@ public class SchemaDiscovererTest {
         @DiscoverSchema(family = "avrotest")
         public org.talend.sdk.component.api.service.schema.Schema find(/* todo */) {
             return new org.talend.sdk.component.api.service.schema.Schema(
-                    asList(new org.talend.sdk.component.api.service.schema.Schema.Entry("value", Type.STRING),
-                            new org.talend.sdk.component.api.service.schema.Schema.Entry("age", Type.INT),
-                            new org.talend.sdk.component.api.service.schema.Schema.Entry("amount", Type.DOUBLE)));
+                asList(new org.talend.sdk.component.api.service.schema.Schema.Entry("value", Type.STRING),
+                    new org.talend.sdk.component.api.service.schema.Schema.Entry("age", Type.INT),
+                    new org.talend.sdk.component.api.service.schema.Schema.Entry("amount", Type.DOUBLE)));
         }
     }
 }

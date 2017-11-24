@@ -23,7 +23,8 @@ public class TCCLContainerFinder implements ContainerFinder {
 
         @Override
         public ClassLoader classloader() {
-            return ofNullable(Thread.currentThread().getContextClassLoader()).orElseGet(ClassLoader::getSystemClassLoader);
+            return ofNullable(Thread.currentThread().getContextClassLoader())
+                .orElseGet(ClassLoader::getSystemClassLoader);
         }
 
         @Override

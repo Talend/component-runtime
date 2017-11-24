@@ -46,121 +46,116 @@ public class TalendComponentKitTestingTest {
     @Inject
     private TalendComponentKitTesting generator;
 
-    private Build build = new Build("test", "src/main/java", "src/test/java", "src/main/resources", "src/test/resources",
-            "src/main/webapp", "pom.xml", "some pom", "target");
+    private Build build = new Build("test", "src/main/java", "src/test/java", "src/main/resources",
+        "src/test/resources", "src/main/webapp", "pom.xml", "some pom", "target");
 
     @Test
     public void testSourceWithoutConf() {
-        final Set<ProjectRequest.SourceConfiguration> sources = singleton(new ProjectRequest.SourceConfiguration("mycomp", "",
-                false, new ProjectRequest.DataStructure(emptySet()), new ProjectRequest.StructureConfiguration(null, true)));
+        final Set<ProjectRequest.SourceConfiguration> sources =
+            singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false,
+                new ProjectRequest.DataStructure(emptySet()), new ProjectRequest.StructureConfiguration(null, true)));
 
         String testFile = generator.create("foo.bar", build, emptyList(), sources, emptyList())
-                                   .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
-                                   .findFirst().orElse(null);
+            .map(i -> new String(i.getContent(), StandardCharsets.UTF_8)).findFirst().orElse(null);
 
-        assertEquals(resourceFileToString(
-                "generated/TalendComponentKitTesting/testSourceWithoutConf/MycompSourceTest.java"), testFile);
+        assertEquals(
+            resourceFileToString("generated/TalendComponentKitTesting/testSourceWithoutConf/MycompSourceTest.java"),
+            testFile);
 
     }
 
     @Test
     public void testSourceWithConf() {
-        final Set<ProjectRequest.SourceConfiguration> sources = singleton(new ProjectRequest.SourceConfiguration("mycomp", "",
-                false, complexConfig(),
+        final Set<ProjectRequest.SourceConfiguration> sources =
+            singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false, complexConfig(),
                 new ProjectRequest.StructureConfiguration(null, true)));
 
         String testFile = generator.create("foo.bar", build, emptyList(), sources, emptyList())
-                                   .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
-                                   .findFirst().orElse(null);
+            .map(i -> new String(i.getContent(), StandardCharsets.UTF_8)).findFirst().orElse(null);
 
-        assertEquals(resourceFileToString(
-                "generated/TalendComponentKitTesting/testSourceWithConf/MycompSourceTest.java"), testFile);
+        assertEquals(
+            resourceFileToString("generated/TalendComponentKitTesting/testSourceWithConf/MycompSourceTest.java"),
+            testFile);
     }
 
     @Test
     public void testSourceWithNonGenericOutput() {
-        final Set<ProjectRequest.SourceConfiguration> sources = singleton(new ProjectRequest.SourceConfiguration("mycomp", "",
-                false, complexConfig(),
+        final Set<ProjectRequest.SourceConfiguration> sources =
+            singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false, complexConfig(),
                 new ProjectRequest.StructureConfiguration(complexConfig(), false)));
 
         String testFile = generator.create("foo.bar", build, emptyList(), sources, emptyList())
-                                   .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
-                                   .findFirst().orElse(null);
+            .map(i -> new String(i.getContent(), StandardCharsets.UTF_8)).findFirst().orElse(null);
 
         assertEquals(resourceFileToString(
-                "generated/TalendComponentKitTesting/testSourceWithNonGenericOutput/MycompSourceTest.java"), testFile);
+            "generated/TalendComponentKitTesting/testSourceWithNonGenericOutput/MycompSourceTest.java"), testFile);
     }
 
     @Test
     public void testProcessorWithoutConf() {
         final Set<ProjectRequest.ProcessorConfiguration> processors = singleton(
-                new ProjectRequest.ProcessorConfiguration("mycomp", "",
-                        new ProjectRequest.DataStructure(emptySet()),
-                        singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)),
-                        singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true))));
+            new ProjectRequest.ProcessorConfiguration("mycomp", "", new ProjectRequest.DataStructure(emptySet()),
+                singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)),
+                singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true))));
 
         String testFile = generator.create("foo.bar", build, emptyList(), emptyList(), processors)
-                                   .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
-                                   .findFirst().orElse(null);
+            .map(i -> new String(i.getContent(), StandardCharsets.UTF_8)).findFirst().orElse(null);
 
         assertEquals(resourceFileToString(
-                "generated/TalendComponentKitTesting/testProcessorWithoutConf/MycompProcessorTest.java"), testFile);
+            "generated/TalendComponentKitTesting/testProcessorWithoutConf/MycompProcessorTest.java"), testFile);
 
     }
 
     @Test
     public void testProcessorWithConf() {
-        final Set<ProjectRequest.ProcessorConfiguration> processors = singleton(
-                new ProjectRequest.ProcessorConfiguration("mycomp", "",
-                        complexConfig(),
-                        singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)),
-                        singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true))));
+        final Set<ProjectRequest.ProcessorConfiguration> processors =
+            singleton(new ProjectRequest.ProcessorConfiguration("mycomp", "", complexConfig(),
+                singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)),
+                singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true))));
 
-        Map<String, String> files = generator.create("foo.bar", build, emptyList(), emptyList(), processors)
-                                             .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                                                     i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+        Map<String, String> files = generator.create("foo.bar", build, emptyList(), emptyList(), processors).collect(
+            toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         String testFile = generator.create("foo.bar", build, emptyList(), emptyList(), processors)
-                                   .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
-                                   .findFirst().orElse(null);
+            .map(i -> new String(i.getContent(), StandardCharsets.UTF_8)).findFirst().orElse(null);
 
-        assertEquals(resourceFileToString(
-                "generated/TalendComponentKitTesting/testProcessorWithConf/MycompProcessorTest.java"), testFile);
+        assertEquals(
+            resourceFileToString("generated/TalendComponentKitTesting/testProcessorWithConf/MycompProcessorTest.java"),
+            testFile);
     }
 
     @Test
     public void testProcessorWithNonGenericOutput() {
-        final Set<ProjectRequest.ProcessorConfiguration> processors = singleton(
-                new ProjectRequest.ProcessorConfiguration("mycomp", "",
-                        complexConfig(),
-                        new HashMap<String, ProjectRequest.StructureConfiguration>() {{
-                            put("__default__", new ProjectRequest.StructureConfiguration(complexConfig(), false));
-                            put("input2", new ProjectRequest.StructureConfiguration(complexConfig(), false));
-                            put("input3", new ProjectRequest.StructureConfiguration(complexConfig(), false));
-                        }},
-                        new HashMap<String, ProjectRequest.StructureConfiguration>() {{
-                            put("__default__", new ProjectRequest.StructureConfiguration(complexConfig(), false));
-                            put("reject", new ProjectRequest.StructureConfiguration(complexConfig(), false));
-                        }}
-                ));
+        final Set<ProjectRequest.ProcessorConfiguration> processors =
+            singleton(new ProjectRequest.ProcessorConfiguration("mycomp", "", complexConfig(),
+                new HashMap<String, ProjectRequest.StructureConfiguration>() {
+                    {
+                        put("__default__", new ProjectRequest.StructureConfiguration(complexConfig(), false));
+                        put("input2", new ProjectRequest.StructureConfiguration(complexConfig(), false));
+                        put("input3", new ProjectRequest.StructureConfiguration(complexConfig(), false));
+                    }
+                }, new HashMap<String, ProjectRequest.StructureConfiguration>() {
+                    {
+                        put("__default__", new ProjectRequest.StructureConfiguration(complexConfig(), false));
+                        put("reject", new ProjectRequest.StructureConfiguration(complexConfig(), false));
+                    }
+                }));
 
         String testFile = generator.create("foo.bar", build, emptyList(), emptyList(), processors)
-                                   .map(i -> new String(i.getContent(), StandardCharsets.UTF_8))
-                                   .findFirst().orElse(null);
+            .map(i -> new String(i.getContent(), StandardCharsets.UTF_8)).findFirst().orElse(null);
 
-        assertEquals(resourceFileToString(
-                "generated/TalendComponentKitTesting/testProcessorWithNonGenericOutput/MycompProcessorTest.java"), testFile);
+        assertEquals(
+            resourceFileToString(
+                "generated/TalendComponentKitTesting/testProcessorWithNonGenericOutput/MycompProcessorTest.java"),
+            testFile);
     }
 
     private ProjectRequest.DataStructure complexConfig() {
-        return new ProjectRequest.DataStructure(asList(
-                new ProjectRequest.Entry("host", "string", null),
-                new ProjectRequest.Entry("port", "string", null),
+        return new ProjectRequest.DataStructure(
+            asList(new ProjectRequest.Entry("host", "string", null), new ProjectRequest.Entry("port", "string", null),
                 new ProjectRequest.Entry("credential", "object",
-                        new ProjectRequest.DataStructure(asList(
-                                new ProjectRequest.Entry("username", "string", null),
-                                new ProjectRequest.Entry("password", "string", null)
-                        )))));
+                    new ProjectRequest.DataStructure(asList(new ProjectRequest.Entry("username", "string", null),
+                        new ProjectRequest.Entry("password", "string", null))))));
     }
 
 }

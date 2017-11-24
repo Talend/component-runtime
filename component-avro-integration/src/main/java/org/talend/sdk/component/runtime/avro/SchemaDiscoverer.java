@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SchemaDiscoverer {
 
     public Schema populateSchema(final String plugin, final String family, final String action, final String type,
-            final String identifier, final Map<String, String> config) {
+        final String identifier, final Map<String, String> config) {
 
         final ComponentManager componentManager = ComponentManager.instance();
         synchronized (componentManager) {
@@ -42,18 +42,19 @@ public class SchemaDiscoverer {
             }
         }
         final Object result = componentManager.findPlugin(plugin)
-                .orElseThrow(() -> new IllegalArgumentException("No component " + plugin)).get(ContainerComponentRegistry.class)
-                .getServices().stream().flatMap(s -> s.getActions().stream())
-                .filter(a -> a.getFamily().equals(family) && a.getAction().equals(action) && a.getType().equals(type)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + type + "#" + action)).getInvoker()
-                .apply(config);
+            .orElseThrow(() -> new IllegalArgumentException("No component " + plugin))
+            .get(ContainerComponentRegistry.class).getServices().stream().flatMap(s -> s.getActions().stream())
+            .filter(a -> a.getFamily().equals(family) && a.getAction().equals(action) && a.getType().equals(type))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + type + "#" + action))
+            .getInvoker().apply(config);
         if (!org.talend.sdk.component.api.service.schema.Schema.class.isInstance(result)) {
             throw new IllegalArgumentException("Result of " + family + "#" + type + "#" + action + " is not a schema");
         }
-        final org.talend.sdk.component.api.service.schema.Schema compSchema = org.talend.sdk.component.api.service.schema.Schema.class
-                .cast(result);
-        final List<Schema.Field> avroFields = new ArrayList<>(
-                compSchema.getEntries() == null ? 0 : compSchema.getEntries().size());
+        final org.talend.sdk.component.api.service.schema.Schema compSchema =
+            org.talend.sdk.component.api.service.schema.Schema.class.cast(result);
+        final List<Schema.Field> avroFields =
+            new ArrayList<>(compSchema.getEntries() == null ? 0 : compSchema.getEntries().size());
         if (compSchema.getEntries() != null) {
             compSchema.getEntries().forEach(e -> { // todo: enrich schema model with actual need like nested records?
                 final Type eType = e.getType();
@@ -82,7 +83,7 @@ public class SchemaDiscoverer {
 
     // find from a mapper the first record to guess the schema
     public Schema find(final String plugin, final String family, final String component, final int version,
-            final Map<String, String> config) {
+        final Map<String, String> config) {
 
         final ComponentManager instance = ComponentManager.instance();
         synchronized (instance) {
@@ -91,7 +92,7 @@ public class SchemaDiscoverer {
             }
         }
         final Mapper mapper = instance.findMapper(family, component, version, config)
-                .orElseThrow(() -> new IllegalArgumentException("No component " + family + "#" + component));
+            .orElseThrow(() -> new IllegalArgumentException("No component " + family + "#" + component));
         try {
             mapper.start();
             try {

@@ -21,13 +21,15 @@ import org.junit.Test;
 
 public class MvnDependenciesTxtArtifactConverterTest {
 
-    private final MvnDependencyListLocalRepositoryResolver.MvnDependenciesTxtArtifactConverter converter = new MvnDependencyListLocalRepositoryResolver.MvnDependenciesTxtArtifactConverter(
+    private final MvnDependencyListLocalRepositoryResolver.MvnDependenciesTxtArtifactConverter converter =
+        new MvnDependencyListLocalRepositoryResolver.MvnDependenciesTxtArtifactConverter(
             new MvnCoordinateToFileConverter());
 
     @Test
     public void mvnDependencyOutput() {
         final Artifact[] artifacts = converter
-                .withContent(" \n The following files have been resolved:\norg.apache.tomee:ziplock:jar:7.0.3:runtime\n").build();
+            .withContent(" \n The following files have been resolved:\norg.apache.tomee:ziplock:jar:7.0.3:runtime\n")
+            .build();
         assertEquals(1, artifacts.length);
         assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.3", "jar", "runtime", null);
     }
@@ -61,7 +63,7 @@ public class MvnDependenciesTxtArtifactConverterTest {
     }
 
     private void assertArtifact(final Artifact art, final String group, final String artifact, final String version,
-            final String type, final String scope, final String classifier) {
+        final String type, final String scope, final String classifier) {
         assertEquals(group, art.getGroup());
         assertEquals(artifact, art.getArtifact());
         assertEquals(version, art.getVersion());

@@ -25,8 +25,9 @@ import org.talend.sdk.component.server.front.model.ComponentIndices;
 // note: we can make it async since both impl support it but does it make much sense OOTB?
 
 /**
- * Abstract the HTTP layer. Note that the implementation must support a constructor with a String parameter
- * representing the base of the http requests.
+ * Abstract the HTTP layer. Note that the implementation must support a
+ * constructor with a String parameter representing the base of the http
+ * requests.
  */
 public interface Client extends AutoCloseable {
 

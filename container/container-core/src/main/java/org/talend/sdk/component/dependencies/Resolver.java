@@ -20,8 +20,10 @@ import java.util.stream.Stream;
 public interface Resolver {
 
     /**
-     * @param rootLoader the parent classloader of the plugins.
-     * @param artifact the plugin jar/directory.
+     * @param rootLoader
+     *            the parent classloader of the plugins.
+     * @param artifact
+     *            the plugin jar/directory.
      * @return the list of resources representing the depencies (relative paths).
      */
     Stream<String> resolve(ClassLoader rootLoader, String artifact);

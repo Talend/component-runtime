@@ -20,9 +20,10 @@ import java.util.List;
 import org.talend.core.model.process.INodeConnector;
 
 /**
- * Strategy for component connectors creating.
- * Component should have connectors for all types listed in EConnectionType
- * When some connector type is not applicable for the component, then this connector has 0 max incoming and outgoing links
+ * Strategy for component connectors creating. Component should have connectors
+ * for all types listed in EConnectionType When some connector type is not
+ * applicable for the component, then this connector has 0 max incoming and
+ * outgoing links
  * 
  */
 public interface ConnectorCreator {

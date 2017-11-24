@@ -32,16 +32,18 @@ public class ConfigurationTypeParameterEnricher implements ParameterExtensionEnr
 
     @Override
     public Map<String, String> onParameterAnnotation(final String parameterName, final Type parameterType,
-            final Annotation annotation) {
+        final Annotation annotation) {
         final ConfigurationType configType = annotation.annotationType().getAnnotation(ConfigurationType.class);
         if (configType != null) {
             final String type = configType.value();
             final String name = getName(annotation);
             if (name != null) {
-                return new HashMap<String, String>() {{
-                    put(META_PREFIX + "type", type);
-                    put(META_PREFIX + "name", name);
-                }};
+                return new HashMap<String, String>() {
+                    {
+                        put(META_PREFIX + "type", type);
+                        put(META_PREFIX + "name", name);
+                    }
+                };
             }
         }
         return emptyMap();

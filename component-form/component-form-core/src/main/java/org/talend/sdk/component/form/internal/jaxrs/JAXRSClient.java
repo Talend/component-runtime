@@ -50,11 +50,13 @@ public class JAXRSClient implements Client {
 
     @Override
     public Map<String, Object> action(final String family, final String type, final String action,
-            final Map<String, Object> params) {
+        final Map<String, Object> params) {
         try {
             return target.path("action/execute").queryParam("family", family).queryParam("type", type)
-                    .queryParam("action", action).request(APPLICATION_JSON_TYPE)
-                    .post(entity(params.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))), APPLICATION_JSON_TYPE), mapType);
+                .queryParam("action", action).request(APPLICATION_JSON_TYPE)
+                .post(entity(
+                    params.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))),
+                    APPLICATION_JSON_TYPE), mapType);
         } catch (final WebApplicationException wae) {
             throw toException(wae);
         }
@@ -64,7 +66,7 @@ public class JAXRSClient implements Client {
     public ComponentIndices index(final String language) {
         try {
             return target.path("component/index").queryParam("language", language).request(APPLICATION_JSON_TYPE)
-                    .get(ComponentIndices.class);
+                .get(ComponentIndices.class);
         } catch (final WebApplicationException wae) {
             throw toException(wae);
         }
@@ -74,11 +76,12 @@ public class JAXRSClient implements Client {
     public ComponentDetailList details(final String language, final String identifier, final String... identifiers) {
         try {
             return target.path("component/details").queryParam("language", language)
-                    .queryParam("identifiers",
-                            Stream.concat(Stream.of(identifier),
-                                    identifiers == null || identifiers.length == 0 ? Stream.empty() : Stream.of(identifiers))
-                                    .toArray(Object[]::new))
-                    .request(APPLICATION_JSON_TYPE).get(ComponentDetailList.class);
+                .queryParam("identifiers",
+                    Stream
+                        .concat(Stream.of(identifier),
+                            identifiers == null || identifiers.length == 0 ? Stream.empty() : Stream.of(identifiers))
+                        .toArray(Object[]::new))
+                .request(APPLICATION_JSON_TYPE).get(ComponentDetailList.class);
         } catch (final WebApplicationException wae) {
             throw toException(wae);
         }
@@ -92,6 +95,6 @@ public class JAXRSClient implements Client {
     private WebException toException(final WebApplicationException wae) {
         final Response response = wae.getResponse();
         return new WebException(wae, response == null ? -1 : response.getStatus(),
-                response == null ? null : response.readEntity(mapType));
+            response == null ? null : response.readEntity(mapType));
     }
 }

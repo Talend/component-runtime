@@ -30,7 +30,8 @@ import lombok.RequiredArgsConstructor;
 
 public class ContextImplGenericsHolder<I, O> extends DoFn<I, O> {
 
-    public ProcessContext newContext(final PipelineOptions options, final InputFactory inputs, final OutputFactory outputs) {
+    public ProcessContext newContext(final PipelineOptions options, final InputFactory inputs,
+        final OutputFactory outputs) {
         return new ProcessContextImpl(options, inputs, outputs);
     }
 
@@ -71,7 +72,8 @@ public class ContextImplGenericsHolder<I, O> extends DoFn<I, O> {
         }
 
         @Override
-        public <T> void output(final TupleTag<T> tag, final T output, final Instant timestamp, final BoundedWindow window) {
+        public <T> void output(final TupleTag<T> tag, final T output, final Instant timestamp,
+            final BoundedWindow window) {
             outputs.create(tag.getId()).emit(output);
         }
     }

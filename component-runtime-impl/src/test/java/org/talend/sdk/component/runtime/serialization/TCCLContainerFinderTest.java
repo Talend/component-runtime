@@ -23,6 +23,7 @@ public class TCCLContainerFinderTest {
 
     @Test
     public void tccl() {
-        assertEquals(Thread.currentThread().getContextClassLoader(), new TCCLContainerFinder().find(null).classloader());
+        assertEquals(Thread.currentThread().getContextClassLoader(),
+            new TCCLContainerFinder().find(null).classloader());
     }
 }

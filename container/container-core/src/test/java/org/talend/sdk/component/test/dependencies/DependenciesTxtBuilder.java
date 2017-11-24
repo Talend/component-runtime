@@ -31,6 +31,6 @@ public class DependenciesTxtBuilder {
 
     public String build() {
         return " \n The following files have been resolved:\n"
-                + dependencies.stream().map(s -> "    " + s).collect(joining("\n"));
+            + dependencies.stream().map(s -> "    " + s).collect(joining("\n"));
     }
 }

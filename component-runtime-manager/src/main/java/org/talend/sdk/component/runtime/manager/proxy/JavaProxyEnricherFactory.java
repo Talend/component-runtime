@@ -32,7 +32,8 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 public class JavaProxyEnricherFactory {
 
-    public Object asSerializable(final ClassLoader loader, final String plugin, final String key, final Object instanceToWrap) {
+    public Object asSerializable(final ClassLoader loader, final String plugin, final String key,
+        final Object instanceToWrap) {
         final Class<?>[] interfaces = instanceToWrap.getClass().getInterfaces();
         if (Stream.of(interfaces).anyMatch(i -> i == Serializable.class || i == Externalizable.class)) {
             return instanceToWrap;
@@ -56,8 +57,8 @@ public class JavaProxyEnricherFactory {
                 switch (method.getName()) {
                 case "equals":
                     return args != null && args.length == 1 && method.getDeclaringClass().isInstance(args[0])
-                            && Proxy.isProxyClass(args[0].getClass())
-                            && (this == Proxy.getInvocationHandler(args[0]) || delegate == Proxy.getInvocationHandler(args[0]));
+                        && Proxy.isProxyClass(args[0].getClass()) && (this == Proxy.getInvocationHandler(args[0])
+                            || delegate == Proxy.getInvocationHandler(args[0]));
                 default:
                 }
             }

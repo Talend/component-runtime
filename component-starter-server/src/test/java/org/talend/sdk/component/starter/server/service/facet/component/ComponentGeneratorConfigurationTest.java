@@ -52,54 +52,56 @@ public class ComponentGeneratorConfigurationTest {
     @Parameterized.Parameters(name = "{0}")
     public static Iterable<Scenario> scenarii() {
         return asList(
-                // no field
-                new Scenario(new ProjectRequest.DataStructure(emptyList()), "package demo.source;\n" + "\n"
-                        + "import java.io.Serializable;\n" + "\n" + "import org.talend.sdk.component.api.configuration.Option;\n"
-                        + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n" + "@GridLayout({\n"
-                        + "    // the generated layout put one configuration entry per line,\n"
-                        + "    // customize it as much as needed\n" + "})\n" + "public class Demo implements Serializable {\n}"),
-                // string field
-                new Scenario(new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("name", "String", null))),
-                        "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
-                                + "import org.talend.sdk.component.api.configuration.Option;\n"
-                                + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
-                                + "@GridLayout({\n" + "    // the generated layout put one configuration entry per line,\n"
-                                + "    // customize it as much as needed\n" + "    @GridLayout.Row({ \"name\" })\n" + "})\n"
-                                + "public class Demo implements Serializable {\n" + "    @Option\n" + "    private String name;\n"
-                                + "\n" + "    public String getName() {\n" + "        return name;\n" + "    }\n" + "\n"
-                                + "    public Demo setName(String name) {\n" + "        this.name = name;\n"
-                                + "        return this;\n" + "    }\n" + "}"),
-                // string field + int field
-                new Scenario(
-                        new ProjectRequest.DataStructure(asList(new ProjectRequest.Entry("name", "String", null),
-                                new ProjectRequest.Entry("age", "int", null))),
-                        "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
-                                + "import org.talend.sdk.component.api.configuration.Option;\n"
-                                + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
-                                + "@GridLayout({\n" + "    // the generated layout put one configuration entry per line,\n"
-                                + "    // customize it as much as needed\n" + "    @GridLayout.Row({ \"name\" }),\n"
-                                + "    @GridLayout.Row({ \"age\" })\n" + "})\n" + "public class Demo implements Serializable {\n"
-                                + "    @Option\n" + "    private String name;\n\n" + "    @Option\n" + "    private int age;\n"
-                                + "\n" + "    public String getName() {\n" + "        return name;\n" + "    }\n" + "\n"
-                                + "    public Demo setName(String name) {\n" + "        this.name = name;\n"
-                                + "        return this;\n" + "    }\n" + "\n" + "    public int getAge() {\n"
-                                + "        return age;\n" + "    }\n" + "\n" + "    public Demo setAge(int age) {\n"
-                                + "        this.age = age;\n" + "        return this;\n" + "    }\n" + "}"));
+            // no field
+            new Scenario(new ProjectRequest.DataStructure(emptyList()),
+                "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
+                    + "import org.talend.sdk.component.api.configuration.Option;\n"
+                    + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
+                    + "@GridLayout({\n" + "    // the generated layout put one configuration entry per line,\n"
+                    + "    // customize it as much as needed\n" + "})\n"
+                    + "public class Demo implements Serializable {\n}"),
+            // string field
+            new Scenario(new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("name", "String", null))),
+                "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
+                    + "import org.talend.sdk.component.api.configuration.Option;\n"
+                    + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
+                    + "@GridLayout({\n" + "    // the generated layout put one configuration entry per line,\n"
+                    + "    // customize it as much as needed\n" + "    @GridLayout.Row({ \"name\" })\n" + "})\n"
+                    + "public class Demo implements Serializable {\n" + "    @Option\n" + "    private String name;\n"
+                    + "\n" + "    public String getName() {\n" + "        return name;\n" + "    }\n" + "\n"
+                    + "    public Demo setName(String name) {\n" + "        this.name = name;\n"
+                    + "        return this;\n" + "    }\n" + "}"),
+            // string field + int field
+            new Scenario(
+                new ProjectRequest.DataStructure(asList(new ProjectRequest.Entry("name", "String", null),
+                    new ProjectRequest.Entry("age", "int", null))),
+                "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
+                    + "import org.talend.sdk.component.api.configuration.Option;\n"
+                    + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n" + "\n"
+                    + "@GridLayout({\n" + "    // the generated layout put one configuration entry per line,\n"
+                    + "    // customize it as much as needed\n" + "    @GridLayout.Row({ \"name\" }),\n"
+                    + "    @GridLayout.Row({ \"age\" })\n" + "})\n" + "public class Demo implements Serializable {\n"
+                    + "    @Option\n" + "    private String name;\n\n" + "    @Option\n" + "    private int age;\n"
+                    + "\n" + "    public String getName() {\n" + "        return name;\n" + "    }\n" + "\n"
+                    + "    public Demo setName(String name) {\n" + "        this.name = name;\n"
+                    + "        return this;\n" + "    }\n" + "\n" + "    public int getAge() {\n"
+                    + "        return age;\n" + "    }\n" + "\n" + "    public Demo setAge(int age) {\n"
+                    + "        this.age = age;\n" + "        return this;\n" + "    }\n" + "}"));
     }
 
     @Test
     public void run() {
-        final String result = renderer.render("generator/component/Configuration.mustache", new HashMap<String, Object>() {
+        final String result =
+            renderer.render("generator/component/Configuration.mustache", new HashMap<String, Object>() {
 
-            {
-                put("className", "Demo");
-                put("package", "demo.source");
-                put("structure",
-                        scenario.structure.getEntries().stream()
-                                .map(e -> new ComponentGenerator.Property(e.getName(), capitalize(e.getName()), e.getType(), false))
-                                .collect(toList()));
-            }
-        });
+                {
+                    put("className", "Demo");
+                    put("package", "demo.source");
+                    put("structure", scenario.structure.getEntries().stream().map(
+                        e -> new ComponentGenerator.Property(e.getName(), capitalize(e.getName()), e.getType(), false))
+                        .collect(toList()));
+                }
+            });
         assertEquals(scenario.expectedOutput, result);
     }
 

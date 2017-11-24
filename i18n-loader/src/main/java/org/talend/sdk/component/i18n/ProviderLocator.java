@@ -56,19 +56,22 @@ public class ProviderLocator {
     }
 
     /**
-     * @param loader the loader identifying the current context.
-     * @param customProvider the bundle control provider to associate with this loader.
+     * @param loader
+     *            the loader identifying the current context.
+     * @param customProvider
+     *            the bundle control provider to associate with this loader.
      * @return a callback to call when you don't need the custom provider anymore.
      */
     public Runnable register(final ClassLoader loader, final ResourceBundleControlProvider customProvider) {
         if (providers.putIfAbsent(loader, customProvider) != null) {
-            throw new IllegalArgumentException("A custom ResourceBundleControlProvider is already registered for " + loader);
+            throw new IllegalArgumentException(
+                "A custom ResourceBundleControlProvider is already registered for " + loader);
         }
         return () -> providers.remove(loader, customProvider);
     }
 
     public Runnable register(final ClassLoader loader, final Predicate<String> baseNameFilter,
-            final BiFunction<String, Locale, ResourceBundle> factory) {
+        final BiFunction<String, Locale, ResourceBundle> factory) {
         return register(loader, new BaseProvider() {
 
             @Override

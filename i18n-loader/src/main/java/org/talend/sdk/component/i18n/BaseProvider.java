@@ -28,8 +28,8 @@ public abstract class BaseProvider implements ResourceBundleControlProvider {
 
             @Override
             public ResourceBundle newBundle(final String baseName, final Locale locale, final String format,
-                    final ClassLoader loader, final boolean reload)
-                    throws IllegalAccessException, InstantiationException, IOException {
+                final ClassLoader loader, final boolean reload)
+                throws IllegalAccessException, InstantiationException, IOException {
                 return createBundle(baseName, locale);
             }
         } : null;

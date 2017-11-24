@@ -57,38 +57,40 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
 
     @Override
     public Stream<String> resolve(final ClassLoader rootLoader, final String artifact) {
-        return Stream
-                .of(readDependencies(of(new File(artifact)).filter(File::exists).map(this::findDependenciesFile).orElseGet(() -> {
-                    final boolean isNested;
-                    try (final InputStream stream = rootLoader
-                            .getResourceAsStream(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + artifact)) {
-                        isNested = stream != null;
+        return Stream.of(readDependencies(
+            of(new File(artifact)).filter(File::exists).map(this::findDependenciesFile).orElseGet(() -> {
+                final boolean isNested;
+                try (final InputStream stream =
+                    rootLoader.getResourceAsStream(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + artifact)) {
+                    isNested = stream != null;
+                } catch (final IOException e) {
+                    log.debug(e.getMessage(), e);
+                    return "";
+                }
+
+                if (isNested) { // we reuse ConfigurableClassLoader just to not
+                                // rewrite the logic but it is NOT a plugin!
+                    try (final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader(new URL[0],
+                        rootLoader, name -> true, name -> true, new String[] { artifact })) {
+                        try (final InputStream deps =
+                            configurableClassLoader.getResourceAsStream(dependenciesListFile)) {
+                            return ofNullable(deps).map(s -> {
+                                try {
+                                    return slurp(s);
+                                } catch (final IOException e) {
+                                    log.debug(e.getMessage(), e);
+                                    return "";
+                                }
+                            }).orElse("");
+                        }
                     } catch (final IOException e) {
                         log.debug(e.getMessage(), e);
                         return "";
                     }
+                }
 
-                    if (isNested) { // we reuse ConfigurableClassLoader just to not rewrite the logic but it is NOT a plugin!
-                        try (final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader(new URL[0],
-                                rootLoader, name -> true, name -> true, new String[] { artifact })) {
-                            try (final InputStream deps = configurableClassLoader.getResourceAsStream(dependenciesListFile)) {
-                                return ofNullable(deps).map(s -> {
-                                    try {
-                                        return slurp(s);
-                                    } catch (final IOException e) {
-                                        log.debug(e.getMessage(), e);
-                                        return "";
-                                    }
-                                }).orElse("");
-                            }
-                        } catch (final IOException e) {
-                            log.debug(e.getMessage(), e);
-                            return "";
-                        }
-                    }
-
-                    return "";
-                }))).map(coordinateConverter::toPath);
+                return "";
+            }))).map(coordinateConverter::toPath);
     }
 
     public Stream<String> resolveFromDescriptor(final InputStream descriptor) throws IOException {
@@ -97,11 +99,12 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
 
     private Artifact[] readDependencies(final String content) {
         return content.isEmpty() ? NO_ARTIFACT
-                : new MvnDependenciesTxtArtifactConverter(coordinateConverter).withContent(content).build();
+            : new MvnDependenciesTxtArtifactConverter(coordinateConverter).withContent(content).build();
     }
 
     /**
-     * Grab the dependencies.txt from mvn dependency:list output, this can be generated with:
+     * Grab the dependencies.txt from mvn dependency:list output, this can be
+     * generated with:
      *
      * <pre>
      * {@code
@@ -125,7 +128,8 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
      * }
      * </pre>
      *
-     * @param module the component module currently loaded.
+     * @param module
+     *            the component module currently loaded.
      * @return the dependencies.list (dependenciesPath) content.
      */
     private String findDependenciesFile(final File module) {
@@ -180,7 +184,8 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
             return this;
         }
 
-        // reads dependencies.txt based on org/apache/maven/plugins/dependency/utils/DependencyStatusSets.java logic
+        // reads dependencies.txt based on
+        // org/apache/maven/plugins/dependency/utils/DependencyStatusSets.java logic
         public Artifact[] build() {
             if (content == null) {
                 throw new IllegalArgumentException("No stream passed");

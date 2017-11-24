@@ -79,13 +79,14 @@ public class ConfigurationTypeResource {
                         return Stream.of(node);
                     }
                     node.setEdges(family.getConfigs().stream().map(Config::getId).collect(toSet()));
-                    return Stream.concat(Stream.of(node),
-                            createNode(family.getId(), family.getConfigs().stream(), resourcesBundle, c.getLoader(), locale));
+                    return Stream.concat(Stream.of(node), createNode(family.getId(), family.getConfigs().stream(),
+                            resourcesBundle, c.getLoader(), locale));
                 })).collect(() -> {
                     final ConfigTypeNodes nodes = new ConfigTypeNodes();
                     nodes.setNodes(new HashMap<>());
                     return nodes;
-                }, (root, children) -> root.getNodes().putAll(children.collect(toMap(ConfigTypeNode::getId, identity()))),
+                }, (root, children) -> root.getNodes()
+                        .putAll(children.collect(toMap(ConfigTypeNode::getId, identity()))),
                         (first, second) -> first.getNodes().putAll(second.getNodes()));
     }
 
@@ -98,12 +99,15 @@ public class ConfigurationTypeResource {
             final ConfigTypeNode node = new ConfigTypeNode();
             node.setId(c.getId());
             node.setConfigurationType(c.getMeta().getMetadata().get("tcomp::configurationtype::type"));
-            node.setName(c.getMeta().getMetadata().getOrDefault("tcomp::configurationtype::name", c.getMeta().getName()));
+            node.setName(
+                    c.getMeta().getMetadata().getOrDefault("tcomp::configurationtype::name", c.getMeta().getName()));
             node.setParentId(parentId);
-            node.setDisplayName(resourcesBundle.configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
-                    .orElse(c.getKey().getConfigName()));
+            node.setDisplayName(
+                    resourcesBundle.configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
+                            .orElse(c.getKey().getConfigName()));
             if (c.getProperties() != null) {
-                node.setProperties(propertiesService.buildProperties(c.getProperties(), loader, locale).collect(toList()));
+                node.setProperties(
+                        propertiesService.buildProperties(c.getProperties(), loader, locale).collect(toList()));
             }
 
             if (c.getChildConfigs() == null) {

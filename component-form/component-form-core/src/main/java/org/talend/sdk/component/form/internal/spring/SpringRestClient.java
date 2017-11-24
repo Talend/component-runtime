@@ -47,8 +47,9 @@ public class SpringRestClient implements Client {
 
     private final String base;
 
-    private final ParameterizedTypeReference<Map<String, Object>> mapType = new ParameterizedTypeReference<Map<String, Object>>() {
-    };
+    private final ParameterizedTypeReference<Map<String, Object>> mapType =
+        new ParameterizedTypeReference<Map<String, Object>>() {
+        };
 
     public SpringRestClient(final String base) {
         this.delegate = new RestTemplate();
@@ -57,17 +58,17 @@ public class SpringRestClient implements Client {
 
     @Override
     public Map<String, Object> action(final String family, final String type, final String action,
-            final Map<String, Object> params) {
+        final Map<String, Object> params) {
         try {
             return delegate.exchange(
-                    UriComponentsBuilder.fromHttpUrl(base).path("action/execute").queryParam("family", family)
-                            .queryParam("type", type).queryParam("action", action).build().toUriString(),
-                    HttpMethod.POST,
-                    new HttpEntity<>(
-                            params.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))),
-                            json()),
+                UriComponentsBuilder.fromHttpUrl(base).path("action/execute").queryParam("family", family)
+                    .queryParam("type", type).queryParam("action", action).build().toUriString(),
+                HttpMethod.POST,
+                new HttpEntity<>(
+                    params.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))),
+                    json()),
 
-                    mapType).getBody();
+                mapType).getBody();
         } catch (final HttpServerErrorException hsee) {
             throw toException(hsee);
         } catch (final RestClientException rce) {
@@ -78,10 +79,9 @@ public class SpringRestClient implements Client {
     @Override
     public ComponentIndices index(final String language) {
         try {
-            return delegate
-                    .exchange(UriComponentsBuilder.fromHttpUrl(base).path("component/index").queryParam("language", language)
-                            .build().toUriString(), HttpMethod.GET, new HttpEntity<>(json()), ComponentIndices.class)
-                    .getBody();
+            return delegate.exchange(UriComponentsBuilder.fromHttpUrl(base).path("component/index")
+                .queryParam("language", language).build().toUriString(), HttpMethod.GET, new HttpEntity<>(json()),
+                ComponentIndices.class).getBody();
         } catch (final HttpServerErrorException hsee) {
             throw toException(hsee);
         } catch (final RestClientException rce) {
@@ -93,15 +93,17 @@ public class SpringRestClient implements Client {
     public ComponentDetailList details(final String language, final String identifier, final String... identifiers) {
         try {
             final HttpHeaders headers = json();
-            return delegate.exchange(
+            return delegate
+                .exchange(
                     UriComponentsBuilder.fromHttpUrl(base).path("component/details").queryParam("language", language)
-                            .queryParam("identifiers",
-                                    Stream.concat(Stream.of(identifier),
-                                            identifiers == null || identifiers.length == 0 ? Stream.empty()
-                                                    : Stream.of(identifiers))
-                                            .toArray(Object[]::new))
-                            .build().toUriString(),
-                    HttpMethod.GET, new HttpEntity<>(headers), ComponentDetailList.class).getBody();
+                        .queryParam("identifiers",
+                            Stream.concat(Stream.of(identifier),
+                                identifiers == null || identifiers.length == 0 ? Stream.empty()
+                                    : Stream.of(identifiers))
+                                .toArray(Object[]::new))
+                        .build().toUriString(),
+                    HttpMethod.GET, new HttpEntity<>(headers), ComponentDetailList.class)
+                .getBody();
         } catch (final HttpServerErrorException hsee) {
             throw toException(hsee);
         } catch (final RestClientException rce) {
@@ -127,41 +129,41 @@ public class SpringRestClient implements Client {
     private WebException toException(final HttpServerErrorException hsee) {
         try {
             return new WebException(hsee, hsee.getRawStatusCode(),
-                    new HttpMessageConverterExtractor<Map<String, Object>>(mapType.getType(), delegate.getMessageConverters())
-                            .extractData(new ClientHttpResponse() {
+                new HttpMessageConverterExtractor<Map<String, Object>>(mapType.getType(),
+                    delegate.getMessageConverters()).extractData(new ClientHttpResponse() {
 
-                                @Override
-                                public HttpStatus getStatusCode() throws IOException {
-                                    return HttpStatus.OK;
-                                }
+                        @Override
+                        public HttpStatus getStatusCode() throws IOException {
+                            return HttpStatus.OK;
+                        }
 
-                                @Override
-                                public int getRawStatusCode() throws IOException {
-                                    return 200;
-                                }
+                        @Override
+                        public int getRawStatusCode() throws IOException {
+                            return 200;
+                        }
 
-                                @Override
-                                public String getStatusText() throws IOException {
-                                    return "";
-                                }
+                        @Override
+                        public String getStatusText() throws IOException {
+                            return "";
+                        }
 
-                                @Override
-                                public void close() {
-                                    // no-op
-                                }
+                        @Override
+                        public void close() {
+                            // no-op
+                        }
 
-                                @Override
-                                public InputStream getBody() throws IOException {
-                                    return new ByteArrayInputStream(hsee.getResponseBodyAsByteArray());
-                                }
+                        @Override
+                        public InputStream getBody() throws IOException {
+                            return new ByteArrayInputStream(hsee.getResponseBodyAsByteArray());
+                        }
 
-                                @Override
-                                public HttpHeaders getHeaders() {
-                                    final HttpHeaders json = json();
-                                    json.add(HttpHeaders.CONTENT_TYPE, "application/json");
-                                    return json;
-                                }
-                            }));
+                        @Override
+                        public HttpHeaders getHeaders() {
+                            final HttpHeaders json = json();
+                            json.add(HttpHeaders.CONTENT_TYPE, "application/json");
+                            return json;
+                        }
+                    }));
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }

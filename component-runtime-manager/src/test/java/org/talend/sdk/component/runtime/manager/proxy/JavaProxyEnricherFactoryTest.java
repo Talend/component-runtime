@@ -34,7 +34,7 @@ public class JavaProxyEnricherFactoryTest {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         final JavaProxyEnricherFactory factory = new JavaProxyEnricherFactory();
         final Translator proxyBased = Translator.class.cast(factory.asSerializable(loader, getClass().getSimpleName(),
-                Translator.class.getName(), new InternationalizationServiceFactory().create(Translator.class, loader)));
+            Translator.class.getName(), new InternationalizationServiceFactory().create(Translator.class, loader)));
         assertEquals("ok", proxyBased.message());
 
         DynamicContainerFinder.SERVICES.put(Translator.class, proxyBased);

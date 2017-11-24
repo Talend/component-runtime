@@ -60,16 +60,16 @@ public class NestedJarArchiveTest {
     public void xbeanNestedScanning() throws IOException {
         final File jar = createPlugin(TEMPORARY_FOLDER.getRoot(), testName.getMethodName());
         final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader(new URL[0],
-                new URLClassLoader(new URL[] { jar.toURI().toURL() }, Thread.currentThread().getContextClassLoader()), n -> true,
-                n -> true, new String[] { "com/foo/bar/1.0/bar-1.0.jar" });
+            new URLClassLoader(new URL[] { jar.toURI().toURL() }, Thread.currentThread().getContextClassLoader()),
+            n -> true, n -> true, new String[] { "com/foo/bar/1.0/bar-1.0.jar" });
         try (final JarInputStream jis = new JarInputStream(
-                configurableClassLoader.getResourceAsStream("MAVEN-INF/repository/com/foo/bar/1.0/bar-1.0.jar"))) {
+            configurableClassLoader.getResourceAsStream("MAVEN-INF/repository/com/foo/bar/1.0/bar-1.0.jar"))) {
             assertNotNull("test is wrongly setup, no nested jar, fix the createPlugin() method please", jis);
             final AnnotationFinder finder = new AnnotationFinder(new NestedJarArchive(jis, configurableClassLoader));
             final List<Class<?>> annotatedClasses = finder.findAnnotatedClasses(Processor.class);
             assertEquals(1, annotatedClasses.size());
             assertEquals("org.talend.test.generated." + testName.getMethodName() + ".Components",
-                    annotatedClasses.iterator().next().getName());
+                annotatedClasses.iterator().next().getName());
         } finally {
             URLClassLoader.class.cast(configurableClassLoader.getParent()).close();
         }
@@ -85,11 +85,12 @@ public class NestedJarArchiveTest {
                     final String className = packageName + "/Components.class";
                     nestedStream.putNextEntry(new ZipEntry(className));
                     final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-                    writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
-                            null, Type.getInternalName(Object.class), null);
+                    writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER,
+                        className.substring(0, className.length() - ".class".length()), null,
+                        Type.getInternalName(Object.class), null);
                     writer.visitSource(className.replace(".class", ".java"), null);
-                    final AnnotationVisitor componentAnnotation = writer.visitAnnotation(Type.getDescriptor(Processor.class),
-                            true);
+                    final AnnotationVisitor componentAnnotation =
+                        writer.visitAnnotation(Type.getDescriptor(Processor.class), true);
                     componentAnnotation.visit("family", "comp");
                     componentAnnotation.visit("name", "comp");
                     componentAnnotation.visitEnd();

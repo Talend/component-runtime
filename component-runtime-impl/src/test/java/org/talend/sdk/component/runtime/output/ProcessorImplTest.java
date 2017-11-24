@@ -94,11 +94,12 @@ public class ProcessorImplTest {
 
         processor.afterGroup(null);
         assertEquals(asList("start", "beforeGroup", "afterGroup", "beforeGroup", "next{1}", "next{2}", "afterGroup"),
-                delegate.stack);
+            delegate.stack);
 
         processor.stop();
-        assertEquals(asList("start", "beforeGroup", "afterGroup", "beforeGroup", "next{1}", "next{2}", "afterGroup", "stop"),
-                delegate.stack);
+        assertEquals(
+            asList("start", "beforeGroup", "afterGroup", "beforeGroup", "next{1}", "next{2}", "afterGroup", "stop"),
+            delegate.stack);
     }
 
     public static class Base implements Serializable {

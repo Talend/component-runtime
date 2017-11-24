@@ -50,21 +50,22 @@ public class ContainerProviderRule extends TempJars implements TestRule {
                     ContainerProviderRule.this.manager.set(manager);
                     Class<?> current = test.getClass();
                     while (current != Object.class && current != null) {
-                        Stream.of(current.getDeclaredFields()).filter(f -> f.isAnnotationPresent(Instance.class)).forEach(f -> {
-                            if (!f.isAccessible()) {
-                                f.setAccessible(true);
-                            }
-                            final DependenciesTxtBuilder builder = new DependenciesTxtBuilder();
-                            final String[] deps = f.getAnnotation(Instance.class).value();
-                            Stream.of(deps).forEach(builder::withDependency);
-                            try {
-                                f.set(test, manager.create(
-                                        description.getClassName() + "." + description.getMethodName() + "#" + f.getName(),
-                                        create(builder.build()).getAbsolutePath()));
-                            } catch (final IllegalAccessException e) {
-                                throw new IllegalArgumentException(e);
-                            }
-                        });
+                        Stream.of(current.getDeclaredFields()).filter(f -> f.isAnnotationPresent(Instance.class))
+                            .forEach(f -> {
+                                if (!f.isAccessible()) {
+                                    f.setAccessible(true);
+                                }
+                                final DependenciesTxtBuilder builder = new DependenciesTxtBuilder();
+                                final String[] deps = f.getAnnotation(Instance.class).value();
+                                Stream.of(deps).forEach(builder::withDependency);
+                                try {
+                                    f.set(test,
+                                        manager.create(description.getClassName() + "." + description.getMethodName()
+                                            + "#" + f.getName(), create(builder.build()).getAbsolutePath()));
+                                } catch (final IllegalAccessException e) {
+                                    throw new IllegalArgumentException(e);
+                                }
+                            });
                         current = current.getSuperclass();
                     }
 
@@ -83,11 +84,11 @@ public class ContainerProviderRule extends TempJars implements TestRule {
 
     protected ContainerManager newManager() {
         return new ContainerManager(
-                ContainerManager.DependenciesResolutionConfiguration.builder()
-                        .resolver(new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH))
-                        .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION)).create(),
-                ContainerManager.ClassLoaderConfiguration.builder().parent(ContainerProviderRule.class.getClassLoader())
-                        .create());
+            ContainerManager.DependenciesResolutionConfiguration.builder()
+                .resolver(new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH))
+                .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION)).create(),
+            ContainerManager.ClassLoaderConfiguration.builder().parent(ContainerProviderRule.class.getClassLoader())
+                .create());
     }
 
     @Target(FIELD)

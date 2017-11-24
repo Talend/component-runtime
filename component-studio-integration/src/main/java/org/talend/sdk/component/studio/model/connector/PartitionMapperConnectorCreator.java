@@ -15,12 +15,12 @@
  */
 package org.talend.sdk.component.studio.model.connector;
 
+import static java.util.stream.Collectors.toList;
 import static org.talend.core.model.process.EConnectionType.FLOW_MAIN;
 import static org.talend.core.model.process.EConnectionType.FLOW_MERGE;
 import static org.talend.core.model.process.EConnectionType.FLOW_REF;
 import static org.talend.core.model.process.EConnectionType.ITERATE;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,27 +33,26 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
  */
 class PartitionMapperConnectorCreator extends AbstractConnectorCreator {
 
-    protected PartitionMapperConnectorCreator(ComponentDetail detail, INode node) {
+    protected PartitionMapperConnectorCreator(final ComponentDetail detail, final INode node) {
         super(detail, node);
     }
 
     /**
-     * PartitionMapper (Input) has no incoming MAIN connection, but may have outgoing
+     * PartitionMapper (Input) has no incoming MAIN connection, but may have
+     * outgoing
      */
     @Override
     protected List<INodeConnector> createMainConnectors() {
-        List<INodeConnector> mains = new ArrayList<>();
-        detail.getOutputFlows().stream() //
-                .filter(output -> FLOW_MAIN.equals(getType(output))) //
-                .forEach(output -> { //
-                    INodeConnector main = createConnector(getType(output), getName(output), node);
-                    main.setMaxLinkOutput(1);
-                    main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
-                    main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
-                    mains.add(main);
-                    existingTypes.add(getType(output));
-                }); //
-        return mains;
+        return detail.getOutputFlows().stream() //
+            .filter(output -> FLOW_MAIN.equals(getType(output))) //
+            .map(output -> { //
+                final INodeConnector main = createConnector(getType(output), getName(output), node);
+                main.setMaxLinkOutput(1);
+                main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
+                main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
+                existingTypes.add(getType(output));
+                return main;
+            }).collect(toList());
     }
 
     /**
@@ -65,7 +64,8 @@ class PartitionMapperConnectorCreator extends AbstractConnectorCreator {
     }
 
     /**
-     * PartitionMapper (Input) component has 1 incoming and infinite outgoing connections
+     * PartitionMapper (Input) component has 1 incoming and infinite outgoing
+     * connections
      */
     @Override
     protected INodeConnector createIterateConnector() {

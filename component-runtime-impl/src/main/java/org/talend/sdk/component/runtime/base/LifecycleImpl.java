@@ -70,7 +70,8 @@ public class LifecycleImpl extends Named implements Lifecycle {
         }
     }
 
-    // mainly done by instance to avoid to rely on a registry maybe not initialized after serialization
+    // mainly done by instance to avoid to rely on a registry maybe not initialized
+    // after serialization
     protected Stream<Method> findMethods(final Class<? extends Annotation> marker) {
         final Thread thread = Thread.currentThread();
         final ClassLoader oldLoader = thread.getContextClassLoader();

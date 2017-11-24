@@ -31,7 +31,8 @@ public class ModelMapperTest {
         in.age = 23;
         in.name = "input";
 
-        final OutMatching out = new ModelMapper().map(new ObjectMapImpl(null, in, new AccessorCache(null)), new OutMatching());
+        final OutMatching out =
+            new ModelMapper().map(new ObjectMapImpl(null, in, new AccessorCache(null)), new OutMatching());
         assertEquals(23, out.age);
         assertEquals("input", out.name);
     }
@@ -42,7 +43,8 @@ public class ModelMapperTest {
         in.age = 23;
         in.name = "input";
 
-        final OutWrappers out = new ModelMapper().map(new ObjectMapImpl(null, in, new AccessorCache(null)), new OutWrappers());
+        final OutWrappers out =
+            new ModelMapper().map(new ObjectMapImpl(null, in, new AccessorCache(null)), new OutWrappers());
         assertEquals(23, out.age.intValue());
         assertEquals("input", out.name);
     }
@@ -53,7 +55,8 @@ public class ModelMapperTest {
         in.age = null;
         in.name = "input";
 
-        final OutMatching out = new ModelMapper().map(new ObjectMapImpl(null, in, new AccessorCache(null)), new OutMatching());
+        final OutMatching out =
+            new ModelMapper().map(new ObjectMapImpl(null, in, new AccessorCache(null)), new OutMatching());
         assertEquals(0, out.age);
         assertEquals("input", out.name);
     }

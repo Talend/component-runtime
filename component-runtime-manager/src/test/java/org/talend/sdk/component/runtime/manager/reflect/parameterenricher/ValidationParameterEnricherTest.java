@@ -35,156 +35,156 @@ public class ValidationParameterEnricherTest {
     @Test
     public void minValue() {
         assertEquals(singletonMap("tcomp::validation::min", "5.0"),
-                enricher.onParameterAnnotation("testParam", int.class, new Min() {
+            enricher.onParameterAnnotation("testParam", int.class, new Min() {
 
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Min.class;
-                    }
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Min.class;
+                }
 
-                    @Override
-                    public double value() {
-                        return 5;
-                    }
-                }));
+                @Override
+                public double value() {
+                    return 5;
+                }
+            }));
     }
 
     @Test
     public void maxValue() {
         assertEquals(singletonMap("tcomp::validation::max", "5.0"),
-                enricher.onParameterAnnotation("testParam", int.class, new Max() {
+            enricher.onParameterAnnotation("testParam", int.class, new Max() {
 
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Max.class;
-                    }
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Max.class;
+                }
 
-                    @Override
-                    public double value() {
-                        return 5;
-                    }
-                }));
+                @Override
+                public double value() {
+                    return 5;
+                }
+            }));
     }
 
     @Test
     public void minCollection() {
         assertEquals(singletonMap("tcomp::validation::minItems", "5.0"),
-                enricher.onParameterAnnotation("testParam", Collection.class, new Min() {
+            enricher.onParameterAnnotation("testParam", Collection.class, new Min() {
 
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Min.class;
-                    }
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Min.class;
+                }
 
-                    @Override
-                    public double value() {
-                        return 5;
-                    }
-                }));
+                @Override
+                public double value() {
+                    return 5;
+                }
+            }));
     }
 
     @Test
     public void maxCollection() {
         assertEquals(singletonMap("tcomp::validation::maxItems", "5.0"),
-                enricher.onParameterAnnotation("testParam", Collection.class, new Max() {
+            enricher.onParameterAnnotation("testParam", Collection.class, new Max() {
 
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Max.class;
-                    }
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Max.class;
+                }
 
-                    @Override
-                    public double value() {
-                        return 5;
-                    }
-                }));
+                @Override
+                public double value() {
+                    return 5;
+                }
+            }));
     }
 
     @Test
     public void minlength() {
         assertEquals(singletonMap("tcomp::validation::minLength", "5.0"),
-                enricher.onParameterAnnotation("testParam", String.class, new Min() {
+            enricher.onParameterAnnotation("testParam", String.class, new Min() {
 
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Min.class;
-                    }
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Min.class;
+                }
 
-                    @Override
-                    public double value() {
-                        return 5;
-                    }
-                }));
+                @Override
+                public double value() {
+                    return 5;
+                }
+            }));
     }
 
     @Test
     public void maxLength() {
         assertEquals(singletonMap("tcomp::validation::maxLength", "5.0"),
-                enricher.onParameterAnnotation("testParam", String.class, new Max() {
+            enricher.onParameterAnnotation("testParam", String.class, new Max() {
 
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Max.class;
-                    }
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Max.class;
+                }
 
-                    @Override
-                    public double value() {
-                        return 5;
-                    }
-                }));
+                @Override
+                public double value() {
+                    return 5;
+                }
+            }));
     }
 
     @Test
     public void pattern() {
         assertEquals(singletonMap("tcomp::validation::pattern", "test"),
-                enricher.onParameterAnnotation("testParam", String.class, new Pattern() {
+            enricher.onParameterAnnotation("testParam", String.class, new Pattern() {
 
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Pattern.class;
-                    }
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Pattern.class;
+                }
 
-                    @Override
-                    public String value() {
-                        return "test";
-                    }
-                }));
+                @Override
+                public String value() {
+                    return "test";
+                }
+            }));
     }
 
     @Test
     public void required() {
         assertEquals(singletonMap("tcomp::validation::required", "true"),
-                enricher.onParameterAnnotation("testParam", Collection.class, new Required() {
+            enricher.onParameterAnnotation("testParam", Collection.class, new Required() {
 
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Required.class;
-                    }
-                }));
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Required.class;
+                }
+            }));
     }
 
     @Test
     public void unique() {
         assertEquals(singletonMap("tcomp::validation::uniqueItems", "true"),
-                enricher.onParameterAnnotation("testParam", Collection.class, new Uniques() {
+            enricher.onParameterAnnotation("testParam", Collection.class, new Uniques() {
 
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Uniques.class;
-                    }
-                }));
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Uniques.class;
+                }
+            }));
     }
 
     @Test
     public void enumType() {
         assertEquals(singletonMap("tcomp::validation::uniqueItems", "true"),
-                enricher.onParameterAnnotation("testParam", Collection.class, new Uniques() {
+            enricher.onParameterAnnotation("testParam", Collection.class, new Uniques() {
 
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Uniques.class;
-                    }
-                }));
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Uniques.class;
+                }
+            }));
     }
 
 }

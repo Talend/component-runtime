@@ -89,13 +89,13 @@ public class TalendIOTest implements Serializable {
     public void output() {
         Output.DATA.clear();
         pipeline.apply(Create.of(new Sample("a"), new Sample("b"))).apply(new ViewsMappingTransform<>(emptyMap()))
-                .apply(TalendIO.write(new BaseTestProcessor() {
+            .apply(TalendIO.write(new BaseTestProcessor() {
 
-                    @Override
-                    public void onNext(final InputFactory input, final OutputFactory factory) {
-                        Output.DATA.add(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data);
-                    }
-                }));
+                @Override
+                public void onNext(final InputFactory input, final OutputFactory factory) {
+                    Output.DATA.add(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data);
+                }
+            }));
         assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
         assertThat(Output.DATA, containsInAnyOrder("a", "b"));
     }
@@ -103,20 +103,20 @@ public class TalendIOTest implements Serializable {
     @Test
     public void processor() {
         final PCollection<SampleLength> out = pipeline.apply(Create.of(new Sample("a"), new Sample("bb")))
-                .apply(new ViewsMappingTransform<>(emptyMap())).apply(TalendFn.asFn(new BaseTestProcessor() {
+            .apply(new ViewsMappingTransform<>(emptyMap())).apply(TalendFn.asFn(new BaseTestProcessor() {
 
-                    @Override
-                    public void onNext(final InputFactory input, final OutputFactory factory) {
-                        factory.create(Branches.DEFAULT_BRANCH)
-                                .emit(new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
-                    }
-                })).apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
+                @Override
+                public void onNext(final InputFactory input, final OutputFactory factory) {
+                    factory.create(Branches.DEFAULT_BRANCH)
+                        .emit(new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
+                }
+            })).apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
 
-                    @ProcessElement
-                    public void onElement(final ProcessContext ctx) {
-                        ctx.output(SampleLength.class.cast(ctx.element().get("__default__").get(0)));
-                    }
-                }));
+                @ProcessElement
+                public void onElement(final ProcessContext ctx) {
+                    ctx.output(SampleLength.class.cast(ctx.element().get("__default__").get(0)));
+                }
+            }));
         PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<SampleLength, Integer>() {
 
             @ProcessElement
@@ -130,20 +130,20 @@ public class TalendIOTest implements Serializable {
     @Test
     public void processorMulti() {
         final PCollection<SampleLength> out = pipeline.apply(Create.of(new Sample("a"), new Sample("bb")))
-                .apply(new ViewsMappingTransform<>(emptyMap())).apply(TalendFn.asFn(new BaseTestProcessor() {
+            .apply(new ViewsMappingTransform<>(emptyMap())).apply(TalendFn.asFn(new BaseTestProcessor() {
 
-                    @Override
-                    public void onNext(final InputFactory input, final OutputFactory factory) {
-                        factory.create(Branches.DEFAULT_BRANCH)
-                                .emit(new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
-                    }
-                })).apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
+                @Override
+                public void onNext(final InputFactory input, final OutputFactory factory) {
+                    factory.create(Branches.DEFAULT_BRANCH)
+                        .emit(new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
+                }
+            })).apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
 
-                    @ProcessElement
-                    public void onElement(final ProcessContext ctx) {
-                        ctx.output(SampleLength.class.cast(ctx.element().get("__default__").get(0)));
-                    }
-                }));
+                @ProcessElement
+                public void onElement(final ProcessContext ctx) {
+                    ctx.output(SampleLength.class.cast(ctx.element().get("__default__").get(0)));
+                }
+            }));
         PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<SampleLength, Integer>() {
 
             @ProcessElement

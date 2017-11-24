@@ -26,12 +26,12 @@ import lombok.Data;
 public class DesignModel {
 
     private final String id;
-    
+
     /**
      * Input flow (connection) names
      */
     private final Collection<String> inputFlows;
-    
+
     /**
      * Output flow (connection) names
      */

@@ -47,7 +47,7 @@ public class UiSpecServiceTest {
 
         @Override
         public Map<String, Object> action(final String family, final String type, final String action,
-                final Map<String, Object> params) {
+            final Map<String, Object> params) {
             if ("jdbc".equals(family) && "dynamic_values".equals(type) && "driver".equals(action)) {
                 Map<String, String> item = new HashMap<>();
                 item.put("id", "some.driver.Jdbc");
@@ -63,7 +63,8 @@ public class UiSpecServiceTest {
         }
 
         @Override
-        public ComponentDetailList details(final String language, final String identifier, final String... identifiers) {
+        public ComponentDetailList details(final String language, final String identifier,
+            final String... identifiers) {
             return null;
         }
 
@@ -77,13 +78,14 @@ public class UiSpecServiceTest {
     public void triggerRelativeParameters() throws Exception {
         final UiSpecPayload payload = service.convert(load("relative-params.json"));
         final Collection<UiSpecPayload.UiSchema> schema = payload.getUiSchema();
-        final UiSpecPayload.Trigger driverTrigger = schema.iterator().next().getItems().stream()
-                .filter(c -> c.getTitle().equals("JDBC Connection")).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No connection")).getItems().iterator().next().getTriggers()
-                .iterator().next();
+        final UiSpecPayload.Trigger driverTrigger =
+            schema.iterator().next().getItems().stream().filter(c -> c.getTitle().equals("JDBC Connection")).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No connection")).getItems().iterator().next()
+                .getTriggers().iterator().next();
         assertEquals("driver", driverTrigger.getAction());
 
-        // here is what the test validates: the parameters are flattened and translated for the ui
+        // here is what the test validates: the parameters are flattened and translated
+        // for the ui
         assertEquals(driverTrigger.toString(), 3, driverTrigger.getParameters().size());
 
         final Iterator<UiSpecPayload.Trigger.Parameter> params = driverTrigger.getParameters().iterator();
@@ -110,18 +112,20 @@ public class UiSpecServiceTest {
             assertProperty(nestedProperties.get("query"), "object", "query", q -> {
                 final Map<String, UiSpecPayload.JsonSchema> queryNestedProperties = q.getProperties();
                 assertEquals(2, queryNestedProperties.size());
-                assertProperty(queryNestedProperties.get("query"), "string", "query", query -> assertNull(query.getProperties()));
+                assertProperty(queryNestedProperties.get("query"), "string", "query",
+                    query -> assertNull(query.getProperties()));
                 assertProperty(queryNestedProperties.get("timeout"), "number", "timeout",
-                        timeout -> assertNull(timeout.getProperties()));
+                    timeout -> assertNull(timeout.getProperties()));
             });
             assertProperty(nestedProperties.get("connection"), "object", "JDBC Connection", q -> {
                 final Map<String, UiSpecPayload.JsonSchema> queryNestedProperties = q.getProperties();
                 assertEquals(4, queryNestedProperties.size());
                 assertProperty(queryNestedProperties.get("password"), "string", "password",
-                        pwd -> assertNull(pwd.getProperties()));
+                    pwd -> assertNull(pwd.getProperties()));
                 assertProperty(queryNestedProperties.get("driver"), "string", "driver",
-                        driver -> assertNull(driver.getProperties()));
-                assertProperty(queryNestedProperties.get("url"), "string", "url", url -> assertNull(url.getProperties()));
+                    driver -> assertNull(driver.getProperties()));
+                assertProperty(queryNestedProperties.get("url"), "string", "url",
+                    url -> assertNull(url.getProperties()));
                 assertProperty(queryNestedProperties.get("username"), "string", "username", username -> {
                     assertNull(username.getProperties());
                     assertEquals("sa", username.getDefaultValue());
@@ -164,48 +168,50 @@ public class UiSpecServiceTest {
                 final List<UiSpecPayload.UiSchema> connectionItems = new ArrayList<>(connection.getItems());
                 connectionItems.sort(Comparator.comparing(UiSpecPayload.UiSchema::getTitle));
                 final Iterator<UiSpecPayload.UiSchema> connectionIt = connectionItems.iterator();
-                assertUiSchema(connectionIt.next(), "button", "Validate Datastore", "button_healthcheck_configuration.connection",
-                        0, validateDataStore -> {
-                            assertEquals(1, validateDataStore.getTriggers().size());
-                            final UiSpecPayload.Trigger trigger = validateDataStore.getTriggers().iterator().next();
-                            assertEquals(4, trigger.getParameters().size());
-                            assertEquals(
-                                    Stream.of("driver", "password", "url", "username").map(p -> "configuration.connection." + p)
-                                            .collect(toSet()),
-                                    trigger.getParameters().stream().map(UiSpecPayload.Trigger.Parameter::getPath)
-                                            .collect(toSet()));
-                            assertEquals(
-                                    Stream.of("driver", "password", "url", "username").map(p -> "datastore." + p)
-                                            .collect(toSet()),
-                                    trigger.getParameters().stream().map(UiSpecPayload.Trigger.Parameter::getKey)
-                                            .collect(toSet()));
-                        });
-                assertUiSchema(connectionIt.next(), "datalist", "driver", "configuration.connection.driver", 0, driver -> {
-                    assertNotNull(driver.getTriggers());
-                    assertEquals(1, driver.getTriggers().size());
-                    final Collection<UiSpecPayload.NameValue> titleMap = driver.getTitleMap();
-                    assertEquals(1, titleMap.size());
-                    final UiSpecPayload.NameValue firstTitleMap = titleMap.iterator().next();
-                    assertEquals("some.driver.Jdbc", firstTitleMap.getName());
-                    assertEquals("Jdbc driver", firstTitleMap.getValue());
+                assertUiSchema(connectionIt.next(), "button", "Validate Datastore",
+                    "button_healthcheck_configuration.connection", 0, validateDataStore -> {
+                        assertEquals(1, validateDataStore.getTriggers().size());
+                        final UiSpecPayload.Trigger trigger = validateDataStore.getTriggers().iterator().next();
+                        assertEquals(4, trigger.getParameters().size());
+                        assertEquals(
+                            Stream.of("driver", "password", "url", "username").map(p -> "configuration.connection." + p)
+                                .collect(toSet()),
+                            trigger.getParameters().stream().map(UiSpecPayload.Trigger.Parameter::getPath)
+                                .collect(toSet()));
+                        assertEquals(
+                            Stream.of("driver", "password", "url", "username").map(p -> "datastore." + p)
+                                .collect(toSet()),
+                            trigger.getParameters().stream().map(UiSpecPayload.Trigger.Parameter::getKey)
+                                .collect(toSet()));
+                    });
+                assertUiSchema(connectionIt.next(), "datalist", "driver", "configuration.connection.driver", 0,
+                    driver -> {
+                        assertNotNull(driver.getTriggers());
+                        assertEquals(1, driver.getTriggers().size());
+                        final Collection<UiSpecPayload.NameValue> titleMap = driver.getTitleMap();
+                        assertEquals(1, titleMap.size());
+                        final UiSpecPayload.NameValue firstTitleMap = titleMap.iterator().next();
+                        assertEquals("some.driver.Jdbc", firstTitleMap.getName());
+                        assertEquals("Jdbc driver", firstTitleMap.getValue());
 
-                    final UiSpecPayload.Trigger trigger = driver.getTriggers().iterator().next();
-                    assertEquals("driver", trigger.getAction());
-                    assertEquals("jdbc", trigger.getFamily());
-                    assertEquals("validation", trigger.getType());
+                        final UiSpecPayload.Trigger trigger = driver.getTriggers().iterator().next();
+                        assertEquals("driver", trigger.getAction());
+                        assertEquals("jdbc", trigger.getFamily());
+                        assertEquals("validation", trigger.getType());
 
-                    assertEquals(1, trigger.getParameters().size());
-                    final UiSpecPayload.Trigger.Parameter parameter = trigger.getParameters().iterator().next();
-                    assertEquals("value", parameter.getKey());
-                    assertEquals("configuration.connection.driver", parameter.getPath());
-                });
+                        assertEquals(1, trigger.getParameters().size());
+                        final UiSpecPayload.Trigger.Parameter parameter = trigger.getParameters().iterator().next();
+                        assertEquals("value", parameter.getKey());
+                        assertEquals("configuration.connection.driver", parameter.getPath());
+                    });
                 assertUiSchema(connectionIt.next(), "text", "password", "configuration.connection.password", 0, pwd -> {
                     assertEquals("password", pwd.getType());
                 });
                 assertUiSchema(connectionIt.next(), "text", "url", "configuration.connection.url", 0, url -> {
                 });
-                assertUiSchema(connectionIt.next(), "text", "username", "configuration.connection.username", 0, username -> {
-                });
+                assertUiSchema(connectionIt.next(), "text", "username", "configuration.connection.username", 0,
+                    username -> {
+                    });
                 assertFalse(connectionIt.hasNext());
             });
             assertUiSchema(it.next(), "fieldset", "query", null, 2, query -> {
@@ -232,8 +238,8 @@ public class UiSpecServiceTest {
         System.out.println(JsonbBuilder.create(new JsonbConfig().withFormatting(true)).toJson(payload));
     }
 
-    private void assertUiSchema(final UiSpecPayload.UiSchema schema, final String widget, final String title, final String key,
-            final int nestedSize, final Consumer<UiSpecPayload.UiSchema> customValidator) {
+    private void assertUiSchema(final UiSpecPayload.UiSchema schema, final String widget, final String title,
+        final String key, final int nestedSize, final Consumer<UiSpecPayload.UiSchema> customValidator) {
         assertEquals(schema.toString(), widget, schema.getWidget());
         assertEquals(title, schema.getTitle());
         assertEquals(key, schema.getKey());
@@ -246,7 +252,7 @@ public class UiSpecServiceTest {
     }
 
     private void assertProperty(final UiSpecPayload.JsonSchema property, final String type, final String title,
-            final Consumer<UiSpecPayload.JsonSchema> customValidator) {
+        final Consumer<UiSpecPayload.JsonSchema> customValidator) {
         assertEquals(type, property.getType());
         assertEquals(title, property.getTitle());
         customValidator.accept(property);
@@ -254,12 +260,14 @@ public class UiSpecServiceTest {
 
     private ComponentDetail load(final String resource) throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create();
-                final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)) {
+                final InputStream stream =
+                    Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)) {
             return jsonb.fromJson(stream, ComponentDetail.class);
         }
     }
 
-    private void assertTriggerParameter(final UiSpecPayload.Trigger.Parameter next, final String key, final String path) {
+    private void assertTriggerParameter(final UiSpecPayload.Trigger.Parameter next, final String key,
+        final String path) {
         assertEquals(key, next.getKey());
         assertEquals(path, next.getPath());
     }

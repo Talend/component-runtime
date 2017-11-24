@@ -116,17 +116,15 @@ public class ComponentResource {
                 .computeIfAbsent(new RequestKey(locale),
                         k -> new ComponentIndices(manager
                                 .find(c -> c
-                                        .execute(
-                                                () -> Stream.of(c.get(ContainerComponentRegistry.class))
-                                                            .flatMap(registry -> registry.getComponents().values().stream())
-                                                            .flatMap(component -> Stream.concat(
-                                                                    component.getPartitionMappers().values().stream()
-                                                                             .map(mapper -> toComponentIndex(c.getLoader(),
-                                                                                     locale,
-                                                                                     c.getId(), mapper)),
-                                                                    component.getProcessors().values().stream()
-                                                                             .map(proc -> toComponentIndex(c.getLoader(), locale,
-                                                                                     c.getId(), proc))))))
+                                        .execute(() -> Stream.of(c.get(ContainerComponentRegistry.class))
+                                                .flatMap(registry -> registry.getComponents().values().stream())
+                                                .flatMap(component -> Stream.concat(
+                                                        component.getPartitionMappers().values().stream()
+                                                                .map(mapper -> toComponentIndex(c.getLoader(), locale,
+                                                                        c.getId(), mapper)),
+                                                        component.getProcessors().values().stream()
+                                                                .map(proc -> toComponentIndex(c.getLoader(), locale,
+                                                                        c.getId(), proc))))))
                                 .collect(toList())));
     }
 
@@ -138,15 +136,15 @@ public class ComponentResource {
         final ComponentFamilyMeta meta = componentManagerService.findFamilyMetaById(id);
         if (meta == null) {
             return Response.status(Response.Status.NOT_FOUND)
-                           .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No family for identifier: " + id))
-                           .type(APPLICATION_JSON_TYPE).build();
+                    .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No family for identifier: " + id))
+                    .type(APPLICATION_JSON_TYPE).build();
         }
         final IconResolver.Icon iconContent = iconResolver
                 .resolve(manager.findPlugin(meta.getPlugin()).get().getLoader(), meta.getIcon());
         if (iconContent == null) {
             return Response.status(Response.Status.NOT_FOUND)
-                           .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family identifier: " + id))
-                           .type(APPLICATION_JSON_TYPE).build();
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family identifier: " + id))
+                    .type(APPLICATION_JSON_TYPE).build();
         }
         return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
     }
@@ -159,15 +157,15 @@ public class ComponentResource {
         final ComponentFamilyMeta.BaseMeta<Object> meta = componentManagerService.findMetaById(id);
         if (meta == null) {
             return Response.status(Response.Status.NOT_FOUND)
-                           .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component for identifier: " + id))
-                           .type(APPLICATION_JSON_TYPE).build();
+                    .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component for identifier: " + id))
+                    .type(APPLICATION_JSON_TYPE).build();
         }
         final IconResolver.Icon iconContent = iconResolver
                 .resolve(manager.findPlugin(meta.getParent().getPlugin()).get().getLoader(), meta.getIcon());
         if (iconContent == null) {
             return Response.status(Response.Status.NOT_FOUND)
-                           .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for identifier: " + id))
-                           .type(APPLICATION_JSON_TYPE).build();
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for identifier: " + id))
+                    .type(APPLICATION_JSON_TYPE).build();
         }
         return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
     }
@@ -175,8 +173,8 @@ public class ComponentResource {
     @POST
     @Path("migrate/{id}/{configurationVersion}")
     @Documentation("Allows to migrate a component configuration without calling any component execution.")
-    public Map<String, String> migrate(@PathParam("id") final String id, @PathParam("configurationVersion") final int version,
-            final Map<String, String> config) {
+    public Map<String, String> migrate(@PathParam("id") final String id,
+            @PathParam("configurationVersion") final int version, final Map<String, String> config) {
         return componentManagerService.findMetaById(id).getMigrationHandler().migrate(version, config);
     }
 
@@ -207,22 +205,21 @@ public class ComponentResource {
                     return new ComponentDetail(
                             new ComponentId(meta.getId(), meta.getParent().getPlugin(), meta.getParent().getName(),
                                     meta.getName()),
-                            meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()), meta.getIcon(),
+                            meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()),
+                            meta.getIcon(),
                             ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor"
                                     : "input"/* PartitionMapperMeta */,
                             meta.getVersion(),
                             propertiesService.buildProperties(meta.getParameterMetas(), container.getLoader(), locale)
-                                             .collect(toList()),
-                            findActions(meta.getParent().getName(),
-                                    toStream(meta.getParameterMetas()).flatMap(p -> p.getMetadata().entrySet().stream())
-                                                                      .filter(e -> e.getKey().startsWith(
-                                                                              ActionParameterEnricher.META_PREFIX)).collect(
-                                            toMap(e -> e.getKey().substring(ActionParameterEnricher.META_PREFIX.length()),
-                                                    Map.Entry::getValue)),
+                                    .collect(toList()),
+                            findActions(meta.getParent().getName(), toStream(meta.getParameterMetas())
+                                    .flatMap(p -> p.getMetadata().entrySet().stream())
+                                    .filter(e -> e.getKey().startsWith(ActionParameterEnricher.META_PREFIX))
+                                    .collect(toMap(
+                                            e -> e.getKey().substring(ActionParameterEnricher.META_PREFIX.length()),
+                                            Map.Entry::getValue)),
                                     container, locale),
-                            model.getInputFlows(),
-                            model.getOutputFlows(),
-                            /* todo? */emptyList());
+                            model.getInputFlows(), model.getOutputFlows(), /* todo? */emptyList());
                 }).collect(toList()));
         if (!errors.isEmpty()) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(errors).build());
@@ -232,19 +229,19 @@ public class ComponentResource {
     }
 
     private Stream<ParameterMeta> toStream(final Collection<ParameterMeta> parameterMetas) {
-        return Stream.concat(parameterMetas.stream(),
-                parameterMetas.stream().map(ParameterMeta::getNestedParameters).filter(Objects::nonNull).flatMap(this::toStream));
+        return Stream.concat(parameterMetas.stream(), parameterMetas.stream().map(ParameterMeta::getNestedParameters)
+                .filter(Objects::nonNull).flatMap(this::toStream));
     }
 
     private Collection<ActionReference> findActions(final String family, final Map<String, String> actions,
             final Container container, final Locale locale) {
         final ContainerComponentRegistry registry = container.get(ContainerComponentRegistry.class);
-        return registry.getServices().stream().flatMap(s -> s.getActions().stream()).filter(s -> s.getFamily().equals(family))
-                       .filter(s -> actions.containsKey(s.getType()) && actions.get(s.getType()).equals(s.getAction()))
-                       .map(s -> new ActionReference(s.getFamily(), s.getAction(), s.getType(),
-                               propertiesService.buildProperties(s.getParameters(), container.getLoader(), locale)
-                                                .collect(toList())))
-                       .collect(toList());
+        return registry.getServices().stream().flatMap(s -> s.getActions().stream())
+                .filter(s -> s.getFamily().equals(family))
+                .filter(s -> actions.containsKey(s.getType()) && actions.get(s.getType()).equals(s.getAction()))
+                .map(s -> new ActionReference(s.getFamily(), s.getAction(), s.getType(), propertiesService
+                        .buildProperties(s.getParameters(), container.getLoader(), locale).collect(toList())))
+                .collect(toList());
     }
 
     private ComponentIndex toComponentIndex(final ClassLoader loader, final Locale locale, final String plugin,
@@ -259,7 +256,7 @@ public class ComponentResource {
                         iconContent == null ? null : iconContent.getBytes()),
                 new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
                         iconFamilyContent == null ? null : iconFamilyContent.getBytes()),
-                meta.getVersion(), meta.getParent().getCategories(),
-                singletonList(new Link("Detail", "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
+                meta.getVersion(), meta.getParent().getCategories(), singletonList(new Link("Detail",
+                        "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
     }
 }

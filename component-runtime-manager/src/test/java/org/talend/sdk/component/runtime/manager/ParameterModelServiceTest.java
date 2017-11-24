@@ -32,8 +32,8 @@ public class ParameterModelServiceTest {
 
     @Test
     public void primitive() throws NoSuchMethodException {
-        final List<ParameterMeta> params = service
-                .buildParameterMetas(MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class), "def");
+        final List<ParameterMeta> params = service.buildParameterMetas(
+            MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class), "def");
         assertEquals(3, params.size());
         {
             final ParameterMeta param = params.get(0);
@@ -63,8 +63,8 @@ public class ParameterModelServiceTest {
 
     @Test
     public void collection() throws NoSuchMethodException {
-        final List<ParameterMeta> params = service
-                .buildParameterMetas(MethodsHolder.class.getMethod("collections", List.class, List.class, Map.class), "def");
+        final List<ParameterMeta> params = service.buildParameterMetas(
+            MethodsHolder.class.getMethod("collections", List.class, List.class, Map.class), "def");
         assertEquals(3, params.size());
         {
             final ParameterMeta param = params.get(0);
@@ -129,8 +129,8 @@ public class ParameterModelServiceTest {
 
     @Test
     public void array() throws NoSuchMethodException {
-        final List<ParameterMeta> params = service
-                .buildParameterMetas(MethodsHolder.class.getMethod("array", MethodsHolder.Array.class), "def");
+        final List<ParameterMeta> params =
+            service.buildParameterMetas(MethodsHolder.class.getMethod("array", MethodsHolder.Array.class), "def");
         assertEquals(1, params.size());
         {
             final ParameterMeta param = params.get(0);
@@ -163,12 +163,14 @@ public class ParameterModelServiceTest {
 
     @Test
     public void object() throws NoSuchMethodException {
-        HashMap<String, String> expectedDataSet = new HashMap<String, String>() {{
-            put("tcomp::configurationtype::type", "dataset");
-            put("tcomp::configurationtype::name", "test");
-        }};
+        HashMap<String, String> expectedDataSet = new HashMap<String, String>() {
+            {
+                put("tcomp::configurationtype::type", "dataset");
+                put("tcomp::configurationtype::name", "test");
+            }
+        };
         final List<ParameterMeta> params = service.buildParameterMetas(
-                MethodsHolder.class.getMethod("object", MethodsHolder.Config.class, MethodsHolder.Config.class), "def");
+            MethodsHolder.class.getMethod("object", MethodsHolder.Config.class, MethodsHolder.Config.class), "def");
         assertEquals(2, params.size());
         assertConfigModel("arg0", params.get(0));
         assertConfigModel("prefixed", params.get(1));
@@ -179,7 +181,7 @@ public class ParameterModelServiceTest {
     @Test
     public void nestedObject() throws NoSuchMethodException {
         final List<ParameterMeta> params = service
-                .buildParameterMetas(MethodsHolder.class.getMethod("nested", MethodsHolder.ConfigOfConfig.class), "def");
+            .buildParameterMetas(MethodsHolder.class.getMethod("nested", MethodsHolder.ConfigOfConfig.class), "def");
         assertEquals(1, params.size());
         {
             final ParameterMeta param = params.get(0);
@@ -196,7 +198,8 @@ public class ParameterModelServiceTest {
                 assertEquals(ParameterMeta.Type.OBJECT, nested.getType());
                 assertEquals(2, nested.getNestedParameters().size());
                 assertTrue(nested.getProposals().isEmpty());
-                assertConfigFieldsModel("arg0.direct", nested.getNestedParameters().get(0), nested.getNestedParameters().get(1));
+                assertConfigFieldsModel("arg0.direct", nested.getNestedParameters().get(0),
+                    nested.getNestedParameters().get(1));
             }
             {
                 final ParameterMeta nested = param.getNestedParameters().get(1);
@@ -215,7 +218,7 @@ public class ParameterModelServiceTest {
                     assertTrue(key.getProposals().isEmpty());
                 }
                 assertConfigFieldsModel("arg0.keyed.value[${index}]", nested.getNestedParameters().get(1),
-                        nested.getNestedParameters().get(2));
+                    nested.getNestedParameters().get(2));
             }
             {
                 final ParameterMeta nested = param.getNestedParameters().get(2);
@@ -225,7 +228,7 @@ public class ParameterModelServiceTest {
                 assertEquals(2, nested.getNestedParameters().size());
                 assertTrue(nested.getProposals().isEmpty());
                 assertConfigFieldsModel("arg0.multiple[${index}]", nested.getNestedParameters().get(1),
-                        nested.getNestedParameters().get(0));
+                    nested.getNestedParameters().get(0));
             }
             {
                 final ParameterMeta nested = param.getNestedParameters().get(3);

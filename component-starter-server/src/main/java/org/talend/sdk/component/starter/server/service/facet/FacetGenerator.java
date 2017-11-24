@@ -44,8 +44,8 @@ public interface FacetGenerator {
     }
 
     default Stream<InMemoryFile> create(final String packageBase, final Build build, final Collection<String> facets,
-            final Collection<ProjectRequest.SourceConfiguration> sources,
-            final Collection<ProjectRequest.ProcessorConfiguration> processors) {
+        final Collection<ProjectRequest.SourceConfiguration> sources,
+        final Collection<ProjectRequest.ProcessorConfiguration> processors) {
         return Stream.empty();
     }
 
@@ -69,9 +69,7 @@ public interface FacetGenerator {
     }
 
     enum Category {
-        TEST("Test"),
-        RUNTIME("Runtime"),
-        LIBRARIES("Libraries");
+                   TEST("Test"), RUNTIME("Runtime"), LIBRARIES("Libraries");
 
         @Getter
         private final String humanName;

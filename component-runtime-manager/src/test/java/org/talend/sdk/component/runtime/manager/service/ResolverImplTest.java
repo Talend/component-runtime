@@ -31,13 +31,13 @@ public class ResolverImplTest {
     @Test
     public void resolvefromDescriptor() throws IOException {
         try (final InputStream stream = new ByteArrayInputStream(
-                "The following files have been resolved:\njunit:junit:jar:4.12:compile".getBytes(StandardCharsets.UTF_8))) {
-            final Collection<File> deps = new ResolverImpl(null, coord -> new File("maven2", coord))
-                    .resolveFromDescriptor(stream);
+            "The following files have been resolved:\njunit:junit:jar:4.12:compile".getBytes(StandardCharsets.UTF_8))) {
+            final Collection<File> deps =
+                new ResolverImpl(null, coord -> new File("maven2", coord)).resolveFromDescriptor(stream);
             assertEquals(1, deps.size());
             String sep = File.separator;
             StringBuilder expectedPath = new StringBuilder().append("maven2").append(sep).append("junit").append(sep)
-                    .append("junit").append(sep).append("4.12").append(sep).append("junit-4.12.jar");
+                .append("junit").append(sep).append("4.12").append(sep).append("junit-4.12.jar");
             assertEquals(expectedPath.toString(), deps.iterator().next().getPath());
         }
     }

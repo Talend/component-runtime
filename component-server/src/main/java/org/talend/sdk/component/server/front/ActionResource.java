@@ -74,9 +74,9 @@ public class ActionResource {
 
     @POST
     @Path("execute")
-    @Documentation("This endpoint will execute any UI action and serialize the response as a JSON (pojo model). " +
-            "It takes as input the family, type and name of the related action to identify it and its configuration " +
-            "as a flat key value set using the same kind of mapping than for components (option path as key).")
+    @Documentation("This endpoint will execute any UI action and serialize the response as a JSON (pojo model). "
+            + "It takes as input the family, type and name of the related action to identify it and its configuration "
+            + "as a flat key value set using the same kind of mapping than for components (option path as key).")
     public Response execute(@QueryParam("family") final String component, @QueryParam("type") final String type,
             @QueryParam("action") final String action, final Map<String, String> params) {
         if (action == null) {
@@ -86,15 +86,16 @@ public class ActionResource {
         final ServiceMeta.ActionMeta actionMeta = service.findActionById(component, type, action);
         if (actionMeta == null) {
             throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.ACTION_MISSING, "No action with id '" + action + "'")).build());
+                    .entity(new ErrorPayload(ErrorDictionary.ACTION_MISSING, "No action with id '" + action + "'"))
+                    .build());
         }
         try {
             final Object result = actionMeta.getInvoker().apply(params);
             return Response.ok(result).type(APPLICATION_JSON_TYPE).build();
         } catch (final RuntimeException re) {
             log.warn(re.getMessage(), re);
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR, "Action execution failed with: " + re.getMessage()))
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(
+                    new ErrorPayload(ErrorDictionary.ACTION_ERROR, "Action execution failed with: " + re.getMessage()))
                     .build());
         }
     }
@@ -103,7 +104,8 @@ public class ActionResource {
     @Path("index") // add an index if needed or too slow
     @Documentation("This endpoint returns the list of available actions for a certain falimy and potentially filters the "
             + "output limiting it to some falimies and types of actions.")
-    public ActionList getIndex(@QueryParam("type") final String[] types, @QueryParam("family") final String[] components,
+    public ActionList getIndex(@QueryParam("type") final String[] types,
+            @QueryParam("family") final String[] components,
             @QueryParam("language") @DefaultValue("en") final String language) {
         final Predicate<ServiceMeta.ActionMeta> typeMatcher = new Predicate<ServiceMeta.ActionMeta>() {
 
@@ -125,10 +127,10 @@ public class ActionResource {
         };
         final Locale locale = localeMapper.mapLocale(language);
         return new ActionList(manager
-                .find(c -> c.get(ContainerComponentRegistry.class).getServices().stream().map(s -> s.getActions().stream())
-                        .flatMap(identity()).filter(typeMatcher.and(componentMatcher))
-                        .map(s -> new ActionItem(s.getFamily(), s.getType(), s.getAction(),
-                                propertiesService.buildProperties(s.getParameters(), c.getLoader(), locale).collect(toList()))))
+                .find(c -> c.get(ContainerComponentRegistry.class).getServices().stream()
+                        .map(s -> s.getActions().stream()).flatMap(identity()).filter(typeMatcher.and(componentMatcher))
+                        .map(s -> new ActionItem(s.getFamily(), s.getType(), s.getAction(), propertiesService
+                                .buildProperties(s.getParameters(), c.getLoader(), locale).collect(toList()))))
                 .collect(toList()));
     }
 }

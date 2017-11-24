@@ -46,7 +46,8 @@ public class SampleDatabaseCreator {
         server = Server.createTcpServer().start(); // expose it over jdbc:h2:tcp://localhost/mem:test
     }
 
-    public void releaseDatabase(@Destroyed(ApplicationScoped.class) @Observes final Object destroy) throws SQLException {
+    public void releaseDatabase(@Destroyed(ApplicationScoped.class) @Observes final Object destroy)
+        throws SQLException {
         connection.close();
         server.stop();
     }

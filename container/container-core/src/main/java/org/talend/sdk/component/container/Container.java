@@ -67,8 +67,8 @@ public class Container implements Lifecycle {
     private final ConcurrentMap<Class<?>, Object> data = new ConcurrentHashMap<>();
 
     public Container(final String id, final String rootModule, final String[] dependencies,
-            final ContainerManager.ClassLoaderConfiguration configuration,
-            final Function<String, File> localDependencyRelativeResolver) {
+        final ContainerManager.ClassLoaderConfiguration configuration,
+        final Function<String, File> localDependencyRelativeResolver) {
         this.id = id;
         this.rootModule = rootModule;
         this.dependencies = dependencies;
@@ -84,15 +84,16 @@ public class Container implements Lifecycle {
 
             // for the jar module we test in order:
             // - if the file exists we use it
-            // - if the nested file exists using the module as path in nested maven repo, we use it
+            // - if the nested file exists using the module as path in nested maven repo,
+            // we use it
             // - if the nested path is in the global plugin.properties index, we use it
             return new ConfigurableClassLoader(urls, configuration.getParent(), configuration.getClassesFilter(),
-                    configuration.getParentClassesFilter(),
-                    configuration.isSupportsResourceDependencies() ? Stream.concat(Stream.of(dependencies),
-                            of(rootModule)
-                                    .filter(m -> !new File(m).exists() && !localDependencyRelativeResolver.apply(m).exists())
-                                    .map(Stream::of).orElseGet(Stream::empty))
-                            .toArray(String[]::new) : null);
+                configuration.getParentClassesFilter(),
+                configuration.isSupportsResourceDependencies() ? Stream.concat(Stream.of(dependencies),
+                    of(rootModule)
+                        .filter(m -> !new File(m).exists() && !localDependencyRelativeResolver.apply(m).exists())
+                        .map(Stream::of).orElseGet(Stream::empty))
+                    .toArray(String[]::new) : null);
         };
         reload();
     }
@@ -110,10 +111,13 @@ public class Container implements Lifecycle {
     }
 
     public Stream<File> findExistingClasspathFiles() {
-        return Stream.concat(
+        return Stream
+            .concat(
                 Stream.of(rootModule)
-                        .map(m -> of(new File(m)).filter(File::exists).orElseGet(() -> localDependencyRelativeResolver.apply(m))),
-                Stream.of(dependencies).map(localDependencyRelativeResolver)).filter(File::exists);
+                    .map(m -> of(new File(m)).filter(File::exists)
+                        .orElseGet(() -> localDependencyRelativeResolver.apply(m))),
+                Stream.of(dependencies).map(localDependencyRelativeResolver))
+            .filter(File::exists);
     }
 
     public <S, T> T executeAndContextualize(final Supplier<S> supplier, final Class<T> api) {
@@ -121,16 +125,16 @@ public class Container implements Lifecycle {
         if (!api.isInterface()) {
             throw new IllegalArgumentException("Only interfaces are supported for now: " + api);
         }
-        try { // ensure we don't leak a specific class, no need of any proxy for the class failing here
+        try { // ensure we don't leak a specific class, no need of any proxy for the class
+              // failing here
             loaderRef.get().getParent().loadClass(api.getName());
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
             throw new IllegalArgumentException("executeAndContextualize only usable with parent API");
         }
 
         final S result = execute(supplier);
-        return api.isInstance(result) ? api.cast(result)
-                : api.cast(
-                        newProxyInstance(loaderRef.get(), new Class<?>[] { api }, new ApiHandler(result, api, this::withTccl)));
+        return api.isInstance(result) ? api.cast(result) : api.cast(
+            newProxyInstance(loaderRef.get(), new Class<?>[] { api }, new ApiHandler(result, api, this::withTccl)));
     }
 
     public <T> T execute(final Supplier<T> supplier) {

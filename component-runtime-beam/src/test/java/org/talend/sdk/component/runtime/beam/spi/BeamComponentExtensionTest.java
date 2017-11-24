@@ -71,7 +71,8 @@ public class BeamComponentExtensionTest {
             }
 
             @Override
-            public String plugin() { // since we don't deploy the test-classes folder correctly we use the absolute path as id
+            public String plugin() { // since we don't deploy the test-classes folder correctly we use the absolute
+                                     // path as id
                 return jarLocation(BeamComponentExtensionTest.class).getAbsolutePath();
             }
 
@@ -90,7 +91,7 @@ public class BeamComponentExtensionTest {
         // ensure the mapper is serializable even if not intended to be used this way
         final byte[] bytes = Serializer.toBytes(mapper);
         try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(bytes),
-                Thread.currentThread().getContextClassLoader())) {
+            Thread.currentThread().getContextClassLoader())) {
             final Serializable deserialized = Serializable.class.cast(ois.readObject());
             assertMapper(Mapper.class.cast(deserialized));
         }

@@ -39,9 +39,11 @@ public interface ContainerFinder {
             return FINDER.get() != null;
         }
 
-        // really a classloader (JVM most of the time) singleton since it is intended to be used by serialization
+        // really a classloader (JVM most of the time) singleton since it is intended to
+        // be used by serialization
         public static void set(final Supplier<ContainerFinder> provider) {
-            // todo: do we want some safety here or not? normally shouldnt be needed, then Supplier would be needed
+            // todo: do we want some safety here or not? normally shouldnt be needed, then
+            // Supplier would be needed
             FINDER.set(provider.get());
         }
 
@@ -50,7 +52,7 @@ public interface ContainerFinder {
                 synchronized (FINDER) {
                     if (!isInitialized()) {
                         final Iterator<ContainerFinder> loader = ServiceLoader
-                                .load(ContainerFinder.class, ContainerFinder.class.getClassLoader()).iterator();
+                            .load(ContainerFinder.class, ContainerFinder.class.getClassLoader()).iterator();
                         if (loader.hasNext()) {
                             FINDER.set(loader.next());
                         }
@@ -58,7 +60,8 @@ public interface ContainerFinder {
                 }
             }
 
-            // fallback on TCCL, depending the packaging it can work or not safer to not return null here
+            // fallback on TCCL, depending the packaging it can work or not safer to not
+            // return null here
             return ofNullable(FINDER.get()).orElseGet(TCCLContainerFinder::new);
         }
     }

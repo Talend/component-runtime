@@ -43,10 +43,10 @@ public class ModelVisitorTest {
     @Test
     public void valid() {
         assertEquals(
-                asList("@Emitter(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$In)",
-                        "@PartitionMapper(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Mapper)",
-                        "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Out)"),
-                visit(Registrar.class));
+            asList("@Emitter(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$In)",
+                "@PartitionMapper(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Mapper)",
+                "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Out)"),
+            visit(Registrar.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -82,8 +82,8 @@ public class ModelVisitorTest {
     @Test
     public void mapperWithSplitParameter() {
         assertEquals(singletonList(
-                "@PartitionMapper(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$MapperSplitParameter$Mapper)"),
-                visit(MapperSplitParameter.class));
+            "@PartitionMapper(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$MapperSplitParameter$Mapper)"),
+            visit(MapperSplitParameter.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -110,23 +110,23 @@ public class ModelVisitorTest {
         final ModelVisitor visitor = new ModelVisitor();
         final List<String> tracker = new ArrayList<>();
         Stream.of(type.getClasses()).sorted(Comparator.comparing(Class::getName))
-                .forEach(nested -> visitor.visit(nested, new ModelListener() {
+            .forEach(nested -> visitor.visit(nested, new ModelListener() {
 
-                    @Override
-                    public void onPartitionMapper(final Class<?> type, final PartitionMapper partitionMapper) {
-                        tracker.add("@PartitionMapper(" + type.getName() + ")");
-                    }
+                @Override
+                public void onPartitionMapper(final Class<?> type, final PartitionMapper partitionMapper) {
+                    tracker.add("@PartitionMapper(" + type.getName() + ")");
+                }
 
-                    @Override
-                    public void onEmitter(final Class<?> type, final Emitter emitter) {
-                        tracker.add("@Emitter(" + type.getName() + ")");
-                    }
+                @Override
+                public void onEmitter(final Class<?> type, final Emitter emitter) {
+                    tracker.add("@Emitter(" + type.getName() + ")");
+                }
 
-                    @Override
-                    public void onProcessor(final Class<?> type, final Processor processor) {
-                        tracker.add("@Processor(" + type.getName() + ")");
-                    }
-                }, true));
+                @Override
+                public void onProcessor(final Class<?> type, final Processor processor) {
+                    tracker.add("@Processor(" + type.getName() + ")");
+                }
+            }, true));
         return tracker;
     }
 

@@ -58,7 +58,7 @@ public class UiSpecService {
             jsonSchema.setType("object");
             jsonSchema.setProperties(createJsonSchemaPropertiesLevel("", detail.getProperties()));
             jsonSchema.setRequired(detail.getProperties().stream().filter(p -> p.getName().equals(p.getPath()))
-                    .filter(this::isRequired).map(SimplePropertyDefinition::getName).collect(toSet()));
+                .filter(this::isRequired).map(SimplePropertyDefinition::getName).collect(toSet()));
             converted.setJsonSchema(jsonSchema);
         }
         { // build ui spec based on the object model
@@ -71,87 +71,93 @@ public class UiSpecService {
     }
 
     private Map<String, Object> createPropertiesLevel(final String prefix,
-            final Collection<SimplePropertyDefinition> properties) {
+        final Collection<SimplePropertyDefinition> properties) {
         if (properties == null) {
             return null;
         }
         // todo: array
         return filterPropertyLevel(prefix, properties)
-                .filter(p -> "object".equalsIgnoreCase(p.getType()) || p.getMetadata().get("ui::defaultvalue::value") != null)
-                .collect(toMap(SimplePropertyDefinition::getName, p -> {
-                    if ("object".equalsIgnoreCase(p.getType())) {
-                        return createPropertiesLevel(p.getPath() + '.', properties);
-                    }
-                    final String def = p.getMetadata().get("ui::defaultvalue::value");
-                    if ("number".equalsIgnoreCase(p.getType())) {
-                        return Double.parseDouble(def);
-                    }
-                    if ("boolean".equalsIgnoreCase(p.getType())) {
-                        return Boolean.parseBoolean(def);
-                    }
-                    return def;
-                })).entrySet().stream().collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .filter(
+                p -> "object".equalsIgnoreCase(p.getType()) || p.getMetadata().get("ui::defaultvalue::value") != null)
+            .collect(toMap(SimplePropertyDefinition::getName, p -> {
+                if ("object".equalsIgnoreCase(p.getType())) {
+                    return createPropertiesLevel(p.getPath() + '.', properties);
+                }
+                final String def = p.getMetadata().get("ui::defaultvalue::value");
+                if ("number".equalsIgnoreCase(p.getType())) {
+                    return Double.parseDouble(def);
+                }
+                if ("boolean".equalsIgnoreCase(p.getType())) {
+                    return Boolean.parseBoolean(def);
+                }
+                return def;
+            })).entrySet().stream().collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private Collection<UiSpecPayload.UiSchema> createUiSchemaLevel(final ComponentDetail detail, final String prefix,
-            final Collection<SimplePropertyDefinition> properties) {
+        final Collection<SimplePropertyDefinition> properties) {
         if (properties == null) {
             return null;
         }
-        return filterPropertyLevel(prefix, properties).map(prop -> toUiSchema(detail, properties, prop)).collect(toList());
+        return filterPropertyLevel(prefix, properties).map(prop -> toUiSchema(detail, properties, prop))
+            .collect(toList());
     }
 
-    private UiSpecPayload.UiSchema toUiSchema(final ComponentDetail detail, final Collection<SimplePropertyDefinition> properties,
-            final SimplePropertyDefinition prop) {
+    private UiSpecPayload.UiSchema toUiSchema(final ComponentDetail detail,
+        final Collection<SimplePropertyDefinition> properties, final SimplePropertyDefinition prop) {
         if ("object".equalsIgnoreCase(prop.getType())) {
             final UiSpecPayload.UiSchema schema = new UiSpecPayload.UiSchema();
             // schema.setKey(prop.getPath());
             schema.setTitle(prop.getDisplayName());
             schema.setWidget("fieldset");
-            final Collection<UiSpecPayload.UiSchema> items = createUiSchemaLevel(detail, prop.getPath() + '.', properties);
+            final Collection<UiSpecPayload.UiSchema> items =
+                createUiSchemaLevel(detail, prop.getPath() + '.', properties);
             schema.setItems(items);
 
             // add common actions if needed
             ofNullable(prop.getMetadata().get("action::schema")).flatMap(v -> detail.getActions().stream()
-                    .filter(a -> a.getName().equals(v) && "schema".equals(a.getType())).findFirst()).ifPresent(ref -> {
-                        final UiSpecPayload.Trigger trigger = toTrigger(properties, prop, ref);
-                        if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
-                            // find the matching dataset
-                            detail.getProperties().stream().filter(p -> ref.getName().equals(p.getMetadata().get("dataset")))
-                                    .findFirst().ifPresent(dataset -> {
-                                        final UiSpecPayload.Trigger.Parameter parameter = new UiSpecPayload.Trigger.Parameter();
-                                        parameter.setKey("dataset");
-                                        parameter.setPath(prop.getPath());
-                                        trigger.setParameters(toParams(properties, prop, ref, prop.getPath()));
-                                    });
-                        }
+                .filter(a -> a.getName().equals(v) && "schema".equals(a.getType())).findFirst()).ifPresent(ref -> {
+                    final UiSpecPayload.Trigger trigger = toTrigger(properties, prop, ref);
+                    if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
+                        // find the matching dataset
+                        detail.getProperties().stream()
+                            .filter(p -> ref.getName().equals(p.getMetadata().get("dataset"))).findFirst()
+                            .ifPresent(dataset -> {
+                                final UiSpecPayload.Trigger.Parameter parameter = new UiSpecPayload.Trigger.Parameter();
+                                parameter.setKey("dataset");
+                                parameter.setPath(prop.getPath());
+                                trigger.setParameters(toParams(properties, prop, ref, prop.getPath()));
+                            });
+                    }
 
-                        final UiSpecPayload.UiSchema button = new UiSpecPayload.UiSchema();
-                        button.setKey("button_schema_" + prop.getPath());
-                        button.setTitle("Guess Schema");
-                        button.setWidget("button");
-                        button.setTriggers(singletonList(trigger));
-                        items.add(button);
-                    });
+                    final UiSpecPayload.UiSchema button = new UiSpecPayload.UiSchema();
+                    button.setKey("button_schema_" + prop.getPath());
+                    button.setTitle("Guess Schema");
+                    button.setWidget("button");
+                    button.setTriggers(singletonList(trigger));
+                    items.add(button);
+                });
             ofNullable(prop.getMetadata().get("action::healthcheck"))
-                    .flatMap(v -> (detail.getActions() == null ? Stream.<ActionReference> empty() : detail.getActions().stream())
-                            .filter(a -> a.getName().equals(v) && "healthcheck".equals(a.getType())).findFirst())
-                    .ifPresent(ref -> {
-                        final UiSpecPayload.Trigger trigger = toTrigger(properties, prop, ref);
-                        if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
-                            // find the matching dataset
-                            detail.getProperties().stream().filter(p -> ref.getName().equals(p.getMetadata().get("datastore")))
-                                    .findFirst().ifPresent(datastore -> trigger
-                                            .setParameters(toParams(properties, datastore, ref, datastore.getPath())));
-                        }
+                .flatMap(
+                    v -> (detail.getActions() == null ? Stream.<ActionReference> empty() : detail.getActions().stream())
+                        .filter(a -> a.getName().equals(v) && "healthcheck".equals(a.getType())).findFirst())
+                .ifPresent(ref -> {
+                    final UiSpecPayload.Trigger trigger = toTrigger(properties, prop, ref);
+                    if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
+                        // find the matching dataset
+                        detail.getProperties().stream()
+                            .filter(p -> ref.getName().equals(p.getMetadata().get("datastore"))).findFirst()
+                            .ifPresent(datastore -> trigger
+                                .setParameters(toParams(properties, datastore, ref, datastore.getPath())));
+                    }
 
-                        final UiSpecPayload.UiSchema button = new UiSpecPayload.UiSchema();
-                        button.setKey("button_healthcheck_" + prop.getPath());
-                        button.setTitle("Validate Datastore");
-                        button.setWidget("button");
-                        button.setTriggers(singletonList(trigger));
-                        items.add(button);
-                    });
+                    final UiSpecPayload.UiSchema button = new UiSpecPayload.UiSchema();
+                    button.setKey("button_healthcheck_" + prop.getPath());
+                    button.setTitle("Validate Datastore");
+                    button.setWidget("button");
+                    button.setTriggers(singletonList(trigger));
+                    items.add(button);
+                });
 
             return schema;
         } // array: todo
@@ -159,18 +165,18 @@ public class UiSpecService {
     }
 
     private UiSpecPayload.Trigger toTrigger(final Collection<SimplePropertyDefinition> properties,
-            final SimplePropertyDefinition prop, final ActionReference ref) {
+        final SimplePropertyDefinition prop, final ActionReference ref) {
         final UiSpecPayload.Trigger trigger = new UiSpecPayload.Trigger();
         trigger.setAction(ref.getName());
         trigger.setFamily(ref.getFamily());
         trigger.setType(ref.getType());
         trigger.setParameters(
-                toParams(properties, prop, ref, prop.getMetadata().get("action::" + ref.getType() + "::parameters")));
+            toParams(properties, prop, ref, prop.getMetadata().get("action::" + ref.getType() + "::parameters")));
         return trigger;
     }
 
     private UiSpecPayload.UiSchema primitiveToUiSchema(final Collection<SimplePropertyDefinition> properties,
-            final ComponentDetail detail, final SimplePropertyDefinition prop) {
+        final ComponentDetail detail, final SimplePropertyDefinition prop) {
         final UiSpecPayload.UiSchema schema = new UiSpecPayload.UiSchema();
         schema.setKey(prop.getPath());
         schema.setTitle(prop.getDisplayName());
@@ -197,7 +203,8 @@ public class UiSpecService {
             jsonSchema.setEnumValues(prop.getValidation().getEnumValues());
             schema.setSchema(jsonSchema);
         } else if ("number".equalsIgnoreCase(prop.getType())) {
-            schema.setWidget("text"); // todo: check it is ok, looks so but also not that common so can need some revisit
+            schema.setWidget("text"); // todo: check it is ok, looks so but also not that common so can need some
+                                      // revisit
         } else if (prop.getMetadata() != null && prop.getMetadata().containsKey("action::dynamic_values")) {
             schema.setWidget("datalist");
             schema.setRestricted(false);
@@ -209,22 +216,23 @@ public class UiSpecService {
             if (client != null) {
                 // todo: add caching here with a small eviction (each 5mn?)
                 final Map<String, Object> values = client.action(detail.getId().getFamily(), "dynamic_values",
-                        prop.getMetadata().get("action::dynamic_values"), emptyMap());
+                    prop.getMetadata().get("action::dynamic_values"), emptyMap());
 
-                final List<UiSpecPayload.NameValue> namedValues = ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance)
-                        .map(c -> {
-                            final Collection<?> dynamicValues = Collection.class.cast(c);
-                            return dynamicValues.stream().filter(Map.class::isInstance)//.map(m -> Map.class.cast(m).get("id"))
-                                    .filter(m -> Map.class.cast(m).get("id") != null && Map.class.cast(m).get("id") instanceof String)
-                                    .map(Map.class::cast)
-                                    .map(entry -> {
-                                        UiSpecPayload.NameValue val = new UiSpecPayload.NameValue();
-                                        val.setName((String)entry.get("id"));
-                                        val.setValue(entry.get("label") == null ? (String)entry.get("id") : (String)entry.get("label"));
-                                        return val;
-                                    })
-                                    .collect(toList());
-                        }).orElse(emptyList());
+                final List<UiSpecPayload.NameValue> namedValues =
+                    ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance).map(c -> {
+                        final Collection<?> dynamicValues = Collection.class.cast(c);
+                        return dynamicValues.stream().filter(Map.class::isInstance)// .map(m ->
+                                                                                   // Map.class.cast(m).get("id"))
+                            .filter(m -> Map.class.cast(m).get("id") != null
+                                && Map.class.cast(m).get("id") instanceof String)
+                            .map(Map.class::cast).map(entry -> {
+                                UiSpecPayload.NameValue val = new UiSpecPayload.NameValue();
+                                val.setName((String) entry.get("id"));
+                                val.setValue(entry.get("label") == null ? (String) entry.get("id")
+                                    : (String) entry.get("label"));
+                                return val;
+                            }).collect(toList());
+                    }).orElse(emptyList());
                 schema.setTitleMap(namedValues);
                 jsonSchema.setEnumValues(namedValues.stream().map(c -> c.getName()).sorted().collect(toList()));
             } else {
@@ -239,22 +247,23 @@ public class UiSpecService {
 
         if (detail.getActions() != null) {
             ofNullable(prop.getMetadata().get("action::validation"))
-                    .flatMap(v -> detail.getActions().stream()
-                            .filter(a -> a.getName().equals(v) && "validation".equals(a.getType())).findFirst())
-                    .ifPresent(ref -> {
-                        schema.setTriggers(singletonList(toTrigger(properties, prop, ref)));
-                    });
+                .flatMap(v -> detail.getActions().stream()
+                    .filter(a -> a.getName().equals(v) && "validation".equals(a.getType())).findFirst())
+                .ifPresent(ref -> {
+                    schema.setTriggers(singletonList(toTrigger(properties, prop, ref)));
+                });
         }
 
         return schema;
     }
 
-    private boolean isRequired(SimplePropertyDefinition prop) {
-        return prop.getValidation() != null && prop.getValidation().getRequired() != null && prop.getValidation().getRequired();
+    private boolean isRequired(final SimplePropertyDefinition prop) {
+        return prop.getValidation() != null && prop.getValidation().getRequired() != null
+            && prop.getValidation().getRequired();
     }
 
     private List<UiSpecPayload.Trigger.Parameter> toParams(final Collection<SimplePropertyDefinition> properties,
-            final SimplePropertyDefinition prop, final ActionReference ref, final String parameters) {
+        final SimplePropertyDefinition prop, final ActionReference ref, final String parameters) {
         final Iterator<SimplePropertyDefinition> expectedProperties = ref.getProperties().iterator();
         return ofNullable(parameters).map(params -> Stream.of(params.split(",")).flatMap(paramRef -> {
             if (!expectedProperties.hasNext()) {
@@ -262,17 +271,18 @@ public class UiSpecService {
             }
             final String parameterPrefix = expectedProperties.next().getPath();
             final String propertiesPrefix = resolveProperty(prop, paramRef);
-            final List<UiSpecPayload.Trigger.Parameter> resolvedParams = properties.stream()
-                    .filter(p -> p.getPath().startsWith(propertiesPrefix))
-                    .filter(o -> !"object".equalsIgnoreCase(o.getType()) && !"array".equalsIgnoreCase(o.getType())).map(o -> {
+            final List<UiSpecPayload.Trigger.Parameter> resolvedParams =
+                properties.stream().filter(p -> p.getPath().startsWith(propertiesPrefix))
+                    .filter(o -> !"object".equalsIgnoreCase(o.getType()) && !"array".equalsIgnoreCase(o.getType()))
+                    .map(o -> {
                         final UiSpecPayload.Trigger.Parameter parameter = new UiSpecPayload.Trigger.Parameter();
                         parameter.setKey(parameterPrefix + o.getPath().substring(propertiesPrefix.length()));
                         parameter.setPath(o.getPath());
                         return parameter;
                     }).collect(toList());
             if (resolvedParams.isEmpty()) {
-                throw new IllegalArgumentException("No resolved parameters for " + prop.getPath() + " in " + ref.getFamily() + "/"
-                        + ref.getType() + "/" + ref.getName());
+                throw new IllegalArgumentException("No resolved parameters for " + prop.getPath() + " in "
+                    + ref.getFamily() + "/" + ref.getType() + "/" + ref.getName());
             }
             return resolvedParams.stream();
         }).collect(toList())).orElse(null);
@@ -305,7 +315,7 @@ public class UiSpecService {
     }
 
     private Map<String, UiSpecPayload.JsonSchema> createJsonSchemaPropertiesLevel(final String prefix,
-            final Collection<SimplePropertyDefinition> properties) {
+        final Collection<SimplePropertyDefinition> properties) {
         if (properties == null) {
             return null;
         }
@@ -323,8 +333,8 @@ public class UiSpecService {
                 property.setType(prop.getType().toLowerCase(ENGLISH));
             }
 
-            final Map<String, UiSpecPayload.JsonSchema> nestedProperties = createJsonSchemaPropertiesLevel(prop.getPath() + '.',
-                    properties);
+            final Map<String, UiSpecPayload.JsonSchema> nestedProperties =
+                createJsonSchemaPropertiesLevel(prop.getPath() + '.', properties);
             final String order = prop.getMetadata().get("ui::optionsorder::value");
             if (order != null) {
                 property.setProperties(new TreeMap<String, UiSpecPayload.JsonSchema>(new Comparator<String>() {
@@ -348,9 +358,9 @@ public class UiSpecService {
 
             if ("object".equalsIgnoreCase(prop.getType())) {
                 property.setRequired(properties.stream()
-                        .filter(p -> nestedProperties.keySet().contains(p.getName())
-                                && p.getPath().equals(prop.getPath() + '.' + p.getName()))
-                        .filter(this::isRequired).map(SimplePropertyDefinition::getName).collect(toSet()));
+                    .filter(p -> nestedProperties.keySet().contains(p.getName())
+                        && p.getPath().equals(prop.getPath() + '.' + p.getName()))
+                    .filter(this::isRequired).map(SimplePropertyDefinition::getName).collect(toSet()));
             }
 
             ofNullable(prop.getMetadata().get("ui::defaultvalue::value")).ifPresent(property::setDefaultValue);
@@ -371,7 +381,9 @@ public class UiSpecService {
         }));
     }
 
-    private Stream<SimplePropertyDefinition> filterPropertyLevel(String prefix, Collection<SimplePropertyDefinition> properties) {
-        return properties.stream().filter(p -> p.getPath().startsWith(prefix) && p.getPath().indexOf('.', prefix.length()) < 0);
+    private Stream<SimplePropertyDefinition> filterPropertyLevel(final String prefix,
+        final Collection<SimplePropertyDefinition> properties) {
+        return properties.stream()
+            .filter(p -> p.getPath().startsWith(prefix) && p.getPath().indexOf('.', prefix.length()) < 0);
     }
 }

@@ -45,8 +45,8 @@ public class WizardRegistry {
         service = Lookups.service();
 
         try {
-            eRepositoryObjectTypeConstructor = ERepositoryObjectType.class.getDeclaredConstructor(String.class, String.class,
-                    String.class, String.class, int.class, String[].class);
+            eRepositoryObjectTypeConstructor = ERepositoryObjectType.class.getDeclaredConstructor(String.class,
+                String.class, String.class, String.class, int.class, String[].class);
             if (!eRepositoryObjectTypeConstructor.isAccessible()) {
                 eRepositoryObjectTypeConstructor.setAccessible(true);
             }
@@ -58,23 +58,24 @@ public class WizardRegistry {
     public Collection<RepositoryNode> createNodes(final RepositoryNode curParentNode) {
         final String language = Locale.getDefault().getLanguage();
         return client.details(language)
-                .filter(detail -> detail.getSecond().getProperties().stream().anyMatch(service::isConfiguration))
-                .map(detail -> createNode(curParentNode, detail.getSecond(), detail.getFirst())).filter(Objects::nonNull)
-                .collect(toList());
+            .filter(detail -> detail.getSecond().getProperties().stream().anyMatch(service::isConfiguration))
+            .map(detail -> createNode(curParentNode, detail.getSecond(), detail.getFirst())).filter(Objects::nonNull)
+            .collect(toList());
     }
 
     private RepositoryNode createNode(final RepositoryNode curParentNode, final ComponentDetail detail,
-            final ComponentIndex index) {
+        final ComponentIndex index) {
         final String name = detail.getId().getName();
         final String displayName = detail.getDisplayName();
 
         try {
-            final ERepositoryObjectType repositoryType = eRepositoryObjectTypeConstructor.newInstance(name, displayName, name,
-                    ERepositoryObjectType.METADATA.getFolder() + "/" + name, 100, new String[] { ERepositoryObjectType.PROD_DI });
+            final ERepositoryObjectType repositoryType = eRepositoryObjectTypeConstructor.newInstance(name, displayName,
+                name, ERepositoryObjectType.METADATA.getFolder() + "/" + name, 100,
+                new String[] { ERepositoryObjectType.PROD_DI });
             repositoryType.setAParent(ERepositoryObjectType.METADATA);
 
             final RepositoryNode node = new RepositoryNode(null, RepositoryNode.class.cast(curParentNode.getRoot()),
-                    IRepositoryNode.ENodeType.SYSTEM_FOLDER);
+                IRepositoryNode.ENodeType.SYSTEM_FOLDER);
             node.setProperties(IRepositoryNode.EProperties.LABEL, name);
             node.setProperties(IRepositoryNode.EProperties.CONTENT_TYPE, repositoryType);
             // todo: icon service.toEclipseIcon(index)

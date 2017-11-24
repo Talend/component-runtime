@@ -23,5 +23,5 @@ import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 
 public interface BuildGenerator {
     Build createBuild(ProjectRequest.BuildConfiguration buildConfiguration, String packageBase,
-                      Collection<Dependency> dependencies, Collection<String> facets);
+        Collection<Dependency> dependencies, Collection<String> facets);
 }

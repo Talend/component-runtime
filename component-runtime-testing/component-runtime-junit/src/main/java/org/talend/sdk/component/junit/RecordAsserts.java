@@ -35,7 +35,7 @@ public final class RecordAsserts implements Function<Iterable<Map<String, List<S
     private final Map<String, SerializableConsumer<List<? extends Serializable>>> validators = new HashMap<>();
 
     public <R extends Serializable> RecordAsserts withAsserts(final String outputName,
-            final SerializableConsumer<List<R>> validator) {
+        final SerializableConsumer<List<R>> validator) {
         validators.put(outputName, SerializableConsumer.class.cast(validator));
         return this;
     }
@@ -43,11 +43,13 @@ public final class RecordAsserts implements Function<Iterable<Map<String, List<S
     @Override
     public Void apply(final Iterable<Map<String, List<Serializable>>> input) {
         final Map<String, List<Serializable>> outputs = StreamSupport.stream(input.spliterator(), false)
-                .flatMap(m -> m.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue,
-                        (u1, u2) -> Stream.of(u1, u2).filter(Objects::nonNull).flatMap(Collection::stream).collect(toList())));
+            .flatMap(m -> m.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue,
+                (u1, u2) -> Stream.of(u1, u2).filter(Objects::nonNull).flatMap(Collection::stream).collect(toList())));
 
-        // if we want to validate some outputs which are not here it means the validation fails
-        // note: if we don't validate an output which is here it can means we don't care for current test so ignore the opposite
+        // if we want to validate some outputs which are not here it means the
+        // validation fails
+        // note: if we don't validate an output which is here it can means we don't care
+        // for current test so ignore the opposite
         // validation
         final Collection<String> missing = new HashSet<>(validators.keySet());
         missing.removeAll(outputs.keySet());

@@ -53,10 +53,10 @@ public class ConfigurableClassLoaderTest {
     public void childLoading() throws IOException {
         Stream.of(true, false).forEach(parentFirst -> {
             final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
-            try (final ConfigurableClassLoader loader = new ConfigurableClassLoader(
-                    new URL[] { new File(Constants.DEPENDENCIES_LOCATION, "org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar")
-                            .toURI().toURL() },
-                    parent, name -> true, name -> parentFirst, null)) {
+            try (final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[] {
+                new File(Constants.DEPENDENCIES_LOCATION, "org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar").toURI()
+                    .toURL() },
+                parent, name -> true, name -> parentFirst, null)) {
                 try {
                     loader.loadClass("org.apache.ziplock.JarLocation");
                 } catch (final ClassNotFoundException e) {
@@ -78,7 +78,7 @@ public class ConfigurableClassLoaderTest {
     public void parentFiltering() throws IOException {
         final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
         try (final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent,
-                name -> !ConfigurableClassLoaderTest.class.getName().equals(name), name -> true, null)) {
+            name -> !ConfigurableClassLoaderTest.class.getName().equals(name), name -> true, null)) {
             try {
                 loader.loadClass("org.talend.sdk.component.classloader.ConfigurableClassLoaderTest");
                 fail("ConfigurableClassLoaderTest shouldn't pass to parent");
@@ -98,14 +98,14 @@ public class ConfigurableClassLoaderTest {
     @Test
     public void nestedJars() throws IOException {
         final File nestedJar = createNestedJar("org.apache.tomee:ziplock:jar:7.0.3");
-        try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
-                Thread.currentThread().getContextClassLoader());
-                final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent, name -> true, name -> true,
-                        new String[] { "org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar" })) {
+        try (final URLClassLoader parent =
+            new URLClassLoader(new URL[] { nestedJar.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent, name -> true,
+                    name -> true, new String[] { "org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar" })) {
             try { // classes
                 final Class<?> aClass = loader.loadClass("org.apache.ziplock.JarLocation");
-                final Object jarLocation = aClass.getMethod("jarLocation", Class.class).invoke(null,
-                        ConfigurableClassLoaderTest.class);
+                final Object jarLocation =
+                    aClass.getMethod("jarLocation", Class.class).invoke(null, ConfigurableClassLoaderTest.class);
                 assertNotNull(jarLocation);
                 assertThat(jarLocation, instanceOf(File.class));
             } catch (final Exception e) {
@@ -120,8 +120,8 @@ public class ConfigurableClassLoaderTest {
                 assertNotNull(url);
                 assertEquals("nested", url.getProtocol());
                 assertEquals(
-                        "MAVEN-INF/repository/org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar!/org/apache/ziplock/JarLocation.class",
-                        url.getFile());
+                    "MAVEN-INF/repository/org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar!/org/apache/ziplock/JarLocation.class",
+                    url.getFile());
                 final byte[] bytes = slurp(url.openStream());
                 assertEquals(4394, bytes.length, mavenJarSizeMargin);
             }
@@ -146,9 +146,10 @@ public class ConfigurableClassLoaderTest {
 
     @Test
     public void noNestedJarsMissingResources() throws IOException {
-        try (final URLClassLoader parent = new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
-                final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent, name -> true, name -> true,
-                        new String[0])) {
+        try (final URLClassLoader parent =
+            new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader =
+                    new ConfigurableClassLoader(new URL[0], parent, name -> true, name -> true, new String[0])) {
 
             { // missing
                 assertNull(loader.getResource("a.missing"));
@@ -183,7 +184,7 @@ public class ConfigurableClassLoaderTest {
             Stream.of(deps).forEach(s -> {
                 final String[] segments = s.split(":");
                 final String path = "MAVEN-INF/repository/" + segments[0].replace(".", "/") + "/" + segments[1] + "/"
-                        + segments[3] + "/" + segments[1] + "-" + segments[3] + "." + segments[2];
+                    + segments[3] + "/" + segments[1] + "-" + segments[3] + "." + segments[2];
 
                 { // create folders for this m2 embedded deps
                     final String[] subPaths = path.split("/");
@@ -198,7 +199,8 @@ public class ConfigurableClassLoaderTest {
                     }
                 }
                 { // add the dep
-                    final File jar = new File(Constants.DEPENDENCIES_LOCATION, path.substring("MAVEN-INF/repository/".length()));
+                    final File jar =
+                        new File(Constants.DEPENDENCIES_LOCATION, path.substring("MAVEN-INF/repository/".length()));
                     try {
                         out.putNextEntry(new ZipEntry(path));
                         Files.copy(jar.toPath(), out);

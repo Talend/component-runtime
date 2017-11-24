@@ -25,12 +25,13 @@ import org.talend.sdk.component.api.configuration.type.DataSet;
 
 public class MethodsHolder {
 
-    public void primitives(@Option("url") final String url, @Option final String defaultName, @Option("port") final int port) {
+    public void primitives(@Option("url") final String url, @Option final String defaultName,
+        @Option("port") final int port) {
         // no-op
     }
 
     public void collections(@Option("urls") final List<String> urls, @Option("ports") final List<Integer> ports,
-            @Option("mapping") final Map<String, String> mapping) {
+        @Option("mapping") final Map<String, String> mapping) {
         // no-op
     }
 

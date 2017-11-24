@@ -31,7 +31,7 @@ public class Resources {
 
     public static String resourceFileToString(final String filePath) {
         try (final BufferedReader reader = new BufferedReader(
-                new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath)))) {
+            new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath)))) {
             return reader.lines().collect(joining("\n"));
         } catch (final IOException e) {
             fail(e.getMessage());

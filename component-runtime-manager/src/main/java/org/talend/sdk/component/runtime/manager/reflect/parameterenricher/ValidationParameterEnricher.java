@@ -36,19 +36,20 @@ public class ValidationParameterEnricher implements ParameterExtensionEnricher {
 
     @Override
     public Map<String, String> onParameterAnnotation(final String parameterName, final Type parameterType,
-            final Annotation annotation) {
+        final Annotation annotation) {
         final Class<?> asClass = toClass(parameterType);
         return ofNullable(annotation.annotationType().getAnnotation(Validations.class)).map(v -> Stream.of(v.value()))
-                .orElseGet(() -> ofNullable(annotation.annotationType().getAnnotation(Validation.class)).map(Stream::of)
-                        .orElseGet(Stream::empty))
-                .filter(v -> Stream.of(v.expectedTypes()).anyMatch(t -> asClass != null && t.isAssignableFrom(asClass))).findFirst()
-                .map(v -> singletonMap(META_PREFIX + v.name(), getValueString(annotation))).orElseGet(Collections::emptyMap);
+            .orElseGet(() -> ofNullable(annotation.annotationType().getAnnotation(Validation.class)).map(Stream::of)
+                .orElseGet(Stream::empty))
+            .filter(v -> Stream.of(v.expectedTypes()).anyMatch(t -> asClass != null && t.isAssignableFrom(asClass)))
+            .findFirst().map(v -> singletonMap(META_PREFIX + v.name(), getValueString(annotation)))
+            .orElseGet(Collections::emptyMap);
     }
 
     private Class<?> toClass(final Type parameterType) {
         return ParameterizedType.class.isInstance(parameterType)
-                ? toClass(ParameterizedType.class.cast(parameterType).getRawType())
-                : (Class.class.isInstance(parameterType) ? Class.class.cast(parameterType) : null);
+            ? toClass(ParameterizedType.class.cast(parameterType).getRawType())
+            : (Class.class.isInstance(parameterType) ? Class.class.cast(parameterType) : null);
     }
 
     private String getValueString(final Annotation annotation) {

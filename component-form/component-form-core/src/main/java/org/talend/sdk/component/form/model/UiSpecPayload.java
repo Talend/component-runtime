@@ -208,11 +208,11 @@ public class UiSpecPayload {
 
         @Override
         public String toString() {
-            return "JsonSchema{" + "title='" + title + '\'' + ", type='" + type + '\'' + ", minItems=" + minItems + ", maxItems="
-                    + maxItems + ", minLength=" + minLength + ", maxLength=" + maxLength + ", minimum=" + minimum + ", maximum="
-                    + maximum + ", uniqueItems=" + uniqueItems + ", pattern='" + pattern + '\'' + ", defaultValue='"
-                    + defaultValue + '\'' + ", required=" + required + ", properties=" + properties + ", enumValues=" + enumValues
-                    + '}';
+            return "JsonSchema{" + "title='" + title + '\'' + ", type='" + type + '\'' + ", minItems=" + minItems
+                + ", maxItems=" + maxItems + ", minLength=" + minLength + ", maxLength=" + maxLength + ", minimum="
+                + minimum + ", maximum=" + maximum + ", uniqueItems=" + uniqueItems + ", pattern='" + pattern + '\''
+                + ", defaultValue='" + defaultValue + '\'' + ", required=" + required + ", properties=" + properties
+                + ", enumValues=" + enumValues + '}';
         }
     }
 
@@ -370,10 +370,10 @@ public class UiSpecPayload {
 
         @Override
         public String toString() {
-            return "UiSchema{" + "widget='" + widget + '\'' + ", type='" + type + '\'' + ", options=" + options + ", " + "title='"
-                    + title + '\'' + ", key='" + key + '\'' + ", autoFocus=" + autoFocus + ", disabled=" + disabled
-                    + ", readOnly=" + readOnly + ", placeholder='" + placeholder + '\'' + ", triggers=" + triggers + ", items="
-                    + items + '}';
+            return "UiSchema{" + "widget='" + widget + '\'' + ", type='" + type + '\'' + ", options=" + options + ", "
+                + "title='" + title + '\'' + ", key='" + key + '\'' + ", autoFocus=" + autoFocus + ", disabled="
+                + disabled + ", readOnly=" + readOnly + ", placeholder='" + placeholder + '\'' + ", triggers="
+                + triggers + ", items=" + items + '}';
         }
     }
 
@@ -478,13 +478,13 @@ public class UiSpecPayload {
         @Override
         public String toString() {
             return "Trigger{" + "action='" + action + '\'' + ", family='" + family + '\'' + ", type='" + type + '\''
-                    + ", parameters=" + parameters + '}';
+                + ", parameters=" + parameters + '}';
         }
     }
 
     @Override
     public String toString() {
         return "UiSpecPayload{" + "jsonSchema=" + jsonSchema + ", uiSchema=" + uiSchema + ", properties=" + properties
-                + ", errors=" + errors + '}';
+            + ", errors=" + errors + '}';
     }
 }

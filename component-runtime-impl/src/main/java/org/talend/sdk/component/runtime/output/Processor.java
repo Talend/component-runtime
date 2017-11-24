@@ -21,8 +21,9 @@ public interface Processor extends Lifecycle {
 
     void beforeGroup();
 
-    // impl note: the output factory is mainly here for beam case, don't propagate it to the mainstream API
-    //            since it will never work in the studio with current generation logic
+    // impl note: the output factory is mainly here for beam case, don't propagate
+    // it to the mainstream API
+    // since it will never work in the studio with current generation logic
     void afterGroup(OutputFactory output);
 
     void onNext(InputFactory input, OutputFactory output);

@@ -54,7 +54,7 @@ public class ComponentProxy {
     @POST
     @Path("action")
     public UiActionResult action(@QueryParam("family") final String family, @QueryParam("type") final String type,
-            @QueryParam("action") final String action, final Map<String, Object> params) {
+        @QueryParam("action") final String action, final Map<String, Object> params) {
         try {
             return actionService.map(type, client.action(family, type, action, params));
         } catch (final WebException exception) {
@@ -68,15 +68,16 @@ public class ComponentProxy {
     public ComponentIndices getIndex(@QueryParam("language") @DefaultValue("en") final String language) {
         final ComponentIndices index = client.index(language);
         // our mapping is a bit different so rewrite links
-        index.getComponents().stream().flatMap(c -> c.getLinks().stream()).forEach(link -> link.setPath(
-                link.getPath().replaceFirst("\\/component\\/", "\\/proxy\\/").replace("/details?identifiers=", "/detail/")));
+        index.getComponents().stream().flatMap(c -> c.getLinks().stream()).forEach(link -> link.setPath(link.getPath()
+            .replaceFirst("\\/component\\/", "\\/proxy\\/").replace("/details?identifiers=", "/detail/")));
         return index;
     }
 
     @GET
-    @Path("detail/{id}") // bulk mode to avoid to fetch components one by one when reloading a pipeline/job
+    @Path("detail/{id}") // bulk mode to avoid to fetch components one by one when reloading a
+                         // pipeline/job
     public UiSpecPayload getDetail(@QueryParam("language") @DefaultValue("en") final String language,
-            @PathParam("id") final String id) {
+        @PathParam("id") final String id) {
         final List<ComponentDetail> details = client.details(language, id, new String[0]).getDetails();
         if (details.isEmpty()) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);

@@ -59,8 +59,8 @@ public class Unsafes {
         if (UNSAFE != null) {
             UNSAFE_DEFINE_CLASS = AccessController.doPrivileged((PrivilegedAction<Method>) () -> {
                 try {
-                    return unsafeClass.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class,
-                            ClassLoader.class, ProtectionDomain.class);
+                    return unsafeClass.getDeclaredMethod("defineClass", String.class, byte[].class, int.class,
+                        int.class, ClassLoader.class, ProtectionDomain.class);
                 } catch (Exception e) {
                     throw new IllegalStateException("Cannot get Unsafe.defineClass", e);
                 }
@@ -71,18 +71,20 @@ public class Unsafes {
     }
 
     /**
-     * The 'defineClass' method on the ClassLoader is private, thus we need to invoke it via reflection.
+     * The 'defineClass' method on the ClassLoader is private, thus we need to
+     * invoke it via reflection.
      *
      * @return the Class which got loaded in the classloader
      */
     public static <T> Class<T> defineAndLoadClass(final ClassLoader classLoader, final String proxyName,
-            final byte[] proxyBytes) {
+        final byte[] proxyBytes) {
         Class<?> clazz = classLoader.getClass();
 
         Method defineClassMethod = null;
         do {
             try {
-                defineClassMethod = clazz.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
+                defineClassMethod =
+                    clazz.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
             } catch (NoSuchMethodException e) {
                 // do nothing, we need to search the superclass
             }
@@ -102,10 +104,11 @@ public class Unsafes {
             Class<T> definedClass;
 
             if (defineClassMethod != null) {
-                definedClass = (Class<T>) defineClassMethod.invoke(classLoader, proxyName, proxyBytes, 0, proxyBytes.length);
+                definedClass =
+                    (Class<T>) defineClassMethod.invoke(classLoader, proxyName, proxyBytes, 0, proxyBytes.length);
             } else {
-                definedClass = (Class<T>) UNSAFE_DEFINE_CLASS.invoke(UNSAFE, proxyName, proxyBytes, 0, proxyBytes.length,
-                        classLoader, null);
+                definedClass = (Class<T>) UNSAFE_DEFINE_CLASS.invoke(UNSAFE, proxyName, proxyBytes, 0,
+                    proxyBytes.length, classLoader, null);
             }
 
             return (Class<T>) Class.forName(definedClass.getName(), true, classLoader);

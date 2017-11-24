@@ -15,13 +15,13 @@
  */
 package org.talend.sdk.component.studio.model.connector;
 
+import static java.util.stream.Collectors.toList;
 import static org.talend.core.model.process.EConnectionType.FLOW_MAIN;
 import static org.talend.core.model.process.EConnectionType.FLOW_MERGE;
 import static org.talend.core.model.process.EConnectionType.FLOW_REF;
 import static org.talend.core.model.process.EConnectionType.ITERATE;
 import static org.talend.core.model.process.EConnectionType.REJECT;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +36,7 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
  */
 public class OutputConnectorCreator extends AbstractConnectorCreator {
 
-    protected OutputConnectorCreator(ComponentDetail detail, INode node) {
+    protected OutputConnectorCreator(final ComponentDetail detail, final INode node) {
         super(detail, node);
     }
 
@@ -45,18 +45,16 @@ public class OutputConnectorCreator extends AbstractConnectorCreator {
      */
     @Override
     protected List<INodeConnector> createMainConnectors() {
-        List<INodeConnector> mains = new ArrayList<>();
-        detail.getInputFlows().stream() //
-                .filter(input -> FLOW_MAIN.equals(getType(input))) //
-                .forEach(input -> { //
-                    INodeConnector main = createConnector(getType(input), getName(input), node);
-                    main.setMaxLinkInput(1);
-                    main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
-                    main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
-                    mains.add(main);
-                    existingTypes.add(getType(input));
-                }); //
-        return mains;
+        return detail.getInputFlows().stream() //
+            .filter(input -> FLOW_MAIN.equals(getType(input))) //
+            .map(input -> { //
+                final INodeConnector main = createConnector(getType(input), getName(input), node);
+                main.setMaxLinkInput(1);
+                main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
+                main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
+                existingTypes.add(getType(input));
+                return main;
+            }).collect(toList());
     }
 
     /**
@@ -65,20 +63,21 @@ public class OutputConnectorCreator extends AbstractConnectorCreator {
     @Override
     protected Optional<INodeConnector> createRejectConnector() {
         return detail.getOutputFlows().stream() //
-                .filter(output -> REJECT.equals(getType(output))) //
-                .findFirst() //
-                .map(output -> { //
-                    INodeConnector reject = createConnector(getType(output), getName(output), node);
-                    reject.setMaxLinkOutput(1);
-                    reject.addConnectionProperty(EConnectionType.FLOW_MAIN, new RGB(255, 0, 0), 2);
-                    reject.getConnectionProperty(EConnectionType.FLOW_MAIN).setRGB(new RGB(255, 0, 0));
-                    existingTypes.add(getType(output));
-                    return reject;
-                }); //
+            .filter(output -> REJECT.equals(getType(output))) //
+            .findFirst() //
+            .map(output -> { //
+                INodeConnector reject = createConnector(getType(output), getName(output), node);
+                reject.setMaxLinkOutput(1);
+                reject.addConnectionProperty(EConnectionType.FLOW_MAIN, new RGB(255, 0, 0), 2);
+                reject.getConnectionProperty(EConnectionType.FLOW_MAIN).setRGB(new RGB(255, 0, 0));
+                existingTypes.add(getType(output));
+                return reject;
+            }); //
     }
 
     /**
-     * Output component has no incoming iterate connection and has infinite outgoing iterate connections
+     * Output component has no incoming iterate connection and has infinite outgoing
+     * iterate connections
      */
     @Override
     protected INodeConnector createIterateConnector() {

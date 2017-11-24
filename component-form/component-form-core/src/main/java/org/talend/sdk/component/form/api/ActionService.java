@@ -43,8 +43,8 @@ public class ActionService {
         actionResult.setRawData(exception.getData());
         // default error will be mapped to the calling option
         actionResult.setError(ofNullable(exception.getData())
-                .flatMap(d -> Stream.of("description", "comment").map(d::get).filter(Objects::nonNull).findFirst())
-                .map(String::valueOf).orElse(exception.getMessage()));
+            .flatMap(d -> Stream.of("description", "comment").map(d::get).filter(Objects::nonNull).findFirst())
+            .map(String::valueOf).orElse(exception.getMessage()));
         // actionResult.setErrors(singletonMap("field", actionResult.getError()));
         actionResult.setType(UiActionResult.UpdateType.TF_SET_PARTIAL_ERROR);
         return actionResult;

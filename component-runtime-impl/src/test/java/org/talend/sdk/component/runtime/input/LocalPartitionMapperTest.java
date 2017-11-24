@@ -49,8 +49,8 @@ public class LocalPartitionMapperTest {
 
     @Test
     public void serialization() throws IOException, ClassNotFoundException {
-        final LocalPartitionMapper mapper = Serializer
-                .roundTrip(new LocalPartitionMapper("Root", "Test", "Plugin", new Component()));
+        final LocalPartitionMapper mapper =
+            Serializer.roundTrip(new LocalPartitionMapper("Root", "Test", "Plugin", new Component()));
         assertEquals("Root", mapper.rootName());
         assertEquals("Test", mapper.name());
         assertEquals("Plugin", mapper.plugin());

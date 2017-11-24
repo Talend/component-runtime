@@ -31,12 +31,13 @@ import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 public class DesignContainerListener implements ContainerListenerExtension {
 
     /**
-     * Enriches {@link Container} with {@link DesignModel} and {@link RepositoryModel}
-     * It depends on Updater listener which adds {@link ContainerComponentRegistry} class to {@link Container}
+     * Enriches {@link Container} with {@link DesignModel} and
+     * {@link RepositoryModel} It depends on Updater listener which adds
+     * {@link ContainerComponentRegistry} class to {@link Container}
      */
     @Override
-    public void onCreate(Container container) {
-        ContainerComponentRegistry componentRegistry = container.get(ContainerComponentRegistry.class);
+    public void onCreate(final Container container) {
+        final ContainerComponentRegistry componentRegistry = container.get(ContainerComponentRegistry.class);
 
         //
 
@@ -44,33 +45,31 @@ public class DesignContainerListener implements ContainerListenerExtension {
             throw new IllegalArgumentException("container doesn't contain ContainerComponentRegistry");
         }
 
-        Collection<ComponentFamilyMeta> componentFamilyMetas = componentRegistry.getComponents().values();
+        final Collection<ComponentFamilyMeta> componentFamilyMetas = componentRegistry.getComponents().values();
 
-        //Create Design Model
+        // Create Design Model
         componentFamilyMetas.stream().flatMap(family -> Stream.concat( //
-                family.getPartitionMappers().values().stream(), //
-                family.getProcessors().values().stream())) //
-                            .forEach(meta -> {
-                                FlowsFactory factory = FlowsFactory.get(meta);
-                                meta.set(DesignModel.class,
-                                        new DesignModel( //
-                                                meta.getId(), //
-                                                factory.getInputFlows(), //
-                                                factory.getOutputFlows())); //
-                            });
+            family.getPartitionMappers().values().stream(), //
+            family.getProcessors().values().stream())) //
+            .forEach(meta -> {
+                FlowsFactory factory = FlowsFactory.get(meta);
+                meta.set(DesignModel.class, new DesignModel( //
+                    meta.getId(), //
+                    factory.getInputFlows(), //
+                    factory.getOutputFlows())); //
+            });
 
-        //Create Repository Model
-        container.set(RepositoryModel.class,
-                new RepositoryModelBuilder()
-                        .create(componentFamilyMetas));
+        // Create Repository Model
+        container.set(RepositoryModel.class, new RepositoryModelBuilder().create(componentFamilyMetas));
     }
 
     /**
-     * It relies on Updater listener onClose() method which removes all ComponentFamilyMeta from Container
-     * Thus, this listener has nothing to do on close
+     * It relies on Updater listener onClose() method which removes all
+     * ComponentFamilyMeta from Container Thus, this listener has nothing to do on
+     * close
      */
     @Override
-    public void onClose(Container container) {
+    public void onClose(final Container container) {
         // no-op
     }
 

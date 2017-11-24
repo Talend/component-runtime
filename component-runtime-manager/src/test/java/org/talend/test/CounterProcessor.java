@@ -29,7 +29,7 @@ public class CounterProcessor implements Serializable {
 
     @ElementListener
     public void length(final String data, @Output final OutputEmitter<Integer> main,
-            @Output("rejected") final OutputEmitter<String> rejects) {
+        @Output("rejected") final OutputEmitter<String> rejects) {
         if (data.contains("reject")) {
             rejects.emit(data);
         } else {

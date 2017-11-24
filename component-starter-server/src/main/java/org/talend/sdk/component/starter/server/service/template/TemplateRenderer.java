@@ -34,12 +34,10 @@ public class TemplateRenderer {
 
     public String render(final String template, final Object model) {
         return templates.computeIfAbsent(template, t -> {
-            try (final BufferedReader is = new BufferedReader(new InputStreamReader(
-                    Thread.currentThread().getContextClassLoader().getResourceAsStream(template)))) {
+            try (final BufferedReader is = new BufferedReader(
+                new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(template)))) {
                 final String content = is.lines().collect(joining("\n"));
-                return Mustache.compiler()
-                               .escapeHTML(false)
-                               .compile(content);
+                return Mustache.compiler().escapeHTML(false).compile(content);
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }

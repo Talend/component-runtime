@@ -54,7 +54,7 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     private transient Function<Long, Object[]> splitArgSupplier;
 
     public PartitionMapperImpl(final String rootName, final String name, final String inputName, final String plugin,
-            final boolean stream, final Serializable instance) {
+        final boolean stream, final Serializable instance) {
         super(instance, rootName, name, plugin);
         this.stream = stream;
         this.inputName = inputName;
@@ -73,14 +73,17 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     @Override
     public List<Mapper> split(final long desiredSize) {
         lazyInit();
-        return ((Collection<?>) doInvoke(split, splitArgSupplier.apply(desiredSize))).stream().map(Serializable.class::cast)
-                .map(mapper -> new PartitionMapperImpl(rootName(), name(), inputName, plugin(), stream, mapper)).collect(toList());
+        return ((Collection<?>) doInvoke(split, splitArgSupplier.apply(desiredSize))).stream()
+            .map(Serializable.class::cast)
+            .map(mapper -> new PartitionMapperImpl(rootName(), name(), inputName, plugin(), stream, mapper))
+            .collect(toList());
     }
 
     @Override
     public Input create() {
         lazyInit();
-        // note: we can surely mutualize/cache the reflection a bit here but let's wait to see it is useful before doing it,
+        // note: we can surely mutualize/cache the reflection a bit here but let's wait
+        // to see it is useful before doing it,
         // java 7/8 made enough progress to probably make it smooth OOTB
         return new InputImpl(rootName(), inputName, plugin(), Serializable.class.cast(doInvoke(inputFactory)));
     }
@@ -148,7 +151,7 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
 
         private Serializable loadDelegate() throws IOException, ClassNotFoundException {
             try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(value),
-                    ContainerFinder.Instance.get().find(plugin).classloader())) {
+                ContainerFinder.Instance.get().find(plugin).classloader())) {
                 return Serializable.class.cast(ois.readObject());
             }
         }

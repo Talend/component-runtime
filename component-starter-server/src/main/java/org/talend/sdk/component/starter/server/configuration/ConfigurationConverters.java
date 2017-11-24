@@ -39,10 +39,7 @@ public class ConfigurationConverters {
             if (value == null) {
                 return emptySet();
             }
-            return Stream.of(value.split(";"))
-                         .map(String::trim)
-                         .filter(s -> !s.isEmpty())
-                         .collect(toSet());
+            return Stream.of(value.split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(toSet());
         }
     }
 

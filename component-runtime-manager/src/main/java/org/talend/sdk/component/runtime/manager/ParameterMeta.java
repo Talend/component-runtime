@@ -66,7 +66,7 @@ public class ParameterMeta {
 
     public ParameterBundle findBundle(final ClassLoader loader, final Locale locale) {
         final Class<?> type = of(javaType).filter(Class.class::isInstance).map(Class.class::cast)
-                .filter(c -> !c.getName().startsWith("java.")).orElse(null);
+            .filter(c -> !c.getName().startsWith("java.")).orElse(null);
         final String packageName = ofNullable(type).map(Class::getPackage).map(Package::getName).orElse(i18nPackage);
         return bundles.computeIfAbsent(locale, l -> {
             try {
@@ -76,7 +76,7 @@ public class ParameterMeta {
                 return new ParameterBundle(bundle, path + '.');
             } catch (final MissingResourceException mre) {
                 log.warn("No bundle for " + packageName + " (" + ParameterMeta.this
-                        + "), means the display names will be the technical names");
+                    + "), means the display names will be the technical names");
                 log.debug(mre.getMessage(), mre);
                 return NO_PARAMETER_BUNDLE;
             }
@@ -84,11 +84,6 @@ public class ParameterMeta {
     }
 
     public enum Type {
-        OBJECT,
-        ARRAY,
-        BOOLEAN,
-        STRING,
-        NUMBER,
-        ENUM
+                      OBJECT, ARRAY, BOOLEAN, STRING, NUMBER, ENUM
     }
 }

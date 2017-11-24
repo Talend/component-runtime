@@ -46,11 +46,13 @@ public class TaCoKitGenericProvider implements IGenericProvider {
 
         final WebSocketClient client = Lookups.client();
         // TODO How to check isEmpty() now?
-//        final ComponentIndices indices = client.v1().component().getIndex(Locale.getDefault().getLanguage());
-//        if (indices.getComponents().isEmpty()) {
-//            return;
-//        }
-        Stream<Pair<ComponentIndex, ComponentDetail>> details = client.v1().component().details(Locale.getDefault().getLanguage());
+        // final ComponentIndices indices =
+        // client.v1().component().getIndex(Locale.getDefault().getLanguage());
+        // if (indices.getComponents().isEmpty()) {
+        // return;
+        // }
+        Stream<Pair<ComponentIndex, ComponentDetail>> details =
+            client.v1().component().details(Locale.getDefault().getLanguage());
 
         final ComponentService service = Lookups.service();
         final IComponentsFactory factory = ComponentsFactoryProvider.getInstance();

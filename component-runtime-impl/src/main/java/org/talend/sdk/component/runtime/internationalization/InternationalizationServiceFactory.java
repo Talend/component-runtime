@@ -43,16 +43,16 @@ public class InternationalizationServiceFactory {
             throw new IllegalArgumentException(api + " is not an interface");
         }
         if (Stream.of(api.getMethods()).filter(m -> m.getDeclaringClass() != Object.class)
-                .anyMatch(m -> m.getReturnType() != String.class)) {
+            .anyMatch(m -> m.getReturnType() != String.class)) {
             throw new IllegalArgumentException(api + " methods must return a String");
         }
         if (Stream.of(api.getMethods()).flatMap(m -> Stream.of(m.getParameters()))
-                .anyMatch(p -> p.isAnnotationPresent(Language.class) && p.getType() != Locale.class)) {
+            .anyMatch(p -> p.isAnnotationPresent(Language.class) && p.getType() != Locale.class)) {
             throw new IllegalArgumentException("@Language can only be used with Locales");
         }
         final String pck = api.getPackage().getName();
-        return api.cast(Proxy.newProxyInstance(loader, new Class<?>[] { api }, new InternationalizedHandler(api.getName() + '.',
-                (pck == null || pck.isEmpty() ? "" : (pck + '.')) + "Messages")));
+        return api.cast(Proxy.newProxyInstance(loader, new Class<?>[] { api }, new InternationalizedHandler(
+            api.getName() + '.', (pck == null || pck.isEmpty() ? "" : (pck + '.')) + "Messages")));
     }
 
     @RequiredArgsConstructor
@@ -74,7 +74,7 @@ public class InternationalizationServiceFactory {
                 switch (method.getName()) {
                 case "equals":
                     return args != null && args.length == 1 && method.getDeclaringClass().isInstance(args[0])
-                            && Proxy.isProxyClass(args[0].getClass()) && this == Proxy.getInvocationHandler(args[0]);
+                        && Proxy.isProxyClass(args[0].getClass()) && this == Proxy.getInvocationHandler(args[0]);
                 case "hashCode":
                     return hashCode();
                 default:
@@ -87,10 +87,11 @@ public class InternationalizationServiceFactory {
             }
 
             final MethodMeta methodMeta = methods.computeIfAbsent(method,
-                    m -> new MethodMeta(createLocaleExtractor(m), createParameterFactory(m)));
+                m -> new MethodMeta(createLocaleExtractor(m), createParameterFactory(m)));
             final Locale locale = methodMeta.localeExtractor.apply(args);
             final String template = getTemplate(locale, method);
-            // note: if we need we could pool message formats but not sure we'll abuse of it that much at runtime yet
+            // note: if we need we could pool message formats but not sure we'll abuse of it
+            // that much at runtime yet
             return new MessageFormat(template, locale).format(methodMeta.parameterFactory.apply(args));
         }
 

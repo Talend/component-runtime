@@ -42,8 +42,8 @@ public class ResolverImpl implements Resolver, Serializable {
     @Override
     public Collection<File> resolveFromDescriptor(final InputStream descriptor) {
         try {
-            return new MvnDependencyListLocalRepositoryResolver(null).resolveFromDescriptor(descriptor).map(fileResolver)
-                    .collect(toList());
+            return new MvnDependencyListLocalRepositoryResolver(null).resolveFromDescriptor(descriptor)
+                .map(fileResolver).collect(toList());
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }

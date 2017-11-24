@@ -21,4 +21,5 @@ import javax.ws.rs.core.Application;
 
 @Dependent
 @ApplicationPath("api")
-public class StarterApplication extends Application {}
+public class StarterApplication extends Application {
+}

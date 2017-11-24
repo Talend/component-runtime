@@ -18,34 +18,43 @@ package org.talend.sdk.component.spi.component;
 /**
  * Provide a way to interact with component scanning and metadata extraction.
  *
- * Note: it requires to use org.talend.sdk.component.runtime.manager.ComponentManager to be activated.
+ * Note: it requires to use
+ * org.talend.sdk.component.runtime.manager.ComponentManager to be activated.
  */
 public interface ComponentExtension {
 
     /**
-     * @param context the component context allowing to interact with the container.
+     * @param context
+     *            the component context allowing to interact with the container.
      */
     void onComponent(ComponentContext context);
 
     /**
-     * @param componentType the expected framework component type (can be Mapper or Processor).
-     * @return true if convert can be used for that kind of component, false otherwise.
+     * @param componentType
+     *            the expected framework component type (can be Mapper or
+     *            Processor).
+     * @return true if convert can be used for that kind of component, false
+     *         otherwise.
      */
     boolean supports(Class<?> componentType);
 
     /**
      * Note: you can assume supports() was called before going into this method.
      *
-     * @param instance the instantiated component (native instance).
-     * @param component the expected framework component type (can be Mapper or Processor).
-     * @param <T> the generic matching component parameter.
+     * @param instance
+     *            the instantiated component (native instance).
+     * @param component
+     *            the expected framework component type (can be Mapper or
+     *            Processor).
+     * @param <T>
+     *            the generic matching component parameter.
      * @return an instance of component.
      */
     <T> T convert(ComponentInstance instance, Class<T> component);
 
     /**
-     * This is the handle giving the extension information about the component being processed
-     * and allowing to interact with the container lifecycle.
+     * This is the handle giving the extension information about the component being
+     * processed and allowing to interact with the container lifecycle.
      */
     interface ComponentInstance {
 
@@ -71,8 +80,8 @@ public interface ComponentExtension {
     }
 
     /**
-     * This is the handle giving the extension information about the component being processed
-     * and allowing to interact with the container lifecycle.
+     * This is the handle giving the extension information about the component being
+     * processed and allowing to interact with the container lifecycle.
      */
     interface ComponentContext {
 
@@ -82,9 +91,10 @@ public interface ComponentExtension {
         Class<?> getType();
 
         /**
-         * will prevent the component to be usable with findMapper()/findProcessor()
-         * but will also deactivate the associated validation so you can use @PartitionMapper
-         * and @Processor for another runtime than the framework default one.
+         * will prevent the component to be usable with findMapper()/findProcessor() but
+         * will also deactivate the associated validation so you can
+         * use @PartitionMapper and @Processor for another runtime than the framework
+         * default one.
          */
         void skipValidation();
     }

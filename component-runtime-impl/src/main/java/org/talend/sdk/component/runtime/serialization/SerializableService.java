@@ -34,9 +34,9 @@ public class SerializableService implements Serializable {
         final LightContainer container = containerFinder.find(plugin);
         try {
             return ofNullable(container.findService(container.classloader().loadClass(type)))
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Didn't find service " + type + ", ensure a ContainerFinder is setup (current=" + containerFinder
-                                    + ") and " + type + " is registered as a @Service in " + plugin));
+                .orElseThrow(() -> new IllegalStateException(
+                    "Didn't find service " + type + ", ensure a ContainerFinder is setup (current=" + containerFinder
+                        + ") and " + type + " is registered as a @Service in " + plugin));
         } catch (final ClassNotFoundException e) {
             throw new IllegalArgumentException(type + " not found");
         }

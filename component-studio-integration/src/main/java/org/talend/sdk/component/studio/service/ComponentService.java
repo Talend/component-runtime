@@ -37,7 +37,8 @@ public class ComponentService {
     private volatile Boolean linux;
 
     // a @ConfigurationType is directly stored into the metadata without any prefix.
-    // for now whitelist the support types and ensure it works all the way along before just checking it doesn't contain "::"
+    // for now whitelist the support types and ensure it works all the way along
+    // before just checking it doesn't contain "::"
     public boolean isConfiguration(final SimplePropertyDefinition prop) {
         return prop.getMetadata().containsKey("dataset") || prop.getMetadata().containsKey("datastore");
     }
@@ -46,7 +47,7 @@ public class ComponentService {
         if (componentIcon == null) {
             return DEFAULT_IMAGE;
         }
-        
+
         // component-server return byte[] for both: custom icon and preinstalled
         if (componentIcon.getCustomIcon() != null) {
             try (final InputStream in = new ByteArrayInputStream(componentIcon.getCustomIcon())) {
@@ -54,14 +55,14 @@ public class ComponentService {
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }
-        // TODO deadcode. Remove it
+            // TODO deadcode. Remove it
         } else {
 
             final ClassLoader loader = ComponentModel.class.getClassLoader();
             final String icon = componentIcon.getIcon();
-            return Stream.of(icon + "_icon32.png", "icons/" + icon + "_icon32.png").map(pattern -> String.format(pattern, icon))
-                         .map(loader::getResourceAsStream).filter(Objects::nonNull).findFirst()
-                         .map(in -> ImageDescriptor.createFromImageData(new ImageData(in))).orElse(DEFAULT_IMAGE);
+            return Stream.of(icon + "_icon32.png", "icons/" + icon + "_icon32.png")
+                .map(pattern -> String.format(pattern, icon)).map(loader::getResourceAsStream).filter(Objects::nonNull)
+                .findFirst().map(in -> ImageDescriptor.createFromImageData(new ImageData(in))).orElse(DEFAULT_IMAGE);
         }
     }
 

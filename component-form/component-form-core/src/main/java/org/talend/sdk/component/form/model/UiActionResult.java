@@ -92,11 +92,7 @@ public class UiActionResult {
     }
 
     public enum UpdateType {
-        TF_UPDATE_FORM_DATA,
-        TF_SET_ALL_ERRORS,
-        TF_SET_PARTIAL_ERROR,
-        TF_CREATE_FORM,
-        TF_REMOVE_FORM,
-        TF_UPDATE_FORM
+                            TF_UPDATE_FORM_DATA, TF_SET_ALL_ERRORS, TF_SET_PARTIAL_ERROR, TF_CREATE_FORM,
+                            TF_REMOVE_FORM, TF_UPDATE_FORM
     }
 }

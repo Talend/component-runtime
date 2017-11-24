@@ -44,7 +44,8 @@ public class ContainerMBean implements DynamicMBean {
     private MBeanInfo info;
 
     @Override
-    public Object getAttribute(final String attribute) throws AttributeNotFoundException, MBeanException, ReflectionException {
+    public Object getAttribute(final String attribute)
+        throws AttributeNotFoundException, MBeanException, ReflectionException {
         if (attribute == null) {
             throw new IllegalArgumentException("Attribute name can't be null");
         }
@@ -75,7 +76,7 @@ public class ContainerMBean implements DynamicMBean {
 
     @Override
     public void setAttribute(final Attribute attribute)
-            throws AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException {
+        throws AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException {
         throw new AttributeNotFoundException();
     }
 
@@ -86,7 +87,7 @@ public class ContainerMBean implements DynamicMBean {
 
     @Override
     public Object invoke(final String actionName, final Object[] params, final String[] signature)
-            throws MBeanException, ReflectionException {
+        throws MBeanException, ReflectionException {
         if (actionName == null) {
             throw new IllegalArgumentException("Action can't be null");
         }
@@ -102,16 +103,17 @@ public class ContainerMBean implements DynamicMBean {
 
     @Override
     public MBeanInfo getMBeanInfo() {
-        return info == null ? (info = new MBeanInfo(ContainerMBean.class.getName(), "MBean for container " + delegate.getId(),
-                new MBeanAttributeInfo[] {
-                        new MBeanAttributeInfo("closed", boolean.class.getName(), "Is the container already closed", true, false,
-                                false),
-                        new MBeanAttributeInfo(
-                                "created", Date.class.getName(), "When was the container created", true, false, false) },
-                new MBeanConstructorInfo[0],
-                new MBeanOperationInfo[] { new MBeanOperationInfo("reload",
-                        "Reloads the container (ie stops it, recreates the classloader from the same files and starts it. Allows to kind of hot reload a plugin.",
-                        new MBeanParameterInfo[0], void.class.getName(), MBeanOperationInfo.ACTION) },
-                new MBeanNotificationInfo[0])) : info;
+        return info == null ? (info = new MBeanInfo(ContainerMBean.class.getName(),
+            "MBean for container " + delegate.getId(),
+            new MBeanAttributeInfo[] {
+                new MBeanAttributeInfo("closed", boolean.class.getName(), "Is the container already closed", true,
+                    false, false),
+                new MBeanAttributeInfo(
+                    "created", Date.class.getName(), "When was the container created", true, false, false) },
+            new MBeanConstructorInfo[0],
+            new MBeanOperationInfo[] { new MBeanOperationInfo("reload",
+                "Reloads the container (ie stops it, recreates the classloader from the same files and starts it. Allows to kind of hot reload a plugin.",
+                new MBeanParameterInfo[0], void.class.getName(), MBeanOperationInfo.ACTION) },
+            new MBeanNotificationInfo[0])) : info;
     }
 }

@@ -26,11 +26,13 @@ public interface ParameterExtensionEnricher {
 
     /**
      * Visit all annotations of an object parameter and return for each annotation
-     * the related extensions. Note it is highly recommanded even if not enforced
-     * to use a prefix by extension type.
+     * the related extensions. Note it is highly recommanded even if not enforced to
+     * use a prefix by extension type.
      *
-     * @param parameterName the name of the parameter currently visited.
-     * @param annotation the currently visited annotation.
+     * @param parameterName
+     *            the name of the parameter currently visited.
+     * @param annotation
+     *            the currently visited annotation.
      * @return the extensions to add for this parameter.
      */
     Map<String, String> onParameterAnnotation(String parameterName, Type parameterType, Annotation annotation);

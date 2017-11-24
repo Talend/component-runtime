@@ -68,9 +68,9 @@ public class ModelVisitor {
 
     private void validatePartitionMapper(final Class<?> type) {
         if (Stream.of(type.getMethods()).filter(m -> getPartitionMapperMethods().anyMatch(m::isAnnotationPresent))
-                .flatMap(m -> getPartitionMapperMethods().filter(m::isAnnotationPresent)).distinct().count() != 3) {
+            .flatMap(m -> getPartitionMapperMethods().filter(m::isAnnotationPresent)).distinct().count() != 3) {
             throw new IllegalArgumentException(
-                    type + " partition mapper must have exactly one @Assessor, one @Split and one @Emitter methods");
+                type + " partition mapper must have exactly one @Assessor, one @Split and one @Emitter methods");
         }
 
         //
@@ -83,10 +83,10 @@ public class ModelVisitor {
             }
         });
         Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(Split.class)).forEach(m -> {
-            // for now we could inject it by default but to ensure we can inject more later we must do that validation
-            if (Stream.of(m.getParameters()).filter(
-                    p -> !p.isAnnotationPresent(PartitionSize.class) || (p.getType() != long.class && p.getType() != int.class))
-                    .count() > 0) {
+            // for now we could inject it by default but to ensure we can inject more later
+            // we must do that validation
+            if (Stream.of(m.getParameters()).filter(p -> !p.isAnnotationPresent(PartitionSize.class)
+                || (p.getType() != long.class && p.getType() != int.class)).count() > 0) {
                 throw new IllegalArgumentException(m + " must not have any parameter without @PartitionSize");
             }
             final Type splitReturnType = m.getGenericReturnType();
@@ -96,17 +96,19 @@ public class ModelVisitor {
 
             final ParameterizedType splitPt = ParameterizedType.class.cast(splitReturnType);
             if (!Class.class.isInstance(splitPt.getRawType())
-                    || !Collection.class.isAssignableFrom(Class.class.cast(splitPt.getRawType()))) {
+                || !Collection.class.isAssignableFrom(Class.class.cast(splitPt.getRawType()))) {
                 throw new IllegalArgumentException(m + " must return a List of partition mapper, found: " + splitPt);
             }
 
             final Type arg = splitPt.getActualTypeArguments().length != 1 ? null : splitPt.getActualTypeArguments()[0];
             if (!Class.class.isInstance(arg) || !type.isAssignableFrom(Class.class.cast(arg))) {
-                throw new IllegalArgumentException(m + " must return a Collection<" + type.getName() + "> but found: " + arg);
+                throw new IllegalArgumentException(
+                    m + " must return a Collection<" + type.getName() + "> but found: " + arg);
             }
         });
         Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(Emitter.class)).forEach(m -> {
-            // for now we don't support injection propagation since the mapper should already own all the config
+            // for now we don't support injection propagation since the mapper should
+            // already own all the config
             if (m.getParameterCount() > 0) {
                 throw new IllegalArgumentException(m + " must not have any parameter");
             }
@@ -114,8 +116,8 @@ public class ModelVisitor {
     }
 
     private void validateEmitter(final Class<?> input) {
-        final List<Method> producers = Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(Producer.class))
-                .collect(toList());
+        final List<Method> producers =
+            Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(Producer.class)).collect(toList());
         if (producers.size() != 1) {
             throw new IllegalArgumentException(input + " must have a single @Producer method");
         }
@@ -126,8 +128,8 @@ public class ModelVisitor {
     }
 
     private void validateProcessor(final Class<?> input) {
-        final List<Method> producers = Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class))
-                .collect(toList());
+        final List<Method> producers =
+            Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).collect(toList());
         if (producers.size() != 1) {
             throw new IllegalArgumentException(input + " must have a single @ElementListener method");
         }
@@ -149,11 +151,12 @@ public class ModelVisitor {
         }
 
         Stream.of(input.getMethods())
-                .filter(m -> m.isAnnotationPresent(BeforeGroup.class) || m.isAnnotationPresent(AfterGroup.class)).forEach(m -> {
-                    if (m.getParameterCount() > 0) {
-                        throw new IllegalArgumentException(m + " must not have any parameter");
-                    }
-                });
+            .filter(m -> m.isAnnotationPresent(BeforeGroup.class) || m.isAnnotationPresent(AfterGroup.class))
+            .forEach(m -> {
+                if (m.getParameterCount() > 0) {
+                    throw new IllegalArgumentException(m + " must not have any parameter");
+                }
+            });
     }
 
     private Stream<Class<? extends Annotation>> getPartitionMapperMethods() {

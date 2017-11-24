@@ -101,7 +101,8 @@ final class Icons {
 
             @Override
             public void writeImage(final BufferedImage img, final TranscoderOutput output) throws TranscoderException {
-                // otherwise all web icon are just plain black and studio ignores the alpha in its
+                // otherwise all web icon are just plain black and studio ignores the alpha in
+                // its
                 // md5 cache key so we just get only one icon
                 forceRGBBasedOnAlpha(img);
                 super.writeImage(img, output);

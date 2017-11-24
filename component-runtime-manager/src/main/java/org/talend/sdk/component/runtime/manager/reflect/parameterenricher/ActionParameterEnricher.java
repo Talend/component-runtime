@@ -37,7 +37,7 @@ public class ActionParameterEnricher implements ParameterExtensionEnricher {
 
     @Override
     public Map<String, String> onParameterAnnotation(final String parameterName, final Type parameterType,
-            final Annotation annotation) {
+        final Annotation annotation) {
         final ActionRef ref = annotation.annotationType().getAnnotation(ActionRef.class);
         if (ref == null) {
             return emptyMap();
@@ -63,7 +63,8 @@ public class ActionParameterEnricher implements ParameterExtensionEnricher {
 
     private String getBinding(final Annotation annotation) {
         try {
-            return Discoverable.Binding.class.cast(annotation.annotationType().getMethod("binding").invoke(annotation)).name();
+            return Discoverable.Binding.class.cast(annotation.annotationType().getMethod("binding").invoke(annotation))
+                .name();
         } catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return null;
         }
@@ -71,8 +72,9 @@ public class ActionParameterEnricher implements ParameterExtensionEnricher {
 
     private String getParametersString(final Annotation annotation) {
         try {
-            return Stream.of(String[].class.cast(annotation.annotationType().getMethod("parameters").invoke(annotation)))
-                    .collect(Collectors.joining(","));
+            return Stream
+                .of(String[].class.cast(annotation.annotationType().getMethod("parameters").invoke(annotation)))
+                .collect(Collectors.joining(","));
         } catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return null;
         }

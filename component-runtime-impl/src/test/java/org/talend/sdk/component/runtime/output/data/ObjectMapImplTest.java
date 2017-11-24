@@ -40,8 +40,8 @@ import lombok.EqualsAndHashCode;
 public class ObjectMapImplTest {
 
     private final ObjectMap map = new ObjectMapImpl(null,
-            new Person(new Address("here"), singleton(new Address("other")), 30, "tester", asList("t1", "t2")),
-            new AccessorCache("null"));
+        new Person(new Address("here"), singleton(new Address("other")), 30, "tester", asList("t1", "t2")),
+        new AccessorCache("null"));
 
     @Test
     public void any() {

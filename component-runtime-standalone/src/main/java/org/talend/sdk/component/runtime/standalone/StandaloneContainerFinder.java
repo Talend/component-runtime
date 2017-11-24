@@ -26,8 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 // NOTE: ensure it is aligned with the components, this is hardcoded cause must be standard!
 
 /**
- * a {@link org.talend.sdk.component.runtime.serialization.ContainerFinder} which will starts and manage a
- * single {@link ComponentManager} for the JVM (root classloader actually) life.
+ * a {@link org.talend.sdk.component.runtime.serialization.ContainerFinder}
+ * which will starts and manage a single {@link ComponentManager} for the JVM
+ * (root classloader actually) life.
  */
 @Slf4j
 public class StandaloneContainerFinder extends TCCLContainerFinder {
@@ -38,8 +39,10 @@ public class StandaloneContainerFinder extends TCCLContainerFinder {
         return ofNullable(manager.findPlugin(plugin).orElseGet(() -> {
             log.info("Didn't find plugin " + plugin + ", had: " + manager.availablePlugins());
 
-            // we assume we use a fatjar created with nested-maven-repository extensions (default nested loading)
-            // so we have the plugin in TALEND-INF/plugins.properties and the jar located as nested in current jar.
+            // we assume we use a fatjar created with nested-maven-repository extensions
+            // (default nested loading)
+            // so we have the plugin in TALEND-INF/plugins.properties and the jar located as
+            // nested in current jar.
             try {
                 return manager.findPlugin(manager.addPlugin(plugin)).orElse(null);
             } catch (final IllegalArgumentException iae) { // concurrent request?

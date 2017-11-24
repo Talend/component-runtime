@@ -29,10 +29,12 @@ public class ConfigurationTypeParameterEnricherTest {
     @Test
     public void readConfigTypes() {
         final ConfigurationTypeParameterEnricher enricher = new ConfigurationTypeParameterEnricher();
-        assertEquals(new HashMap<String, String>() {{
-            put("tcomp::configurationtype::type", "dataset");
-            put("tcomp::configurationtype::name", "test");
-        }}, enricher.onParameterAnnotation("testParam", null, new DataSet() {
+        assertEquals(new HashMap<String, String>() {
+            {
+                put("tcomp::configurationtype::type", "dataset");
+                put("tcomp::configurationtype::name", "test");
+            }
+        }, enricher.onParameterAnnotation("testParam", null, new DataSet() {
 
             @Override
             public Class<? extends Annotation> annotationType() {

@@ -114,8 +114,8 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
         if (Map.class.isAssignableFrom(inputClass)) {
             final Map<String, ?> mappedMap = mapToIR(Map.class.cast(input), visited);
             final SchemaBuilder.TypeBuilder<Schema> rootBuilder = SchemaBuilder.builder();
-            final SchemaBuilder.FieldAssembler<Schema> builder = rootBuilder.record("talend.dynamic.Map")
-                    .prop(SpecificData.CLASS_PROP, "java.util.HashMap").fields();
+            final SchemaBuilder.FieldAssembler<Schema> builder =
+                rootBuilder.record("talend.dynamic.Map").prop(SpecificData.CLASS_PROP, "java.util.HashMap").fields();
             mappedMap.forEach((k, v) -> toAvroField(k, v.getClass(), new HashMap<>(), builder, rootBuilder));
             final GenericData.Record record = new GenericData.Record(builder.endRecord());
             visited.put(input, record);
@@ -128,17 +128,16 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
             final Object first = collection.isEmpty() ? null : collection.iterator().next();
             if (first == null) {
                 return new GenericData.Array<>(0, Schema.createArray(SchemaBuilder.builder().record("empty_record")
-                        .prop(SpecificData.CLASS_PROP, "java.lang.Object").fields().endRecord()));
+                    .prop(SpecificData.CLASS_PROP, "java.lang.Object").fields().endRecord()));
             }
             final SchemaBuilder.TypeBuilder<Schema> rootBuilder = SchemaBuilder.builder();
             final Class<?> itemType = first.getClass();
-            final SchemaBuilder.FieldAssembler<Schema> builder = rootBuilder.record(toAvroRecordName(itemType))
-                    .prop(SpecificData.CLASS_PROP, itemType
+            final SchemaBuilder.FieldAssembler<Schema> builder =
+                rootBuilder.record(toAvroRecordName(itemType)).prop(SpecificData.CLASS_PROP, itemType
 
-                            .getName())
-                    .fields();
+                    .getName()).fields();
             final GenericData.Array array = new GenericData.Array<>(collection.size(),
-                    Schema.createArray(computeMeta(itemType, new HashMap<>(), builder, rootBuilder).schema));
+                Schema.createArray(computeMeta(itemType, new HashMap<>(), builder, rootBuilder).schema));
             collection.forEach(o -> {
                 final Object item = doMap(o, visited);
                 array.add(item);
@@ -150,7 +149,8 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
         final Meta meta = getMeta(type);
         Schema schema = meta.schema;
         if (meta.hasAny) {
-            // dynamic, need to create the schema each time - todo: add a @Any(static = true) to be able to cache it as well
+            // dynamic, need to create the schema each time - todo: add a @Any(static =
+            // true) to be able to cache it as well
             schema = createDynamicMapSchema(input, meta, schema);
         }
 
@@ -163,7 +163,8 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
                     continue;
                 }
 
-                if (fm.any) { // here we are safe since we already updated the schema to support it so just assume schema is ready
+                if (fm.any) { // here we are safe since we already updated the schema to support it so just
+                              // assume schema is ready
                     final Map<String, ?> values = Map.class.cast(value);
                     if (values == null) {
                         continue;
@@ -185,7 +186,8 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
                         if (array.isEmpty() || !IndexedRecord.class.isInstance(array.get(0))) {
                             record.put(fm.avroField.pos(), doMap(value, visited));
                         } else {
-                            record.put(fm.avroField.pos(), array.stream().map(o -> doMap(o, visited)).collect(toList()));
+                            record.put(fm.avroField.pos(),
+                                array.stream().map(o -> doMap(o, visited)).collect(toList()));
                         }
                     } else {
                         record.put(fm.avroField.pos(), doMap(value, visited));
@@ -202,9 +204,9 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
 
     private Schema createDynamicMapSchema(final Object input, final Meta meta, final Schema schema) {
         final SchemaBuilder.TypeBuilder<Schema> rootBuilder = SchemaBuilder.builder();
-        final SchemaBuilder.FieldAssembler<Schema> builder = rootBuilder.record(schema.getName())
-                .prop(SpecificData.CLASS_PROP, input.getClass().getName()).namespace(schema.getNamespace()).doc(schema.getDoc())
-                .fields();
+        final SchemaBuilder.FieldAssembler<Schema> builder =
+            rootBuilder.record(schema.getName()).prop(SpecificData.CLASS_PROP, input.getClass().getName())
+                .namespace(schema.getNamespace()).doc(schema.getDoc()).fields();
         for (final FieldMeta fm : meta.fields.values()) {
             try {
                 if (!fm.any) {
@@ -232,12 +234,15 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
 
         final Class<?> inputClass = input.getClass();
         if (Map.class.isAssignableFrom(inputClass)) {
-            // todo: add in component a @StaticModel (like in groovy for instance) to compute once the model
+            // todo: add in component a @StaticModel (like in groovy for instance) to
+            // compute once the model
 
-            // for now always compute a new schema - perf are bad but we'll enhance it later if needed
+            // for now always compute a new schema - perf are bad but we'll enhance it later
+            // if needed
             // here we have 2 cases:
             // 1. the map is strongly typed (generics) -> compute a static model
-            // 2. the map is loosely typed (<String, Object> for instance) -> stay dynamic and slow
+            // 2. the map is loosely typed (<String, Object> for instance) -> stay dynamic
+            // and slow
 
             final Type map = Stream.of(inputClass.getGenericInterfaces()).filter(t -> {
                 if (!ParameterizedType.class.isInstance(t)) {
@@ -248,10 +253,11 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
             }).findFirst().orElse(null);
 
             final Map<?, ?> asMap = Map.class.cast(input);
-            if (map != null) { // todo: check org.apache.avro.reflect.ReflectData.createSchema() out to support more cases
+            if (map != null) { // todo: check org.apache.avro.reflect.ReflectData.createSchema() out to support
+                               // more cases
                 final ParameterizedType pt = ParameterizedType.class.cast(map);
                 if (pt.getActualTypeArguments().length == 2 && Class.class.isInstance(pt.getActualTypeArguments()[0])
-                        && Class.class.isInstance(pt.getActualTypeArguments()[1])) {
+                    && Class.class.isInstance(pt.getActualTypeArguments()[1])) {
                     final Class<?> key = Class.class.cast(pt.getActualTypeArguments()[0]);
                     if (key != String.class) {
                         throw new IllegalArgumentException("Map keys can only be string for now, found: " + key);
@@ -282,22 +288,23 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
         if (!asMap.keySet().stream().allMatch(String.class::isInstance)) {
             throw new IllegalArgumentException("Only Map<String, ?> are supported, got " + input);
         }
-        final Optional<? extends Class<?>> valueType = asMap.values().stream().map(Object::getClass).reduce((t1, t2) -> {
-            if (t1 == Object.class) {
-                return t2;
-            }
-            if (t2 == Object.class) {
-                return t1;
-            }
-            if (t1.isAssignableFrom(t2)) {
-                return t2;
-            }
-            if (t2.isAssignableFrom(t1)) {
-                return t1;
-            }
-            throw new IllegalArgumentException(
+        final Optional<? extends Class<?>> valueType =
+            asMap.values().stream().map(Object::getClass).reduce((t1, t2) -> {
+                if (t1 == Object.class) {
+                    return t2;
+                }
+                if (t2 == Object.class) {
+                    return t1;
+                }
+                if (t1.isAssignableFrom(t2)) {
+                    return t2;
+                }
+                if (t2.isAssignableFrom(t1)) {
+                    return t1;
+                }
+                throw new IllegalArgumentException(
                     t1 + " and " + t2 + " are not compatible, can't convert " + input + " to an IndexedRecord");
-        });
+            });
         if (!valueType.isPresent()) {
             throw new IllegalArgumentException("Can't determine value type of " + input);
         }
@@ -305,15 +312,18 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
 
     private boolean isStringable(final Class<?> type) {
         return File.class == type || URI.class == type || URL.class == type || BigInteger.class == type
-                || BigDecimal.class == type
-                /* we shouldn't support it strictly speaking since it means component are avro dependent which is wrong */
-                || type.isAssignableFrom(Stringable.class);
+            || BigDecimal.class == type
+            /*
+             * we shouldn't support it strictly speaking since it means component are avro
+             * dependent which is wrong
+             */
+            || type.isAssignableFrom(Stringable.class);
     }
 
     private boolean isPrimitive(final Class<?> type) {
-        return type == int.class || type == long.class || type == double.class || type == float.class || type == boolean.class
-                || type == Integer.class || type == Long.class || type == Double.class || type == Float.class
-                || type == Boolean.class || type == String.class;
+        return type == int.class || type == long.class || type == double.class || type == float.class
+            || type == boolean.class || type == Integer.class || type == Long.class || type == Double.class
+            || type == Float.class || type == Boolean.class || type == String.class;
     }
 
     private Map<String, ?> mapToIR(final Map<?, ?> input, final Map<Object, IndexedRecord> visited) {
@@ -325,7 +335,8 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
         Meta meta = metas.get(type);
         if (meta == null) {
             meta = computeMeta(type, new HashMap<>(), null, null);
-            metas.putIfAbsent(type, meta); // not important if for a few iterations/threads we use different meta instances
+            metas.putIfAbsent(type, meta); // not important if for a few iterations/threads we use different meta
+                                           // instances
         }
         return meta;
     }
@@ -338,16 +349,16 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
     }
 
     private Meta computeMeta(final Class<?> type, final Map<Class<?>, String> schemaNames,
-            final SchemaBuilder.FieldAssembler<Schema> builder, final SchemaBuilder.TypeBuilder<Schema> providedRootBuilder) {
+        final SchemaBuilder.FieldAssembler<Schema> builder,
+        final SchemaBuilder.TypeBuilder<Schema> providedRootBuilder) {
         final Map<Integer, FieldMeta> reflects = new HashMap<>();
         Class<?> current = type;
         final String recordName = toAvroRecordName(type);
         schemaNames.putIfAbsent(current, recordName);
-        final SchemaBuilder.TypeBuilder<Schema> rootBuilder = providedRootBuilder == null ? SchemaBuilder.builder()
-                : providedRootBuilder;
+        final SchemaBuilder.TypeBuilder<Schema> rootBuilder =
+            providedRootBuilder == null ? SchemaBuilder.builder() : providedRootBuilder;
         SchemaBuilder.FieldAssembler<Schema> record = builder == null
-                ? rootBuilder.record(recordName).prop(SpecificData.CLASS_PROP, type.getName()).fields()
-                : builder;
+            ? rootBuilder.record(recordName).prop(SpecificData.CLASS_PROP, type.getName()).fields() : builder;
         final Collection<Field> fields = new ArrayList<>();
         while (current != null && current != Object.class) {
             for (final Field f : current.getDeclaredFields()) {
@@ -381,7 +392,7 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
             }
         });
         return new Meta(schema, reflects.values().stream().anyMatch(f -> f.any), reflects,
-                reflects.values().stream().collect(toMap(f -> f.field.getName(), identity())));
+            reflects.values().stream().collect(toMap(f -> f.field.getName(), identity())));
     }
 
     private String toAvroRecordName(final Class<?> type) {
@@ -389,8 +400,8 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
     }
 
     private SchemaBuilder.FieldAssembler<Schema> toAvroField(final String name, final Type fType,
-            final Map<Class<?>, String> schemaNames, final SchemaBuilder.FieldAssembler<Schema> builder,
-            final SchemaBuilder.TypeBuilder<Schema> rootBuilder) {
+        final Map<Class<?>, String> schemaNames, final SchemaBuilder.FieldAssembler<Schema> builder,
+        final SchemaBuilder.TypeBuilder<Schema> rootBuilder) {
         if (fType == int.class) {
             return builder.name(name).type().intType().intDefault(0);
         } else if (fType == long.class) {
@@ -418,8 +429,8 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
         if (Class.class.isInstance(fType)) {
             final Class<?> clazz = Class.class.cast(fType);
             if (isStringable(clazz)) {
-                final SchemaBuilder.StringBldr<SchemaBuilder.UnionAccumulator<SchemaBuilder.NullDefault<Schema>>> sBuilder = builder
-                        .name(name).type().unionOf().nullType().and().stringBuilder();
+                final SchemaBuilder.StringBldr<SchemaBuilder.UnionAccumulator<SchemaBuilder.NullDefault<Schema>>> sBuilder =
+                    builder.name(name).type().unionOf().nullType().and().stringBuilder();
                 if (fType != String.class) {
                     sBuilder.prop(SpecificData.CLASS_PROP, clazz.getName());
                 }
@@ -428,14 +439,16 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
 
             if (clazz.isArray()) {
                 return builder.name(name).prop("di.column.talendType", "id_List")
-                        .type(Schema.createArray(getSchema(schemaNames, rootBuilder, clazz.getComponentType()))).noDefault();
+                    .type(Schema.createArray(getSchema(schemaNames, rootBuilder, clazz.getComponentType())))
+                    .noDefault();
             }
 
             String schemaName = schemaNames.get(clazz);
             if (schemaName == null) {
                 schemaName = toAvroRecordName(clazz);
                 computeMeta(clazz, schemaNames,
-                        rootBuilder.record(schemaName).prop(SpecificData.CLASS_PROP, clazz.getName()).fields(), rootBuilder);
+                    rootBuilder.record(schemaName).prop(SpecificData.CLASS_PROP, clazz.getName()).fields(),
+                    rootBuilder);
                 schemaNames.put(clazz, schemaName);
             }
             return builder.name(name).type(schemaName).noDefault();
@@ -443,11 +456,12 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
 
         if (ParameterizedType.class.isInstance(fType)) {
             final ParameterizedType pt = ParameterizedType.class.cast(fType);
-            if (Class.class.isInstance(pt.getRawType()) && Collection.class.isAssignableFrom(Class.class.cast(pt.getRawType()))
-                    && pt.getActualTypeArguments().length == 1 && Class.class.isInstance(pt.getActualTypeArguments()[0])) {
+            if (Class.class.isInstance(pt.getRawType())
+                && Collection.class.isAssignableFrom(Class.class.cast(pt.getRawType()))
+                && pt.getActualTypeArguments().length == 1 && Class.class.isInstance(pt.getActualTypeArguments()[0])) {
                 final Class<?> component = Class.class.cast(pt.getActualTypeArguments()[0]);
                 return builder.name(name).prop("di.column.talendType", "id_List")
-                        .type(Schema.createArray(getSchema(schemaNames, rootBuilder, component))).noDefault();
+                    .type(Schema.createArray(getSchema(schemaNames, rootBuilder, component))).noDefault();
             }
         }
 
@@ -455,8 +469,8 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
     }
 
     // could be cached
-    private Schema getSchema(final Map<Class<?>, String> schemaNames, final SchemaBuilder.TypeBuilder<Schema> rootBuilder,
-            final Class<?> fType) {
+    private Schema getSchema(final Map<Class<?>, String> schemaNames,
+        final SchemaBuilder.TypeBuilder<Schema> rootBuilder, final Class<?> fType) {
         if (isPrimitive(fType)) {
             if (fType == int.class) {
                 return Schema.create(Schema.Type.INT);
@@ -483,15 +497,16 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
             }
         }
         return computeMeta(fType, schemaNames,
-                rootBuilder.record(toAvroRecordName(fType)).prop(SpecificData.CLASS_PROP, fType.getName()).fields(),
-                rootBuilder).schema;
+            rootBuilder.record(toAvroRecordName(fType)).prop(SpecificData.CLASS_PROP, fType.getName()).fields(),
+            rootBuilder).schema;
     }
 
     private FieldMeta toMeta(final Field f, final Schema.Field avro) {
         final Type genericType = f.getGenericType();
         if (ParameterizedType.class.isInstance(genericType)) {
             final ParameterizedType pt = ParameterizedType.class.cast(genericType);
-            if (Class.class.isInstance(pt.getRawType()) && Collection.class.isAssignableFrom(Class.class.cast(pt.getRawType()))) {
+            if (Class.class.isInstance(pt.getRawType())
+                && Collection.class.isAssignableFrom(Class.class.cast(pt.getRawType()))) {
                 final Class<?> fType = Class.class.cast(pt.getActualTypeArguments()[0]);
                 return new FieldMeta(f, avro, f.isAnnotationPresent(ObjectMap.Any.class), fType);
             }

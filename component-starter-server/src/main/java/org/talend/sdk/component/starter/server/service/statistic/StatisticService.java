@@ -51,11 +51,11 @@ public class StatisticService {
     // TODO: move to an actual backend like elasticsearch
     public void save(final CreateProject event) {
         final String project = event.getRequest().getBuildConfiguration().getGroup() + ':'
-                + event.getRequest().getBuildConfiguration().getArtifact();
-        logger.info(jsonb.toJson(
-                new Representation(project, event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size(),
-                        event.getRequest().getProcessors() == null ? 0 : event.getRequest().getProcessors().size(),
-                        ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList))));
+            + event.getRequest().getBuildConfiguration().getArtifact();
+        logger.info(jsonb.toJson(new Representation(project,
+            event.getRequest().getSources() == null ? 0 : event.getRequest().getSources().size(),
+            event.getRequest().getProcessors() == null ? 0 : event.getRequest().getProcessors().size(),
+            ofNullable(event.getRequest().getFacets()).orElseGet(Collections::emptyList))));
     }
 
     @Data
@@ -100,10 +100,11 @@ public class StatisticService {
         @PostConstruct
         private void init() {
             executorService = Executors.newFixedThreadPool(threads,
-                    new BasicThreadFactory.Builder().namingPattern("statistcs-%d").build());
+                new BasicThreadFactory.Builder().namingPattern("statistcs-%d").build());
         }
 
-        // don't block to return ASAP to the client, not very important if it fails for the end user
+        // don't block to return ASAP to the client, not very important if it fails for
+        // the end user
         void capture(@Observes final CreateProject createProject) {
             if (skip) {
                 return;
@@ -119,7 +120,7 @@ public class StatisticService {
                             if (retries - 1 == i) { // no need to retry
                                 failed(createProject);
                                 throw RuntimeException.class.isInstance(e) ? RuntimeException.class.cast(e)
-                                        : new IllegalStateException(e);
+                                    : new IllegalStateException(e);
                             }
 
                             if (retrySleep > 0) {
@@ -149,7 +150,8 @@ public class StatisticService {
             skip = true;
             try {
                 if (!executorService.awaitTermination(shutdownTimeout, MILLISECONDS)) {
-                    log.warn("Some statistics have been missed, this is not important but reporting can not be 100% accurate");
+                    log.warn(
+                        "Some statistics have been missed, this is not important but reporting can not be 100% accurate");
                 }
             } catch (final InterruptedException e) {
                 Thread.interrupted();

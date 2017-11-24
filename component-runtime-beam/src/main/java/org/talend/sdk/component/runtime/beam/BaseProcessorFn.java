@@ -64,7 +64,8 @@ abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
         private final Map<String, Iterator<Serializable>> iterators;
 
         BeamInputFactory(final DoFn<Map<String, List<Serializable>>, ?>.ProcessContext context) {
-            iterators = context.element().entrySet().stream().collect(toMap(Map.Entry::getKey, e -> e.getValue().iterator()));
+            iterators =
+                context.element().entrySet().stream().collect(toMap(Map.Entry::getKey, e -> e.getValue().iterator()));
         }
 
         @Override

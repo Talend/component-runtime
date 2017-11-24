@@ -38,7 +38,8 @@ public class AdvancedProcessorImpl extends ProcessorImpl {
         // no-op
     }
 
-    public AdvancedProcessorImpl(final String plugin, final String family, final String name, final Serializable delegate) {
+    public AdvancedProcessorImpl(final String plugin, final String family, final String name,
+        final Serializable delegate) {
         super(plugin, family, name, delegate);
     }
 
@@ -48,7 +49,7 @@ public class AdvancedProcessorImpl extends ProcessorImpl {
             synchronized (this) {
                 if (cache == null) {
                     cache = ofNullable(ContainerFinder.Instance.get().find(plugin()).findService(SubclassesCache.class))
-                            .orElseGet(SubclassesCache::new);
+                        .orElseGet(SubclassesCache::new);
                 }
             }
         }

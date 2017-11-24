@@ -23,7 +23,8 @@ import java.util.Iterator;
 import lombok.Data;
 
 /**
- * Holds data for the __default__ input branch only. All other branches will return null.
+ * Holds data for the __default__ input branch only. All other branches will
+ * return null.
  */
 @Data
 public class MainInputFactory implements ControllableInputFactory {

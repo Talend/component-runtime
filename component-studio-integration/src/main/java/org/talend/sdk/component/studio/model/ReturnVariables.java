@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 /**
  * Stores return variables constants
  */
-@NoArgsConstructor(access=PRIVATE)
+@NoArgsConstructor(access = PRIVATE)
 public final class ReturnVariables {
 
     public static final String RETURN_ERROR_MESSAGE = "errorMessage";
@@ -30,7 +30,8 @@ public final class ReturnVariables {
     public static final String RETURN_TOTAL_RECORD_COUNT = "totalRecordCount";
 
     /**
-     * Denote return variable "AFTER" availability. I.e. such variable is available after current subjob
+     * Denote return variable "AFTER" availability. I.e. such variable is available
+     * after current subjob
      */
     public static final String AFTER = "AFTER";
 }

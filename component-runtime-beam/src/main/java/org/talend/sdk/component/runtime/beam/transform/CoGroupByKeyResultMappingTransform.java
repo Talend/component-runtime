@@ -37,10 +37,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Adapter to convert a ProcessContext coming from a CoGBK to a <code><pre>Map<String, List<?>></pre></code>.
+ * Adapter to convert a ProcessContext coming from a CoGBK to a
+ * <code><pre>Map<String, List<?>></pre></code>.
  */
 public class CoGroupByKeyResultMappingTransform<K>
-        extends PTransform<PCollection<KV<K, CoGbkResult>>, PCollection<Map<String, List<Serializable>>>> {
+    extends PTransform<PCollection<KV<K, CoGbkResult>>, PCollection<Map<String, List<Serializable>>>> {
 
     @Override
     public PCollection<Map<String, List<Serializable>>> expand(final PCollection<KV<K, CoGbkResult>> input) {
@@ -62,8 +63,8 @@ public class CoGroupByKeyResultMappingTransform<K>
         private Map<String, List<Serializable>> createMap(final ProcessContext context) {
             final CoGbkResult result = context.element().getValue();
             return result.getSchema().getTupleTagList().getAll().stream()
-                    .map(key -> new Pair<>(key, Serializable.class.cast(result.getOnly(key))))
-                    .collect(toMap(pair -> pair.getFirst().getId(), pair -> singletonList(pair.getSecond())));
+                .map(key -> new Pair<>(key, Serializable.class.cast(result.getOnly(key))))
+                .collect(toMap(pair -> pair.getFirst().getId(), pair -> singletonList(pair.getSecond())));
         }
     }
 

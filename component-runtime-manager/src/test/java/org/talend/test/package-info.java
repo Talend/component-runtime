@@ -15,7 +15,7 @@
  */
 
 /**
- * This package is used to generate plugins (see PluginGenerator).
- * Don't delete it please while the related tests exist.
+ * This package is used to generate plugins (see PluginGenerator). Don't delete
+ * it please while the related tests exist.
  */
 package org.talend.test;

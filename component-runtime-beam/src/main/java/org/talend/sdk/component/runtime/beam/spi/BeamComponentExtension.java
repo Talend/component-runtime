@@ -43,12 +43,12 @@ public class BeamComponentExtension implements ComponentExtension {
     @Override
     public <T> T convert(final ComponentInstance instance, final Class<T> component) {
         if (Mapper.class == component) {
-            return (T) new BeamMapperImpl((PTransform<PBegin, ?>) instance.instance(), instance.plugin(), instance.family(),
-                    instance.name());
+            return (T) new BeamMapperImpl((PTransform<PBegin, ?>) instance.instance(), instance.plugin(),
+                instance.family(), instance.name());
         }
         if (Processor.class == component) {
             return (T) new BeamProcessorChainImpl((PTransform<PCollection<?>, PDone>) instance.instance(), null,
-                    instance.plugin(), instance.family(), instance.name());
+                instance.plugin(), instance.family(), instance.name());
         }
         throw new IllegalArgumentException("unsupported " + component + " by " + getClass());
     }

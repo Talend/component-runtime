@@ -56,7 +56,8 @@ public class ProcessorFlowsFactoryTest {
 
         @ElementListener
         public void map(@Input final InputData1 input1, @Input("REJECT") final InputData2 input2,
-                @Output final OutputEmitter<OutputData1> output1, @Output("OUTPUT") final OutputEmitter<OutputData2> output2) {
+            @Output final OutputEmitter<OutputData1> output1,
+            @Output("OUTPUT") final OutputEmitter<OutputData2> output2) {
             // no-op
         }
 

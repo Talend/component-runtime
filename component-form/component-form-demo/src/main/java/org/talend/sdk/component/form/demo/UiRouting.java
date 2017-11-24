@@ -31,7 +31,7 @@ public class UiRouting implements Filter {
 
     @Override
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
-            final FilterChain filterChain) throws IOException, ServletException {
+        final FilterChain filterChain) throws IOException, ServletException {
         filterChain.doFilter(new HttpServletRequestWrapper(HttpServletRequest.class.cast(servletRequest)) {
 
             @Override

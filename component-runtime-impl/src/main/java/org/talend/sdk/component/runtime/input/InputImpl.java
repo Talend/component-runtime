@@ -81,7 +81,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
         private Serializable loadDelegate() throws IOException, ClassNotFoundException {
             try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(value),
-                    ContainerFinder.Instance.get().find(plugin).classloader())) {
+                ContainerFinder.Instance.get().find(plugin).classloader())) {
                 return Serializable.class.cast(ois.readObject());
             }
         }

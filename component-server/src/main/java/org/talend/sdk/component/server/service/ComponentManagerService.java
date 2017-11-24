@@ -85,11 +85,11 @@ public class ComponentManagerService {
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
-        ofNullable(configuration.componentCoordinates()).orElse(emptySet()).stream().map(mvnCoordinateToFileConverter::toArtifact)
-                                                        .map(artifact -> new File(StrSubstitutor.replaceSystemProperties(mvnRepo),
-                                                                mvnCoordinateToFileConverter.toPath(artifact)))
-                                                        .filter(Objects::nonNull)
-                                                        .forEach(plugin -> instance.addPlugin(plugin.getAbsolutePath()));
+        ofNullable(configuration.componentCoordinates()).orElse(emptySet()).stream()
+                .map(mvnCoordinateToFileConverter::toArtifact)
+                .map(artifact -> new File(StrSubstitutor.replaceSystemProperties(mvnRepo),
+                        mvnCoordinateToFileConverter.toPath(artifact)))
+                .filter(Objects::nonNull).forEach(plugin -> instance.addPlugin(plugin.getAbsolutePath()));
         ofNullable(configuration.componentRegistry()).map(File::new).filter(File::exists).ifPresent(registry -> {
             final Properties properties = new Properties();
             try (final InputStream is = new FileInputStream(registry)) {
@@ -98,10 +98,10 @@ public class ComponentManagerService {
                 throw new IllegalArgumentException(e);
             }
             properties.stringPropertyNames()
-                      .forEach(name -> instance.addPlugin(new File(mvnRepo,
-                              mvnCoordinateToFileConverter
-                                      .toPath(mvnCoordinateToFileConverter.toArtifact(properties.getProperty(name))))
-                              .getAbsolutePath()));
+                    .forEach(name -> instance.addPlugin(new File(mvnRepo,
+                            mvnCoordinateToFileConverter
+                                    .toPath(mvnCoordinateToFileConverter.toArtifact(properties.getProperty(name))))
+                                            .getAbsolutePath()));
         });
 
         cacheEvictorPool = Executors.newScheduledThreadPool(1, new ThreadFactory() {
@@ -117,19 +117,19 @@ public class ComponentManagerService {
         // trivial mecanism for now, just reset all accessor caches
         evictor = cacheEvictorPool
                 .schedule(() -> instance.find(c -> Stream.of(c.get(ComponentManager.AllServices.class).getServices()))
-                                        .filter(Objects::nonNull).map(s -> AccessorCache.class.cast(s.get(AccessorCache.class)))
-                                        .filter(Objects::nonNull).peek(AccessorCache::reset).count(), 1, MINUTES);
+                        .filter(Objects::nonNull).map(s -> AccessorCache.class.cast(s.get(AccessorCache.class)))
+                        .filter(Objects::nonNull).peek(AccessorCache::reset).count(), 1, MINUTES);
 
         idMapping = instance.find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
-                            .flatMap(c -> Stream
-                                    .concat(c.getPartitionMappers().values().stream(), c.getProcessors().values().stream()))
-                            .collect(toMap(ComponentFamilyMeta.BaseMeta::getId, identity()));
+                .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
+                        c.getProcessors().values().stream()))
+                .collect(toMap(ComponentFamilyMeta.BaseMeta::getId, identity()));
         actionIndex = instance.find(c -> c.get(ContainerComponentRegistry.class).getServices().stream())
-                              .flatMap(c -> c.getActions().stream())
-                              .collect(toMap(e -> new ActionKey(e.getFamily(), e.getType(), e.getAction()), identity()));
+                .flatMap(c -> c.getActions().stream())
+                .collect(toMap(e -> new ActionKey(e.getFamily(), e.getType(), e.getAction()), identity()));
 
         familyIdMapping = instance.find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
-                                  .collect(toMap(f -> IdGenerator.get(f.getName()), identity()));
+                .collect(toMap(f -> IdGenerator.get(f.getName()), identity()));
     }
 
     public ServiceMeta.ActionMeta findActionById(final String component, final String type, final String action) {

@@ -30,19 +30,19 @@ public class Main {
         // tag::main[]
         try (final ComponentManager manager = ComponentManager.instance()) {
             ExecutionChainBuilder.start().withConfiguration("SampleJob", true)
-                    .fromInput("sample", "reader", 2, new HashMap<String, String>() {
+                .fromInput("sample", "reader", 2, new HashMap<String, String>() {
 
-                        {
-                            put("file", "/tmp/input.csv");
-                        }
-                    }).toProcessor("sample", "mapper", 1, emptyMap())
-                    .toProcessor(null, "sample", "writer", 1, new HashMap<String, String>() {
+                    {
+                        put("file", "/tmp/input.csv");
+                    }
+                }).toProcessor("sample", "mapper", 1, emptyMap())
+                .toProcessor(null, "sample", "writer", 1, new HashMap<String, String>() {
 
-                        {
-                            put("file", "/tmp/output.csv");
-                        }
-                    }).create(manager, plugin -> null, new CountingSuccessListener(), new ToleratingErrorHandler(0)).get()
-                    .execute();
+                    {
+                        put("file", "/tmp/output.csv");
+                    }
+                }).create(manager, plugin -> null, new CountingSuccessListener(), new ToleratingErrorHandler(0)).get()
+                .execute();
         }
         // end::main[]
     }

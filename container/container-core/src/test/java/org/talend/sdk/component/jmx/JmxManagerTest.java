@@ -41,8 +41,8 @@ public class JmxManagerTest {
         final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
         final JmxManager manager = new JmxManager("org.talend.test:type=plugin,name=%s", mBeanServer);
         final Container container = new Container("foo.jar", new File("missing/normally").getName(), new String[0],
-                ContainerManager.ClassLoaderConfiguration.builder().create(),
-                path -> new File(Constants.DEPENDENCIES_LOCATION, path));
+            ContainerManager.ClassLoaderConfiguration.builder().create(),
+            path -> new File(Constants.DEPENDENCIES_LOCATION, path));
         manager.onCreate(container);
 
         final ObjectName name = new ObjectName("org.talend.test:name=foo.jar,type=plugin");

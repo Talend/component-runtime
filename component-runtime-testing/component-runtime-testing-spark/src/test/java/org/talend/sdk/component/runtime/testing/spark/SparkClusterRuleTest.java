@@ -58,15 +58,16 @@ public class SparkClusterRuleTest {
 
     @Test
     public void classpathSubmit() throws IOException {
-        final File out = new File(jarLocation(SparkClusterRuleTest.class).getParentFile(), testName.getMethodName() + ".out");
+        final File out =
+            new File(jarLocation(SparkClusterRuleTest.class).getParentFile(), testName.getMethodName() + ".out");
         if (out.exists()) {
             out.delete();
         }
         SPARK.submitClasspath(SubmittableMain.class, SPARK.getSparkMaster(), out.getAbsolutePath());
 
         await().atMost(5, MINUTES).until(
-                () -> out.exists() ? Files.readAllLines(out.toPath()).stream().collect(joining("\n")).trim() : null,
-                equalTo("b -> 1\na -> 1"));
+            () -> out.exists() ? Files.readAllLines(out.toPath()).stream().collect(joining("\n")).trim() : null,
+            equalTo("b -> 1\na -> 1"));
     }
 
     @NoArgsConstructor(access = PRIVATE)
@@ -76,12 +77,13 @@ public class SparkClusterRuleTest {
             final SparkConf conf = new SparkConf().setAppName(SubmittableMain.class.getName()).setMaster(args[0]);
             final JavaSparkContext context = new JavaSparkContext(conf);
 
-            context.parallelize(singletonList("a b")).flatMap((FlatMapFunction<String, String>) text -> asList(text.split(" ")))
-                    .mapToPair(word -> new Tuple2<>(word, 1)).reduceByKey((a, b) -> a + b).foreach(result -> {
-                        try (final FileWriter writer = new FileWriter(args[1], true)) {
-                            writer.write(result._1 + " -> " + result._2 + '\n');
-                        }
-                    });
+            context.parallelize(singletonList("a b"))
+                .flatMap((FlatMapFunction<String, String>) text -> asList(text.split(" ")))
+                .mapToPair(word -> new Tuple2<>(word, 1)).reduceByKey((a, b) -> a + b).foreach(result -> {
+                    try (final FileWriter writer = new FileWriter(args[1], true)) {
+                        writer.write(result._1 + " -> " + result._2 + '\n');
+                    }
+                });
         }
     }
 }

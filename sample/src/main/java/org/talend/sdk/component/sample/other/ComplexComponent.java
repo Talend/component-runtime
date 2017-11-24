@@ -77,8 +77,8 @@ public class ComplexComponent implements Serializable {
 
         @DynamicValues(family = "complex", value = "path")
         public Values find(@Option("value") final String value) {
-            return new Values(IntStream.range(1, 11).mapToObj(i -> new Values.Item("file_" + i, "/opt/sample/file_" + i + ".txt"))
-                    .collect(toList()));
+            return new Values(IntStream.range(1, 11)
+                .mapToObj(i -> new Values.Item("file_" + i, "/opt/sample/file_" + i + ".txt")).collect(toList()));
         }
     }
 }

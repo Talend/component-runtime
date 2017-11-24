@@ -66,8 +66,8 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
     public void accept(final Meecrowave.Builder builder) {
         Locale.setDefault(Locale.ENGLISH);
         builder.setJsonbPrettify(true);
-        builder.setTempDir(
-                new File(jarLocation(InitTestInfra.class).getParentFile(), getClass().getSimpleName()).getAbsolutePath());
+        builder.setTempDir(new File(jarLocation(InitTestInfra.class).getParentFile(), getClass().getSimpleName())
+                .getAbsolutePath());
         System.setProperty("talend.component.server.maven.repository", createM2(builder.getTempDir()));
     }
 
@@ -107,8 +107,8 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
     private void createComponent(final File m2, final String groupId, final String artifactId, final String version,
             final Consumer<File> jarCreator) {
-        final File artifact = new File(m2,
-                groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/' + artifactId + '-' + version + ".jar");
+        final File artifact = new File(m2, groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/'
+                + artifactId + '-' + version + ".jar");
         Files.mkdir(artifact.getParentFile());
         jarCreator.accept(artifact);
 
@@ -130,7 +130,8 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             return createRepackaging(target, "org/talend/sdk/component/server/test/model", outputStream -> {
                 try {
                     outputStream.putNextEntry(new JarEntry(packageName.replace('.', '/') + "/Messages.properties"));
-                    outputStream.write("chain.list._displayName = The List Component\n".getBytes(StandardCharsets.UTF_8));
+                    outputStream
+                            .write("chain.list._displayName = The List Component\n".getBytes(StandardCharsets.UTF_8));
                 } catch (final IOException ioe) {
                     fail(ioe.getMessage());
                 }
@@ -159,14 +160,16 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             return createRepackaging(target, "org/talend/sdk/component/server/test/file", null);
         }
 
-        private File createRepackaging(final File target, final String sourcePackage, final Consumer<JarOutputStream> custom) {
+        private File createRepackaging(final File target, final String sourcePackage,
+                final Consumer<JarOutputStream> custom) {
             try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(target))) {
-                final String packageName = toPackage(target.getParentFile().getParentFile().getName()).replace(".", "/");
+                final String packageName = toPackage(target.getParentFile().getParentFile().getName()).replace(".",
+                        "/");
                 final String fromPack = sourcePackage.replace('/', '.');
                 final String toPack = packageName.replace('.', '/');
                 final File root = new File(jarLocation(InitTestInfra.class), sourcePackage);
-                ofNullable(root.listFiles()).map(Stream::of).orElseGet(Stream::empty).filter(c -> c.getName().endsWith(".class"))
-                        .forEach(clazz -> {
+                ofNullable(root.listFiles()).map(Stream::of).orElseGet(Stream::empty)
+                        .filter(c -> c.getName().endsWith(".class")).forEach(clazz -> {
                             try (final InputStream is = new FileInputStream(clazz)) {
                                 final ClassReader reader = new ClassReader(is);
                                 final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
@@ -192,7 +195,8 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
         private File createPlugin(final File target) {
             try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(target))) {
-                final String packageName = toPackage(target.getParentFile().getParentFile().getName()).replace(".", "/");
+                final String packageName = toPackage(target.getParentFile().getParentFile().getName()).replace(".",
+                        "/");
                 outputStream.write(createProcessor(outputStream, packageName));
                 outputStream.write(createModel(outputStream, packageName));
                 outputStream.write(createService(outputStream, packageName, target.getName()));
@@ -208,8 +212,8 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             outputStream.putNextEntry(new ZipEntry(className));
             final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
             writer.visitAnnotation(Type.getDescriptor(Service.class), true).visitEnd();
-            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                    Type.getInternalName(Object.class), null);
+            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                    null, Type.getInternalName(Object.class), null);
             writer.visitSource(className.replace(".class", ".java"), null);
 
             addConstructor(writer);
@@ -237,8 +241,8 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             final String className = packageName + "/AModel.class";
             outputStream.putNextEntry(new ZipEntry(className));
             final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                    Type.getInternalName(Object.class), null);
+            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                    null, Type.getInternalName(Object.class), null);
             writer.visitSource(className.replace(".class", ".java"), null);
 
             addConstructor(writer);
@@ -249,16 +253,19 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             return writer.toByteArray();
         }
 
-        private byte[] createProcessor(final JarOutputStream outputStream, final String packageName) throws IOException {
+        private byte[] createProcessor(final JarOutputStream outputStream, final String packageName)
+                throws IOException {
             final String className = packageName + "/AProcessor.class";
             outputStream.putNextEntry(new ZipEntry(className));
             final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-            final AnnotationVisitor processorAnnotation = writer.visitAnnotation(Type.getDescriptor(Processor.class), true);
+            final AnnotationVisitor processorAnnotation = writer.visitAnnotation(Type.getDescriptor(Processor.class),
+                    true);
             processorAnnotation.visit("family", "comp");
             processorAnnotation.visit("name", "proc");
             processorAnnotation.visitEnd();
-            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                    Type.getInternalName(Object.class), new String[] { Serializable.class.getName().replace(".", "/") });
+            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                    null, Type.getInternalName(Object.class),
+                    new String[] { Serializable.class.getName().replace(".", "/") });
             writer.visitSource(className.replace(".class", ".java"), null);
 
             addConstructor(writer);
@@ -281,12 +288,10 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         }
 
         /*
-         * private void addDependencies(final JarOutputStream outputStream, final String[] deps) throws IOException {
-         * // start by writing the dependencies file
-         * outputStream.putNextEntry(new ZipEntry("META-INF/test/dependencies"));
+         * private void addDependencies(final JarOutputStream outputStream, final String[] deps) throws IOException { //
+         * start by writing the dependencies file outputStream.putNextEntry(new ZipEntry("META-INF/test/dependencies"));
          * outputStream.write("The following files have been resolved:\n".getBytes(StandardCharsets.UTF_8));
-         * outputStream.write(Stream.of(deps).collect(joining("\n")).getBytes(StandardCharsets.UTF_8));
-         * }
+         * outputStream.write(Stream.of(deps).collect(joining("\n")).getBytes(StandardCharsets.UTF_8)); }
          */
 
         private void addConstructor(final ClassWriter writer) {

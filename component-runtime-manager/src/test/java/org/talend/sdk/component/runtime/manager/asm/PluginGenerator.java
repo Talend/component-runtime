@@ -70,31 +70,32 @@ public class PluginGenerator {
             final String fromPack = sourcePackage.replace('/', '.');
             final String toPack = packageName.replace('.', '/');
             final File root = new File(jarLocation(getClass()), sourcePackage);
-            ofNullable(root.listFiles()).map(Stream::of).orElseGet(Stream::empty).filter(c -> c.getName().endsWith(".class"))
-                    .forEach(clazz -> {
-                        try (final InputStream is = new FileInputStream(clazz)) {
-                            final ClassReader reader = new ClassReader(is);
-                            final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-                            reader.accept(new RemappingClassAdapter(writer, new Remapper() {
+            ofNullable(root.listFiles()).map(Stream::of).orElseGet(Stream::empty)
+                .filter(c -> c.getName().endsWith(".class")).forEach(clazz -> {
+                    try (final InputStream is = new FileInputStream(clazz)) {
+                        final ClassReader reader = new ClassReader(is);
+                        final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
+                        reader.accept(new RemappingClassAdapter(writer, new Remapper() {
 
-                                @Override
-                                public String map(final String key) {
-                                    return key.replace(sourcePackage, toPack).replace(fromPack, packageName);
-                                }
-                            }), EXPAND_FRAMES);
-                            outputStream.putNextEntry(new JarEntry(toPack + '/' + clazz.getName()));
-                            outputStream.write(writer.toByteArray());
-                        } catch (final IOException e) {
-                            fail(e.getMessage());
-                        }
-                    });
+                            @Override
+                            public String map(final String key) {
+                                return key.replace(sourcePackage, toPack).replace(fromPack, packageName);
+                            }
+                        }), EXPAND_FRAMES);
+                        outputStream.putNextEntry(new JarEntry(toPack + '/' + clazz.getName()));
+                        outputStream.write(writer.toByteArray());
+                    } catch (final IOException e) {
+                        fail(e.getMessage());
+                    }
+                });
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
         return target;
     }
 
-    // avoid to load any class and since we have a shade of asm in the classpath just generate the jars directly
+    // avoid to load any class and since we have a shade of asm in the classpath
+    // just generate the jars directly
     public File createPlugin(final File pluginFolder, final String name, final String... deps) throws IOException {
         final File target = new File(pluginFolder, name);
         try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(target))) {
@@ -110,19 +111,19 @@ public class PluginGenerator {
     }
 
     private byte[] createService(final JarOutputStream outputStream, final String packageName, final String name)
-            throws IOException {
+        throws IOException {
         final String className = packageName + "/AService.class";
         outputStream.putNextEntry(new ZipEntry(className));
         final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
         writer.visitAnnotation(Type.getDescriptor(Service.class), true).visitEnd();
         writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                Type.getInternalName(Object.class), null);
+            Type.getInternalName(Object.class), null);
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
 
         final MethodVisitor action = writer.visitMethod(ACC_PUBLIC, "doAction",
-                "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
+            "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
         final AnnotationVisitor actionAnnotation = action.visitAnnotation(Type.getDescriptor(Action.class), true);
         actionAnnotation.visit("family", "proc");
         actionAnnotation.visit("value", name + "Action");
@@ -145,7 +146,7 @@ public class PluginGenerator {
         outputStream.putNextEntry(new ZipEntry(className));
         final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
         writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                Type.getInternalName(Object.class), null);
+            Type.getInternalName(Object.class), null);
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
@@ -165,14 +166,14 @@ public class PluginGenerator {
         processorAnnotation.visit("name", "proc");
         processorAnnotation.visitEnd();
         writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                Type.getInternalName(Object.class), new String[] { Serializable.class.getName().replace(".", "/") });
+            Type.getInternalName(Object.class), new String[] { Serializable.class.getName().replace(".", "/") });
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
 
         // generate a processor
         final MethodVisitor emitMethod = writer.visitMethod(ACC_PUBLIC, "emit",
-                "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
+            "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
         emitMethod.visitAnnotation(Type.getDescriptor(ElementListener.class), true).visitEnd();
         emitMethod.visitCode();
         emitMethod.visitTypeInsn(NEW, packageName + "/AModel");

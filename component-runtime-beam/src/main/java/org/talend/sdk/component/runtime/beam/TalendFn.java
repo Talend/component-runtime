@@ -41,7 +41,8 @@ public final class TalendFn {
     }
 
     @NoArgsConstructor
-    private static class ProcessorFn extends BaseProcessorFn<Map<String, List<Serializable>>, Map<String, List<Serializable>>> {
+    private static class ProcessorFn
+        extends BaseProcessorFn<Map<String, List<Serializable>>, Map<String, List<Serializable>>> {
 
         ProcessorFn(final Processor processor) {
             super(processor);
@@ -56,12 +57,13 @@ public final class TalendFn {
 
         @FinishBundle
         public void finishBundle(final FinishBundleContext context) throws Exception {
-            processor.afterGroup(new BeamOutputFactory(record -> context.output(record, Instant.now(), GlobalWindow.INSTANCE)));
+            processor.afterGroup(
+                new BeamOutputFactory(record -> context.output(record, Instant.now(), GlobalWindow.INSTANCE)));
         }
     }
 
     private static class ProcessorTransform
-            extends PTransform<PCollection<Map<String, List<Serializable>>>, PCollection<Map<String, List<Serializable>>>> {
+        extends PTransform<PCollection<Map<String, List<Serializable>>>, PCollection<Map<String, List<Serializable>>>> {
 
         private final ProcessorFn fn;
 
@@ -70,7 +72,8 @@ public final class TalendFn {
         }
 
         @Override
-        public PCollection<Map<String, List<Serializable>>> expand(final PCollection<Map<String, List<Serializable>>> input) {
+        public PCollection<Map<String, List<Serializable>>> expand(
+            final PCollection<Map<String, List<Serializable>>> input) {
             return input.apply(ParDo.of(fn));
         }
 

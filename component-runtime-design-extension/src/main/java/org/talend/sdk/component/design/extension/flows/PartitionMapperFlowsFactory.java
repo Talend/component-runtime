@@ -24,9 +24,10 @@ import org.talend.sdk.component.runtime.output.Branches;
  * Creates flows for PartitionMapper component
  */
 class PartitionMapperFlowsFactory extends FlowsFactory {
-    
+
     /**
      * {@inheritDoc}
+     * 
      * @return empty collection as PartitionMapper has no input flows
      */
     public Collection<String> getInputFlows() {
@@ -36,7 +37,7 @@ class PartitionMapperFlowsFactory extends FlowsFactory {
     /**
      * {@inheritDoc}
      * 
-     * @return singleton collection with the only "__default__" flow 
+     * @return singleton collection with the only "__default__" flow
      */
     @Override
     public Collection<String> getOutputFlows() {

@@ -45,10 +45,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * Will generate a TALEND-INF/components.json with the list of components and metadata.
+ * Will generate a TALEND-INF/components.json with the list of components and
+ * metadata.
  */
-// TBD: do we want to unify it with the rest layer? today it is highly coupled with the studio and lighter in the sense
-// it doesn't handle properties since studio will then load the plugin to handle them but that's an option if desired
+// TBD: do we want to unify it with the rest layer? today it is highly coupled
+// with the studio and lighter in the sense
+// it doesn't handle properties since studio will then load the plugin to handle
+// them but that's an option if desired
 @Mojo(name = "metadata", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
 public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
 
@@ -56,33 +59,38 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
     private String location;
 
     @Override
-    protected void doWork(final ComponentManager manager, final Container container, final ContainerComponentRegistry registry)
-            throws MojoExecutionException, MojoFailureException {
+    protected void doWork(final ComponentManager manager, final Container container,
+        final ContainerComponentRegistry registry) throws MojoExecutionException, MojoFailureException {
         final File output = new File(classes, location);
         if (!output.getParentFile().exists() && !output.getParentFile().mkdirs()) {
             throw new MojoExecutionException("Can't create " + output);
         }
 
-        final Collection<Component> components = registry.getComponents().values().stream()
+        final Collection<Component> components =
+            registry.getComponents().values().stream()
                 .flatMap(
-                        c -> Stream.concat(
-                                c.getPartitionMappers().values().stream()
-                                        .map(p -> new Component(p.getParent().getCategories(), p.getParent().getName(),
-                                                p.getName(),
-                                                p.findBundle(container.getLoader(), Locale.ENGLISH).displayName()
-                                                        .orElse(p.getName()),
-                                                p.getIcon(), emptyList(), singletonList("MAIN"))),
-                                c.getProcessors().values().stream().map(p -> {
-                                    final Method listener = p.getListener();
-                                    return new Component(p.getParent().getCategories(), p.getParent().getName(), p.getName(),
-                                            p.findBundle(container.getLoader(), Locale.ENGLISH).displayName().orElse(p.getName()),
-                                            p.getIcon(), getDesignModel(p).getInputFlows(), getDesignModel(p).getOutputFlows());
-                                })))
+                    c -> Stream
+                        .concat(
+                            c.getPartitionMappers().values().stream()
+                                .map(p -> new Component(p.getParent().getCategories(), p.getParent().getName(),
+                                    p.getName(),
+                                    p.findBundle(container.getLoader(), Locale.ENGLISH).displayName()
+                                        .orElse(p.getName()),
+                                    p.getIcon(), emptyList(), singletonList("MAIN"))),
+                            c.getProcessors().values().stream().map(p -> {
+                                final Method listener = p.getListener();
+                                return new Component(p.getParent().getCategories(), p.getParent().getName(),
+                                    p.getName(),
+                                    p.findBundle(container.getLoader(), Locale.ENGLISH).displayName()
+                                        .orElse(p.getName()),
+                                    p.getIcon(), getDesignModel(p).getInputFlows(), getDesignModel(p).getOutputFlows());
+                            })))
                 .collect(toList());
 
-        try (final Jsonb mapper = inPluginContext(JsonbBuilder::newBuilder).withConfig(new JsonbConfig()
-                .setProperty("johnzon.cdi.activated", false).setProperty("johnzon.attributeOrder", String.CASE_INSENSITIVE_ORDER))
-                .build()) {
+        try (final Jsonb mapper = inPluginContext(JsonbBuilder::newBuilder)
+            .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false)
+                .setProperty("johnzon.attributeOrder", String.CASE_INSENSITIVE_ORDER))
+            .build()) {
             container.execute(() -> {
                 try {
                     mapper.toJson(new ComponentContainer(components), new FileOutputStream(output));

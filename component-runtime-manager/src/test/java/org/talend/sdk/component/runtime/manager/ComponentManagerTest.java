@@ -68,16 +68,16 @@ public class ComponentManagerTest {
 
         // just some jars with classes we can scan
         final File plugin1 = pluginGenerator.createPlugin(pluginFolder, "plugin1.jar",
-                "org.apache.tomee:openejb-itests-beans:jar:7.0.3:runtime");
+            "org.apache.tomee:openejb-itests-beans:jar:7.0.3:runtime");
         final File plugin2 = pluginGenerator.createPlugin(pluginFolder, "plugin2.jar",
-                "org.apache.tomee:arquillian-tomee-codi-tests:jar:7.0.3:runtime");
+            "org.apache.tomee:arquillian-tomee-codi-tests:jar:7.0.3:runtime");
 
         // ensure jmx value is free and we don't get a test luck
         final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
         assertFalse(mBeanServer.isRegistered(new ObjectName("org.talend.test:type=plugin,value=plugin1")));
 
         try (final ComponentManager manager = new ComponentManager(new File("target/test-dependencies"),
-                "META-INF/test/dependencies", "org.talend.test:type=plugin,value=%s")) {
+            "META-INF/test/dependencies", "org.talend.test:type=plugin,value=%s")) {
             doCheckRegistry(plugin1, plugin2, manager);
             final Date plugin1CreatedDate = doCheckJmx(mBeanServer);
 
@@ -112,16 +112,17 @@ public class ComponentManagerTest {
         return Date.class.cast(mBeanServer.getAttribute(name, "created"));
     }
 
-    private void doCheckRegistry(final File plugin1, final File plugin2, final ComponentManager manager) throws Exception {
+    private void doCheckRegistry(final File plugin1, final File plugin2, final ComponentManager manager)
+        throws Exception {
         Stream.of(plugin1, plugin2).map(File::getAbsolutePath).forEach(manager::addPlugin);
-        final List<ContainerComponentRegistry> registries = manager.find(c -> Stream.of(c.get(ContainerComponentRegistry.class)))
-                .collect(toList());
+        final List<ContainerComponentRegistry> registries =
+            manager.find(c -> Stream.of(c.get(ContainerComponentRegistry.class))).collect(toList());
         assertEquals(2, registries.size()); // we saw both plugin
 
         registries.forEach(registry -> {
-            final Container container = manager
-                    .find(c -> registry == c.get(ContainerComponentRegistry.class) ? Stream.of(c) : Stream.empty()).findFirst()
-                    .get();
+            final Container container =
+                manager.find(c -> registry == c.get(ContainerComponentRegistry.class) ? Stream.of(c) : Stream.empty())
+                    .findFirst().get();
 
             assertEquals(1, registry.getServices().size());
             assertNotNull(registry.getServices().iterator().next().getInstance());
@@ -129,7 +130,7 @@ public class ComponentManagerTest {
             final Collection<ServiceMeta.ActionMeta> actions = registry.getServices().iterator().next().getActions();
             assertEquals(1, actions.size());
             assertEquals(pluginGenerator.toPackage(container.getId()) + ".AModel",
-                    actions.iterator().next().getInvoker().apply(null).getClass().getName());
+                actions.iterator().next().getInvoker().apply(null).getClass().getName());
 
             assertEquals(1, registry.getComponents().size());
             registry.getComponents().forEach((name, component) -> {
@@ -160,12 +161,14 @@ public class ComponentManagerTest {
             });
         });
 
-        // now try to execute the processor outside the correct TCCL and ensure it still works
+        // now try to execute the processor outside the correct TCCL and ensure it still
+        // works
         final Container container = manager.find(Stream::of).findFirst().get();
         final String packageName = pluginGenerator.toPackage(container.getId());
         final ContainerComponentRegistry registry = container.get(ContainerComponentRegistry.class);
         final ComponentFamilyMeta componentFamilyMeta = registry.getComponents().values().iterator().next();
-        final ComponentFamilyMeta.ProcessorMeta processorMeta = componentFamilyMeta.getProcessors().values().iterator().next();
+        final ComponentFamilyMeta.ProcessorMeta processorMeta =
+            componentFamilyMeta.getProcessors().values().iterator().next();
         final Processor processor = processorMeta.getInstantiator().apply(emptyMap());
         final Object aModel = container.getLoader().loadClass(packageName + ".AModel").getConstructor().newInstance();
         runProcessorLifecycle(aModel, processor);
@@ -177,18 +180,20 @@ public class ComponentManagerTest {
     }
 
     private org.talend.sdk.component.runtime.output.Processor copy(
-            final org.talend.sdk.component.runtime.output.Processor processor, final ClassLoader loader)
-            throws IOException, ClassNotFoundException {
+        final org.talend.sdk.component.runtime.output.Processor processor, final ClassLoader loader)
+        throws IOException, ClassNotFoundException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (final ObjectOutputStream oos = new ObjectOutputStream(baos)) {
             oos.writeObject(processor);
         }
-        try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(baos.toByteArray()), loader)) {
+        try (final ObjectInputStream ois =
+            new EnhancedObjectInputStream(new ByteArrayInputStream(baos.toByteArray()), loader)) {
             return org.talend.sdk.component.runtime.output.Processor.class.cast(ois.readObject());
         }
     }
 
-    private void runProcessorLifecycle(final Object model, final org.talend.sdk.component.runtime.output.Processor proc) {
+    private void runProcessorLifecycle(final Object model,
+        final org.talend.sdk.component.runtime.output.Processor proc) {
         proc.start();
         proc.beforeGroup();
         final AtomicReference<Object> transformedRef = new AtomicReference<>();

@@ -34,23 +34,23 @@ public class ConditionParameterEnricher implements ParameterExtensionEnricher {
 
     @Override
     public Map<String, String> onParameterAnnotation(final String parameterName, final Type parameterType,
-            final Annotation annotation) {
+        final Annotation annotation) {
         final Condition condition = annotation.annotationType().getAnnotation(Condition.class);
         if (condition != null) {
             final String type = condition.value();
             return Stream.of(annotation.annotationType().getMethods())
-                    .filter(m -> m.getDeclaringClass() == annotation.annotationType())
-                    .collect(toMap(m -> META_PREFIX + type + "::" + m.getName(), m -> {
-                        try {
-                            final Object invoke = m.invoke(annotation);
-                            if (String[].class.isInstance(invoke)) {
-                                return Stream.of(String[].class.cast(invoke)).collect(joining(","));
-                            }
-                            return String.valueOf(invoke);
-                        } catch (final InvocationTargetException | IllegalAccessException e) {
-                            throw new IllegalStateException(e);
+                .filter(m -> m.getDeclaringClass() == annotation.annotationType())
+                .collect(toMap(m -> META_PREFIX + type + "::" + m.getName(), m -> {
+                    try {
+                        final Object invoke = m.invoke(annotation);
+                        if (String[].class.isInstance(invoke)) {
+                            return Stream.of(String[].class.cast(invoke)).collect(joining(","));
                         }
-                    }));
+                        return String.valueOf(invoke);
+                    } catch (final InvocationTargetException | IllegalAccessException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }));
 
         }
         return emptyMap();

@@ -65,8 +65,9 @@ public class ActionResourceTest {
 
     @Test
     public void wizard() {
-        final JdbcDataSet dataSet = base.path("action/execute").queryParam("family", "jdbc").queryParam("type", "wizard")
-                .queryParam("action", "dataset").request(APPLICATION_JSON_TYPE).post(entity(new HashMap<String, String>() {
+        final JdbcDataSet dataSet = base.path("action/execute").queryParam("family", "jdbc")
+                .queryParam("type", "wizard").queryParam("action", "dataset").request(APPLICATION_JSON_TYPE)
+                .post(entity(new HashMap<String, String>() {
 
                     {
                         put("driver.driver", "com.h2.Driver");

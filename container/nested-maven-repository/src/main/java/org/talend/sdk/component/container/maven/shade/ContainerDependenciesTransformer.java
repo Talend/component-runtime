@@ -45,10 +45,10 @@ public class ContainerDependenciesTransformer extends ArtifactTransformer {
         final Collection<String> existing = new HashSet<>();
         artifacts.forEach(artifact -> {
             try {
-                final String path = String.format("%s%s/%s/%s/%s-%s%s.%s", repositoryBase,
-                        artifact.getGroupId().replace(".", "/"), artifact.getArtifactId(), artifact.getVersion(),
-                        artifact.getArtifactId(), artifact.getVersion(),
-                        ofNullable(artifact.getClassifier()).map(c -> '-' + c).orElse(""),
+                final String path =
+                    String.format("%s%s/%s/%s/%s-%s%s.%s", repositoryBase, artifact.getGroupId().replace(".", "/"),
+                        artifact.getArtifactId(), artifact.getVersion(), artifact.getArtifactId(),
+                        artifact.getVersion(), ofNullable(artifact.getClassifier()).map(c -> '-' + c).orElse(""),
                         ofNullable(artifact.getType()).orElse("jar"));
                 final StringBuilder current = new StringBuilder();
                 final String[] parts = path.split("/");
@@ -80,7 +80,7 @@ public class ContainerDependenciesTransformer extends ArtifactTransformer {
     private boolean isExcluded(final String folderPath) {
         if (ignoredPathsRuntime == null) {
             ignoredPathsRuntime = ignoredPaths == null ? emptySet()
-                    : of(ignoredPaths).map(p -> p.split(",")).map(Stream::of).orElseGet(Stream::empty).collect(toSet());
+                : of(ignoredPaths).map(p -> p.split(",")).map(Stream::of).orElseGet(Stream::empty).collect(toSet());
         }
         return ignoredPathsRuntime.contains(folderPath);
     }

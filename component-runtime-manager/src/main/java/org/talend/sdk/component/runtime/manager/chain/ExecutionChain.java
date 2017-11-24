@@ -61,13 +61,14 @@ public class ExecutionChain {
 
         final long processorCount = onProcessors(chainHead.getInputConfigurer().getChildren(), p -> {
         }).count();
-        final List<Processor> processorValues = onProcessors(chainHead.getInputConfigurer().getChildren(), Processor::start)
-                .collect(toList());
+        final List<Processor> processorValues =
+            onProcessors(chainHead.getInputConfigurer().getChildren(), Processor::start).collect(toList());
         if (processorValues.size() != processorCount) {
             throw new IllegalStateException("Some processor didn't start, stopping");
         }
 
-        if (onProcessors(chainHead.getInputConfigurer().getChildren(), Processor::beforeGroup).count() != processorCount) {
+        if (onProcessors(chainHead.getInputConfigurer().getChildren(), Processor::beforeGroup)
+            .count() != processorCount) {
             throw new IllegalStateException("Some processor didn't start properly, stopping");
         }
         try {
@@ -94,9 +95,9 @@ public class ExecutionChain {
                 try {
                     processor.afterGroup(name -> value -> {
                         // we don't expect this to be used yet so the impl is not optimized
-                        final Collection<ExecutionChainBuilder.ProcessorConfigurer<?>> children = chainHead.getInputConfigurer()
-                                .getChildren().stream().filter(p -> p.getProcessor() == processor).findFirst()
-                                .map(ExecutionChainBuilder.ProcessorConfigurer::getChildren).orElse(null);
+                        final Collection<ExecutionChainBuilder.ProcessorConfigurer<?>> children = chainHead
+                            .getInputConfigurer().getChildren().stream().filter(p -> p.getProcessor() == processor)
+                            .findFirst().map(ExecutionChainBuilder.ProcessorConfigurer::getChildren).orElse(null);
                         send(name, children, value);
                         if (listener != null) {
                             try {
@@ -119,7 +120,7 @@ public class ExecutionChain {
     }
 
     private void onElement(final Collection<ExecutionChainBuilder.ProcessorConfigurer<?>> procs, final Object data,
-            final String branch) {
+        final String branch) {
         try {
             send(branch, procs, data);
         } catch (final RuntimeException re) {
@@ -131,10 +132,11 @@ public class ExecutionChain {
     }
 
     private void send(final String marker, final Collection<ExecutionChainBuilder.ProcessorConfigurer<?>> processors,
-            final Object data) {
+        final Object data) {
         processors.stream().filter(p -> p.getMarker().equals(marker)).forEach(p -> {
             final AtomicBoolean noOutput = new AtomicBoolean(true);
-            final InputFactory inputFactory = branch -> data; // if we linked something to a processor we want that data ATM
+            final InputFactory inputFactory = branch -> data; // if we linked something to a processor we want that data
+                                                              // ATM
             final OutputFactory outputFactory = name -> value -> {
                 send(name, p.getChildren(), value);
                 noOutput.compareAndSet(true, false);
@@ -153,7 +155,7 @@ public class ExecutionChain {
     }
 
     private Stream<Processor> onProcessors(final Collection<ExecutionChainBuilder.ProcessorConfigurer<?>> children,
-            final Consumer<Processor> action) {
+        final Consumer<Processor> action) {
         return children.stream().flatMap(p -> {
             try {
                 action.accept(p.getProcessor());
@@ -168,7 +170,8 @@ public class ExecutionChain {
     public interface SuccessListener {
 
         /**
-         * @param data the successfully processed data.
+         * @param data
+         *            the successfully processed data.
          */
         void onData(final Object data);
     }
@@ -176,9 +179,12 @@ public class ExecutionChain {
     public interface ErrorHandler {
 
         /**
-         * @param data the data related to the failure.
-         * @param exception the error which made the data processing failed.
-         * @return the new chain data, if you want to skip the item, return a {@link Skip}.
+         * @param data
+         *            the data related to the failure.
+         * @param exception
+         *            the error which made the data processing failed.
+         * @return the new chain data, if you want to skip the item, return a
+         *         {@link Skip}.
          */
         Object onError(final Object data, final RuntimeException exception);
     }

@@ -33,43 +33,43 @@ public class ModelMapper {
 
     public <T> T map(final ObjectMap from, final T target) {
         final BiConsumer<Object, ObjectMap> consumer = setters.computeIfAbsent(target.getClass(), type -> {
-            final Collection<BiConsumer<Object, ObjectMap>> fields = Stream.of(type.getFields())
-                    .filter(f -> !Modifier.isStatic(f.getModifiers())).map(field -> {
-                        final Class<?> fieldType = field.getType();
-                        final String name = field.getName();
-                        if (!field.isAccessible()) {
-                            field.setAccessible(true);
+            final Collection<BiConsumer<Object, ObjectMap>> fields =
+                Stream.of(type.getFields()).filter(f -> !Modifier.isStatic(f.getModifiers())).map(field -> {
+                    final Class<?> fieldType = field.getType();
+                    final String name = field.getName();
+                    if (!field.isAccessible()) {
+                        field.setAccessible(true);
+                    }
+
+                    final boolean isPrimitive = fieldType.isPrimitive();
+                    final Class<?> objectType = isPrimitive ? findWrapper(fieldType) : fieldType;
+                    final boolean isNumber = Number.class.isAssignableFrom(objectType);
+                    final Function<Number, Object> numberFactory = isNumber ? findNumberFactory(objectType) : null;
+                    final Object defaultValue = isPrimitive ? findDefault(fieldType) : null;
+
+                    return (BiConsumer<Object, ObjectMap>) (instance, map) -> {
+                        if (!map.keys().contains(name)) {
+                            return;
+                        }
+                        Object fieldValue = map.get(name);
+                        if (fieldValue != null && !objectType.isInstance(fieldValue)) {
+                            if (isNumber && Number.class.isInstance(fieldValue)) {
+                                fieldValue = numberFactory.apply(Number.class.cast(fieldValue));
+                            } else {
+                                throw new IllegalArgumentException(
+                                    "Bad type for " + name + ", expected " + fieldType + " and got " + fieldValue);
+                            }
+                        } else if (fieldValue == null && isPrimitive) {
+                            fieldValue = defaultValue;
                         }
 
-                        final boolean isPrimitive = fieldType.isPrimitive();
-                        final Class<?> objectType = isPrimitive ? findWrapper(fieldType) : fieldType;
-                        final boolean isNumber = Number.class.isAssignableFrom(objectType);
-                        final Function<Number, Object> numberFactory = isNumber ? findNumberFactory(objectType) : null;
-                        final Object defaultValue = isPrimitive ? findDefault(fieldType) : null;
-
-                        return (BiConsumer<Object, ObjectMap>) (instance, map) -> {
-                            if (!map.keys().contains(name)) {
-                                return;
-                            }
-                            Object fieldValue = map.get(name);
-                            if (fieldValue != null && !objectType.isInstance(fieldValue)) {
-                                if (isNumber && Number.class.isInstance(fieldValue)) {
-                                    fieldValue = numberFactory.apply(Number.class.cast(fieldValue));
-                                } else {
-                                    throw new IllegalArgumentException(
-                                            "Bad type for " + name + ", expected " + fieldType + " and got " + fieldValue);
-                                }
-                            } else if (fieldValue == null && isPrimitive) {
-                                fieldValue = defaultValue;
-                            }
-
-                            try {
-                                field.set(instance, fieldValue);
-                            } catch (final IllegalAccessException e) {
-                                throw new IllegalStateException(e);
-                            }
-                        };
-                    }).collect(toList());
+                        try {
+                            field.set(instance, fieldValue);
+                        } catch (final IllegalAccessException e) {
+                            throw new IllegalStateException(e);
+                        }
+                    };
+                }).collect(toList());
             if (fields.size() == 1) {
                 return fields.iterator().next();
             }

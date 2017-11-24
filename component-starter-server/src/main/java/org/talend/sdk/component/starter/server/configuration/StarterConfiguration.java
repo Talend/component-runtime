@@ -25,9 +25,7 @@ import org.apache.deltaspike.core.api.config.Configuration;
 @Configuration(prefix = "talend.component.starter.")
 public interface StarterConfiguration {
 
-    @ConfigProperty(name = "dictionary.credentials",
-            defaultValue = "password;passwd;pass;credential;token;secret",
-            converter = ConfigurationConverters.SetConverter.class)
+    @ConfigProperty(name = "dictionary.credentials", defaultValue = "password;passwd;pass;credential;token;secret", converter = ConfigurationConverters.SetConverter.class)
     Set<String> dictionaryCredentials();
 
 }

@@ -48,7 +48,8 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
 
     private final boolean isMap;
 
-    // alternative is to be eager. for now this is probably better until we ensure we only have small payloads
+    // alternative is to be eager. for now this is probably better until we ensure
+    // we only have small payloads
     private final ClassLoader loader;
 
     private Set<String> keys;
@@ -71,7 +72,7 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
                 final int dot = location.indexOf('.');
                 if (dot > 0) {
                     return new ObjectMapImpl(plugin, Map.class.cast(delegate).get(location.substring(0, dot)), cache)
-                            .get(location.substring(dot + 1));
+                        .get(location.substring(dot + 1));
                 }
                 return Map.class.cast(delegate).get(location);
             }
@@ -103,14 +104,16 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
             }
             final Collection<?> items = Collection.class.cast(o);
             return items.stream().map(item -> ObjectMap.class.isInstance(item) ? ObjectMap.class.cast(item)
-                    : new ObjectMapImpl(plugin, item, cache)).collect(toList());
+                : new ObjectMapImpl(plugin, item, cache)).collect(toList());
         });
     }
 
     @Override
     public synchronized Set<String> keys() { // todo: map without string key?
-        return doFn(loader, () -> keys == null && delegate != null
-                ? (keys = Map.class.isInstance(delegate) ? Map.class.cast(delegate).keySet() : findKeys(delegate.getClass()))
+        return doFn(loader,
+            () -> keys == null && delegate != null
+                ? (keys =
+                    Map.class.isInstance(delegate) ? Map.class.cast(delegate).keySet() : findKeys(delegate.getClass()))
                 : keys);
     }
 
@@ -118,8 +121,9 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
         // note: handle getters? should be on anemic model so shouldn't change anything
         final Set<String> staticFields = cache.getOrCreateStaticFields(c);
         final Function<Object, Map<String, Object>> any = cache.getOrCreateAny(c);
-        return Stream.concat(staticFields.stream(), any == null ? Stream.empty() : any.apply(delegate).keySet().stream())
-                .collect(toSet());
+        return Stream
+            .concat(staticFields.stream(), any == null ? Stream.empty() : any.apply(delegate).keySet().stream())
+            .collect(toSet());
     }
 
     Object writeReplace() throws ObjectStreamException {
@@ -131,7 +135,8 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
         return String.valueOf(delegate);
     }
 
-    private static <T> T doFn(final ClassLoader loader, final Supplier<T> supplier) { // note: one option is to let the caller
+    private static <T> T doFn(final ClassLoader loader, final Supplier<T> supplier) { // note: one option is to let the
+                                                                                      // caller
                                                                                       // handling it (for perf)
         final Thread thread = Thread.currentThread();
         final ClassLoader old = thread.getContextClassLoader();
@@ -156,7 +161,7 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
                 return doFn(loader, () -> {
                     try {
                         return new ObjectMapImpl(plugin, loadDelegate(loader),
-                                ContainerFinder.Instance.get().find(plugin).findService(AccessorCache.class));
+                            ContainerFinder.Instance.get().find(plugin).findService(AccessorCache.class));
 
                     } catch (final IOException | ClassNotFoundException e) {
                         throw new IllegalStateException(new InvalidObjectException(e.getMessage()));

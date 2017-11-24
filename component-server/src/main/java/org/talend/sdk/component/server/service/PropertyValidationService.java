@@ -37,7 +37,8 @@ public class PropertyValidationService {
 
     @PostConstruct
     private void initMapper() {
-        // precompute the mapping of validations to centralize the convention - note: can be moved to impl for setters part
+        // precompute the mapping of validations to centralize the convention - note: can be moved to impl for setters
+        // part
         final Collection<BiFunction<Object, Map<String, String>, Boolean>> validationSetters = Stream
                 .of(PropertyValidation.class.getDeclaredFields()).map(f -> {
                     // we need boolean, int, string, collection<string>

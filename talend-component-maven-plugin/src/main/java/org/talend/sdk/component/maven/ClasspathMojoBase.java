@@ -69,13 +69,13 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
 
         pluginLoader = Thread.currentThread().getContextClassLoader();
         try (final URLClassLoader loader = new AccessibleClassLoader(
-                Stream.concat(Stream.of(classes), project.getArtifacts().stream().map(Artifact::getFile)).map(file -> {
-                    try {
-                        return file.toURI().toURL();
-                    } catch (final MalformedURLException e) {
-                        throw new IllegalStateException(e.getMessage());
-                    }
-                }).toArray(URL[]::new), Thread.currentThread().getContextClassLoader()) {
+            Stream.concat(Stream.of(classes), project.getArtifacts().stream().map(Artifact::getFile)).map(file -> {
+                try {
+                    return file.toURI().toURL();
+                } catch (final MalformedURLException e) {
+                    throw new IllegalStateException(e.getMessage());
+                }
+            }).toArray(URL[]::new), Thread.currentThread().getContextClassLoader()) {
 
             {
                 Thread.currentThread().setContextClassLoader(this);
@@ -99,7 +99,8 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
     protected void logDeprecated() {
         getLog().warn("");
         getLog().warn("");
-        getLog().warn("This mojo (" + getClass().getSimpleName() + ") is deprecated, use it only if you know what you do");
+        getLog()
+            .warn("This mojo (" + getClass().getSimpleName() + ") is deprecated, use it only if you know what you do");
         getLog().warn("");
         getLog().warn("");
     }
@@ -130,7 +131,7 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
     }
 
     protected static class AccessibleClassLoader extends URLClassLoader {
-        private AccessibleClassLoader(URL[] urls, ClassLoader parent) {
+        private AccessibleClassLoader(final URL[] urls, final ClassLoader parent) {
             super(urls, parent);
         }
 

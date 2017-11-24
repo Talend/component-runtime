@@ -57,10 +57,10 @@ public class ComponentModel extends AbstractBasicComponent {
     private final ImageDescriptor image16;
 
     /**
-     * All palette entries for component joined by "|"
-     * Component palette entry is computed as category + "/" + familyName
-     * E.g. "Business/Salesforce|Cloud/Salesforce", where "Business", "Cloud" are categories,
-     * "Salesforce" - is familyName
+     * All palette entries for component joined by "|" Component palette entry is
+     * computed as category + "/" + familyName E.g.
+     * "Business/Salesforce|Cloud/Salesforce", where "Business", "Cloud" are
+     * categories, "Salesforce" - is familyName
      */
     private final String familyName;
 
@@ -88,16 +88,17 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     /**
-     * TODO change to StringBuilder impl? Seems, here StringBuilder instance is created per category
+     * TODO change to StringBuilder impl? Seems, here StringBuilder instance is
+     * created per category
      */
     private String computeFamilyName() {
         return index.getCategories().stream().map(category -> category + "/" + index.getId().getFamily())
-                .collect(Collectors.joining("|"));
+            .collect(Collectors.joining("|"));
     }
 
     /**
-     * Creates unmodifiable list of code part templates (.javajet)
-     * All Tacokit component have following 4 parts by default:
+     * Creates unmodifiable list of code part templates (.javajet) All Tacokit
+     * component have following 4 parts by default:
      * <ul>
      * <li>BEGIN</li>
      * <li>MAIN</li>
@@ -108,7 +109,8 @@ public class ComponentModel extends AbstractBasicComponent {
      * @return
      */
     private List<ECodePart> createCodePartList() {
-        return Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY));
+        return Collections
+            .unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY));
     }
 
     /**
@@ -128,8 +130,9 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     /**
-     * Returns long component name, aka title (e.g. "Salesforce Input"). It is i18n title.
-     * In v0 component it is specified by "component.{compName}.title" message key
+     * Returns long component name, aka title (e.g. "Salesforce Input"). It is i18n
+     * title. In v0 component it is specified by "component.{compName}.title"
+     * message key
      * 
      * @return long component name, aka title (e.g. "") or translated
      */
@@ -140,8 +143,8 @@ public class ComponentModel extends AbstractBasicComponent {
 
     /**
      * Returns string which is concatenation of all component palette entries
-     * Component palette entry is computed as category + "/" + familyName
-     * E.g. "Business/Salesforce|Cloud/Salesforce"
+     * Component palette entry is computed as category + "/" + familyName E.g.
+     * "Business/Salesforce|Cloud/Salesforce"
      * 
      * @return all palette entries for this component
      */
@@ -159,9 +162,9 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     /**
-     * Returns short component name, which is obtained in following way
-     * All capital letters are picked and converted to lower case
-     * E.g. the short name for "tSalesforceInput" is "si"
+     * Returns short component name, which is obtained in following way All capital
+     * letters are picked and converted to lower case E.g. the short name for
+     * "tSalesforceInput" is "si"
      * 
      * @return short component name
      */
@@ -203,27 +206,27 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     /**
-     * Creates component return variables
-     * For the moment it returns only ERROR_MESSAGE and NB_LINE after variables
+     * Creates component return variables For the moment it returns only
+     * ERROR_MESSAGE and NB_LINE after variables
      * 
      * @return list of component return variables
      */
     @Override
-    public List<? extends INodeReturn> createReturns(INode node) {
+    public List<? extends INodeReturn> createReturns(final INode node) {
         List<NodeReturn> returnVariables = new ArrayList<>();
 
         NodeReturn errorMessage = new NodeReturn();
         errorMessage.setType(JavaTypesManager.STRING.getLabel());
         errorMessage.setDisplayName(
-                ComponentReturnVariableUtils.getTranslationForVariable(RETURN_ERROR_MESSAGE, RETURN_ERROR_MESSAGE));
+            ComponentReturnVariableUtils.getTranslationForVariable(RETURN_ERROR_MESSAGE, RETURN_ERROR_MESSAGE));
         errorMessage.setName(ComponentReturnVariableUtils.getStudioNameFromVariable(RETURN_ERROR_MESSAGE));
         errorMessage.setAvailability(AFTER);
         returnVariables.add(errorMessage);
 
         NodeReturn numberLinesMessage = new NodeReturn();
         numberLinesMessage.setType(JavaTypesManager.INTEGER.getLabel());
-        numberLinesMessage.setDisplayName(
-                ComponentReturnVariableUtils.getTranslationForVariable(RETURN_TOTAL_RECORD_COUNT, RETURN_TOTAL_RECORD_COUNT));
+        numberLinesMessage.setDisplayName(ComponentReturnVariableUtils
+            .getTranslationForVariable(RETURN_TOTAL_RECORD_COUNT, RETURN_TOTAL_RECORD_COUNT));
         numberLinesMessage.setName(ComponentReturnVariableUtils.getStudioNameFromVariable(RETURN_TOTAL_RECORD_COUNT));
         numberLinesMessage.setAvailability(AFTER);
         returnVariables.add(numberLinesMessage);
@@ -232,10 +235,13 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     /**
-     * Creates component connectors. It creates all possible connector even if some of them are not applicable for component.
-     * In such cases not applicable connector has 0 outgoing and incoming links.
+     * Creates component connectors. It creates all possible connector even if some
+     * of them are not applicable for component. In such cases not applicable
+     * connector has 0 outgoing and incoming links.
      * 
-     * @param node component node - object representing component instance on design canvas
+     * @param node
+     *            component node - object representing component instance on design
+     *            canvas
      */
     @Override
     public List<? extends INodeConnector> createConnectors(final INode node) {
@@ -269,9 +275,10 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     /**
-     * Get the modules needed according component configuration
-     * This method should no have sense for v1 as Job classpath should contain only common API dependencies
-     * All component specific dependencies will be resolved by ComponentManager class
+     * Get the modules needed according component configuration This method should
+     * no have sense for v1 as Job classpath should contain only common API
+     * dependencies All component specific dependencies will be resolved by
+     * ComponentManager class
      * 
      * @return
      */
@@ -281,8 +288,8 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     /**
-     * Returns code parts (.javajet templates) for this component.
-     * All Tacokit componenta have same set of common templates:
+     * Returns code parts (.javajet templates) for this component. All Tacokit
+     * componenta have same set of common templates:
      * <ul>
      * <li>BEGIN</li>
      * <li>MAIN</li>
