@@ -15,11 +15,13 @@
  */
 package org.talend.sdk.component.runtime.beam;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyIterator;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -57,15 +59,18 @@ abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
         processor.stop();
     }
 
-    @RequiredArgsConstructor
     protected static final class BeamInputFactory implements InputFactory {
 
-        private final DoFn<Map<String, List<Serializable>>, ?>.ProcessContext context;
+        private final Map<String, Iterator<Serializable>> iterators;
+
+        BeamInputFactory(final DoFn<Map<String, List<Serializable>>, ?>.ProcessContext context) {
+            iterators = context.element().entrySet().stream().collect(toMap(Map.Entry::getKey, e -> e.getValue().iterator()));
+        }
 
         @Override
         public Object read(final String name) {
-            final List<?> values = context.element().getOrDefault(name, emptyList());
-            return !values.isEmpty() ? values.get(0) : null;
+            final Iterator<Serializable> values = iterators.getOrDefault(name, emptyIterator());
+            return values.hasNext() ? values.next() : null;
         }
     }
 
