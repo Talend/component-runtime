@@ -49,6 +49,11 @@ public class ElementParameterCreator {
      * Flag representing whether it is startable component
      */
     private static final boolean CAN_START = true;
+    
+    /**
+     * Separator used in component name parameter value between family and component names
+     */
+    private static final String COMPONENT_NAME_SEPARATOR = "/";
 
     private final INode node;
 
@@ -152,29 +157,51 @@ public class ElementParameterCreator {
             parameters.addAll(settingsCreator.getSettings());
         }
     }
+    
+    /**
+     * Creates and adds {@linkp EParameterName#UNIQUE_NAME} parameter
+     * This parameter stores unique id of component instance in current job/process
+     * It's value is like following "tJiraInput_1", "tJiraInput_2"
+     * Value is computed later and can't be computed here as {@link ComponentModel}
+     * doesn't now how many component instances were created before  
+     */
+    private void addUniqueNameParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.UNIQUE_NAME.getName());
+        parameter.setValue("");
+        parameter.setDisplayName(EParameterName.UNIQUE_NAME.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.TEXT);
+        // TODO maybe change category to TECHICAL?
+        parameter.setCategory(EComponentCategory.ADVANCED);
+        parameter.setNumRow(1);
+        parameter.setReadOnly(true);
+        parameter.setShow(false);
+        parameters.add(parameter);
+    }
+    
+    /**
+     * Creates and adds {@link EParameterName#COMPONENT_NAME} parameter
+     * TODO it is not clear where it is used for the moment
+     */
+    private void addComponentNameParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.COMPONENT_NAME.getName());
+        parameter.setValue(component.getName());
+        parameter.setDisplayName(EParameterName.COMPONENT_NAME.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.TEXT);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setNumRow(1);
+        parameter.setReadOnly(true);
+        parameter.setShow(false);
+        parameters.add(parameter);
+    }
 
     private void addMainParameters() {
+        
+        addUniqueNameParameter();
+        addComponentNameParameter();
+
         ElementParameter param;
-        param = new ElementParameter(node);
-        param.setName(EParameterName.UNIQUE_NAME.getName());
-        param.setValue(""); //$NON-NLS-1$
-        param.setDisplayName(EParameterName.UNIQUE_NAME.getDisplayName());
-        param.setFieldType(EParameterFieldType.TEXT);
-        param.setCategory(EComponentCategory.ADVANCED);
-        param.setNumRow(1);
-        param.setReadOnly(true);
-        param.setShow(false);
-        parameters.add(param);
-        param = new ElementParameter(node);
-        param.setName(EParameterName.COMPONENT_NAME.getName());
-        param.setValue(component.getName());
-        param.setDisplayName(EParameterName.COMPONENT_NAME.getDisplayName());
-        param.setFieldType(EParameterFieldType.TEXT);
-        param.setCategory(EComponentCategory.TECHNICAL);
-        param.setNumRow(1);
-        param.setReadOnly(true);
-        param.setShow(false);
-        parameters.add(param);
         param = new ElementParameter(node);
         param.setName(EParameterName.FAMILY.getName());
         param.setValue(component.getOriginalFamilyName());
