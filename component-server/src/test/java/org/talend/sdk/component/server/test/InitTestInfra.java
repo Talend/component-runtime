@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.server.test;
 
@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -137,7 +138,21 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         }
 
         private File createJdbcPlugin(final File target) {
-            return createRepackaging(target, "org/talend/sdk/component/server/test/jdbc", null);
+            return createRepackaging(target, "org/talend/sdk/component/server/test/jdbc", out -> {
+                try {
+                    out.putNextEntry(new JarEntry("Messages.properties"));
+                    new Properties() {
+
+                        {
+                            put("jdbc.datastore.jdbc._displayName", "JDBC DataStore");
+                            put("jdbc.dataset.jdbc._displayName", "JDBC DataSet");
+                        }
+                    }.store(out, "i18n for the config types");
+                    out.closeEntry();
+                } catch (final IOException e) {
+                    fail(e.getMessage());
+                }
+            });
         }
 
         private File createFilePlugin(final File target) {

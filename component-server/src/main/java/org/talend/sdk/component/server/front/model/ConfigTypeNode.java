@@ -33,6 +33,8 @@ public class ConfigTypeNode {
 
     private String parentId;
 
+    private String configurationType;
+
     private String name;
 
     private String displayName;

@@ -15,7 +15,13 @@
  */
 package org.talend.sdk.component.server.front;
 
+import static java.util.Collections.singleton;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
+
 import javax.inject.Inject;
 import javax.websocket.DeploymentException;
 
@@ -23,11 +29,9 @@ import org.apache.meecrowave.junit.MonoMeecrowave;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(MonoMeecrowave.Runner.class)
 public class ConfigurationTypeResourceTest {
@@ -37,20 +41,40 @@ public class ConfigurationTypeResourceTest {
 
     @Test
     public void webSocketGetIndex() throws IOException, DeploymentException {
-        assertIndex(ws.read(ConfigTypeNodes.class, "get", "/configurationtype/index", ""));
+        final ConfigTypeNodes index = ws.read(ConfigTypeNodes.class, "get", "/configurationtype/index", "");
+        assertIndex(index);
+        validateJdbcHierarchy(index);
     }
 
     private void assertIndex(final ConfigTypeNodes index) {
         assertEquals(5, index.getNodes().size());
         index.getNodes().keySet().forEach(Assert::assertNotNull); // assert no null ids
-        //assert there is at least one parent node
-        Assert.assertTrue(index.getNodes().values().stream().filter(n -> n.getParentId() == null)
-                               .findAny().isPresent());
-        //assert all edges nodes are in the index
-        index.getNodes().values().stream().filter(n -> !n.getEdges().isEmpty())
-             .flatMap(n -> n.getEdges().stream())
-             .forEach(e -> assertTrue(index.getNodes().containsKey(e)));
+        // assert there is at least one parent node
+        assertTrue(index.getNodes().values().stream().anyMatch(n -> n.getParentId() == null));
+        // assert all edges nodes are in the index
+        index.getNodes().values().stream().filter(n -> !n.getEdges().isEmpty()).flatMap(n -> n.getEdges().stream())
+                .forEach(e -> assertTrue(index.getNodes().containsKey(e)));
 
+    }
+
+    private void validateJdbcHierarchy(final ConfigTypeNodes index) {
+        final ConfigTypeNode jdbcRoot = index.getNodes().get("amRiYw");
+        assertNotNull(jdbcRoot);
+        assertEquals(singleton("amRiYyNkYXRhc3RvcmUjamRiYw"), jdbcRoot.getEdges());
+        assertEquals("jdbc", jdbcRoot.getName());
+
+        final ConfigTypeNode jdbcConnection = index.getNodes().get("amRiYyNkYXRhc3RvcmUjamRiYw");
+        assertNotNull(jdbcConnection);
+        assertEquals(singleton("amRiYyNkYXRhc2V0I2pkYmM"), jdbcConnection.getEdges());
+        assertEquals("jdbc", jdbcConnection.getName());
+        assertEquals("JDBC DataStore", jdbcConnection.getDisplayName());
+        assertEquals("datastore", jdbcConnection.getConfigurationType());
+
+        final ConfigTypeNode jdbcDataSet = index.getNodes().get("amRiYyNkYXRhc2V0I2pkYmM");
+        assertNotNull(jdbcDataSet);
+        assertEquals("jdbc", jdbcDataSet.getName());
+        assertEquals("JDBC DataSet", jdbcDataSet.getDisplayName());
+        assertEquals("dataset", jdbcDataSet.getConfigurationType());
     }
 
 }

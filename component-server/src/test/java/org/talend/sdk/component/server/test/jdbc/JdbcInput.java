@@ -60,7 +60,7 @@ public class JdbcInput implements Serializable {
 
     private transient Map<String, Supplier<Object>> mapper = new HashMap<>();
 
-    public JdbcInput(@Option("connection") final JdbcDataSet dataset, final JdbcService service) {
+    public JdbcInput(@Option("configuration") final JdbcDataSet dataset, final JdbcService service) {
         this.dataset = dataset;
         this.service = service;
     }
