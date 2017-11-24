@@ -138,7 +138,7 @@ public class ComponentResourceTest {
 
         final ComponentDetail detail = details.getDetails().iterator().next();
         assertEquals("true",
-                detail.getProperties().stream().filter(p -> p.getPath().equals("connection.connection.password")).findFirst()
+                detail.getProperties().stream().filter(p -> p.getPath().equals("configuration.connection.password")).findFirst()
                         .orElseThrow(() -> new IllegalArgumentException("No credential found")).getMetadata()
                         .get("ui::credential"));
     }
