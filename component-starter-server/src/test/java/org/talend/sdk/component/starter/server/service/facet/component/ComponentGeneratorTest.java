@@ -233,6 +233,8 @@ public class ComponentGeneratorTest {
                                         new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("age", "int", null))),
                                         false));
                                 put("reject", new ProjectRequest.StructureConfiguration(null, true));
+                                put("reject2", new ProjectRequest.StructureConfiguration(null, true));
+                                put("reject3", new ProjectRequest.StructureConfiguration(null, true)); //to test the sort of branches
                             }
                         })))
                                                    .collect(toMap(FacetGenerator.InMemoryFile::getPath,

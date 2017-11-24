@@ -20,10 +20,11 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
@@ -39,15 +40,25 @@ import org.talend.sdk.component.starter.server.service.facet.util.NameConvention
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 
 @ApplicationScoped
 public class ComponentGenerator {
+
+    private final Comparator<Connection> connectionComparator = (o1, o2) -> {
+        if ("__default__".equals(o1.getName())) {
+            return -1;
+        }
+
+        if ("__default__".equals(o2.getName())) {
+            return 1;
+        }
+
+        return o1.getName().compareTo(o2.getName());
+    };
 
     @Inject
     private StarterConfiguration config;
@@ -207,29 +218,30 @@ public class ComponentGenerator {
 
             final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
 
-            final Set<Connection> outputNames = !isOutput ? processor.getOutputStructures().entrySet().stream().map(e -> {
+            final List<Connection> outputNames = !isOutput ? processor.getOutputStructures().entrySet().stream().map(e -> {
                 final String javaName = names.sanitizeConnectionName(e.getKey());
                 if (e.getValue().isGeneric()) {
-                    return new Connection(e.getKey(), javaName, "ObjectMap");
+                    return new Connection(e.getKey(), javaName, "ObjectMap", isDefault(e.getKey()));
                 }
 
                 final String outputClassName = capitalize(processor.getName() + capitalize(javaName + "Output"));
                 generateModel(null, processorPackage, mainJava, e.getValue().getStructure(), outputClassName, files);
-                return new Connection(e.getKey(), javaName, outputClassName);
-            }).collect(toSet()) : emptySet();
+                return new Connection(e.getKey(), javaName, outputClassName, isDefault(e.getKey()));
+            }).collect(toList()) : emptyList();
+            Collections.sort(outputNames, connectionComparator);
 
-            final Set<Connection> inputNames = processor.getInputStructures() != null
+            final List<Connection> inputNames = processor.getInputStructures() != null
                     ? processor.getInputStructures().entrySet().stream().map(e -> {
                 final String javaName = names.sanitizeConnectionName(e.getKey());
                 if (e.getValue().isGeneric()) {
-                    return new Connection(e.getKey(), javaName, "ObjectMap");
+                    return new Connection(e.getKey(), javaName, "ObjectMap", isDefault(e.getKey()));
                 }
 
                 final String inputClassName = capitalize(processor.getName() + capitalize(javaName + "Input"));
                 generateModel(null, processorPackage, mainJava, e.getValue().getStructure(), inputClassName, files);
-                return new Connection(e.getKey(), javaName, inputClassName);
-            }).collect(toSet())
-                    : emptySet();
+                return new Connection(e.getKey(), javaName, inputClassName, isDefault(e.getKey()));
+            }).collect(toList()) : emptyList();
+            Collections.sort(inputNames, connectionComparator);
 
             generateConfiguration(null, processorPackage, mainJava, processor.getConfiguration(), configurationClassName, files);
 
@@ -254,6 +266,10 @@ public class ComponentGenerator {
 
             return files.stream();
         });
+    }
+
+    private boolean isDefault(String name) {
+        return "__default__".equals(name);
     }
 
     private Stream<FacetGenerator.InMemoryFile> createSourceFiles(final String packageBase,
@@ -399,5 +415,7 @@ public class ComponentGenerator {
         private final String javaName;
 
         private final String type;
+
+        private final boolean isDefault;
     }
 }

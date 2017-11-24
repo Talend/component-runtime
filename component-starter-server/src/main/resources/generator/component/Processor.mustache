@@ -53,8 +53,8 @@ public class {{className}} implements Serializable {
 
     @ElementListener
     public void onNext({{#inputs}}
-        @Input("{{name}}") final {{type}} {{javaName}}Input{{#hasOutputs}},{{/hasOutputs}}{{/inputs}}{{#outputs}}
-        @Output("{{name}}") final OutputEmitter<{{type}}> {{javaName}}Output{{^-last}},{{/-last}}{{/outputs}}) {
+        @Input{{^isDefault}}("{{name}}"){{/isDefault}} final {{type}} {{javaName}}Input{{#hasOutputs}},{{/hasOutputs}}{{/inputs}}{{#outputs}}
+        @Output{{^isDefault}}("{{name}}"){{/isDefault}} final OutputEmitter<{{type}}> {{javaName}}Output{{^-last}},{{/-last}}{{/outputs}}) {
         // this is the method allowing you to handle the input(s) and emit the output(s)
         // after some custom logic you put here, to send a value to next element you can use an
         // output parameter and call emit(value).
