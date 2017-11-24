@@ -28,6 +28,7 @@ import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
 import org.talend.core.prefs.ITalendCorePrefConstants;
 import org.talend.core.ui.component.ComponentsFactoryProvider;
+import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.components.EmfComponent;
@@ -39,7 +40,6 @@ import org.talend.sdk.component.studio.ComponentModel;
 public class ElementParameterCreator {
 
     /**
-     * TODO make it dynamic
      * Flag representing whether it is startable component
      */
     private static final boolean CAN_START = true;
@@ -97,7 +97,7 @@ public class ElementParameterCreator {
         if (CAN_START) {
             param = new ElementParameter(node);
             param.setName(EParameterName.START.getName());
-            param.setValue(new Boolean(false));
+            param.setValue(false);
             param.setDisplayName(EParameterName.START.getDisplayName());
             param.setFieldType(EParameterFieldType.CHECK);
             param.setCategory(EComponentCategory.TECHNICAL);
@@ -110,7 +110,7 @@ public class ElementParameterCreator {
         // TUP-4142
         param = new ElementParameter(node);
         param.setName(EParameterName.STARTABLE.getName());
-        param.setValue(new Boolean(CAN_START));
+        param.setValue(CAN_START);
         param.setDisplayName(EParameterName.STARTABLE.getDisplayName());
         param.setFieldType(EParameterFieldType.CHECK);
         param.setCategory(EComponentCategory.TECHNICAL);
@@ -122,7 +122,7 @@ public class ElementParameterCreator {
         // TUP-4142
         param = new ElementParameter(node);
         param.setName(EParameterName.SUBTREE_START.getName());
-        param.setValue(new Boolean(CAN_START));
+        param.setValue(CAN_START);
         param.setDisplayName(EParameterName.SUBTREE_START.getDisplayName());
         param.setFieldType(EParameterFieldType.CHECK);
         param.setCategory(EComponentCategory.TECHNICAL);
@@ -134,7 +134,7 @@ public class ElementParameterCreator {
         // TUP-4142
         param = new ElementParameter(node);
         param.setName(EParameterName.END_OF_FLOW.getName());
-        param.setValue(new Boolean(CAN_START));
+        param.setValue(CAN_START);
         param.setDisplayName(EParameterName.END_OF_FLOW.getDisplayName());
         param.setFieldType(EParameterFieldType.CHECK);
         param.setCategory(EComponentCategory.TECHNICAL);
@@ -145,7 +145,7 @@ public class ElementParameterCreator {
         parameters.add(param);
         param = new ElementParameter(node);
         param.setName(EParameterName.ACTIVATE.getName());
-        param.setValue(new Boolean(true));
+        param.setValue(true);
         param.setDisplayName(EParameterName.ACTIVATE.getDisplayName());
         param.setFieldType(EParameterFieldType.CHECK);
         param.setCategory(EComponentCategory.TECHNICAL);
@@ -169,7 +169,7 @@ public class ElementParameterCreator {
         parameters.add(param);
         param = new ElementParameter(node);
         param.setName(EParameterName.UPDATE_COMPONENTS.getName());
-        param.setValue(new Boolean(false));
+        param.setValue(false);
         param.setDisplayName(EParameterName.UPDATE_COMPONENTS.getDisplayName());
         param.setFieldType(EParameterFieldType.CHECK);
         param.setCategory(EComponentCategory.TECHNICAL);
@@ -209,14 +209,14 @@ public class ElementParameterCreator {
         newParam.setCategory(EComponentCategory.BASIC);
         newParam.setName(EParameterName.PROPERTY_TYPE.getName());
         newParam.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
-        newParam.setListItemsDisplayName(new String[] { component.TEXT_BUILTIN, component.TEXT_REPOSITORY });
-        newParam.setListItemsDisplayCodeName(new String[] { component.BUILTIN, component.REPOSITORY });
-        newParam.setListItemsValue(new String[] { component.BUILTIN, component.REPOSITORY });
-        newParam.setValue(component.BUILTIN);
+        newParam.setListItemsDisplayName(new String[] { AbstractBasicComponent.TEXT_BUILTIN, AbstractBasicComponent.TEXT_REPOSITORY });
+        newParam.setListItemsDisplayCodeName(new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
+        newParam.setListItemsValue(new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
+        newParam.setValue(AbstractBasicComponent.BUILTIN);
         newParam.setNumRow(param.getNumRow());
         newParam.setFieldType(EParameterFieldType.TECHNICAL);
         newParam.setShow(false);
-        newParam.setShowIf(param.getName() + " =='" + component.REPOSITORY + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+        newParam.setShowIf(param.getName() + " =='" + AbstractBasicComponent.REPOSITORY + "'"); //$NON-NLS-1$ //$NON-NLS-2$
         newParam.setReadOnly(param.isReadOnly());
         newParam.setNotShowIf(param.getNotShowIf());
         newParam.setContext("FLOW");
@@ -235,7 +235,7 @@ public class ElementParameterCreator {
         newParam.setShow(false);
         newParam.setRequired(true);
         newParam.setReadOnly(param.isReadOnly());
-        newParam.setShowIf(param.getName() + " =='" + component.REPOSITORY + "'"); //$NON-NLS-1$//$NON-NLS-2$
+        newParam.setShowIf(param.getName() + " =='" + AbstractBasicComponent.REPOSITORY + "'"); //$NON-NLS-1$//$NON-NLS-2$
         newParam.setNotShowIf(param.getNotShowIf());
         newParam.setContext("FLOW");
         newParam.setSerialized(true);
@@ -243,32 +243,27 @@ public class ElementParameterCreator {
         parameters.add(param);
 
         if (ComponentCategory.CATEGORY_4_DI.getName().equals(component.getPaletteType())) {
-            boolean isStatCatcherComponent = false;
-            /* for bug 0021961,should not show parameter TSTATCATCHER_STATS in UI on component tStatCatcher */
-            if (!isStatCatcherComponent) {
-                boolean tStatCatcherAvailable = ComponentsFactoryProvider.getInstance().get(EmfComponent.TSTATCATCHER_NAME,
-                        ComponentCategory.CATEGORY_4_DI.getName()) != null;
-                param = new ElementParameter(node);
-                param.setName(EParameterName.TSTATCATCHER_STATS.getName());
-                param.setValue(Boolean.FALSE);
-                param.setDisplayName(EParameterName.TSTATCATCHER_STATS.getDisplayName());
-                param.setFieldType(EParameterFieldType.CHECK);
-                param.setCategory(EComponentCategory.ADVANCED);
-                param.setNumRow(199);
-                param.setReadOnly(false);
-                param.setRequired(false);
-                param.setDefaultValue(param.getValue());
-                param.setShow(tStatCatcherAvailable);
-                parameters.add(param);
-            }
+            boolean tStatCatcherAvailable = ComponentsFactoryProvider.getInstance().get(EmfComponent.TSTATCATCHER_NAME,
+                    ComponentCategory.CATEGORY_4_DI.getName()) != null;
+            param = new ElementParameter(node);
+            param.setName(EParameterName.TSTATCATCHER_STATS.getName());
+            param.setValue(Boolean.FALSE);
+            param.setDisplayName(EParameterName.TSTATCATCHER_STATS.getDisplayName());
+            param.setFieldType(EParameterFieldType.CHECK);
+            param.setCategory(EComponentCategory.ADVANCED);
+            param.setNumRow(199);
+            param.setReadOnly(false);
+            param.setRequired(false);
+            param.setDefaultValue(param.getValue());
+            param.setShow(tStatCatcherAvailable);
+            parameters.add(param);
         }
 
         // These parameters is only work when TIS is loaded
         // GLiu Added for Task http://jira.talendforge.org/browse/TESB-4279
         if (PluginChecker.isTeamEdition() && !ComponentCategory.CATEGORY_4_CAMEL.getName().equals(component.getPaletteType())) {
-            boolean defaultParalelize = Boolean.FALSE;
             param = new ElementParameter(node);
-            param.setReadOnly(!defaultParalelize);
+            param.setReadOnly(true);
             param.setName(EParameterName.PARALLELIZE.getName());
             param.setValue(Boolean.FALSE);
             param.setDisplayName(EParameterName.PARALLELIZE.getDisplayName());
@@ -280,7 +275,7 @@ public class ElementParameterCreator {
             parameters.add(param);
 
             param = new ElementParameter(node);
-            param.setReadOnly(!defaultParalelize);
+            param.setReadOnly(true);
             param.setName(EParameterName.PARALLELIZE_NUMBER.getName());
             param.setValue(2);
             param.setDisplayName(EParameterName.PARALLELIZE_NUMBER.getDisplayName());
@@ -292,7 +287,7 @@ public class ElementParameterCreator {
             parameters.add(param);
 
             param = new ElementParameter(node);
-            param.setReadOnly(!defaultParalelize);
+            param.setReadOnly(true);
             param.setName(EParameterName.PARALLELIZE_KEEP_EMPTY.getName());
             param.setValue(Boolean.FALSE);
             param.setDisplayName(EParameterName.PARALLELIZE_KEEP_EMPTY.getDisplayName());

@@ -37,20 +37,17 @@ public final class ConnectorCreatorFactory {
             return new PartitionMapperConnectorCreator(component, node);
         } else if (hasInputs(component) && !hasOutputs(component)) {
             return new OutputConnectorCreator(component, node);
-        } else {
-            return new ProcessorConnectorCreator(component, node);
         }
+        return new ProcessorConnectorCreator(component, node);
     }
 
     private static boolean hasInputs(ComponentDetail component) {
         return component.getInputFlows().stream() //
-                .filter(input -> FLOW_MAIN.equals(getType(input))) //
-                .count() > 0; //
+                .anyMatch(input -> FLOW_MAIN.equals(getType(input)));
     }
 
     private static boolean hasOutputs(ComponentDetail component) {
         return component.getOutputFlows().stream() //
-                .filter(output -> FLOW_MAIN.equals(getType(output))) //
-                .count() > 0; //
+                .anyMatch(output -> FLOW_MAIN.equals(getType(output)));
     }
 }
