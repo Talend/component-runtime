@@ -58,6 +58,7 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.studio.lang.Pair;
 
 // we shouldn't need the execution runtime so don't even include it here
@@ -229,6 +230,10 @@ public class WebSocketClient implements AutoCloseable {
             return new V1Action(root);
         }
 
+        public V1ConfigurationType configurationType() {
+            return new V1ConfigurationType(root);
+        }
+
         public V1Component component() {
             return new V1Component(root);
         }
@@ -237,6 +242,20 @@ public class WebSocketClient implements AutoCloseable {
             root.sendAndWait("/v1/get/component/index", "/component/index?language=" + Locale.getDefault().getLanguage(), null,
                     ComponentIndices.class, false);
             return true;
+        }
+    }
+
+    public static class V1ConfigurationType {
+
+        private final WebSocketClient root;
+
+        private V1ConfigurationType(final WebSocketClient root) {
+            this.root = root;
+        }
+
+        public ConfigTypeNodes getRepositoryModel() {
+            return root.sendAndWait("/v1/get/configurationtype/index",
+                    "/configurationtype/index?language=" + Locale.getDefault().getLanguage(), null, ConfigTypeNodes.class, true);
         }
     }
 
