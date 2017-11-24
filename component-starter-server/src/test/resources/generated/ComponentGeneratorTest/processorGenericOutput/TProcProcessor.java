@@ -47,7 +47,7 @@ public class TProcProcessor implements Serializable {
 
     @ElementListener
     public void onNext(
-        @Output("__default__") final OutputEmitter<ObjectMap> defaultOutput) {
+        @Output final OutputEmitter<ObjectMap> defaultOutput) {
         // this is the method allowing you to handle the input(s) and emit the output(s)
         // after some custom logic you put here, to send a value to next element you can use an
         // output parameter and call emit(value).

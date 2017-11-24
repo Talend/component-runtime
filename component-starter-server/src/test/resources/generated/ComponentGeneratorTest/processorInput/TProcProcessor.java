@@ -46,7 +46,7 @@ public class TProcOutput implements Serializable {
 
     @ElementListener
     public void onNext(
-        @Input("__default__") final TProcDefaultInput defaultInput) {
+        @Input final TProcDefaultInput defaultInput) {
         // this is the method allowing you to handle the input(s) and emit the output(s)
         // after some custom logic you put here, to send a value to next element you can use an
         // output parameter and call emit(value).
