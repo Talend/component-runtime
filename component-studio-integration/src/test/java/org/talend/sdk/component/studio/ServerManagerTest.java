@@ -63,6 +63,7 @@ import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 public class ServerManagerTest {
@@ -164,6 +165,13 @@ public class ServerManagerTest {
                 final String result = client.v1().action().execute(String.class, "proc", "user", "my-componentAction",
                         new HashMap<>());
                 assertEquals("{}", result);
+            }
+
+            {
+                final ConfigTypeNodes repositoryModel = client.v1()
+                                                              .configurationType()
+                                                              .getRepositoryModel();
+                assertTrue(repositoryModel.getNodes().isEmpty());
             }
         }
     }
