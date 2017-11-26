@@ -102,16 +102,6 @@
     </dependency>
   </dependencies>
 
-  <repositories>
-    <repository>
-      <id>Release 2.2.0 RC4</id>
-      <name>Release 2.2.0 RC4</name>
-      <url>
-        https://repository.apache.org/content/repositories/orgapachebeam-1025/
-      </url>
-    </repository>
-  </repositories>
-
   <build>
     <plugins>
       <plugin>
