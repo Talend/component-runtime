@@ -15,25 +15,7 @@
  */
 package org.talend.sdk.component.server.front;
 
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.stream.Stream;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-
+import lombok.extern.slf4j.Slf4j;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.design.extension.repository.Config;
@@ -44,7 +26,24 @@ import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.stream.Stream;
+
+import static java.util.Collections.singleton;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 @Slf4j
 @Path("configurationtype")
@@ -68,20 +67,22 @@ public class ConfigurationTypeResource {
     public ConfigTypeNodes getRepositoryModel(@QueryParam("language") @DefaultValue("en") final String language) {
         final Locale locale = localeMapper.mapLocale(language);
         return manager.find(Stream::of).filter(c -> c.get(RepositoryModel.class) != null)
-                .map(c -> c.get(RepositoryModel.class).getFamilies().stream().flatMap(family -> {
-                    final ConfigTypeNode node = new ConfigTypeNode();
-                    node.setId(family.getId());
-                    node.setName(family.getMeta().getName());
+                .map(c -> c.get(RepositoryModel.class).getFamilies().stream().filter(f -> !f.getConfigs().isEmpty())
+                        .flatMap(family -> {
+                            final ConfigTypeNode node = new ConfigTypeNode();
+                            node.setId(family.getId());
+                            node.setName(family.getMeta().getName());
 
-                    final FamilyBundle resourcesBundle = family.getMeta().findBundle(c.getLoader(), locale);
-                    node.setDisplayName(resourcesBundle.displayName().orElse(family.getMeta().getName()));
-                    if (family.getConfigs() == null) {
-                        return Stream.of(node);
-                    }
-                    node.setEdges(family.getConfigs().stream().map(Config::getId).collect(toSet()));
-                    return Stream.concat(Stream.of(node), createNode(family.getId(), family.getConfigs().stream(),
-                            resourcesBundle, c.getLoader(), locale));
-                })).collect(() -> {
+                            final FamilyBundle resourcesBundle = family.getMeta().findBundle(c.getLoader(), locale);
+                            node.setDisplayName(resourcesBundle.displayName().orElse(family.getMeta().getName()));
+                            if (family.getConfigs() == null) {
+                                return Stream.of(node);
+                            }
+                            node.setEdges(family.getConfigs().stream().map(Config::getId).collect(toSet()));
+                            return Stream.concat(Stream.of(node), createNode(family.getId(),
+                                    family.getConfigs().stream(), resourcesBundle, c.getLoader(), locale));
+                        }))
+                .collect(() -> {
                     final ConfigTypeNodes nodes = new ConfigTypeNodes();
                     nodes.setNodes(new HashMap<>());
                     return nodes;
@@ -98,17 +99,14 @@ public class ConfigurationTypeResource {
         return configs.flatMap(c -> {
             final ConfigTypeNode node = new ConfigTypeNode();
             node.setId(c.getId());
-            node.setConfigurationType(c.getMeta().getMetadata().get("tcomp::configurationtype::type"));
-            node.setName(
-                    c.getMeta().getMetadata().getOrDefault("tcomp::configurationtype::name", c.getMeta().getName()));
+            node.setConfigurationType(c.getKey().getConfigType());
+            node.setName(c.getKey().getConfigName());
             node.setParentId(parentId);
             node.setDisplayName(
                     resourcesBundle.configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
                             .orElse(c.getKey().getConfigName()));
-            if (c.getProperties() != null) {
-                node.setProperties(
-                        propertiesService.buildProperties(c.getProperties(), loader, locale).collect(toList()));
-            }
+            node.setProperties(
+                    propertiesService.buildProperties(singleton(c.getMeta()), loader, locale).collect(toList()));
 
             if (c.getChildConfigs() == null) {
                 return Stream.of(node);

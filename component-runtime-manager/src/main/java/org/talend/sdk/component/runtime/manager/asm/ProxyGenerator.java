@@ -15,28 +15,16 @@
  */
 package org.talend.sdk.component.runtime.manager.asm;
 
-import static org.apache.xbean.asm5.Opcodes.ACC_PRIVATE;
-import static org.apache.xbean.asm5.Opcodes.ACC_PUBLIC;
-import static org.apache.xbean.asm5.Opcodes.ACC_SUPER;
-import static org.apache.xbean.asm5.Opcodes.ACC_SYNTHETIC;
-import static org.apache.xbean.asm5.Opcodes.ALOAD;
-import static org.apache.xbean.asm5.Opcodes.ARETURN;
-import static org.apache.xbean.asm5.Opcodes.CHECKCAST;
-import static org.apache.xbean.asm5.Opcodes.DRETURN;
-import static org.apache.xbean.asm5.Opcodes.DUP;
-import static org.apache.xbean.asm5.Opcodes.FRETURN;
-import static org.apache.xbean.asm5.Opcodes.GETFIELD;
-import static org.apache.xbean.asm5.Opcodes.INVOKEINTERFACE;
-import static org.apache.xbean.asm5.Opcodes.INVOKESPECIAL;
-import static org.apache.xbean.asm5.Opcodes.INVOKEVIRTUAL;
-import static org.apache.xbean.asm5.Opcodes.IRETURN;
-import static org.apache.xbean.asm5.Opcodes.LRETURN;
-import static org.apache.xbean.asm5.Opcodes.NEW;
-import static org.apache.xbean.asm5.Opcodes.PUTFIELD;
-import static org.apache.xbean.asm5.Opcodes.RETURN;
-import static org.apache.xbean.asm5.Opcodes.V1_8;
+import lombok.AllArgsConstructor;
+import org.apache.xbean.asm6.ClassReader;
+import org.apache.xbean.asm6.ClassWriter;
+import org.apache.xbean.asm6.MethodVisitor;
+import org.apache.xbean.asm6.Type;
+import org.apache.xbean.asm6.shade.commons.EmptyVisitor;
+import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 import java.beans.Introspector;
+import java.io.InputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -44,12 +32,27 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
 
-import org.apache.xbean.asm5.ClassWriter;
-import org.apache.xbean.asm5.MethodVisitor;
-import org.apache.xbean.asm5.Type;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
-
-import lombok.AllArgsConstructor;
+import static org.apache.xbean.asm6.ClassReader.SKIP_DEBUG;
+import static org.apache.xbean.asm6.Opcodes.ACC_PRIVATE;
+import static org.apache.xbean.asm6.Opcodes.ACC_PUBLIC;
+import static org.apache.xbean.asm6.Opcodes.ACC_SUPER;
+import static org.apache.xbean.asm6.Opcodes.ACC_SYNTHETIC;
+import static org.apache.xbean.asm6.Opcodes.ALOAD;
+import static org.apache.xbean.asm6.Opcodes.ARETURN;
+import static org.apache.xbean.asm6.Opcodes.CHECKCAST;
+import static org.apache.xbean.asm6.Opcodes.DRETURN;
+import static org.apache.xbean.asm6.Opcodes.DUP;
+import static org.apache.xbean.asm6.Opcodes.FRETURN;
+import static org.apache.xbean.asm6.Opcodes.GETFIELD;
+import static org.apache.xbean.asm6.Opcodes.INVOKEINTERFACE;
+import static org.apache.xbean.asm6.Opcodes.INVOKESPECIAL;
+import static org.apache.xbean.asm6.Opcodes.INVOKEVIRTUAL;
+import static org.apache.xbean.asm6.Opcodes.IRETURN;
+import static org.apache.xbean.asm6.Opcodes.LRETURN;
+import static org.apache.xbean.asm6.Opcodes.NEW;
+import static org.apache.xbean.asm6.Opcodes.PUTFIELD;
+import static org.apache.xbean.asm6.Opcodes.RETURN;
+import static org.apache.xbean.asm6.Opcodes.V1_8;
 
 // highly inspired from openwebbeans proxying code
 //
@@ -64,10 +67,10 @@ public class ProxyGenerator implements Serializable {
     private final int javaVersion;
 
     public ProxyGenerator() {
-        javaVersion = determineJavaVersion();
+        javaVersion = determineDefaultJavaVersion();
     }
 
-    private int determineJavaVersion() {
+    private int determineDefaultJavaVersion() {
         final String javaVersionProp = System.getProperty("java.version", "1.8");
         if (javaVersionProp.startsWith("1.8")) { // we don't support earlier
             return V1_8;
@@ -162,6 +165,26 @@ public class ProxyGenerator implements Serializable {
         return fixedClassName;
     }
 
+    private int findJavaVersion(final Class<?> from) {
+        final String resource = from.getName().replace('.', '/') + ".class";
+        try (final InputStream stream = from.getClassLoader().getResourceAsStream(resource)) {
+            if (stream == null) {
+                return javaVersion;
+            }
+            final ClassReader reader = new ClassReader(stream);
+            final VersionVisitor visitor = new VersionVisitor();
+            reader.accept(visitor, SKIP_DEBUG);
+            if (visitor.version != 0) {
+                return visitor.version;
+            }
+        } catch (final Exception e) {
+            // no-op
+        }
+        // mainly for JVM classes - outside the classloader, find to fallback on the JVM
+        // version
+        return javaVersion;
+    }
+
     public Class<?> generateProxy(final ClassLoader loader, final Class<?> classToProxy, final String plugin,
         final String key) {
         final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
@@ -173,8 +196,8 @@ public class ProxyGenerator implements Serializable {
         final String[] interfaceNames = { Type.getInternalName(Serializable.class) };
         final String superClassName = Type.getInternalName(classToProxy);
 
-        cw.visit(javaVersion, ACC_PUBLIC + ACC_SUPER + ACC_SYNTHETIC, classFileName, null, superClassName,
-            interfaceNames);
+        cw.visit(findJavaVersion(classToProxy), ACC_PUBLIC + ACC_SUPER + ACC_SYNTHETIC, classFileName, null,
+            superClassName, interfaceNames);
         cw.visitSource(classFileName + ".java", null);
 
         createSerialisation(cw, plugin, key);
@@ -398,5 +421,16 @@ public class ProxyGenerator implements Serializable {
     public interface GetObjectMap {
 
         ObjectMap getObjectMap();
+    }
+
+    private static class VersionVisitor extends EmptyVisitor {
+        private int version;
+
+        @Override
+        public void visit(final int version, final int access, final String name, final String signature,
+            final String superName, final String[] interfaces) {
+            super.visit(version, access, name, signature, superName, interfaces);
+            this.version = version;
+        }
     }
 }

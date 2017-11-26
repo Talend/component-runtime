@@ -15,19 +15,10 @@
  */
 package org.talend.sdk.component.design.extension.repository;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.jar.JarEntry;
-import java.util.jar.JarOutputStream;
-import java.util.stream.Stream;
-
-import org.apache.xbean.asm5.ClassReader;
-import org.apache.xbean.asm5.ClassWriter;
-import org.apache.xbean.asm5.commons.Remapper;
-import org.apache.xbean.asm5.commons.RemappingClassAdapter;
+import org.apache.xbean.asm6.ClassReader;
+import org.apache.xbean.asm6.ClassWriter;
+import org.apache.xbean.asm6.commons.Remapper;
+import org.apache.xbean.asm6.commons.RemappingClassAdapter;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,9 +29,18 @@ import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.stream.Stream;
+
 import static java.util.Optional.ofNullable;
-import static org.apache.xbean.asm5.ClassReader.EXPAND_FRAMES;
-import static org.apache.xbean.asm5.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.xbean.asm6.ClassReader.EXPAND_FRAMES;
+import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -76,11 +76,6 @@ public class RepositoryModelBuilderTest {
             assertNotNull(dataStore1Config);
             assertEquals(1, dataStore1Config.getChildConfigs().size());
             assertEquals("configuration1", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
-            assertEquals(1, dataStore1Config.getChildConfigs().get(0).getProperties().size());
-            assertEquals("query", dataStore1Config.getChildConfigs().get(0).getProperties().get(0).getName());
-            assertEquals(3,
-                dataStore1Config.getChildConfigs().get(0).getProperties().get(0).getNestedParameters().size());
-            assertEquals(4, dataStore1Config.getProperties().size());
 
             String ds2Id = IdGenerator.get("family1", "datastore", "dataStore2");
             Config dataStore2Config =
@@ -88,8 +83,6 @@ public class RepositoryModelBuilderTest {
             assertNotNull(dataStore2Config);
             assertEquals(1, dataStore2Config.getChildConfigs().size());
             assertEquals("configuration2", dataStore2Config.getChildConfigs().get(0).getMeta().getName());
-            assertEquals(0, dataStore2Config.getChildConfigs().get(0).getProperties().size());
-            assertEquals(2, dataStore2Config.getProperties().size());
         }
 
     }

@@ -107,7 +107,7 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
                 // -> we need to rely on pax mvn everywhere, even in
                 // org.talend.designer.maven.utils.PomUtil#getArtifactPath
                 return newImport(artifactId, "mvn:org.talend.sdk.component/" + artifactId + "/1.0.0-SNAPSHOT", null);
-            }), Stream.of("xbean-finder-shaded", "xbean-asm5-shaded", "xbean-reflect").map(artifactId -> {
+            }), Stream.of("xbean-finder-shaded", "xbean-asm6-shaded", "xbean-reflect").map(artifactId -> {
                 final String xbeanVersion = AnnotationFinder.class.getPackage().getImplementationVersion();
                 return newImport(artifactId, "mvn:org.apache.xbean/" + artifactId + "/" + xbeanVersion, null);
             })),
