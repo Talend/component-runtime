@@ -15,38 +15,6 @@
  */
 package org.talend.sdk.component.studio;
 
-import static java.util.stream.Collectors.joining;
-import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
-import static org.apache.xbean.asm6.Opcodes.ACC_PUBLIC;
-import static org.apache.xbean.asm6.Opcodes.ACC_SUPER;
-import static org.apache.xbean.asm6.Opcodes.ALOAD;
-import static org.apache.xbean.asm6.Opcodes.ARETURN;
-import static org.apache.xbean.asm6.Opcodes.DUP;
-import static org.apache.xbean.asm6.Opcodes.INVOKESPECIAL;
-import static org.apache.xbean.asm6.Opcodes.NEW;
-import static org.apache.xbean.asm6.Opcodes.RETURN;
-import static org.apache.xbean.asm6.Opcodes.V1_8;
-import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.rules.RuleChain.outerRule;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.ConnectException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.jar.JarOutputStream;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.xbean.asm6.AnnotationVisitor;
 import org.apache.xbean.asm6.ClassWriter;
@@ -65,6 +33,38 @@ import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.ConnectException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.jar.JarOutputStream;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+
+import static java.util.stream.Collectors.joining;
+import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.xbean.asm6.Opcodes.ACC_PUBLIC;
+import static org.apache.xbean.asm6.Opcodes.ACC_SUPER;
+import static org.apache.xbean.asm6.Opcodes.ALOAD;
+import static org.apache.xbean.asm6.Opcodes.ARETURN;
+import static org.apache.xbean.asm6.Opcodes.DUP;
+import static org.apache.xbean.asm6.Opcodes.INVOKESPECIAL;
+import static org.apache.xbean.asm6.Opcodes.NEW;
+import static org.apache.xbean.asm6.Opcodes.RETURN;
+import static org.apache.xbean.asm6.Opcodes.V1_8;
+import static org.apache.ziplock.JarLocation.jarLocation;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.rules.RuleChain.outerRule;
 
 public class ServerManagerTest {
 
@@ -172,7 +172,7 @@ public class ServerManagerTest {
 
             {
                 final ConfigTypeNodes repositoryModel = client.v1().configurationType().getRepositoryModel();
-                assertEquals(1, repositoryModel.getNodes().size());
+                assertTrue(repositoryModel.getNodes().isEmpty());
             }
         }
     }
