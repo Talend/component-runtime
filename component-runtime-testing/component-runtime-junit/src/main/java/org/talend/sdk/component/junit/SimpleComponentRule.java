@@ -15,11 +15,19 @@
  */
 package org.talend.sdk.component.junit;
 
-import static java.util.Collections.emptyMap;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.stream.Collectors.toList;
-import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+import org.talend.sdk.component.runtime.input.Input;
+import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
+import org.talend.sdk.component.runtime.manager.chain.CountingSuccessListener;
+import org.talend.sdk.component.runtime.manager.chain.ExecutionChainBuilder;
+import org.talend.sdk.component.runtime.manager.chain.ToleratingErrorHandler;
+import org.talend.sdk.component.runtime.output.Processor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,20 +44,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-import org.talend.sdk.component.runtime.input.Input;
-import org.talend.sdk.component.runtime.input.Mapper;
-import org.talend.sdk.component.runtime.manager.ComponentManager;
-import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
-import org.talend.sdk.component.runtime.manager.chain.CountingSuccessListener;
-import org.talend.sdk.component.runtime.manager.chain.ExecutionChainBuilder;
-import org.talend.sdk.component.runtime.manager.chain.ToleratingErrorHandler;
-import org.talend.sdk.component.runtime.output.Processor;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static java.util.Collections.emptyMap;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.stream.Collectors.toList;
+import static org.apache.ziplock.JarLocation.jarLocation;
+import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -180,11 +179,8 @@ public class SimpleComponentRule implements TestRule {
                 }
             };
             final AtomicInteger recordCounter = new AtomicInteger(maxRecords);
-            return mappers
-                    .stream()
-                    .map(m -> asIterator(m.create(), cleaner, recordCounter))
-                    .map(this::asStream)
-                    .collect(Stream::empty, Stream::concat, Stream::concat);
+            return mappers.stream().map(m -> (Iterator<T>) asIterator(m.create(), cleaner, recordCounter)).flatMap(
+                    this::asStream);
         }
     }
 
