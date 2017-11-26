@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager.asm;
 
@@ -70,24 +70,27 @@ public class PluginGenerator {
             final String fromPack = sourcePackage.replace('/', '.');
             final String toPack = packageName.replace('.', '/');
             final File root = new File(jarLocation(getClass()), sourcePackage);
-            ofNullable(root.listFiles()).map(Stream::of).orElseGet(Stream::empty)
-                .filter(c -> c.getName().endsWith(".class")).forEach(clazz -> {
-                    try (final InputStream is = new FileInputStream(clazz)) {
-                        final ClassReader reader = new ClassReader(is);
-                        final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-                        reader.accept(new RemappingClassAdapter(writer, new Remapper() {
+            ofNullable(root.listFiles())
+                    .map(Stream::of)
+                    .orElseGet(Stream::empty)
+                    .filter(c -> c.getName().endsWith(".class"))
+                    .forEach(clazz -> {
+                        try (final InputStream is = new FileInputStream(clazz)) {
+                            final ClassReader reader = new ClassReader(is);
+                            final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
+                            reader.accept(new RemappingClassAdapter(writer, new Remapper() {
 
-                            @Override
-                            public String map(final String key) {
-                                return key.replace(sourcePackage, toPack).replace(fromPack, packageName);
-                            }
-                        }), EXPAND_FRAMES);
-                        outputStream.putNextEntry(new JarEntry(toPack + '/' + clazz.getName()));
-                        outputStream.write(writer.toByteArray());
-                    } catch (final IOException e) {
-                        fail(e.getMessage());
-                    }
-                });
+                                @Override
+                                public String map(final String key) {
+                                    return key.replace(sourcePackage, toPack).replace(fromPack, packageName);
+                                }
+                            }), EXPAND_FRAMES);
+                            outputStream.putNextEntry(new JarEntry(toPack + '/' + clazz.getName()));
+                            outputStream.write(writer.toByteArray());
+                        } catch (final IOException e) {
+                            fail(e.getMessage());
+                        }
+                    });
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
@@ -111,19 +114,19 @@ public class PluginGenerator {
     }
 
     private byte[] createService(final JarOutputStream outputStream, final String packageName, final String name)
-        throws IOException {
+            throws IOException {
         final String className = packageName + "/AService.class";
         outputStream.putNextEntry(new ZipEntry(className));
         final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
         writer.visitAnnotation(Type.getDescriptor(Service.class), true).visitEnd();
         writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-            Type.getInternalName(Object.class), null);
+                Type.getInternalName(Object.class), null);
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
 
         final MethodVisitor action = writer.visitMethod(ACC_PUBLIC, "doAction",
-            "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
+                "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
         final AnnotationVisitor actionAnnotation = action.visitAnnotation(Type.getDescriptor(Action.class), true);
         actionAnnotation.visit("family", "proc");
         actionAnnotation.visit("value", name + "Action");
@@ -146,7 +149,7 @@ public class PluginGenerator {
         outputStream.putNextEntry(new ZipEntry(className));
         final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
         writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-            Type.getInternalName(Object.class), null);
+                Type.getInternalName(Object.class), null);
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
@@ -166,14 +169,14 @@ public class PluginGenerator {
         processorAnnotation.visit("name", "proc");
         processorAnnotation.visitEnd();
         writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-            Type.getInternalName(Object.class), new String[] { Serializable.class.getName().replace(".", "/") });
+                Type.getInternalName(Object.class), new String[] { Serializable.class.getName().replace(".", "/") });
         writer.visitSource(className.replace(".class", ".java"), null);
 
         addConstructor(writer);
 
         // generate a processor
         final MethodVisitor emitMethod = writer.visitMethod(ACC_PUBLIC, "emit",
-            "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
+                "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
         emitMethod.visitAnnotation(Type.getDescriptor(ElementListener.class), true).visitEnd();
         emitMethod.visitCode();
         emitMethod.visitTypeInsn(NEW, packageName + "/AModel");

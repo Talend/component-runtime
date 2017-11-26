@@ -33,7 +33,7 @@ public class IndexRedirector implements Filter {
 
     @Override
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
-        final FilterChain filterChain) throws IOException, ServletException {
+            final FilterChain filterChain) throws IOException, ServletException {
         final HttpServletRequest httpServletRequest = HttpServletRequest.class.cast(servletRequest);
         if (exists(httpServletRequest.getRequestURI())) {
             filterChain.doFilter(servletRequest, servletResponse);
@@ -54,7 +54,8 @@ public class IndexRedirector implements Filter {
     }
 
     private boolean exists(final String requestURI) {
-        return requestURI.startsWith("/api") || Stream
-            .of(".png", ".html", ".js", ".js.map", ".css", ".css.map", ".json", ".ico").anyMatch(requestURI::contains);
+        return requestURI.startsWith("/api")
+                || Stream.of(".png", ".html", ".js", ".js.map", ".css", ".css.map", ".json", ".ico").anyMatch(
+                        requestURI::contains);
     }
 }

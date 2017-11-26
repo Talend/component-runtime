@@ -92,7 +92,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
     private final ClassLoader loader;
 
     protected BeamProcessorImpl(final Object initialInstance, final DoFn<?, ?> transform, final String plugin,
-        final String family, final String name) {
+            final String family, final String name) {
         loader = ContainerFinder.Instance.get().find(plugin).classloader();
         original = initialInstance;
         delegate = transform;
@@ -102,8 +102,8 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
 
         argumentProvider = new InMemoryArgumentProvider(options);
 
-        processElement = findMethod(delegate.getClass(), DoFn.ProcessElement.class).findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("No @ProcessElement on " + delegate));
+        processElement = findMethod(delegate.getClass(), DoFn.ProcessElement.class).findFirst().orElseThrow(
+                () -> new IllegalArgumentException("No @ProcessElement on " + delegate));
         setup = findMethod(delegate.getClass(), DoFn.Setup.class).findFirst().orElse(null);
         tearDown = findMethod(delegate.getClass(), DoFn.Teardown.class).findFirst().orElse(null);
         startBundle = findMethod(delegate.getClass(), DoFn.StartBundle.class).findFirst().orElse(null);
@@ -120,7 +120,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                 if (DoFn.ProcessContext.class == type) {
                     return (Supplier<Object>) () -> argumentProvider.processContext(
 
-                        delegate);
+                            delegate);
                 }
                 if (DoFn.OnTimerContext.class == type) {
                     return (Supplier<Object>) () -> argumentProvider.onTimerContext(delegate);
@@ -135,13 +135,15 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                     return (Supplier<Object>) argumentProvider::restrictionTracker;
                 }
                 if (Timer.class == type) {
-                    final String id = ofNullable(p.getAnnotation(DoFn.TimerId.class)).map(DoFn.TimerId::value)
-                        .orElseThrow(() -> new IllegalArgumentException("Missing @TimerId on " + p.getName()));
+                    final String id =
+                            ofNullable(p.getAnnotation(DoFn.TimerId.class)).map(DoFn.TimerId::value).orElseThrow(
+                                    () -> new IllegalArgumentException("Missing @TimerId on " + p.getName()));
                     return (Supplier<Object>) () -> argumentProvider.timer(id);
                 }
                 if (State.class == type) {
-                    final String id = ofNullable(p.getAnnotation(DoFn.StateId.class)).map(DoFn.StateId::value)
-                        .orElseThrow(() -> new IllegalArgumentException("Missing @StateId on " + p.getName()));
+                    final String id =
+                            ofNullable(p.getAnnotation(DoFn.StateId.class)).map(DoFn.StateId::value).orElseThrow(
+                                    () -> new IllegalArgumentException("Missing @StateId on " + p.getName()));
                     return (Supplier<Object>) () -> argumentProvider.state(id);
                 }
                 throw new IllegalArgumentException("unsupported parameter of type " + type);
@@ -154,12 +156,12 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                 if (DoFn.StartBundleContext.class == type) {
                     return (Supplier<Object>) () -> argumentProvider.startBundleContext(
 
-                        delegate);
+                            delegate);
                 }
                 throw new IllegalArgumentException("unsupported parameter of type " + type + " for " + startBundle);
             }).collect(toList());
             startBundleArgumentFactory = argSupplier.isEmpty() ? EMPTY_ARGS_SUPPLIER
-                : () -> argSupplier.stream().map(Supplier::get).toArray(Object[]::new);
+                    : () -> argSupplier.stream().map(Supplier::get).toArray(Object[]::new);
         } else {
             startBundleArgumentFactory = null;
         }
@@ -169,12 +171,12 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                 if (DoFn.FinishBundleContext.class == type) {
                     return (Supplier<Object>) () -> argumentProvider.finishBundleContext(
 
-                        delegate);
+                            delegate);
                 }
                 throw new IllegalArgumentException("unsupported parameter of type " + type + " for " + finishBundle);
             }).collect(toList());
             finishBundleArgumentFactory = argSupplier.isEmpty() ? EMPTY_ARGS_SUPPLIER
-                : () -> argSupplier.stream().map(Supplier::get).toArray(Object[]::new);
+                    : () -> argSupplier.stream().map(Supplier::get).toArray(Object[]::new);
         } else {
             finishBundleArgumentFactory = null;
         }
@@ -267,7 +269,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
 
     private Stream<Method> findMethod(final Class<?> aClass, final Class<? extends Annotation> marker) {
         return Stream.concat(Stream.of(aClass.getDeclaredMethods()).filter(m -> m.isAnnotationPresent(marker)),
-            DoFn.class == aClass.getSuperclass() ? Stream.empty() : findMethod(aClass.getSuperclass(), marker));
+                DoFn.class == aClass.getSuperclass() ? Stream.empty() : findMethod(aClass.getSuperclass(), marker));
     }
 
     private void execute(final Runnable task) {
@@ -327,7 +329,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
 
         private Serializable loadDelegate() throws IOException, ClassNotFoundException {
             try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(value),
-                ContainerFinder.Instance.get().find(plugin).classloader())) {
+                    ContainerFinder.Instance.get().find(plugin).classloader())) {
                 return Serializable.class.cast(ois.readObject());
             }
         }

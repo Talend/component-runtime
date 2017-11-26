@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.maven;
 
@@ -69,13 +69,13 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
 
         pluginLoader = Thread.currentThread().getContextClassLoader();
         try (final URLClassLoader loader = new AccessibleClassLoader(
-            Stream.concat(Stream.of(classes), project.getArtifacts().stream().map(Artifact::getFile)).map(file -> {
-                try {
-                    return file.toURI().toURL();
-                } catch (final MalformedURLException e) {
-                    throw new IllegalStateException(e.getMessage());
-                }
-            }).toArray(URL[]::new), Thread.currentThread().getContextClassLoader()) {
+                Stream.concat(Stream.of(classes), project.getArtifacts().stream().map(Artifact::getFile)).map(file -> {
+                    try {
+                        return file.toURI().toURL();
+                    } catch (final MalformedURLException e) {
+                        throw new IllegalStateException(e.getMessage());
+                    }
+                }).toArray(URL[]::new), Thread.currentThread().getContextClassLoader()) {
 
             {
                 Thread.currentThread().setContextClassLoader(this);
@@ -99,8 +99,8 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
     protected void logDeprecated() {
         getLog().warn("");
         getLog().warn("");
-        getLog()
-            .warn("This mojo (" + getClass().getSimpleName() + ") is deprecated, use it only if you know what you do");
+        getLog().warn(
+                "This mojo (" + getClass().getSimpleName() + ") is deprecated, use it only if you know what you do");
         getLog().warn("");
         getLog().warn("");
     }
@@ -131,6 +131,7 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
     }
 
     protected static class AccessibleClassLoader extends URLClassLoader {
+
         private AccessibleClassLoader(final URL[] urls, final ClassLoader parent) {
             super(urls, parent);
         }

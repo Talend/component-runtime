@@ -81,7 +81,7 @@ public class Generator {
     }
 
     private static void generatedServerConfiguration(final File generatedDir)
-        throws FileNotFoundException, MalformedURLException {
+            throws FileNotFoundException, MalformedURLException {
         final File file = new File(generatedDir, "server-configuration.adoc");
         try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
             stream.println("");
@@ -93,18 +93,21 @@ public class Generator {
             final File api = jarLocation(ComponentServerConfiguration.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
-                api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder.findAnnotatedClasses(Configuration.class).stream()
-                .sorted(Comparator.comparing(t -> t.getAnnotation(Configuration.class).prefix()))
-                .flatMap(c -> Stream.of(c.getMethods())).forEach(method -> {
-                    final ConfigProperty configProperty = method.getAnnotation(ConfigProperty.class);
-                    final String name =
-                        method.getDeclaringClass().getAnnotation(Configuration.class).prefix() + configProperty.name();
+                    api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
+            finder
+                    .findAnnotatedClasses(Configuration.class)
+                    .stream()
+                    .sorted(Comparator.comparing(t -> t.getAnnotation(Configuration.class).prefix()))
+                    .flatMap(c -> Stream.of(c.getMethods()))
+                    .forEach(method -> {
+                        final ConfigProperty configProperty = method.getAnnotation(ConfigProperty.class);
+                        final String name = method.getDeclaringClass().getAnnotation(Configuration.class).prefix()
+                                + configProperty.name();
 
-                    stream.println("|" + name + "|" + method.getAnnotation(Documentation.class).value() + "|"
-                        + (ConfigProperty.NULL.equalsIgnoreCase(configProperty.defaultValue()) ? "-"
-                            : configProperty.defaultValue()));
-                });
+                        stream.println("|" + name + "|" + method.getAnnotation(Documentation.class).value() + "|"
+                                + (ConfigProperty.NULL.equalsIgnoreCase(configProperty.defaultValue()) ? "-"
+                                        : configProperty.defaultValue()));
+                    });
             stream.println("|====");
             stream.println();
 
@@ -122,16 +125,20 @@ public class Generator {
             final File api = jarLocation(ActionType.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
-                api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder.findAnnotatedClasses(ActionType.class).stream()
-                .sorted(Comparator.comparing(t -> t.getAnnotation(ActionType.class).value() + "#" + t.getSimpleName()))
-                .forEach(type -> {
-                    final ActionType actionType = type.getAnnotation(ActionType.class);
-                    final Class<?> returnedType = actionType.expectedReturnedType();
-                    stream.println("|@" + type.getName() + "|" + actionType.value() + "|" + extractDoc(type) + "|"
-                        + (returnedType == Object.class ? "any" : returnedType.getSimpleName()) + "|"
-                        + (returnedType != Object.class ? "`" + sample(returnedType).replace("\n", "") + "`" : "-"));
-                });
+                    api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
+            finder
+                    .findAnnotatedClasses(ActionType.class)
+                    .stream()
+                    .sorted(Comparator
+                            .comparing(t -> t.getAnnotation(ActionType.class).value() + "#" + t.getSimpleName()))
+                    .forEach(type -> {
+                        final ActionType actionType = type.getAnnotation(ActionType.class);
+                        final Class<?> returnedType = actionType.expectedReturnedType();
+                        stream.println("|@" + type.getName() + "|" + actionType.value() + "|" + extractDoc(type) + "|"
+                                + (returnedType == Object.class ? "any" : returnedType.getSimpleName()) + "|"
+                                + (returnedType != Object.class ? "`" + sample(returnedType).replace("\n", "") + "`"
+                                        : "-"));
+                    });
             stream.println("|====");
             stream.println();
 
@@ -149,17 +156,19 @@ public class Generator {
             final File api = jarLocation(Ui.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
-                api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
+                    api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
             final ParameterExtensionEnricher enricher = new UiParameterEnricher();
             final Mapper mapper = new MapperBuilder().build();
-            finder.findAnnotatedClasses(Ui.class).stream().sorted(Comparator.comparing(Class::getName))
-                .forEach(type -> {
-                    final Map<String, String> meta = enricher
-                        .onParameterAnnotation("theparameter", Object.class, generateAnnotation(type)).entrySet()
-                        .stream().collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue));
-                    stream.println(
-                        "|@" + type.getName() + "|" + extractDoc(type) + "|" + mapper.writeObjectAsString(meta));
-                });
+            finder.findAnnotatedClasses(Ui.class).stream().sorted(Comparator.comparing(Class::getName)).forEach(
+                    type -> {
+                        final Map<String, String> meta = enricher
+                                .onParameterAnnotation("theparameter", Object.class, generateAnnotation(type))
+                                .entrySet()
+                                .stream()
+                                .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue));
+                        stream.println("|@" + type.getName() + "|" + extractDoc(type) + "|"
+                                + mapper.writeObjectAsString(meta));
+                    });
             stream.println("|====");
             stream.println();
 
@@ -201,14 +210,16 @@ public class Generator {
             status.setComment("Something went wrong");
             return new MapperBuilder().setPretty(false).build().writeObjectAsString(status);
         }
-        return "{\n" + Stream.of(returnedType.getDeclaredFields())
-            .map(f -> " \"" + f.getName() + "\": " + createSample(f.getType())).collect(joining("\n")) + "\n}";
+        return "{\n" + Stream
+                .of(returnedType.getDeclaredFields())
+                .map(f -> " \"" + f.getName() + "\": " + createSample(f.getType()))
+                .collect(joining("\n")) + "\n}";
     }
 
     private static String createSample(final Class<?> type) {
         if (type.isEnum()) {
-            return Stream.of(type.getEnumConstants()).map(e -> Enum.class.cast(e).name())
-                .collect(joining("\"|\"", "\"", "\""));
+            return Stream.of(type.getEnumConstants()).map(e -> Enum.class.cast(e).name()).collect(
+                    joining("\"|\"", "\"", "\""));
         }
         return "\"...\"";
     }
@@ -225,12 +236,13 @@ public class Generator {
             final ConditionParameterEnricher enricher = new ConditionParameterEnricher();
             final Mapper mapper = new MapperBuilder().build();
             final AnnotationFinder finder = new AnnotationFinder(
-                api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
+                    api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
             finder.findAnnotatedClasses(Condition.class).forEach(type -> stream.println("|@" + type.getName() + "|"
-                + type.getAnnotation(Condition.class).value() + "|" + extractDoc(type) + "|"
-                + mapper
-                    .writeObjectAsString(enricher.onParameterAnnotation("test", String.class, generateAnnotation(type)))
-                    .replace("tcomp::", "")));
+                    + type.getAnnotation(Condition.class).value() + "|" + extractDoc(type) + "|"
+                    + mapper
+                            .writeObjectAsString(
+                                    enricher.onParameterAnnotation("test", String.class, generateAnnotation(type)))
+                            .replace("tcomp::", "")));
             stream.println("|====");
             stream.println();
 
@@ -250,11 +262,13 @@ public class Generator {
             final ConfigurationTypeParameterEnricher enricher = new ConfigurationTypeParameterEnricher();
             final Mapper mapper = new MapperBuilder().build();
             final AnnotationFinder finder = new AnnotationFinder(
-                api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder.findAnnotatedClasses(ConfigurationType.class).forEach(
-                type -> stream.println("|" + type.getName() + "|" + type.getAnnotation(ConfigurationType.class).value()
-                    + "|" + extractDoc(type) + "|" + mapper.writeObjectAsString(
-                        enricher.onParameterAnnotation("value", String.class, generateAnnotation(type)))));
+                    api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
+            finder
+                    .findAnnotatedClasses(ConfigurationType.class)
+                    .forEach(type -> stream.println("|" + type.getName() + "|"
+                            + type.getAnnotation(ConfigurationType.class).value() + "|" + extractDoc(type) + "|"
+                            + mapper.writeObjectAsString(
+                                    enricher.onParameterAnnotation("value", String.class, generateAnnotation(type)))));
             stream.println("|====");
             stream.println();
 
@@ -272,30 +286,33 @@ public class Generator {
             final File api = jarLocation(Validation.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
-                api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
+                    api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
             final ValidationParameterEnricher enricher = new ValidationParameterEnricher();
             final Mapper mapper = new MapperBuilder().build();
             Stream.concat(finder.findAnnotatedClasses(Validation.class).stream().map(validation -> {
                 final Validation val = validation.getAnnotation(Validation.class);
                 return createConstraint(validation, val);
 
-            }), finder.findAnnotatedClasses(Validations.class).stream()
-                .flatMap(validations -> Stream.of(validations.getAnnotation(Validations.class).value())
-                    .map(validation -> createConstraint(validations, validation))))
-                .sorted((o1, o2) -> {
-                    final int types = Stream.of(o1.types).map(Class::getName).collect(joining("/"))
-                        .compareTo(Stream.of(o2.types).map(Class::getName).collect(joining("/")));
-                    if (types == 0) {
-                        return o1.name.compareTo(o2.name);
-                    }
-                    return types;
-                })
-                .forEach(constraint -> stream.println("|@" + constraint.marker.getName() + "|" + constraint.name + "|"
-                    + sanitizeType(constraint.paramType) + "|" + constraint.description + "|"
-                    + Stream.of(constraint.types).map(Class::getName).map(Generator::sanitizeType)
-                        .collect(joining(", "))
-                    + "|" + mapper.writeObjectAsString(enricher.onParameterAnnotation("test", constraint.types[0],
-                        generateAnnotation(constraint.marker))).replace("tcomp::", "")));
+            }), finder.findAnnotatedClasses(Validations.class).stream().flatMap(
+                    validations -> Stream.of(validations.getAnnotation(Validations.class).value()).map(
+                            validation -> createConstraint(validations, validation))))
+                    .sorted((o1, o2) -> {
+                        final int types = Stream.of(o1.types).map(Class::getName).collect(joining("/")).compareTo(
+                                Stream.of(o2.types).map(Class::getName).collect(joining("/")));
+                        if (types == 0) {
+                            return o1.name.compareTo(o2.name);
+                        }
+                        return types;
+                    })
+                    .forEach(constraint -> stream.println("|@" + constraint.marker.getName() + "|" + constraint.name
+                            + "|" + sanitizeType(constraint.paramType) + "|" + constraint.description + "|"
+                            + Stream.of(constraint.types).map(Class::getName).map(Generator::sanitizeType).collect(
+                                    joining(", "))
+                            + "|"
+                            + mapper
+                                    .writeObjectAsString(enricher.onParameterAnnotation("test", constraint.types[0],
+                                            generateAnnotation(constraint.marker)))
+                                    .replace("tcomp::", "")));
             stream.println("|====");
             stream.println();
 
@@ -309,7 +326,7 @@ public class Generator {
 
     private static Constraint createConstraint(final Class<?> validation, final Validation val) {
         return new Constraint(val.name(), val.expectedTypes(), getParamType(validation), validation,
-            extractDoc(validation));
+                extractDoc(validation));
     }
 
     private static String extractDoc(final Class<?> validation) {
@@ -329,125 +346,129 @@ public class Generator {
     // for @Ui
     private static <T extends Annotation> T generateAnnotation(final Class<?> type) {
         return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] { type },
-            (proxy, method, args) -> {
-                if ("annotationType".equals(method.getName()) && Annotation.class == method.getDeclaringClass()) {
-                    return type;
-                }
-                if (method.isDefault()) {
-                    return MethodHandles.lookup().in(method.getDeclaringClass())
-                        .unreflectSpecial(method, method.getDeclaringClass()).bindTo(proxy).invokeWithArguments(args);
-                }
-                final Class<?> returnType = method.getReturnType();
-                if (int.class == returnType) {
-                    return 1234;
-                }
-                if (double.class == returnType) {
-                    return 12.34;
-                }
-                if (String.class == returnType) {
-                    return "test";
-                }
-                if (Class.class == returnType) {
-                    return AutoLayout.class;
-                }
-                if (String[].class == returnType) {
-                    return new String[] { "value1", "value2" };
-                }
-                if (GridLayout.Row[].class == returnType) {
-                    return new GridLayout.Row[] { new GridLayout.Row() {
+                (proxy, method, args) -> {
+                    if ("annotationType".equals(method.getName()) && Annotation.class == method.getDeclaringClass()) {
+                        return type;
+                    }
+                    if (method.isDefault()) {
+                        return MethodHandles
+                                .lookup()
+                                .in(method.getDeclaringClass())
+                                .unreflectSpecial(method, method.getDeclaringClass())
+                                .bindTo(proxy)
+                                .invokeWithArguments(args);
+                    }
+                    final Class<?> returnType = method.getReturnType();
+                    if (int.class == returnType) {
+                        return 1234;
+                    }
+                    if (double.class == returnType) {
+                        return 12.34;
+                    }
+                    if (String.class == returnType) {
+                        return "test";
+                    }
+                    if (Class.class == returnType) {
+                        return AutoLayout.class;
+                    }
+                    if (String[].class == returnType) {
+                        return new String[] { "value1", "value2" };
+                    }
+                    if (GridLayout.Row[].class == returnType) {
+                        return new GridLayout.Row[] { new GridLayout.Row() {
 
-                        @Override
-                        public Class<? extends Annotation> annotationType() {
-                            return GridLayout.Row.class;
-                        }
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return GridLayout.Row.class;
+                            }
 
-                        @Override
-                        public String[] value() {
-                            return new String[] { "first" };
-                        }
-                    }, new GridLayout.Row() {
+                            @Override
+                            public String[] value() {
+                                return new String[] { "first" };
+                            }
+                        }, new GridLayout.Row() {
 
-                        @Override
-                        public Class<? extends Annotation> annotationType() {
-                            return GridLayout.Row.class;
-                        }
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return GridLayout.Row.class;
+                            }
 
-                        @Override
-                        public String[] value() {
-                            return new String[] { "second", "third" };
-                        }
-                    } };
-                }
-                if (GridLayout[].class == returnType) {
-                    return new GridLayout[] { new GridLayout() {
+                            @Override
+                            public String[] value() {
+                                return new String[] { "second", "third" };
+                            }
+                        } };
+                    }
+                    if (GridLayout[].class == returnType) {
+                        return new GridLayout[] { new GridLayout() {
 
-                        @Override
-                        public Row[] value() {
-                            return new Row[] { new Row() {
+                            @Override
+                            public Row[] value() {
+                                return new Row[] { new Row() {
 
-                                @Override
-                                public Class<? extends Annotation> annotationType() {
-                                    return Row.class;
-                                }
+                                    @Override
+                                    public Class<? extends Annotation> annotationType() {
+                                        return Row.class;
+                                    }
 
-                                @Override
-                                public String[] value() {
-                                    return new String[] { "first" };
-                                }
-                            }, new Row() {
+                                    @Override
+                                    public String[] value() {
+                                        return new String[] { "first" };
+                                    }
+                                }, new Row() {
 
-                                @Override
-                                public Class<? extends Annotation> annotationType() {
-                                    return Row.class;
-                                }
+                                    @Override
+                                    public Class<? extends Annotation> annotationType() {
+                                        return Row.class;
+                                    }
 
-                                @Override
-                                public String[] value() {
-                                    return new String[] { "second", "third" };
-                                }
-                            } };
-                        }
+                                    @Override
+                                    public String[] value() {
+                                        return new String[] { "second", "third" };
+                                    }
+                                } };
+                            }
 
-                        @Override
-                        public String[] names() {
-                            return new String[] { FormType.MAIN };
-                        }
+                            @Override
+                            public String[] names() {
+                                return new String[] { FormType.MAIN };
+                            }
 
-                        @Override
-                        public Class<? extends Annotation> annotationType() {
-                            return GridLayout.class;
-                        }
-                    }, new GridLayout() {
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return GridLayout.class;
+                            }
+                        }, new GridLayout() {
 
-                        @Override
-                        public Row[] value() {
-                            return new Row[] { new Row() {
+                            @Override
+                            public Row[] value() {
+                                return new Row[] { new Row() {
 
-                                @Override
-                                public Class<? extends Annotation> annotationType() {
-                                    return Row.class;
-                                }
+                                    @Override
+                                    public Class<? extends Annotation> annotationType() {
+                                        return Row.class;
+                                    }
 
-                                @Override
-                                public String[] value() {
-                                    return new String[] { "another" };
-                                }
-                            } };
-                        }
+                                    @Override
+                                    public String[] value() {
+                                        return new String[] { "another" };
+                                    }
+                                } };
+                            }
 
-                        @Override
-                        public String[] names() {
-                            return new String[] { FormType.ADVANCED };
-                        }
+                            @Override
+                            public String[] names() {
+                                return new String[] { FormType.ADVANCED };
+                            }
 
-                        @Override
-                        public Class<? extends Annotation> annotationType() {
-                            return GridLayout.class;
-                        }
-                    } };
-                }
-                return null;
-            });
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return GridLayout.class;
+                            }
+                        } };
+                    }
+                    return null;
+                });
     }
 
     @RequiredArgsConstructor

@@ -101,33 +101,36 @@ public class ServerManagerTest {
             public InputStream getResourceAsStream(final String name) {
                 if (("META-INF/maven/" + GAV.GROUP_ID + "/" + GAV.ARTIFACT_ID + "/pom.properties").equals(name)) {
                     return new ByteArrayInputStream(
-                        ("version = " + System.getProperty("test.version")).getBytes(StandardCharsets.UTF_8));
+                            ("version = " + System.getProperty("test.version")).getBytes(StandardCharsets.UTF_8));
                 }
                 return super.getResourceAsStream(name);
             }
         };
                 final ProcessManager mgr = new ProcessManager(org.talend.sdk.component.studio.GAV.GROUP_ID,
-                    org.talend.sdk.component.studio.GAV.ARTIFACT_ID, gav -> {
-                        final String[] segments = gav.substring(gav.lastIndexOf('!') + 1).split("/");
-                        if (segments[1].startsWith("component-")) { // try in the project
-                            final File[] root = jarLocation(ServerManagerTest.class).getParentFile().getParentFile()
-                                .getParentFile().listFiles((dir, name) -> name.equals(segments[1]));
-                            if (root != null && root.length == 1) {
-                                final File[] jar = new File(root[0], "target")
-                                    .listFiles((dir, name) -> name.startsWith(segments[1]) && name.endsWith(".jar")
-                                        && !name.contains("-source") && !name.contains("-model")
-                                        && !name.contains("-fat") && !name.contains("-javadoc"));
-                                if (jar != null && jar.length == 1) {
-                                    return jar[0];
+                        org.talend.sdk.component.studio.GAV.ARTIFACT_ID, gav -> {
+                            final String[] segments = gav.substring(gav.lastIndexOf('!') + 1).split("/");
+                            if (segments[1].startsWith("component-")) { // try in the project
+                                final File[] root = jarLocation(ServerManagerTest.class)
+                                        .getParentFile()
+                                        .getParentFile()
+                                        .getParentFile()
+                                        .listFiles((dir, name) -> name.equals(segments[1]));
+                                if (root != null && root.length == 1) {
+                                    final File[] jar = new File(root[0], "target").listFiles(
+                                            (dir, name) -> name.startsWith(segments[1]) && name.endsWith(".jar")
+                                                    && !name.contains("-source") && !name.contains("-model")
+                                                    && !name.contains("-fat") && !name.contains("-javadoc"));
+                                    if (jar != null && jar.length == 1) {
+                                        return jar[0];
+                                    }
                                 }
                             }
-                        }
-                        return new File(
-                            System.getProperty("test.m2.repository",
-                                System.getProperty("user.home") + "/.m2/repository"),
-                            segments[0].replace('.', '/') + '/' + segments[1] + '/' + segments[2] + '/' + segments[1]
-                                + '-' + segments[2] + ".jar");
-                    }, new File("target/conf_missing"))) {
+                            return new File(
+                                    System.getProperty("test.m2.repository",
+                                            System.getProperty("user.home") + "/.m2/repository"),
+                                    segments[0].replace('.', '/') + '/' + segments[1] + '/' + segments[2] + '/'
+                                            + segments[1] + '-' + segments[2] + ".jar");
+                        }, new File("target/conf_missing"))) {
             thread.setContextClassLoader(buildLoader);
             mgr.start();
             mgr.waitForServer(() -> {
@@ -152,12 +155,12 @@ public class ServerManagerTest {
             }
             { // path params, ensure we can change it through the same session usage
                 final ComponentDetailList proc1 =
-                    client.v1().component().getDetail("en", new String[] { "dGVzdC1jb21wb25lbnQjY29tcCNwcm9jMQ" });
+                        client.v1().component().getDetail("en", new String[] { "dGVzdC1jb21wb25lbnQjY29tcCNwcm9jMQ" });
                 assertEquals(1, proc1.getDetails().size());
                 assertEquals("proc1", proc1.getDetails().get(0).getDisplayName());
 
                 final ComponentDetailList proc2 =
-                    client.v1().component().getDetail("en", new String[] { "dGVzdC1jb21wb25lbnQjY29tcCNwcm9jMg" });
+                        client.v1().component().getDetail("en", new String[] { "dGVzdC1jb21wb25lbnQjY29tcCNwcm9jMg" });
                 assertEquals(1, proc2.getDetails().size());
                 assertEquals("proc2", proc2.getDetails().get(0).getDisplayName());
             }
@@ -165,8 +168,8 @@ public class ServerManagerTest {
             // post endpoint, todo: enrich with real returned/configured data to make the
             // test more relevant
             for (int i = 0; i < 2; i++) {
-                final String result =
-                    client.v1().action().execute(String.class, "proc", "user", "my-componentAction", new HashMap<>());
+                final String result = client.v1().action().execute(String.class, "proc", "user", "my-componentAction",
+                        new HashMap<>());
                 assertEquals("{}", result);
             }
 
@@ -211,19 +214,19 @@ public class ServerManagerTest {
         }
 
         private byte[] createService(final JarOutputStream outputStream, final String packageName, final String name)
-            throws IOException {
+                throws IOException {
             final String className = packageName + "/AService.class";
             outputStream.putNextEntry(new ZipEntry(className));
             final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
             writer.visitAnnotation(Type.getDescriptor(Service.class), true).visitEnd();
             writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
-                null, Type.getInternalName(Object.class), null);
+                    null, Type.getInternalName(Object.class), null);
             writer.visitSource(className.replace(".class", ".java"), null);
 
             addConstructor(writer);
 
             final MethodVisitor action = writer.visitMethod(ACC_PUBLIC, "doAction",
-                "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
+                    "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
             final AnnotationVisitor actionAnnotation = action.visitAnnotation(Type.getDescriptor(Action.class), true);
             actionAnnotation.visit("family", "proc");
             actionAnnotation.visit("value", name + "Action");
@@ -246,7 +249,7 @@ public class ServerManagerTest {
             outputStream.putNextEntry(new ZipEntry(className));
             final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
             writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
-                null, Type.getInternalName(Object.class), null);
+                    null, Type.getInternalName(Object.class), null);
             writer.visitSource(className.replace(".class", ".java"), null);
 
             addConstructor(writer);
@@ -258,25 +261,25 @@ public class ServerManagerTest {
         }
 
         private byte[] createProcessor(final String id, final JarOutputStream outputStream, final String packageName)
-            throws IOException {
+                throws IOException {
             final String className = packageName + "/AProcessor" + id + ".class";
             outputStream.putNextEntry(new ZipEntry(className));
             final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
             final AnnotationVisitor processorAnnotation =
-                writer.visitAnnotation(Type.getDescriptor(Processor.class), true);
+                    writer.visitAnnotation(Type.getDescriptor(Processor.class), true);
             processorAnnotation.visit("family", "comp");
             processorAnnotation.visit("name", "proc" + id);
             processorAnnotation.visitEnd();
             writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
-                null, Type.getInternalName(Object.class),
-                new String[] { Serializable.class.getName().replace(".", "/") });
+                    null, Type.getInternalName(Object.class),
+                    new String[] { Serializable.class.getName().replace(".", "/") });
             writer.visitSource(className.replace(".class", ".java"), null);
 
             addConstructor(writer);
 
             // generate a processor
             final MethodVisitor emitMethod = writer.visitMethod(ACC_PUBLIC, "emit",
-                "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
+                    "(L" + packageName + "/AModel;)L" + packageName + "/AModel;", null, new String[0]);
             emitMethod.visitAnnotation(Type.getDescriptor(ElementListener.class), true).visitEnd();
             emitMethod.visitCode();
             emitMethod.visitTypeInsn(NEW, packageName + "/AModel");

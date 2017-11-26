@@ -52,7 +52,7 @@ public class TaCoKitGenericProvider implements IGenericProvider {
         // return;
         // }
         Stream<Pair<ComponentIndex, ComponentDetail>> details =
-            client.v1().component().details(Locale.getDefault().getLanguage());
+                client.v1().component().details(Locale.getDefault().getLanguage());
 
         final ComponentService service = Lookups.service();
         final IComponentsFactory factory = ComponentsFactoryProvider.getInstance();

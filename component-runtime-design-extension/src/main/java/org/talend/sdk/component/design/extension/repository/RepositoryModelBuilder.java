@@ -29,36 +29,51 @@ import static java.util.stream.Collectors.toMap;
  * the License.
  */
 public class RepositoryModelBuilder {
+
     public RepositoryModel create(final Collection<ComponentFamilyMeta> familyMetas) {
-        return new RepositoryModel(familyMetas.stream().map(familyMeta -> Stream
-            .concat(familyMeta.getPartitionMappers().values().stream(), familyMeta.getProcessors().values().stream())
-            .flatMap(b -> b.getParameterMetas().stream()).filter(RepositoryModelBuilder::isConfiguration)
-            .flatMap(this::toConfiguration).map(p -> createConfig(p, familyMeta.getName(), familyMeta.getIcon()))
-            .collect(toMap(c -> c.getMeta().getJavaType(), identity(), (config1, config2) -> config1)).values().stream()
-            .sorted((o1, o2) -> {
-                if (toParamStream(o1.getMeta().getNestedParameters())
-                    .anyMatch(p -> p.getJavaType() == o2.getMeta().getJavaType())) {
-                    return 1;
-                }
-                if (toParamStream(o2.getMeta().getNestedParameters())
-                    .anyMatch(p -> p.getJavaType() == o1.getMeta().getJavaType())) {
-                    return -1;
-                }
-                return o1.getMeta().getPath().compareTo(o2.getMeta().getPath());
-            }).collect(() -> {
-                final Family family = new Family();
-                family.setId(IdGenerator.get(familyMeta.getName()));
-                family.setMeta(familyMeta);
-                return family;
-            }, (aggregator, item) -> {
-                final Collection<Config> configs = aggregator.getConfigs().stream()
-                    .filter(c -> toParamStream(item.getMeta().getNestedParameters())
-                        .anyMatch(p -> p.getJavaType() == c.getMeta().getJavaType()))
-                    .findFirst().map(Config::getChildConfigs).orElseGet(aggregator::getConfigs);
-                if (configs.stream().noneMatch(c -> c.getMeta().getJavaType() == item.getMeta().getJavaType())) {
-                    configs.add(item);
-                }
-            }, (family1, family2) -> family1.getConfigs().addAll(family2.getConfigs()))).collect(toList()));
+        return new RepositoryModel(familyMetas
+                .stream()
+                .map(familyMeta -> Stream
+                        .concat(familyMeta.getPartitionMappers().values().stream(),
+                                familyMeta.getProcessors().values().stream())
+                        .flatMap(b -> b.getParameterMetas().stream())
+                        .filter(RepositoryModelBuilder::isConfiguration)
+                        .flatMap(this::toConfiguration)
+                        .map(p -> createConfig(p, familyMeta.getName(), familyMeta.getIcon()))
+                        .collect(toMap(c -> c.getMeta().getJavaType(), identity(), (config1, config2) -> config1))
+                        .values()
+                        .stream()
+                        .sorted((o1, o2) -> {
+                            if (toParamStream(o1.getMeta().getNestedParameters())
+                                    .anyMatch(p -> p.getJavaType() == o2.getMeta().getJavaType())) {
+                                return 1;
+                            }
+                            if (toParamStream(o2.getMeta().getNestedParameters())
+                                    .anyMatch(p -> p.getJavaType() == o1.getMeta().getJavaType())) {
+                                return -1;
+                            }
+                            return o1.getMeta().getPath().compareTo(o2.getMeta().getPath());
+                        })
+                        .collect(() -> {
+                            final Family family = new Family();
+                            family.setId(IdGenerator.get(familyMeta.getName()));
+                            family.setMeta(familyMeta);
+                            return family;
+                        }, (aggregator, item) -> {
+                            final Collection<Config> configs = aggregator
+                                    .getConfigs()
+                                    .stream()
+                                    .filter(c -> toParamStream(item.getMeta().getNestedParameters())
+                                            .anyMatch(p -> p.getJavaType() == c.getMeta().getJavaType()))
+                                    .findFirst()
+                                    .map(Config::getChildConfigs)
+                                    .orElseGet(aggregator::getConfigs);
+                            if (configs.stream().noneMatch(
+                                    c -> c.getMeta().getJavaType() == item.getMeta().getJavaType())) {
+                                configs.add(item);
+                            }
+                        }, (family1, family2) -> family1.getConfigs().addAll(family2.getConfigs())))
+                .collect(toList()));
     }
 
     private Stream<ParameterMeta> toParamStream(final Collection<ParameterMeta> params) {
@@ -72,8 +87,9 @@ public class RepositoryModelBuilder {
         if (meta.getNestedParameters() == null) {
             return Stream.of(meta);
         }
-        return Stream.concat(Stream.of(meta), meta.getNestedParameters().stream()
-            .filter(RepositoryModelBuilder::isConfiguration).flatMap(this::toConfiguration));
+        return Stream.concat(Stream.of(meta),
+                meta.getNestedParameters().stream().filter(RepositoryModelBuilder::isConfiguration).flatMap(
+                        this::toConfiguration));
     }
 
     private Config createConfig(final ParameterMeta config, final String familyName, final String familyIcon) {

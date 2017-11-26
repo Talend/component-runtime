@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.output.data;
 
@@ -72,7 +72,7 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
                 final int dot = location.indexOf('.');
                 if (dot > 0) {
                     return new ObjectMapImpl(plugin, Map.class.cast(delegate).get(location.substring(0, dot)), cache)
-                        .get(location.substring(dot + 1));
+                            .get(location.substring(dot + 1));
                 }
                 return Map.class.cast(delegate).get(location);
             }
@@ -103,18 +103,21 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
                 throw new IllegalArgumentException(o + " is not a collection");
             }
             final Collection<?> items = Collection.class.cast(o);
-            return items.stream().map(item -> ObjectMap.class.isInstance(item) ? ObjectMap.class.cast(item)
-                : new ObjectMapImpl(plugin, item, cache)).collect(toList());
+            return items
+                    .stream()
+                    .map(item -> ObjectMap.class.isInstance(item) ? ObjectMap.class.cast(item)
+                            : new ObjectMapImpl(plugin, item, cache))
+                    .collect(toList());
         });
     }
 
     @Override
     public synchronized Set<String> keys() { // todo: map without string key?
         return doFn(loader,
-            () -> keys == null && delegate != null
-                ? (keys =
-                    Map.class.isInstance(delegate) ? Map.class.cast(delegate).keySet() : findKeys(delegate.getClass()))
-                : keys);
+                () -> keys == null && delegate != null
+                        ? (keys = Map.class.isInstance(delegate) ? Map.class.cast(delegate).keySet()
+                                : findKeys(delegate.getClass()))
+                        : keys);
     }
 
     private Set<String> findKeys(final Class<?> c) {
@@ -122,8 +125,8 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
         final Set<String> staticFields = cache.getOrCreateStaticFields(c);
         final Function<Object, Map<String, Object>> any = cache.getOrCreateAny(c);
         return Stream
-            .concat(staticFields.stream(), any == null ? Stream.empty() : any.apply(delegate).keySet().stream())
-            .collect(toSet());
+                .concat(staticFields.stream(), any == null ? Stream.empty() : any.apply(delegate).keySet().stream())
+                .collect(toSet());
     }
 
     Object writeReplace() throws ObjectStreamException {
@@ -161,7 +164,7 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
                 return doFn(loader, () -> {
                     try {
                         return new ObjectMapImpl(plugin, loadDelegate(loader),
-                            ContainerFinder.Instance.get().find(plugin).findService(AccessorCache.class));
+                                ContainerFinder.Instance.get().find(plugin).findService(AccessorCache.class));
 
                     } catch (final IOException | ClassNotFoundException e) {
                         throw new IllegalStateException(new InvalidObjectException(e.getMessage()));

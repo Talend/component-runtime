@@ -58,7 +58,7 @@ public final class TalendIO {
     }
 
     private static abstract class Base<A extends PInput, B extends POutput, D extends Lifecycle>
-        extends PTransform<A, B> {
+            extends PTransform<A, B> {
 
         protected D delegate;
 
@@ -152,11 +152,11 @@ public final class TalendIO {
 
         @Override
         public List<? extends BoundedSource<T>> split(final long desiredBundleSizeBytes, final PipelineOptions options)
-            throws Exception {
+                throws Exception {
             mapper.start();
             try {
-                return mapper.split(desiredBundleSizeBytes).stream().map(i -> new BoundedSourceImpl<T>(i))
-                    .collect(toList());
+                return mapper.split(desiredBundleSizeBytes).stream().map(i -> new BoundedSourceImpl<T>(i)).collect(
+                        toList());
             } finally {
                 mapper.stop();
             }
@@ -201,11 +201,11 @@ public final class TalendIO {
 
         @Override
         public List<? extends UnboundedSource<T, EmptyCheckMark>> split(final int desiredNumSplits,
-            final PipelineOptions options) throws Exception {
+                final PipelineOptions options) throws Exception {
             mapper.start();
             try {
-                return mapper.split(desiredNumSplits).stream().map(i -> new UnBoundedSourceImpl<T>(i))
-                    .collect(toList());
+                return mapper.split(desiredNumSplits).stream().map(i -> new UnBoundedSourceImpl<T>(i)).collect(
+                        toList());
             } finally {
                 mapper.stop();
             }
@@ -213,7 +213,7 @@ public final class TalendIO {
 
         @Override
         public UnboundedReader<T> createReader(final PipelineOptions options, final EmptyCheckMark checkpointMark)
-            throws IOException {
+                throws IOException {
             return new UnBoundedReaderImpl<>(this, mapper.create());
         }
 

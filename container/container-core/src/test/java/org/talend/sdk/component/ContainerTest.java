@@ -70,9 +70,12 @@ public class ContainerTest {
     public void proxying() {
         final Supplier<Filter> supplier = () -> xbeanFinder.executeAndContextualize(() -> {
             try {
-                return Thread.currentThread().getContextClassLoader()
-                    .loadClass("org.apache.xbean.finder.filter.PrefixFilter").getConstructor(String.class)
-                    .newInstance("valid.");
+                return Thread
+                        .currentThread()
+                        .getContextClassLoader()
+                        .loadClass("org.apache.xbean.finder.filter.PrefixFilter")
+                        .getConstructor(String.class)
+                        .newInstance("valid.");
             } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException
                     | ClassNotFoundException e) {
                 throw new IllegalStateException(e);

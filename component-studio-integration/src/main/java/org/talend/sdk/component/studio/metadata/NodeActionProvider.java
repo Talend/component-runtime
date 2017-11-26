@@ -79,17 +79,22 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
         if (RepositoryNode.class.isInstance(selObj)) {
             final RepositoryNode rn = RepositoryNode.class.cast(selObj);
             final ERepositoryObjectType nodeType =
-                ERepositoryObjectType.class.cast(rn.getProperties(IRepositoryNode.EProperties.CONTENT_TYPE));
+                    ERepositoryObjectType.class.cast(rn.getProperties(IRepositoryNode.EProperties.CONTENT_TYPE));
             if (!ERepositoryObjectType.METADATA_CON_TABLE.equals(nodeType)
-                && !ERepositoryObjectType.METADATA_CON_COLUMN.equals(nodeType)) {
+                    && !ERepositoryObjectType.METADATA_CON_COLUMN.equals(nodeType)) {
                 final IRepositoryViewObject repObj = rn.getObject();
                 if (repObj == null) {
                     createAction(null, sel);
                 } else {
-                    client.details(Locale.getDefault().getLanguage())
-                        .flatMap(detail -> detail.getSecond().getProperties().stream().filter(service::isConfiguration)
-                            .map(p -> new Pair<>(detail, p)))
-                        .forEach(pair -> createAction(pair, sel).update(pair, sel));
+                    client
+                            .details(Locale.getDefault().getLanguage())
+                            .flatMap(detail -> detail
+                                    .getSecond()
+                                    .getProperties()
+                                    .stream()
+                                    .filter(service::isConfiguration)
+                                    .map(p -> new Pair<>(detail, p)))
+                            .forEach(pair -> createAction(pair, sel).update(pair, sel));
                 }
                 manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
             }
@@ -98,13 +103,13 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
     }
 
     private ConfigAction createAction(final Pair<Pair<ComponentIndex, ComponentDetail>, SimplePropertyDefinition> data,
-        final IStructuredSelection sel) {
+            final IStructuredSelection sel) {
         return actions.computeIfAbsent(data.getFirst().getSecond().getId().getId() + "//" + data.getSecond().getPath(),
-            k -> {
-                ConfigAction action = new ConfigAction(new AtomicReference<>(), service);
-                action.init(TreeViewer.class.cast(getActionSite().getStructuredViewer()), sel);
-                return action;
-            });
+                k -> {
+                    ConfigAction action = new ConfigAction(new AtomicReference<>(), service);
+                    action.init(TreeViewer.class.cast(getActionSite().getStructuredViewer()), sel);
+                    return action;
+                });
     }
 
     @Data
@@ -122,9 +127,9 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
         protected void doRun() {
             final Pair<Pair<ComponentIndex, ComponentDetail>, SimplePropertyDefinition> current = data.get();
             final IWizard wizard = new ConfigWizard(PlatformUI.getWorkbench(), creation, current, repositoryNode,
-                getExistingNames(), service);
+                    getExistingNames(), service);
             final WizardDialog wizardDialog = new ConfigDialog(
-                PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard, true, true /* todo */);
+                    PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard, true, true /* todo */);
 
             if (service.isLinux()) { // why???? for the +80? isn't it a linux theme issue more than a stdio issue?
                 wizardDialog.setPageSize(700, 480);
@@ -141,19 +146,19 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
             repObjType = repositoryNode.getObjectType();
             if (repObjType == null || repositoryNode.getType() != IRepositoryNode.ENodeType.REPOSITORY_ELEMENT) {
                 repObjType = ERepositoryObjectType.class
-                    .cast(repositoryNode.getProperties(IRepositoryNode.EProperties.CONTENT_TYPE));
+                        .cast(repositoryNode.getProperties(IRepositoryNode.EProperties.CONTENT_TYPE));
             }
 
             setText(current.getSecond().getDisplayName());
             setImageDescriptor(ImageDescriptor
-                .createFromImage(service.toEclipseIcon(current.getFirst().getFirst().getIcon()).createImage()));
+                    .createFromImage(service.toEclipseIcon(current.getFirst().getFirst().getIcon()).createImage()));
 
             final IProxyRepositoryFactory factory = ProxyRepositoryFactory.getInstance();
             switch (node.getType()) {
             case SIMPLE_FOLDER:
             case SYSTEM_FOLDER:
                 if (factory.isUserReadOnlyOnCurrentProject()
-                    || !ProjectManager.getInstance().isInCurrentMainProject(node)) {
+                        || !ProjectManager.getInstance().isInCurrentMainProject(node)) {
                     setEnabled(false);
                     return;
                 }
@@ -178,7 +183,7 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
         }
 
         private void update(final Pair<Pair<ComponentIndex, ComponentDetail>, SimplePropertyDefinition> data,
-            final IStructuredSelection sel) {
+                final IStructuredSelection sel) {
             this.data.set(data);
             final Object o = sel.getFirstElement();
             if (sel.size() == 1 && RepositoryNode.class.isInstance(o)) {
@@ -200,8 +205,8 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
         private SavedItem original;
 
         private ConfigWizard(final IWorkbench workbench, final boolean creation,
-            final Pair<Pair<ComponentIndex, ComponentDetail>, SimplePropertyDefinition> current,
-            final RepositoryNode repositoryNode, final String[] existingNames, final ComponentService service) {
+                final Pair<Pair<ComponentIndex, ComponentDetail>, SimplePropertyDefinition> current,
+                final RepositoryNode repositoryNode, final String[] existingNames, final ComponentService service) {
             super(workbench, creation);
             this.data = current;
             this.repository = repositoryNode;
@@ -275,7 +280,7 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
             if (!creation) {
                 final Property property = connectionItem.getProperty();
                 original = new SavedItem(property.getLabel(), property.getVersion(), property.getDescription(),
-                    property.getPurpose(), property.getStatusCode());
+                        property.getPurpose(), property.getStatusCode());
             }
             /*
              * oldMetadataTable =
@@ -342,7 +347,7 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
         private final boolean last;
 
         private ConfigDialog(final Shell parentShell, final IWizard newWizard, final boolean first,
-            final boolean last) {
+                final boolean last) {
             super(parentShell, newWizard);
             this.first = first;
             this.last = last;

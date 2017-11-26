@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.container.maven.shade;
 
@@ -93,8 +93,8 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                 resolver = ArtifactResolver.class.cast(container.lookup(ArtifactResolver.class, "default"));
                 projectBuilder = ProjectBuilder.class.cast(container.lookup(ProjectBuilder.class, "default"));
                 graphBuilder = includeTransitiveDependencies
-                    ? DependencyGraphBuilder.class.cast(container.lookup(DependencyGraphBuilder.class, "default"))
-                    : null;
+                        ? DependencyGraphBuilder.class.cast(container.lookup(DependencyGraphBuilder.class, "default"))
+                        : null;
             } catch (final ComponentLookupException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -102,34 +102,34 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                 try {
                     final String type = ofNullable(coords.type).filter(s -> !s.isEmpty()).orElse("jar");
                     final Artifact art = new DefaultArtifact(coords.groupId, coords.artifactId, coords.version,
-                        coords.scope, type, ofNullable(coords.classifier).orElse(""), new DefaultArtifactHandler() {
+                            coords.scope, type, ofNullable(coords.classifier).orElse(""), new DefaultArtifactHandler() {
 
-                            {
-                                setExtension(type);
-                            }
-                        });
+                                {
+                                    setExtension(type);
+                                }
+                            });
                     final Artifact artifact =
-                        resolver.resolveArtifact(session.getProjectBuildingRequest(), art).getArtifact();
+                            resolver.resolveArtifact(session.getProjectBuildingRequest(), art).getArtifact();
                     if (includeTransitiveDependencies) {
                         final DefaultProjectBuildingRequest request =
-                            new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
+                                new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
 
                         try {
                             final ProjectBuildingResult projectBuildingResult =
-                                projectBuilder.build(artifact, true, request);
+                                    projectBuilder.build(artifact, true, request);
                             final DependencyNode transitives =
-                                graphBuilder.buildDependencyGraph(projectBuildingResult.getProject(), filter);
+                                    graphBuilder.buildDependencyGraph(projectBuildingResult.getProject(), filter);
                             final CollectingDependencyNodeVisitor visitor = new CollectingDependencyNodeVisitor();
-                            transitives.accept(
-                                new FilteringDependencyNodeVisitor(visitor, new ArtifactDependencyNodeFilter(filter)));
+                            transitives.accept(new FilteringDependencyNodeVisitor(visitor,
+                                    new ArtifactDependencyNodeFilter(filter)));
                             return Stream.concat(Stream.of(artifact),
-                                visitor.getNodes().stream().map(DependencyNode::getArtifact).map(a -> {
-                                    try {
-                                        return resolver.resolveArtifact(request, a).getArtifact();
-                                    } catch (final ArtifactResolverException e) {
-                                        throw new IllegalStateException(e);
-                                    }
-                                }));
+                                    visitor.getNodes().stream().map(DependencyNode::getArtifact).map(a -> {
+                                        try {
+                                            return resolver.resolveArtifact(request, a).getArtifact();
+                                        } catch (final ArtifactResolverException e) {
+                                            throw new IllegalStateException(e);
+                                        }
+                                    }));
                         } catch (final ProjectBuildingException | DependencyGraphBuilderException e) {
                             throw new IllegalStateException(e);
                         }
@@ -169,15 +169,15 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
         }
         if (scope != null) {
             filters.addAll(
-                Stream.of(scope.split(",")).map(singleScope -> singleScope.startsWith("-") ? new ArtifactFilter() {
+                    Stream.of(scope.split(",")).map(singleScope -> singleScope.startsWith("-") ? new ArtifactFilter() {
 
-                    private final ArtifactFilter delegate = newScopeFilter(singleScope.substring(1));
+                        private final ArtifactFilter delegate = newScopeFilter(singleScope.substring(1));
 
-                    @Override
-                    public boolean include(final Artifact artifact) {
-                        return !delegate.include(artifact);
-                    }
-                } : newScopeFilter(singleScope)).collect(toList()));
+                        @Override
+                        public boolean include(final Artifact artifact) {
+                            return !delegate.include(artifact);
+                        }
+                    } : newScopeFilter(singleScope)).collect(toList()));
         }
         return new AndArtifactFilter(filters);
     }
@@ -189,14 +189,14 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
 
     @Override
     public void processResource(final String resource, final InputStream inputStream, final List<Relocator> list)
-        throws IOException {
+            throws IOException {
         // no-op
     }
 
     // provided is not well handled so add a particular case for it
     private ArtifactFilter newScopeFilter(final String singleScope) {
         return "provided".equals(singleScope) ? artifact -> Artifact.SCOPE_PROVIDED.equals(artifact.getScope())
-            : new ScopeArtifactFilter(singleScope);
+                : new ScopeArtifactFilter(singleScope);
     }
 
     @Data

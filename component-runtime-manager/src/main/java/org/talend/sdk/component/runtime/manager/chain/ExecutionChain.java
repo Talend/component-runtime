@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
@@ -62,13 +62,13 @@ public class ExecutionChain {
         final long processorCount = onProcessors(chainHead.getInputConfigurer().getChildren(), p -> {
         }).count();
         final List<Processor> processorValues =
-            onProcessors(chainHead.getInputConfigurer().getChildren(), Processor::start).collect(toList());
+                onProcessors(chainHead.getInputConfigurer().getChildren(), Processor::start).collect(toList());
         if (processorValues.size() != processorCount) {
             throw new IllegalStateException("Some processor didn't start, stopping");
         }
 
         if (onProcessors(chainHead.getInputConfigurer().getChildren(), Processor::beforeGroup)
-            .count() != processorCount) {
+                .count() != processorCount) {
             throw new IllegalStateException("Some processor didn't start properly, stopping");
         }
         try {
@@ -96,8 +96,13 @@ public class ExecutionChain {
                     processor.afterGroup(name -> value -> {
                         // we don't expect this to be used yet so the impl is not optimized
                         final Collection<ExecutionChainBuilder.ProcessorConfigurer<?>> children = chainHead
-                            .getInputConfigurer().getChildren().stream().filter(p -> p.getProcessor() == processor)
-                            .findFirst().map(ExecutionChainBuilder.ProcessorConfigurer::getChildren).orElse(null);
+                                .getInputConfigurer()
+                                .getChildren()
+                                .stream()
+                                .filter(p -> p.getProcessor() == processor)
+                                .findFirst()
+                                .map(ExecutionChainBuilder.ProcessorConfigurer::getChildren)
+                                .orElse(null);
                         send(name, children, value);
                         if (listener != null) {
                             try {
@@ -120,7 +125,7 @@ public class ExecutionChain {
     }
 
     private void onElement(final Collection<ExecutionChainBuilder.ProcessorConfigurer<?>> procs, final Object data,
-        final String branch) {
+            final String branch) {
         try {
             send(branch, procs, data);
         } catch (final RuntimeException re) {
@@ -132,7 +137,7 @@ public class ExecutionChain {
     }
 
     private void send(final String marker, final Collection<ExecutionChainBuilder.ProcessorConfigurer<?>> processors,
-        final Object data) {
+            final Object data) {
         processors.stream().filter(p -> p.getMarker().equals(marker)).forEach(p -> {
             final AtomicBoolean noOutput = new AtomicBoolean(true);
             final InputFactory inputFactory = branch -> data; // if we linked something to a processor we want that data
@@ -155,7 +160,7 @@ public class ExecutionChain {
     }
 
     private Stream<Processor> onProcessors(final Collection<ExecutionChainBuilder.ProcessorConfigurer<?>> children,
-        final Consumer<Processor> action) {
+            final Consumer<Processor> action) {
         return children.stream().flatMap(p -> {
             try {
                 action.accept(p.getProcessor());
@@ -171,7 +176,7 @@ public class ExecutionChain {
 
         /**
          * @param data
-         *            the successfully processed data.
+         * the successfully processed data.
          */
         void onData(final Object data);
     }
@@ -180,11 +185,11 @@ public class ExecutionChain {
 
         /**
          * @param data
-         *            the data related to the failure.
+         * the data related to the failure.
          * @param exception
-         *            the error which made the data processing failed.
+         * the error which made the data processing failed.
          * @return the new chain data, if you want to skip the item, return a
-         *         {@link Skip}.
+         * {@link Skip}.
          */
         Object onError(final Object data, final RuntimeException exception);
     }

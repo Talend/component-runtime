@@ -46,26 +46,34 @@ class ProcessorConnectorCreator extends AbstractConnectorCreator {
      */
     @Override
     protected List<INodeConnector> createMainConnectors() {
-        return Stream.concat(detail.getInputFlows().stream() //
-            .filter(input -> FLOW_MAIN.equals(getType(input))) //
-            .map(input -> { //
-                final INodeConnector main = createConnector(getType(input), getName(input), node);
-                main.setMaxLinkInput(1);
-                main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
-                main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
-                existingTypes.add(getType(input));
-                return main;
-            }), detail.getOutputFlows().stream() //
-                .filter(output -> FLOW_MAIN.equals(getType(output))) //
-                .map(output -> { //
-                    final INodeConnector main = createConnector(getType(output), getName(output), node);
-                    main.setMaxLinkOutput(1);
-                    main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
-                    main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
-                    existingTypes.add(getType(output));
-                    return main;
-                }))
-            .collect(toList());
+        return Stream
+                .concat(detail
+                        .getInputFlows()
+                        .stream() //
+                        .filter(input -> FLOW_MAIN.equals(getType(input))) //
+                        .map(input -> { //
+                            final INodeConnector main = createConnector(getType(input), getName(input), node);
+                            main.setMaxLinkInput(1);
+                            main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
+                            main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(),
+                                    FLOW_MERGE.getDefaultLineStyle());
+                            existingTypes.add(getType(input));
+                            return main;
+                        }), detail
+                                .getOutputFlows()
+                                .stream() //
+                                .filter(output -> FLOW_MAIN.equals(getType(output))) //
+                                .map(output -> { //
+                                    final INodeConnector main = createConnector(getType(output), getName(output), node);
+                                    main.setMaxLinkOutput(1);
+                                    main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(),
+                                            FLOW_REF.getDefaultLineStyle());
+                                    main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(),
+                                            FLOW_MERGE.getDefaultLineStyle());
+                                    existingTypes.add(getType(output));
+                                    return main;
+                                }))
+                .collect(toList());
     }
 
     /**
@@ -73,17 +81,19 @@ class ProcessorConnectorCreator extends AbstractConnectorCreator {
      */
     @Override
     protected Optional<INodeConnector> createRejectConnector() {
-        return detail.getOutputFlows().stream() //
-            .filter(output -> REJECT.equals(getType(output))) //
-            .findFirst() //
-            .map(output -> { //
-                INodeConnector reject = createConnector(getType(output), getName(output), node);
-                reject.setMaxLinkOutput(1);
-                reject.addConnectionProperty(EConnectionType.FLOW_MAIN, new RGB(255, 0, 0), 2);
-                reject.getConnectionProperty(EConnectionType.FLOW_MAIN).setRGB(new RGB(255, 0, 0));
-                existingTypes.add(getType(output));
-                return reject;
-            }); //
+        return detail
+                .getOutputFlows()
+                .stream() //
+                .filter(output -> REJECT.equals(getType(output))) //
+                .findFirst() //
+                .map(output -> { //
+                    INodeConnector reject = createConnector(getType(output), getName(output), node);
+                    reject.setMaxLinkOutput(1);
+                    reject.addConnectionProperty(EConnectionType.FLOW_MAIN, new RGB(255, 0, 0), 2);
+                    reject.getConnectionProperty(EConnectionType.FLOW_MAIN).setRGB(new RGB(255, 0, 0));
+                    existingTypes.add(getType(output));
+                    return reject;
+                }); //
     }
 
     /**

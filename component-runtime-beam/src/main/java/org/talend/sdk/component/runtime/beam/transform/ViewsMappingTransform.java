@@ -38,7 +38,7 @@ import org.talend.sdk.component.runtime.beam.TalendCoder;
  * <code><pre>Map<String, List<?>></pre></code>.
  */
 public class ViewsMappingTransform<I extends Serializable>
-    extends PTransform<PCollection<I>, PCollection<Map<String, List<Serializable>>>> {
+        extends PTransform<PCollection<I>, PCollection<Map<String, List<Serializable>>>> {
 
     private final Map<String, PCollectionView<?>> views;
 

@@ -83,11 +83,11 @@ public class ComponentFamilyMeta {
         return bundles.computeIfAbsent(locale, l -> {
             try {
                 final ResourceBundle bundle = ResourceBundle.getBundle(
-                    (packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
+                        (packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
                 return new FamilyBundle(bundle, name + '.');
             } catch (final MissingResourceException mre) {
                 log.warn("No bundle for " + packageName + " (" + name
-                    + "), means the display names will be the technical names");
+                        + "), means the display names will be the technical names");
                 log.debug(mre.getMessage(), mre);
                 return NO_COMPONENT_BUNDLE;
             }
@@ -136,8 +136,8 @@ public class ComponentFamilyMeta {
         private final boolean validated;
 
         BaseMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
-            final Class<?> type, final List<ParameterMeta> parameterMetas, final MigrationHandler migrationHandler,
-            final Function<Map<String, String>, T> instantiator, final boolean validated) {
+                final Class<?> type, final List<ParameterMeta> parameterMetas, final MigrationHandler migrationHandler,
+                final Function<Map<String, String>, T> instantiator, final boolean validated) {
             this.parent = parent;
             this.name = name;
             this.icon = icon;
@@ -157,11 +157,11 @@ public class ComponentFamilyMeta {
             return bundles.computeIfAbsent(locale, l -> {
                 try {
                     final ResourceBundle bundle = ResourceBundle.getBundle(
-                        (packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
+                            (packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
                     return new ComponentBundle(bundle, parent.name + '.' + name + '.');
                 } catch (final MissingResourceException mre) {
                     log.warn("No bundle for " + packageName + " (" + parent.name + " / " + name
-                        + "), means the display names will be the technical names");
+                            + "), means the display names will be the technical names");
                     log.debug(mre.getMessage(), mre);
                     return NO_COMPONENT_BUNDLE;
                 }
@@ -172,9 +172,9 @@ public class ComponentFamilyMeta {
          * Sets data provided by extension
          *
          * @param key
-         *            {@link Class} of data provided
+         * {@link Class} of data provided
          * @param instance
-         *            data instance
+         * data instance
          * @return data instance
          */
         public <D> D set(final Class<D> key, final D instance) {
@@ -185,7 +185,7 @@ public class ComponentFamilyMeta {
          * Returns extension data instance
          *
          * @param key
-         *            {@link Class} of data instance to return
+         * {@link Class} of data instance to return
          * @return data instance
          */
         public <D> D get(final Class<D> key) {
@@ -198,9 +198,9 @@ public class ComponentFamilyMeta {
     public static class PartitionMapperMeta extends BaseMeta<Mapper> {
 
         PartitionMapperMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
-            final Class<?> type, final List<ParameterMeta> parameterMetas,
-            final Function<Map<String, String>, Mapper> instantiator, final MigrationHandler migrationHandler,
-            final boolean validated) {
+                final Class<?> type, final List<ParameterMeta> parameterMetas,
+                final Function<Map<String, String>, Mapper> instantiator, final MigrationHandler migrationHandler,
+                final boolean validated) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
         }
     }
@@ -210,9 +210,9 @@ public class ComponentFamilyMeta {
     public static class ProcessorMeta extends BaseMeta<Processor> {
 
         ProcessorMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
-            final Class<?> type, final List<ParameterMeta> parameterMetas,
-            final Function<Map<String, String>, Processor> instantiator, final MigrationHandler migrationHandler,
-            final boolean validated) {
+                final Class<?> type, final List<ParameterMeta> parameterMetas,
+                final Function<Map<String, String>, Processor> instantiator, final MigrationHandler migrationHandler,
+                final boolean validated) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
         }
 
@@ -222,9 +222,11 @@ public class ComponentFamilyMeta {
          * @return listener method
          */
         public Method getListener() {
-            return Stream.of(getType().getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + getType()));
+            return Stream
+                    .of(getType().getMethods())
+                    .filter(m -> m.isAnnotationPresent(ElementListener.class))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + getType()));
         }
     }
 }

@@ -29,7 +29,7 @@ public class Dependency {
     private static final Dependency JUNIT = new Dependency("junit", "junit", "4.12", "test");
 
     private static final Dependency COMPONENT =
-        new Dependency("org.talend.sdk.component", "component-api", KIT, "provided");
+            new Dependency("org.talend.sdk.component", "component-api", KIT, "provided");
 
     private final String group;
 
@@ -49,7 +49,7 @@ public class Dependency {
 
     public Dependency(final Dependency source, final String newScope) {
         this(source.getGroup(), source.getArtifact(), source.getVersion(), newScope, source.getType(),
-            source.getClassifier());
+                source.getClassifier());
     }
 
     public static Dependency componentApi() {

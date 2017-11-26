@@ -59,7 +59,7 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
      * <code>connectionName</code> including "__default__"
      * 
      * @param connectionName
-     *            name of this connection
+     * name of this connection
      * @return {@link EConnectionType} of connection
      */
     protected static EConnectionType getType(final String connectionName) {
@@ -77,7 +77,7 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
      * argument unchanged
      * 
      * @param connectionName
-     *            name of this connection
+     * name of this connection
      * @return name, which should be used as INodeConnector name
      */
     protected static String getName(final String connectionName) {
@@ -158,11 +158,11 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
     protected final List<INodeConnector> createStandardConnectors() {
         existingTypes.addAll(Arrays.asList(RUN_IF, ON_COMPONENT_OK, ON_COMPONENT_ERROR, ON_SUBJOB_OK, ON_SUBJOB_ERROR));
         return Arrays.asList( //
-            createConnector(RUN_IF, RUN_IF.getName(), node),
-            createConnector(ON_COMPONENT_OK, ON_COMPONENT_OK.getName(), node),
-            createConnector(ON_COMPONENT_ERROR, ON_COMPONENT_ERROR.getName(), node),
-            createConnector(ON_SUBJOB_OK, ON_SUBJOB_OK.getName(), node),
-            createConnector(ON_SUBJOB_ERROR, ON_SUBJOB_ERROR.getName(), node));
+                createConnector(RUN_IF, RUN_IF.getName(), node),
+                createConnector(ON_COMPONENT_OK, ON_COMPONENT_OK.getName(), node),
+                createConnector(ON_COMPONENT_ERROR, ON_COMPONENT_ERROR.getName(), node),
+                createConnector(ON_SUBJOB_OK, ON_SUBJOB_OK.getName(), node),
+                createConnector(ON_SUBJOB_ERROR, ON_SUBJOB_ERROR.getName(), node));
     }
 
     /**
@@ -171,15 +171,17 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
      * @return remaining connectors
      */
     protected final List<INodeConnector> createRestConnectors() {
-        return Arrays.stream(EConnectionType.values()) //
-            .filter(type -> !existingTypes.contains(type)) //
-            .map(type -> {
-                INodeConnector connector = createConnector(type, type.getName(), node); //
-                if ((type == EConnectionType.PARALLELIZE) || (type == EConnectionType.SYNCHRONIZE)) { //
-                    connector.setMaxLinkInput(1); //
-                } //
-                return connector;
-            }).collect(Collectors.toList()); //
+        return Arrays
+                .stream(EConnectionType.values()) //
+                .filter(type -> !existingTypes.contains(type)) //
+                .map(type -> {
+                    INodeConnector connector = createConnector(type, type.getName(), node); //
+                    if ((type == EConnectionType.PARALLELIZE) || (type == EConnectionType.SYNCHRONIZE)) { //
+                        connector.setMaxLinkInput(1); //
+                    } //
+                    return connector;
+                })
+                .collect(Collectors.toList()); //
     }
 
 }

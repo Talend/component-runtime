@@ -61,10 +61,10 @@ public class RepositoryModelBuilderTest {
         final File pluginJar = createChainPlugin(TEMPORARY_FOLDER.getRoot(), pluginName);
 
         try (final ComponentManager manager =
-            new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null)) {
+                new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null)) {
             manager.addPlugin(pluginJar.getAbsolutePath());
             Container pluginContainer =
-                manager.findPlugin(pluginName).orElseThrow(() -> new Exception("test plugin don't exist"));
+                    manager.findPlugin(pluginName).orElseThrow(() -> new Exception("test plugin don't exist"));
             assertNotNull(pluginContainer);
             RepositoryModel rm = pluginContainer.get(RepositoryModel.class);
             assertNotNull(rm);
@@ -72,14 +72,14 @@ public class RepositoryModelBuilderTest {
             Family family = rm.getFamilies().get(0);
             String ds1Id = IdGenerator.get("family1", "datastore", "dataStore1");
             Config dataStore1Config =
-                family.getConfigs().stream().filter(c -> c.getId().equals(ds1Id)).findFirst().get();
+                    family.getConfigs().stream().filter(c -> c.getId().equals(ds1Id)).findFirst().get();
             assertNotNull(dataStore1Config);
             assertEquals(1, dataStore1Config.getChildConfigs().size());
             assertEquals("configuration1", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
 
             String ds2Id = IdGenerator.get("family1", "datastore", "dataStore2");
             Config dataStore2Config =
-                family.getConfigs().stream().filter(c -> c.getId().equals(ds2Id)).findFirst().get();
+                    family.getConfigs().stream().filter(c -> c.getId().equals(ds2Id)).findFirst().get();
             assertNotNull(dataStore2Config);
             assertEquals(1, dataStore2Config.getChildConfigs().size());
             assertEquals("configuration2", dataStore2Config.getChildConfigs().get(0).getMeta().getName());
@@ -99,24 +99,27 @@ public class RepositoryModelBuilderTest {
             final String fromPack = sourcePackage.replace('/', '.');
             final String toPack = packageName.replace('.', '/');
             final File root = new File(jarLocation(getClass()), sourcePackage);
-            ofNullable(root.listFiles()).map(Stream::of).orElseGet(Stream::empty)
-                .filter(c -> c.getName().endsWith(".class")).forEach(clazz -> {
-                    try (final InputStream is = new FileInputStream(clazz)) {
-                        final ClassReader reader = new ClassReader(is);
-                        final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-                        reader.accept(new RemappingClassAdapter(writer, new Remapper() {
+            ofNullable(root.listFiles())
+                    .map(Stream::of)
+                    .orElseGet(Stream::empty)
+                    .filter(c -> c.getName().endsWith(".class"))
+                    .forEach(clazz -> {
+                        try (final InputStream is = new FileInputStream(clazz)) {
+                            final ClassReader reader = new ClassReader(is);
+                            final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
+                            reader.accept(new RemappingClassAdapter(writer, new Remapper() {
 
-                            @Override
-                            public String map(final String key) {
-                                return key.replace(sourcePackage, toPack).replace(fromPack, packageName);
-                            }
-                        }), EXPAND_FRAMES);
-                        outputStream.putNextEntry(new JarEntry(toPack + '/' + clazz.getName()));
-                        outputStream.write(writer.toByteArray());
-                    } catch (final IOException e) {
-                        fail(e.getMessage());
-                    }
-                });
+                                @Override
+                                public String map(final String key) {
+                                    return key.replace(sourcePackage, toPack).replace(fromPack, packageName);
+                                }
+                            }), EXPAND_FRAMES);
+                            outputStream.putNextEntry(new JarEntry(toPack + '/' + clazz.getName()));
+                            outputStream.write(writer.toByteArray());
+                        } catch (final IOException e) {
+                            fail(e.getMessage());
+                        }
+                    });
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }

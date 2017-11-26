@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.output.data;
 
@@ -116,36 +116,48 @@ public class AccessorCache implements Serializable {
     }
 
     private Set<String> findStaticFields(final Class<?> from) {
-        return Stream.concat(
-            Stream.of(from.getDeclaredFields()).filter(f -> !f.isAnnotationPresent(ObjectMap.Any.class))
-                .filter(f -> !Modifier.isStatic(f.getModifiers())).map(Field::getName),
-            ofNullable(from.getSuperclass()).filter(s -> s != Object.class && s != from).map(this::findStaticFields)
-                .orElseGet(Collections::emptySet).stream())
-            .collect(toSet());
+        return Stream
+                .concat(Stream
+                        .of(from.getDeclaredFields())
+                        .filter(f -> !f.isAnnotationPresent(ObjectMap.Any.class))
+                        .filter(f -> !Modifier.isStatic(f.getModifiers()))
+                        .map(Field::getName),
+                        ofNullable(from.getSuperclass())
+                                .filter(s -> s != Object.class && s != from)
+                                .map(this::findStaticFields)
+                                .orElseGet(Collections::emptySet)
+                                .stream())
+                .collect(toSet());
     }
 
     private Function<Object, Map<String, Object>> findAny(final Class<?> from) {
         return from == Object.class || from == null ? null
-            : Stream.of(from.getDeclaredFields()).filter(f -> f.isAnnotationPresent(ObjectMap.Any.class)).filter(f -> {
-                final Type genericType = f.getGenericType();
-                if (!ParameterizedType.class.isInstance(genericType)) {
-                    return false;
-                }
-                final ParameterizedType parameterizedType = ParameterizedType.class.cast(genericType);
-                return Map.class == parameterizedType.getRawType()
-                    && String.class == parameterizedType.getActualTypeArguments()[0];
-            }).findFirst().map(field -> {
-                if (!field.isAccessible()) {
-                    field.setAccessible(true);
-                }
-                return (Function<Object, Map<String, Object>>) o -> {
-                    try {
-                        return (Map<String, Object>) field.get(o);
-                    } catch (final IllegalAccessException e) {
-                        return null;
-                    }
-                };
-            }).orElseGet(() -> findAny(from.getSuperclass()));
+                : Stream
+                        .of(from.getDeclaredFields())
+                        .filter(f -> f.isAnnotationPresent(ObjectMap.Any.class))
+                        .filter(f -> {
+                            final Type genericType = f.getGenericType();
+                            if (!ParameterizedType.class.isInstance(genericType)) {
+                                return false;
+                            }
+                            final ParameterizedType parameterizedType = ParameterizedType.class.cast(genericType);
+                            return Map.class == parameterizedType.getRawType()
+                                    && String.class == parameterizedType.getActualTypeArguments()[0];
+                        })
+                        .findFirst()
+                        .map(field -> {
+                            if (!field.isAccessible()) {
+                                field.setAccessible(true);
+                            }
+                            return (Function<Object, Map<String, Object>>) o -> {
+                                try {
+                                    return (Map<String, Object>) field.get(o);
+                                } catch (final IllegalAccessException e) {
+                                    return null;
+                                }
+                            };
+                        })
+                        .orElseGet(() -> findAny(from.getSuperclass()));
     }
 
     private Function<Object, Object> getFromClass(final Class<?> containerType, final String location) {

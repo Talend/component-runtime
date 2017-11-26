@@ -62,12 +62,12 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
     private final ClassLoader loader;
 
     public BeamMapperImpl(final PTransform<PBegin, ?> begin, final String plugin, final String family,
-        final String name) {
+            final String name) {
         this(begin, createFlowDefinition(begin, plugin, family, name), plugin, family, name);
     }
 
     protected BeamMapperImpl(final Object original, final FlowDefinition flow, final String plugin, final String family,
-        final String name) {
+            final String name) {
         this.original = original;
         this.flow = flow;
         this.plugin = plugin;
@@ -81,7 +81,8 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
         return execute(() -> {
             try {
                 return BoundedSource.class.isInstance(flow.source)
-                    ? BoundedSource.class.cast(flow.source).getEstimatedSizeBytes(options) : 1;
+                        ? BoundedSource.class.cast(flow.source).getEstimatedSizeBytes(options)
+                        : 1;
             } catch (final Exception e) {
                 throw new IllegalStateException(e);
             }
@@ -98,8 +99,8 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
         return execute(() -> {
             try {
                 final Source.Reader<?> reader = BoundedSource.class.isInstance(flow.source)
-                    ? BoundedSource.class.cast(flow.source).createReader(options)
-                    : UnboundedSource.class.cast(flow.source).createReader(options, null);
+                        ? BoundedSource.class.cast(flow.source).createReader(options)
+                        : UnboundedSource.class.cast(flow.source).createReader(options, null);
                 return new BeamInput(reader, flow.processor, plugin, family, name, loader);
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
@@ -158,7 +159,7 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
     }
 
     private static FlowDefinition createFlowDefinition(final PTransform<PBegin, ?> begin, final String plugin,
-        final String family, final String name) {
+            final String family, final String name) {
         final CapturingPipeline capturingPipeline = new CapturingPipeline(PipelineOptionsFactory.create());
         final CapturingPipeline.SourceExtractor sourceExtractor = new CapturingPipeline.SourceExtractor();
         capturingPipeline.apply(begin);
@@ -170,13 +171,15 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
         }
 
         if (Read.Bounded.class.isInstance(transform)) {
-            final Processor processor = sourceExtractor.getTransforms().isEmpty() ? null : new BeamProcessorChainImpl(
-                sourceExtractor.getTransforms(), capturingPipeline.getCoderRegistry(), plugin, family, name);
+            final Processor processor = sourceExtractor.getTransforms().isEmpty() ? null
+                    : new BeamProcessorChainImpl(sourceExtractor.getTransforms(), capturingPipeline.getCoderRegistry(),
+                            plugin, family, name);
             return new FlowDefinition(Read.Bounded.class.cast(transform).getSource(), processor);
         }
         if (Read.Unbounded.class.isInstance(transform)) {
-            final Processor processor = sourceExtractor.getTransforms().isEmpty() ? null : new BeamProcessorChainImpl(
-                sourceExtractor.getTransforms(), capturingPipeline.getCoderRegistry(), plugin, family, name);
+            final Processor processor = sourceExtractor.getTransforms().isEmpty() ? null
+                    : new BeamProcessorChainImpl(sourceExtractor.getTransforms(), capturingPipeline.getCoderRegistry(),
+                            plugin, family, name);
             return new FlowDefinition(Read.Unbounded.class.cast(transform).getSource(), processor);
         }
 
@@ -213,7 +216,7 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
 
         private Serializable loadDelegate() throws IOException, ClassNotFoundException {
             try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(value),
-                ContainerFinder.Instance.get().find(plugin).classloader())) {
+                    ContainerFinder.Instance.get().find(plugin).classloader())) {
                 return Serializable.class.cast(ois.readObject());
             }
         }

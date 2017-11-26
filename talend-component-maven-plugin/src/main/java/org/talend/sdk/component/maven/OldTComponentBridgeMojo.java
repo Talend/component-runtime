@@ -107,7 +107,8 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     @Parameter(defaultValue = "${project.version}", readonly = true)
     private String version;
 
-    @Parameter(defaultValue = "https://raw.githubusercontent.com/Talend/ui/master/packages/icons/src/svg/", property = "talend.component.svgRrepository")
+    @Parameter(defaultValue = "https://raw.githubusercontent.com/Talend/ui/master/packages/icons/src/svg/",
+            property = "talend.component.svgRrepository")
     private String svgRepository;
 
     @Parameter(defaultValue = "false", property = "talend.component.downloadIconsFromGithub")
@@ -129,15 +130,15 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 
     @Override
     protected void doWork(final ComponentManager manager, final Container container,
-        final ContainerComponentRegistry registry) throws MojoExecutionException, MojoFailureException {
+            final ContainerComponentRegistry registry) throws MojoExecutionException, MojoFailureException {
         createComponentModules(container, registry);
     }
 
     @Override
     protected void pluginInit() throws MojoExecutionException {
         if ("auto".equals(componentsApiVersion) || null == componentsApiVersion) {
-            try (final InputStream stream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("META-INF/maven/org.talend.components/components-api/pom.properties")) {
+            try (final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                    "META-INF/maven/org.talend.components/components-api/pom.properties")) {
                 final Properties properties = new Properties();
                 properties.load(stream);
                 componentsApiVersion = properties.getProperty("version", "0.19.7");
@@ -146,8 +147,8 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
             }
         }
         if ("auto".equals(componentNgApiVersion) || null == componentNgApiVersion) {
-            try (final InputStream stream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("META-INF/maven/org.talend.sdk.component/component-api/pom.properties")) {
+            try (final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                    "META-INF/maven/org.talend.sdk.component/component-api/pom.properties")) {
                 final Properties properties = new Properties();
                 properties.load(stream);
                 componentNgApiVersion = properties.getProperty("version", "1.0.0-SNAPSHOT");
@@ -158,29 +159,27 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private void createComponentModules(final Container container, final ContainerComponentRegistry registry)
-        throws MojoExecutionException {
+            throws MojoExecutionException {
         if (!classes.exists()) {
             throw new MojoExecutionException("No " + classes + " so no component available");
         }
 
         final File workDir = new File(target, getClass().getSimpleName().toLowerCase(ENGLISH) + "_workdir");
         mkdirP(workDir);
-
         final Collection<File> modules = new ArrayList<>();
-
         final File fakeM2 = new File(workDir, ".m2");
         final File artifactM2Dir = new File(fakeM2, groupId.replace('.', '/') + '/' + artifactId + '/' + version);
         mkdirP(artifactM2Dir);
         try (final InputStream jar = new FileInputStream(project.getArtifact().getFile());
                 final OutputStream out = new FileOutputStream(
-                    new File(artifactM2Dir, project.getBuild().getFinalName() + '.' + packaging))) {
+                        new File(artifactM2Dir, project.getBuild().getFinalName() + '.' + packaging))) {
             IOUtil.copy(jar, out);
         } catch (final IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
         try (final InputStream pom = new FileInputStream(new File(project.getBasedir(), "pom.xml"));
                 final OutputStream out =
-                    new FileOutputStream(new File(artifactM2Dir, project.getBuild().getFinalName() + ".pom"))) {
+                        new FileOutputStream(new File(artifactM2Dir, project.getBuild().getFinalName() + ".pom"))) {
             IOUtil.copy(pom, out);
         } catch (final IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
@@ -189,7 +188,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
         registry.getComponents().values().forEach(family -> {
             if (artifactId.equals(family.getName())) {
                 throw new IllegalArgumentException(
-                    "You can't name your artifact with a family name (" + family + "), please rename it");
+                        "You can't name your artifact with a family name (" + family + "), please rename it");
             }
 
             final String artifactBaseName = family.getName().toLowerCase(ENGLISH);
@@ -200,7 +199,6 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
             mkdirP(runtimeRootFolder);
 
             final Collection<Definition> definitions = new ArrayList<>();
-
             final Collection<String> packages = new ArrayList<>();
 
             family.getPartitionMappers().values().forEach(mapper -> {
@@ -215,41 +213,46 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 final byte[] iconContent = Icons.findIcon(mapper.getIcon(), downloadIconsFromGithub, svgRepository);
                 final String packageForJava = definitionPackage.replace('/', '.');
                 final Definition definition =
-                    new Definition(definitionName, packageForJava, mapper.getParent().getName(), mapper.getName(),
-                        ofNullable(mapper.getParent().getCategories()).orElseGet(Collections::emptyList).stream()
-                            .map(c -> c + '/' + mapper.getParent().getName()).collect(toList()),
-                        packageForJava + '.' + propertyName, runtimePackage.replace('/', '.') + '.' + runtimeName,
-                        singleton("OUTGOING"), mapper.getIcon(), iconContent != null);
+                        new Definition(definitionName, packageForJava, mapper.getParent().getName(), mapper.getName(),
+                                ofNullable(mapper.getParent().getCategories())
+                                        .orElseGet(Collections::emptyList)
+                                        .stream()
+                                        .map(c -> c + '/' + mapper.getParent().getName())
+                                        .collect(toList()),
+                                packageForJava + '.' + propertyName,
+                                runtimePackage.replace('/', '.') + '.' + runtimeName, singleton("OUTGOING"),
+                                mapper.getIcon(), iconContent != null);
                 definitions.add(definition);
 
                 final File definitionFile = new File(definitionRootFolder,
-                    "src/main/java/" + definitionPackage + '/' + definitionName + ".java");
+                        "src/main/java/" + definitionPackage + '/' + definitionName + ".java");
                 packages.add(packageForJava);
                 doWrite(definitionFile.getParentFile(), definitionFile.getName(),
-                    freemarkers.templatize("definition", new HashMap<String, Object>() {
+                        freemarkers.templatize("definition", new HashMap<String, Object>() {
 
-                        {
-                            put("generatedGroupId", groupId);
-                            put("generatedVersion", version);
-                            put("runtimeArtifactId", runtimeRootFolder.getName());
-                            put("definition", definition);
-                        }
-                    }));
+                            {
+                                put("generatedGroupId", groupId);
+                                put("generatedVersion", version);
+                                put("runtimeArtifactId", runtimeRootFolder.getName());
+                                put("definition", definition);
+                            }
+                        }));
 
                 // properties
                 final Map<String, ParameterValue> parametersMap =
-                    buildParametersMap(ROOT_PROPERTIES, mapper.getParameterMetas(), emptyList());
+                        buildParametersMap(ROOT_PROPERTIES, mapper.getParameterMetas(), emptyList());
                 final ServiceMeta.ActionMeta guessSchema = hasGuessSchemaAction(registry, mapper);
                 final String datasetPrefix = findDatasetPrefix(mapper, guessSchema);
                 generateProperties(container.getLoader(), definitionFile.getParentFile(), propertyName, definition,
-                    mapper.getParameterMetas(), true, guessSchema, () -> generateGuessSchema(family, mapper,
-                        parametersMap, runtimeRootFolder.getName(), guessSchema, datasetPrefix, null, null, null),
-                    false, null);
+                        mapper.getParameterMetas(), true, guessSchema,
+                        () -> generateGuessSchema(family, mapper, parametersMap, runtimeRootFolder.getName(),
+                                guessSchema, datasetPrefix, null, null, null),
+                        false, null);
 
                 // icon
                 if (iconContent != null) {
                     final File iconFile = new File(definitionRootFolder, "src/main/resources/"
-                        + packageForJava.replace('.', '/') + "/" + mapper.getIcon() + "_icon32.png");
+                            + packageForJava.replace('.', '/') + "/" + mapper.getIcon() + "_icon32.png");
                     mkdirP(iconFile.getParentFile());
                     try (final OutputStream out = new FileOutputStream(iconFile)) {
                         IOUtil.copy(iconContent, out);
@@ -263,21 +266,21 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 
                 // runtime
                 doWrite(new File(runtimeRootFolder, "src/main/java/" + runtimePackage), runtimeName + ".java",
-                    freemarkers.templatize("source", new HashMap<String, Object>() {
+                        freemarkers.templatize("source", new HashMap<String, Object>() {
 
-                        {
-                            put("plugin", groupId + ':' + artifactId + ':' + version);
-                            put("family", mapper.getParent().getName());
-                            put("name", mapper.getName());
-                            put("version", mapper.getVersion());
-                            put("propertiesType", definition.propertiesClassName);
-                            put("shortPropertiesType", definition.propertiesClassName
-                                .substring(definition.propertiesClassName.lastIndexOf('.') + 1));
-                            put("parameters", parametersMap);
-                            put("definition", new Definition(runtimeName, runtimePackage.replace('/', '.'), null, null,
-                                null, null, null, null, null, false));
-                        }
-                    }));
+                            {
+                                put("plugin", groupId + ':' + artifactId + ':' + version);
+                                put("family", mapper.getParent().getName());
+                                put("name", mapper.getName());
+                                put("version", mapper.getVersion());
+                                put("propertiesType", definition.propertiesClassName);
+                                put("shortPropertiesType", definition.propertiesClassName
+                                        .substring(definition.propertiesClassName.lastIndexOf('.') + 1));
+                                put("parameters", parametersMap);
+                                put("definition", new Definition(runtimeName, runtimePackage.replace('/', '.'), null,
+                                        null, null, null, null, null, null, false));
+                            }
+                        }));
             });
             family.getProcessors().values().forEach(processor -> {
                 final Class<?> type = processor.getType();
@@ -291,28 +294,31 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 final byte[] iconContent = Icons.findIcon(processor.getIcon(), downloadIconsFromGithub, svgRepository);
                 final String packageForJava = definitionPackage.replace('/', '.');
                 final boolean hasOutput = hasOutput(processor);
-                final Definition definition =
-                    new Definition(definitionName, packageForJava, processor.getParent().getName(), processor.getName(),
-                        ofNullable(processor.getParent().getCategories()).orElseGet(Collections::emptyList).stream()
-                            .map(c -> c + '/' + processor.getParent().getName()).collect(toList()),
+                final Definition definition = new Definition(definitionName, packageForJava,
+                        processor.getParent().getName(), processor.getName(),
+                        ofNullable(processor.getParent().getCategories())
+                                .orElseGet(Collections::emptyList)
+                                .stream()
+                                .map(c -> c + '/' + processor.getParent().getName())
+                                .collect(toList()),
                         packageForJava + '.' + propertyName, runtimePackage.replace('/', '.') + '.' + runtimeName,
                         hasOutput ? singleton("INCOMING_AND_OUTGOING") : singleton("INCOMING"), processor.getIcon(),
                         iconContent != null);
                 definitions.add(definition);
 
                 final File definitionFile = new File(definitionRootFolder,
-                    "src/main/java/" + definitionPackage + '/' + definitionName + ".java");
+                        "src/main/java/" + definitionPackage + '/' + definitionName + ".java");
                 packages.add(packageForJava);
                 doWrite(definitionFile.getParentFile(), definitionFile.getName(),
-                    freemarkers.templatize("definition", new HashMap<String, Object>() {
+                        freemarkers.templatize("definition", new HashMap<String, Object>() {
 
-                        {
-                            put("generatedGroupId", groupId);
-                            put("generatedVersion", version);
-                            put("runtimeArtifactId", runtimeRootFolder.getName());
-                            put("definition", definition);
-                        }
-                    }));
+                            {
+                                put("generatedGroupId", groupId);
+                                put("generatedVersion", version);
+                                put("runtimeArtifactId", runtimeRootFolder.getName());
+                                put("definition", definition);
+                            }
+                        }));
 
                 // properties
                 final Method processorListener = processor.getListener();
@@ -320,26 +326,26 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 inputs.remove(Branches.DEFAULT_BRANCH);
                 if (!inputs.isEmpty()) {
                     throw new IllegalArgumentException(
-                        "Only default branch is supported as @Input in @Processors, please fix " + processor);
+                            "Only default branch is supported as @Input in @Processors, please fix " + processor);
                 }
                 final Class<?> recordType = findInputRecordType(processor, processorListener);
 
                 final boolean processorHasOutput = hasOutput(processor);
                 final Map<String, ParameterValue> parametersMap =
-                    buildParametersMap(ROOT_PROPERTIES, processor.getParameterMetas(), emptyList());
+                        buildParametersMap(ROOT_PROPERTIES, processor.getParameterMetas(), emptyList());
                 final ServiceMeta.ActionMeta guessSchema = hasGuessSchemaAction(registry, processor);
                 final String datasetPrefix = findDatasetPrefix(processor, guessSchema);
                 generateProperties(container.getLoader(), definitionFile.getParentFile(), propertyName, definition,
-                    processor.getParameterMetas(), processorHasOutput, guessSchema,
-                    () -> generateGuessSchema(family, processor, parametersMap, runtimeRootFolder.getName(),
-                        guessSchema, datasetPrefix, recordType, findOutputRecordType(processorListener),
-                        runtimePackage.replace('/', '.') + '.' + runtimeName),
-                    true, null);
+                        processor.getParameterMetas(), processorHasOutput, guessSchema,
+                        () -> generateGuessSchema(family, processor, parametersMap, runtimeRootFolder.getName(),
+                                guessSchema, datasetPrefix, recordType, findOutputRecordType(processorListener),
+                                runtimePackage.replace('/', '.') + '.' + runtimeName),
+                        true, null);
 
                 // icon
                 if (iconContent != null) {
                     final File iconFile = new File(definitionRootFolder, "src/main/resources/"
-                        + packageForJava.replace('.', '/') + "/" + processor.getIcon() + "_icon32.png");
+                            + packageForJava.replace('.', '/') + "/" + processor.getIcon() + "_icon32.png");
                     mkdirP(iconFile.getParentFile());
                     try (final OutputStream out = new FileOutputStream(iconFile)) {
                         IOUtil.copy(iconContent, out);
@@ -353,40 +359,39 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 
                 // runtime
                 doWrite(new File(runtimeRootFolder, "src/main/java/" + runtimePackage), runtimeName + ".java",
-                    freemarkers.templatize("sink", new HashMap<String, Object>() {
+                        freemarkers.templatize("sink", new HashMap<String, Object>() {
 
-                        {
-                            put("plugin", groupId + ':' + artifactId + ':' + version);
-                            put("family", processor.getParent().getName());
-                            put("name", processor.getName());
-                            put("version", processor.getVersion());
-                            put("propertiesType", definition.propertiesClassName);
-                            put("shortPropertiesType", definition.propertiesClassName
-                                .substring(definition.propertiesClassName.lastIndexOf('.') + 1));
-                            put("parameters", parametersMap);
-                            put("definition", new Definition(baseName, runtimePackage.replace('/', '.'), null, null,
-                                null, null, null, null, null, false));
-                            put("recordType", recordType.getName());
-                        }
-                    }));
+                            {
+                                put("plugin", groupId + ':' + artifactId + ':' + version);
+                                put("family", processor.getParent().getName());
+                                put("name", processor.getName());
+                                put("version", processor.getVersion());
+                                put("propertiesType", definition.propertiesClassName);
+                                put("shortPropertiesType", definition.propertiesClassName
+                                        .substring(definition.propertiesClassName.lastIndexOf('.') + 1));
+                                put("parameters", parametersMap);
+                                put("definition", new Definition(baseName, runtimePackage.replace('/', '.'), null, null,
+                                        null, null, null, null, null, false));
+                                put("recordType", recordType.getName());
+                            }
+                        }));
             });
 
             if (!definitions.isEmpty()) { // family
 
                 final String rootPackage = findCommon(packages);
-
                 final String name = capitalise(family.getName()) + "FamilyDefinition";
 
                 doWrite(new File(definitionRootFolder, "src/main/java/" + rootPackage.replace('.', '/')),
-                    name + ".java", freemarkers.templatize("familydefinition", new HashMap<String, Object>() {
+                        name + ".java", freemarkers.templatize("familydefinition", new HashMap<String, Object>() {
 
-                        {
-                            put("family", family);
-                            put("definition", new Definition(name, rootPackage, null, family.getName(), null, null,
-                                null, null, null, false));
-                            put("definitions", definitions);
-                        }
-                    }));
+                            {
+                                put("family", family);
+                                put("definition", new Definition(name, rootPackage, null, family.getName(), null, null,
+                                        null, null, null, false));
+                                put("definitions", definitions);
+                            }
+                        }));
 
                 // pom.xml
                 createPoms(fakeM2, family, rootFolder, definitionRootFolder, runtimeRootFolder, rootPackage);
@@ -405,17 +410,19 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private String findDatasetPrefix(final ComponentFamilyMeta.BaseMeta<?> mapper,
-        final ServiceMeta.ActionMeta guessSchema) {
+            final ServiceMeta.ActionMeta guessSchema) {
         return guessSchema == null ? null
-            : Stream
-                .concat(mapper.getParameterMetas().stream(),
-                    mapper.getParameterMetas().stream().flatMap(p -> p.getNestedParameters().stream()))
-                .filter(p -> guessSchema.getAction().equals(p.getMetadata().get("dataset"))).findFirst()
-                .map(ParameterMeta::getPath).orElse(null);
+                : Stream
+                        .concat(mapper.getParameterMetas().stream(),
+                                mapper.getParameterMetas().stream().flatMap(p -> p.getNestedParameters().stream()))
+                        .filter(p -> guessSchema.getAction().equals(p.getMetadata().get("dataset")))
+                        .findFirst()
+                        .map(ParameterMeta::getPath)
+                        .orElse(null);
     }
 
     private Class<?> findInputRecordType(final ComponentFamilyMeta.ProcessorMeta processor,
-        final Method processorListener) {
+            final Method processorListener) {
         return findInputs(processorListener).sorted(new Comparator<java.lang.reflect.Parameter>() {
 
             @Override
@@ -426,26 +433,31 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
             private String getBranch(final java.lang.reflect.Parameter param) {
                 return ofNullable(param.getAnnotation(Input.class)).map(Input::value).orElse(Branches.DEFAULT_BRANCH);
             }
-        }).findFirst().map(java.lang.reflect.Parameter::getType)
-            .orElseThrow(() -> new IllegalArgumentException("No input record for " + processor));
+        }).findFirst().map(java.lang.reflect.Parameter::getType).orElseThrow(
+                () -> new IllegalArgumentException("No input record for " + processor));
     }
 
     private Class<?> findOutputRecordType(final Method processorListener) {
 
         final Class<?> returnType = processorListener.getReturnType();
-        return returnType == void.class || returnType == Void.class ? Stream.of(processorListener.getParameters())
-            .filter(p -> p.isAnnotationPresent(Output.class)).sorted(new Comparator<java.lang.reflect.Parameter>() {
+        return returnType == void.class || returnType == Void.class ? Stream
+                .of(processorListener.getParameters())
+                .filter(p -> p.isAnnotationPresent(Output.class))
+                .sorted(new Comparator<java.lang.reflect.Parameter>() {
 
-                @Override
-                public int compare(final java.lang.reflect.Parameter o1, final java.lang.reflect.Parameter o2) {
-                    return sortBranches(getBranch(o1), getBranch(o2));
-                }
+                    @Override
+                    public int compare(final java.lang.reflect.Parameter o1, final java.lang.reflect.Parameter o2) {
+                        return sortBranches(getBranch(o1), getBranch(o2));
+                    }
 
-                private String getBranch(final java.lang.reflect.Parameter param) {
-                    return ofNullable(param.getAnnotation(Output.class)).map(Output::value)
-                        .orElse(Branches.DEFAULT_BRANCH);
-                }
-            }).findFirst().map(java.lang.reflect.Parameter::getType).orElse(null) : returnType;
+                    private String getBranch(final java.lang.reflect.Parameter param) {
+                        return ofNullable(param.getAnnotation(Output.class)).map(Output::value).orElse(
+                                Branches.DEFAULT_BRANCH);
+                    }
+                })
+                .findFirst()
+                .map(java.lang.reflect.Parameter::getType)
+                .orElse(null) : returnType;
     }
 
     private int sortBranches(final String b1, final String b2) {
@@ -463,7 +475,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private void createPoms(final File fakeM2, final ComponentFamilyMeta family, final File rootFolder,
-        final File definitionRootFolder, final File runtimeRootFolder, final String rootPackage) {
+            final File definitionRootFolder, final File runtimeRootFolder, final String rootPackage) {
         doWrite(definitionRootFolder, "pom.xml", freemarkers.templatize("pomdefinition", new HashMap<String, Object>() {
 
             {
@@ -529,8 +541,9 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     private void installInStudio(final File module) {
         getLog().info("Installing development version of " + module.getName() + " in " + studioHome);
 
-        final List<String> artifacts = asList(artifactId + '-' + version + ".jar",
-            module.getName() + "-runtime-" + version + ".jar", module.getName() + "-definition-" + version + ".jar");
+        final List<String> artifacts =
+                asList(artifactId + '-' + version + ".jar", module.getName() + "-runtime-" + version + ".jar",
+                        module.getName() + "-definition-" + version + ".jar");
 
         // 0. remove staled libs from the cache (configuration/org.eclipse.osgi)
         final File osgiCache = new File(studioHome, "configuration/org.eclipse.osgi");
@@ -541,22 +554,30 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 } catch (final NumberFormatException nfe) {
                     return false;
                 }
-            })).map(Stream::of).orElseGet(Stream::empty).map(id -> new File(id, ".cp")).filter(File::exists)
-                .flatMap(cp -> ofNullable(cp.listFiles((dir, name) -> name.endsWith(".jar"))).map(Stream::of)
-                    .orElseGet(Stream::empty))
-                .filter(jar -> artifacts.contains(jar.getName())).forEach(this::tryDelete);
+            }))
+                    .map(Stream::of)
+                    .orElseGet(Stream::empty)
+                    .map(id -> new File(id, ".cp"))
+                    .filter(File::exists)
+                    .flatMap(cp -> ofNullable(cp.listFiles((dir, name) -> name.endsWith(".jar")))
+                            .map(Stream::of)
+                            .orElseGet(Stream::empty))
+                    .filter(jar -> artifacts.contains(jar.getName()))
+                    .forEach(this::tryDelete);
         }
 
         // 1. remove staled libs from the build (workspace/.Java/lib/)
         final File javaLib = new File(studioHome, "workspace/.Java/lib");
         if (javaLib.isDirectory()) {
-            ofNullable(javaLib.listFiles((d, n) -> artifacts.contains(n))).map(Stream::of).orElseGet(Stream::empty)
-                .forEach(this::tryDelete);
+            ofNullable(javaLib.listFiles((d, n) -> artifacts.contains(n)))
+                    .map(Stream::of)
+                    .orElseGet(Stream::empty)
+                    .forEach(this::tryDelete);
         }
 
         // 2. install the definition in plugin
         final File definition = new File(module, module.getName() + "-definition/target")
-            .listFiles((d, n) -> n.endsWith(".jar") && !n.endsWith("-sources.jar"))[0];
+                .listFiles((d, n) -> n.endsWith(".jar") && !n.endsWith("-sources.jar"))[0];
         if (!definition.exists()) {
             throw new IllegalArgumentException("No definition found at " + definition);
         }
@@ -584,7 +605,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
             Stream.of(artifactId, module.getName() + "-definition", module.getName() + "-runtime").forEach(art -> {
                 try {
                     final File target = new File(studioHome, "configuration/.m2/repository/" + groupId.replace('.', '/')
-                        + '/' + art + '/' + version + '/' + art + '-' + version + ".jar");
+                            + '/' + art + '/' + version + '/' + art + '-' + version + ".jar");
                     mkdirP(target.getParentFile());
                     Files.copy(definition.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     getLog().info("Installed " + art + " at " + target.getAbsolutePath());
@@ -593,8 +614,8 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 }
             });
         } else {
-            getLog().info(
-                "Studio " + studioHome + " configured to use global maven repository, skipping artifact installation");
+            getLog().info("Studio " + studioHome
+                    + " configured to use global maven repository, skipping artifact installation");
         }
     }
 
@@ -607,100 +628,121 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private ServiceMeta.ActionMeta hasGuessSchemaAction(final ContainerComponentRegistry registry,
-        final ComponentFamilyMeta.BaseMeta<?> meta) {
-        return registry.getServices().stream().flatMap(s -> s.getActions().stream())
-            .filter(a -> a.getType().equals("schema") && a.getFamily().equals(meta.getParent().getName())
-                && Stream
-                    .concat(meta.getParameterMetas().stream(),
-                        meta.getParameterMetas().stream().flatMap(p -> p.getNestedParameters().stream()))
-                    .anyMatch(
-                        p -> a.getAction().equals(p.getMetadata().get(ActionParameterEnricher.META_PREFIX + "schema"))))
-            .findFirst().orElse(null);
+            final ComponentFamilyMeta.BaseMeta<?> meta) {
+        return registry
+                .getServices()
+                .stream()
+                .flatMap(s -> s.getActions().stream())
+                .filter(a -> a.getType().equals("schema") && a.getFamily().equals(meta.getParent().getName())
+                        && Stream
+                                .concat(meta.getParameterMetas().stream(),
+                                        meta.getParameterMetas().stream().flatMap(
+                                                p -> p.getNestedParameters().stream()))
+                                .anyMatch(p -> a.getAction().equals(
+                                        p.getMetadata().get(ActionParameterEnricher.META_PREFIX + "schema"))))
+                .findFirst()
+                .orElse(null);
     }
 
     // this needs some revisit to be more robust
     private String generateGuessSchema(final ComponentFamilyMeta family, final ComponentFamilyMeta.BaseMeta<?> mapper,
-        final Map<String, ParameterValue> parametersMap, final String runtimeArtifactId,
-        final ServiceMeta.ActionMeta guessSchema, final String datasetPrefix, final Class<?> inputType,
-        final Class<?> outputType, final String componentClass) {
+            final Map<String, ParameterValue> parametersMap, final String runtimeArtifactId,
+            final ServiceMeta.ActionMeta guessSchema, final String datasetPrefix, final Class<?> inputType,
+            final Class<?> outputType, final String componentClass) {
         final StringBuilder out = new StringBuilder();
-        out.append(
-            "    private <T> T executeInSandbox(final String clazz, final UnsafeFunction<Object, T> supplier) {\n"
-                + "        final RuntimeInfo runtimeInfo;\n" + "        try {\n"
-                + "            runtimeInfo = new JarRuntimeInfo(new URL(\"mvn:")
+        out
+                .append("    private <T> T executeInSandbox(final String clazz, final UnsafeFunction<Object, T> supplier) {\n"
+                        + "        final RuntimeInfo runtimeInfo;\n" + "        try {\n"
+                        + "            runtimeInfo = new JarRuntimeInfo(new URL(\"mvn:")
 
-            .append(groupId).append("/").append(runtimeArtifactId).append("/").append(version).append("\"),")
-            .append("\n" + "                    DependenciesReader.computeDependenciesFilePath(\"").append(groupId)
-            .append("\", \"").append(runtimeArtifactId).append("\"),\n                    clazz) {\n")
-            // enforce slf4j(+simple) usage to be able to log in the sandbox classloader
-            // whatever env we are in
-            .append("                @Override\n" + "                public List<URL> getMavenUrlDependencies() {\n")
-            .append("                    final List<URL> $$urls = super.getMavenUrlDependencies();\n")
-            .append("                    final Optional<URL> $$slf4jApi = $$urls.stream()\n")
-            .append(
-                "                                                   .filter(u -> u.getFile().contains(\"/slf4j-api/\"))\n")
-            .append("                                                   .findFirst();\n")
-            .append("                    if (!$$slf4jApi.isPresent()) {\n").append("                        try {\n")
-            .append(
-                "                            $$urls.add(new URL(\"mvn:org.talend.libraries/slf4j-api-1.7.10/6.1.0\"));\n")
-            .append("                        } catch (final MalformedURLException e) {\n")
-            .append(
-                "                            throw new IllegalArgumentException(e);\n" + "                        }\n")
-            .append("                    }\n")
-            .append("                    final Optional<URL> $$slf4jImpl = $$urls.stream()\n")
-            .append(
-                "                                                           .filter(u -> u.getFile().contains(\"/slf4j-\") && !u.getFile().contains(\"/slf4j-api/\"))\n")
-            .append("                                                           .findFirst();\n")
-            // todo: also check if there a slf4j binding in the classpath
-            .append("                    if (!$$slf4jImpl.isPresent()) {\n").append("                        try {\n")
-            .append(
-                "                            $$urls.add(new URL(\"mvn:org.talend.libraries/slf4j-simple-1.7.2/6.0.0\"));\n")
-            .append("                        } catch (final MalformedURLException e) {\n")
-            .append("                            throw new IllegalArgumentException(e);\n")
-            .append("                        }\n").append("                    }\n")
-            .append("                    return $$urls;\n").append("                }\n")
-            .append("            };\n        } catch (final MalformedURLException e) {\n"
-                + "            throw new IllegalArgumentException(e);\n" + "        }\n"
-                + "        try (final SandboxedInstance instance = RuntimeUtil.createRuntimeClass(runtimeInfo, getClass().getClassLoader())) {\n"
-                + "            return supplier.apply(instance.getInstance());\n"
-                + "        } catch (final java.lang.reflect.InvocationTargetException ite) {\n"
-                + "            throw new IllegalStateException(ite.getCause());\n"
-                + "        } catch (final Exception e) {\n" + "            throw new IllegalStateException(e);\n"
-                + "        }\n" + "    }\n\n");
+                .append(groupId)
+                .append("/")
+                .append(runtimeArtifactId)
+                .append("/")
+                .append(version)
+                .append("\"),")
+                .append("\n" + "                    DependenciesReader.computeDependenciesFilePath(\"")
+                .append(groupId)
+                .append("\", \"")
+                .append(runtimeArtifactId)
+                .append("\"),\n                    clazz) {\n")
+                // enforce slf4j(+simple) usage to be able to log in the sandbox classloader
+                // whatever env we are in
+                .append("                @Override\n"
+                        + "                public List<URL> getMavenUrlDependencies() {\n")
+                .append("                    final List<URL> $$urls = super.getMavenUrlDependencies();\n")
+                .append("                    final Optional<URL> $$slf4jApi = $$urls.stream()\n")
+                .append("                                                   .filter(u -> u.getFile().contains(\"/slf4j-api/\"))\n")
+                .append("                                                   .findFirst();\n")
+                .append("                    if (!$$slf4jApi.isPresent()) {\n")
+                .append("                        try {\n")
+                .append("                            $$urls.add(new URL(\"mvn:org.talend.libraries/slf4j-api-1.7.10/6.1.0\"));\n")
+                .append("                        } catch (final MalformedURLException e) {\n")
+                .append("                            throw new IllegalArgumentException(e);\n"
+                        + "                        }\n")
+                .append("                    }\n")
+                .append("                    final Optional<URL> $$slf4jImpl = $$urls.stream()\n")
+                .append("                                                           .filter(u -> u.getFile().contains(\"/slf4j-\") && !u.getFile().contains(\"/slf4j-api/\"))\n")
+                .append("                                                           .findFirst();\n")
+                // todo: also check if there a slf4j binding in the classpath
+                .append("                    if (!$$slf4jImpl.isPresent()) {\n")
+                .append("                        try {\n")
+                .append("                            $$urls.add(new URL(\"mvn:org.talend.libraries/slf4j-simple-1.7.2/6.0.0\"));\n")
+                .append("                        } catch (final MalformedURLException e) {\n")
+                .append("                            throw new IllegalArgumentException(e);\n")
+                .append("                        }\n")
+                .append("                    }\n")
+                .append("                    return $$urls;\n")
+                .append("                }\n")
+                .append("            };\n        } catch (final MalformedURLException e) {\n"
+                        + "            throw new IllegalArgumentException(e);\n" + "        }\n"
+                        + "        try (final SandboxedInstance instance = RuntimeUtil.createRuntimeClass(runtimeInfo, getClass().getClassLoader())) {\n"
+                        + "            return supplier.apply(instance.getInstance());\n"
+                        + "        } catch (final java.lang.reflect.InvocationTargetException ite) {\n"
+                        + "            throw new IllegalStateException(ite.getCause());\n"
+                        + "        } catch (final Exception e) {\n"
+                        + "            throw new IllegalStateException(e);\n" + "        }\n" + "    }\n\n");
         if (inputType != null) {
-            out.append("    @Override\n"
-                + "    public Schema getSchema(final Connector connector, final boolean isOutgoingConnection) {\n"
-                + "        if (isOutgoingConnection) {\n" + "            if (\"MAIN\".equals(connector.getName())) {\n"
-                + "                if (!\"EmptyRecord\".equals($$internalSchema.schema.getValue().getName())) {\n"
-                + "                    return $$internalSchema.schema.getValue();\n" + "                }\n"
-                + "            }\n" + "            if (\"REJECT\".equals(connector.getName())) {\n"
-                + "                if (!\"EmptyRecord\".equals($$internalRejectSchema.schema.getValue().getName())) {\n"
-                + "                    return $$internalRejectSchema.schema.getValue();\n" + "                }\n"
-                + "            }\n"
-                + "        } else if (!\"EmptyRecord\".equals($$internalFlowSchema.schema.getValue().getName())) {\n"
-                + "            return $$internalFlowSchema.schema.getValue();\n" + "        }\n" + "        return ")
-                .append("executeInSandbox(\"").append(componentClass).append("\", ").append("o -> {\n")
-                .append(
-                    "            final ClassLoader $$correctLoader = ClassLoader.class.cast(o.getClass().getMethod(\"componentClassLoader\").invoke(null));\n")
-                .append("            final String $$recordTypeName = !isOutgoingConnection ? \"")
-                .append(inputType.getName()).append("\" : \"")
-                .append((outputType == null ? inputType : outputType).getName()).append("\";\n")
-                .append("            final Class<?> $$recordType = $$correctLoader.loadClass(")
-                .append("$$recordTypeName);\n")
-                .append("            final Object $$converter = $$correctLoader.loadClass(")
-                .append("\"org.talend.sdk.component.runtime.avro.ComponentModelToIndexeredRecordConverter\")\n")
-                .append("                                         .getConstructor().newInstance();\n")
-                .append(
-                    "            final Object $$meta = $$converter.getClass().getMethod(\"getMeta\", Class.class).invoke($$converter, $$recordType);\n")
-                .append(
-                    "            return Schema.class.cast($$meta.getClass().getMethod(\"getSchema\").invoke($$meta));\n")
-                .append("        });\n    }\n\n");
+            out
+                    .append("    @Override\n"
+                            + "    public Schema getSchema(final Connector connector, final boolean isOutgoingConnection) {\n"
+                            + "        if (isOutgoingConnection) {\n"
+                            + "            if (\"MAIN\".equals(connector.getName())) {\n"
+                            + "                if (!\"EmptyRecord\".equals($$internalSchema.schema.getValue().getName())) {\n"
+                            + "                    return $$internalSchema.schema.getValue();\n" + "                }\n"
+                            + "            }\n" + "            if (\"REJECT\".equals(connector.getName())) {\n"
+                            + "                if (!\"EmptyRecord\".equals($$internalRejectSchema.schema.getValue().getName())) {\n"
+                            + "                    return $$internalRejectSchema.schema.getValue();\n"
+                            + "                }\n" + "            }\n"
+                            + "        } else if (!\"EmptyRecord\".equals($$internalFlowSchema.schema.getValue().getName())) {\n"
+                            + "            return $$internalFlowSchema.schema.getValue();\n" + "        }\n"
+                            + "        return ")
+                    .append("executeInSandbox(\"")
+                    .append(componentClass)
+                    .append("\", ")
+                    .append("o -> {\n")
+                    .append("            final ClassLoader $$correctLoader = ClassLoader.class.cast(o.getClass().getMethod(\"componentClassLoader\").invoke(null));\n")
+                    .append("            final String $$recordTypeName = !isOutgoingConnection ? \"")
+                    .append(inputType.getName())
+                    .append("\" : \"")
+                    .append((outputType == null ? inputType : outputType).getName())
+                    .append("\";\n")
+                    .append("            final Class<?> $$recordType = $$correctLoader.loadClass(")
+                    .append("$$recordTypeName);\n")
+                    .append("            final Object $$converter = $$correctLoader.loadClass(")
+                    .append("\"org.talend.sdk.component.runtime.avro.ComponentModelToIndexeredRecordConverter\")\n")
+                    .append("                                         .getConstructor().newInstance();\n")
+                    .append("            final Object $$meta = $$converter.getClass().getMethod(\"getMeta\", Class.class).invoke($$converter, $$recordType);\n")
+                    .append("            return Schema.class.cast($$meta.getClass().getMethod(\"getSchema\").invoke($$meta));\n")
+                    .append("        });\n    }\n\n");
         } else {
-            out.append("    @Override\n" + "    public Schema getSchema(final Connector connector, final boolean "
-                + "isOutgoingConnection) {\n"
-                + "        return isOutgoingConnection && !\"EmptyRecord\".equals($$internalSchema.schema.getValue().getName()) ? "
-                + "$$internalSchema.schema.getValue() : (isOutgoingConnection ? ").append("discoverSchema()")
-                .append(" : null);\n    }\n\n");
+            out
+                    .append("    @Override\n" + "    public Schema getSchema(final Connector connector, final boolean "
+                            + "isOutgoingConnection) {\n"
+                            + "        return isOutgoingConnection && !\"EmptyRecord\".equals($$internalSchema.schema.getValue().getName()) ? "
+                            + "$$internalSchema.schema.getValue() : (isOutgoingConnection ? ")
+                    .append("discoverSchema()")
+                    .append(" : null);\n    }\n\n");
 
             // this is not the most sexy part of the code but the simplest way to make the
             // studio understanding it
@@ -716,44 +758,69 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 
                     out.append("        if (");
                     e.getValue().conditions
-                        .forEach(c -> out.append(c.substring(ROOT_PROPERTIES.length())).append(" && "));
+                            .forEach(c -> out.append(c.substring(ROOT_PROPERTIES.length())).append(" && "));
                     out.append("true) {\n");
                     final String value = e.getValue().getValue(); // note it can include some casting
                     if (key.endsWith("[]")) {
                         final String prefix = key.substring(0, key.length() - "[]".length());
                         final String listVar = value.substring(ROOT_PROPERTIES.length());
-                        out.append("            IntStream.range(0, ").append(listVar)
-                            .append(".size()).forEach(index -> $$configuration.put" + "(\"").append(prefix)
-                            .append("[\" + index + \"]\", ").append(listVar).append(".get(index)));\n");
+                        out
+                                .append("            IntStream.range(0, ")
+                                .append(listVar)
+                                .append(".size()).forEach(index -> $$configuration.put" + "(\"")
+                                .append(prefix)
+                                .append("[\" + index + \"]\", ")
+                                .append(listVar)
+                                .append(".get(index)));\n");
                     } else {
                         final int rpIdx = value.indexOf(ROOT_PROPERTIES);
-                        out.append("            $$configuration.put(\"").append(key).append("\", ")
-                            .append(value.substring(0, rpIdx)).append(value.substring(rpIdx + ROOT_PROPERTIES.length()))
-                            .append(");\n");
+                        out
+                                .append("            $$configuration.put(\"")
+                                .append(key)
+                                .append("\", ")
+                                .append(value.substring(0, rpIdx))
+                                .append(value.substring(rpIdx + ROOT_PROPERTIES.length()))
+                                .append(");\n");
                     }
                     out.append("        }\n");
                 });
-                out.append(
-                    "        return executeInSandbox(\"org.talend.sdk.component.runtime.avro.SchemaDiscoverer\", "
-                        + "instance -> {\n" + "            final Class<?> clazz = instance.getClass();\n" + "      "
-                        + "      final Method find = clazz.getMethod(\"find\", String.class, String.class, String.class, int"
-                        + ".class, Map.class);\n" + "            return Schema.class.cast(find.invoke(instance, \"")
-                    .append(groupId).append(':').append(artifactId).append(':').append(version).append("\", \"")
-                    .append(family.getName()).append("\", \"").append(mapper.getName())
-                    .append("\", 1, $$configuration));\n").append("        });\n");
+                out
+                        .append("        return executeInSandbox(\"org.talend.sdk.component.runtime.avro.SchemaDiscoverer\", "
+                                + "instance -> {\n" + "            final Class<?> clazz = instance.getClass();\n"
+                                + "      "
+                                + "      final Method find = clazz.getMethod(\"find\", String.class, String.class, String.class, int"
+                                + ".class, Map.class);\n"
+                                + "            return Schema.class.cast(find.invoke(instance, \"")
+                        .append(groupId)
+                        .append(':')
+                        .append(artifactId)
+                        .append(':')
+                        .append(version)
+                        .append("\", \"")
+                        .append(family.getName())
+                        .append("\", \"")
+                        .append(mapper.getName())
+                        .append("\", 1, $$configuration));\n")
+                        .append("        });\n");
             }
             out.append("    }\n\n");
         }
 
         if (guessSchema != null) {
-            out.append("    public ValidationResult validate$$internalGuessSchema() {\n")
-                .append("        final Map<String, String> $$configuration = new HashMap<>();\n");
+            out.append("    public ValidationResult validate$$internalGuessSchema() {\n").append(
+                    "        final Map<String, String> $$configuration = new HashMap<>();\n");
 
             // for @DiscoverSchema action the only supported parameter is the dataset, if
             // not used it is not that important
             // since our factory will ignore it so easier to just set it up anyway
-            final String actionPrefix = guessSchema.getParameters().stream().map(ParameterMeta::getPath).findFirst()
-                .filter(p -> !p.isEmpty()).map(p -> p + '.').orElse("");
+            final String actionPrefix = guessSchema
+                    .getParameters()
+                    .stream()
+                    .map(ParameterMeta::getPath)
+                    .findFirst()
+                    .filter(p -> !p.isEmpty())
+                    .map(p -> p + '.')
+                    .orElse("");
             final String datasetPrefixWithSeparator = datasetPrefix == null ? "" : (datasetPrefix + '.');
             parametersMap.forEach((k, v) -> {
                 out.append("        if (");
@@ -761,44 +828,63 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 out.append(" true) {\n");
                 final String value = v.getValue();
                 final int rootPropIdx = value.indexOf(ROOT_PROPERTIES);
-                out.append("            $$configuration.put(\"").append(actionPrefix)
-                    .append(k.substring(datasetPrefixWithSeparator.length())).append("\", ")
-                    .append(value.substring(0, rootPropIdx))
-                    .append(value.substring(rootPropIdx + ROOT_PROPERTIES.length())).append(");\n");
+                out
+                        .append("            $$configuration.put(\"")
+                        .append(actionPrefix)
+                        .append(k.substring(datasetPrefixWithSeparator.length()))
+                        .append("\", ")
+                        .append(value.substring(0, rootPropIdx))
+                        .append(value.substring(rootPropIdx + ROOT_PROPERTIES.length()))
+                        .append(");\n");
                 out.append("        }\n");
             });
 
             out.append("        try {\n");
-            out.append(
-                "            return executeInSandbox(\"org.talend.sdk.component.runtime.avro.SchemaDiscoverer\", "
-                    + "instance -> {\n                final Class<?> clazz = instance.getClass();\n" + "      " + ""
-                    + "          final Method populateSchema = clazz.getMethod(\"populateSchema\", String"
-                    + ".class, String.class, String" + ".class, String.class, String.class, Map.class);\n"
-                    + "                final Schema schema = Schema.class" + ".cast(populateSchema.invoke(instance, \"")
-                .append(groupId).append(':').append(artifactId).append(':').append(version).append("\", \"")
-                .append(family.getName()).append("\", \"").append(guessSchema.getAction()).append("\", \"")
-                .append(guessSchema.getType()).append("\", \"").append(family.getName()).append("_")
-                .append(mapper.getName()).append("_record")
-                .append("\", $$configuration));\n                $$internalSchema.schema.setValue(schema);\n"
-                    + "                return ValidationResult.OK;\n")
-                .append("            });\n" + "        } catch (final RuntimeException re) {\n"
-                    + "            if (java.lang.reflect.InvocationTargetException.class.isInstance(re)) {\n"
-                    + "                return new ValidationResult(ValidationResult.Result.WARNING, re.getCause().getMessage());\n"
-                    + "            }\n"
-                    + "            return new ValidationResult(ValidationResult.Result.WARNING, re.getMessage());\n"
-                    + "        }\n");
+            out
+                    .append("            return executeInSandbox(\"org.talend.sdk.component.runtime.avro.SchemaDiscoverer\", "
+                            + "instance -> {\n                final Class<?> clazz = instance.getClass();\n" + "      "
+                            + "" + "          final Method populateSchema = clazz.getMethod(\"populateSchema\", String"
+                            + ".class, String.class, String" + ".class, String.class, String.class, Map.class);\n"
+                            + "                final Schema schema = Schema.class"
+                            + ".cast(populateSchema.invoke(instance, \"")
+                    .append(groupId)
+                    .append(':')
+                    .append(artifactId)
+                    .append(':')
+                    .append(version)
+                    .append("\", \"")
+                    .append(family.getName())
+                    .append("\", \"")
+                    .append(guessSchema.getAction())
+                    .append("\", \"")
+                    .append(guessSchema.getType())
+                    .append("\", \"")
+                    .append(family.getName())
+                    .append("_")
+                    .append(mapper.getName())
+                    .append("_record")
+                    .append("\", $$configuration));\n                $$internalSchema.schema.setValue(schema);\n"
+                            + "                return ValidationResult.OK;\n")
+                    .append("            });\n" + "        } catch (final RuntimeException re) {\n"
+                            + "            if (java.lang.reflect.InvocationTargetException.class.isInstance(re)) {\n"
+                            + "                return new ValidationResult(ValidationResult.Result.WARNING, re.getCause().getMessage());\n"
+                            + "            }\n"
+                            + "            return new ValidationResult(ValidationResult.Result.WARNING, re.getMessage());\n"
+                            + "        }\n");
             out.append("    }\n\n");
         } else if (inputType == null) { // do one based on the first record
-            out.append("    public ValidationResult validate$$internalGuessSchema() {\n")
-                .append("        final Schema $$schema = discoverSchema();\n")
-                .append("        $$internalSchema.schema.setValue($$schema);\n")
-                .append("        return ValidationResult.OK;\n").append("    }\n\n");
+            out
+                    .append("    public ValidationResult validate$$internalGuessSchema() {\n")
+                    .append("        final Schema $$schema = discoverSchema();\n")
+                    .append("        $$internalSchema.schema.setValue($$schema);\n")
+                    .append("        return ValidationResult.OK;\n")
+                    .append("    }\n\n");
         }
         out.append(
-            "    public void after$$internalGuessSchema() {\n        // no-op: forces the studio to refresh the schema\n    }\n\n");
+                "    public void after$$internalGuessSchema() {\n        // no-op: forces the studio to refresh the schema\n    }\n\n");
 
         out.append(
-            "    private interface UnsafeFunction<PARAMETER, RETURN> {\n        RETURN apply(PARAMETER parameter) throws Exception;\n    }\n\n");
+                "    private interface UnsafeFunction<PARAMETER, RETURN> {\n        RETURN apply(PARAMETER parameter) throws Exception;\n    }\n\n");
         return out.toString();
     }
 
@@ -808,14 +894,14 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 
         {
             final File[] binary =
-                new File(child, "target").listFiles((dir, name) -> name.startsWith(child.getName() + '-')
-                    && name.endsWith(".jar") && !name.endsWith("-sources.jar"));
+                    new File(child, "target").listFiles((dir, name) -> name.startsWith(child.getName() + '-')
+                            && name.endsWith(".jar") && !name.endsWith("-sources.jar"));
             assertOne(child, binary);
 
             getLog().info("Attaching " + binary[0].getName());
 
             final Artifact artifact = new DefaultArtifact(groupId, child.getName(), version,
-                project.getArtifact().getScope(), "jar", null, handler);
+                    project.getArtifact().getScope(), "jar", null, handler);
             artifact.setFile(binary[0]);
             artifact.setResolved(true);
             project.addAttachedArtifact(artifact);
@@ -823,11 +909,11 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 
         {
             final File[] sources = new File(child, "target")
-                .listFiles((dir, name) -> name.startsWith(child.getName() + '-') && name.endsWith("-sources.jar"));
+                    .listFiles((dir, name) -> name.startsWith(child.getName() + '-') && name.endsWith("-sources.jar"));
             assertOne(child, sources);
             getLog().info("Attaching " + sources[0].getName());
             final Artifact artifact = new DefaultArtifact(groupId, child.getName(), version,
-                project.getArtifact().getScope(), "jar", "sources", handler);
+                    project.getArtifact().getScope(), "jar", "sources", handler);
             artifact.setFile(sources[0]);
             artifact.setResolved(true);
             project.addAttachedArtifact(artifact);
@@ -835,7 +921,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private Map<String, ParameterValue> buildParametersMap(final String prefix,
-        final Collection<ParameterMeta> parameterMetas, final Collection<String> conditions) {
+            final Collection<ParameterMeta> parameterMetas, final Collection<String> conditions) {
         if (parameterMetas == null || parameterMetas.isEmpty()) {
             return emptyMap();
         }
@@ -852,7 +938,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
             case ARRAY:
                 paramConditions.add(currentValue + " != null");
                 out.put(p.getPath() /* todo: when list support will actually be added + "[]" */,
-                    new ParameterValue(paramConditions, currentValue));
+                        new ParameterValue(paramConditions, currentValue));
                 break;
             case OBJECT:
                 out.putAll(buildParametersMap(currentParam + '.', p.getNestedParameters(), paramConditions));
@@ -874,7 +960,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
             case NUMBER:
                 paramConditions.add(currentValue + " != null");
                 out.put(p.getPath(),
-                    new ParameterValue(paramConditions, "Number.class.cast(" + currentValue + ").toString()"));
+                        new ParameterValue(paramConditions, "Number.class.cast(" + currentValue + ").toString()"));
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported type: " + p.getType());
@@ -894,21 +980,26 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 
     private int mvnPackage(final File root) {
         final String mavenHome = Stream
-            .of(System.getProperty("maven.home"), System.getenv().get("M2_HOME"), System.getenv().get("MAVEN_HOME"))
-            .filter(Objects::nonNull).findFirst().orElseThrow(
-                () -> new IllegalStateException("No maven environment set, please set one before launching the build"));
+                .of(System.getProperty("maven.home"), System.getenv().get("M2_HOME"), System.getenv().get("MAVEN_HOME"))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        "No maven environment set, please set one before launching the build"));
         final File mvnScript = new File(mavenHome, "bin/"
-            + (System.getProperty("os.name", "unknown").toLowerCase(ENGLISH).contains("win") ? "mvn.cmd" : "mvn"));
+                + (System.getProperty("os.name", "unknown").toLowerCase(ENGLISH).contains("win") ? "mvn.cmd" : "mvn"));
         if (!mvnScript.exists()) {
             throw new IllegalStateException(
-                "mvn is not setup on your machine, please set M2_HOME environment variable or maven.home system property");
+                    "mvn is not setup on your machine, please set M2_HOME environment variable or maven.home system property");
         }
 
         try {
-            final Process process =
-                new ProcessBuilder(mvnScript.getAbsolutePath(), "clean", "package").inheritIO().redirectErrorStream(
+            final Process process = new ProcessBuilder(mvnScript.getAbsolutePath(), "clean", "package")
+                    .inheritIO()
+                    .redirectErrorStream(
 
-                    true).directory(root).start();
+                            true)
+                    .directory(root)
+                    .start();
             process.waitFor(10, MINUTES);
             return process.exitValue();
         } catch (final IOException ioe) {
@@ -924,14 +1015,14 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private void generateI18n(final Container container, final File componentRoot,
-        final ComponentFamilyMeta.BaseMeta<?> meta, final String packageForJava) {
-        final File i18n =
-            new File(componentRoot, "src/main/resources/" + packageForJava.replace('.', '/') + "/messages.properties");
+            final ComponentFamilyMeta.BaseMeta<?> meta, final String packageForJava) {
+        final File i18n = new File(componentRoot,
+                "src/main/resources/" + packageForJava.replace('.', '/') + "/messages.properties");
         appendProperties(i18n, new Properties() {
 
             {
                 final String displayName =
-                    meta.findBundle(container.getLoader(), Locale.ENGLISH).displayName().orElse(meta.getName());
+                        meta.findBundle(container.getLoader(), Locale.ENGLISH).displayName().orElse(meta.getName());
 
                 setProperty("component." + meta.getName() + ".title", displayName);
                 setProperty("component." + meta.getName() + ".displayName", displayName);
@@ -981,32 +1072,33 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     // easier than using a template since 1 entry point implies multiple files,
     // todo: simplify this code with eugene engine?
     private void generateProperties(final ClassLoader loader, final File folder, final String className,
-        final Definition definition, final List<ParameterMeta> parameterMetas, final boolean hasOutput,
-        final ServiceMeta.ActionMeta guessSchema, final Supplier<String> schemaAccessor, final boolean isProcessor,
-        final ParameterMeta rootParam) {
+            final Definition definition, final List<ParameterMeta> parameterMetas, final boolean hasOutput,
+            final ServiceMeta.ActionMeta guessSchema, final Supplier<String> schemaAccessor, final boolean isProcessor,
+            final ParameterMeta rootParam) {
         final StringBuilder output = new StringBuilder("package " + definition.packageName + ";\n\n"
-            + "import java.util.Optional;\nimport java.util.stream.Stream;\nimport java.lang.reflect.Method;\n"
-            + "import java.util.HashMap;\nimport java.util.Map;\nimport java.util.List;\n"
-            + "import java.net.MalformedURLException;\nimport java.util.stream.IntStream;\nimport java.util.Arrays;\n"
-            + "import java.util.Collections;\nimport java.util.HashSet;\nimport java.util.Set;\nimport java.util.EnumSet;\n\n"
-            + "import org.apache.avro.Schema;\n" + "import org.apache.avro.SchemaBuilder;\n"
-            + "import org.talend.daikon.avro.SchemaConstants;\n" + "import org.talend.daikon.avro.SchemaConstants;\n"
-            + "import org.talend.components.api.properties.ComponentPropertiesImpl;\n"
-            + "import org.talend.daikon.runtime.RuntimeInfo;\n" + "import java.net.URL;\n"
-            + "import org.talend.daikon.sandbox.SandboxedInstance;\n"
-            + "import org.talend.components.api.component.runtime.JarRuntimeInfo;\n"
-            + "import org.talend.components.api.component.runtime.DependenciesReader;\n"
-            + "import org.talend.components.api.component.Connector;\n"
-            + "import org.talend.components.api.component.PropertyPathConnector;\n"
-            + "import org.talend.components.common.SchemaProperties;\n"
-            + "import org.talend.daikon.runtime.RuntimeUtil;\n"
-            + "import org.talend.daikon.properties.PresentationItem;\n"
-            + "import org.talend.daikon.properties.presentation.Form;\n"
-            + "import org.talend.daikon.properties.presentation.Widget;\n"
-            + "import org.talend.daikon.properties.ValidationResult;\n"
-            + "import org.talend.daikon.properties.property.Property;\n"
-            + "import org.talend.daikon.properties.property.PropertyFactory;\n\n" + "public class " + className
-            + " extends ComponentPropertiesImpl {\n");
+                + "import java.util.Optional;\nimport java.util.stream.Stream;\nimport java.lang.reflect.Method;\n"
+                + "import java.util.HashMap;\nimport java.util.Map;\nimport java.util.List;\n"
+                + "import java.net.MalformedURLException;\nimport java.util.stream.IntStream;\nimport java.util.Arrays;\n"
+                + "import java.util.Collections;\nimport java.util.HashSet;\nimport java.util.Set;\nimport java.util.EnumSet;\n\n"
+                + "import org.apache.avro.Schema;\n" + "import org.apache.avro.SchemaBuilder;\n"
+                + "import org.talend.daikon.avro.SchemaConstants;\n"
+                + "import org.talend.daikon.avro.SchemaConstants;\n"
+                + "import org.talend.components.api.properties.ComponentPropertiesImpl;\n"
+                + "import org.talend.daikon.runtime.RuntimeInfo;\n" + "import java.net.URL;\n"
+                + "import org.talend.daikon.sandbox.SandboxedInstance;\n"
+                + "import org.talend.components.api.component.runtime.JarRuntimeInfo;\n"
+                + "import org.talend.components.api.component.runtime.DependenciesReader;\n"
+                + "import org.talend.components.api.component.Connector;\n"
+                + "import org.talend.components.api.component.PropertyPathConnector;\n"
+                + "import org.talend.components.common.SchemaProperties;\n"
+                + "import org.talend.daikon.runtime.RuntimeUtil;\n"
+                + "import org.talend.daikon.properties.PresentationItem;\n"
+                + "import org.talend.daikon.properties.presentation.Form;\n"
+                + "import org.talend.daikon.properties.presentation.Widget;\n"
+                + "import org.talend.daikon.properties.ValidationResult;\n"
+                + "import org.talend.daikon.properties.property.Property;\n"
+                + "import org.talend.daikon.properties.property.PropertyFactory;\n\n" + "public class " + className
+                + " extends ComponentPropertiesImpl {\n");
 
         final String order = rootParam == null ? null : rootParam.getMetadata().get("tcomp::ui::optionsorder::value");
         if (order != null) {
@@ -1021,28 +1113,28 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 
         if (isProcessor) {
             output.append(
-                "    public Property<Integer> $$internalChunkSize = PropertyFactory.newInteger(\"$$internalChunkSize\").setValue(10);\n\n");
+                    "    public Property<Integer> $$internalChunkSize = PropertyFactory.newInteger(\"$$internalChunkSize\").setValue(10);\n\n");
 
             output.append(
-                "    public SchemaProperties $$internalRejectSchema = new SchemaProperties(\"$$internalRejectSchema\");\n\n");
+                    "    public SchemaProperties $$internalRejectSchema = new SchemaProperties(\"$$internalRejectSchema\");\n\n");
             output.append(
-                "    public SchemaProperties $$internalFlowSchema = new SchemaProperties(\"$$internalFlowSchema\");\n\n");
-            output
-                .append("    public SchemaProperties $$internalSchema = new SchemaProperties(\"$$internalSchema\") {\n"
-                    + "        public void afterSchema() { // propagate the schema\n"
-                    + "            if (\"EmptyRecord\".equals($$internalFlowSchema.schema.getValue().getName())) {\n"
-                    + "                $$internalFlowSchema.schema.setValue($$internalSchema.schema.getValue());\n"
-                    + "            }\n"
-                    + "            $$internalRejectSchema.schema.setValue($$internalFlowSchema.schema.getValue());\n        }\n"
-                    + "    };\n\n");
+                    "    public SchemaProperties $$internalFlowSchema = new SchemaProperties(\"$$internalFlowSchema\");\n\n");
+            output.append(
+                    "    public SchemaProperties $$internalSchema = new SchemaProperties(\"$$internalSchema\") {\n"
+                            + "        public void afterSchema() { // propagate the schema\n"
+                            + "            if (\"EmptyRecord\".equals($$internalFlowSchema.schema.getValue().getName())) {\n"
+                            + "                $$internalFlowSchema.schema.setValue($$internalSchema.schema.getValue());\n"
+                            + "            }\n"
+                            + "            $$internalRejectSchema.schema.setValue($$internalFlowSchema.schema.getValue());\n        }\n"
+                            + "    };\n\n");
         } else if (hasOutput) { // studio needs a schema so give it one to let have an output, to revisit with
                                 // studio integration
             output.append(
-                "    public SchemaProperties $$internalSchema = new SchemaProperties(\"$$internalSchema\");\n\n");
+                    "    public SchemaProperties $$internalSchema = new SchemaProperties(\"$$internalSchema\");\n\n");
         }
         if (hasOutput && (guessSchema != null || !isProcessor)) {
             output.append(
-                "    public final transient PresentationItem $$internalGuessSchema = new PresentationItem(\"$$internalGuessSchema\");\n\n");
+                    "    public final transient PresentationItem $$internalGuessSchema = new PresentationItem(\"$$internalGuessSchema\");\n\n");
         }
 
         output.append("\n");
@@ -1056,83 +1148,85 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
         // anyway
         if (hasOutput) {
             output.append(
-                "    @Override\n    public Set<Connector> getPossibleConnectors(final boolean isOutputConnection) {\n");
+                    "    @Override\n    public Set<Connector> getPossibleConnectors(final boolean isOutputConnection) {\n");
             if (isProcessor) {
                 output.append("        return isOutputConnection ? ");
-                output.append(
-                    "new HashSet<>(Arrays.asList(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalSchema\"), "
-                        + "new PropertyPathConnector(Connector.REJECT_NAME, \"$$internalRejectSchema\")))")
-                    .append(
-                        " : Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalFlowSchema\"));\n");
+                output
+                        .append("new HashSet<>(Arrays.asList(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalSchema\"), "
+                                + "new PropertyPathConnector(Connector.REJECT_NAME, \"$$internalRejectSchema\")))")
+                        .append(" : Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalFlowSchema\"));\n");
             } else {
                 output.append("        return isOutputConnection ? ").append(
-                    "Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalSchema\")) : Collections.emptySet();\n");
+                        "Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalSchema\")) : Collections.emptySet();\n");
 
             }
             output.append("    }\n\n");
             if (isProcessor) {
                 output
-                    .append("    @Override\n    public Set<Connector> getAvailableConnectors("
-                        + "final Set<? extends Connector> existingConnectors, final boolean isOutputConnection) {\n")
-                    .append("        if (isOutputConnection) {\n")
-                    .append("            final Set<Connector> connectors = new HashSet<>();\n")
-                    .append(
-                        "            connectors.add(new PropertyPathConnector(Connector.REJECT_NAME, \"$$internalRejectSchema\"));\n")
-                    .append(
-                        "            connectors.add(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalSchema\"));\n")
-                    .append("            if (existingConnectors != null && !existingConnectors.isEmpty()) {\n")
-                    .append("                connectors.removeAll(existingConnectors);\n").append("            }\n")
-                    .append("            return connectors;\n").append("        } else {\n")
-                    .append("            return (existingConnectors == null || existingConnectors.isEmpty()) ?\n")
-                    .append(
-                        "                Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalFlowSchema\")) : \n")
-                    .append("                Collections.emptySet();\n").append("        }\n").append("    }\n\n");
+                        .append("    @Override\n    public Set<Connector> getAvailableConnectors("
+                                + "final Set<? extends Connector> existingConnectors, final boolean isOutputConnection) {\n")
+                        .append("        if (isOutputConnection) {\n")
+                        .append("            final Set<Connector> connectors = new HashSet<>();\n")
+                        .append("            connectors.add(new PropertyPathConnector(Connector.REJECT_NAME, \"$$internalRejectSchema\"));\n")
+                        .append("            connectors.add(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalSchema\"));\n")
+                        .append("            if (existingConnectors != null && !existingConnectors.isEmpty()) {\n")
+                        .append("                connectors.removeAll(existingConnectors);\n")
+                        .append("            }\n")
+                        .append("            return connectors;\n")
+                        .append("        } else {\n")
+                        .append("            return (existingConnectors == null || existingConnectors.isEmpty()) ?\n")
+                        .append("                Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalFlowSchema\")) : \n")
+                        .append("                Collections.emptySet();\n")
+                        .append("        }\n")
+                        .append("    }\n\n");
             } else {
                 output.append("    @Override\n    public Set<Connector> getAvailableConnectors("
-                    + "final Set<? extends Connector> existingConnectors, final boolean isOutputConnection) {\n"
-                    + "        return isOutputConnection && (existingConnectors == null || existingConnectors.isEmpty()) ? "
-                    + "Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalSchema\")) : "
-                    + "Collections.emptySet();\n" + "    }\n\n");
+                        + "final Set<? extends Connector> existingConnectors, final boolean isOutputConnection) {\n"
+                        + "        return isOutputConnection && (existingConnectors == null || existingConnectors.isEmpty()) ? "
+                        + "Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalSchema\")) : "
+                        + "Collections.emptySet();\n" + "    }\n\n");
             }
 
             if (schemaAccessor != null) {
                 output.append(schemaAccessor.get());
             }
         } else if (isProcessor) {
-            output.append(
-                "    @Override\n    public Set<Connector> getPossibleConnectors(final boolean isOutputConnection) {\n")
-                .append("        return isOutputConnection ? ")
-                .append(
-                    "Collections.singleton(new PropertyPathConnector(Connector.REJECT_NAME, \"$$internalRejectSchema\")) : ")
-                .append(
-                    "Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalFlowSchema\"));\n")
-                .append("    }\n\n");
             output
-                .append("    @Override\n    public Set<Connector> getAvailableConnectors("
-                    + "final Set<? extends Connector> existingConnectors, final boolean isOutputConnection) {\n")
-                .append("        if (isOutputConnection) {\n")
-                .append("            return (existingConnectors == null || existingConnectors.isEmpty()) ?\n")
-                .append(
-                    "                Collections.singleton(new PropertyPathConnector(Connector.REJECT_NAME, \"$$internalRejectSchema\")) : \n")
-                .append("                Collections.emptySet();\n").append("        } else {\n")
-                .append("            return (existingConnectors == null || existingConnectors.isEmpty()) ?\n")
-                .append(
-                    "                Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalSchema\")) : \n")
-                .append("                Collections.emptySet();\n").append("        }\n").append("    }\n\n");
+                    .append("    @Override\n    public Set<Connector> getPossibleConnectors(final boolean isOutputConnection) {\n")
+                    .append("        return isOutputConnection ? ")
+                    .append("Collections.singleton(new PropertyPathConnector(Connector.REJECT_NAME, \"$$internalRejectSchema\")) : ")
+                    .append("Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalFlowSchema\"));\n")
+                    .append("    }\n\n");
+            output
+                    .append("    @Override\n    public Set<Connector> getAvailableConnectors("
+                            + "final Set<? extends Connector> existingConnectors, final boolean isOutputConnection) {\n")
+                    .append("        if (isOutputConnection) {\n")
+                    .append("            return (existingConnectors == null || existingConnectors.isEmpty()) ?\n")
+                    .append("                Collections.singleton(new PropertyPathConnector(Connector.REJECT_NAME, \"$$internalRejectSchema\")) : \n")
+                    .append("                Collections.emptySet();\n")
+                    .append("        } else {\n")
+                    .append("            return (existingConnectors == null || existingConnectors.isEmpty()) ?\n")
+                    .append("                Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, \"$$internalSchema\")) : \n")
+                    .append("                Collections.emptySet();\n")
+                    .append("        }\n")
+                    .append("    }\n\n");
         }
 
         // handle @ActiveIf - for now we only support links which are at the same level
         // - to be enhanced
         final Collection<String> visibilityMethods = findActiveIfCallbacks(parameterMetas);
 
-        output.append("    @Override\n    public void setupLayout() {\n        super.setupLayout();\n\n")
-            .append("        final Form $$main = new Form(this, Form.MAIN);\n");
+        output.append("    @Override\n    public void setupLayout() {\n        super.setupLayout();\n\n").append(
+                "        final Form $$main = new Form(this, Form.MAIN);\n");
         if (rootParam != null) {
-            output.append("        $$main.setTitle(\"").append(rootParam.findBundle(loader, Locale.ENGLISH)
-                .displayName().orElseGet(() -> capitalise(rootParam.getName()))).append("\");\n");
+            output
+                    .append("        $$main.setTitle(\"")
+                    .append(rootParam.findBundle(loader, Locale.ENGLISH).displayName().orElseGet(
+                            () -> capitalise(rootParam.getName())))
+                    .append("\");\n");
         }
         final Map<String, String> formByProperty = buildForm(parameterMetas, hasOutput, guessSchema, isProcessor,
-            output, rootParam == null ? emptyMap() : rootParam.getMetadata());
+                output, rootParam == null ? emptyMap() : rootParam.getMetadata());
 
         // before exiting the setup, ensure to init all visibilities
         visibilityMethods.forEach(m -> output.append("        ").append(m).append("();\n"));
@@ -1152,28 +1246,33 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                 i18n = i18n.getParentFile();
             }
             i18n = new File(i18n.getParentFile() /* java */,
-                "resources/" + definition.packageName.replace('.', '/') + '/' + className + ".properties");
+                    "resources/" + definition.packageName.replace('.', '/') + '/' + className + ".properties");
         }
         appendI18n(loader, parameterMetas, hasOutput, isProcessor, i18n,
-            formByProperty.values().stream().distinct().collect(toSet()), rootParam);
+                formByProperty.values().stream().distinct().collect(toSet()), rootParam);
     }
 
     private void addProperty(final ClassLoader loader, final File folder, final String className,
-        final Definition definition, final ParameterMeta rootParam, final StringBuilder output, final ParameterMeta p) {
+            final Definition definition, final ParameterMeta rootParam, final StringBuilder output,
+            final ParameterMeta p) {
         final String name = toParamName(p);
         final Type javaType = p.getJavaType();
         final boolean required = "true".equalsIgnoreCase(p.getMetadata().get("tcomp::validation::required"));
         switch (p.getType()) {
         case ARRAY: {
             final Class<?> generic =
-                Class.class.cast(ParameterizedType.class.cast(javaType).getActualTypeArguments()[0]);
+                    Class.class.cast(ParameterizedType.class.cast(javaType).getActualTypeArguments()[0]);
             if (generic != String.class) {
                 throw new IllegalArgumentException(
-                    "For now only List<String> are supported in configuration/properties");
+                        "For now only List<String> are supported in configuration/properties");
             }
             // for now only support List<String>
-            output.append("    public Property<String> ").append(name).append(" = PropertyFactory.newString(\"")
-                .append(name).append("\")");
+            output
+                    .append("    public Property<String> ")
+                    .append(name)
+                    .append(" = PropertyFactory.newString(\"")
+                    .append(name)
+                    .append("\")");
             if ("true".equalsIgnoreCase(p.getMetadata().get("tcomp::ui::credential"))) {
                 output.append(".setFlags(EnumSet.of(Property.Flags.ENCRYPT, Property.Flags.SUPPRESS_LOGGING))");
             }
@@ -1184,15 +1283,27 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
         case OBJECT: {
             final String clazz = Class.class.cast(javaType).getSimpleName().replace("$", "");
             final String propertyClazz = className + clazz + "Properties";
-            output.append("    public ").append(propertyClazz).append(" ").append(name).append(" = new ")
-                .append(propertyClazz).append("(\"").append(name).append("\");\n");
+            output
+                    .append("    public ")
+                    .append(propertyClazz)
+                    .append(" ")
+                    .append(name)
+                    .append(" = new ")
+                    .append(propertyClazz)
+                    .append("(\"")
+                    .append(name)
+                    .append("\");\n");
             final List<ParameterMeta> metas = ofNullable(p.getNestedParameters()).orElse(emptyList());
             generateProperties(loader, folder, propertyClazz, definition, metas, false, null, null, false, p);
             break;
         }
         case BOOLEAN:
-            output.append("    public Property<Boolean> ").append(name).append(" = PropertyFactory.newBoolean(\"")
-                .append(name).append("\", false)");
+            output
+                    .append("    public Property<Boolean> ")
+                    .append(name)
+                    .append(" = PropertyFactory.newBoolean(\"")
+                    .append(name)
+                    .append("\", false)");
             appendRequired(output, required);
             if (rootParam != null) {
                 appendDefaultIfNeeded(output, rootParam.getJavaType(), p, Object::toString);
@@ -1200,43 +1311,65 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
             output.append(";\n");
             break;
         case STRING:
-            output.append("    public Property<String> ").append(name).append(" = PropertyFactory.newString(\"")
-                .append(name).append("\")");
+            output
+                    .append("    public Property<String> ")
+                    .append(name)
+                    .append(" = PropertyFactory.newString(\"")
+                    .append(name)
+                    .append("\")");
             if ("true".equalsIgnoreCase(p.getMetadata().get("tcomp::ui::credential"))) {
                 output.append(".setFlags(EnumSet.of(Property.Flags.ENCRYPT, Property.Flags.SUPPRESS_LOGGING))");
             }
             appendRequired(output, required);
             if (rootParam != null) {
                 appendDefaultIfNeeded(output, rootParam.getJavaType(), p,
-                    v -> "\"" + v.toString().replace("\"", "\\\"") + "\"");
+                        v -> "\"" + v.toString().replace("\"", "\\\"") + "\"");
             }
             output.append(";\n");
             break;
         case ENUM: { // seen as string since we don't have the enum loaded in this module
-            output.append("    public Property<String> ").append(name).append(" = PropertyFactory.newString(\"")
-                .append(name).append("\")");
+            output
+                    .append("    public Property<String> ")
+                    .append(name)
+                    .append(" = PropertyFactory.newString(\"")
+                    .append(name)
+                    .append("\")");
             appendRequired(output, required);
             if (rootParam != null) {
                 appendDefaultIfNeeded(output, rootParam.getJavaType(), p, v -> "\"" + v + "\"");
             }
-            output.append(".setPossibleValues(")
-                .append(p.getProposals().stream().collect(joining("\", \"", "\"", "\""))).append(")");
+            output
+                    .append(".setPossibleValues(")
+                    .append(p.getProposals().stream().collect(joining("\", \"", "\"", "\"")))
+                    .append(")");
             output.append(";\n");
             break;
         }
         case NUMBER:
             if (p.getJavaType() == int.class || p.getJavaType() == Integer.class) {
-                output.append("    public Property<Integer> ").append(name).append(" = PropertyFactory.newInteger(\"")
-                    .append(name).append("\")");
+                output
+                        .append("    public Property<Integer> ")
+                        .append(name)
+                        .append(" = PropertyFactory.newInteger(\"")
+                        .append(name)
+                        .append("\")");
             } else if (p.getJavaType() == double.class || p.getJavaType() == Double.class) {
-                output.append("    public Property<Double> ").append(name).append(" = PropertyFactory.newDouble(\"")
-                    .append(name).append("\")");
+                output
+                        .append("    public Property<Double> ")
+                        .append(name)
+                        .append(" = PropertyFactory.newDouble(\"")
+                        .append(name)
+                        .append("\")");
             } else if (p.getJavaType() == float.class || p.getJavaType() == Float.class) {
-                output.append("    public Property<Float> ").append(name).append(" = PropertyFactory.newFloat(\"")
-                    .append(name).append("\")");
+                output
+                        .append("    public Property<Float> ")
+                        .append(name)
+                        .append(" = PropertyFactory.newFloat(\"")
+                        .append(name)
+                        .append("\")");
             } else {
                 throw new IllegalArgumentException("Unsupported number: " + p.getJavaType() + " from parameter "
-                    + p.getPath() + ", use int/double/float please");
+                        + p.getPath() + ", use int/double/float please");
             }
             appendRequired(output, required);
             if (rootParam != null) {
@@ -1250,7 +1383,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private void appendI18n(final ClassLoader loader, final List<ParameterMeta> parameterMetas, final boolean hasOutput,
-        final boolean isProcessor, final File i18n, final Set<String> forms, final ParameterMeta rootParam) {
+            final boolean isProcessor, final File i18n, final Set<String> forms, final ParameterMeta rootParam) {
         appendProperties(i18n, new Properties() {
 
             {
@@ -1264,11 +1397,11 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                     setProperty("property.$$internalChunkSize.displayName", "Chunk Size");
                 }
                 parameterMetas.forEach(p -> setProperty("property." + p.getName() + ".displayName",
-                    p.findBundle(loader, Locale.ENGLISH).displayName().orElse(p.getName())));
+                        p.findBundle(loader, Locale.ENGLISH).displayName().orElse(p.getName())));
 
                 if (rootParam != null) {
                     final String displayName =
-                        rootParam.findBundle(loader, ENGLISH).displayName().orElse(rootParam.getName());
+                            rootParam.findBundle(loader, ENGLISH).displayName().orElse(rootParam.getName());
                     forms.forEach(f -> {
                         setProperty("form." + f + ".title", displayName);
                         setProperty("form." + f + ".displayName", displayName);
@@ -1285,7 +1418,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 
     // this is not the most sexy way to do it but fine enough for a bridge
     private void appendDefaultIfNeeded(final StringBuilder output, final Type enclosingType, final ParameterMeta param,
-        final Function<Object, String> valueMapper) {
+            final Function<Object, String> valueMapper) {
         if (!Class.class.isInstance(enclosingType)) {
             return; // not supported for now
         }
@@ -1318,68 +1451,85 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private void addActiveIfCallbacks(final List<ParameterMeta> parameterMetas, final StringBuilder output,
-        final Map<String, String> formByProperty) {
+            final Map<String, String> formByProperty) {
         filterParametersWithActiveCondition(parameterMetas)
-            .collect(groupingBy(p -> p.getMetadata().get("tcomp::condition::if::target"))).forEach((target, value) -> {
-                final String absoluteTarget = resolveTarget(target);
-                if (absoluteTarget.contains(".")) {
-                    throw new IllegalArgumentException(
-                        "@ActiveIf on undirect field is not yet supported, ensure to use sibling properties");
-                }
-
-                final String formTarget = getFormName(formByProperty.get(absoluteTarget));
-                final String mtdName = "after" + capitalise(absoluteTarget);
-                output.append("    public void ").append(mtdName).append("() {\n");
-                value.forEach(p -> {
-                    final String formParam = getFormName(formByProperty.get(p.getName()));
-                    if (formParam == null) {
-                        getLog().warn("No form for " + p.getName() + ", skipping");
-                        return;
+                .collect(groupingBy(p -> p.getMetadata().get("tcomp::condition::if::target")))
+                .forEach((target, value) -> {
+                    final String absoluteTarget = resolveTarget(target);
+                    if (absoluteTarget.contains(".")) {
+                        throw new IllegalArgumentException(
+                                "@ActiveIf on undirect field is not yet supported, ensure to use sibling properties");
                     }
 
-                    final String[] values =
-                        p.getMetadata().getOrDefault("tcomp::condition::if::value", "true").split(",");
-                    final String paramName = toParamName(p);
-                    output.append("        if(").append(absoluteTarget).append(" != null && ").append(absoluteTarget)
-                        .append(".getValue() != null) {\n") //
-                        .append("            final Form $$formParam = getForm(").append(formParam).append(");\n")
-                        .append("            final Form $$formTarget = ");
-                    if (formParam.equals(formTarget)) {
-                        output.append("$$formParam");
-                    } else {
-                        output.append("getForm(").append(formTarget).append(")");
-                    }
+                    final String formTarget = getFormName(formByProperty.get(absoluteTarget));
+                    final String mtdName = "after" + capitalise(absoluteTarget);
+                    output.append("    public void ").append(mtdName).append("() {\n");
+                    value.forEach(p -> {
+                        final String formParam = getFormName(formByProperty.get(p.getName()));
+                        if (formParam == null) {
+                            getLog().warn("No form for " + p.getName() + ", skipping");
+                            return;
+                        }
 
-                    // visible = widget is visible + condition is true
-                    output.append(";\n            final boolean $$originalVisible = $$formParam.getWidget(")
-                        .append(paramName).append(").isVisible();\n")
-                        .append("            final String " + "$$currentValue = String.valueOf(").append(absoluteTarget)
-                        .append(".getValue());\n")
-                        .append("            final boolean $$visible = $$formTarget.getWidget(").append(absoluteTarget)
-                        .append(").isVisible() && Stream.of(")
-                        .append(Stream.of(values).map(v -> "\"" + v + "\"").collect(joining(",")))
-                        .append(").anyMatch(v -> v.equals($$currentValue));\n")
-                        .append("            if ($$originalVisible != $$visible) {\n")
-                        .append("                $$formParam.getWidget(").append(paramName)
-                        .append(").setVisible($$visible);\n");
+                        final String[] values =
+                                p.getMetadata().getOrDefault("tcomp::condition::if::value", "true").split(",");
+                        final String paramName = toParamName(p);
+                        output
+                                .append("        if(")
+                                .append(absoluteTarget)
+                                .append(" != null && ")
+                                .append(absoluteTarget)
+                                .append(".getValue() != null) {\n") //
+                                .append("            final Form $$formParam = getForm(")
+                                .append(formParam)
+                                .append(");\n")
+                                .append("            final Form $$formTarget = ");
+                        if (formParam.equals(formTarget)) {
+                            output.append("$$formParam");
+                        } else {
+                            output.append("getForm(").append(formTarget).append(")");
+                        }
 
-                    // for now it works cause relationships are only handled with 1 level!
-                    final Optional<ParameterMeta> reverseUpdate = parameterMetas.stream().filter(
-                        it -> p.getName().equals(resolveTarget(it.getMetadata().get("tcomp::condition::if::target"))))
-                        .findFirst();
-                    if (reverseUpdate.isPresent()) {
-                        output.append("                after").append(capitalise(paramName)).append("();\n");
-                    }
-                    output.append("            }\n").append("        }\n");
+                        // visible = widget is visible + condition is true
+                        output
+                                .append(";\n            final boolean $$originalVisible = $$formParam.getWidget(")
+                                .append(paramName)
+                                .append(").isVisible();\n")
+                                .append("            final String " + "$$currentValue = String.valueOf(")
+                                .append(absoluteTarget)
+                                .append(".getValue());\n")
+                                .append("            final boolean $$visible = $$formTarget.getWidget(")
+                                .append(absoluteTarget)
+                                .append(").isVisible() && Stream.of(")
+                                .append(Stream.of(values).map(v -> "\"" + v + "\"").collect(joining(",")))
+                                .append(").anyMatch(v -> v.equals($$currentValue));\n")
+                                .append("            if ($$originalVisible != $$visible) {\n")
+                                .append("                $$formParam.getWidget(")
+                                .append(paramName)
+                                .append(").setVisible($$visible);\n");
+
+                        // for now it works cause relationships are only handled with 1 level!
+                        final Optional<ParameterMeta> reverseUpdate = parameterMetas
+                                .stream()
+                                .filter(it -> p.getName().equals(
+                                        resolveTarget(it.getMetadata().get("tcomp::condition::if::target"))))
+                                .findFirst();
+                        if (reverseUpdate.isPresent()) {
+                            output.append("                after").append(capitalise(paramName)).append("();\n");
+                        }
+                        output.append("            }\n").append("        }\n");
+                    });
+                    output.append("    }\n\n");
                 });
-                output.append("    }\n\n");
-            });
     }
 
     private Collection<String> findActiveIfCallbacks(final List<ParameterMeta> parameterMetas) {
         return filterParametersWithActiveCondition(parameterMetas)
-            .collect(groupingBy(p -> p.getMetadata().get("tcomp::condition::if::target"))).entrySet().stream()
-            .map(e -> "after" + capitalise(resolveTarget(e.getKey()))).collect(toList());
+                .collect(groupingBy(p -> p.getMetadata().get("tcomp::condition::if::target")))
+                .entrySet()
+                .stream()
+                .map(e -> "after" + capitalise(resolveTarget(e.getKey())))
+                .collect(toList());
     }
 
     private Stream<ParameterMeta> filterParametersWithActiveCondition(final List<ParameterMeta> parameterMetas) {
@@ -1391,13 +1541,13 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private Map<String, String> buildForm(final Collection<ParameterMeta> parameterMetas, final boolean hasOutput,
-        final ServiceMeta.ActionMeta guessSchema, final boolean isProcessor, final StringBuilder output,
-        final Map<String, String> meta) {
+            final ServiceMeta.ActionMeta guessSchema, final boolean isProcessor, final StringBuilder output,
+            final Map<String, String> meta) {
         if (hasOutput) { // added "first" by convention
             output.append("        $$main.addRow($$internalSchema.getForm(Form.REFERENCE));\n");
             if (!isProcessor || guessSchema != null) {
                 output.append(
-                    "        $$main.addColumn(Widget.widget($$internalGuessSchema).setLongRunning(true).setWidgetType(Widget.BUTTON_WIDGET_TYPE));\n");
+                        "        $$main.addColumn(Widget.widget($$internalGuessSchema).setLongRunning(true).setWidgetType(Widget.BUTTON_WIDGET_TYPE));\n");
             }
         }
 
@@ -1407,28 +1557,38 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
         }
 
         final Map<String, String> formByProperty = new HashMap<>();
-        final Set<String> forms = meta.keySet().stream()
-            .filter(k -> k.startsWith("tcomp::ui::gridlayout::") && k.endsWith("::value")).collect(toSet());
+        final Set<String> forms = meta
+                .keySet()
+                .stream()
+                .filter(k -> k.startsWith("tcomp::ui::gridlayout::") && k.endsWith("::value"))
+                .collect(toSet());
         if (forms.isEmpty()) {
 
-            final Supplier<String> addOperation = "true".equalsIgnoreCase(meta.get("tcomp::ui::horizontallayout"))
-                ? newHorizontalAdderProvider() : () -> "addRow";
+            final Supplier<String> addOperation =
+                    "true".equalsIgnoreCase(meta.get("tcomp::ui::horizontallayout")) ? newHorizontalAdderProvider()
+                            : () -> "addRow";
             parameterMetas.forEach(p -> addParameter("Form.MAIN", "$$main", output, addOperation, p, formByProperty));
-            parameterMetas.stream() // for all params which have an advanced form add it to ensure it is visible
-                                    // into the studio
-                .filter(p -> p.getType() == ParameterMeta.Type.OBJECT).filter(this::hasAdvancedForm)
-                .forEach(p -> addObjectParameter("Form.ADVANCED", "$$advanced", output, toParamName(p)));
+            parameterMetas
+                    .stream() // for all params which have an advanced form add it to ensure it is visible
+                              // into the studio
+                    .filter(p -> p.getType() == ParameterMeta.Type.OBJECT)
+                    .filter(this::hasAdvancedForm)
+                    .forEach(p -> addObjectParameter("Form.ADVANCED", "$$advanced", output, toParamName(p)));
         } else {
             // create all forms
             final Map<String, ParameterMeta> paramIndex =
-                parameterMetas.stream().collect(toMap(ParameterMeta::getName, identity()));
+                    parameterMetas.stream().collect(toMap(ParameterMeta::getName, identity()));
             forms.forEach(key -> {
                 final String rawName = getFormName(key);
                 final String name = rawName.toLowerCase(ENGLISH).replace("form.", "");
 
                 if (!"Form.MAIN".equals(rawName) && !"Form.ADVANCED".equals(rawName)) { // already declared
-                    output.append("\n        final Form $$").append(name).append(" = new Form(this, ").append(rawName)
-                        .append(");\n");
+                    output
+                            .append("\n        final Form $$")
+                            .append(name)
+                            .append(" = new Form(this, ")
+                            .append(rawName)
+                            .append(");\n");
                 }
                 final String layoutDefinition = meta.get(key);
                 Stream.of(layoutDefinition.split(Pattern.quote("|"))).forEach(row -> {
@@ -1437,7 +1597,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                         final ParameterMeta p = paramIndex.get(field);
                         if (p == null) {
                             getLog().warn("No parameter '" + field + "', availables: " + paramIndex.keySet()
-                                + ", check your list in @GridLayout");
+                                    + ", check your list in @GridLayout");
                             return;
                         }
                         addParameter(rawName, "$$" + name, output, operation, p, formByProperty);
@@ -1452,8 +1612,8 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 
     private boolean hasAdvancedForm(final ParameterMeta p) {
         return p.getMetadata().keySet().stream().anyMatch(k -> k.equals("tcomp::ui::gridlayout::Advanced::value"))
-            || ofNullable(p.getNestedParameters()).map(Collection::stream).orElseGet(Stream::empty)
-                .anyMatch(this::hasAdvancedForm);
+                || ofNullable(p.getNestedParameters()).map(Collection::stream).orElseGet(Stream::empty).anyMatch(
+                        this::hasAdvancedForm);
     }
 
     private String getFormName(final String ref) {
@@ -1462,7 +1622,8 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
         }
 
         final String rawName = ref.contains("::")
-            ? ref.substring("tcomp::ui::gridlayout::".length(), ref.length() - "::value".length()) : ref;
+                ? ref.substring("tcomp::ui::gridlayout::".length(), ref.length() - "::value".length())
+                : ref;
         if ("Main".equalsIgnoreCase(rawName)) {
             return "Form.MAIN";
         } else if ("Advanced".equalsIgnoreCase(rawName)) {
@@ -1476,18 +1637,19 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private void addParameter(final String formName, final String form, final StringBuilder output,
-        final Supplier<String> addOperation, final ParameterMeta p, final Map<String, String> formByProperty) {
+            final Supplier<String> addOperation, final ParameterMeta p, final Map<String, String> formByProperty) {
         formByProperty.put(p.getName(), formName);
         final String name = toParamName(p);
         switch (p.getType()) {
         case ARRAY: // todo: support other array types like table for objects etc
             if (p.getProposals() != null && !p.getProposals().isEmpty()) {
-                output.append("        ").append(form).append(".addColumn(Widget.widget(").append(name)
-                    .append(").setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));\n");
+                output.append("        ").append(form).append(".addColumn(Widget.widget(").append(name).append(
+                        ").setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));\n");
                 output.append("        ").append(name).append(".setPossibleValues(");
                 final String quote = ParameterizedType.class.isInstance(p.getJavaType())
-                    && ParameterizedType.class.cast(p.getJavaType()).getActualTypeArguments()[0] == String.class ? "\""
-                        : "";
+                        && ParameterizedType.class.cast(p.getJavaType()).getActualTypeArguments()[0] == String.class
+                                ? "\""
+                                : "";
                 p.getProposals().forEach(proposal -> output.append(quote).append(proposal).append(quote).append(","));
                 output.setLength(output.length() - 1); // strip last ","
                 output.append("\n");
@@ -1505,19 +1667,36 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
             // todo: handle other widget types
             final String codeType = p.getMetadata().get("tcomp::ui::code::value");
             if (codeType != null && !codeType.isEmpty()) {
-                output.append("        ").append(form).append(".").append(addOperation.get()).append("(Widget.widget(")
-                    .append(name)
-                    .append(
-                        ").setWidgetType(Widget.CODE_WIDGET_TYPE).setConfigurationValue(Widget.CODE_SYNTAX_WIDGET_CONF, \"")
+                output
+                        .append("        ")
+                        .append(form)
+                        .append(".")
+                        .append(addOperation.get())
+                        .append("(Widget.widget(")
+                        .append(name)
+                        .append(").setWidgetType(Widget.CODE_WIDGET_TYPE).setConfigurationValue(Widget.CODE_SYNTAX_WIDGET_CONF, \"")
 
-                    .append(codeType).append("\"));\n");
+                        .append(codeType)
+                        .append("\"));\n");
             } else if (p.getProposals() != null && !p.getProposals().isEmpty()) {
                 // likely enums but should be fine for others as well
-                output.append("        ").append(form).append(".").append(addOperation.get()).append("(Widget.widget(")
-                    .append(name).append(").setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));\n");
+                output
+                        .append("        ")
+                        .append(form)
+                        .append(".")
+                        .append(addOperation.get())
+                        .append("(Widget.widget(")
+                        .append(name)
+                        .append(").setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));\n");
             } else {
-                output.append("        ").append(form).append(".").append(addOperation.get()).append("(").append(name)
-                    .append(");\n");
+                output
+                        .append("        ")
+                        .append(form)
+                        .append(".")
+                        .append(addOperation.get())
+                        .append("(")
+                        .append(name)
+                        .append(");\n");
             }
             break;
         default:
@@ -1526,9 +1705,15 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private void addObjectParameter(final String formName, final String form, final StringBuilder output,
-        final String name) {
-        output.append("        ").append(form).append(".addRow(").append(name).append(".getForm(").append(formName)
-            .append("));\n");
+            final String name) {
+        output
+                .append("        ")
+                .append(form)
+                .append(".addRow(")
+                .append(name)
+                .append(".getForm(")
+                .append(formName)
+                .append("));\n");
     }
 
     private Supplier<String> newHorizontalAdderProvider() {

@@ -92,8 +92,8 @@ public class ComponentModel extends AbstractBasicComponent {
      * created per category
      */
     private String computeFamilyName() {
-        return index.getCategories().stream().map(category -> category + "/" + index.getId().getFamily())
-            .collect(Collectors.joining("|"));
+        return index.getCategories().stream().map(category -> category + "/" + index.getId().getFamily()).collect(
+                Collectors.joining("|"));
     }
 
     /**
@@ -110,7 +110,7 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     private List<ECodePart> createCodePartList() {
         return Collections
-            .unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY));
+                .unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY));
     }
 
     /**
@@ -218,7 +218,7 @@ public class ComponentModel extends AbstractBasicComponent {
         NodeReturn errorMessage = new NodeReturn();
         errorMessage.setType(JavaTypesManager.STRING.getLabel());
         errorMessage.setDisplayName(
-            ComponentReturnVariableUtils.getTranslationForVariable(RETURN_ERROR_MESSAGE, RETURN_ERROR_MESSAGE));
+                ComponentReturnVariableUtils.getTranslationForVariable(RETURN_ERROR_MESSAGE, RETURN_ERROR_MESSAGE));
         errorMessage.setName(ComponentReturnVariableUtils.getStudioNameFromVariable(RETURN_ERROR_MESSAGE));
         errorMessage.setAvailability(AFTER);
         returnVariables.add(errorMessage);
@@ -226,7 +226,7 @@ public class ComponentModel extends AbstractBasicComponent {
         NodeReturn numberLinesMessage = new NodeReturn();
         numberLinesMessage.setType(JavaTypesManager.INTEGER.getLabel());
         numberLinesMessage.setDisplayName(ComponentReturnVariableUtils
-            .getTranslationForVariable(RETURN_TOTAL_RECORD_COUNT, RETURN_TOTAL_RECORD_COUNT));
+                .getTranslationForVariable(RETURN_TOTAL_RECORD_COUNT, RETURN_TOTAL_RECORD_COUNT));
         numberLinesMessage.setName(ComponentReturnVariableUtils.getStudioNameFromVariable(RETURN_TOTAL_RECORD_COUNT));
         numberLinesMessage.setAvailability(AFTER);
         returnVariables.add(numberLinesMessage);
@@ -240,8 +240,8 @@ public class ComponentModel extends AbstractBasicComponent {
      * connector has 0 outgoing and incoming links.
      * 
      * @param node
-     *            component node - object representing component instance on design
-     *            canvas
+     * component node - object representing component instance on design
+     * canvas
      */
     @Override
     public List<? extends INodeConnector> createConnectors(final INode node) {

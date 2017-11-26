@@ -32,7 +32,7 @@ public class Transform implements Serializable {
 
     @ElementListener
     public void process(final Record first, @Input("second") final Record second,
-        @Output("size") final OutputEmitter<Integer> size, @Output("value") final OutputEmitter<String> value) {
+            @Output("size") final OutputEmitter<Integer> size, @Output("value") final OutputEmitter<String> value) {
         size.emit(first.value.length() + second.value.length());
         value.emit(first.value + second.value);
     }
@@ -41,6 +41,7 @@ public class Transform implements Serializable {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Record implements Serializable {
+
         private String value;
     }
 }

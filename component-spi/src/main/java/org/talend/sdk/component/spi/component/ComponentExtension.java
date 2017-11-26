@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.spi.component;
 
@@ -25,16 +25,16 @@ public interface ComponentExtension {
 
     /**
      * @param context
-     *            the component context allowing to interact with the container.
+     * the component context allowing to interact with the container.
      */
     void onComponent(ComponentContext context);
 
     /**
      * @param componentType
-     *            the expected framework component type (can be Mapper or
-     *            Processor).
+     * the expected framework component type (can be Mapper or
+     * Processor).
      * @return true if convert can be used for that kind of component, false
-     *         otherwise.
+     * otherwise.
      */
     boolean supports(Class<?> componentType);
 
@@ -42,12 +42,12 @@ public interface ComponentExtension {
      * Note: you can assume supports() was called before going into this method.
      *
      * @param instance
-     *            the instantiated component (native instance).
+     * the instantiated component (native instance).
      * @param component
-     *            the expected framework component type (can be Mapper or
-     *            Processor).
+     * the expected framework component type (can be Mapper or
+     * Processor).
      * @param <T>
-     *            the generic matching component parameter.
+     * the generic matching component parameter.
      * @return an instance of component.
      */
     <T> T convert(ComponentInstance instance, Class<T> component);

@@ -36,23 +36,23 @@ public class RecordAssertsTest {
 
     @Test
     public void ok() {
-        new RecordAsserts().withAsserts("__default__", v -> assertTrue(v.isEmpty()))
-            .apply(singleton(new HashMap<String, List<Serializable>>() {
+        new RecordAsserts().withAsserts("__default__", v -> assertTrue(v.isEmpty())).apply(
+                singleton(new HashMap<String, List<Serializable>>() {
 
-                {
-                    put("__default__", emptyList());
-                }
-            }));
+                    {
+                        put("__default__", emptyList());
+                    }
+                }));
     }
 
     @Test(expected = AssertionError.class)
     public void ko() {
-        new RecordAsserts().withAsserts("__default__", v -> assertTrue(v.isEmpty()))
-            .apply(singleton(new HashMap<String, List<Serializable>>() {
+        new RecordAsserts().withAsserts("__default__", v -> assertTrue(v.isEmpty())).apply(
+                singleton(new HashMap<String, List<Serializable>>() {
 
-                {
-                    put("__default__", singletonList("a"));
-                }
-            }));
+                    {
+                        put("__default__", singletonList("a"));
+                    }
+                }));
     }
 }

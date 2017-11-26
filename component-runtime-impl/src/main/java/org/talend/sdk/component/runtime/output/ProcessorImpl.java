@@ -76,18 +76,18 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             parameterBuilder = Stream.of(process.getParameters()).map(parameter -> {
                 if (parameter.isAnnotationPresent(Output.class)) {
                     return (BiFunction<InputFactory, OutputFactory, Object>) (inputs, outputs) -> outputs
-                        .create(parameter.getAnnotation(Output.class).value());
+                            .create(parameter.getAnnotation(Output.class).value());
                 }
 
                 final Class<?> parameterType = parameter.getType();
                 final boolean isObjectMap = ObjectMap.class.isAssignableFrom(parameterType);
                 final AccessorCache cache =
-                    ofNullable(ContainerFinder.Instance.get().find(plugin()).findService(AccessorCache.class))
-                        .orElseGet(() -> new AccessorCache(plugin()));
-                final String inputName =
-                    ofNullable(parameter.getAnnotation(Input.class)).map(Input::value).orElse(Branches.DEFAULT_BRANCH);
+                        ofNullable(ContainerFinder.Instance.get().find(plugin()).findService(AccessorCache.class))
+                                .orElseGet(() -> new AccessorCache(plugin()));
+                final String inputName = ofNullable(parameter.getAnnotation(Input.class)).map(Input::value).orElse(
+                        Branches.DEFAULT_BRANCH);
                 return (BiFunction<InputFactory, OutputFactory, Object>) (inputs,
-                    outputs) -> doConvertInput(parameterType, isObjectMap, cache, inputs.read(inputName));
+                        outputs) -> doConvertInput(parameterType, isObjectMap, cache, inputs.read(inputName));
             }).collect(toList());
             forwardReturn = process.getReturnType() != void.class;
         }
@@ -96,7 +96,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     }
 
     private Object doConvertInput(final Class<?> parameterType, final boolean isObjectMap, final AccessorCache cache,
-        final Object data) {
+            final Object data) {
         if (isObjectMap) {
             if (ObjectMap.class.isInstance(data)) {
                 return data;
@@ -118,7 +118,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     @Override
     public void onNext(final InputFactory inputFactory, final OutputFactory outputFactory) {
         final Object out = doInvoke(process,
-            parameterBuilder.stream().map(b -> b.apply(inputFactory, outputFactory)).toArray(Object[]::new));
+                parameterBuilder.stream().map(b -> b.apply(inputFactory, outputFactory)).toArray(Object[]::new));
         if (forwardReturn) {
             outputFactory.create(Branches.DEFAULT_BRANCH).emit(out);
         }
@@ -131,7 +131,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     protected Object newSubClassInstance(final Class<?> type, final ObjectMap data) {
         throw new UnsupportedOperationException("Subclass " + getClass().getName() + " to support " + type
-            + " as input or " + "use an ObjectMap in " + plugin() + "#" + rootName() + "#" + name());
+                + " as input or " + "use an ObjectMap in " + plugin() + "#" + rootName() + "#" + name());
     }
 
     Object writeReplace() throws ObjectStreamException {
@@ -139,9 +139,9 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     }
 
     protected static Serializable loadDelegate(final byte[] value, final String plugin)
-        throws IOException, ClassNotFoundException {
+            throws IOException, ClassNotFoundException {
         try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(value),
-            ContainerFinder.Instance.get().find(plugin).classloader())) {
+                ContainerFinder.Instance.get().find(plugin).classloader())) {
             return Serializable.class.cast(ois.readObject());
         }
     }

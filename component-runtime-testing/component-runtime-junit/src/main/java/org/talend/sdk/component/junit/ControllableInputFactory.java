@@ -18,6 +18,7 @@ package org.talend.sdk.component.junit;
 import org.talend.sdk.component.runtime.output.InputFactory;
 
 public interface ControllableInputFactory extends InputFactory {
+
     boolean hasMoreData();
 
     InputFactoryIterable asInputRecords();

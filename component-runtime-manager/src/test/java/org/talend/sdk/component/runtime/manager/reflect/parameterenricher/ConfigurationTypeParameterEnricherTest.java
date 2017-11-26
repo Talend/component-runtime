@@ -30,6 +30,7 @@ public class ConfigurationTypeParameterEnricherTest {
     public void readConfigTypes() {
         final ConfigurationTypeParameterEnricher enricher = new ConfigurationTypeParameterEnricher();
         assertEquals(new HashMap<String, String>() {
+
             {
                 put("tcomp::configurationtype::type", "dataset");
                 put("tcomp::configurationtype::name", "test");

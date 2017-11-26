@@ -38,8 +38,8 @@ public abstract class BaseControl extends ResourceBundle.Control {
 
     @Override
     public abstract ResourceBundle newBundle(final String baseName, final Locale locale, final String format,
-        final ClassLoader loader, final boolean reload)
-        throws IllegalAccessException, InstantiationException, IOException;
+            final ClassLoader loader, final boolean reload)
+            throws IllegalAccessException, InstantiationException, IOException;
 
     @Override // can be overriden to limit the locales (only language handling for instance)
     public String toBundleName(final String baseName, final Locale locale) {
@@ -53,7 +53,7 @@ public abstract class BaseControl extends ResourceBundle.Control {
 
     @Override
     public boolean needsReload(final String baseName, final Locale locale, final String format,
-        final ClassLoader loader, final ResourceBundle bundle, final long loadTime) {
+            final ClassLoader loader, final ResourceBundle bundle, final long loadTime) {
         return false;
     }
 }

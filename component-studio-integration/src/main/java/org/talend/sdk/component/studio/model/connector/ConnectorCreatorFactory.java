@@ -42,12 +42,16 @@ public final class ConnectorCreatorFactory {
     }
 
     private static boolean hasInputs(final ComponentDetail component) {
-        return component.getInputFlows().stream() //
-            .anyMatch(input -> FLOW_MAIN.equals(getType(input)));
+        return component
+                .getInputFlows()
+                .stream() //
+                .anyMatch(input -> FLOW_MAIN.equals(getType(input)));
     }
 
     private static boolean hasOutputs(final ComponentDetail component) {
-        return component.getOutputFlows().stream() //
-            .anyMatch(output -> FLOW_MAIN.equals(getType(output)));
+        return component
+                .getOutputFlows()
+                .stream() //
+                .anyMatch(output -> FLOW_MAIN.equals(getType(output)));
     }
 }

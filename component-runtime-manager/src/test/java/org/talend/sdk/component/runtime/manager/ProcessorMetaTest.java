@@ -38,7 +38,7 @@ public class ProcessorMetaTest {
     public void testGetListener() {
         ComponentFamilyMeta parent = new ComponentFamilyMeta("plugin", Collections.emptyList(), "default", "name", "");
         ProcessorMeta meta =
-            new ProcessorMeta(parent, "name", "default", 1, TestProcessor.class, null, null, null, true);
+                new ProcessorMeta(parent, "name", "default", 1, TestProcessor.class, null, null, null, true);
         Method listener = meta.getListener();
         Assert.assertEquals("map", listener.getName());
         Assert.assertEquals(4, listener.getParameterCount());
@@ -49,8 +49,8 @@ public class ProcessorMetaTest {
 
         @ElementListener
         public void map(@Input final InputData1 input1, @Input("REJECT") final InputData2 input2,
-            @Output final OutputEmitter<OutputData1> output1,
-            @Output("OUTPUT") final OutputEmitter<OutputData2> output2) {
+                @Output final OutputEmitter<OutputData1> output1,
+                @Output("OUTPUT") final OutputEmitter<OutputData2> output2) {
             // no-op
         }
 

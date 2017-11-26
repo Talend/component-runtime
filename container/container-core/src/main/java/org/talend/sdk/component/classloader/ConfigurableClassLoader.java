@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.classloader;
 
@@ -63,12 +63,12 @@ public class ConfigurableClassLoader extends URLClassLoader {
     private final String[] nestedDependencies;
 
     public ConfigurableClassLoader(final URL[] urls, final ClassLoader parent, final Predicate<String> parentFilter,
-        final Predicate<String> childFirstFilter, final String[] nestedDependencies) {
+            final Predicate<String> childFirstFilter, final String[] nestedDependencies) {
         super(urls, parent);
         this.parentFilter = parentFilter;
         this.childFirstFilter = childFirstFilter;
         this.nestedDependencies = nestedDependencies == null ? null
-            : Stream.of(nestedDependencies).map(d -> NESTED_MAVEN_REPOSITORY + d).toArray(String[]::new);
+                : Stream.of(nestedDependencies).map(d -> NESTED_MAVEN_REPOSITORY + d).toArray(String[]::new);
     }
 
     @Override
@@ -134,21 +134,23 @@ public class ConfigurableClassLoader extends URLClassLoader {
     @Override
     public URL findResource(final String name) {
         return hasNoNestedRepositories() ? super.findResource(name)
-            : ofNullable(super.findResource(name)).orElseGet(() -> {
-                final Resource nestedResource = findNestedResource(name);
-                if (nestedResource != null) {
-                    return nestedResourceToURL(name, nestedResource);
-                }
-                return null;
-            });
+                : ofNullable(super.findResource(name)).orElseGet(() -> {
+                    final Resource nestedResource = findNestedResource(name);
+                    if (nestedResource != null) {
+                        return nestedResourceToURL(name, nestedResource);
+                    }
+                    return null;
+                });
     }
 
     @Override
     public InputStream getResourceAsStream(final String name) {
         return hasNoNestedRepositories() || Stream.of(nestedDependencies).anyMatch(d -> d.equals(name))
-            ? super.getResourceAsStream(name)
-            : ofNullable(super.getResourceAsStream(name)).orElseGet(() -> ofNullable(findNestedResource(name))
-                .map(r -> new ByteArrayInputStream(r.resource)).map(InputStream.class::cast).orElse(null));
+                ? super.getResourceAsStream(name)
+                : ofNullable(super.getResourceAsStream(name)).orElseGet(() -> ofNullable(findNestedResource(name))
+                        .map(r -> new ByteArrayInputStream(r.resource))
+                        .map(InputStream.class::cast)
+                        .orElse(null));
     }
 
     @Override
@@ -173,7 +175,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 }
                 if (entry != null) {
                     final ByteArrayOutputStream out =
-                        new ByteArrayOutputStream(8192 /* should be good for most of cases */);
+                            new ByteArrayOutputStream(8192 /* should be good for most of cases */);
                     final byte[] buffer = new byte[8192];
                     int read;
                     while ((read = jarInputStream.read(buffer, 0, buffer.length)) >= 0) {
@@ -408,7 +410,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 }
                 if (entry != null) {
                     final ByteArrayOutputStream out =
-                        new ByteArrayOutputStream(8192 /* should be good for most of cases */);
+                            new ByteArrayOutputStream(8192 /* should be good for most of cases */);
                     final byte[] buffer = new byte[8192];
                     int read;
                     while ((read = jarInputStream.read(buffer, 0, buffer.length)) >= 0) {

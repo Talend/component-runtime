@@ -211,9 +211,9 @@ public class ElementParameterCreator {
         newParam.setName(EParameterName.PROPERTY_TYPE.getName());
         newParam.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
         newParam.setListItemsDisplayName(
-            new String[] { AbstractBasicComponent.TEXT_BUILTIN, AbstractBasicComponent.TEXT_REPOSITORY });
+                new String[] { AbstractBasicComponent.TEXT_BUILTIN, AbstractBasicComponent.TEXT_REPOSITORY });
         newParam.setListItemsDisplayCodeName(
-            new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
+                new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
         newParam.setListItemsValue(new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
         newParam.setValue(AbstractBasicComponent.BUILTIN);
         newParam.setNumRow(param.getNumRow());
@@ -247,7 +247,7 @@ public class ElementParameterCreator {
 
         if (ComponentCategory.CATEGORY_4_DI.getName().equals(component.getPaletteType())) {
             boolean tStatCatcherAvailable = ComponentsFactoryProvider.getInstance().get(EmfComponent.TSTATCATCHER_NAME,
-                ComponentCategory.CATEGORY_4_DI.getName()) != null;
+                    ComponentCategory.CATEGORY_4_DI.getName()) != null;
             param = new ElementParameter(node);
             param.setName(EParameterName.TSTATCATCHER_STATS.getName());
             param.setValue(Boolean.FALSE);
@@ -265,7 +265,7 @@ public class ElementParameterCreator {
         // These parameters is only work when TIS is loaded
         // GLiu Added for Task http://jira.talendforge.org/browse/TESB-4279
         if (PluginChecker.isTeamEdition()
-            && !ComponentCategory.CATEGORY_4_CAMEL.getName().equals(component.getPaletteType())) {
+                && !ComponentCategory.CATEGORY_4_CAMEL.getName().equals(component.getPaletteType())) {
             param = new ElementParameter(node);
             param.setReadOnly(true);
             param.setName(EParameterName.PARALLELIZE.getName());

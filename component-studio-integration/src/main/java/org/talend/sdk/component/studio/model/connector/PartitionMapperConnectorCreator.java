@@ -43,16 +43,19 @@ class PartitionMapperConnectorCreator extends AbstractConnectorCreator {
      */
     @Override
     protected List<INodeConnector> createMainConnectors() {
-        return detail.getOutputFlows().stream() //
-            .filter(output -> FLOW_MAIN.equals(getType(output))) //
-            .map(output -> { //
-                final INodeConnector main = createConnector(getType(output), getName(output), node);
-                main.setMaxLinkOutput(1);
-                main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
-                main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
-                existingTypes.add(getType(output));
-                return main;
-            }).collect(toList());
+        return detail
+                .getOutputFlows()
+                .stream() //
+                .filter(output -> FLOW_MAIN.equals(getType(output))) //
+                .map(output -> { //
+                    final INodeConnector main = createConnector(getType(output), getName(output), node);
+                    main.setMaxLinkOutput(1);
+                    main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
+                    main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
+                    existingTypes.add(getType(output));
+                    return main;
+                })
+                .collect(toList());
     }
 
     /**

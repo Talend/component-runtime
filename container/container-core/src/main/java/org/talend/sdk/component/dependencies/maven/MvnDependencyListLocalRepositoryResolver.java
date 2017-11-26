@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.dependencies.maven;
 
@@ -57,40 +57,43 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
 
     @Override
     public Stream<String> resolve(final ClassLoader rootLoader, final String artifact) {
-        return Stream.of(readDependencies(
-            of(new File(artifact)).filter(File::exists).map(this::findDependenciesFile).orElseGet(() -> {
-                final boolean isNested;
-                try (final InputStream stream =
-                    rootLoader.getResourceAsStream(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + artifact)) {
-                    isNested = stream != null;
-                } catch (final IOException e) {
-                    log.debug(e.getMessage(), e);
-                    return "";
-                }
+        return Stream
+                .of(readDependencies(
+                        of(new File(artifact)).filter(File::exists).map(this::findDependenciesFile).orElseGet(() -> {
+                            final boolean isNested;
+                            try (final InputStream stream = rootLoader
+                                    .getResourceAsStream(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + artifact)) {
+                                isNested = stream != null;
+                            } catch (final IOException e) {
+                                log.debug(e.getMessage(), e);
+                                return "";
+                            }
 
-                if (isNested) { // we reuse ConfigurableClassLoader just to not
-                                // rewrite the logic but it is NOT a plugin!
-                    try (final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader(new URL[0],
-                        rootLoader, name -> true, name -> true, new String[] { artifact })) {
-                        try (final InputStream deps =
-                            configurableClassLoader.getResourceAsStream(dependenciesListFile)) {
-                            return ofNullable(deps).map(s -> {
-                                try {
-                                    return slurp(s);
+                            if (isNested) { // we reuse ConfigurableClassLoader just to not
+                                            // rewrite the logic but it is NOT a plugin!
+                                try (final ConfigurableClassLoader configurableClassLoader =
+                                        new ConfigurableClassLoader(new URL[0], rootLoader, name -> true, name -> true,
+                                                new String[] { artifact })) {
+                                    try (final InputStream deps =
+                                            configurableClassLoader.getResourceAsStream(dependenciesListFile)) {
+                                        return ofNullable(deps).map(s -> {
+                                            try {
+                                                return slurp(s);
+                                            } catch (final IOException e) {
+                                                log.debug(e.getMessage(), e);
+                                                return "";
+                                            }
+                                        }).orElse("");
+                                    }
                                 } catch (final IOException e) {
                                     log.debug(e.getMessage(), e);
                                     return "";
                                 }
-                            }).orElse("");
-                        }
-                    } catch (final IOException e) {
-                        log.debug(e.getMessage(), e);
-                        return "";
-                    }
-                }
+                            }
 
-                return "";
-            }))).map(coordinateConverter::toPath);
+                            return "";
+                        })))
+                .map(coordinateConverter::toPath);
     }
 
     public Stream<String> resolveFromDescriptor(final InputStream descriptor) throws IOException {
@@ -99,7 +102,7 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
 
     private Artifact[] readDependencies(final String content) {
         return content.isEmpty() ? NO_ARTIFACT
-            : new MvnDependenciesTxtArtifactConverter(coordinateConverter).withContent(content).build();
+                : new MvnDependenciesTxtArtifactConverter(coordinateConverter).withContent(content).build();
     }
 
     /**
@@ -129,7 +132,7 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
      * </pre>
      *
      * @param module
-     *            the component module currently loaded.
+     * the component module currently loaded.
      * @return the dependencies.list (dependenciesPath) content.
      */
     private String findDependenciesFile(final File module) {

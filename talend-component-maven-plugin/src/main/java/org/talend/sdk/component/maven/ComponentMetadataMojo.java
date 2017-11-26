@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.maven;
 
@@ -60,37 +60,35 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
 
     @Override
     protected void doWork(final ComponentManager manager, final Container container,
-        final ContainerComponentRegistry registry) throws MojoExecutionException, MojoFailureException {
+            final ContainerComponentRegistry registry) throws MojoExecutionException, MojoFailureException {
         final File output = new File(classes, location);
         if (!output.getParentFile().exists() && !output.getParentFile().mkdirs()) {
             throw new MojoExecutionException("Can't create " + output);
         }
 
-        final Collection<Component> components =
-            registry.getComponents().values().stream()
-                .flatMap(
-                    c -> Stream
-                        .concat(
-                            c.getPartitionMappers().values().stream()
-                                .map(p -> new Component(p.getParent().getCategories(), p.getParent().getName(),
-                                    p.getName(),
-                                    p.findBundle(container.getLoader(), Locale.ENGLISH).displayName()
-                                        .orElse(p.getName()),
-                                    p.getIcon(), emptyList(), singletonList("MAIN"))),
-                            c.getProcessors().values().stream().map(p -> {
-                                final Method listener = p.getListener();
-                                return new Component(p.getParent().getCategories(), p.getParent().getName(),
-                                    p.getName(),
-                                    p.findBundle(container.getLoader(), Locale.ENGLISH).displayName()
-                                        .orElse(p.getName()),
+        final Collection<Component> components = registry
+                .getComponents()
+                .values()
+                .stream()
+                .flatMap(c -> Stream.concat(
+                        c.getPartitionMappers().values().stream().map(
+                                p -> new Component(p.getParent().getCategories(), p.getParent().getName(), p.getName(),
+                                        p.findBundle(container.getLoader(), Locale.ENGLISH).displayName().orElse(
+                                                p.getName()),
+                                        p.getIcon(), emptyList(), singletonList("MAIN"))),
+                        c.getProcessors().values().stream().map(p -> {
+                            final Method listener = p.getListener();
+                            return new Component(p.getParent().getCategories(), p.getParent().getName(), p.getName(),
+                                    p.findBundle(container.getLoader(), Locale.ENGLISH).displayName().orElse(
+                                            p.getName()),
                                     p.getIcon(), getDesignModel(p).getInputFlows(), getDesignModel(p).getOutputFlows());
-                            })))
+                        })))
                 .collect(toList());
 
         try (final Jsonb mapper = inPluginContext(JsonbBuilder::newBuilder)
-            .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false)
-                .setProperty("johnzon.attributeOrder", String.CASE_INSENSITIVE_ORDER))
-            .build()) {
+                .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false).setProperty(
+                        "johnzon.attributeOrder", String.CASE_INSENSITIVE_ORDER))
+                .build()) {
             container.execute(() -> {
                 try {
                     mapper.toJson(new ComponentContainer(components), new FileOutputStream(output));

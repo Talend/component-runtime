@@ -60,9 +60,14 @@ public class ComponentService {
 
             final ClassLoader loader = ComponentModel.class.getClassLoader();
             final String icon = componentIcon.getIcon();
-            return Stream.of(icon + "_icon32.png", "icons/" + icon + "_icon32.png")
-                .map(pattern -> String.format(pattern, icon)).map(loader::getResourceAsStream).filter(Objects::nonNull)
-                .findFirst().map(in -> ImageDescriptor.createFromImageData(new ImageData(in))).orElse(DEFAULT_IMAGE);
+            return Stream
+                    .of(icon + "_icon32.png", "icons/" + icon + "_icon32.png")
+                    .map(pattern -> String.format(pattern, icon))
+                    .map(loader::getResourceAsStream)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .map(in -> ImageDescriptor.createFromImageData(new ImageData(in)))
+                    .orElse(DEFAULT_IMAGE);
         }
     }
 

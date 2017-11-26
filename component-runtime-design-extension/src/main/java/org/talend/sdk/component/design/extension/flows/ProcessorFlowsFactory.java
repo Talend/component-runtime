@@ -44,10 +44,10 @@ class ProcessorFlowsFactory extends FlowsFactory {
     @Override
     public Collection<String> getInputFlows() {
         return getListenerParameters() //
-            .map(p -> ofNullable(p.getAnnotation(Input.class)) //
-                .map(Input::value) //
-                .orElse(Branches.DEFAULT_BRANCH)) //
-            .collect(toSet()); //
+                .map(p -> ofNullable(p.getAnnotation(Input.class)) //
+                        .map(Input::value) //
+                        .orElse(Branches.DEFAULT_BRANCH)) //
+                .collect(toSet()); //
     }
 
     /**
@@ -57,11 +57,14 @@ class ProcessorFlowsFactory extends FlowsFactory {
     public Collection<String> getOutputFlows() {
         Method listener = getListener();
         return Stream //
-            .concat( //
-                listener.getReturnType().equals(Void.TYPE) ? Stream.empty() : Stream.of(Branches.DEFAULT_BRANCH), //
-                Stream.of(listener.getParameters()).filter(p -> p.isAnnotationPresent(Output.class)) //
-                    .map(p -> p.getAnnotation(Output.class).value())) //
-            .collect(toSet()); //
+                .concat( //
+                        listener.getReturnType().equals(Void.TYPE) ? Stream.empty()
+                                : Stream.of(Branches.DEFAULT_BRANCH), //
+                        Stream
+                                .of(listener.getParameters())
+                                .filter(p -> p.isAnnotationPresent(Output.class)) //
+                                .map(p -> p.getAnnotation(Output.class).value())) //
+                .collect(toSet()); //
     }
 
     /**
@@ -70,10 +73,11 @@ class ProcessorFlowsFactory extends FlowsFactory {
      * @return listener method
      */
     private Method getListener() {
-        return Stream.of(type.getMethods()) //
-            .filter(m -> m.isAnnotationPresent(ElementListener.class)) //
-            .findFirst() //
-            .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + type)); //
+        return Stream
+                .of(type.getMethods()) //
+                .filter(m -> m.isAnnotationPresent(ElementListener.class)) //
+                .findFirst() //
+                .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + type)); //
     }
 
     /**
@@ -83,7 +87,7 @@ class ProcessorFlowsFactory extends FlowsFactory {
      * @return listener method input parameters
      */
     private Stream<Parameter> getListenerParameters() {
-        return Stream.of(getListener().getParameters())
-            .filter(p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
+        return Stream.of(getListener().getParameters()).filter(
+                p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
     }
 }

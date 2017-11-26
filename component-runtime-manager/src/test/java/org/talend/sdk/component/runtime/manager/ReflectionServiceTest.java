@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager;
 
@@ -42,10 +42,10 @@ public class ReflectionServiceTest {
     @Test
     public void primitive() throws NoSuchMethodException {
         { // from string
-            final Object[] params =
-                reflectionService
+            final Object[] params = reflectionService
                     .parameterFactory(
-                        MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class), emptyMap())
+                            MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class),
+                            emptyMap())
                     .apply(new HashMap<String, String>() {
 
                         {
@@ -59,10 +59,10 @@ public class ReflectionServiceTest {
             assertEquals(1, params[2]);
         }
         { // partial
-            final Object[] params =
-                reflectionService
+            final Object[] params = reflectionService
                     .parameterFactory(
-                        MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class), emptyMap())
+                            MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class),
+                            emptyMap())
                     .apply(new HashMap<String, String>() {
 
                         {
@@ -74,10 +74,10 @@ public class ReflectionServiceTest {
             assertEquals(1, params[2]);
         }
         { // exact type
-            final Object[] params =
-                reflectionService
+            final Object[] params = reflectionService
                     .parameterFactory(
-                        MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class), emptyMap())
+                            MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class),
+                            emptyMap())
                     .apply(new HashMap<String, String>() {
 
                         {
@@ -91,21 +91,21 @@ public class ReflectionServiceTest {
     @Test
     public void collection() throws NoSuchMethodException {
         final Object[] params = reflectionService
-            .parameterFactory(MethodsHolder.class.getMethod("collections", List.class, List.class, Map.class),
-                emptyMap())
-            .apply(new HashMap<String, String>() {
+                .parameterFactory(MethodsHolder.class.getMethod("collections", List.class, List.class, Map.class),
+                        emptyMap())
+                .apply(new HashMap<String, String>() {
 
-                {
-                    put("urls[0]", "http://foo");
-                    put("urls[1]", "https://bar");
-                    put("ports[0]", "1234");
-                    put("ports[1]", "5678");
-                    put("mapping.key[0]", "key1");
-                    put("mapping.value[0]", "value1");
-                    put("mapping.key[1]", "key2");
-                    put("mapping.value[1]", "value2");
-                }
-            });
+                    {
+                        put("urls[0]", "http://foo");
+                        put("urls[1]", "https://bar");
+                        put("ports[0]", "1234");
+                        put("ports[1]", "5678");
+                        put("mapping.key[0]", "key1");
+                        put("mapping.value[0]", "value1");
+                        put("mapping.key[1]", "key2");
+                        put("mapping.value[1]", "value2");
+                    }
+                });
         assertEquals(asList("http://foo", "https://bar"), params[0]);
         assertEquals(asList(1234, 5678), params[1]);
         assertEquals(new HashMap<String, String>() {
@@ -120,41 +120,43 @@ public class ReflectionServiceTest {
     @Test
     public void array() throws NoSuchMethodException {
         final Object[] params = reflectionService
-            .parameterFactory(MethodsHolder.class.getMethod("array", MethodsHolder.Array.class), emptyMap())
-            .apply(new HashMap<String, String>() {
+                .parameterFactory(MethodsHolder.class.getMethod("array", MethodsHolder.Array.class), emptyMap())
+                .apply(new HashMap<String, String>() {
 
-                {
-                    put("arg0.urls[0]", "http://foo");
-                    put("arg0.urls[1]", "https://bar");
-                }
-            });
+                    {
+                        put("arg0.urls[0]", "http://foo");
+                        put("arg0.urls[1]", "https://bar");
+                    }
+                });
         assertEquals(1, params.length);
         assertThat(params[0], instanceOf(MethodsHolder.Array.class));
         assertArrayEquals(new String[] { "http://foo", "https://bar" },
-            MethodsHolder.Array.class.cast(params[0]).getUrls());
+                MethodsHolder.Array.class.cast(params[0]).getUrls());
     }
 
     @Test
     public void object() throws NoSuchMethodException {
-        final Object[] params = reflectionService.parameterFactory(
-            MethodsHolder.class.getMethod("object", MethodsHolder.Config.class, MethodsHolder.Config.class), emptyMap())
-            .apply(new HashMap<String, String>() {
+        final Object[] params =
+                reflectionService
+                        .parameterFactory(MethodsHolder.class.getMethod("object", MethodsHolder.Config.class,
+                                MethodsHolder.Config.class), emptyMap())
+                        .apply(new HashMap<String, String>() {
 
-                {
-                    put("arg0.urls[0]", "http://foo");
-                    put("arg0.urls[1]", "https://bar");
-                    put("prefixed.urls[0]", "http://foo2");
-                    put("prefixed.urls[1]", "https://bar2");
+                            {
+                                put("arg0.urls[0]", "http://foo");
+                                put("arg0.urls[1]", "https://bar");
+                                put("prefixed.urls[0]", "http://foo2");
+                                put("prefixed.urls[1]", "https://bar2");
 
-                    put("arg0.mapping.key[0]", "key1");
-                    put("arg0.mapping.value[0]", "val1");
-                    put("arg0.mapping.key[1]", "key2");
-                    put("arg0.mapping.value[1]", "val2");
-                }
-            });
+                                put("arg0.mapping.key[0]", "key1");
+                                put("arg0.mapping.value[0]", "val1");
+                                put("arg0.mapping.key[1]", "key2");
+                                put("arg0.mapping.value[1]", "val2");
+                            }
+                        });
         Stream.of(params).forEach(p -> assertThat(p, instanceOf(MethodsHolder.Config.class)));
         final MethodsHolder.Config[] configs =
-            Stream.of(params).map(MethodsHolder.Config.class::cast).toArray(MethodsHolder.Config[]::new);
+                Stream.of(params).map(MethodsHolder.Config.class::cast).toArray(MethodsHolder.Config[]::new);
         assertEquals(asList("http://foo", "https://bar"), configs[0].getUrls());
         assertEquals(asList("http://foo2", "https://bar2"), configs[1].getUrls());
         assertEquals(new HashMap<String, String>() {
@@ -170,25 +172,26 @@ public class ReflectionServiceTest {
     @Test
     public void nestedObject() throws NoSuchMethodException {
         final Object[] params = reflectionService
-            .parameterFactory(MethodsHolder.class.getMethod("nested", MethodsHolder.ConfigOfConfig.class), emptyMap())
-            .apply(new HashMap<String, String>() {
+                .parameterFactory(MethodsHolder.class.getMethod("nested", MethodsHolder.ConfigOfConfig.class),
+                        emptyMap())
+                .apply(new HashMap<String, String>() {
 
-                {
-                    put("arg0.direct.urls[0]", "http://foo");
-                    put("arg0.direct.urls[1]", "https://bar");
-                    put("arg0.multiple[0].urls[0]", "http://foo1");
-                    put("arg0.multiple[0].urls[1]", "https://bar1");
-                    put("arg0.multiple[1].urls[0]", "http://foo2");
-                    put("arg0.multiple[1].urls[1]", "https://bar2");
-                    put("arg0.keyed.key[0]", "k1");
-                    put("arg0.keyed.value[0].urls[0]", "v1");
-                    put("arg0.keyed.value[0].urls[1]", "v2");
-                    put("arg0.keyed.key[1]", "k2");
-                    put("arg0.keyed.value[1].urls[0]", "v3");
-                    put("arg0.keyed.value[1].urls[1]", "v4");
-                    put("arg0.passthrough", "ok");
-                }
-            });
+                    {
+                        put("arg0.direct.urls[0]", "http://foo");
+                        put("arg0.direct.urls[1]", "https://bar");
+                        put("arg0.multiple[0].urls[0]", "http://foo1");
+                        put("arg0.multiple[0].urls[1]", "https://bar1");
+                        put("arg0.multiple[1].urls[0]", "http://foo2");
+                        put("arg0.multiple[1].urls[1]", "https://bar2");
+                        put("arg0.keyed.key[0]", "k1");
+                        put("arg0.keyed.value[0].urls[0]", "v1");
+                        put("arg0.keyed.value[0].urls[1]", "v2");
+                        put("arg0.keyed.key[1]", "k2");
+                        put("arg0.keyed.value[1].urls[0]", "v3");
+                        put("arg0.keyed.value[1].urls[1]", "v4");
+                        put("arg0.passthrough", "ok");
+                    }
+                });
         assertThat(params[0], instanceOf(MethodsHolder.ConfigOfConfig.class));
         final MethodsHolder.ConfigOfConfig value = MethodsHolder.ConfigOfConfig.class.cast(params[0]);
         assertEquals("ok", value.getPassthrough());

@@ -37,7 +37,7 @@ public class NameConventions {
     }
 
     public String toJavaConfigType(final String root, final String pack, final ProjectRequest.Entry entry,
-        final BiConsumer<String, ProjectRequest.DataStructure> nestedGenerator) {
+            final BiConsumer<String, ProjectRequest.DataStructure> nestedGenerator) {
         final String type = entry.getType();
         if (type == null || type.isEmpty()) {
             if (entry.getNestedType() != null) {
@@ -86,6 +86,7 @@ public class NameConventions {
 
     public String toMapperRecordName(final ProjectRequest.SourceConfiguration source) {
         return source.getOutputStructure() == null || source.getOutputStructure().isGeneric()
-            ? capitalize(source.getName()) + "GenericRecord" : capitalize(source.getName()) + "Record";
+                ? capitalize(source.getName()) + "GenericRecord"
+                : capitalize(source.getName()) + "Record";
     }
 }

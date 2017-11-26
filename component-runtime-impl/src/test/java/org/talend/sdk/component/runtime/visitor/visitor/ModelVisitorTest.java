@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.visitor.visitor;
 
@@ -42,11 +42,10 @@ public class ModelVisitorTest {
 
     @Test
     public void valid() {
-        assertEquals(
-            asList("@Emitter(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$In)",
+        assertEquals(asList("@Emitter(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$In)",
                 "@PartitionMapper(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Mapper)",
                 "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Out)"),
-            visit(Registrar.class));
+                visit(Registrar.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -82,8 +81,8 @@ public class ModelVisitorTest {
     @Test
     public void mapperWithSplitParameter() {
         assertEquals(singletonList(
-            "@PartitionMapper(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$MapperSplitParameter$Mapper)"),
-            visit(MapperSplitParameter.class));
+                "@PartitionMapper(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$MapperSplitParameter$Mapper)"),
+                visit(MapperSplitParameter.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -109,24 +108,24 @@ public class ModelVisitorTest {
     private List<String> visit(final Class<?> type) {
         final ModelVisitor visitor = new ModelVisitor();
         final List<String> tracker = new ArrayList<>();
-        Stream.of(type.getClasses()).sorted(Comparator.comparing(Class::getName))
-            .forEach(nested -> visitor.visit(nested, new ModelListener() {
+        Stream.of(type.getClasses()).sorted(Comparator.comparing(Class::getName)).forEach(
+                nested -> visitor.visit(nested, new ModelListener() {
 
-                @Override
-                public void onPartitionMapper(final Class<?> type, final PartitionMapper partitionMapper) {
-                    tracker.add("@PartitionMapper(" + type.getName() + ")");
-                }
+                    @Override
+                    public void onPartitionMapper(final Class<?> type, final PartitionMapper partitionMapper) {
+                        tracker.add("@PartitionMapper(" + type.getName() + ")");
+                    }
 
-                @Override
-                public void onEmitter(final Class<?> type, final Emitter emitter) {
-                    tracker.add("@Emitter(" + type.getName() + ")");
-                }
+                    @Override
+                    public void onEmitter(final Class<?> type, final Emitter emitter) {
+                        tracker.add("@Emitter(" + type.getName() + ")");
+                    }
 
-                @Override
-                public void onProcessor(final Class<?> type, final Processor processor) {
-                    tracker.add("@Processor(" + type.getName() + ")");
-                }
-            }, true));
+                    @Override
+                    public void onProcessor(final Class<?> type, final Processor processor) {
+                        tracker.add("@Processor(" + type.getName() + ")");
+                    }
+                }, true));
         return tracker;
     }
 

@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager.asm;
 
@@ -60,7 +60,7 @@ public class Unsafes {
             UNSAFE_DEFINE_CLASS = AccessController.doPrivileged((PrivilegedAction<Method>) () -> {
                 try {
                     return unsafeClass.getDeclaredMethod("defineClass", String.class, byte[].class, int.class,
-                        int.class, ClassLoader.class, ProtectionDomain.class);
+                            int.class, ClassLoader.class, ProtectionDomain.class);
                 } catch (Exception e) {
                     throw new IllegalStateException("Cannot get Unsafe.defineClass", e);
                 }
@@ -77,14 +77,14 @@ public class Unsafes {
      * @return the Class which got loaded in the classloader
      */
     public static <T> Class<T> defineAndLoadClass(final ClassLoader classLoader, final String proxyName,
-        final byte[] proxyBytes) {
+            final byte[] proxyBytes) {
         Class<?> clazz = classLoader.getClass();
 
         Method defineClassMethod = null;
         do {
             try {
                 defineClassMethod =
-                    clazz.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
+                        clazz.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
             } catch (NoSuchMethodException e) {
                 // do nothing, we need to search the superclass
             }
@@ -105,10 +105,10 @@ public class Unsafes {
 
             if (defineClassMethod != null) {
                 definedClass =
-                    (Class<T>) defineClassMethod.invoke(classLoader, proxyName, proxyBytes, 0, proxyBytes.length);
+                        (Class<T>) defineClassMethod.invoke(classLoader, proxyName, proxyBytes, 0, proxyBytes.length);
             } else {
                 definedClass = (Class<T>) UNSAFE_DEFINE_CLASS.invoke(UNSAFE, proxyName, proxyBytes, 0,
-                    proxyBytes.length, classLoader, null);
+                        proxyBytes.length, classLoader, null);
             }
 
             return (Class<T>) Class.forName(definedClass.getName(), true, classLoader);

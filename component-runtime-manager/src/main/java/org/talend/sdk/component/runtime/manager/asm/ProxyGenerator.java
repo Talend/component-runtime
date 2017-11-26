@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager.asm;
 
@@ -81,7 +81,7 @@ public class ProxyGenerator implements Serializable {
 
     private void createSerialisation(final ClassWriter cw, final String pluginId, final String key) {
         final MethodVisitor mv = cw.visitMethod(Modifier.PUBLIC, "writeReplace", "()Ljava/lang/Object;", null,
-            new String[] { Type.getType(ObjectStreamException.class).getInternalName() });
+                new String[] { Type.getType(ObjectStreamException.class).getInternalName() });
 
         mv.visitCode();
 
@@ -90,7 +90,7 @@ public class ProxyGenerator implements Serializable {
         mv.visitLdcInsn(pluginId);
         mv.visitLdcInsn(key);
         mv.visitMethodInsn(INVOKESPECIAL, "org/talend/sdk/component/runtime/serialization/SerializableService",
-            "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
+                "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
         mv.visitInsn(ARETURN);
 
         mv.visitMaxs(-1, -1);
@@ -98,7 +98,7 @@ public class ProxyGenerator implements Serializable {
     }
 
     private void createConstructor(final ClassWriter cw, final Class<?> classToProxy, final String classFileName,
-        final Constructor<?> constructor) {
+            final Constructor<?> constructor) {
         try {
             Constructor superDefaultCt;
             String parentClassFileName;
@@ -159,7 +159,7 @@ public class ProxyGenerator implements Serializable {
 
         if (className.startsWith(forbiddenPackagePrefix)) {
             fixedClassName =
-                "org.talend.generated.proxy.custom." + className.substring(forbiddenPackagePrefix.length());
+                    "org.talend.generated.proxy.custom." + className.substring(forbiddenPackagePrefix.length());
         }
 
         return fixedClassName;
@@ -186,39 +186,39 @@ public class ProxyGenerator implements Serializable {
     }
 
     public Class<?> generateProxy(final ClassLoader loader, final Class<?> classToProxy, final String plugin,
-        final String key) {
+            final String key) {
         final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         final String proxyClassName = fixPreservedPackages(
-            (classToProxy.getSigners() != null ? getSignedClassProxyName(classToProxy) : classToProxy.getName())
-                + "$$TalendServiceProxy");
+                (classToProxy.getSigners() != null ? getSignedClassProxyName(classToProxy) : classToProxy.getName())
+                        + "$$TalendServiceProxy");
         final String classFileName = proxyClassName.replace('.', '/');
 
         final String[] interfaceNames = { Type.getInternalName(Serializable.class) };
         final String superClassName = Type.getInternalName(classToProxy);
 
         cw.visit(findJavaVersion(classToProxy), ACC_PUBLIC + ACC_SUPER + ACC_SYNTHETIC, classFileName, null,
-            superClassName, interfaceNames);
+                superClassName, interfaceNames);
         cw.visitSource(classFileName + ".java", null);
 
         createSerialisation(cw, plugin, key);
 
         createConstructor(cw, classToProxy, superClassName,
-            Stream.of(classToProxy.getDeclaredConstructors()).filter(c -> {
-                final int modifiers = c.getModifiers();
-                return Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers);
-            }).sorted((o1, o2) -> { // prefer public constructor and then the smallest parameter count
-                final int mod1 = o1.getModifiers();
-                final int mod2 = o2.getModifiers();
-                if (Modifier.isProtected(mod1) && !Modifier.isPublic(mod2)) {
-                    return 1;
-                }
-                if (Modifier.isProtected(mod2) && !Modifier.isPublic(mod1)) {
-                    return -1;
-                }
+                Stream.of(classToProxy.getDeclaredConstructors()).filter(c -> {
+                    final int modifiers = c.getModifiers();
+                    return Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers);
+                }).sorted((o1, o2) -> { // prefer public constructor and then the smallest parameter count
+                    final int mod1 = o1.getModifiers();
+                    final int mod2 = o2.getModifiers();
+                    if (Modifier.isProtected(mod1) && !Modifier.isPublic(mod2)) {
+                        return 1;
+                    }
+                    if (Modifier.isProtected(mod2) && !Modifier.isPublic(mod1)) {
+                        return -1;
+                    }
 
-                return o1.getParameterCount() - o2.getParameterCount();
-            }).findFirst().orElseThrow(() -> new IllegalArgumentException(
-                classToProxy + " has no default constructor, put at least a protected one")));
+                    return o1.getParameterCount() - o2.getParameterCount();
+                }).findFirst().orElseThrow(() -> new IllegalArgumentException(
+                        classToProxy + " has no default constructor, put at least a protected one")));
 
         return Unsafes.defineAndLoadClass(loader, proxyClassName, cw.toByteArray());
     }
@@ -226,29 +226,31 @@ public class ProxyGenerator implements Serializable {
     public Class<?> subclass(final ClassLoader loader, final Class<?> classToProxy) {
         final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         final String proxyClassName = fixPreservedPackages(
-            (classToProxy.getSigners() != null ? getSignedClassProxyName(classToProxy) : classToProxy.getName()))
-            + "$$Subclass";
+                (classToProxy.getSigners() != null ? getSignedClassProxyName(classToProxy) : classToProxy.getName()))
+                + "$$Subclass";
 
         final String classFileName = proxyClassName.replace('.', '/');
 
         final String superClassName = Type.getInternalName(classToProxy);
 
         cw.visit(javaVersion, ACC_PUBLIC + ACC_SUPER + ACC_SYNTHETIC, classFileName, null, superClassName,
-            new String[] { Type.getInternalName(GetObjectMap.class) });
+                new String[] { Type.getInternalName(GetObjectMap.class) });
         cw.visitSource(classFileName + ".java", null);
 
         // private ObjectMap this$map; (weird field value to ensure we don't conflict
         // and proxying is obvious)
-        cw.visitField(ACC_PRIVATE, "this$map", "Lorg/talend/sdk/component/api/processor/data/ObjectMap;", null, null)
-            .visitEnd();
+        cw
+                .visitField(ACC_PRIVATE, "this$map", "Lorg/talend/sdk/component/api/processor/data/ObjectMap;", null,
+                        null)
+                .visitEnd();
 
         {
             final MethodVisitor getObjectMap = cw.visitMethod(ACC_PUBLIC, "getObjectMap",
-                "()Lorg/talend/sdk/component/api/processor/data/ObjectMap;", null, null);
+                    "()Lorg/talend/sdk/component/api/processor/data/ObjectMap;", null, null);
             getObjectMap.visitCode();
             getObjectMap.visitVarInsn(ALOAD, 0);
             getObjectMap.visitFieldInsn(GETFIELD, classFileName, "this$map",
-                "Lorg/talend/sdk/component/api/processor/data/ObjectMap;");
+                    "Lorg/talend/sdk/component/api/processor/data/ObjectMap;");
             getObjectMap.visitInsn(ARETURN);
             getObjectMap.visitMaxs(1, 1);
             getObjectMap.visitEnd();
@@ -258,14 +260,15 @@ public class ProxyGenerator implements Serializable {
             createObjectMapConstructor(cw, superClassName, classFileName, classToProxy.getConstructor());
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException(
-                classToProxy + " can't be proxied, check your chain. Did you use ObjectMap as intended?");
+                    classToProxy + " can't be proxied, check your chain. Did you use ObjectMap as intended?");
         }
 
         proxyGetters(cw, classFileName,
-            Stream.of(classToProxy.getMethods())
-                .filter(m -> (m.getName().startsWith("get") || m.getName().startsWith("is"))
-                    && m.getParameterCount() == 0 && m.getReturnType() != void.class)
-                .filter(m -> !unproxyableMethod(m)));
+                Stream
+                        .of(classToProxy.getMethods())
+                        .filter(m -> (m.getName().startsWith("get") || m.getName().startsWith("is"))
+                                && m.getParameterCount() == 0 && m.getReturnType() != void.class)
+                        .filter(m -> !unproxyableMethod(m)));
 
         return Unsafes.defineAndLoadClass(loader, proxyClassName, cw.toByteArray());
     }
@@ -273,10 +276,10 @@ public class ProxyGenerator implements Serializable {
     private void proxyGetters(final ClassWriter cw, final String classFileName, final Stream<Method> getters) {
         getters.forEach(m -> {
             final String key = Introspector
-                .decapitalize(m.getName().substring((m.getName().startsWith("get") ? "get" : "is").length()));
+                    .decapitalize(m.getName().substring((m.getName().startsWith("get") ? "get" : "is").length()));
 
             final MethodVisitor mv =
-                cw.visitMethod(ACC_PUBLIC, m.getName(), "()" + Type.getDescriptor(m.getReturnType()), null, null);
+                    cw.visitMethod(ACC_PUBLIC, m.getName(), "()" + Type.getDescriptor(m.getReturnType()), null, null);
             mv.visitCode();
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, classFileName, "this$map", "L" + OBJECT_MAP_NAME + ";");
@@ -285,7 +288,7 @@ public class ProxyGenerator implements Serializable {
             mv.visitTypeInsn(CHECKCAST, getCastType(m.getReturnType()));
             if (m.getReturnType().isPrimitive()) {
                 mv.visitMethodInsn(INVOKEVIRTUAL, getWrapperType(m.getReturnType()),
-                    getPrimitiveMethod(m.getReturnType()), "()" + Type.getDescriptor(m.getReturnType()), false);
+                        getPrimitiveMethod(m.getReturnType()), "()" + Type.getDescriptor(m.getReturnType()), false);
             } // else todo: nested support generating/getting nested subclasses etc
             mv.visitInsn(getReturnInsn(m.getReturnType()));
             mv.visitMaxs(-1, -1);
@@ -294,7 +297,7 @@ public class ProxyGenerator implements Serializable {
     }
 
     private void createObjectMapConstructor(final ClassWriter cw, final String parentClassFileName,
-        final String classFileName, final Constructor<?> constructor) {
+            final String classFileName, final Constructor<?> constructor) {
         final String[] exceptions = new String[constructor.getExceptionTypes().length];
         for (int i = 0; i < exceptions.length; i++) {
             exceptions[i] = Type.getInternalName(constructor.getExceptionTypes()[i]);
@@ -316,7 +319,7 @@ public class ProxyGenerator implements Serializable {
         final int modifiers = delegatedMethod.getModifiers();
 
         return (modifiers & (Modifier.PRIVATE | Modifier.STATIC | Modifier.FINAL | Modifier.NATIVE)) > 0
-            || "finalize".equals(delegatedMethod.getName()) || delegatedMethod.isBridge();
+                || "finalize".equals(delegatedMethod.getName()) || delegatedMethod.isBridge();
     }
 
     private String getWrapperType(final Class<?> type) {
@@ -424,11 +427,12 @@ public class ProxyGenerator implements Serializable {
     }
 
     private static class VersionVisitor extends EmptyVisitor {
+
         private int version;
 
         @Override
         public void visit(final int version, final int access, final String name, final String signature,
-            final String superName, final String[] interfaces) {
+                final String superName, final String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
             this.version = version;
         }

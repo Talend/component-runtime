@@ -48,12 +48,12 @@ public class SimpleFactory {
             return emptyMap();
         }
         final ParameterMeta params = new SimpleParameterModelService().build(prefix, prefix, instance.getClass(),
-            new Annotation[0], instance.getClass().getPackage().getName());
+                new Annotation[0], instance.getClass().getPackage().getName());
         return computeConfiguration(params.getNestedParameters(), prefix, instance);
     }
 
     private static Map<String, String> computeConfiguration(final List<ParameterMeta> nestedParameters,
-        final String prefix, final Object instance) {
+            final String prefix, final Object instance) {
         if (nestedParameters == null) {
             return emptyMap();
         }
@@ -68,12 +68,12 @@ public class SimpleFactory {
                 return computeConfiguration(param.getNestedParameters(), param.getPath() + '.', value);
             case ARRAY:
                 final Collection<Object> values = Collection.class.isInstance(value) ? Collection.class.cast(value)
-                    : /* array */asList(Object[].class.cast(value));
+                        : /* array */asList(Object[].class.cast(value));
                 final AtomicInteger index = new AtomicInteger(0);
                 return values.stream().map(item -> {
                     final int idx = index.getAndIncrement();
                     if (param.getNestedParameters().size() == 1
-                        && isPrimitive(param.getNestedParameters().iterator().next())) {
+                            && isPrimitive(param.getNestedParameters().iterator().next())) {
                         return singletonMap(param.getPath() + "[" + idx + "]", item.toString());
                     }
                     return computeConfiguration(param.getNestedParameters(), param.getPath() + "[" + idx + "].", item);
@@ -85,8 +85,10 @@ public class SimpleFactory {
     }
 
     private static boolean isPrimitive(final ParameterMeta next) {
-        return Stream.of(ParameterMeta.Type.STRING, ParameterMeta.Type.BOOLEAN, ParameterMeta.Type.ENUM,
-            ParameterMeta.Type.NUMBER).anyMatch(v -> v == next.getType());
+        return Stream
+                .of(ParameterMeta.Type.STRING, ParameterMeta.Type.BOOLEAN, ParameterMeta.Type.ENUM,
+                        ParameterMeta.Type.NUMBER)
+                .anyMatch(v -> v == next.getType());
     }
 
     private static Object getValue(final Object instance, final String name) {
@@ -120,7 +122,7 @@ public class SimpleFactory {
     private static class SimpleParameterModelService extends ParameterModelService {
 
         private ParameterMeta build(final String name, final String prefix, final Type genericType,
-            final Annotation[] annotations, final String i18nPackage) {
+                final Annotation[] annotations, final String i18nPackage) {
             return super.buildParameter(name, prefix, genericType, annotations, i18nPackage);
         }
     };

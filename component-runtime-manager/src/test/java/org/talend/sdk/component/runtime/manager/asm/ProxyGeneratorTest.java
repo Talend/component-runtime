@@ -45,7 +45,7 @@ public class ProxyGeneratorTest {
 
             final ProxyGenerator generator = new ProxyGenerator();
             final Class<?> proxyType = generator.generateProxy(Thread.currentThread().getContextClassLoader(),
-                CatService.class, "test", CatService.class.getName());
+                    CatService.class, "test", CatService.class.getName());
             assertNotNull(proxyType);
 
             final Object proxy = proxyType.getConstructor().newInstance();

@@ -49,7 +49,7 @@ public class GradleBuildGenerator implements BuildGenerator {
 
     @Override
     public Build createBuild(final ProjectRequest.BuildConfiguration buildConfiguration, final String packageBase,
-        final Collection<Dependency> dependencies, final Collection<String> facets) {
+            final Collection<Dependency> dependencies, final Collection<String> facets) {
 
         final Set<String> buildDependencies = new TreeSet<>();
         final List<String> configurations = new ArrayList<>();
@@ -64,22 +64,25 @@ public class GradleBuildGenerator implements BuildGenerator {
             imports.add("org.apache.cxf.tools.wadlto.WADLToJava");
 
             tasks.add("def wadlGeneratedFolder = \"$buildDir/generated-sources/cxf\"\n" + "task generateWadlClient {\n"
-                + "  def wadl = \"$projectDir/src/main/resources/wadl/client.xml\"\n" + "\n" + "  inputs.file(wadl)\n"
-                + "  outputs.dir(wadlGeneratedFolder)\n" + "\n" + "  doLast {\n"
-                + "    new File(wadlGeneratedFolder).mkdirs()\n" + "\n" + "    new WADLToJava([\n"
-                + "      \"-d\", wadlGeneratedFolder,\n" + "      \"-p\", \"com.application.client.wadl\",\n"
-                + "      wadl\n" + "    ] as String[]).run(new ToolContext())\n" + "  }\n" + "}");
+                    + "  def wadl = \"$projectDir/src/main/resources/wadl/client.xml\"\n" + "\n"
+                    + "  inputs.file(wadl)\n" + "  outputs.dir(wadlGeneratedFolder)\n" + "\n" + "  doLast {\n"
+                    + "    new File(wadlGeneratedFolder).mkdirs()\n" + "\n" + "    new WADLToJava([\n"
+                    + "      \"-d\", wadlGeneratedFolder,\n" + "      \"-p\", \"com.application.client.wadl\",\n"
+                    + "      wadl\n" + "    ] as String[]).run(new ToolContext())\n" + "  }\n" + "}");
             javaMainSourceSets.add("srcDir wadlGeneratedFolder");
             javaMainSourceSets.add("project.tasks.compileJava.dependsOn project.tasks.generateWadlClient");
         }
 
         final GradleBuild model = new GradleBuild(buildConfiguration,
-            dependencies.stream().map(d -> "test".equals(d.getScope()) ? new Dependency(d, "testCompile") : d)
-                .map(d -> "runtime".equals(d.getScope()) ? new Dependency(d, "compile") : d).collect(toList()),
-            buildDependencies, configurations, plugins, tasks, imports, javaMainSourceSets);
+                dependencies
+                        .stream()
+                        .map(d -> "test".equals(d.getScope()) ? new Dependency(d, "testCompile") : d)
+                        .map(d -> "runtime".equals(d.getScope()) ? new Dependency(d, "compile") : d)
+                        .collect(toList()),
+                buildDependencies, configurations, plugins, tasks, imports, javaMainSourceSets);
         return new Build(buildConfiguration.getArtifact(), "src/main/java", "src/test/java", "src/main/resources",
-            "src/test/resources", "src/main/webapp", "build.gradle", tpl.render("generator/gradle/build.gradle", model),
-            "build");
+                "src/test/resources", "src/main/webapp", "build.gradle",
+                tpl.render("generator/gradle/build.gradle", model), "build");
     }
 
     @Data

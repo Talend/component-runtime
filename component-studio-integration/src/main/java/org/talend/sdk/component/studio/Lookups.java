@@ -68,7 +68,7 @@ public class Lookups {
 
     private static <T> T lookup(final Class<T> type) {
         final BundleContext context =
-            Platform.getBundle("org.talend.sdk.component.studio-integration").getBundleContext();
+                Platform.getBundle("org.talend.sdk.component.studio-integration").getBundleContext();
         final ServiceReference<T> clientRef = context.getServiceReference(type);
         return context.getService(clientRef);
     }
@@ -86,25 +86,25 @@ public class Lookups {
                         if (wizardService == null) {
                             final WizardRegistry customService = new WizardRegistry();
                             wizardService = IGenericWizardService.class
-                                .cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                                    service.getClass().getInterfaces(), (proxy, method, args) -> {
-                                        try {
-                                            final Object invoke = method.invoke(service, args);
-                                            switch (method.getName()) {
-                                            case "createNodesFromComponentService":
-                                                if (args[0] != null) {
-                                                    final Collection<RepositoryNode> nodes =
-                                                        customService.createNodes(RepositoryNode.class.cast(args[0]));
-                                                    Collection.class.cast(invoke).addAll(nodes);
+                                    .cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                                            service.getClass().getInterfaces(), (proxy, method, args) -> {
+                                                try {
+                                                    final Object invoke = method.invoke(service, args);
+                                                    switch (method.getName()) {
+                                                    case "createNodesFromComponentService":
+                                                        if (args[0] != null) {
+                                                            final Collection<RepositoryNode> nodes = customService
+                                                                    .createNodes(RepositoryNode.class.cast(args[0]));
+                                                            Collection.class.cast(invoke).addAll(nodes);
+                                                        }
+                                                        return invoke;
+                                                    default:
+                                                        return invoke;
+                                                    }
+                                                } catch (final InvocationTargetException ite) {
+                                                    throw ite.getTargetException();
                                                 }
-                                                return invoke;
-                                            default:
-                                                return invoke;
-                                            }
-                                        } catch (final InvocationTargetException ite) {
-                                            throw ite.getTargetException();
-                                        }
-                                    }));
+                                            }));
                         }
                     }
                 }

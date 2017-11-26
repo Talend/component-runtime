@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.avro;
 
@@ -64,9 +64,16 @@ public class ComponentModelToIndexeredRecordConverterTest {
 
     @Test
     public void indexedRecordToPojoArray() {
-        final GenericData.Record data = new GenericData.Record(
-            SchemaBuilder.record("ComponentModelToIndexeredRecordConverterTest.indexedRecordToPojoArray.array").fields()
-                .name("values").type().array().items().stringType().noDefault().endRecord());
+        final GenericData.Record data = new GenericData.Record(SchemaBuilder
+                .record("ComponentModelToIndexeredRecordConverterTest.indexedRecordToPojoArray.array")
+                .fields()
+                .name("values")
+                .type()
+                .array()
+                .items()
+                .stringType()
+                .noDefault()
+                .endRecord());
         data.put(0, new GenericData.Array<>(data.getSchema().getField("values").schema(), asList("first", "second")));
 
         final MyList pojo = converter.reverseMapping(new SubclassesCache(), data, MyList.class);
@@ -77,10 +84,23 @@ public class ComponentModelToIndexeredRecordConverterTest {
 
     @Test
     public void indexedRecordToPojoFlat() {
-        final GenericData.Record data = new GenericData.Record(
-            SchemaBuilder.record("ComponentModelToIndexeredRecordConverterTest.indexedRecordToPojoFlat.flat").fields()
-                .name("name").type().stringType().noDefault().name("age").type().intType().noDefault()
-                .name("optionalXp").type().nullable().intType().noDefault().endRecord());
+        final GenericData.Record data = new GenericData.Record(SchemaBuilder
+                .record("ComponentModelToIndexeredRecordConverterTest.indexedRecordToPojoFlat.flat")
+                .fields()
+                .name("name")
+                .type()
+                .stringType()
+                .noDefault()
+                .name("age")
+                .type()
+                .intType()
+                .noDefault()
+                .name("optionalXp")
+                .type()
+                .nullable()
+                .intType()
+                .noDefault()
+                .endRecord());
         data.put(0, "test");
         data.put(1, 30);
         data.put(2, 300);
@@ -97,12 +117,28 @@ public class ComponentModelToIndexeredRecordConverterTest {
 
     @Test
     public void indexedRecordToPojoNested() {
-        final Schema aggregateSchema =
-            SchemaBuilder.record("ComponentModelToIndexeredRecordConverterTest.indexedRecordToPojoNested.root").fields()
-                .name("name").type().stringType().noDefault().name("nested").type()
-                .record("ComponentModelToIndexeredRecordConverterTest.indexedRecordToPojoNested.nested").fields()
-                .name("name").type().stringType().noDefault().name("age").type().intType().noDefault().endRecord()
-                .noDefault().endRecord();
+        final Schema aggregateSchema = SchemaBuilder
+                .record("ComponentModelToIndexeredRecordConverterTest.indexedRecordToPojoNested.root")
+                .fields()
+                .name("name")
+                .type()
+                .stringType()
+                .noDefault()
+                .name("nested")
+                .type()
+                .record("ComponentModelToIndexeredRecordConverterTest.indexedRecordToPojoNested.nested")
+                .fields()
+                .name("name")
+                .type()
+                .stringType()
+                .noDefault()
+                .name("age")
+                .type()
+                .intType()
+                .noDefault()
+                .endRecord()
+                .noDefault()
+                .endRecord();
 
         final GenericData.Record nestedData = new GenericData.Record(aggregateSchema.getField("nested").schema());
         nestedData.put(0, "nest");
@@ -134,7 +170,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
         assertEquals(complex.getName(), record.get(record.getSchema().getField("name").pos()));
 
         final IndexedRecord nestedRecord =
-            IndexedRecord.class.cast(record.get(record.getSchema().getField("nested").pos()));
+                IndexedRecord.class.cast(record.get(record.getSchema().getField("nested").pos()));
         assertEquals(complex.getNested().getAge(), nestedRecord.get(nestedRecord.getSchema().getField("age").pos()));
         assertEquals(complex.getNested().getName(), nestedRecord.get(nestedRecord.getSchema().getField("name").pos()));
     }
@@ -172,12 +208,12 @@ public class ComponentModelToIndexeredRecordConverterTest {
         assertNotNull(record);
         final Object value = record.get(record.getSchema().getField("value").pos());
         final BigDecimal converted =
-            converter.reverseMapping(new SubclassesCache(), new GenericData.Record(record.getSchema()) {
+                converter.reverseMapping(new SubclassesCache(), new GenericData.Record(record.getSchema()) {
 
-                {
-                    put(0, "10");
-                }
-            }, StringableModel.class).getValue();
+                    {
+                        put(0, "10");
+                    }
+                }, StringableModel.class).getValue();
         assertNotSame(value, converted);
         assertEquals(myModel.getValue(), value);
         assertEquals(myModel.getValue(), converted);
@@ -199,7 +235,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
         assertNotNull(record);
         assertEquals(asList("a1", "b2"), record.get(record.getSchema().getField("strings").pos()));
         final GenericArray<IndexedRecord> models =
-            GenericArray.class.cast(record.get(record.getSchema().getField("models").pos()));
+                GenericArray.class.cast(record.get(record.getSchema().getField("models").pos()));
         assertEquals(1, models.size());
 
         final IndexedRecord first = models.iterator().next();
@@ -218,10 +254,10 @@ public class ComponentModelToIndexeredRecordConverterTest {
         final IndexedRecord record = converter.map(myModel);
         assertNotNull(record);
         final IndexedRecord nestedIR =
-            IndexedRecord.class.cast(record.get(record.getSchema().getField("nested").pos()));
+                IndexedRecord.class.cast(record.get(record.getSchema().getField("nested").pos()));
         assertNotNull(nestedIR);
         final IndexedRecord parent =
-            IndexedRecord.class.cast(nestedIR.get(nestedIR.getSchema().getField("parent").pos()));
+                IndexedRecord.class.cast(nestedIR.get(nestedIR.getSchema().getField("parent").pos()));
         assertSame(parent, record);
     }
 
@@ -240,10 +276,10 @@ public class ComponentModelToIndexeredRecordConverterTest {
         assertNotNull(record);
         assertEquals("parent", record.get(record.getSchema().getField("name").pos()));
         final IndexedRecord wrapper =
-            IndexedRecord.class.cast(record.get(record.getSchema().getField("wrapper").pos()));
+                IndexedRecord.class.cast(record.get(record.getSchema().getField("wrapper").pos()));
 
         final GenericArray<IndexedRecord> list =
-            GenericArray.class.cast(wrapper.get(wrapper.getSchema().getField("records").pos()));
+                GenericArray.class.cast(wrapper.get(wrapper.getSchema().getField("records").pos()));
         assertEquals(1, list.size());
 
         final IndexedRecord first = list.iterator().next();

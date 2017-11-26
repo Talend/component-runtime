@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.avro;
 
@@ -50,15 +50,15 @@ public class SchemaDiscovererTest {
     @Test
     public void populateSchema() {
         final Schema schema = new SchemaDiscoverer().populateSchema("test-classes", "avrotest", "default", "schema",
-            "testid", new HashMap<>());
+                "testid", new HashMap<>());
         assertEquals("testid", schema.getName());
         assertEquals(3, schema.getFields().size());
         final Iterator<Schema.Field> fields = schema.getFields().iterator();
         assertField(fields, "value",
-            SchemaBuilder.builder().unionOf().nullType().and().stringType().endUnion().getTypes());
+                SchemaBuilder.builder().unionOf().nullType().and().stringType().endUnion().getTypes());
         assertField(fields, "age", SchemaBuilder.builder().unionOf().nullType().and().intType().endUnion().getTypes());
         assertField(fields, "amount",
-            SchemaBuilder.builder().unionOf().nullType().and().doubleType().endUnion().getTypes());
+                SchemaBuilder.builder().unionOf().nullType().and().doubleType().endUnion().getTypes());
     }
 
     private void assertField(final Iterator<Schema.Field> fields, final String name, final Collection<Schema> schemas) {
@@ -74,9 +74,9 @@ public class SchemaDiscovererTest {
         @DiscoverSchema(family = "avrotest")
         public org.talend.sdk.component.api.service.schema.Schema find(/* todo */) {
             return new org.talend.sdk.component.api.service.schema.Schema(
-                asList(new org.talend.sdk.component.api.service.schema.Schema.Entry("value", Type.STRING),
-                    new org.talend.sdk.component.api.service.schema.Schema.Entry("age", Type.INT),
-                    new org.talend.sdk.component.api.service.schema.Schema.Entry("amount", Type.DOUBLE)));
+                    asList(new org.talend.sdk.component.api.service.schema.Schema.Entry("value", Type.STRING),
+                            new org.talend.sdk.component.api.service.schema.Schema.Entry("age", Type.INT),
+                            new org.talend.sdk.component.api.service.schema.Schema.Entry("amount", Type.DOUBLE)));
         }
     }
 }

@@ -37,32 +37,32 @@ public class ComponentResourceBundleControlProviderTest {
 
         @Override
         protected void before() throws Throwable {
-            callback =
-                ProviderLocator.instance().register(Thread.currentThread().getContextClassLoader(), new BaseProvider() {
+            callback = ProviderLocator.instance().register(Thread.currentThread().getContextClassLoader(),
+                    new BaseProvider() {
 
-                    @Override
-                    protected ResourceBundle createBundle(final String baseName, final Locale locale) {
-                        return new BaseBundle() {
+                        @Override
+                        protected ResourceBundle createBundle(final String baseName, final Locale locale) {
+                            return new BaseBundle() {
 
-                            private int incr = 1;
+                                private int incr = 1;
 
-                            @Override
-                            protected Set<String> doGetKeys() {
-                                return Collections.singleton("thekey");
-                            }
+                                @Override
+                                protected Set<String> doGetKeys() {
+                                    return Collections.singleton("thekey");
+                                }
 
-                            @Override
-                            protected Object handleGetObject(final String key) {
-                                return "thekey".equals(key) ? "thevalue" + incr++ : null;
-                            }
-                        };
-                    }
+                                @Override
+                                protected Object handleGetObject(final String key) {
+                                    return "thekey".equals(key) ? "thevalue" + incr++ : null;
+                                }
+                            };
+                        }
 
-                    @Override
-                    protected boolean supports(final String baseName) {
-                        return "test".equals(baseName);
-                    }
-                });
+                        @Override
+                        protected boolean supports(final String baseName) {
+                            return "test".equals(baseName);
+                        }
+                    });
         }
 
         @Override

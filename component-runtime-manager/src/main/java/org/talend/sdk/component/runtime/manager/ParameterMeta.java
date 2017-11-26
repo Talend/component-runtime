@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager;
 
@@ -65,8 +65,11 @@ public class ParameterMeta {
     private final ConcurrentMap<Locale, ParameterBundle> bundles = new ConcurrentHashMap<>();
 
     public ParameterBundle findBundle(final ClassLoader loader, final Locale locale) {
-        final Class<?> type = of(javaType).filter(Class.class::isInstance).map(Class.class::cast)
-            .filter(c -> !c.getName().startsWith("java.")).orElse(null);
+        final Class<?> type = of(javaType)
+                .filter(Class.class::isInstance)
+                .map(Class.class::cast)
+                .filter(c -> !c.getName().startsWith("java."))
+                .orElse(null);
         final String packageName = ofNullable(type).map(Class::getPackage).map(Package::getName).orElse(i18nPackage);
         return bundles.computeIfAbsent(locale, l -> {
             try {
@@ -76,7 +79,7 @@ public class ParameterMeta {
                 return new ParameterBundle(bundle, path + '.');
             } catch (final MissingResourceException mre) {
                 log.warn("No bundle for " + packageName + " (" + ParameterMeta.this
-                    + "), means the display names will be the technical names");
+                        + "), means the display names will be the technical names");
                 log.debug(mre.getMessage(), mre);
                 return NO_PARAMETER_BUNDLE;
             }
@@ -84,6 +87,11 @@ public class ParameterMeta {
     }
 
     public enum Type {
-                      OBJECT, ARRAY, BOOLEAN, STRING, NUMBER, ENUM
+        OBJECT,
+        ARRAY,
+        BOOLEAN,
+        STRING,
+        NUMBER,
+        ENUM
     }
 }

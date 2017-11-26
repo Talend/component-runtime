@@ -74,16 +74,17 @@ public class ContainerManagerTest {
 
     @Test
     public void autoContainerId() {
-        Stream.of("ziplock-7.00.3.jar", "ziplock-7.3.jar", "ziplock-7.3-SNAPSHOT.jar", "ziplock-7.3.0-SNAPSHOT.jar")
-            .forEach(jarName -> {
-                try (final ContainerManager manager = createDefaultManager()) {
-                    final File module = createZiplockJar();
-                    final File jar = new File(module.getParentFile(), jarName);
-                    assertTrue(module.renameTo(jar));
-                    final Container container = manager.create(jar.getAbsolutePath());
-                    assertEquals("ziplock"/* no version, no .jar */, container.getId());
-                }
-            });
+        Stream
+                .of("ziplock-7.00.3.jar", "ziplock-7.3.jar", "ziplock-7.3-SNAPSHOT.jar", "ziplock-7.3.0-SNAPSHOT.jar")
+                .forEach(jarName -> {
+                    try (final ContainerManager manager = createDefaultManager()) {
+                        final File module = createZiplockJar();
+                        final File jar = new File(module.getParentFile(), jarName);
+                        assertTrue(module.renameTo(jar));
+                        final Container container = manager.create(jar.getAbsolutePath());
+                        assertEquals("ziplock"/* no version, no .jar */, container.getId());
+                    }
+                });
     }
 
     @Test
@@ -130,10 +131,10 @@ public class ContainerManagerTest {
     }
 
     private ContainerManager createDefaultManager() {
-        return new ContainerManager(
-            ContainerManager.DependenciesResolutionConfiguration.builder()
+        return new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
+                .builder()
                 .resolver(new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH))
-                .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION)).create(),
-            ContainerManager.ClassLoaderConfiguration.builder().create());
+                .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION))
+                .create(), ContainerManager.ClassLoaderConfiguration.builder().create());
     }
 }

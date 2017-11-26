@@ -29,7 +29,7 @@ public class IdGenerator {
      *
      * @param args
      * @return a {@link Base64} url encoded string from the strings parameter joined
-     *         by #
+     * by #
      */
     public static String get(final String... args) {
 
@@ -37,8 +37,8 @@ public class IdGenerator {
             return null;
         }
 
-        return Base64.getUrlEncoder().withoutPadding()
-            .encodeToString(stream(args).collect(joining("#")).getBytes(StandardCharsets.UTF_8));
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(
+                stream(args).collect(joining("#")).getBytes(StandardCharsets.UTF_8));
     }
 
 }

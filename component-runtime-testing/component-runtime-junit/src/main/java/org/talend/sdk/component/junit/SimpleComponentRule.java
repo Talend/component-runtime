@@ -86,14 +86,14 @@ public class SimpleComponentRule implements TestRule {
      * Collects all outputs of a processor.
      *
      * @param processor
-     *            the processor to run while there are inputs.
+     * the processor to run while there are inputs.
      * @param inputs
-     *            the input factory, when an input will return null it will stop the
-     *            processing.
+     * the input factory, when an input will return null it will stop the
+     * processing.
      * @param bundleSize
-     *            the bundle size to use.
+     * the bundle size to use.
      * @return a map where the key is the output name and the value a stream of the
-     *         output values.
+     * output values.
      */
     public Outputs collect(final Processor processor, final ControllableInputFactory inputs, final int bundleSize) {
         final AutoChunkProcessor autoChunkProcessor = new AutoChunkProcessor(bundleSize, processor);
@@ -121,14 +121,14 @@ public class SimpleComponentRule implements TestRule {
      * {@see org.talend.sdk.component.runtime.input.Input} is closed.
      *
      * @param recordType
-     *            the record type to use to type the returned type.
+     * the record type to use to type the returned type.
      * @param mapper
-     *            the mapper to go through.
+     * the mapper to go through.
      * @param maxRecords
-     *            maximum number of records, allows to stop the source when
-     *            infinite.
+     * maximum number of records, allows to stop the source when
+     * infinite.
      * @param <T>
-     *            the returned type of the records of the mapper.
+     * the returned type of the records of the mapper.
      * @return all the records emitted by the mapper.
      */
     public <T> Stream<T> collect(final Class<T> recordType, final Mapper mapper, final int maxRecords) {
@@ -142,7 +142,7 @@ public class SimpleComponentRule implements TestRule {
             return Stream.empty();
         case 1:
             return asStream(
-                asIterator(mappers.iterator().next().create(), mapper::stop, new AtomicInteger(maxRecords)));
+                    asIterator(mappers.iterator().next().create(), mapper::stop, new AtomicInteger(maxRecords)));
         default:
             final ExecutorService es = Executors.newFixedThreadPool(mappers.size());
             final Runnable cleaner = new Runnable() {
@@ -170,8 +170,8 @@ public class SimpleComponentRule implements TestRule {
                         final int timeout = Integer.getInteger("talend.component.junit.timeout", 5);
                         if (!es.awaitTermination(timeout, MINUTES)) {
                             throw new IllegalStateException("Mapper collection lasted for more than " + timeout
-                                + "mn, you can customize "
-                                + "this value setting the system property -Dtalend.component.junit.timeout=x, x in minutes.");
+                                    + "mn, you can customize "
+                                    + "this value setting the system property -Dtalend.component.junit.timeout=x, x in minutes.");
                         }
                     } catch (final InterruptedException e) {
                         Thread.interrupted();
@@ -180,8 +180,11 @@ public class SimpleComponentRule implements TestRule {
                 }
             };
             final AtomicInteger recordCounter = new AtomicInteger(maxRecords);
-            return mappers.stream().map(m -> asIterator(m.create(), cleaner, recordCounter)).map(this::asStream)
-                .collect(Stream::empty, Stream::concat, Stream::concat);
+            return mappers
+                    .stream()
+                    .map(m -> asIterator(m.create(), cleaner, recordCounter))
+                    .map(this::asStream)
+                    .collect(Stream::empty, Stream::concat, Stream::concat);
         }
     }
 
@@ -245,30 +248,45 @@ public class SimpleComponentRule implements TestRule {
     }
 
     private <C, T, A> A create(final Class<A> api, final Class<T> componentType, final C configuration) {
-        return api.cast(asManager().find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
-            .flatMap(f -> Stream.concat(f.getProcessors().values().stream(), f.getPartitionMappers().values().stream()))
-            .filter(m -> m.getType().getName().equals(componentType.getName())).findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("No component " + componentType)).getInstantiator()
-            .apply(configurationByExample(configuration)));
+        return api.cast(asManager()
+                .find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
+                .flatMap(f -> Stream.concat(f.getProcessors().values().stream(),
+                        f.getPartitionMappers().values().stream()))
+                .filter(m -> m.getType().getName().equals(componentType.getName()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No component " + componentType))
+                .getInstantiator()
+                .apply(configurationByExample(configuration)));
     }
 
     public <T> List<T> collect(final Class<T> recordType, final String family, final String component,
-        final int version, final Map<String, String> configuration) {
-        ExecutionChainBuilder.start().withConfiguration("test", true)
-            .fromInput(family, component, version, configuration).toProcessor("test", "collector", 1, emptyMap())
-            .create(asManager(), file -> {
-                throw new IllegalArgumentException();
-            }, new CountingSuccessListener(), new ToleratingErrorHandler(0)).get().execute();
+            final int version, final Map<String, String> configuration) {
+        ExecutionChainBuilder
+                .start()
+                .withConfiguration("test", true)
+                .fromInput(family, component, version, configuration)
+                .toProcessor("test", "collector", 1, emptyMap())
+                .create(asManager(), file -> {
+                    throw new IllegalArgumentException();
+                }, new CountingSuccessListener(), new ToleratingErrorHandler(0))
+                .get()
+                .execute();
         return getCollectedData(recordType);
     }
 
     public <T> void process(final Iterable<T> inputs, final String family, final String component, final int version,
-        final Map<String, String> configuration) {
+            final Map<String, String> configuration) {
         setInputData(inputs);
-        ExecutionChainBuilder.start().withConfiguration("test", true).fromInput("test", "emitter", 1, emptyMap())
-            .toProcessor(family, component, version, configuration).create(asManager(), file -> {
-                throw new IllegalArgumentException();
-            }, new CountingSuccessListener(), new ToleratingErrorHandler(0)).get().execute();
+        ExecutionChainBuilder
+                .start()
+                .withConfiguration("test", true)
+                .fromInput("test", "emitter", 1, emptyMap())
+                .toProcessor(family, component, version, configuration)
+                .create(asManager(), file -> {
+                    throw new IllegalArgumentException();
+                }, new CountingSuccessListener(), new ToleratingErrorHandler(0))
+                .get()
+                .execute();
     }
 
     public ComponentManager asManager() {

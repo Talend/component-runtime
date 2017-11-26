@@ -32,11 +32,12 @@ public class SimpleComponentRuleTest {
 
     @ClassRule
     public static final SimpleComponentRule COMPONENT_FACTORY =
-        new SimpleComponentRule("org.talend.sdk.component.junit.component");
+            new SimpleComponentRule("org.talend.sdk.component.junit.component");
 
     @Test
     public void manualMapper() {
         final Mapper mapper = COMPONENT_FACTORY.createMapper(Source.class, new Source.Config() {
+
             {
                 values = asList("a", "b");
             }
@@ -51,6 +52,7 @@ public class SimpleComponentRuleTest {
     @Test
     public void sourceCollector() {
         final Mapper mapper = COMPONENT_FACTORY.createMapper(Source.class, new Source.Config() {
+
             {
                 values = asList("a", "b");
             }
@@ -62,9 +64,9 @@ public class SimpleComponentRuleTest {
     public void processorCollector() {
         final Processor processor = COMPONENT_FACTORY.createProcessor(Transform.class, null);
         final SimpleComponentRule.Outputs outputs = COMPONENT_FACTORY.collect(processor,
-            new JoinInputFactory()
-                .withInput("__default__", asList(new Transform.Record("a"), new Transform.Record("bb")))
-                .withInput("second", asList(new Transform.Record("1"), new Transform.Record("2"))));
+                new JoinInputFactory()
+                        .withInput("__default__", asList(new Transform.Record("a"), new Transform.Record("bb")))
+                        .withInput("second", asList(new Transform.Record("1"), new Transform.Record("2"))));
         assertEquals(2, outputs.size());
         assertEquals(asList(2, 3), outputs.get(Integer.class, "size"));
         assertEquals(asList("a1", "bb2"), outputs.get(String.class, "value"));
