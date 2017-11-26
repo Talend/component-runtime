@@ -1,0 +1,40 @@
+{
+  "v": "4.0",
+  "workspace": {
+    "commands": [],
+    "projects": [
+      {
+        "name": "Talend Component Kit Runtime",
+        "attributes": {
+          "languageVersion": [
+            "1.8"
+          ],
+          "language": [
+            "java"
+          ]
+        },
+        "type": "maven",
+        "source": {
+          "location": "https://github.com/talend/component-runtime.git",
+          "type": "git",
+          "parameters": {
+            "keepVcs": "true",
+            "branch": "master"
+          }
+        },
+        "modules": [],
+        "path": "/Spring",
+        "mixins": [
+          "git"
+        ],
+        "problems": []
+      }
+    ]
+  },
+  "name": "Talend Component Kit Runtime",
+  "creator": {
+    "name": "Talend",
+    "email": "rmannibucau@talend.com"
+  }
+}
+
