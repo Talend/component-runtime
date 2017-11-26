@@ -71,7 +71,8 @@ public interface FacetGenerator {
     enum Category {
         TEST("Test"),
         RUNTIME("Runtime"),
-        LIBRARIES("Libraries");
+        LIBRARIES("Libraries"),
+        TOOL("Tool");
 
         @Getter
         private final String humanName;
