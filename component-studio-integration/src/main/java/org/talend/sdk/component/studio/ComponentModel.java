@@ -45,6 +45,11 @@ import org.talend.sdk.component.studio.model.connector.ConnectorCreatorFactory;
 
 // TODO: finish the impl
 public class ComponentModel extends AbstractBasicComponent {
+    
+    /**
+     * Separator between family and component name
+     */
+    private static final String COMPONENT_SEPARATOR = "/";
 
     private final ComponentIndex index;
 
@@ -118,7 +123,7 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     @Override
     public String getName() {
-        return index.getId().getName();
+        return index.getId().getFamily() + COMPONENT_SEPARATOR + index.getId().getName();
     }
 
     /**
