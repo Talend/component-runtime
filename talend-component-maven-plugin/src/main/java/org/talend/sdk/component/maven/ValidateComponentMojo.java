@@ -106,10 +106,16 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     private boolean validateComponent;
 
     /**
-     * Should datastore healthcheck be enforced.
+     * Should datastore duplication and healthcheck be enforced.
      */
     @Parameter(defaultValue = "true", property = "talend.validation.datastore")
     private boolean validateDataStore;
+
+    /**
+     * Should dataset duplication check be enforced
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.dataset")
+    private boolean validateDataSet;
 
     /**
      * Should action signatures be validated.
@@ -214,16 +220,11 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         if (validateDataStore) {
             final List<String> datastores = finder.findAnnotatedClasses(DataStore.class).stream()
                                                   .map(d -> d.getAnnotation(DataStore.class).value()).collect(toList());
-
             Set<String> uniqueDatastores = new HashSet<>(datastores);
-
             if (datastores.size() != uniqueDatastores.size()) {
                 throw new MojoExecutionException("Duplicated DataStore found : " + datastores
-                        .stream()
-                        .collect(groupingBy(identity()))
-                        .entrySet()
-                        .stream()
-                        .filter(e -> e.getValue().size() > 1).map(Map.Entry::getKey).collect(joining(", ")));
+                        .stream().collect(groupingBy(identity())).entrySet()
+                        .stream().filter(e -> e.getValue().size() > 1).map(Map.Entry::getKey).collect(joining(", ")));
             }
 
             final Set<String> healthchecks = finder.findAnnotatedMethods(HealthCheck.class).stream()
@@ -234,6 +235,17 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
                 throw new MojoExecutionException("No @HealthCheck for " + missing + " datastores");
             }
 
+        }
+
+        if (validateDataSet) {
+            final List<String> datasets = finder.findAnnotatedClasses(DataSet.class).stream()
+                                                .map(d -> d.getAnnotation(DataSet.class).value()).collect(toList());
+            Set<String> uniqueDatasets = new HashSet<>(datasets);
+            if (datasets.size() != uniqueDatasets.size()) {
+                throw new MojoExecutionException("Duplicated DataSet found : " + datasets
+                        .stream().collect(groupingBy(identity())).entrySet()
+                        .stream().filter(e -> e.getValue().size() > 1).map(Map.Entry::getKey).collect(joining(", ")));
+            }
         }
 
         if (validateActions) {

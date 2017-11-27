@@ -13,12 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@Components(family = "demo")
+@Icon(Icon.IconType.DEFAULT)
 package org.superbiz;
 
-import java.io.Serializable;
-
-import org.talend.sdk.component.api.configuration.type.DataStore;
-
-@DataStore
-public class DuplicatedDataStore implements Serializable {
-}
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Components;
