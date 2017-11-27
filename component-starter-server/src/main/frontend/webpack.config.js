@@ -276,6 +276,66 @@ module.exports = {
             }),
             //exclude: /@talend/,
           },
+          {
+            test: /\.woff?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+            use: [
+              {
+                loader: 'url-loader',
+                options: {
+                  limit: 3801090,
+                  mimetype: 'application/font-woff'
+                }
+              }
+            ]
+          },
+          {
+            test: /\.woff2?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+            use: [
+              {
+                loader: 'url-loader',
+                options: {
+                  limit: 3801090,
+                  mimetype: 'application/font-woff2'
+                }
+              }
+            ]
+          },
+          {
+            test: /\.ttf(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+            use: [
+              {
+                loader: 'file-loader',
+                options: {
+                  limit: 3801090,
+                  mimetype: 'application/x-font-truetype'
+                }
+              }
+            ]
+          },
+          {
+            test: /\.eot(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+            use: [
+              {
+                loader: 'file-loader',
+                options: {
+                  limit: 3801090,
+                  mimetype: 'application/vnd.ms-fontobject'
+                }
+              }
+            ]
+          },
+          {
+            test: /\.svg(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+            use: [
+              {
+                loader: 'file-loader',
+                options: {
+                  limit: 3801090,
+                  mimetype: 'image/svg+xml'
+                }
+              }
+            ]
+          },
           // "file" loader makes sure assets end up in the `build` folder.
           // When you `import` an asset, you get its filename.
           // This loader don't uses a "test" so it will catch all modules

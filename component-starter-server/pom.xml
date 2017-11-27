@@ -73,6 +73,11 @@
       <artifactId>jmustache</artifactId>
       <version>1.13</version>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>4.9.0.201710071750-r</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.meecrowave</groupId>

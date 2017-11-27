@@ -14,12 +14,28 @@
  *  limitations under the License.
  */
 
+.error {
+  color: red;
+}
+
+.modal {
+  div.field {
+   padding-top: 1rem;
+
+   &:first-child {
+     padding-top: 0;
+   }
+  }
+
+  label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ccc;
+  }
+}
+
 .Finish {
   height: calc(100vh - 48px);
-
-  summary {
-
-  }
 
   .bigButton {
     display: flex;
@@ -27,7 +43,12 @@
     justify-content: center;
     align-items: center;
 
+    i {
+      padding-right: 1rem;
+    }
+
     > button {
+      margin: 1rem;
       font-size: 25px;
     }
   }

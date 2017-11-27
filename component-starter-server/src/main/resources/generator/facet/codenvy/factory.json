@@ -1,7 +1,6 @@
 {
   "v": "4.0",
   "workspace": {
-    "commands": [],
     "projects": [
       {
         "name": "{{name}}",
@@ -15,7 +14,7 @@
         },
         "type": "maven",
         "source": {
-          "location": "https://github.com/{{company}}/{{artifact}}.git",
+          "location": "https://github.com/@organization@/@repository@.git",
           "type": "git",
           "parameters": {
             "keepVcs": "true",
@@ -29,7 +28,30 @@
         ],
         "problems": []
       }
-    ]
+    ],
+    "defaultEnv": "wss",
+    "name": "wss",
+    "environments": {
+      "wss": {
+        "machines": {
+          "dev-machine": {
+            "agents": [
+              "org.eclipse.che.terminal",
+              "org.eclipse.che.ws-agent",
+              "org.eclipse.che.ssh"
+            ],
+            "servers": {},
+            "attributes": {
+              "memoryLimitBytes": "2147483648"
+            }
+          }
+        },
+        "recipe": {
+          "location": "codenvy/ubuntu_jdk8",
+          "type": "dockerimage"
+        }
+      }
+    }
   },
   "name": "{{name}}",
   "creator": {
