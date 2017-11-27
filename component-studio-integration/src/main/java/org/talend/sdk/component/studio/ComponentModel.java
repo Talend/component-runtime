@@ -40,8 +40,8 @@ import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.NodeReturn;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
-import org.talend.sdk.component.studio.model.ElementParameterCreator;
 import org.talend.sdk.component.studio.model.connector.ConnectorCreatorFactory;
+import org.talend.sdk.component.studio.model.parameter.ElementParameterCreator;
 
 // TODO: finish the impl
 public class ComponentModel extends AbstractBasicComponent {

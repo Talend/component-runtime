@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.studio.model;
+package org.talend.sdk.component.studio.model.parameter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,9 +36,6 @@ import org.talend.designer.core.model.components.EmfComponent;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.ComponentModel;
-import org.talend.sdk.component.studio.model.parameter.PropertyNode;
-import org.talend.sdk.component.studio.model.parameter.PropertyVisitor;
-import org.talend.sdk.component.studio.model.parameter.SettingsCreator;
 
 /**
  * Creates {@link ComponentModel} {@link ElementParameter} list
