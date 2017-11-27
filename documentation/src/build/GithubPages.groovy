@@ -14,12 +14,16 @@
  *  limitations under the License.
  */
 
+
 import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest
-import org.eclipse.jgit.api.Git
 import org.apache.maven.settings.crypto.SettingsDecrypter
+import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 import static java.util.Collections.singleton
+
+def profile = System.getProperty('github.site.profile', project.properties.getProperty('github.site.profile', 'latest'))
+log.info("Site deployment profile: ${profile}")
 
 def source = new File(project.build.directory, project.build.finalName)
 
@@ -49,14 +53,48 @@ def git = Git.cloneRepository()
         .setBranch(branch)
         .call()
 
+def isLatest = 'latest' == profile
 def ant = new AntBuilder()
-ant.copy(todir: workDir.absolutePath, overwrite: true) { fileset(dir: source.absolutePath) }
-// versionned version to keep an history - we can need to add version links later on on the main page
-// note: this is not yet a need since we'll not break anything for now
-ant.copy(todir: new File(workDir, project.version).absolutePath, overwrite: true) { fileset(dir: source.absolutePath) }
 
+def versions = new StringBuilder()
+def root = System.getProperty('jbake.site.rootpath', project.properties.getProperty('jbake.site.rootpath'))
+workDir.listFiles(new FilenameFilter() {
+    private final Collection<String> excluded = ['css', 'images', 'js', 'presentations', 'tags', 'latest', 'current']
 
+    @Override
+    boolean accept(File dir, String name) {
+        return !name.startsWith(".") && !name.endsWith("-SNAPSHOT") && !excluded.contains(name) && new File(dir, name).isDirectory()
+    }
+}).each {
+    versions.append("            <li><a href=\"${root}/${it.name}/index.html\">${it.name}</a></li>\n")
+}
+
+if (isLatest) {
+    ant.copy(todir: new File(workDir, 'latest').absolutePath, overwrite: true) {
+        filterset(begintoken: "<!-- ", endtoken: ' -->') {
+            filter(token: 'VERSIONS', value: "${versions.toString()}")
+        }
+        fileset(dir: source.absolutePath)
+    }
+} else {
+    ant.copy(todir: workDir.absolutePath, overwrite: true) {
+        filterset(begintoken: "<!-- ", endtoken: ' -->') {
+            filter(token: 'VERSIONS', value: "${versions.toString()}")
+        }
+        fileset(dir: source.absolutePath)
+    }
+    // versionned version to keep an history - we can need to add version links later on on the main page
+    // note: this is not yet a need since we'll not break anything for now
+    ant.copy(todir: new File(workDir, project.version).absolutePath, overwrite: true) {
+        filterset(begintoken: "<!-- ", endtoken: ' -->') {
+            filter(token: 'VERSIONS', value: "${versions.toString()}")
+        }
+        fileset(dir: source.absolutePath)
+    }
+}
+
+def message = isLatest ? 'Updating latest website' : "Updating the website with version ${project.version}"
 git.add().addFilepattern(".").call()
-git.commit().setMessage("Updating the website with version ${project.version}").call()
+git.commit().setMessage(message).call()
 git.status().call()
 git.push().setCredentialsProvider(credentialsProvider).add(branch).call()

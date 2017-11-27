@@ -36,6 +36,7 @@
     <asciidoctorj.version>1.6.0-alpha.5</asciidoctorj.version>
     <revealjs.version>3.5.0</revealjs.version>
     <asciidoctor-revealjs.version>1.0.2</asciidoctor-revealjs.version>
+    <jbake.site.rootpath></jbake.site.rootpath>
   </properties>
 
   <dependencies>
@@ -364,6 +365,8 @@
       <properties>
         <github.global.server>github</github.global.server> <!-- matches a server in your settings.xml -->
         <content.rootpath>/component-runtime</content.rootpath>
+        <jbake.site.rootpath>/component-runtime</jbake.site.rootpath>
+        <github.site.profile>release</github.site.profile>
       </properties>
 
       <build>
