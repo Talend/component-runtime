@@ -1,0 +1,130 @@
+{
+  "v":"4.0",
+  "name":"{{artifact}}",
+  "workspace":{
+    "defaultEnv":"{{artifact}}",
+    "environments":[
+      {
+        "name":"{{artifact}}",
+        "machineConfigs":[
+          {
+            "limits":{
+              "ram":2000
+            },
+            "name":"dev-machine",
+            "type":"docker",
+            "source":{
+              "content":"FROM codenvy/ubuntu_jdk8",
+              "type":"dockerfile"
+            },
+            "dev":true,
+            "servers":[],
+            "envVariables":{},
+            "links":[]
+          }
+        ]
+      }
+    ],
+    "projects":[
+      {
+        "links":[],
+        "name":"{{artifact}}",
+        "attributes":{
+          "maven.groupId":[
+            "{{group}}"
+          ],
+          "maven.artifactId":[
+            "{{artifact}}"
+          ],
+          "maven.version":[
+            "{{version}}"
+          ],
+          "maven.packaging":[
+            "jar"
+          ],
+          "maven.source.folder":[
+            "src/main/java"
+          ],
+          "maven.test.source.folder":[
+            "src/test/java"
+          ],
+          "language":[
+            "java"
+          ],
+          "contribute_to_branch":[
+            "master"
+          ],
+          "git.repository.remotes":[
+            "https://github.com/@organization@/@repository@"
+          ],
+          "containsJavaFiles":[
+            "true"
+          ],
+          "vcs.provider.name":[
+            "git"
+          ],
+          "git.current.branch.name":[
+            "master"
+          ]
+        },
+        "type":"maven",
+        "path":"/{{artifact}}",
+        "description":"{{artifact}} project",
+        "problems":[],
+        "mixins":[
+          "pullrequest",
+          "git"
+        ]
+      }
+    ],
+    "name":"{{artifact}}",
+    "commands":[
+      {
+        "commandLine":"mvn -f ${current.project.path} clean install",
+        "name": "Build With Tests",
+        "attributes":{
+          "previewUrl":""
+        },
+        "type":"mvn"
+      },
+      {
+        "commandLine":"mvn -f ${current.project.path} clean install -DskipTests",
+        "name": "Build Without Tests",
+        "attributes":{
+          "previewUrl":""
+        },
+        "type":"mvn"
+      }
+    ],
+    "links":[]
+  },
+  "ide":{
+    "onProjectsLoaded":{
+      "actions":[
+        {
+          "properties":{
+            "file":"/{{artifact}}/README.adoc"
+          },
+          "id":"openFile"
+        },
+        {
+          "properties":{
+            "name":"Build With Tests"
+          },
+          "id":"runCommand"
+        }
+      ]
+    },
+    "onAppLoaded": {
+      "actions": [
+        {
+          "id": "openWelcomePage",
+          "properties": {
+            "nonAuthenticatedContentUrl": "https://talend.github.io/component-runtime/documentation.html",
+            "nonAuthenticatedTitle": "Documentation"
+          }
+        }
+      ]
+    }
+  }
+}

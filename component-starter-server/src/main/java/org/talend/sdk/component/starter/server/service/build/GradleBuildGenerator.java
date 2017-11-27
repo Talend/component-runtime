@@ -15,19 +15,7 @@
  */
 package org.talend.sdk.component.starter.server.service.build;
 
-import static java.util.stream.Collectors.toList;
-import static org.talend.sdk.component.starter.server.Versions.CXF;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-
+import lombok.Data;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
@@ -35,7 +23,17 @@ import org.talend.sdk.component.starter.server.service.event.GeneratorRegistrati
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
-import lombok.Data;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import static java.util.stream.Collectors.toList;
+import static org.talend.sdk.component.starter.server.Versions.CXF;
 
 @ApplicationScoped
 public class GradleBuildGenerator implements BuildGenerator {
@@ -80,7 +78,8 @@ public class GradleBuildGenerator implements BuildGenerator {
                         .map(d -> "runtime".equals(d.getScope()) ? new Dependency(d, "compile") : d)
                         .collect(toList()),
                 buildDependencies, configurations, plugins, tasks, imports, javaMainSourceSets);
-        return new Build(buildConfiguration.getArtifact(), "src/main/java", "src/test/java", "src/main/resources",
+        return new Build(buildConfiguration.getArtifact(), buildConfiguration.getGroup(),
+                buildConfiguration.getVersion(), "src/main/java", "src/test/java", "src/main/resources",
                 "src/test/resources", "src/main/webapp", "build.gradle",
                 tpl.render("generator/gradle/build.gradle", model), "build");
     }

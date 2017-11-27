@@ -242,8 +242,8 @@ public class ProjectResourceTest {
         assertEquals(4, files.size());
         assertEquals(resourceFileToString("generated/ProjectResourceTest/codenvy/README.adoc").trim(),
                 files.get("application/README.adoc").trim());
-        assertEquals(resourceFileToString("generated/ProjectResourceTest/codenvy/factory.json"),
-                files.get("application/.factory.json"));
+        assertEquals(resourceFileToString("generated/ProjectResourceTest/codenvy/codenvy.json"),
+                files.get("application/.codenvy.json"));
     }
 
     private void assertWadl(final Map<String, String> files) {

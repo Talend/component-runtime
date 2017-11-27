@@ -15,6 +15,14 @@
  */
 package org.talend.sdk.component.starter.server.service.facet.component;
 
+import org.apache.meecrowave.junit.MonoMeecrowave;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.talend.sdk.component.starter.server.service.domain.Build;
+import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
+import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,14 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.inject.Inject;
-
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.talend.sdk.component.starter.server.service.domain.Build;
-import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
-import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -50,7 +50,7 @@ public class ComponentGeneratorTest {
     @Inject
     private ComponentGenerator generator;
 
-    private Build build = new Build("test", "src/main/java", "src/test/java", "src/main/resources",
+    private Build build = new Build("test", "test", null, "src/main/java", "src/test/java", "src/main/resources",
             "src/test/resources", "src/main/webapp", "pom.xml", "some pom", "target");
 
     @Test
@@ -263,11 +263,11 @@ public class ComponentGeneratorTest {
                                         put("reject", new ProjectRequest.StructureConfiguration(null, true));
                                         put("reject2", new ProjectRequest.StructureConfiguration(null, true));
                                         put("reject3", new ProjectRequest.StructureConfiguration(null, true)); // to
-                                                                                                               // test
-                                                                                                               // the
-                                                                                                               // sort
-                                                                                                               // of
-                                                                                                               // branches
+                                        // test
+                                        // the
+                                        // sort
+                                        // of
+                                        // branches
                                     }
                                 })))
                 .collect(toMap(FacetGenerator.InMemoryFile::getPath,
@@ -286,8 +286,8 @@ public class ComponentGeneratorTest {
         ProjectRequest.DataStructure config = new ProjectRequest.DataStructure(asList(
                 new ProjectRequest.Entry("host", "string", null), new ProjectRequest.Entry("port", "string", null),
                 new ProjectRequest.Entry("credential", null, // type
-                                                             // with
-                                                             // nested
+                        // with
+                        // nested
                         new ProjectRequest.DataStructure(asList(new ProjectRequest.Entry("username", "string", null),
                                 new ProjectRequest.Entry("password", "string", null))))));
 
