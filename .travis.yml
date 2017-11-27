@@ -23,4 +23,4 @@ before_install:
 install: mvn clean install -DskipTests -Dinvoker.skip=true --batch-mode --settings .travis/settings.xml -Possrh
 script: mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh -Ptravis
 after_success:
-- "echo TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST && echo TRAVIS_TAG=$TRAVIS_TAG && [[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} == '' ]] && mvn clean deploy -DskipTests -Dinvoker.skip=true --settings .travis/settings.xml -Possrh -Prelease --batch-mode"
+- "echo TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST && echo TRAVIS_TAG=$TRAVIS_TAG && [[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} == '' ]] && mvn clean deploy pre-site -DskipTests -Dinvoker.skip=true -Dgithub.site.profile=latest --settings .travis/settings.xml -Possrh -Prelease -Pgh-pages --batch-mode"

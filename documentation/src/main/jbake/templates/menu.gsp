@@ -15,7 +15,7 @@
 <div class="navbar navbar-inverse navbar-fixed-top">
   <div class="container">
     <div class="navbar-header">
-      <a href="index.html" class="navbar-brand">Components</a>
+      <a href="${config.jbake_site_rootpath}/index.html" class="navbar-brand">Component Kit</a>
       <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -27,7 +27,7 @@
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="entries">Documentation <span class="caret"></span></a>
           <ul class="dropdown-menu" aria-labelledby="entries">
-            <li><a href="index.html">Home</a></li>
+            <li><a href="${config.jbake_site_rootpath}/index.html">Home</a></li>
             <li><a href="documentation-overview.html">Overview</a></li>
             <li><a href="getting-started.html">Getting Started</a></li>
             <li><a href="documentation.html">Reference</a></li>
@@ -37,6 +37,14 @@
             <li><a href="wrapping-a-beam-io.html">How to wrap a Beam I/O</a></li>
             <li><a href="studio.html">Studio Integration</a></li>
             <li><a href="appendix.html">Appendix</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="versions">Versions <span class="caret"></span></a>
+          <ul class="dropdown-menu" aria-labelledby="versions">
+            <li><a href="${config.jbake_site_rootpath}/index.html">Current</a></li>
+            <li><a href="${config.jbake_site_rootpath}/latest/index.html">Latest</a></li>
+            <!-- VERSIONS -->
           </ul>
         </li>
       </ul>
