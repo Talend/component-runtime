@@ -1,27 +1,27 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager.xbean;
 
-import static org.apache.xbean.asm5.ClassWriter.COMPUTE_FRAMES;
-import static org.apache.xbean.asm5.Opcodes.ACC_PUBLIC;
-import static org.apache.xbean.asm5.Opcodes.ACC_SUPER;
-import static org.apache.xbean.asm5.Opcodes.ALOAD;
-import static org.apache.xbean.asm5.Opcodes.INVOKESPECIAL;
-import static org.apache.xbean.asm5.Opcodes.RETURN;
-import static org.apache.xbean.asm5.Opcodes.V1_8;
+import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.xbean.asm6.Opcodes.ACC_PUBLIC;
+import static org.apache.xbean.asm6.Opcodes.ACC_SUPER;
+import static org.apache.xbean.asm6.Opcodes.ALOAD;
+import static org.apache.xbean.asm6.Opcodes.INVOKESPECIAL;
+import static org.apache.xbean.asm6.Opcodes.RETURN;
+import static org.apache.xbean.asm6.Opcodes.V1_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -35,10 +35,10 @@ import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
-import org.apache.xbean.asm5.AnnotationVisitor;
-import org.apache.xbean.asm5.ClassWriter;
-import org.apache.xbean.asm5.MethodVisitor;
-import org.apache.xbean.asm5.Type;
+import org.apache.xbean.asm6.AnnotationVisitor;
+import org.apache.xbean.asm6.ClassWriter;
+import org.apache.xbean.asm6.MethodVisitor;
+import org.apache.xbean.asm6.Type;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -60,8 +60,8 @@ public class NestedJarArchiveTest {
     public void xbeanNestedScanning() throws IOException {
         final File jar = createPlugin(TEMPORARY_FOLDER.getRoot(), testName.getMethodName());
         final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader(new URL[0],
-                new URLClassLoader(new URL[] { jar.toURI().toURL() }, Thread.currentThread().getContextClassLoader()), n -> true,
-                n -> true, new String[] { "com/foo/bar/1.0/bar-1.0.jar" });
+                new URLClassLoader(new URL[] { jar.toURI().toURL() }, Thread.currentThread().getContextClassLoader()),
+                n -> true, n -> true, new String[] { "com/foo/bar/1.0/bar-1.0.jar" });
         try (final JarInputStream jis = new JarInputStream(
                 configurableClassLoader.getResourceAsStream("MAVEN-INF/repository/com/foo/bar/1.0/bar-1.0.jar"))) {
             assertNotNull("test is wrongly setup, no nested jar, fix the createPlugin() method please", jis);
@@ -85,11 +85,12 @@ public class NestedJarArchiveTest {
                     final String className = packageName + "/Components.class";
                     nestedStream.putNextEntry(new ZipEntry(className));
                     final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-                    writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
-                            null, Type.getInternalName(Object.class), null);
+                    writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER,
+                            className.substring(0, className.length() - ".class".length()), null,
+                            Type.getInternalName(Object.class), null);
                     writer.visitSource(className.replace(".class", ".java"), null);
-                    final AnnotationVisitor componentAnnotation = writer.visitAnnotation(Type.getDescriptor(Processor.class),
-                            true);
+                    final AnnotationVisitor componentAnnotation =
+                            writer.visitAnnotation(Type.getDescriptor(Processor.class), true);
                     componentAnnotation.visit("family", "comp");
                     componentAnnotation.visit("name", "comp");
                     componentAnnotation.visitEnd();

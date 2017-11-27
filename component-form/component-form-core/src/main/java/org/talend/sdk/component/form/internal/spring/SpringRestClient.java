@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.form.internal.spring;
 
@@ -47,8 +47,9 @@ public class SpringRestClient implements Client {
 
     private final String base;
 
-    private final ParameterizedTypeReference<Map<String, Object>> mapType = new ParameterizedTypeReference<Map<String, Object>>() {
-    };
+    private final ParameterizedTypeReference<Map<String, Object>> mapType =
+            new ParameterizedTypeReference<Map<String, Object>>() {
+            };
 
     public SpringRestClient(final String base) {
         this.delegate = new RestTemplate();
@@ -59,15 +60,22 @@ public class SpringRestClient implements Client {
     public Map<String, Object> action(final String family, final String type, final String action,
             final Map<String, Object> params) {
         try {
-            return delegate.exchange(
-                    UriComponentsBuilder.fromHttpUrl(base).path("action/execute").queryParam("family", family)
-                            .queryParam("type", type).queryParam("action", action).build().toUriString(),
-                    HttpMethod.POST,
-                    new HttpEntity<>(
-                            params.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))),
-                            json()),
+            return delegate
+                    .exchange(
+                            UriComponentsBuilder
+                                    .fromHttpUrl(base)
+                                    .path("action/execute")
+                                    .queryParam("family", family)
+                                    .queryParam("type", type)
+                                    .queryParam("action", action)
+                                    .build()
+                                    .toUriString(),
+                            HttpMethod.POST,
+                            new HttpEntity<>(params.entrySet().stream().collect(
+                                    toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))), json()),
 
-                    mapType).getBody();
+                            mapType)
+                    .getBody();
         } catch (final HttpServerErrorException hsee) {
             throw toException(hsee);
         } catch (final RestClientException rce) {
@@ -79,8 +87,12 @@ public class SpringRestClient implements Client {
     public ComponentIndices index(final String language) {
         try {
             return delegate
-                    .exchange(UriComponentsBuilder.fromHttpUrl(base).path("component/index").queryParam("language", language)
-                            .build().toUriString(), HttpMethod.GET, new HttpEntity<>(json()), ComponentIndices.class)
+                    .exchange(UriComponentsBuilder
+                            .fromHttpUrl(base)
+                            .path("component/index")
+                            .queryParam("language", language)
+                            .build()
+                            .toUriString(), HttpMethod.GET, new HttpEntity<>(json()), ComponentIndices.class)
                     .getBody();
         } catch (final HttpServerErrorException hsee) {
             throw toException(hsee);
@@ -93,15 +105,21 @@ public class SpringRestClient implements Client {
     public ComponentDetailList details(final String language, final String identifier, final String... identifiers) {
         try {
             final HttpHeaders headers = json();
-            return delegate.exchange(
-                    UriComponentsBuilder.fromHttpUrl(base).path("component/details").queryParam("language", language)
-                            .queryParam("identifiers",
-                                    Stream.concat(Stream.of(identifier),
-                                            identifiers == null || identifiers.length == 0 ? Stream.empty()
-                                                    : Stream.of(identifiers))
+            return delegate
+                    .exchange(
+                            UriComponentsBuilder
+                                    .fromHttpUrl(base)
+                                    .path("component/details")
+                                    .queryParam("language", language)
+                                    .queryParam("identifiers", Stream
+                                            .concat(Stream.of(identifier),
+                                                    identifiers == null || identifiers.length == 0 ? Stream.empty()
+                                                            : Stream.of(identifiers))
                                             .toArray(Object[]::new))
-                            .build().toUriString(),
-                    HttpMethod.GET, new HttpEntity<>(headers), ComponentDetailList.class).getBody();
+                                    .build()
+                                    .toUriString(),
+                            HttpMethod.GET, new HttpEntity<>(headers), ComponentDetailList.class)
+                    .getBody();
         } catch (final HttpServerErrorException hsee) {
             throw toException(hsee);
         } catch (final RestClientException rce) {
@@ -127,8 +145,8 @@ public class SpringRestClient implements Client {
     private WebException toException(final HttpServerErrorException hsee) {
         try {
             return new WebException(hsee, hsee.getRawStatusCode(),
-                    new HttpMessageConverterExtractor<Map<String, Object>>(mapType.getType(), delegate.getMessageConverters())
-                            .extractData(new ClientHttpResponse() {
+                    new HttpMessageConverterExtractor<Map<String, Object>>(mapType.getType(),
+                            delegate.getMessageConverters()).extractData(new ClientHttpResponse() {
 
                                 @Override
                                 public HttpStatus getStatusCode() throws IOException {

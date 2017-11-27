@@ -39,12 +39,12 @@ public class ComponentDetail {
     private Collection<SimplePropertyDefinition> properties;
 
     private Collection<ActionReference> actions;
-    
+
     /**
      * Input flow (connection) names
      */
     private Collection<String> inputFlows;
-    
+
     /**
      * Output flow (connection) names
      */

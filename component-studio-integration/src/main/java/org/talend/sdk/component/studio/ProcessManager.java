@@ -79,7 +79,7 @@ public class ProcessManager implements AutoCloseable {
                     healthcheck.run();
                     return;
                 }
-                if (i> 0 && i % 12 == 0) {
+                if (i > 0 && i % 12 == 0) {
                     System.out.println("Component server not yet ready, will wait again"); // no logger!
                 }
                 sleep(steps);
@@ -136,14 +136,22 @@ public class ProcessManager implements AutoCloseable {
 
         final String java = findJava();
         port = newPort();
-        final String[] jvmOptions = Stream.of(System.getProperty("component.java.options", "-Xmx256m").split(" "))
-                .map(String::trim).filter(o -> !o.isEmpty()).toArray(String[]::new);
-        final String[] arguments = Stream.of(System.getProperty("component.java.arguments", "").split(" ")).map(String::trim)
-                .filter(o -> !o.isEmpty()).toArray(String[]::new);
+        final String[] jvmOptions = Stream
+                .of(System.getProperty("component.java.options", "-Xmx256m").split(" "))
+                .map(String::trim)
+                .filter(o -> !o.isEmpty())
+                .toArray(String[]::new);
+        final String[] arguments = Stream
+                .of(System.getProperty("component.java.arguments", "").split(" "))
+                .map(String::trim)
+                .filter(o -> !o.isEmpty())
+                .toArray(String[]::new);
 
         final File log4j2Config = Stream
                 .of(new File(studioConfigDir, "log4j2-components.xml"), new File(studioConfigDir, "log4j2.xml"))
-                .filter(File::exists).findFirst().orElse(null);
+                .filter(File::exists)
+                .findFirst()
+                .orElse(null);
 
         String m2Repo = System.getProperty("component.java.m2");
         if (m2Repo == null) {
@@ -173,8 +181,13 @@ public class ProcessManager implements AutoCloseable {
             command.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address="
                     + Integer.getInteger("component.java.debug.port", 5005));
         }
-        // passthrough names matching the server config, can be redundant with previous component.java.xx but easier to understand
-        System.getProperties().stringPropertyNames().stream().filter(n -> n.startsWith("talend.component.server."))
+        // passthrough names matching the server config, can be redundant with previous
+        // component.java.xx but easier to understand
+        System
+                .getProperties()
+                .stringPropertyNames()
+                .stream()
+                .filter(n -> n.startsWith("talend.component.server."))
                 .forEach(key -> command.add("-D" + key + "=" + System.getProperty(key, "")));
 
         command.add("-classpath");
@@ -205,7 +218,8 @@ public class ProcessManager implements AutoCloseable {
                 close();
             }
         };
-        new Thread() { // just a healthcheck to be able to ensure the server is up when starting to use it (ou client)
+        new Thread() { // just a healthcheck to be able to ensure the server is up when starting to use
+                       // it (ou client)
 
             {
                 setName(getClass().getName() + "-readiness-checker");
@@ -298,7 +312,8 @@ public class ProcessManager implements AutoCloseable {
     private File resolve(final String gav) {
         try { // convert to pax-url syntax
             final String[] split = gav.split("\\:"); // assuming we dont use classifiers for now
-            final String paxUrl = "mvn:" + MavenConstants.LOCAL_RESOLUTION_URL + '!' + split[0] + '/' + split[1] + '/' + split[3];
+            final String paxUrl =
+                    "mvn:" + MavenConstants.LOCAL_RESOLUTION_URL + '!' + split[0] + '/' + split[1] + '/' + split[3];
             return mavenResolver.resolve(paxUrl);
         } catch (final IOException e) {
             throw new IllegalArgumentException("can't resolve '" + gav + "', "
@@ -324,14 +339,16 @@ public class ProcessManager implements AutoCloseable {
         final File java = Stream
                 .of(new File(home, "bin/java"), new File(home, "bin/java.exe"),
                         new File(System.getProperty("component.java.exe", "java")))
-                .filter(File::isFile).findFirst().orElseThrow(() -> new IllegalArgumentException(
+                .filter(File::isFile)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
                         "Didn't find java executable, maybe set component.java.exe to point to your java binary in config.ini"));
         return java.getAbsolutePath();
     }
 
     private String findVersion() {
-        try (final InputStream stream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties")) {
+        try (final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                "META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties")) {
             if (stream == null) {
                 throw new IllegalStateException("Can't find artifact " + groupId + ':' + artifactId);
             }

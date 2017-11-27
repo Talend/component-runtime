@@ -94,9 +94,12 @@ public class Generator {
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder.findAnnotatedClasses(Configuration.class).stream()
+            finder
+                    .findAnnotatedClasses(Configuration.class)
+                    .stream()
                     .sorted(Comparator.comparing(t -> t.getAnnotation(Configuration.class).prefix()))
-                    .flatMap(c -> Stream.of(c.getMethods())).forEach(method -> {
+                    .flatMap(c -> Stream.of(c.getMethods()))
+                    .forEach(method -> {
                         final ConfigProperty configProperty = method.getAnnotation(ConfigProperty.class);
                         final String name = method.getDeclaringClass().getAnnotation(Configuration.class).prefix()
                                 + configProperty.name();
@@ -123,14 +126,18 @@ public class Generator {
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder.findAnnotatedClasses(ActionType.class).stream()
-                    .sorted(Comparator.comparing(t -> t.getAnnotation(ActionType.class).value() + "#" + t.getSimpleName()))
+            finder
+                    .findAnnotatedClasses(ActionType.class)
+                    .stream()
+                    .sorted(Comparator
+                            .comparing(t -> t.getAnnotation(ActionType.class).value() + "#" + t.getSimpleName()))
                     .forEach(type -> {
                         final ActionType actionType = type.getAnnotation(ActionType.class);
                         final Class<?> returnedType = actionType.expectedReturnedType();
                         stream.println("|@" + type.getName() + "|" + actionType.value() + "|" + extractDoc(type) + "|"
                                 + (returnedType == Object.class ? "any" : returnedType.getSimpleName()) + "|"
-                                + (returnedType != Object.class ? "`" + sample(returnedType).replace("\n", "") + "`" : "-"));
+                                + (returnedType != Object.class ? "`" + sample(returnedType).replace("\n", "") + "`"
+                                        : "-"));
                     });
             stream.println("|====");
             stream.println();
@@ -152,12 +159,16 @@ public class Generator {
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
             final ParameterExtensionEnricher enricher = new UiParameterEnricher();
             final Mapper mapper = new MapperBuilder().build();
-            finder.findAnnotatedClasses(Ui.class).stream().sorted(Comparator.comparing(Class::getName)).forEach(type -> {
-                final Map<String, String> meta = enricher
-                        .onParameterAnnotation("theparameter", Object.class, generateAnnotation(type)).entrySet().stream()
-                        .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue));
-                stream.println("|@" + type.getName() + "|" + extractDoc(type) + "|" + mapper.writeObjectAsString(meta));
-            });
+            finder.findAnnotatedClasses(Ui.class).stream().sorted(Comparator.comparing(Class::getName)).forEach(
+                    type -> {
+                        final Map<String, String> meta = enricher
+                                .onParameterAnnotation("theparameter", Object.class, generateAnnotation(type))
+                                .entrySet()
+                                .stream()
+                                .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue));
+                        stream.println("|@" + type.getName() + "|" + extractDoc(type) + "|"
+                                + mapper.writeObjectAsString(meta));
+                    });
             stream.println("|====");
             stream.println();
 
@@ -199,13 +210,16 @@ public class Generator {
             status.setComment("Something went wrong");
             return new MapperBuilder().setPretty(false).build().writeObjectAsString(status);
         }
-        return "{\n" + Stream.of(returnedType.getDeclaredFields())
-                .map(f -> " \"" + f.getName() + "\": " + createSample(f.getType())).collect(joining("\n")) + "\n}";
+        return "{\n" + Stream
+                .of(returnedType.getDeclaredFields())
+                .map(f -> " \"" + f.getName() + "\": " + createSample(f.getType()))
+                .collect(joining("\n")) + "\n}";
     }
 
     private static String createSample(final Class<?> type) {
         if (type.isEnum()) {
-            return Stream.of(type.getEnumConstants()).map(e -> Enum.class.cast(e).name()).collect(joining("\"|\"", "\"", "\""));
+            return Stream.of(type.getEnumConstants()).map(e -> Enum.class.cast(e).name()).collect(
+                    joining("\"|\"", "\"", "\""));
         }
         return "\"...\"";
     }
@@ -223,12 +237,12 @@ public class Generator {
             final Mapper mapper = new MapperBuilder().build();
             final AnnotationFinder finder = new AnnotationFinder(
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder.findAnnotatedClasses(Condition.class)
-                    .forEach(type -> stream.println("|@" + type.getName() + "|" + type.getAnnotation(Condition.class).value()
-                            + "|" + extractDoc(type) + "|"
-                            + mapper.writeObjectAsString(
+            finder.findAnnotatedClasses(Condition.class).forEach(type -> stream.println("|@" + type.getName() + "|"
+                    + type.getAnnotation(Condition.class).value() + "|" + extractDoc(type) + "|"
+                    + mapper
+                            .writeObjectAsString(
                                     enricher.onParameterAnnotation("test", String.class, generateAnnotation(type)))
-                                    .replace("tcomp::", "")));
+                            .replace("tcomp::", "")));
             stream.println("|====");
             stream.println();
 
@@ -249,9 +263,11 @@ public class Generator {
             final Mapper mapper = new MapperBuilder().build();
             final AnnotationFinder finder = new AnnotationFinder(
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder.findAnnotatedClasses(ConfigurationType.class).forEach(
-                    type -> stream.println("|" + type.getName() + "|" + type.getAnnotation(ConfigurationType.class).value() + "|"
-                            + extractDoc(type) + "|" + mapper.writeObjectAsString(
+            finder
+                    .findAnnotatedClasses(ConfigurationType.class)
+                    .forEach(type -> stream.println("|" + type.getName() + "|"
+                            + type.getAnnotation(ConfigurationType.class).value() + "|" + extractDoc(type) + "|"
+                            + mapper.writeObjectAsString(
                                     enricher.onParameterAnnotation("value", String.class, generateAnnotation(type)))));
             stream.println("|====");
             stream.println();
@@ -277,22 +293,26 @@ public class Generator {
                 final Validation val = validation.getAnnotation(Validation.class);
                 return createConstraint(validation, val);
 
-            }), finder.findAnnotatedClasses(Validations.class).stream()
-                    .flatMap(validations -> Stream.of(validations.getAnnotation(Validations.class).value())
-                            .map(validation -> createConstraint(validations, validation))))
+            }), finder.findAnnotatedClasses(Validations.class).stream().flatMap(
+                    validations -> Stream.of(validations.getAnnotation(Validations.class).value()).map(
+                            validation -> createConstraint(validations, validation))))
                     .sorted((o1, o2) -> {
-                        final int types = Stream.of(o1.types).map(Class::getName).collect(joining("/"))
-                                .compareTo(Stream.of(o2.types).map(Class::getName).collect(joining("/")));
+                        final int types = Stream.of(o1.types).map(Class::getName).collect(joining("/")).compareTo(
+                                Stream.of(o2.types).map(Class::getName).collect(joining("/")));
                         if (types == 0) {
                             return o1.name.compareTo(o2.name);
                         }
                         return types;
                     })
-                    .forEach(constraint -> stream.println("|@" + constraint.marker.getName() + "|" + constraint.name + "|"
-                            + sanitizeType(constraint.paramType) + "|" + constraint.description + "|"
-                            + Stream.of(constraint.types).map(Class::getName).map(Generator::sanitizeType).collect(joining(", "))
-                            + "|" + mapper.writeObjectAsString(enricher.onParameterAnnotation("test", constraint.types[0],
-                                    generateAnnotation(constraint.marker))).replace("tcomp::", "")));
+                    .forEach(constraint -> stream.println("|@" + constraint.marker.getName() + "|" + constraint.name
+                            + "|" + sanitizeType(constraint.paramType) + "|" + constraint.description + "|"
+                            + Stream.of(constraint.types).map(Class::getName).map(Generator::sanitizeType).collect(
+                                    joining(", "))
+                            + "|"
+                            + mapper
+                                    .writeObjectAsString(enricher.onParameterAnnotation("test", constraint.types[0],
+                                            generateAnnotation(constraint.marker)))
+                                    .replace("tcomp::", "")));
             stream.println("|====");
             stream.println();
 
@@ -305,7 +325,8 @@ public class Generator {
     }
 
     private static Constraint createConstraint(final Class<?> validation, final Validation val) {
-        return new Constraint(val.name(), val.expectedTypes(), getParamType(validation), validation, extractDoc(validation));
+        return new Constraint(val.name(), val.expectedTypes(), getParamType(validation), validation,
+                extractDoc(validation));
     }
 
     private static String extractDoc(final Class<?> validation) {
@@ -321,7 +342,8 @@ public class Generator {
         }
     }
 
-    // generate a "mock" annotation to be able to generate sample metadata - mainly for @Ui
+    // generate a "mock" annotation to be able to generate sample metadata - mainly
+    // for @Ui
     private static <T extends Annotation> T generateAnnotation(final Class<?> type) {
         return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] { type },
                 (proxy, method, args) -> {
@@ -329,8 +351,12 @@ public class Generator {
                         return type;
                     }
                     if (method.isDefault()) {
-                        return MethodHandles.lookup().in(method.getDeclaringClass())
-                                .unreflectSpecial(method, method.getDeclaringClass()).bindTo(proxy).invokeWithArguments(args);
+                        return MethodHandles
+                                .lookup()
+                                .in(method.getDeclaringClass())
+                                .unreflectSpecial(method, method.getDeclaringClass())
+                                .bindTo(proxy)
+                                .invokeWithArguments(args);
                     }
                     final Class<?> returnType = method.getReturnType();
                     if (int.class == returnType) {

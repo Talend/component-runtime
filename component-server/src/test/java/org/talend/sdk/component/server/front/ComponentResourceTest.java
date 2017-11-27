@@ -76,9 +76,11 @@ public class ComponentResourceTest {
     public void migrate() {
         final Map<String, String> migrated = base.path("component/migrate/{id}/{version}")
                 .resolveTemplate("id", fetchIndex().getComponents().stream()
-                        .filter(c -> c.getId().getFamily().equals("jdbc") && c.getId().getName().equals("input")).findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("no jdbc#input component")).getId().getId())
-                .resolveTemplate("version", 1).request(APPLICATION_JSON_TYPE).post(entity(new HashMap<String, String>() {
+                        .filter(c -> c.getId().getFamily().equals("jdbc") && c.getId().getName().equals("input"))
+                        .findFirst().orElseThrow(() -> new IllegalArgumentException("no jdbc#input component")).getId()
+                        .getId())
+                .resolveTemplate("version", 1).request(APPLICATION_JSON_TYPE)
+                .post(entity(new HashMap<String, String>() {
 
                     {
                     }
@@ -92,8 +94,9 @@ public class ComponentResourceTest {
     public void getDetails() {
         final ComponentDetailList details = base.path("component/details")
                 .queryParam("identifiers", fetchIndex().getComponents().stream()
-                        .filter(c -> c.getId().getFamily().equals("chain") && c.getId().getName().equals("list")).findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("no chain#list component")).getId().getId())
+                        .filter(c -> c.getId().getFamily().equals("chain") && c.getId().getName().equals("list"))
+                        .findFirst().orElseThrow(() -> new IllegalArgumentException("no chain#list component")).getId()
+                        .getId())
                 .request(APPLICATION_JSON_TYPE).get(ComponentDetailList.class);
         assertEquals(1, details.getDetails().size());
 
@@ -111,7 +114,8 @@ public class ComponentResourceTest {
         assertEquals(6, action.getProperties().size());
 
         assertValidation("remote.urls", detail, validation -> validation.getMinItems() == 1);
-        assertValidation("remote.urls", detail, validation -> validation.getUniqueItems() != null && validation.getUniqueItems());
+        assertValidation("remote.urls", detail,
+                validation -> validation.getUniqueItems() != null && validation.getUniqueItems());
         assertValidation("remote.user.user", detail,
                 validation -> validation.getMinLength() != null && validation.getMinLength() == 2);
         assertValidation("remote.user.password", detail,
@@ -121,8 +125,7 @@ public class ComponentResourceTest {
 
         assertEquals(0, detail.getLinks().size()); // for now
         /*
-         * final Link link = detail.getLinks().iterator().next();
-         * assertEquals("Detail", link.getName());
+         * final Link link = detail.getLinks().iterator().next(); assertEquals("Detail", link.getName());
          * assertEquals("/component/...", link.getPath());
          */
     }
@@ -131,16 +134,17 @@ public class ComponentResourceTest {
     public void getDetailsMeta() {
         final ComponentDetailList details = base.path("component/details")
                 .queryParam("identifiers", fetchIndex().getComponents().stream()
-                        .filter(c -> c.getId().getFamily().equals("jdbc") && c.getId().getName().equals("input")).findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("no jdbc#input component")).getId().getId())
+                        .filter(c -> c.getId().getFamily().equals("jdbc") && c.getId().getName().equals("input"))
+                        .findFirst().orElseThrow(() -> new IllegalArgumentException("no jdbc#input component")).getId()
+                        .getId())
                 .request(APPLICATION_JSON_TYPE).get(ComponentDetailList.class);
         assertEquals(1, details.getDetails().size());
 
         final ComponentDetail detail = details.getDetails().iterator().next();
         assertEquals("true",
-                detail.getProperties().stream().filter(p -> p.getPath().equals("configuration.connection.password")).findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("No credential found")).getMetadata()
-                        .get("ui::credential"));
+                detail.getProperties().stream().filter(p -> p.getPath().equals("configuration.connection.password"))
+                        .findFirst().orElseThrow(() -> new IllegalArgumentException("No credential found"))
+                        .getMetadata().get("ui::credential"));
     }
 
     private void assertValidation(final String path, final ComponentDetail aggregate,
@@ -170,8 +174,10 @@ public class ComponentResourceTest {
         assertEquals(1, data.getLinks().size());
         final Link link = data.getLinks().iterator().next();
         assertEquals("Detail", link.getName());
-        assertEquals("/component/details?identifiers=" + Base64.getUrlEncoder().withoutPadding()
-                .encodeToString((plugin + "#" + family + "#" + name).getBytes(StandardCharsets.UTF_8)), link.getPath());
+        assertEquals(
+                "/component/details?identifiers=" + Base64.getUrlEncoder().withoutPadding()
+                        .encodeToString((plugin + "#" + family + "#" + name).getBytes(StandardCharsets.UTF_8)),
+                link.getPath());
         assertEquals(MediaType.APPLICATION_JSON, link.getContentType());
 
         if ("jdbc".equals(data.getId().getFamily()) && "input".equals(data.getId().getName())) {

@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.classloader;
 
@@ -54,8 +54,8 @@ public class ConfigurableClassLoaderTest {
         Stream.of(true, false).forEach(parentFirst -> {
             final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
             try (final ConfigurableClassLoader loader = new ConfigurableClassLoader(
-                    new URL[] { new File(Constants.DEPENDENCIES_LOCATION, "org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar")
-                            .toURI().toURL() },
+                    new URL[] { new File(Constants.DEPENDENCIES_LOCATION,
+                            "org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar").toURI().toURL() },
                     parent, name -> true, name -> parentFirst, null)) {
                 try {
                     loader.loadClass("org.apache.ziplock.JarLocation");
@@ -100,12 +100,12 @@ public class ConfigurableClassLoaderTest {
         final File nestedJar = createNestedJar("org.apache.tomee:ziplock:jar:7.0.3");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
-                final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent, name -> true, name -> true,
-                        new String[] { "org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar" })) {
+                final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent, name -> true,
+                        name -> true, new String[] { "org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar" })) {
             try { // classes
                 final Class<?> aClass = loader.loadClass("org.apache.ziplock.JarLocation");
-                final Object jarLocation = aClass.getMethod("jarLocation", Class.class).invoke(null,
-                        ConfigurableClassLoaderTest.class);
+                final Object jarLocation =
+                        aClass.getMethod("jarLocation", Class.class).invoke(null, ConfigurableClassLoaderTest.class);
                 assertNotNull(jarLocation);
                 assertThat(jarLocation, instanceOf(File.class));
             } catch (final Exception e) {
@@ -146,9 +146,10 @@ public class ConfigurableClassLoaderTest {
 
     @Test
     public void noNestedJarsMissingResources() throws IOException {
-        try (final URLClassLoader parent = new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
-                final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent, name -> true, name -> true,
-                        new String[0])) {
+        try (final URLClassLoader parent =
+                new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader =
+                        new ConfigurableClassLoader(new URL[0], parent, name -> true, name -> true, new String[0])) {
 
             { // missing
                 assertNull(loader.getResource("a.missing"));
@@ -198,7 +199,8 @@ public class ConfigurableClassLoaderTest {
                     }
                 }
                 { // add the dep
-                    final File jar = new File(Constants.DEPENDENCIES_LOCATION, path.substring("MAVEN-INF/repository/".length()));
+                    final File jar =
+                            new File(Constants.DEPENDENCIES_LOCATION, path.substring("MAVEN-INF/repository/".length()));
                     try {
                         out.putNextEntry(new ZipEntry(path));
                         Files.copy(jar.toPath(), out);

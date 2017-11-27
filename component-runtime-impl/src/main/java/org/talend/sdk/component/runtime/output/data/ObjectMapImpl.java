@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.output.data;
 
@@ -48,7 +48,8 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
 
     private final boolean isMap;
 
-    // alternative is to be eager. for now this is probably better until we ensure we only have small payloads
+    // alternative is to be eager. for now this is probably better until we ensure
+    // we only have small payloads
     private final ClassLoader loader;
 
     private Set<String> keys;
@@ -102,23 +103,29 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
                 throw new IllegalArgumentException(o + " is not a collection");
             }
             final Collection<?> items = Collection.class.cast(o);
-            return items.stream().map(item -> ObjectMap.class.isInstance(item) ? ObjectMap.class.cast(item)
-                    : new ObjectMapImpl(plugin, item, cache)).collect(toList());
+            return items
+                    .stream()
+                    .map(item -> ObjectMap.class.isInstance(item) ? ObjectMap.class.cast(item)
+                            : new ObjectMapImpl(plugin, item, cache))
+                    .collect(toList());
         });
     }
 
     @Override
     public synchronized Set<String> keys() { // todo: map without string key?
-        return doFn(loader, () -> keys == null && delegate != null
-                ? (keys = Map.class.isInstance(delegate) ? Map.class.cast(delegate).keySet() : findKeys(delegate.getClass()))
-                : keys);
+        return doFn(loader,
+                () -> keys == null && delegate != null
+                        ? (keys = Map.class.isInstance(delegate) ? Map.class.cast(delegate).keySet()
+                                : findKeys(delegate.getClass()))
+                        : keys);
     }
 
     private Set<String> findKeys(final Class<?> c) {
         // note: handle getters? should be on anemic model so shouldn't change anything
         final Set<String> staticFields = cache.getOrCreateStaticFields(c);
         final Function<Object, Map<String, Object>> any = cache.getOrCreateAny(c);
-        return Stream.concat(staticFields.stream(), any == null ? Stream.empty() : any.apply(delegate).keySet().stream())
+        return Stream
+                .concat(staticFields.stream(), any == null ? Stream.empty() : any.apply(delegate).keySet().stream())
                 .collect(toSet());
     }
 
@@ -131,7 +138,8 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
         return String.valueOf(delegate);
     }
 
-    private static <T> T doFn(final ClassLoader loader, final Supplier<T> supplier) { // note: one option is to let the caller
+    private static <T> T doFn(final ClassLoader loader, final Supplier<T> supplier) { // note: one option is to let the
+                                                                                      // caller
                                                                                       // handling it (for perf)
         final Thread thread = Thread.currentThread();
         final ClassLoader old = thread.getContextClassLoader();

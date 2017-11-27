@@ -102,8 +102,8 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
 
         argumentProvider = new InMemoryArgumentProvider(options);
 
-        processElement = findMethod(delegate.getClass(), DoFn.ProcessElement.class).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No @ProcessElement on " + delegate));
+        processElement = findMethod(delegate.getClass(), DoFn.ProcessElement.class).findFirst().orElseThrow(
+                () -> new IllegalArgumentException("No @ProcessElement on " + delegate));
         setup = findMethod(delegate.getClass(), DoFn.Setup.class).findFirst().orElse(null);
         tearDown = findMethod(delegate.getClass(), DoFn.Teardown.class).findFirst().orElse(null);
         startBundle = findMethod(delegate.getClass(), DoFn.StartBundle.class).findFirst().orElse(null);
@@ -135,13 +135,15 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                     return (Supplier<Object>) argumentProvider::restrictionTracker;
                 }
                 if (Timer.class == type) {
-                    final String id = ofNullable(p.getAnnotation(DoFn.TimerId.class)).map(DoFn.TimerId::value)
-                            .orElseThrow(() -> new IllegalArgumentException("Missing @TimerId on " + p.getName()));
+                    final String id =
+                            ofNullable(p.getAnnotation(DoFn.TimerId.class)).map(DoFn.TimerId::value).orElseThrow(
+                                    () -> new IllegalArgumentException("Missing @TimerId on " + p.getName()));
                     return (Supplier<Object>) () -> argumentProvider.timer(id);
                 }
                 if (State.class == type) {
-                    final String id = ofNullable(p.getAnnotation(DoFn.StateId.class)).map(DoFn.StateId::value)
-                            .orElseThrow(() -> new IllegalArgumentException("Missing @StateId on " + p.getName()));
+                    final String id =
+                            ofNullable(p.getAnnotation(DoFn.StateId.class)).map(DoFn.StateId::value).orElseThrow(
+                                    () -> new IllegalArgumentException("Missing @StateId on " + p.getName()));
                     return (Supplier<Object>) () -> argumentProvider.state(id);
                 }
                 throw new IllegalArgumentException("unsupported parameter of type " + type);

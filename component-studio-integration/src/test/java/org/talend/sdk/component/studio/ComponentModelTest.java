@@ -39,7 +39,8 @@ public class ComponentModelTest {
 
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-        ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
+        ComponentDetail detail =
+                new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
         Assert.assertEquals(expectedFamilyName, componentModel.getOriginalFamilyName());
@@ -51,7 +52,8 @@ public class ComponentModelTest {
 
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-        ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
+        ComponentDetail detail =
+                new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
         Assert.assertEquals(expectedName, componentModel.getLongName());
@@ -63,7 +65,8 @@ public class ComponentModelTest {
 
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-        ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
+        ComponentDetail detail =
+                new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
         List<? extends INodeConnector> connectors = componentModel.createConnectors(null);
@@ -75,7 +78,8 @@ public class ComponentModelTest {
 
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-        ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
+        ComponentDetail detail =
+                new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
         List<? extends INodeReturn> returnVariables = componentModel.createReturns(null);
@@ -89,15 +93,16 @@ public class ComponentModelTest {
         Assert.assertEquals("!!!NodeReturn.Availability.AFTER!!!", numberLines.getAvailability());
         Assert.assertEquals("int | Integer", numberLines.getType());
     }
-    
+
     @Test
     public void testGetAvailableCodeParts() {
-        
+
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
-        ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
+        ComponentDetail detail =
+                new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
         ComponentModel componentModel = new ComponentModel(idx, detail);
-        
+
         List<ECodePart> codeParts = componentModel.getAvailableCodeParts();
         Assert.assertEquals(4, codeParts.size());
         Assert.assertTrue(codeParts.contains(ECodePart.BEGIN));

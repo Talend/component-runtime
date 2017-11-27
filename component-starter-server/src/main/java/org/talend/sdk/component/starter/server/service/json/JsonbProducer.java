@@ -26,6 +26,7 @@ import javax.json.bind.JsonbBuilder;
 @Slf4j
 @ApplicationScoped
 public class JsonbProducer {
+
     @Produces
     public Jsonb jsonb() {
         return JsonbBuilder.create();

@@ -42,8 +42,9 @@ public class WADLFacet implements FacetGenerator {
     private Collection<Dependency> dependencies;
 
     void register(@Observes final GeneratorRegistration init) {
-        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("generator/facet/wadl/specification.xml")))) {
+        try (final BufferedReader reader = new BufferedReader(
+                new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                        "generator/facet/wadl/specification.xml")))) {
             specification = reader.lines().collect(joining("\n"));
         } catch (final IOException e) {
             throw new IllegalStateException(e);
@@ -58,9 +59,10 @@ public class WADLFacet implements FacetGenerator {
     public String readme() {
         return "Generates the needed classes to call HTTP endpoints defined by a WADL located at `src/main/resources/wadl/client.xml`.\n"
                 + "The `wadl2java` CXF plugin generates interfaces representing the endpoints and you can create a client using CXF `JAXRSClientFactoryBean` "
-                + "class:\n\n" + "[source,java]\n" + "----\n" + "import org.talend.sdk.component.api.service.Service;\n\n"
-                + "import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;\n\n" + "@Service\n" + "public class MyService {\n"
-                + "  public MyGeneratedEndpointApi newClient(final String url) {\n"
+                + "class:\n\n" + "[source,java]\n" + "----\n"
+                + "import org.talend.sdk.component.api.service.Service;\n\n"
+                + "import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;\n\n" + "@Service\n"
+                + "public class MyService {\n" + "  public MyGeneratedEndpointApi newClient(final String url) {\n"
                 + "      return JAXRSClientFactoryBean.create(url, MyGeneratedEndpointApi.class);\n" + "  }\n" + "}\n"
                 + "----\n\n"
                 + "Don't forget you need to build once the project to have the generated interfaces and be able to write your client from the "

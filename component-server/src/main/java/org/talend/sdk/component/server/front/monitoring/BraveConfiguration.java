@@ -44,13 +44,15 @@ public class BraveConfiguration {
     @Produces
     @ApplicationScoped
     public HttpTracing httpTracing(final ComponentServerConfiguration configuration) {
-        return HttpTracing.newBuilder(Tracing.newBuilder().localServiceName(configuration.serviceName())
-                .sampler(CountingSampler.create(configuration.samplerRate())).spanReporter(createReporter(configuration)).build())
-                .serverSampler(
-                        HttpRuleSampler.newBuilder().addRule("GET", "/api/v1/component", configuration.samplerComponentRate())
-                                .addRule("POST", "/api/v1/execution", configuration.samplerExecutionRate())
-                                .addRule("GET", "/api/v1/action", configuration.samplerActionRate())
-                                .addRule("POST", "/api/v1/action", configuration.samplerActionRate()).build())
+        return HttpTracing
+                .newBuilder(Tracing.newBuilder().localServiceName(configuration.serviceName())
+                        .sampler(CountingSampler.create(configuration.samplerRate()))
+                        .spanReporter(createReporter(configuration)).build())
+                .serverSampler(HttpRuleSampler.newBuilder()
+                        .addRule("GET", "/api/v1/component", configuration.samplerComponentRate())
+                        .addRule("POST", "/api/v1/execution", configuration.samplerExecutionRate())
+                        .addRule("GET", "/api/v1/action", configuration.samplerActionRate())
+                        .addRule("POST", "/api/v1/action", configuration.samplerActionRate()).build())
                 .clientSampler(HttpRuleSampler.newBuilder().build()).build();
     }
 
@@ -87,7 +89,8 @@ public class BraveConfiguration {
     private Sender toUrlSender(final String reporter) {
         final Map<String, String> configuration = readConfiguration(reporter);
         if (!configuration.containsKey("endpoint")) {
-            throw new IllegalArgumentException("Please pass endpoint configuration to the url reporter: url(endpoint=....)");
+            throw new IllegalArgumentException(
+                    "Please pass endpoint configuration to the url reporter: url(endpoint=....)");
         }
 
         try {
@@ -103,21 +106,25 @@ public class BraveConfiguration {
         } catch (final InvocationTargetException e) {
             throw new IllegalArgumentException(e.getTargetException());
         } catch (final IllegalAccessException | NoSuchMethodException e) {
-            throw new IllegalArgumentException("You surely have a not compatible zipkin-sender-urlconnection dependency");
+            throw new IllegalArgumentException(
+                    "You surely have a not compatible zipkin-sender-urlconnection dependency");
         } catch (final ClassNotFoundException e) {
-            throw new IllegalStateException("Did you add io.zipkin.reporter2:zipkin-sender-urlconnection to the classpath?", e);
+            throw new IllegalStateException(
+                    "Did you add io.zipkin.reporter2:zipkin-sender-urlconnection to the classpath?", e);
         }
     }
 
     private Sender toKafkaSender(final String reporter) {
         final Map<String, String> configuration = readConfiguration(reporter);
         if (!configuration.containsKey("servers")) {
-            throw new IllegalArgumentException("Please pass servers configuration to the kafka reporter: kafka(servers=....)");
+            throw new IllegalArgumentException(
+                    "Please pass servers configuration to the kafka reporter: kafka(servers=....)");
         }
 
         try {
-            Object builder = Thread.currentThread().getContextClassLoader().loadClass("zipkin2.reporter.kafka11.KafkaSender")
-                    .getMethod("create", String.class).invoke(null, configuration.get("servers"));
+            Object builder = Thread.currentThread().getContextClassLoader()
+                    .loadClass("zipkin2.reporter.kafka11.KafkaSender").getMethod("create", String.class)
+                    .invoke(null, configuration.get("servers"));
             builder = builderSet(builder, "messageMaxBytes", configuration, int.class);
             builder = builderSet(builder, "encoding", configuration, Encoding.class);
             builder = builderSet(builder, "overrides", configuration, Map.class);
@@ -127,12 +134,13 @@ public class BraveConfiguration {
         } catch (final IllegalAccessException | NoSuchMethodException e) {
             throw new IllegalArgumentException("You surely have a not compatible zipkin-sender-kafka11 dependency");
         } catch (final ClassNotFoundException e) {
-            throw new IllegalStateException("Did you add io.zipkin.reporter2:zipkin-sender-kafka11 to the classpath?", e);
+            throw new IllegalStateException("Did you add io.zipkin.reporter2:zipkin-sender-kafka11 to the classpath?",
+                    e);
         }
     }
 
-    private Object builderSet(final Object builder, final String name, final Map<String, String> config, final Class<?> type,
-            final Class<?>... otherParams) {
+    private Object builderSet(final Object builder, final String name, final Map<String, String> config,
+            final Class<?> type, final Class<?>... otherParams) {
         if (!config.containsKey(name)) {
             return builder;
         }
@@ -146,7 +154,8 @@ public class BraveConfiguration {
         } else if (Map.class == type) {
             value = readConfiguration(value.toString());
         }
-        final Class<?>[] params = Stream.concat(Stream.of(type), otherParams == null ? Stream.empty() : Stream.of(otherParams))
+        final Class<?>[] params = Stream
+                .concat(Stream.of(type), otherParams == null ? Stream.empty() : Stream.of(otherParams))
                 .toArray(Class[]::new);
         final Object[] values = new Object[params.length];
         values[0] = value;
@@ -171,8 +180,8 @@ public class BraveConfiguration {
 
     private Map<String, String> readConfiguration(final String reporter) {
         return new StringPropertiesTokenizer(
-                reporter.contains("(") ? reporter.substring(reporter.indexOf('(') + 1, reporter.length() - 1) : "").tokens()
-                        .stream().map(data -> data.split("=")).collect(toMap(s -> s[0], s -> s[1]));
+                reporter.contains("(") ? reporter.substring(reporter.indexOf('(') + 1, reporter.length() - 1) : "")
+                        .tokens().stream().map(data -> data.split("=")).collect(toMap(s -> s[0], s -> s[1]));
 
     }
 }

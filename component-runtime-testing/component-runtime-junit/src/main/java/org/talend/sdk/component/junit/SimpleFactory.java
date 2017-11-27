@@ -52,8 +52,8 @@ public class SimpleFactory {
         return computeConfiguration(params.getNestedParameters(), prefix, instance);
     }
 
-    private static Map<String, String> computeConfiguration(final List<ParameterMeta> nestedParameters, final String prefix,
-            final Object instance) {
+    private static Map<String, String> computeConfiguration(final List<ParameterMeta> nestedParameters,
+            final String prefix, final Object instance) {
         if (nestedParameters == null) {
             return emptyMap();
         }
@@ -72,7 +72,8 @@ public class SimpleFactory {
                 final AtomicInteger index = new AtomicInteger(0);
                 return values.stream().map(item -> {
                     final int idx = index.getAndIncrement();
-                    if (param.getNestedParameters().size() == 1 && isPrimitive(param.getNestedParameters().iterator().next())) {
+                    if (param.getNestedParameters().size() == 1
+                            && isPrimitive(param.getNestedParameters().iterator().next())) {
                         return singletonMap(param.getPath() + "[" + idx + "]", item.toString());
                     }
                     return computeConfiguration(param.getNestedParameters(), param.getPath() + "[" + idx + "].", item);
@@ -85,7 +86,8 @@ public class SimpleFactory {
 
     private static boolean isPrimitive(final ParameterMeta next) {
         return Stream
-                .of(ParameterMeta.Type.STRING, ParameterMeta.Type.BOOLEAN, ParameterMeta.Type.ENUM, ParameterMeta.Type.NUMBER)
+                .of(ParameterMeta.Type.STRING, ParameterMeta.Type.BOOLEAN, ParameterMeta.Type.ENUM,
+                        ParameterMeta.Type.NUMBER)
                 .anyMatch(v -> v == next.getType());
     }
 

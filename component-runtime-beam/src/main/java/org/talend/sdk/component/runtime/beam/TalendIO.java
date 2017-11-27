@@ -57,7 +57,8 @@ public final class TalendIO {
         return new Write(output);
     }
 
-    private static abstract class Base<A extends PInput, B extends POutput, D extends Lifecycle> extends PTransform<A, B> {
+    private static abstract class Base<A extends PInput, B extends POutput, D extends Lifecycle>
+            extends PTransform<A, B> {
 
         protected D delegate;
 
@@ -154,7 +155,8 @@ public final class TalendIO {
                 throws Exception {
             mapper.start();
             try {
-                return mapper.split(desiredBundleSizeBytes).stream().map(i -> new BoundedSourceImpl<T>(i)).collect(toList());
+                return mapper.split(desiredBundleSizeBytes).stream().map(i -> new BoundedSourceImpl<T>(i)).collect(
+                        toList());
             } finally {
                 mapper.stop();
             }
@@ -198,11 +200,12 @@ public final class TalendIO {
         private Mapper mapper;
 
         @Override
-        public List<? extends UnboundedSource<T, EmptyCheckMark>> split(final int desiredNumSplits, final PipelineOptions options)
-                throws Exception {
+        public List<? extends UnboundedSource<T, EmptyCheckMark>> split(final int desiredNumSplits,
+                final PipelineOptions options) throws Exception {
             mapper.start();
             try {
-                return mapper.split(desiredNumSplits).stream().map(i -> new UnBoundedSourceImpl<T>(i)).collect(toList());
+                return mapper.split(desiredNumSplits).stream().map(i -> new UnBoundedSourceImpl<T>(i)).collect(
+                        toList());
             } finally {
                 mapper.stop();
             }

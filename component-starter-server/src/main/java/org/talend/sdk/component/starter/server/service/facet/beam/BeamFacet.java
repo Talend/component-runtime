@@ -68,9 +68,10 @@ public class BeamFacet implements FacetGenerator, Versions {
 
     @Override
     public Stream<InMemoryFile> create(final String packageBase, final Build build, final Collection<String> facets,
-                                       final Collection<ProjectRequest.SourceConfiguration> sources,
-                                       final Collection<ProjectRequest.ProcessorConfiguration> processors) {
-        final boolean hasComponent = (sources != null && !sources.isEmpty()) || (processors != null && !processors.isEmpty());
+            final Collection<ProjectRequest.SourceConfiguration> sources,
+            final Collection<ProjectRequest.ProcessorConfiguration> processors) {
+        final boolean hasComponent =
+                (sources != null && !sources.isEmpty()) || (processors != null && !processors.isEmpty());
         if (!hasComponent) {
             return Stream.empty();
         }
@@ -80,7 +81,7 @@ public class BeamFacet implements FacetGenerator, Versions {
     }
 
     private Stream<InMemoryFile> createSourceTest(final String testJava, final String packageBase,
-                                                  final Collection<ProjectRequest.SourceConfiguration> sources) {
+            final Collection<ProjectRequest.SourceConfiguration> sources) {
 
         return sources.stream().flatMap(source -> {
             final String baseName = names.toMapperName(source.getName());
@@ -91,8 +92,9 @@ public class BeamFacet implements FacetGenerator, Versions {
             final String outputRecordName = names.toMapperRecordName(source);
 
             // Configuration structure
-            final boolean hasConfig = source.getConfiguration() != null && source.getConfiguration().getEntries() != null
-                    && !source.getConfiguration().getEntries().isEmpty();
+            final boolean hasConfig =
+                    source.getConfiguration() != null && source.getConfiguration().getEntries() != null
+                            && !source.getConfiguration().getEntries().isEmpty();
             final Set<String> configFields = hasConfig
                     ? source.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(toSet())
                     : emptySet();
@@ -121,53 +123,55 @@ public class BeamFacet implements FacetGenerator, Versions {
     }
 
     private Stream<InMemoryFile> createProcessorsTest(final String testJava, final String packageBase,
-                                                      final Collection<ProjectRequest.ProcessorConfiguration> processors) {
+            final Collection<ProjectRequest.ProcessorConfiguration> processors) {
 
         return processors.stream().flatMap(processor -> {
-            final boolean isOutput = processor.getOutputStructures() == null || processor.getOutputStructures().isEmpty();
+            final boolean isOutput =
+                    processor.getOutputStructures() == null || processor.getOutputStructures().isEmpty();
             final String baseName = names.toProcessorName(processor);
             final String testClassName = baseName + "BeamTest";
             final String configurationClassName = names.toConfigurationName(baseName);
             final String classDir = isOutput ? "output" : "processor";
 
             // Configuration structure
-            final boolean hasConfig = processor.getConfiguration() != null && processor.getConfiguration().getEntries() != null
-                    && !processor.getConfiguration().getEntries().isEmpty();
+            final boolean hasConfig =
+                    processor.getConfiguration() != null && processor.getConfiguration().getEntries() != null
+                            && !processor.getConfiguration().getEntries().isEmpty();
             final Set<String> configFields = hasConfig
-                    ? processor.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(toSet())
+                    ? processor.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(
+                            toSet())
                     : emptySet();
 
             // input branches names
-            final Set<Map.Entry<String, String>> inputBranches = processor.getInputStructures().entrySet().stream()
-                                                                          .flatMap(in -> {
-                                                                              final String inName = in.getValue().isGeneric() ? "ObjectMap"
-                                                                                      : capitalize(processor.getName()) + capitalize(names.sanitizeConnectionName(in.getKey()))
-                                                                                      + "Input";
-                                                                              Map<String, String> map = new HashMap<String, String>() {
+            final Set<Map.Entry<String, String>> inputBranches =
+                    processor.getInputStructures().entrySet().stream().flatMap(in -> {
+                        final String inName = in.getValue().isGeneric() ? "ObjectMap"
+                                : capitalize(processor.getName())
+                                        + capitalize(names.sanitizeConnectionName(in.getKey())) + "Input";
+                        Map<String, String> map = new HashMap<String, String>() {
 
-                                                                                  {
-                                                                                      put(in.getKey(), inName);
-                                                                                  }
-                                                                              };
+                            {
+                                put(in.getKey(), inName);
+                            }
+                        };
 
-                                                                              return map.entrySet().stream();
-                                                                          }).collect(toSet());
+                        return map.entrySet().stream();
+                    }).collect(toSet());
 
             // outputNames
-            final Set<Map.Entry<String, String>> outputBranches = !isOutput
-                    ? processor.getOutputStructures().entrySet().stream().flatMap(e -> {
-                final String outName = e.getValue().isGeneric() ? "ObjectMap"
-                        : capitalize(processor.getName()) + capitalize(names.sanitizeConnectionName(e.getKey()))
-                        + "Output";
-                Map<String, String> map = new HashMap<String, String>() {
+            final Set<Map.Entry<String, String>> outputBranches =
+                    !isOutput ? processor.getOutputStructures().entrySet().stream().flatMap(e -> {
+                        final String outName = e.getValue().isGeneric() ? "ObjectMap"
+                                : capitalize(processor.getName()) + capitalize(names.sanitizeConnectionName(e.getKey()))
+                                        + "Output";
+                        Map<String, String> map = new HashMap<String, String>() {
 
-                    {
-                        put(e.getKey(), outName);
-                    }
-                };
-                return map.entrySet().stream();
-            }).collect(toSet())
-                    : emptySet();
+                            {
+                                put(e.getKey(), outName);
+                            }
+                        };
+                        return map.entrySet().stream();
+                    }).collect(toSet()) : emptySet();
 
             final boolean isGeneric = inputBranches.stream().anyMatch(e -> "ObjectMap".equals(e.getValue()))
                     || outputBranches.stream().anyMatch(e -> "ObjectMap".equals(e.getValue()));

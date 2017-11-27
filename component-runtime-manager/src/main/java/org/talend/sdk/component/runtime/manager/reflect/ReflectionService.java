@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager.reflect;
 
@@ -55,13 +55,16 @@ public class ReflectionService {
 
     private final ParameterModelService parameterModelService;
 
-    // note: we use xbean for now but we can need to add some caching inside if we abuse of it at runtime.
+    // note: we use xbean for now but we can need to add some caching inside if we
+    // abuse of it at runtime.
     // not a concern for now.
     //
-    // note2: compared to {@link ParameterModelService}, here we build the instance and we start from the config and not the
+    // note2: compared to {@link ParameterModelService}, here we build the instance
+    // and we start from the config and not the
     // model.
     //
-    // IMPORTANT: ensure to be able to read all data (including collection) from a map to support system properties override
+    // IMPORTANT: ensure to be able to read all data (including collection) from a
+    // map to support system properties override
     public Function<Map<String, String>, Object[]> parameterFactory(final Executable executable,
             final Map<Class<?>, Object> precomputed) {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -75,8 +78,8 @@ public class ReflectionService {
                 thread.setContextClassLoader(old);
             }
         };
-        final Collection<Function<Map<String, String>, Object>> factories = Stream.of(executable.getParameters())
-                .map(parameter -> {
+        final Collection<Function<Map<String, String>, Object>> factories =
+                Stream.of(executable.getParameters()).map(parameter -> {
                     final String name = parameterModelService.findName(parameter);
                     final Type parameterizedType = parameter.getParameterizedType();
                     if (Class.class.isInstance(parameterizedType)) {
@@ -84,8 +87,8 @@ public class ReflectionService {
                         if (value != null) {
                             return (Function<Map<String, String>, Object>) config -> value;
                         }
-                        final BiFunction<String, Map<String, Object>, Object> objectFactory = createObjectFactory(loader,
-                                contextualSupplier, parameterizedType);
+                        final BiFunction<String, Map<String, Object>, Object> objectFactory =
+                                createObjectFactory(loader, contextualSupplier, parameterizedType);
                         return (Function<Map<String, String>, Object>) config -> objectFactory.apply(name,
                                 Map.class.cast(config));
                     }
@@ -97,15 +100,20 @@ public class ReflectionService {
                                 final Class<?> collectionType = Class.class.cast(pt.getRawType());
                                 final Type itemType = pt.getActualTypeArguments()[0];
                                 if (!Class.class.isInstance(itemType)) {
-                                    throw new IllegalArgumentException("For now we only support Collection<T> with T a Class<?>");
+                                    throw new IllegalArgumentException(
+                                            "For now we only support Collection<T> with T a Class<?>");
                                 }
                                 final Class<?> itemClass = Class.class.cast(itemType);
 
-                                // if we have services matching this type then we return the collection of services, otherwise
+                                // if we have services matching this type then we return the collection of
+                                // services, otherwise
                                 // we consider it is a config
-                                final Collection<Object> services = precomputed.entrySet().stream()
+                                final Collection<Object> services = precomputed
+                                        .entrySet()
+                                        .stream()
                                         .sorted(Comparator.comparing(e -> e.getKey().getName()))
-                                        .filter(e -> itemClass.isAssignableFrom(e.getKey())).map(Map.Entry::getValue)
+                                        .filter(e -> itemClass.isAssignableFrom(e.getKey()))
+                                        .map(Map.Entry::getValue)
                                         .collect(toList());
                                 if (!services.isEmpty()) {
                                     return (Function<Map<String, String>, Object>) config -> services;
@@ -113,10 +121,11 @@ public class ReflectionService {
 
                                 // here we know we just want to instantiate a config list and not services
                                 final Collector collector = Set.class == collectionType ? toSet() : toList();
-                                final BiFunction<String, Map<String, Object>, Object> itemFactory = createObjectFactory(loader,
-                                        contextualSupplier, itemClass);
-                                return (Function<Map<String, String>, Object>) config -> createList(loader, contextualSupplier,
-                                        name, collectionType, itemClass, collector, itemFactory, Map.class.cast(config));
+                                final BiFunction<String, Map<String, Object>, Object> itemFactory =
+                                        createObjectFactory(loader, contextualSupplier, itemClass);
+                                return (Function<Map<String, String>, Object>) config -> createList(loader,
+                                        contextualSupplier, name, collectionType, itemClass, collector, itemFactory,
+                                        Map.class.cast(config));
                             }
                             if (Map.class.isAssignableFrom(Class.class.cast(pt.getRawType()))) {
                                 final Class<?> mapType = Class.class.cast(pt.getRawType());
@@ -128,13 +137,13 @@ public class ReflectionService {
                                 }
                                 final Class<?> keyItemClass = Class.class.cast(keyItemType);
                                 final Class<?> valueItemClass = Class.class.cast(valueItemType);
-                                final BiFunction<String, Map<String, Object>, Object> keyItemFactory = createObjectFactory(loader,
-                                        contextualSupplier, keyItemClass);
-                                final BiFunction<String, Map<String, Object>, Object> valueItemFactory = createObjectFactory(
-                                        loader, contextualSupplier, valueItemClass);
+                                final BiFunction<String, Map<String, Object>, Object> keyItemFactory =
+                                        createObjectFactory(loader, contextualSupplier, keyItemClass);
+                                final BiFunction<String, Map<String, Object>, Object> valueItemFactory =
+                                        createObjectFactory(loader, contextualSupplier, valueItemClass);
                                 final Collector collector = createMapCollector(mapType, keyItemClass, valueItemClass);
-                                return (Function<Map<String, String>, Object>) config -> createMap(name, mapType, keyItemFactory,
-                                        valueItemFactory, collector, Map.class.cast(config));
+                                return (Function<Map<String, String>, Object>) config -> createMap(name, mapType,
+                                        keyItemFactory, valueItemFactory, collector, Map.class.cast(config));
                             }
                         }
                     }
@@ -148,7 +157,8 @@ public class ReflectionService {
         };
     }
 
-    private Collector createMapCollector(final Class<?> mapType, final Class<?> keyItemClass, final Class<?> valueItemClass) {
+    private Collector createMapCollector(final Class<?> mapType, final Class<?> keyItemClass,
+            final Class<?> valueItemClass) {
         final Function<Map.Entry<?, ?>, Object> keyMapper = o -> doConvert(keyItemClass, o.getKey());
         final Function<Map.Entry<?, ?>, Object> valueMapper = o -> doConvert(valueItemClass, o.getValue());
         return ConcurrentMap.class.isAssignableFrom(mapType) ? toConcurrentMap(keyMapper, valueMapper)
@@ -235,13 +245,18 @@ public class ReflectionService {
     }
 
     private String[] findArgsName(final Class clazz) {
-        return Stream.of(clazz.getConstructors()).filter(c -> c.isAnnotationPresent(ConstructorProperties.class)).findFirst()
-                .map(c -> ConstructorProperties.class.cast(c.getAnnotation(ConstructorProperties.class)).value()).orElse(null);
+        return Stream
+                .of(clazz.getConstructors())
+                .filter(c -> c.isAnnotationPresent(ConstructorProperties.class))
+                .findFirst()
+                .map(c -> ConstructorProperties.class.cast(c.getAnnotation(ConstructorProperties.class)).value())
+                .orElse(null);
     }
 
     private Object createObject(final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier,
             final Class clazz, final String[] args, final String name, final Map<String, Object> config) {
-        if (PropertyEditors.canConvert(clazz) && config.size() == 1) { // direct conversion using the configured converter/editor
+        if (PropertyEditors.canConvert(clazz) && config.size() == 1) { // direct conversion using the configured
+                                                                       // converter/editor
             final Object configValue = config.values().iterator().next();
             if (String.class.isInstance(configValue)) {
                 return PropertyEditors.getValue(clazz, String.class.cast(configValue));
@@ -254,11 +269,13 @@ public class ReflectionService {
         recipe.allow(org.apache.xbean.recipe.Option.PRIVATE_PROPERTIES);
         recipe.allow(org.apache.xbean.recipe.Option.CASE_INSENSITIVE_PROPERTIES);
         recipe.allow(org.apache.xbean.recipe.Option.IGNORE_MISSING_PROPERTIES);
-        recipe.setProperty("rawProperties", new UnsetPropertiesRecipe()); // allows to access not matched properties directly
+        recipe.setProperty("rawProperties", new UnsetPropertiesRecipe()); // allows to access not matched properties
+                                                                          // directly
         ofNullable(args).ifPresent(recipe::setConstructorArgNames);
 
-        final Map<String, Object> specificMapping = config.entrySet().stream().filter(e -> e.getKey().startsWith(prefix))
-                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        final Map<String, Object> specificMapping =
+                config.entrySet().stream().filter(e -> e.getKey().startsWith(prefix)).collect(
+                        toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // extract map configuration
         final Map<String, Object> mapEntries = specificMapping.entrySet().stream().filter(e -> {
@@ -266,7 +283,8 @@ public class ReflectionService {
             final int idxStart = key.indexOf('[', prefix.length());
             return idxStart > 0 && ((idxStart > ".key".length()
                     && key.substring(idxStart - ".key".length(), idxStart).equals(".key"))
-                    || (idxStart > ".value".length() && key.substring(idxStart - ".value".length(), idxStart).equals(".value")));
+                    || (idxStart > ".value".length()
+                            && key.substring(idxStart - ".value".length(), idxStart).equals(".value")));
         }).sorted(this::sortIndexEntry).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
         mapEntries.keySet().forEach(specificMapping::remove);
         final Map<String, Object> preparedMaps = new HashMap<>();
@@ -285,7 +303,8 @@ public class ReflectionService {
                 continue;
             }
 
-            final Type genericType = findField(enclosingName.substring(enclosingName.indexOf('.') + 1), clazz).getGenericType();
+            final Type genericType =
+                    findField(enclosingName.substring(enclosingName.indexOf('.') + 1), clazz).getGenericType();
             if (!ParameterizedType.class.isInstance(genericType)) {
                 throw new IllegalArgumentException(
                         clazz + "#" + enclosingName + " should be a generic map and not a " + genericType);
@@ -293,14 +312,15 @@ public class ReflectionService {
             final ParameterizedType pt = ParameterizedType.class.cast(genericType);
             if (pt.getActualTypeArguments().length != 2 || !Class.class.isInstance(pt.getActualTypeArguments()[0])
                     || !Class.class.isInstance(pt.getActualTypeArguments()[1])) {
-                throw new IllegalArgumentException(
-                        clazz + "#" + enclosingName + " should be a generic map with a key and value class type (" + pt + ")");
+                throw new IllegalArgumentException(clazz + "#" + enclosingName
+                        + " should be a generic map with a key and value class type (" + pt + ")");
             }
 
             final Class<?> keyType = Class.class.cast(pt.getActualTypeArguments()[0]);
             final Class<?> valueType = Class.class.cast(pt.getActualTypeArguments()[1]);
             preparedMaps.put(enclosingName,
-                    createMap(prefix + enclosingName, Map.class, createObjectFactory(loader, contextualSupplier, keyType),
+                    createMap(prefix + enclosingName, Map.class,
+                            createObjectFactory(loader, contextualSupplier, keyType),
                             createObjectFactory(loader, contextualSupplier, valueType),
                             createMapCollector(Class.class.cast(pt.getRawType()), keyType, valueType),
                             new HashMap<>(mapEntries)));
@@ -328,7 +348,8 @@ public class ReflectionService {
             if (Class.class.isInstance(genericType)) {
                 final Class<?> arrayClass = Class.class.cast(genericType);
                 if (arrayClass.isArray()) {
-                    // we could use Array.newInstance but for now use the list, shouldn't impact much the perf
+                    // we could use Array.newInstance but for now use the list, shouldn't impact
+                    // much the perf
                     final Collection<?> list = Collection.class.cast(createList(loader, contextualSupplier,
                             prefix + enclosingName, List.class, arrayClass.getComponentType(), toList(),
                             createObjectFactory(loader, contextualSupplier, arrayClass.getComponentType()),
@@ -353,14 +374,14 @@ public class ReflectionService {
             }
             final ParameterizedType pt = ParameterizedType.class.cast(genericType);
             if (pt.getActualTypeArguments().length != 1 || !Class.class.isInstance(pt.getActualTypeArguments()[0])) {
-                throw new IllegalArgumentException(clazz + "#" + enclosingName + " should use concrete class items and not a "
-                        + pt.getActualTypeArguments()[0]);
+                throw new IllegalArgumentException(clazz + "#" + enclosingName
+                        + " should use concrete class items and not a " + pt.getActualTypeArguments()[0]);
             }
             final Type itemType = pt.getActualTypeArguments()[0];
             preparedLists.put(enclosingName,
                     createList(loader, contextualSupplier, prefix + enclosingName, Class.class.cast(pt.getRawType()),
-                            Class.class.cast(itemType), toList(), createObjectFactory(loader, contextualSupplier, itemType),
-                            new HashMap<>(listEntries)));
+                            Class.class.cast(itemType), toList(),
+                            createObjectFactory(loader, contextualSupplier, itemType), new HashMap<>(listEntries)));
         }
 
         // extract nested Object configurations
@@ -371,14 +392,17 @@ public class ReflectionService {
         objectEntries.keySet().forEach(specificMapping::remove);
         final Map<String, Object> preparedObjects = new HashMap<>();
         for (final Map.Entry<String, Object> entry : objectEntries.entrySet()) {
-            final String nestedName = entry.getKey().substring(prefix.length(), entry.getKey().indexOf('.', prefix.length() + 1));
+            final String nestedName =
+                    entry.getKey().substring(prefix.length(), entry.getKey().indexOf('.', prefix.length() + 1));
             final Field field = findField(nestedName, clazz);
             preparedObjects.put(nestedName, createObject(loader, contextualSupplier, field.getType(),
                     findArgsName(field.getType()), prefix + nestedName, config));
         }
 
         // other entries can be directly set
-        final Map<String, Object> normalizedConfig = specificMapping.entrySet().stream()
+        final Map<String, Object> normalizedConfig = specificMapping
+                .entrySet()
+                .stream()
                 .filter(e -> e.getKey().startsWith(prefix) && e.getKey().substring(prefix.length()).indexOf('.') < 0)
                 .collect(toMap(e -> {
                     final String specificConfig = e.getKey().substring(prefix.length());

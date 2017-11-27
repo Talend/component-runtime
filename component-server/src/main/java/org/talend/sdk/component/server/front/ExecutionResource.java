@@ -185,13 +185,15 @@ public class ExecutionResource {
             + "The input format is a JSON based format where each like is a json record - same as for the symmetric endpoint.")
     public void write(@Suspended final AsyncResponse response, @Context final Providers providers,
             @PathParam("family") final String family, @PathParam("component") final String component,
-            @QueryParam("group-size") @DefaultValue("50") final long chunkSize, final InputStream stream) throws IOException {
+            @QueryParam("group-size") @DefaultValue("50") final long chunkSize, final InputStream stream)
+            throws IOException {
         response.setTimeoutHandler(asyncResponse -> log.warn("Timeout on dataset retrieval"));
         response.setTimeout(appConfiguration.datasetRetrieverTimeout(), SECONDS);
         executorService.submit(() -> {
             Processor processor = null;
             final WriteStatistics statistics = new WriteStatistics(0);
-            try (final BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            try (final BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(stream, StandardCharsets.UTF_8))) {
                 String line = reader.readLine();
                 if (line == null || line.trim().isEmpty()) {
                     response.resume(new WebApplicationException(Response.status(BAD_REQUEST)
@@ -251,7 +253,7 @@ public class ExecutionResource {
         });
     }
 
-    private Map<String, String> convertConfig(JsonObject configuration) {
+    private Map<String, String> convertConfig(final JsonObject configuration) {
         return configuration.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> {
             switch (e.getValue().getValueType()) {
             case TRUE:
@@ -263,8 +265,8 @@ public class ExecutionResource {
             case STRING:
                 return JsonString.class.cast(e.getValue()).getString();
             default:
-                throw new WebApplicationException(Response.status(BAD_REQUEST)
-                        .entity(new ErrorPayload(BAD_FORMAT, "Unsupported parameter " + e.getKey() + "=" + e.getValue()))
+                throw new WebApplicationException(Response.status(BAD_REQUEST).entity(
+                        new ErrorPayload(BAD_FORMAT, "Unsupported parameter " + e.getKey() + "=" + e.getValue()))
                         .build());
             }
         }));

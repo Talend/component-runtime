@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.container.maven.shade;
 
@@ -101,25 +101,27 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
             artifacts.addAll(userArtifacts.stream().flatMap(coords -> {
                 try {
                     final String type = ofNullable(coords.type).filter(s -> !s.isEmpty()).orElse("jar");
-                    final Artifact art = new DefaultArtifact(coords.groupId, coords.artifactId, coords.version, coords.scope,
-                            type, ofNullable(coords.classifier).orElse(""), new DefaultArtifactHandler() {
+                    final Artifact art = new DefaultArtifact(coords.groupId, coords.artifactId, coords.version,
+                            coords.scope, type, ofNullable(coords.classifier).orElse(""), new DefaultArtifactHandler() {
 
                                 {
                                     setExtension(type);
                                 }
                             });
-                    final Artifact artifact = resolver.resolveArtifact(session.getProjectBuildingRequest(), art).getArtifact();
+                    final Artifact artifact =
+                            resolver.resolveArtifact(session.getProjectBuildingRequest(), art).getArtifact();
                     if (includeTransitiveDependencies) {
-                        final DefaultProjectBuildingRequest request = new DefaultProjectBuildingRequest(
-                                session.getProjectBuildingRequest());
+                        final DefaultProjectBuildingRequest request =
+                                new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
 
                         try {
-                            final ProjectBuildingResult projectBuildingResult = projectBuilder.build(artifact, true, request);
-                            final DependencyNode transitives = graphBuilder
-                                    .buildDependencyGraph(projectBuildingResult.getProject(), filter);
+                            final ProjectBuildingResult projectBuildingResult =
+                                    projectBuilder.build(artifact, true, request);
+                            final DependencyNode transitives =
+                                    graphBuilder.buildDependencyGraph(projectBuildingResult.getProject(), filter);
                             final CollectingDependencyNodeVisitor visitor = new CollectingDependencyNodeVisitor();
-                            transitives.accept(
-                                    new FilteringDependencyNodeVisitor(visitor, new ArtifactDependencyNodeFilter(filter)));
+                            transitives.accept(new FilteringDependencyNodeVisitor(visitor,
+                                    new ArtifactDependencyNodeFilter(filter)));
                             return Stream.concat(Stream.of(artifact),
                                     visitor.getNodes().stream().map(DependencyNode::getArtifact).map(a -> {
                                         try {
@@ -146,7 +148,8 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                 try {
                     artifacts.addAll(project.getArtifacts());
                 } finally {
-                    // shade plugin uses it OOTB so reset it for the end of the execution (in case another transformer needs it)
+                    // shade plugin uses it OOTB so reset it for the end of the execution (in case
+                    // another transformer needs it)
 
                     project.setArtifactFilter(new CumulativeScopeArtifactFilter(singletonList("runtime")));
                 }
@@ -165,15 +168,16 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
             filters.add(new ExcludesArtifactFilter(Stream.of(exclude.split(",")).collect(toList())));
         }
         if (scope != null) {
-            filters.addAll(Stream.of(scope.split(",")).map(singleScope -> singleScope.startsWith("-") ? new ArtifactFilter() {
+            filters.addAll(
+                    Stream.of(scope.split(",")).map(singleScope -> singleScope.startsWith("-") ? new ArtifactFilter() {
 
-                private final ArtifactFilter delegate = newScopeFilter(singleScope.substring(1));
+                        private final ArtifactFilter delegate = newScopeFilter(singleScope.substring(1));
 
-                @Override
-                public boolean include(final Artifact artifact) {
-                    return !delegate.include(artifact);
-                }
-            } : newScopeFilter(singleScope)).collect(toList()));
+                        @Override
+                        public boolean include(final Artifact artifact) {
+                            return !delegate.include(artifact);
+                        }
+                    } : newScopeFilter(singleScope)).collect(toList()));
         }
         return new AndArtifactFilter(filters);
     }

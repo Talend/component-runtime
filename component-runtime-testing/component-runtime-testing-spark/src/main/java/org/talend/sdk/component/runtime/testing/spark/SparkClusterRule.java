@@ -126,13 +126,14 @@ public class SparkClusterRule extends TemporaryFolder {
                 final String masterHost = InetAddress.getLocalHost().getHostName();
                 final int masterPort = newPort();
                 final int webMasterPort = newPort();
-                final ClusterConfig localConfig = new ClusterConfig(masterHost, masterPort, webMasterPort, sparkHome,
-                        shutdownHooks, version);
+                final ClusterConfig localConfig =
+                        new ClusterConfig(masterHost, masterPort, webMasterPort, sparkHome, shutdownHooks, version);
                 config.set(localConfig);
 
                 try (final SparkProcessMonitor master = new SparkProcessMonitor(localConfig, "spark-master-monitor",
-                        () -> isOpen(masterHost, masterPort), "org.apache.spark.deploy.master.Master", "--host", masterHost,
-                        "--port", Integer.toString(masterPort), "--webui-port", Integer.toString(webMasterPort))) {
+                        () -> isOpen(masterHost, masterPort), "org.apache.spark.deploy.master.Master", "--host",
+                        masterHost, "--port", Integer.toString(masterPort), "--webui-port",
+                        Integer.toString(webMasterPort))) {
                     final Thread masterHook = new Thread(master::close);
                     shutdownHooks.add(masterHook);
                     Runtime.getRuntime().addShutdownHook(masterHook);
@@ -141,16 +142,21 @@ public class SparkClusterRule extends TemporaryFolder {
 
                     LOGGER.info("Started Master on " + getSparkMaster());
 
-                    final int firstSlavePort = newPort(); // todo: enhance it if using slaves > 1, we need to lock all ports
+                    final int firstSlavePort = newPort(); // todo: enhance it if using slaves > 1, we need to lock all
+                                                          // ports
                     // together
-                    final List<SparkProcessMonitor> slaves = IntStream.range(0, SparkClusterRule.this.slaves).mapToObj(i -> {
-                        final int slavePort = firstSlavePort + 1 + (2 * i);
-                        return new SparkProcessMonitor(localConfig, "spark-slave-" + i + "-monitor",
-                                () -> isOpen(masterHost, slavePort), "org.apache.spark.deploy.worker.Worker", "--host",
-                                masterHost, "--port", Integer.toString(slavePort), "--webui-port",
-                                Integer.toString(slavePort + 1), getSparkMaster());
-                    }).collect(toList());
-                    slaves.stream().map(m -> new Thread(m::close)).peek(m -> Runtime.getRuntime().addShutdownHook(m))
+                    final List<SparkProcessMonitor> slaves =
+                            IntStream.range(0, SparkClusterRule.this.slaves).mapToObj(i -> {
+                                final int slavePort = firstSlavePort + 1 + (2 * i);
+                                return new SparkProcessMonitor(localConfig, "spark-slave-" + i + "-monitor",
+                                        () -> isOpen(masterHost, slavePort), "org.apache.spark.deploy.worker.Worker",
+                                        "--host", masterHost, "--port", Integer.toString(slavePort), "--webui-port",
+                                        Integer.toString(slavePort + 1), getSparkMaster());
+                            }).collect(toList());
+                    slaves
+                            .stream()
+                            .map(m -> new Thread(m::close))
+                            .peek(m -> Runtime.getRuntime().addShutdownHook(m))
                             .forEach(shutdownHooks::add);
                     try {
                         slaves.forEach(SparkProcessMonitor::start);
@@ -177,11 +183,15 @@ public class SparkClusterRule extends TemporaryFolder {
         // deps
         final File libFolder = new File(sparkHome, version.libFolder());
         final ConfigurableMavenResolverSystem resolver = Maven.configureResolver();
-        final MavenResolutionStrategy resolutionStrategy = new AcceptScopesStrategy(ScopeType.COMPILE, ScopeType.RUNTIME);
-        Stream.of("org.apache.spark:spark-core_" + scalaVersion + ":" + sparkVersion,
-                "org.apache.spark:spark-streaming_" + scalaVersion + ":" + sparkVersion)
+        final MavenResolutionStrategy resolutionStrategy =
+                new AcceptScopesStrategy(ScopeType.COMPILE, ScopeType.RUNTIME);
+        Stream
+                .of("org.apache.spark:spark-core_" + scalaVersion + ":" + sparkVersion,
+                        "org.apache.spark:spark-streaming_" + scalaVersion + ":" + sparkVersion)
                 .peek(dep -> LOGGER.info("Resolving " + dep + "..."))
-                .flatMap(dep -> Stream.of(resolver.resolve(dep).using(resolutionStrategy).asFile())).distinct().forEach(dep -> {
+                .flatMap(dep -> Stream.of(resolver.resolve(dep).using(resolutionStrategy).asFile()))
+                .distinct()
+                .forEach(dep -> {
                     try {
                         LOGGER.debug("Copying " + dep.getName() + " dependency");
                         Files.copy(dep.toPath(), new File(libFolder, dep.getName()).toPath(),
@@ -200,8 +210,8 @@ public class SparkClusterRule extends TemporaryFolder {
                 fail(e.getMessage());
             }
 
-            try (final JarOutputStream file = new JarOutputStream(new FileOutputStream(
-                    new File(sparkHome, version.libFolder() + "/spark-assembly-" + sparkVersion + "-hadoop2.6.0.jar")))) {
+            try (final JarOutputStream file = new JarOutputStream(new FileOutputStream(new File(sparkHome,
+                    version.libFolder() + "/spark-assembly-" + sparkVersion + "-hadoop2.6.0.jar")))) {
                 file.putNextEntry(new ZipEntry("META-INF/marker"));
                 file.write("just to let spark find the jar".getBytes(StandardCharsets.UTF_8));
             } catch (final IOException e) {
@@ -221,7 +231,8 @@ public class SparkClusterRule extends TemporaryFolder {
 
                 try {
                     final URL url = new URL(from);
-                    try (final InputStream stream = url.openStream(); final OutputStream out = new FileOutputStream(target)) {
+                    try (final InputStream stream = url.openStream();
+                            final OutputStream out = new FileOutputStream(target)) {
                         final byte[] buffer = new byte[8192];
                         int read;
                         while ((read = stream.read(buffer)) >= 0) {
@@ -240,18 +251,24 @@ public class SparkClusterRule extends TemporaryFolder {
     }
 
     /**
-     * Same as {@link SparkClusterRule#submit(Class, String...)} but automatically set
-     * {@code --jars} arguments and bundle on the fly folders into jars.
+     * Same as {@link SparkClusterRule#submit(Class, String...)} but automatically
+     * set {@code --jars} arguments and bundle on the fly folders into jars.
      *
-     * @param main the main to execute.
-     * @param args potential arguments to pass to spark submit.
+     * @param main
+     * the main to execute.
+     * @param args
+     * potential arguments to pass to spark submit.
      */
     public void submitClasspath(final Class<?> main, final String... args) {
         final Set<File> files;
         try {
             final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-            files = new UrlSet(ClassLoaders.findUrls(contextClassLoader)).excludeJvm().getUrls().stream()
-                    .map(ClassLoaders::toFile).collect(toSet());
+            files = new UrlSet(ClassLoaders.findUrls(contextClassLoader))
+                    .excludeJvm()
+                    .getUrls()
+                    .stream()
+                    .map(ClassLoaders::toFile)
+                    .collect(toSet());
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
@@ -270,23 +287,35 @@ public class SparkClusterRule extends TemporaryFolder {
             }
             return file.getAbsolutePath();
         }).collect(joining(File.pathSeparator));
-        submit(main, Stream.concat(args == null ? Stream.empty() : Stream.of(args), Stream.of("--jars", classpath))
-                .toArray(String[]::new));
+        submit(main,
+                Stream.concat(args == null ? Stream.empty() : Stream.of(args), Stream.of("--jars", classpath)).toArray(
+                        String[]::new));
     }
 
     /**
      * Submits a main to spark cluster.
      *
-     * @param main the main to submit to spark.
-     * @param args the spark submit arguments, some values have defaults like memory, cores number and deploy mode.
+     * @param main
+     * the main to submit to spark.
+     * @param args
+     * the spark submit arguments, some values have defaults like memory,
+     * cores number and deploy mode.
      */
     public void submit(final Class<?> main, final String... args) {
-        final String bundle = of(main).map(c -> c.getName().replace('.', '/') + ".class")
-                .flatMap(resource -> config.get().jarCache.entrySet().stream()
-                        .filter(jar -> new File(jar.getKey(), resource).exists()).findAny().map(Map.Entry::getValue))
+        final String bundle = of(main)
+                .map(c -> c.getName().replace('.', '/') + ".class")
+                .flatMap(resource -> config.get().jarCache
+                        .entrySet()
+                        .stream()
+                        .filter(jar -> new File(jar.getKey(), resource).exists())
+                        .findAny()
+                        .map(Map.Entry::getValue))
                 .orElseGet(() -> of(jarLocation(main)) // shade case in IT
                         .flatMap(f -> f.getName().endsWith(".jar") ? Optional.of(f)
-                                : Optional.ofNullable(f.getParentFile().listFiles()).map(Stream::of).orElseGet(Stream::empty)
+                                : Optional
+                                        .ofNullable(f.getParentFile().listFiles())
+                                        .map(Stream::of)
+                                        .orElseGet(Stream::empty)
                                         .filter(file -> file.getName().endsWith(".jar")
                                                 && !file.getName().startsWith("original-"))
                                         .findFirst())
@@ -294,18 +323,22 @@ public class SparkClusterRule extends TemporaryFolder {
                                 + ", run tests after packaging (IT with failsafe for instance)")))
                 .getAbsolutePath();
 
-        final String[] submitArgs = Stream.concat(Stream.concat(
-                Stream.concat(Stream.of("org.apache.spark.deploy.SparkSubmit", "--verbose"), new HashMap<String, String>() {
+        final String[] submitArgs = Stream
+                .concat(Stream.concat(Stream.concat(Stream.of("org.apache.spark.deploy.SparkSubmit", "--verbose"),
+                        new HashMap<String, String>() {
 
-                    { // overridable by args, it is just defaults
-                        put("--executor-memory", "512m"); // 256m fails so don't reduce it too much if you try to go that way
-                        put("--total-executor-cores", "1");
-                        put("--deploy-mode", "cluster");
-                    }
-                }.entrySet().stream().filter(e -> Stream.of(args).noneMatch(p -> p.equals(e.getKey())))
-                        .flatMap(e -> Stream.of(e.getKey(), e.getValue()))),
-                Stream.of("--master", getSparkMaster(), "--class", main.getName(), bundle)),
-                args == null ? Stream.empty() : Stream.of(args)).toArray(String[]::new);
+                            { // overridable by args, it is just defaults
+                                put("--executor-memory", "512m"); // 256m fails so don't reduce it too much if you try
+                                                                  // to go that
+                                                                  // way
+                                put("--total-executor-cores", "1");
+                                put("--deploy-mode", "cluster");
+                            }
+                        }.entrySet().stream().filter(e -> Stream.of(args).noneMatch(p -> p.equals(e.getKey()))).flatMap(
+                                e -> Stream.of(e.getKey(), e.getValue()))),
+                        Stream.of("--master", getSparkMaster(), "--class", main.getName(), bundle)),
+                        args == null ? Stream.empty() : Stream.of(args))
+                .toArray(String[]::new);
         LOGGER.info("Submitting: " + asList(submitArgs));
         final SparkProcessMonitor monitor = new SparkProcessMonitor(config.get(),
                 "spark-submit-" + main.getSimpleName() + "-monitor", () -> true, submitArgs);
@@ -332,8 +365,12 @@ public class SparkClusterRule extends TemporaryFolder {
 
     private void zip(final File root, final JarOutputStream out, final String prefix) {
         final Path rootPath = root.toPath();
-        ofNullable(new File(root, prefix).listFiles()).map(Stream::of).orElseGet(Stream::empty)
-                .filter(f -> !f.getName().startsWith(".")).map(File::getAbsoluteFile).forEach(f -> {
+        ofNullable(new File(root, prefix).listFiles())
+                .map(Stream::of)
+                .orElseGet(Stream::empty)
+                .filter(f -> !f.getName().startsWith("."))
+                .map(File::getAbsoluteFile)
+                .forEach(f -> {
                     final Path asPath = f.toPath();
                     final String name = rootPath.relativize(asPath).toString().replace(File.separatorChar, '/');
                     try {
@@ -386,7 +423,8 @@ public class SparkClusterRule extends TemporaryFolder {
         }
     }
 
-    private static int newPort() { // we can enhance it to preallocate N ports at once if needed and store previously allocated
+    private static int newPort() { // we can enhance it to preallocate N ports at once if needed and store
+                                   // previously allocated
         // port
         try {
             try (final ServerSocket serverSocket = new ServerSocket(0)) {
@@ -414,8 +452,8 @@ public class SparkClusterRule extends TemporaryFolder {
 
         private final Version version;
 
-        private ClusterConfig(final String masterHost, final int masterPort, final int masterWebPort, final File sparkHome,
-                final Collection<Thread> shutdownHooks, final Version version) {
+        private ClusterConfig(final String masterHost, final int masterPort, final int masterWebPort,
+                final File sparkHome, final Collection<Thread> shutdownHooks, final Version version) {
             this.masterHost = masterHost;
             this.masterPort = masterPort;
             this.masterWebPort = masterWebPort;
@@ -456,17 +494,20 @@ public class SparkClusterRule extends TemporaryFolder {
             final File sparkHome = config.sparkHome;
             try {
                 final String classpath = Stream
-                        .of(ofNullable(new File(sparkHome, config.version.libFolder()).listFiles())
-                                .orElseThrow(() -> new IllegalArgumentException("No spark dependencies in " + sparkHome)))
-                        .map(File::getAbsolutePath).collect(joining(File.pathSeparator));
+                        .of(ofNullable(new File(sparkHome, config.version.libFolder()).listFiles()).orElseThrow(
+                                () -> new IllegalArgumentException("No spark dependencies in " + sparkHome)))
+                        .map(File::getAbsolutePath)
+                        .collect(joining(File.pathSeparator));
                 LOGGER.info("Launching " + asList(mainAndArgs));
-                final ProcessBuilder builder = new ProcessBuilder().redirectErrorStream(true).command(Stream.concat(
-                        Stream.of(new File(System.getProperty("java.home"), "bin/java").getAbsolutePath(), "-cp", classpath),
-                        Stream.of(mainAndArgs)).collect(toList()));
+                final ProcessBuilder builder = new ProcessBuilder().redirectErrorStream(true).command(Stream
+                        .concat(Stream.of(new File(System.getProperty("java.home"), "bin/java").getAbsolutePath(),
+                                "-cp", classpath), Stream.of(mainAndArgs))
+                        .collect(toList()));
                 final Map<String, String> environment = builder.environment();
                 environment.put("SPARK_HOME", sparkHome.getAbsolutePath());
                 environment.put("SPARK_SCALA_VERSION", scalaVersion); // using jarLocation we can determine it if needed
-                if (config.version == Version.SPARK_1) { // classpath is relying on assemblies not on maven so force the right
+                if (config.version == Version.SPARK_1) { // classpath is relying on assemblies not on maven so force the
+                                                         // right
                     // classpath - todo: move to --driver-class-path
                     environment.put("SPARK_CLASSPATH", classpath);
                 }
@@ -478,7 +519,8 @@ public class SparkClusterRule extends TemporaryFolder {
                 new Thread(new SurefireWorkaroundOutput(getName(), process.getInputStream())).start();
 
                 int maxRetries = 500;
-                // First try will always return true in Windows, even if the port isn't accessible.
+                // First try will always return true in Windows, even if the port isn't
+                // accessible.
                 while (!healthCheck.getAsBoolean() || !healthCheck.getAsBoolean() && maxRetries-- > 0) {
                     try {
                         process.exitValue();

@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.visitor;
 
@@ -67,8 +67,12 @@ public class ModelVisitor {
     }
 
     private void validatePartitionMapper(final Class<?> type) {
-        if (Stream.of(type.getMethods()).filter(m -> getPartitionMapperMethods().anyMatch(m::isAnnotationPresent))
-                .flatMap(m -> getPartitionMapperMethods().filter(m::isAnnotationPresent)).distinct().count() != 3) {
+        if (Stream
+                .of(type.getMethods())
+                .filter(m -> getPartitionMapperMethods().anyMatch(m::isAnnotationPresent))
+                .flatMap(m -> getPartitionMapperMethods().filter(m::isAnnotationPresent))
+                .distinct()
+                .count() != 3) {
             throw new IllegalArgumentException(
                     type + " partition mapper must have exactly one @Assessor, one @Split and one @Emitter methods");
         }
@@ -83,9 +87,12 @@ public class ModelVisitor {
             }
         });
         Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(Split.class)).forEach(m -> {
-            // for now we could inject it by default but to ensure we can inject more later we must do that validation
-            if (Stream.of(m.getParameters()).filter(
-                    p -> !p.isAnnotationPresent(PartitionSize.class) || (p.getType() != long.class && p.getType() != int.class))
+            // for now we could inject it by default but to ensure we can inject more later
+            // we must do that validation
+            if (Stream
+                    .of(m.getParameters())
+                    .filter(p -> !p.isAnnotationPresent(PartitionSize.class)
+                            || (p.getType() != long.class && p.getType() != int.class))
                     .count() > 0) {
                 throw new IllegalArgumentException(m + " must not have any parameter without @PartitionSize");
             }
@@ -102,11 +109,13 @@ public class ModelVisitor {
 
             final Type arg = splitPt.getActualTypeArguments().length != 1 ? null : splitPt.getActualTypeArguments()[0];
             if (!Class.class.isInstance(arg) || !type.isAssignableFrom(Class.class.cast(arg))) {
-                throw new IllegalArgumentException(m + " must return a Collection<" + type.getName() + "> but found: " + arg);
+                throw new IllegalArgumentException(
+                        m + " must return a Collection<" + type.getName() + "> but found: " + arg);
             }
         });
         Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(Emitter.class)).forEach(m -> {
-            // for now we don't support injection propagation since the mapper should already own all the config
+            // for now we don't support injection propagation since the mapper should
+            // already own all the config
             if (m.getParameterCount() > 0) {
                 throw new IllegalArgumentException(m + " must not have any parameter");
             }
@@ -114,8 +123,8 @@ public class ModelVisitor {
     }
 
     private void validateEmitter(final Class<?> input) {
-        final List<Method> producers = Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(Producer.class))
-                .collect(toList());
+        final List<Method> producers =
+                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(Producer.class)).collect(toList());
         if (producers.size() != 1) {
             throw new IllegalArgumentException(input + " must have a single @Producer method");
         }
@@ -126,8 +135,9 @@ public class ModelVisitor {
     }
 
     private void validateProcessor(final Class<?> input) {
-        final List<Method> producers = Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class))
-                .collect(toList());
+        final List<Method> producers =
+                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).collect(
+                        toList());
         if (producers.size() != 1) {
             throw new IllegalArgumentException(input + " must have a single @ElementListener method");
         }
@@ -148,8 +158,10 @@ public class ModelVisitor {
             throw new IllegalArgumentException(input + " doesn't have the input parameter on its producer method");
         }
 
-        Stream.of(input.getMethods())
-                .filter(m -> m.isAnnotationPresent(BeforeGroup.class) || m.isAnnotationPresent(AfterGroup.class)).forEach(m -> {
+        Stream
+                .of(input.getMethods())
+                .filter(m -> m.isAnnotationPresent(BeforeGroup.class) || m.isAnnotationPresent(AfterGroup.class))
+                .forEach(m -> {
                     if (m.getParameterCount() > 0) {
                         throw new IllegalArgumentException(m + " must not have any parameter");
                     }

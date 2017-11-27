@@ -45,8 +45,8 @@ public class WizardRegistry {
         service = Lookups.service();
 
         try {
-            eRepositoryObjectTypeConstructor = ERepositoryObjectType.class.getDeclaredConstructor(String.class, String.class,
-                    String.class, String.class, int.class, String[].class);
+            eRepositoryObjectTypeConstructor = ERepositoryObjectType.class.getDeclaredConstructor(String.class,
+                    String.class, String.class, String.class, int.class, String[].class);
             if (!eRepositoryObjectTypeConstructor.isAccessible()) {
                 eRepositoryObjectTypeConstructor.setAccessible(true);
             }
@@ -57,9 +57,11 @@ public class WizardRegistry {
 
     public Collection<RepositoryNode> createNodes(final RepositoryNode curParentNode) {
         final String language = Locale.getDefault().getLanguage();
-        return client.details(language)
+        return client
+                .details(language)
                 .filter(detail -> detail.getSecond().getProperties().stream().anyMatch(service::isConfiguration))
-                .map(detail -> createNode(curParentNode, detail.getSecond(), detail.getFirst())).filter(Objects::nonNull)
+                .map(detail -> createNode(curParentNode, detail.getSecond(), detail.getFirst()))
+                .filter(Objects::nonNull)
                 .collect(toList());
     }
 
@@ -69,8 +71,9 @@ public class WizardRegistry {
         final String displayName = detail.getDisplayName();
 
         try {
-            final ERepositoryObjectType repositoryType = eRepositoryObjectTypeConstructor.newInstance(name, displayName, name,
-                    ERepositoryObjectType.METADATA.getFolder() + "/" + name, 100, new String[] { ERepositoryObjectType.PROD_DI });
+            final ERepositoryObjectType repositoryType = eRepositoryObjectTypeConstructor.newInstance(name, displayName,
+                    name, ERepositoryObjectType.METADATA.getFolder() + "/" + name, 100,
+                    new String[] { ERepositoryObjectType.PROD_DI });
             repositoryType.setAParent(ERepositoryObjectType.METADATA);
 
             final RepositoryNode node = new RepositoryNode(null, RepositoryNode.class.cast(curParentNode.getRoot()),

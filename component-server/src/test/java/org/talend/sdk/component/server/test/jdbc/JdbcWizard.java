@@ -48,8 +48,8 @@ public final class JdbcWizard { // just a code style, no enclosing needed
     public static class JdbcWizardCompanionService {
 
         @Wizard(family = "jdbc", value = "dataset")
-        public JdbcDataSet onSubmit(@Option("driver") final DriverSelector first, @Option("store") final JdbcDataStore second,
-                @Option("query") final QueryConfiguration query) {
+        public JdbcDataSet onSubmit(@Option("driver") final DriverSelector first,
+                @Option("store") final JdbcDataStore second, @Option("query") final QueryConfiguration query) {
             return new JdbcDataSet(second, first.getDriver(), query.getQuery(), query.getTimeout());
         }
     }

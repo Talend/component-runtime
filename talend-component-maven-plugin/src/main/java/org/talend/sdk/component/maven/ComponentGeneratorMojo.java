@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.maven;
 
@@ -122,8 +122,8 @@ public class ComponentGeneratorMojo extends AbstractMojo {
 
             final String dependency = ("    <dependency>\n" + "      <groupId>org.talend.sdk.component</groupId>"
                     + "      <artifactId>component-api</artifactId>" + "      <version>"
-                    + Service.class.getPackage().getImplementationVersion() + "</version>" + "    </dependency>\n").replace("  ",
-                            pomUnitarySpacing);
+                    + Service.class.getPackage().getImplementationVersion() + "</version>" + "    </dependency>\n")
+                            .replace("  ", pomUnitarySpacing);
 
             final int dependencies = content.indexOf("<dependencies>");
             if (dependencies < 0) {
@@ -148,7 +148,8 @@ public class ComponentGeneratorMojo extends AbstractMojo {
     private void initGenerationState() {
         { // class
             if (classnameBase == null) {
-                classnameBase = capitalise(Stream.of(splitByCharacterTypeCamelCase(baseDir.getName())).collect(joining("")));
+                classnameBase =
+                        capitalise(Stream.of(splitByCharacterTypeCamelCase(baseDir.getName())).collect(joining("")));
             }
             if (!classnameBase.contains(".")) { // try to guess the package
                 final List<String> stopFolders = asList("input", "output");
@@ -158,16 +159,21 @@ public class ComponentGeneratorMojo extends AbstractMojo {
                     if (!current.exists()) {
                         break; // shouldn't occur
                     }
-                    final Optional<File> child = ofNullable(
-                            current.listFiles((dir, name) -> new File(dir, name).isDirectory() && !name.startsWith(".")))
-                                    .filter(f -> f.length == 1).map(f -> f[0]);
+                    final Optional<File> child = ofNullable(current
+                            .listFiles((dir, name) -> new File(dir, name).isDirectory() && !name.startsWith(".")))
+                                    .filter(f -> f.length == 1)
+                                    .map(f -> f[0]);
                     if (!child.isPresent() || stopFolders.contains(child.get().getName())) {
                         break;
                     }
                     current = child.get();
                 }
 
-                final String base = sourceDir.toPath().relativize(current.toPath()).toString().replace(File.separatorChar, '/')
+                final String base = sourceDir
+                        .toPath()
+                        .relativize(current.toPath())
+                        .toString()
+                        .replace(File.separatorChar, '/')
                         .replace('/', '.');
                 final String packageBase = base + (base.isEmpty() ? "" : ".") + type.replace('-', '_');
                 classnameBase = packageBase + '.' + classnameBase;
@@ -175,7 +181,8 @@ public class ComponentGeneratorMojo extends AbstractMojo {
         }
         if (family == null) {
             family = Stream
-                    .of(splitByCharacterTypeCamelCase(baseDir.getName().replace("components", "").replace("component", "")))
+                    .of(splitByCharacterTypeCamelCase(
+                            baseDir.getName().replace("components", "").replace("component", "")))
                     .collect(joining(""));
         }
     }
@@ -193,15 +200,17 @@ public class ComponentGeneratorMojo extends AbstractMojo {
 
     private void generateOutput() {
         final String classPath = classnameBase.replace('.', '/') + "Output.java";
-        try (final OutputStream stream = new BufferedOutputStream(new FileOutputStream(createOutputFile(sourceDir, classPath)))) {
+        try (final OutputStream stream =
+                new BufferedOutputStream(new FileOutputStream(createOutputFile(sourceDir, classPath)))) {
             stream.write(freemarkers.templatize("output", createContext("Output")).getBytes(StandardCharsets.UTF_8));
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
 
         // properties
-        final File i18n = new File(createOutputFile(sourceDir.getParentFile(), "resources/" + classPath).getParentFile(),
-                "Messages.properties");
+        final File i18n =
+                new File(createOutputFile(sourceDir.getParentFile(), "resources/" + classPath).getParentFile(),
+                        "Messages.properties");
         final String name = classnameBase.substring(classnameBase.lastIndexOf('.') + 1);
         appendI18n(i18n, family + '.' + name + "Output._displayName", name);
     }
@@ -212,7 +221,8 @@ public class ComponentGeneratorMojo extends AbstractMojo {
             final String template = capitalise(tpl);
             try (final OutputStream stream = new BufferedOutputStream(
                     new FileOutputStream(createOutputFile(sourceDir, classPath + template + ".java")))) {
-                stream.write(freemarkers.templatize("input-" + tpl, createContext(template)).getBytes(StandardCharsets.UTF_8));
+                stream.write(freemarkers.templatize("input-" + tpl, createContext(template)).getBytes(
+                        StandardCharsets.UTF_8));
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }

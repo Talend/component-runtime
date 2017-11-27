@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.maven;
 
@@ -56,8 +56,10 @@ public abstract class ComponentManagerBasedMojo extends ClasspathMojoBase {
             final Container container = manager.findPlugin(artifactId).get();
             final ContainerComponentRegistry registry = container.get(ContainerComponentRegistry.class);
             registry.getComponents().values().forEach(c -> {
-                c.getPartitionMappers().forEach((k, p) -> getLog().info("Found component " + c.getName() + "#" + p.getName()));
-                c.getProcessors().forEach((k, p) -> getLog().info("Found component " + c.getName() + "#" + p.getName()));
+                c.getPartitionMappers().forEach(
+                        (k, p) -> getLog().info("Found component " + c.getName() + "#" + p.getName()));
+                c.getProcessors().forEach(
+                        (k, p) -> getLog().info("Found component " + c.getName() + "#" + p.getName()));
             });
 
             doWork(manager, container, registry);
@@ -69,8 +71,8 @@ public abstract class ComponentManagerBasedMojo extends ClasspathMojoBase {
 
     // an input is a parameter without any @Input/@Output or an @Input parameter
     protected Stream<java.lang.reflect.Parameter> findInputs(final Method listener) {
-        return Stream.of(listener.getParameters())
-                     .filter(p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
+        return Stream.of(listener.getParameters()).filter(
+                p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
     }
 
     protected static DesignModel getDesignModel(final ComponentFamilyMeta.ProcessorMeta processor) {

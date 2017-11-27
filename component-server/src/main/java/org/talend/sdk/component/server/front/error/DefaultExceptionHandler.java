@@ -36,6 +36,7 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
             return WebApplicationException.class.cast(exception).getResponse();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, exception.getMessage())).type(APPLICATION_JSON_TYPE).build();
+                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, exception.getMessage()))
+                .type(APPLICATION_JSON_TYPE).build();
     }
 }

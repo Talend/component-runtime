@@ -92,8 +92,8 @@ public class WebSocketClient implements AutoCloseable {
     }
 
     private String buildRequest(final String uri, final Object payload) {
-        return "SEND\r\ndestination:" + uri + "\r\nAccept: application/json\r\nContent-Type: " + "application/json\r\n\r\n"
-                + (payload == null ? "" : jsonb.toJson(payload)) + "^@";
+        return "SEND\r\ndestination:" + uri + "\r\nAccept: application/json\r\nContent-Type: "
+                + "application/json\r\n\r\n" + (payload == null ? "" : jsonb.toJson(payload)) + "^@";
     }
 
     private <T> T parseResponse(final byte[] payload, final Class<T> expectedResponse) {
@@ -106,7 +106,8 @@ public class WebSocketClient implements AutoCloseable {
         try (final InputStream stream = new ByteArrayInputStream(payload)) {
             return jsonb.fromJson(stream, expectedResponse);
         } catch (final JsonParsingException jpe) {
-            throw new IllegalArgumentException("Can't parse JSON: '" + new String(payload, StandardCharsets.UTF_8) + "'");
+            throw new IllegalArgumentException(
+                    "Can't parse JSON: '" + new String(payload, StandardCharsets.UTF_8) + "'");
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
@@ -160,7 +161,8 @@ public class WebSocketClient implements AutoCloseable {
             try {
                 poll.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "Session is no more opened"));
             } catch (final Exception e) {
-                // just to go through close cycle but should fail since it is not opened, we just ignore any error
+                // just to go through close cycle but should fail since it is not opened, we
+                // just ignore any error
             }
             poll = null;
         }
@@ -182,7 +184,8 @@ public class WebSocketClient implements AutoCloseable {
 
                         @Override
                         public synchronized void onMessage(final ByteBuffer part, final boolean last) {
-                            final Consumer<ByteBuffer> callback = Consumer.class.cast(session.getUserProperties().get("handler"));
+                            final Consumer<ByteBuffer> callback =
+                                    Consumer.class.cast(session.getUserProperties().get("handler"));
                             callback.accept(part);
                         }
                     });
@@ -190,7 +193,8 @@ public class WebSocketClient implements AutoCloseable {
 
                 @Override
                 public void onError(final Session session, final Throwable throwable) {
-                    final PayloadHandler handler = PayloadHandler.class.cast(session.getUserProperties().get("handler"));
+                    final PayloadHandler handler =
+                            PayloadHandler.class.cast(session.getUserProperties().get("handler"));
                     if (handler != null) {
                         handler.latch.countDown();
                     }
@@ -208,7 +212,8 @@ public class WebSocketClient implements AutoCloseable {
             try {
                 s.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "Shutting down the studio"));
             } catch (final IOException e) {
-                // no-op: todo: define if we want to log it, we will not do anything anyway at that time
+                // no-op: todo: define if we want to log it, we will not do anything anyway at
+                // that time
             }
         });
         sessions.clear();
@@ -239,8 +244,9 @@ public class WebSocketClient implements AutoCloseable {
         }
 
         public boolean healthCheck() {
-            root.sendAndWait("/v1/get/component/index", "/component/index?language=" + Locale.getDefault().getLanguage(), null,
-                    ComponentIndices.class, false);
+            root.sendAndWait("/v1/get/component/index",
+                    "/component/index?language=" + Locale.getDefault().getLanguage(), null, ComponentIndices.class,
+                    false);
             return true;
         }
     }
@@ -255,7 +261,8 @@ public class WebSocketClient implements AutoCloseable {
 
         public ConfigTypeNodes getRepositoryModel() {
             return root.sendAndWait("/v1/get/configurationtype/index",
-                    "/configurationtype/index?language=" + Locale.getDefault().getLanguage(), null, ConfigTypeNodes.class, true);
+                    "/configurationtype/index?language=" + Locale.getDefault().getLanguage(), null,
+                    ConfigTypeNodes.class, true);
         }
     }
 
@@ -267,10 +274,11 @@ public class WebSocketClient implements AutoCloseable {
             this.root = root;
         }
 
-        public <T> T execute(final Class<T> expectedResponse, final String family, final String type, final String action,
-                final Map<String, String> payload) {
+        public <T> T execute(final Class<T> expectedResponse, final String family, final String type,
+                final String action, final Map<String, String> payload) {
             return root.sendAndWait("/v1/post/action/execute",
-                    "/action/execute?family=" + family + "&type=" + type + "&action=" + action, payload, expectedResponse, true);
+                    "/action/execute?family=" + family + "&type=" + type + "&action=" + action, payload,
+                    expectedResponse, true);
         }
     }
 
@@ -297,9 +305,8 @@ public class WebSocketClient implements AutoCloseable {
             if (identifiers == null || identifiers.length == 0) {
                 return new ComponentDetailList(emptyList());
             }
-            return root.sendAndWait("/v1/get/component/details",
-                    "/component/details?language=" + language
-                            + Stream.of(identifiers).map(i -> "identifiers=" + i).collect(Collectors.joining("&", "&", "")),
+            return root.sendAndWait("/v1/get/component/details", "/component/details?language=" + language
+                    + Stream.of(identifiers).map(i -> "identifiers=" + i).collect(Collectors.joining("&", "&", "")),
                     null, ComponentDetailList.class, true);
         }
 
@@ -315,13 +322,17 @@ public class WebSocketClient implements AutoCloseable {
                 final int to = from + BUNDLE_SIZE;
                 return components.subList(from, Math.min(to, components.size()));
             }).flatMap(bundle -> {
-                final Map<String, ComponentIndex> byId = bundle.stream().collect(toMap(c -> c.getId().getId(), identity()));
-                return getDetail(language, bundle.stream().map(i -> i.getId().getId()).toArray(String[]::new)).getDetails()
-                        .stream().map(d -> new Pair<>(byId.get(d.getId().getId()), d));
+                final Map<String, ComponentIndex> byId =
+                        bundle.stream().collect(toMap(c -> c.getId().getId(), identity()));
+                return getDetail(language, bundle.stream().map(i -> i.getId().getId()).toArray(String[]::new))
+                        .getDetails()
+                        .stream()
+                        .map(d -> new Pair<>(byId.get(d.getId().getId()), d));
             });
         }
 
-        public Map<String, String> migrate(final String id, final int configurationVersion, final Map<String, String> payload) {
+        public Map<String, String> migrate(final String id, final int configurationVersion,
+                final Map<String, String> payload) {
             return root.sendAndWait("/v1/post/component/migrate/{id}/{configurationVersion}",
                     "/component/migrate/" + id + "/" + configurationVersion, payload, Map.class, true);
         }
@@ -358,7 +369,8 @@ public class WebSocketClient implements AutoCloseable {
         private byte[] payload() {
             final byte[] value = out.toByteArray();
 
-            // todo: check status header and fail if > 399 with the error message in the payload
+            // todo: check status header and fail if > 399 with the error message in the
+            // payload
 
             int start = 0;
             { // find the first empty line which means the payload starts
@@ -370,7 +382,8 @@ public class WebSocketClient implements AutoCloseable {
                         if (header.startsWith("status:")) {
                             try {
                                 if (Integer.parseInt(header.substring("status:".length()).trim()) > 399) {
-                                    throw new IllegalStateException("Bad response from server: '" + new String(value) + "'");
+                                    throw new IllegalStateException(
+                                            "Bad response from server: '" + new String(value) + "'");
                                 }
                             } catch (final NumberFormatException nfe) {
                                 // no-op: ignore this validation then

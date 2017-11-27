@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.maven;
 
@@ -98,25 +98,39 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
 
     // todo: revisit versions once https://jira.talendforge.org/browse/TUP-18373
     private static final Collection<IMPORT> MANDATORY_DEPENDENCIES = // mandatory runtime dependencies, = tcomp stack
-            Stream.concat(Stream.concat(Stream.of("component-api", "component-spi", "component-runtime-impl",
-                    "component-runtime-manager", "component-runtime-di").map(artifactId -> {
-                        // should be LATEST since we will be bck compat and must use a single version in the classpath
-                        // however maven embedder (eclipse) used in the studio doesn't support it and breaks that usage
-                        // -> we need to rely on pax mvn everywhere, even in
-                        // org.talend.designer.maven.utils.PomUtil#getArtifactPath
-                        return newImport(artifactId, "mvn:org.talend.sdk.component/" + artifactId + "/1.0.0-SNAPSHOT", null);
-                    }), Stream.of("xbean-finder-shaded", "xbean-asm5-shaded", "xbean-reflect").map(artifactId -> {
-                        final String xbeanVersion = AnnotationFinder.class.getPackage().getImplementationVersion();
-                        return newImport(artifactId, "mvn:org.apache.xbean/" + artifactId + "/" + xbeanVersion, null);
-                    })), Stream.of(newImport("container-core", "mvn:org.talend.sdk.component/container-core/1.0.0-SNAPSHOT", null),
-                            // we replace org.apache.geronimo.specs:geronimo-annotation_1.2_spec by the studio one
-                            newImport("javax.annotation-api-1.2.jar", "mvn:org.talend.libraries/javax.annotation-api-1.2/6.1.0",
-                                    null),
-                            // for logging ensure we have slf4j, studio versions
-                            newImport("slf4j-api-1.7.10.jar", "mvn:org.talend.libraries/slf4j-api-1.7.10/6.1.0",
-                                    "platform:/plugin/org.talend.libraries.slf4j/lib/slf4j-api-1.7.10.jar"),
-                            newImport("slf4j-log4j12-1.7.10.jar", "mvn:org.talend.libraries/slf4j-log4j12-1.7.10/6.1.0",
-                                    "platform:/plugin/org.talend.libraries.slf4j/lib/slf4j-log4j12-1.7.10.jar")))
+            Stream
+                    .concat(Stream.concat(Stream
+                            .of("component-api", "component-spi", "component-runtime-impl", "component-runtime-manager",
+                                    "component-runtime-di")
+                            .map(artifactId -> {
+                                // should be LATEST since we will be bck compat and must use a single version in
+                                // the classpath
+                                // however maven embedder (eclipse) used in the studio doesn't support it and
+                                // breaks that usage
+                                // -> we need to rely on pax mvn everywhere, even in
+                                // org.talend.designer.maven.utils.PomUtil#getArtifactPath
+                                return newImport(artifactId,
+                                        "mvn:org.talend.sdk.component/" + artifactId + "/1.0.0-SNAPSHOT", null);
+                            }),
+                            Stream.of("xbean-finder-shaded", "xbean-asm6-shaded", "xbean-reflect").map(artifactId -> {
+                                final String xbeanVersion =
+                                        AnnotationFinder.class.getPackage().getImplementationVersion();
+                                return newImport(artifactId, "mvn:org.apache.xbean/" + artifactId + "/" + xbeanVersion,
+                                        null);
+                            })),
+                            Stream.of(
+                                    newImport("container-core",
+                                            "mvn:org.talend.sdk.component/container-core/1.0.0-SNAPSHOT", null),
+                                    // we replace org.apache.geronimo.specs:geronimo-annotation_1.2_spec by the
+                                    // studio one
+                                    newImport("javax.annotation-api-1.2.jar",
+                                            "mvn:org.talend.libraries/javax.annotation-api-1.2/6.1.0", null),
+                                    // for logging ensure we have slf4j, studio versions
+                                    newImport("slf4j-api-1.7.10.jar", "mvn:org.talend.libraries/slf4j-api-1.7.10/6.1.0",
+                                            "platform:/plugin/org.talend.libraries.slf4j/lib/slf4j-api-1.7.10.jar"),
+                                    newImport("slf4j-log4j12-1.7.10.jar",
+                                            "mvn:org.talend.libraries/slf4j-log4j12-1.7.10/6.1.0",
+                                            "platform:/plugin/org.talend.libraries.slf4j/lib/slf4j-log4j12-1.7.10.jar")))
                     .collect(toList());
 
     @Parameter(defaultValue = "true", property = "talend.legacy.attach")
@@ -140,7 +154,8 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
     @Parameter(defaultValue = "true", property = "talend.legacy.defineDependencies")
     private boolean defineDependencies;
 
-    @Parameter(defaultValue = "https://raw.githubusercontent.com/Talend/ui/master/packages/icons/src/svg/", property = "talend.legacy.svgRrepository")
+    @Parameter(defaultValue = "https://raw.githubusercontent.com/Talend/ui/master/packages/icons/src/svg/",
+            property = "talend.legacy.svgRrepository")
     private String svgRepository;
 
     @Parameter(defaultValue = "false", property = "talend.legacy.downloadIconsFromGithub")
@@ -152,8 +167,8 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
     private final Freemarkers freemarkers = new Freemarkers(getClass().getSimpleName());
 
     @Override
-    protected void doWork(final ComponentManager manager, final Container container, final ContainerComponentRegistry registry)
-            throws MojoExecutionException, MojoFailureException {
+    protected void doWork(final ComponentManager manager, final Container container,
+            final ContainerComponentRegistry registry) throws MojoExecutionException, MojoFailureException {
         if (!classes.exists()) {
             throw new MojoExecutionException("No " + classes + " so no component available");
         }
@@ -220,8 +235,9 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
                 }
 
                 // create the javajets of the components
-                Stream.of("begin", "end", "finally").forEach(part -> doWrite(componentRoot, name + "_" + part + ".javajet",
-                        freemarkers.templatize("mapper_" + part, createContext("mapper", mapper, configKeys))));
+                Stream.of("begin", "end", "finally").forEach(
+                        part -> doWrite(componentRoot, name + "_" + part + ".javajet",
+                                freemarkers.templatize("mapper_" + part, createContext("mapper", mapper, configKeys))));
             });
             family.getProcessors().values().forEach(processor -> { // TODO
                 final String name = toName(processor);
@@ -235,8 +251,10 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
                 doWrite(componentRoot, name + "_java.xml", stream -> {
                     final Method listener = processor.getListener();
                     try {
-                        toXml(modelContext, stream, toModel(name, processor, getDesignModel(processor).getInputFlows(),
-                                getDesignModel(processor).getOutputFlows(), internationalization, container, configKeys));
+                        toXml(modelContext, stream,
+                                toModel(name, processor, getDesignModel(processor).getInputFlows(),
+                                        getDesignModel(processor).getOutputFlows(), internationalization, container,
+                                        configKeys));
                     } catch (final JAXBException e) {
                         throw new IllegalStateException(e);
                     }
@@ -258,8 +276,9 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
                         }
                     });
                 }
-                Stream.of("begin", "main", "finally").forEach(part -> doWrite(componentRoot, name + "_" + part + ".javajet",
-                        freemarkers.templatize("processor_" + part, createContext("processor", processor, configKeys))));
+                Stream.of("begin", "main", "finally").forEach(
+                        part -> doWrite(componentRoot, name + "_" + part + ".javajet", freemarkers
+                                .templatize("processor_" + part, createContext("processor", processor, configKeys))));
             });
         });
 
@@ -290,9 +309,9 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
         marshaller.marshal(new JAXBElement<>(new QName("COMPONENT"), COMPONENT.class, component), stream);
     }
 
-    private COMPONENT toModel(final String legacyName, final ComponentFamilyMeta.BaseMeta comp, final Collection<String> inputs,
-            final Collection<String> outputs, final Properties internationalization, final Container container,
-            final Collection<String> configKeys) {
+    private COMPONENT toModel(final String legacyName, final ComponentFamilyMeta.BaseMeta comp,
+            final Collection<String> inputs, final Collection<String> outputs, final Properties internationalization,
+            final Container container, final Collection<String> configKeys) {
         final boolean isProcessor = ComponentFamilyMeta.ProcessorMeta.class.isInstance(comp);
         final boolean isInput = ComponentFamilyMeta.PartitionMapperMeta.class.isInstance(comp);
 
@@ -314,7 +333,8 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
         {
             final FAMILIES families = new FAMILIES();
             final ComponentFamilyMeta parent = comp.getParent();
-            families.getFAMILY().addAll(parent.getCategories().stream().map(c -> c + '/' + parent.getName()).collect(toSet()));
+            families.getFAMILY().addAll(
+                    parent.getCategories().stream().map(c -> c + '/' + parent.getName()).collect(toSet()));
             component.setFAMILIES(families);
         }
         {
@@ -333,40 +353,19 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
                     connectors.getCONNECTOR().add(connector);
                 }
                 /*
-                 * {
-                 * final CONNECTOR connector = new CONNECTOR();
-                 * connector.setCTYPE("ITERATE");
-                 * connector.setMAXINPUT(0);
-                 * connector.setMAXOUTPUT(1);
-                 * connectors.getCONNECTOR().add(connector);
-                 * }
-                 * {
-                 * final CONNECTOR connector = new CONNECTOR();
-                 * connector.setCTYPE("SUBJOB_OK");
-                 * connector.setMAXINPUT(1);
-                 * connectors.getCONNECTOR().add(connector);
-                 * }
-                 * {
-                 * final CONNECTOR connector = new CONNECTOR();
-                 * connector.setCTYPE("SUBJOB_ERROR");
-                 * connector.setMAXINPUT(1);
-                 * connectors.getCONNECTOR().add(connector);
-                 * }
-                 * {
-                 * final CONNECTOR connector = new CONNECTOR();
-                 * connector.setCTYPE("COMPONENT_OK");
-                 * connectors.getCONNECTOR().add(connector);
-                 * }
-                 * {
-                 * final CONNECTOR connector = new CONNECTOR();
-                 * connector.setCTYPE("COMPONENT_ERROR");
-                 * connectors.getCONNECTOR().add(connector);
-                 * }
-                 * {
-                 * final CONNECTOR connector = new CONNECTOR();
-                 * connector.setCTYPE("RUN_IF");
-                 * connectors.getCONNECTOR().add(connector);
-                 * }
+                 * { final CONNECTOR connector = new CONNECTOR(); connector.setCTYPE("ITERATE");
+                 * connector.setMAXINPUT(0); connector.setMAXOUTPUT(1);
+                 * connectors.getCONNECTOR().add(connector); } { final CONNECTOR connector = new
+                 * CONNECTOR(); connector.setCTYPE("SUBJOB_OK"); connector.setMAXINPUT(1);
+                 * connectors.getCONNECTOR().add(connector); } { final CONNECTOR connector = new
+                 * CONNECTOR(); connector.setCTYPE("SUBJOB_ERROR"); connector.setMAXINPUT(1);
+                 * connectors.getCONNECTOR().add(connector); } { final CONNECTOR connector = new
+                 * CONNECTOR(); connector.setCTYPE("COMPONENT_OK");
+                 * connectors.getCONNECTOR().add(connector); } { final CONNECTOR connector = new
+                 * CONNECTOR(); connector.setCTYPE("COMPONENT_ERROR");
+                 * connectors.getCONNECTOR().add(connector); } { final CONNECTOR connector = new
+                 * CONNECTOR(); connector.setCTYPE("RUN_IF");
+                 * connectors.getCONNECTOR().add(connector); }
                  */
             } else { // TBD
                 final CONNECTOR connector = new CONNECTOR();
@@ -407,40 +406,42 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
                 internationalization.put("CHUNK_SIZE.NAME", "Chunk Size");
             }
             /*
-             * comp.getParameterMetas().stream().filter(p -> p.getMetadata().containsKey("dataset")).findFirst()
-             * .ifPresent(datasetParam -> {
-             * final PARAMETER parameter = new PARAMETER();
-             * parameter.setNAME("GUESS_SCHEMA");
-             * parameter.setFIELD("GUESS_SCHEMA"); // ad-hoc for SQL only :(
-             * parameter.setNUMROW(2);
-             * parameters.getPARAMETER().add(parameter);
-             * });
+             * comp.getParameterMetas().stream().filter(p ->
+             * p.getMetadata().containsKey("dataset")).findFirst() .ifPresent(datasetParam
+             * -> { final PARAMETER parameter = new PARAMETER();
+             * parameter.setNAME("GUESS_SCHEMA"); parameter.setFIELD("GUESS_SCHEMA"); //
+             * ad-hoc for SQL only :( parameter.setNUMROW(2);
+             * parameters.getPARAMETER().add(parameter); });
              */
 
-            parameters.getPARAMETER().addAll(asParameters(emptyMap(), comp.getParameterMetas(), container, internationalization,
-                    new AtomicInteger(10), configKeys));
+            parameters.getPARAMETER().addAll(asParameters(emptyMap(), comp.getParameterMetas(), container,
+                    internationalization, new AtomicInteger(10), configKeys));
             component.setPARAMETERS(parameters);
         }
         {
             final IMPORTS imports = new IMPORTS();
             imports.getIMPORTOrIMPORTS().addAll(MANDATORY_DEPENDENCIES);
 
-            if (defineDependencies) { // dependencies - note: we would need a flag to say "package but don't put in classpath"
-                imports.getIMPORTOrIMPORTS()
-                        .addAll(Stream.concat(
-                                Stream.of(new DefaultArtifact(groupId, artifactId, version, "compile", packaging, null,
-                                        new DefaultArtifactHandler())),
-                                project.getArtifacts().stream()
-                                        .filter(a -> "compile".equals(a.getScope()) || "runtime".equals(a.getScope())))
+            if (defineDependencies) { // dependencies - note: we would need a flag to say "package but don't put in
+                                      // classpath"
+                imports
+                        .getIMPORTOrIMPORTS()
+                        .addAll(Stream
+                                .concat(Stream.of(new DefaultArtifact(groupId, artifactId, version, "compile",
+                                        packaging, null, new DefaultArtifactHandler())),
+                                        project.getArtifacts().stream().filter(
+                                                a -> "compile".equals(a.getScope()) || "runtime".equals(a.getScope())))
                                 .map(a -> {
-                                    final boolean hasClassifier = a.getClassifier() != null && !a.getClassifier().isEmpty();
-                                    return newImport(a.getArtifactId(),
-                                            "mvn:" + a.getGroupId() + '/' + a.getArtifactId() + '/' + a.getVersion()
-                                                    + (!"jar".equals(a.getType()) || hasClassifier
-                                                            ? '/' + a.getType() + (hasClassifier ? '/' + a.getClassifier() : "")
-                                                            : ""),
+                                    final boolean hasClassifier =
+                                            a.getClassifier() != null && !a.getClassifier().isEmpty();
+                                    return newImport(a.getArtifactId(), "mvn:" + a.getGroupId() + '/'
+                                            + a.getArtifactId() + '/' + a.getVersion()
+                                            + (!"jar".equals(a.getType()) || hasClassifier
+                                                    ? '/' + a.getType() + (hasClassifier ? '/' + a.getClassifier() : "")
+                                                    : ""),
                                             null);
-                                }).collect(toList()));
+                                })
+                                .collect(toList()));
             }
 
             final CODEGENERATION codeGeneration = new CODEGENERATION();
@@ -469,15 +470,18 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private boolean hasOutputs(final Class<?> type) {
-        return Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class))
+        return Stream
+                .of(type.getMethods())
+                .filter(m -> m.isAnnotationPresent(ElementListener.class))
                 .map(m -> m.getReturnType() != void.class
                         || Stream.of(m.getParameters()).anyMatch(p -> p.isAnnotationPresent(Output.class)))
-                .findFirst().orElseThrow(() -> new IllegalArgumentException("Wrong processor " + type));
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Wrong processor " + type));
     }
 
-    private Collection<PARAMETER> asParameters(final Map<String, String> rootParams, final Collection<ParameterMeta> metas,
-            final Container container, final Properties internationalization, final AtomicInteger numCounter,
-            final Collection<String> configKeys) {
+    private Collection<PARAMETER> asParameters(final Map<String, String> rootParams,
+            final Collection<ParameterMeta> metas, final Container container, final Properties internationalization,
+            final AtomicInteger numCounter, final Collection<String> configKeys) {
         final String order = rootParams.get("tcomp::ui::optionsorder::value");
         final List<String> paramOrder = order == null ? emptyList() : asList(order.split(","));
         return metas.stream().sorted((o1, o2) -> {
@@ -639,7 +643,8 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
     }
 
     private static IMPORT newImport(final String name, final String mvn, final String urlPath) {
-        final String usedName = name + (!name.endsWith(".jar") ? '-' + mvn.substring(mvn.lastIndexOf('/') + 1) + ".jar" : "");
+        final String usedName =
+                name + (!name.endsWith(".jar") ? '-' + mvn.substring(mvn.lastIndexOf('/') + 1) + ".jar" : "");
         final IMPORT mvnImport = new IMPORT();
         mvnImport.setREQUIRED(true);
         mvnImport.setNAME(usedName);
@@ -649,7 +654,8 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
         return mvnImport;
     }
 
-    private Map<String, Object> createContext(final String key, final Object instance, final Collection<String> configKeys) {
+    private Map<String, Object> createContext(final String key, final Object instance,
+            final Collection<String> configKeys) {
         final Map<String, Object> context = new HashMap<>();
         context.put(key, instance);
         context.put("configurationKeys", configKeys);

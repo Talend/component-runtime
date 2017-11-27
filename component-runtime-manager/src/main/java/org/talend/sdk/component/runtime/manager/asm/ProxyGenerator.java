@@ -1,42 +1,30 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager.asm;
 
-import static org.apache.xbean.asm5.Opcodes.ACC_PRIVATE;
-import static org.apache.xbean.asm5.Opcodes.ACC_PUBLIC;
-import static org.apache.xbean.asm5.Opcodes.ACC_SUPER;
-import static org.apache.xbean.asm5.Opcodes.ACC_SYNTHETIC;
-import static org.apache.xbean.asm5.Opcodes.ALOAD;
-import static org.apache.xbean.asm5.Opcodes.ARETURN;
-import static org.apache.xbean.asm5.Opcodes.CHECKCAST;
-import static org.apache.xbean.asm5.Opcodes.DRETURN;
-import static org.apache.xbean.asm5.Opcodes.DUP;
-import static org.apache.xbean.asm5.Opcodes.FRETURN;
-import static org.apache.xbean.asm5.Opcodes.GETFIELD;
-import static org.apache.xbean.asm5.Opcodes.INVOKEINTERFACE;
-import static org.apache.xbean.asm5.Opcodes.INVOKESPECIAL;
-import static org.apache.xbean.asm5.Opcodes.INVOKEVIRTUAL;
-import static org.apache.xbean.asm5.Opcodes.IRETURN;
-import static org.apache.xbean.asm5.Opcodes.LRETURN;
-import static org.apache.xbean.asm5.Opcodes.NEW;
-import static org.apache.xbean.asm5.Opcodes.PUTFIELD;
-import static org.apache.xbean.asm5.Opcodes.RETURN;
-import static org.apache.xbean.asm5.Opcodes.V1_8;
+import lombok.AllArgsConstructor;
+import org.apache.xbean.asm6.ClassReader;
+import org.apache.xbean.asm6.ClassWriter;
+import org.apache.xbean.asm6.MethodVisitor;
+import org.apache.xbean.asm6.Type;
+import org.apache.xbean.asm6.shade.commons.EmptyVisitor;
+import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 import java.beans.Introspector;
+import java.io.InputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -44,12 +32,27 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
 
-import org.apache.xbean.asm5.ClassWriter;
-import org.apache.xbean.asm5.MethodVisitor;
-import org.apache.xbean.asm5.Type;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
-
-import lombok.AllArgsConstructor;
+import static org.apache.xbean.asm6.ClassReader.SKIP_DEBUG;
+import static org.apache.xbean.asm6.Opcodes.ACC_PRIVATE;
+import static org.apache.xbean.asm6.Opcodes.ACC_PUBLIC;
+import static org.apache.xbean.asm6.Opcodes.ACC_SUPER;
+import static org.apache.xbean.asm6.Opcodes.ACC_SYNTHETIC;
+import static org.apache.xbean.asm6.Opcodes.ALOAD;
+import static org.apache.xbean.asm6.Opcodes.ARETURN;
+import static org.apache.xbean.asm6.Opcodes.CHECKCAST;
+import static org.apache.xbean.asm6.Opcodes.DRETURN;
+import static org.apache.xbean.asm6.Opcodes.DUP;
+import static org.apache.xbean.asm6.Opcodes.FRETURN;
+import static org.apache.xbean.asm6.Opcodes.GETFIELD;
+import static org.apache.xbean.asm6.Opcodes.INVOKEINTERFACE;
+import static org.apache.xbean.asm6.Opcodes.INVOKESPECIAL;
+import static org.apache.xbean.asm6.Opcodes.INVOKEVIRTUAL;
+import static org.apache.xbean.asm6.Opcodes.IRETURN;
+import static org.apache.xbean.asm6.Opcodes.LRETURN;
+import static org.apache.xbean.asm6.Opcodes.NEW;
+import static org.apache.xbean.asm6.Opcodes.PUTFIELD;
+import static org.apache.xbean.asm6.Opcodes.RETURN;
+import static org.apache.xbean.asm6.Opcodes.V1_8;
 
 // highly inspired from openwebbeans proxying code
 //
@@ -64,10 +67,10 @@ public class ProxyGenerator implements Serializable {
     private final int javaVersion;
 
     public ProxyGenerator() {
-        javaVersion = determineJavaVersion();
+        javaVersion = determineDefaultJavaVersion();
     }
 
-    private int determineJavaVersion() {
+    private int determineDefaultJavaVersion() {
         final String javaVersionProp = System.getProperty("java.version", "1.8");
         if (javaVersionProp.startsWith("1.8")) { // we don't support earlier
             return V1_8;
@@ -86,8 +89,8 @@ public class ProxyGenerator implements Serializable {
         mv.visitInsn(DUP);
         mv.visitLdcInsn(pluginId);
         mv.visitLdcInsn(key);
-        mv.visitMethodInsn(INVOKESPECIAL, "org/talend/sdk/component/runtime/serialization/SerializableService", "<init>",
-                "(Ljava/lang/String;Ljava/lang/String;)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, "org/talend/sdk/component/runtime/serialization/SerializableService",
+                "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
         mv.visitInsn(ARETURN);
 
         mv.visitMaxs(-1, -1);
@@ -143,11 +146,11 @@ public class ProxyGenerator implements Serializable {
         return "org.talend.generated.proxy.signed." + classToProxy.getName();
     }
 
-    private String fixPreservedPackages(String proxyClassName) {
+    private String fixPreservedPackages(final String name) {
+        String proxyClassName = name;
         proxyClassName = fixPreservedPackage(proxyClassName, "java.");
         proxyClassName = fixPreservedPackage(proxyClassName, "javax.");
         proxyClassName = fixPreservedPackage(proxyClassName, "sun.misc.");
-
         return proxyClassName;
     }
 
@@ -155,13 +158,35 @@ public class ProxyGenerator implements Serializable {
         String fixedClassName = className;
 
         if (className.startsWith(forbiddenPackagePrefix)) {
-            fixedClassName = "org.talend.generated.proxy.custom." + className.substring(forbiddenPackagePrefix.length());
+            fixedClassName =
+                    "org.talend.generated.proxy.custom." + className.substring(forbiddenPackagePrefix.length());
         }
 
         return fixedClassName;
     }
 
-    public Class<?> generateProxy(final ClassLoader loader, final Class<?> classToProxy, final String plugin, final String key) {
+    private int findJavaVersion(final Class<?> from) {
+        final String resource = from.getName().replace('.', '/') + ".class";
+        try (final InputStream stream = from.getClassLoader().getResourceAsStream(resource)) {
+            if (stream == null) {
+                return javaVersion;
+            }
+            final ClassReader reader = new ClassReader(stream);
+            final VersionVisitor visitor = new VersionVisitor();
+            reader.accept(visitor, SKIP_DEBUG);
+            if (visitor.version != 0) {
+                return visitor.version;
+            }
+        } catch (final Exception e) {
+            // no-op
+        }
+        // mainly for JVM classes - outside the classloader, find to fallback on the JVM
+        // version
+        return javaVersion;
+    }
+
+    public Class<?> generateProxy(final ClassLoader loader, final Class<?> classToProxy, final String plugin,
+            final String key) {
         final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         final String proxyClassName = fixPreservedPackages(
                 (classToProxy.getSigners() != null ? getSignedClassProxyName(classToProxy) : classToProxy.getName())
@@ -171,27 +196,29 @@ public class ProxyGenerator implements Serializable {
         final String[] interfaceNames = { Type.getInternalName(Serializable.class) };
         final String superClassName = Type.getInternalName(classToProxy);
 
-        cw.visit(javaVersion, ACC_PUBLIC + ACC_SUPER + ACC_SYNTHETIC, classFileName, null, superClassName, interfaceNames);
+        cw.visit(findJavaVersion(classToProxy), ACC_PUBLIC + ACC_SUPER + ACC_SYNTHETIC, classFileName, null,
+                superClassName, interfaceNames);
         cw.visitSource(classFileName + ".java", null);
 
         createSerialisation(cw, plugin, key);
 
-        createConstructor(cw, classToProxy, superClassName, Stream.of(classToProxy.getDeclaredConstructors()).filter(c -> {
-            final int modifiers = c.getModifiers();
-            return Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers);
-        }).sorted((o1, o2) -> { // prefer public constructor and then the smallest parameter count
-            final int mod1 = o1.getModifiers();
-            final int mod2 = o2.getModifiers();
-            if (Modifier.isProtected(mod1) && !Modifier.isPublic(mod2)) {
-                return 1;
-            }
-            if (Modifier.isProtected(mod2) && !Modifier.isPublic(mod1)) {
-                return -1;
-            }
+        createConstructor(cw, classToProxy, superClassName,
+                Stream.of(classToProxy.getDeclaredConstructors()).filter(c -> {
+                    final int modifiers = c.getModifiers();
+                    return Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers);
+                }).sorted((o1, o2) -> { // prefer public constructor and then the smallest parameter count
+                    final int mod1 = o1.getModifiers();
+                    final int mod2 = o2.getModifiers();
+                    if (Modifier.isProtected(mod1) && !Modifier.isPublic(mod2)) {
+                        return 1;
+                    }
+                    if (Modifier.isProtected(mod2) && !Modifier.isPublic(mod1)) {
+                        return -1;
+                    }
 
-            return o1.getParameterCount() - o2.getParameterCount();
-        }).findFirst().orElseThrow(
-                () -> new IllegalArgumentException(classToProxy + " has no default constructor, put at least a protected one")));
+                    return o1.getParameterCount() - o2.getParameterCount();
+                }).findFirst().orElseThrow(() -> new IllegalArgumentException(
+                        classToProxy + " has no default constructor, put at least a protected one")));
 
         return Unsafes.defineAndLoadClass(loader, proxyClassName, cw.toByteArray());
     }
@@ -210,14 +237,20 @@ public class ProxyGenerator implements Serializable {
                 new String[] { Type.getInternalName(GetObjectMap.class) });
         cw.visitSource(classFileName + ".java", null);
 
-        // private ObjectMap this$map; (weird field value to ensure we don't conflict and proxying is obvious)
-        cw.visitField(ACC_PRIVATE, "this$map", "Lorg/talend/sdk/component/api/processor/data/ObjectMap;", null, null).visitEnd();
+        // private ObjectMap this$map; (weird field value to ensure we don't conflict
+        // and proxying is obvious)
+        cw
+                .visitField(ACC_PRIVATE, "this$map", "Lorg/talend/sdk/component/api/processor/data/ObjectMap;", null,
+                        null)
+                .visitEnd();
 
         {
-            final MethodVisitor getObjectMap = cw.visitMethod(ACC_PUBLIC, "getObjectMap", "()Lorg/talend/sdk/component/api/processor/data/ObjectMap;", null, null);
+            final MethodVisitor getObjectMap = cw.visitMethod(ACC_PUBLIC, "getObjectMap",
+                    "()Lorg/talend/sdk/component/api/processor/data/ObjectMap;", null, null);
             getObjectMap.visitCode();
             getObjectMap.visitVarInsn(ALOAD, 0);
-            getObjectMap.visitFieldInsn(GETFIELD, classFileName, "this$map", "Lorg/talend/sdk/component/api/processor/data/ObjectMap;");
+            getObjectMap.visitFieldInsn(GETFIELD, classFileName, "this$map",
+                    "Lorg/talend/sdk/component/api/processor/data/ObjectMap;");
             getObjectMap.visitInsn(ARETURN);
             getObjectMap.visitMaxs(1, 1);
             getObjectMap.visitEnd();
@@ -230,9 +263,10 @@ public class ProxyGenerator implements Serializable {
                     classToProxy + " can't be proxied, check your chain. Did you use ObjectMap as intended?");
         }
 
-        proxyGetters(
-                cw, classFileName, Stream
-                        .of(classToProxy.getMethods()).filter(m -> (m.getName().startsWith("get") || m.getName().startsWith("is"))
+        proxyGetters(cw, classFileName,
+                Stream
+                        .of(classToProxy.getMethods())
+                        .filter(m -> (m.getName().startsWith("get") || m.getName().startsWith("is"))
                                 && m.getParameterCount() == 0 && m.getReturnType() != void.class)
                         .filter(m -> !unproxyableMethod(m)));
 
@@ -244,8 +278,8 @@ public class ProxyGenerator implements Serializable {
             final String key = Introspector
                     .decapitalize(m.getName().substring((m.getName().startsWith("get") ? "get" : "is").length()));
 
-            final MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, m.getName(), "()" + Type.getDescriptor(m.getReturnType()), null,
-                    null);
+            final MethodVisitor mv =
+                    cw.visitMethod(ACC_PUBLIC, m.getName(), "()" + Type.getDescriptor(m.getReturnType()), null, null);
             mv.visitCode();
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, classFileName, "this$map", "L" + OBJECT_MAP_NAME + ";");
@@ -253,8 +287,8 @@ public class ProxyGenerator implements Serializable {
             mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_MAP_NAME, "get", "(Ljava/lang/String;)Ljava/lang/Object;", true);
             mv.visitTypeInsn(CHECKCAST, getCastType(m.getReturnType()));
             if (m.getReturnType().isPrimitive()) {
-                mv.visitMethodInsn(INVOKEVIRTUAL, getWrapperType(m.getReturnType()), getPrimitiveMethod(m.getReturnType()),
-                        "()" + Type.getDescriptor(m.getReturnType()), false);
+                mv.visitMethodInsn(INVOKEVIRTUAL, getWrapperType(m.getReturnType()),
+                        getPrimitiveMethod(m.getReturnType()), "()" + Type.getDescriptor(m.getReturnType()), false);
             } // else todo: nested support generating/getting nested subclasses etc
             mv.visitInsn(getReturnInsn(m.getReturnType()));
             mv.visitMaxs(-1, -1);
@@ -262,8 +296,8 @@ public class ProxyGenerator implements Serializable {
         });
     }
 
-    private void createObjectMapConstructor(final ClassWriter cw, final String parentClassFileName, final String classFileName,
-            final Constructor<?> constructor) {
+    private void createObjectMapConstructor(final ClassWriter cw, final String parentClassFileName,
+            final String classFileName, final Constructor<?> constructor) {
         final String[] exceptions = new String[constructor.getExceptionTypes().length];
         for (int i = 0; i < exceptions.length; i++) {
             exceptions[i] = Type.getInternalName(constructor.getExceptionTypes()[i]);
@@ -353,7 +387,7 @@ public class ProxyGenerator implements Serializable {
         return Type.getInternalName(returnType);
     }
 
-    private String getPrimitiveMethod(Class<?> type) {
+    private String getPrimitiveMethod(final Class<?> type) {
         if (Integer.TYPE.equals(type)) {
             return "intValue";
         } else if (Boolean.TYPE.equals(type)) {
@@ -390,5 +424,17 @@ public class ProxyGenerator implements Serializable {
     public interface GetObjectMap {
 
         ObjectMap getObjectMap();
+    }
+
+    private static class VersionVisitor extends EmptyVisitor {
+
+        private int version;
+
+        @Override
+        public void visit(final int version, final int access, final String name, final String signature,
+                final String superName, final String[] interfaces) {
+            super.visit(version, access, name, signature, superName, interfaces);
+            this.version = version;
+        }
     }
 }

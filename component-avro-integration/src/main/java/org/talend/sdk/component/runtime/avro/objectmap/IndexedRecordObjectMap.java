@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.avro.objectmap;
 
@@ -45,7 +45,8 @@ public class IndexedRecordObjectMap implements ObjectMap {
 
     private Set<String> keys;
 
-    public IndexedRecordObjectMap(final IndexedRecord input, final BiFunction<String, IndexedRecord, Object> nestedFactory,
+    public IndexedRecordObjectMap(final IndexedRecord input,
+            final BiFunction<String, IndexedRecord, Object> nestedFactory,
             final ConcurrentMap<String, Constructor<?>> stringableConstructors) {
         this.delegate = input;
         this.nestedFactory = nestedFactory;
@@ -69,7 +70,8 @@ public class IndexedRecordObjectMap implements ObjectMap {
             } else if (GenericData.Array.class.isInstance(value)) {
                 final GenericData.Array array = GenericData.Array.class.cast(value);
                 return array.isEmpty() || !IndexedRecord.class.isInstance(array.get(0)) ? array
-                        : array.stream()
+                        : array
+                                .stream()
                                 .map(o -> IndexedRecord.class.isInstance(o)
                                         ? nestedFactory.apply(location, IndexedRecord.class.cast(o))
                                         : o)
@@ -88,8 +90,10 @@ public class IndexedRecordObjectMap implements ObjectMap {
                 return null;
             }
         }
-        // todo: keep browsing the object graph to have the right type to potentially subclass it (as in first if of the method)
-        // note that a direct access (= being here) can also means we just access primitives
+        // todo: keep browsing the object graph to have the right type to potentially
+        // subclass it (as in first if of the method)
+        // note that a direct access (= being here) can also means we just access
+        // primitives
         final Schema.Field field = value.getSchema().getField(segments[segments.length - 1]);
         final Object val = value.get(field.pos());
         if (val == null) {
@@ -106,7 +110,8 @@ public class IndexedRecordObjectMap implements ObjectMap {
                 Constructor<?> constructor = stringableConstructors.get(type);
                 if (constructor == null) {
                     try {
-                        constructor = Thread.currentThread().getContextClassLoader().loadClass(type).getConstructor(String.class);
+                        constructor = Thread.currentThread().getContextClassLoader().loadClass(type).getConstructor(
+                                String.class);
                     } catch (final NoSuchMethodException | ClassNotFoundException e) {
                         throw new IllegalArgumentException(e);
                     }
@@ -136,7 +141,8 @@ public class IndexedRecordObjectMap implements ObjectMap {
                 : null;
     }
 
-    @Override // todo: actual impl, this was just to put something in there but it is not yet correct
+    @Override // todo: actual impl, this was just to put something in there but it is not yet
+              // correct
     public Collection<ObjectMap> getCollection(final String location) {
         final Object value = get(location);
         if (value == null) {
@@ -146,8 +152,10 @@ public class IndexedRecordObjectMap implements ObjectMap {
             throw new IllegalArgumentException(value + " not an array");
         }
         final GenericArray<?> array = GenericArray.class.cast(value);
-        return array.stream()
-                .map(item -> new IndexedRecordObjectMap(IndexedRecord.class.cast(value), nestedFactory, stringableConstructors))
+        return array
+                .stream()
+                .map(item -> new IndexedRecordObjectMap(IndexedRecord.class.cast(value), nestedFactory,
+                        stringableConstructors))
                 .collect(toList());
     }
 
