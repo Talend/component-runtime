@@ -16,22 +16,24 @@
 
 package org.talend.sdk.component.starter.server.test;
 
-import static java.util.stream.Collectors.joining;
-import static lombok.AccessLevel.PRIVATE;
-import static org.junit.Assert.fail;
+import lombok.NoArgsConstructor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import lombok.NoArgsConstructor;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
+import static lombok.AccessLevel.PRIVATE;
+import static org.junit.Assert.fail;
 
 @NoArgsConstructor(access = PRIVATE)
 public class Resources {
 
     public static String resourceFileToString(final String filePath) {
         try (final BufferedReader reader = new BufferedReader(
-                new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath)))) {
+                new InputStreamReader(
+                        requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath), filePath)))) {
             return reader.lines().collect(joining("\n"));
         } catch (final IOException e) {
             fail(e.getMessage());
