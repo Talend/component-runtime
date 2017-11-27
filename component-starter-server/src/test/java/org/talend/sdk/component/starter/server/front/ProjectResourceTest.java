@@ -73,6 +73,8 @@ public class ProjectResourceTest {
                         "Generates some tests using beam runtime instead of Talend Component Kit Testing framework.")));
                 put("Libraries", singletonList(new FactoryConfiguration.Facet("WADL Client Generation",
                         "Generates a HTTP client from a WADL.")));
+                put("Tool", singletonList(new FactoryConfiguration.Facet("Codenvy",
+                        "Pre-configures the project to be usable with Codenvy.")));
             }
         }, new HashMap<>(config.getFacets()));
     }
@@ -227,6 +229,21 @@ public class ProjectResourceTest {
                 resourceFileToString(
                         "generated/ProjectResourceTest/beamFacetProcessorOutput/TInProcessorBeamTest.java"),
                 files.get("application/src/test/java/com/foo/processor/TInProcessorBeamTest.java"));
+    }
+
+    @Test
+    public void codenvyFacet() throws IOException {
+        final ProjectModel projectModel = new ProjectModel();
+        projectModel.setPackageBase("com.foo");
+        projectModel.setFacets(singletonList("Codenvy"));
+
+        final Map<String, String> files = createZip(projectModel);
+
+        assertEquals(4, files.size());
+        assertEquals(resourceFileToString("generated/ProjectResourceTest/codenvy/README.adoc").trim(),
+                files.get("application/README.adoc").trim());
+        assertEquals(resourceFileToString("generated/ProjectResourceTest/codenvy/factory.json"),
+                files.get("application/.factory.json"));
     }
 
     private void assertWadl(final Map<String, String> files) {
