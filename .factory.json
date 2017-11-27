@@ -29,10 +29,10 @@
         "problems": []
       }
     ],
-    "defaultEnv": "wss",
-    "name": "wss",
+    "defaultEnv": "default",
+    "name": "component-runtime",
     "environments": {
-      "wss": {
+      "default": {
         "machines": {
           "dev-machine": {
             "agents": [
