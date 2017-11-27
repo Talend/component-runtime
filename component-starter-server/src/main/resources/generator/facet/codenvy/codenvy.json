@@ -120,9 +120,16 @@
         {
           "id": "openWelcomePage",
           "properties": {
-            "nonAuthenticatedContentUrl": "https://talend.github.io/component-runtime/documentation.html",
-            "nonAuthenticatedTitle": "Documentation"
+            "greetingTitle": "Documentation",
+            "greetingContentUrl": "https://talend.github.io/component-runtime/documentation.html"
           }
+        }
+      ]
+    },
+    "onAppClosed": {
+      "actions": [
+        {
+          "id": "warnOnClose"
         }
       ]
     }

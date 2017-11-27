@@ -117,6 +117,24 @@
           "id":"runCommand"
         }
       ]
+    },
+    "onAppLoaded": {
+      "actions": [
+        {
+          "id": "openWelcomePage",
+          "properties": {
+            "greetingTitle": "Documentation",
+            "greetingContentUrl": "https://talend.github.io/component-runtime/documentation.html"
+          }
+        }
+      ]
+    },
+    "onAppClosed": {
+      "actions": [
+        {
+          "id": "warnOnClose"
+        }
+      ]
     }
   }
 }
