@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.container;
 
@@ -84,15 +84,21 @@ public class Container implements Lifecycle {
 
             // for the jar module we test in order:
             // - if the file exists we use it
-            // - if the nested file exists using the module as path in nested maven repo, we use it
+            // - if the nested file exists using the module as path in nested maven repo,
+            // we use it
             // - if the nested path is in the global plugin.properties index, we use it
             return new ConfigurableClassLoader(urls, configuration.getParent(), configuration.getClassesFilter(),
                     configuration.getParentClassesFilter(),
-                    configuration.isSupportsResourceDependencies() ? Stream.concat(Stream.of(dependencies),
-                            of(rootModule)
-                                    .filter(m -> !new File(m).exists() && !localDependencyRelativeResolver.apply(m).exists())
-                                    .map(Stream::of).orElseGet(Stream::empty))
-                            .toArray(String[]::new) : null);
+                    configuration.isSupportsResourceDependencies()
+                            ? Stream
+                                    .concat(Stream.of(dependencies),
+                                            of(rootModule)
+                                                    .filter(m -> !new File(m).exists()
+                                                            && !localDependencyRelativeResolver.apply(m).exists())
+                                                    .map(Stream::of)
+                                                    .orElseGet(Stream::empty))
+                                    .toArray(String[]::new)
+                            : null);
         };
         reload();
     }
@@ -110,10 +116,13 @@ public class Container implements Lifecycle {
     }
 
     public Stream<File> findExistingClasspathFiles() {
-        return Stream.concat(
-                Stream.of(rootModule)
-                        .map(m -> of(new File(m)).filter(File::exists).orElseGet(() -> localDependencyRelativeResolver.apply(m))),
-                Stream.of(dependencies).map(localDependencyRelativeResolver)).filter(File::exists);
+        return Stream
+                .concat(Stream
+                        .of(rootModule)
+                        .map(m -> of(new File(m)).filter(File::exists).orElseGet(
+                                () -> localDependencyRelativeResolver.apply(m))),
+                        Stream.of(dependencies).map(localDependencyRelativeResolver))
+                .filter(File::exists);
     }
 
     public <S, T> T executeAndContextualize(final Supplier<S> supplier, final Class<T> api) {
@@ -121,7 +130,8 @@ public class Container implements Lifecycle {
         if (!api.isInterface()) {
             throw new IllegalArgumentException("Only interfaces are supported for now: " + api);
         }
-        try { // ensure we don't leak a specific class, no need of any proxy for the class failing here
+        try { // ensure we don't leak a specific class, no need of any proxy for the class
+              // failing here
             loaderRef.get().getParent().loadClass(api.getName());
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
             throw new IllegalArgumentException("executeAndContextualize only usable with parent API");
@@ -129,8 +139,8 @@ public class Container implements Lifecycle {
 
         final S result = execute(supplier);
         return api.isInstance(result) ? api.cast(result)
-                : api.cast(
-                        newProxyInstance(loaderRef.get(), new Class<?>[] { api }, new ApiHandler(result, api, this::withTccl)));
+                : api.cast(newProxyInstance(loaderRef.get(), new Class<?>[] { api },
+                        new ApiHandler(result, api, this::withTccl)));
     }
 
     public <T> T execute(final Supplier<T> supplier) {

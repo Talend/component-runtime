@@ -15,22 +15,24 @@
  */
 package org.talend.sdk.component.studio;
 
-import static java.util.stream.Collectors.joining;
-import static org.apache.xbean.asm5.ClassWriter.COMPUTE_FRAMES;
-import static org.apache.xbean.asm5.Opcodes.ACC_PUBLIC;
-import static org.apache.xbean.asm5.Opcodes.ACC_SUPER;
-import static org.apache.xbean.asm5.Opcodes.ALOAD;
-import static org.apache.xbean.asm5.Opcodes.ARETURN;
-import static org.apache.xbean.asm5.Opcodes.DUP;
-import static org.apache.xbean.asm5.Opcodes.INVOKESPECIAL;
-import static org.apache.xbean.asm5.Opcodes.NEW;
-import static org.apache.xbean.asm5.Opcodes.RETURN;
-import static org.apache.xbean.asm5.Opcodes.V1_8;
-import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.rules.RuleChain.outerRule;
+import org.apache.commons.io.IOUtils;
+import org.apache.xbean.asm6.AnnotationVisitor;
+import org.apache.xbean.asm6.ClassWriter;
+import org.apache.xbean.asm6.MethodVisitor;
+import org.apache.xbean.asm6.Type;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
+import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.service.Action;
+import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.server.front.model.ComponentDetailList;
+import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -47,24 +49,22 @@ import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.xbean.asm5.AnnotationVisitor;
-import org.apache.xbean.asm5.ClassWriter;
-import org.apache.xbean.asm5.MethodVisitor;
-import org.apache.xbean.asm5.Type;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
-import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.service.Action;
-import org.talend.sdk.component.api.service.Service;
-import org.talend.sdk.component.server.front.model.ComponentDetailList;
-import org.talend.sdk.component.server.front.model.ComponentIndices;
-import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
-import org.talend.sdk.component.studio.websocket.WebSocketClient;
+import static java.util.stream.Collectors.joining;
+import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.xbean.asm6.Opcodes.ACC_PUBLIC;
+import static org.apache.xbean.asm6.Opcodes.ACC_SUPER;
+import static org.apache.xbean.asm6.Opcodes.ALOAD;
+import static org.apache.xbean.asm6.Opcodes.ARETURN;
+import static org.apache.xbean.asm6.Opcodes.DUP;
+import static org.apache.xbean.asm6.Opcodes.INVOKESPECIAL;
+import static org.apache.xbean.asm6.Opcodes.NEW;
+import static org.apache.xbean.asm6.Opcodes.RETURN;
+import static org.apache.xbean.asm6.Opcodes.V1_8;
+import static org.apache.ziplock.JarLocation.jarLocation;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.rules.RuleChain.outerRule;
 
 public class ServerManagerTest {
 
@@ -110,11 +110,14 @@ public class ServerManagerTest {
                         org.talend.sdk.component.studio.GAV.ARTIFACT_ID, gav -> {
                             final String[] segments = gav.substring(gav.lastIndexOf('!') + 1).split("/");
                             if (segments[1].startsWith("component-")) { // try in the project
-                                final File[] root = jarLocation(ServerManagerTest.class).getParentFile().getParentFile()
-                                        .getParentFile().listFiles((dir, name) -> name.equals(segments[1]));
+                                final File[] root = jarLocation(ServerManagerTest.class)
+                                        .getParentFile()
+                                        .getParentFile()
+                                        .getParentFile()
+                                        .listFiles((dir, name) -> name.equals(segments[1]));
                                 if (root != null && root.length == 1) {
-                                    final File[] jar = new File(root[0], "target")
-                                            .listFiles((dir, name) -> name.startsWith(segments[1]) && name.endsWith(".jar")
+                                    final File[] jar = new File(root[0], "target").listFiles(
+                                            (dir, name) -> name.startsWith(segments[1]) && name.endsWith(".jar")
                                                     && !name.contains("-source") && !name.contains("-model")
                                                     && !name.contains("-fat") && !name.contains("-javadoc"));
                                     if (jar != null && jar.length == 1) {
@@ -123,13 +126,15 @@ public class ServerManagerTest {
                                 }
                             }
                             return new File(
-                                    System.getProperty("test.m2.repository", System.getProperty("user.home") + "/.m2/repository"),
-                                    segments[0].replace('.', '/') + '/' + segments[1] + '/' + segments[2] + '/' + segments[1]
-                                            + '-' + segments[2] + ".jar");
+                                    System.getProperty("test.m2.repository",
+                                            System.getProperty("user.home") + "/.m2/repository"),
+                                    segments[0].replace('.', '/') + '/' + segments[1] + '/' + segments[2] + '/'
+                                            + segments[1] + '-' + segments[2] + ".jar");
                         }, new File("target/conf_missing"))) {
             thread.setContextClassLoader(buildLoader);
             mgr.start();
-            mgr.waitForServer(() -> {});
+            mgr.waitForServer(() -> {
+            });
             port = mgr.getPort();
             assertTrue(isStarted(port));
 
@@ -149,18 +154,19 @@ public class ServerManagerTest {
                 assertEquals(2, indices.getComponents().size());
             }
             { // path params, ensure we can change it through the same session usage
-                final ComponentDetailList proc1 = client.v1().component().getDetail("en",
-                        new String[] { "dGVzdC1jb21wb25lbnQjY29tcCNwcm9jMQ" });
+                final ComponentDetailList proc1 =
+                        client.v1().component().getDetail("en", new String[] { "dGVzdC1jb21wb25lbnQjY29tcCNwcm9jMQ" });
                 assertEquals(1, proc1.getDetails().size());
                 assertEquals("proc1", proc1.getDetails().get(0).getDisplayName());
 
-                final ComponentDetailList proc2 = client.v1().component().getDetail("en",
-                        new String[] { "dGVzdC1jb21wb25lbnQjY29tcCNwcm9jMg" });
+                final ComponentDetailList proc2 =
+                        client.v1().component().getDetail("en", new String[] { "dGVzdC1jb21wb25lbnQjY29tcCNwcm9jMg" });
                 assertEquals(1, proc2.getDetails().size());
                 assertEquals("proc2", proc2.getDetails().get(0).getDisplayName());
             }
 
-            // post endpoint, todo: enrich with real returned/configured data to make the test more relevant
+            // post endpoint, todo: enrich with real returned/configured data to make the
+            // test more relevant
             for (int i = 0; i < 2; i++) {
                 final String result = client.v1().action().execute(String.class, "proc", "user", "my-componentAction",
                         new HashMap<>());
@@ -168,9 +174,7 @@ public class ServerManagerTest {
             }
 
             {
-                final ConfigTypeNodes repositoryModel = client.v1()
-                                                              .configurationType()
-                                                              .getRepositoryModel();
+                final ConfigTypeNodes repositoryModel = client.v1().configurationType().getRepositoryModel();
                 assertTrue(repositoryModel.getNodes().isEmpty());
             }
         }
@@ -215,8 +219,8 @@ public class ServerManagerTest {
             outputStream.putNextEntry(new ZipEntry(className));
             final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
             writer.visitAnnotation(Type.getDescriptor(Service.class), true).visitEnd();
-            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                    Type.getInternalName(Object.class), null);
+            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                    null, Type.getInternalName(Object.class), null);
             writer.visitSource(className.replace(".class", ".java"), null);
 
             addConstructor(writer);
@@ -244,8 +248,8 @@ public class ServerManagerTest {
             final String className = packageName + "/AModel.class";
             outputStream.putNextEntry(new ZipEntry(className));
             final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                    Type.getInternalName(Object.class), null);
+            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                    null, Type.getInternalName(Object.class), null);
             writer.visitSource(className.replace(".class", ".java"), null);
 
             addConstructor(writer);
@@ -261,12 +265,14 @@ public class ServerManagerTest {
             final String className = packageName + "/AProcessor" + id + ".class";
             outputStream.putNextEntry(new ZipEntry(className));
             final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-            final AnnotationVisitor processorAnnotation = writer.visitAnnotation(Type.getDescriptor(Processor.class), true);
+            final AnnotationVisitor processorAnnotation =
+                    writer.visitAnnotation(Type.getDescriptor(Processor.class), true);
             processorAnnotation.visit("family", "comp");
             processorAnnotation.visit("name", "proc" + id);
             processorAnnotation.visitEnd();
-            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()), null,
-                    Type.getInternalName(Object.class), new String[] { Serializable.class.getName().replace(".", "/") });
+            writer.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className.substring(0, className.length() - ".class".length()),
+                    null, Type.getInternalName(Object.class),
+                    new String[] { Serializable.class.getName().replace(".", "/") });
             writer.visitSource(className.replace(".class", ".java"), null);
 
             addConstructor(writer);

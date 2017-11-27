@@ -105,7 +105,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <xbean.version>4.5</xbean.version>
+    <xbean.version>4.6</xbean.version>
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
     <ziplock.version>7.0.3</ziplock.version>
@@ -176,6 +176,56 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>${gmavenplus.version}</version>
+        <executions>
+          <execution>
+            <id>setup-deps-and-copy-icons</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <scripts>
+                <script>
+                  def base = project.basedir
+                  while (!new File(base, 'formatter.xml').exists()) {
+                    base = base.parentFile
+                  }
+                  def formatter = new File(base, 'formatter.xml').toURI().toURL().toExternalForm()
+                  log.info("Setting formatter url to: ${formatter}")
+                  project.properties.setProperty('componentFormatter', formatter)
+                </script>
+              </scripts>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>net.revelc.code.formatter</groupId>
+        <artifactId>formatter-maven-plugin</artifactId>
+        <version>2.7.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>format</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <configFile>${componentFormatter}</configFile>
+          <lineEnding>LF</lineEnding>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
@@ -277,6 +327,7 @@
               </module>
               <module name="FileTabCharacter"/>
               <module name="TreeWalker">
+                <module name="FinalParameters"/>
                 <module name="FileContentsHolder"/>
                 <module name="ConstantName">
                   <property name="format"
@@ -339,9 +390,7 @@
                   <property name="severity" value="warning"/>
                 </module>
                 <module name="UpperEll"/>
-
               </module>
-
             </module>
           </checkstyleRules>
         </configuration>

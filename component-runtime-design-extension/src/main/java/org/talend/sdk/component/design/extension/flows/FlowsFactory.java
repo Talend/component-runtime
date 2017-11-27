@@ -22,16 +22,18 @@ import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.PartitionMap
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMeta;
 
 /**
- * Strategy creates component flows according component type (either {@link ProcessorMeta} or {@link PartitionMapperMeta})
+ * Strategy creates component flows according component type (either
+ * {@link ProcessorMeta} or {@link PartitionMapperMeta})
  */
 public abstract class FlowsFactory {
 
     /**
-     * Creates appropriate factory according {@link BaseMeta} type (either {@link ProcessorMeta} or {@link PartitionMapperMeta})
+     * Creates appropriate factory according {@link BaseMeta} type (either
+     * {@link ProcessorMeta} or {@link PartitionMapperMeta})
      * 
      * @param meta
      */
-    public static FlowsFactory get(BaseMeta<?> meta) {
+    public static FlowsFactory get(final BaseMeta<?> meta) {
         if (meta == null) {
             throw new IllegalArgumentException("meta should not be null");
         }

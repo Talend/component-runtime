@@ -67,7 +67,8 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
             final Collection<ProjectRequest.SourceConfiguration> sources,
             final Collection<ProjectRequest.ProcessorConfiguration> processors) {
 
-        final boolean hasComponent = (sources != null && !sources.isEmpty()) || (processors != null && !processors.isEmpty());
+        final boolean hasComponent =
+                (sources != null && !sources.isEmpty()) || (processors != null && !processors.isEmpty());
         if (!hasComponent) {
             return Stream.empty();
         }
@@ -89,8 +90,9 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
             final String outputRecordName = names.toMapperRecordName(source);
 
             // Configuration structure
-            final boolean hasConfig = source.getConfiguration() != null && source.getConfiguration().getEntries() != null
-                    && !source.getConfiguration().getEntries().isEmpty();
+            final boolean hasConfig =
+                    source.getConfiguration() != null && source.getConfiguration().getEntries() != null
+                            && !source.getConfiguration().getEntries().isEmpty();
             final Set<String> configFields = hasConfig
                     ? source.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(toSet())
                     : emptySet();
@@ -122,25 +124,28 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
             final Collection<ProjectRequest.ProcessorConfiguration> processors) {
 
         return processors.stream().flatMap(processor -> {
-            final boolean isOutput = processor.getOutputStructures() == null || processor.getOutputStructures().isEmpty();
+            final boolean isOutput =
+                    processor.getOutputStructures() == null || processor.getOutputStructures().isEmpty();
             final String baseName = names.toProcessorName(processor);
             final String testClassName = baseName + "Test";
             final String configurationClassName = names.toConfigurationName(baseName);
             final String classDir = isOutput ? "output" : "processor";
 
             // Configuration structure
-            final boolean hasConfig = processor.getConfiguration() != null && processor.getConfiguration().getEntries() != null
-                    && !processor.getConfiguration().getEntries().isEmpty();
+            final boolean hasConfig =
+                    processor.getConfiguration() != null && processor.getConfiguration().getEntries() != null
+                            && !processor.getConfiguration().getEntries().isEmpty();
             final Set<String> configFields = hasConfig
-                    ? processor.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(toSet())
+                    ? processor.getConfiguration().getEntries().stream().map(e -> capitalize(e.getName())).collect(
+                            toSet())
                     : emptySet();
 
             // input branches names
-            final Set<Map.Entry<String, String>> inputBranches = processor.getInputStructures().entrySet().stream()
-                    .flatMap(in -> {
+            final Set<Map.Entry<String, String>> inputBranches =
+                    processor.getInputStructures().entrySet().stream().flatMap(in -> {
                         final String inName = in.getValue().isGeneric() ? "ObjectMap"
-                                : capitalize(processor.getName()) + capitalize(names.sanitizeConnectionName(in.getKey()))
-                                        + "Input";
+                                : capitalize(processor.getName())
+                                        + capitalize(names.sanitizeConnectionName(in.getKey())) + "Input";
                         Map<String, String> map = new HashMap<String, String>() {
 
                             {
@@ -152,8 +157,8 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
                     }).collect(toSet());
 
             // outputNames
-            final Set<Map.Entry<String, String>> outputBranches = !isOutput
-                    ? processor.getOutputStructures().entrySet().stream().flatMap(e -> {
+            final Set<Map.Entry<String, String>> outputBranches =
+                    !isOutput ? processor.getOutputStructures().entrySet().stream().flatMap(e -> {
                         final String outName = e.getValue().isGeneric() ? "ObjectMap"
                                 : capitalize(processor.getName()) + capitalize(names.sanitizeConnectionName(e.getKey()))
                                         + "Output";
@@ -164,8 +169,7 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
                             }
                         };
                         return map.entrySet().stream();
-                    }).collect(toSet())
-                    : emptySet();
+                    }).collect(toSet()) : emptySet();
 
             final boolean isGeneric = inputBranches.stream().anyMatch(e -> "ObjectMap".equals(e.getValue()))
                     || outputBranches.stream().anyMatch(e -> "ObjectMap".equals(e.getValue()));

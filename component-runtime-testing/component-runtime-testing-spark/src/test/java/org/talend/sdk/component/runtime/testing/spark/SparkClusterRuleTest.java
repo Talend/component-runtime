@@ -1,17 +1,18 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONhttps://svn.apache.org/repos/asf/geronimo/xbean/tags/xbean-4.6/DITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONhttps://svn.apache.org/repos/asf/geronimo/xbean/tags/xbean-4.6/DITIONS OF ANY KIND, either
+ * express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.testing.spark;
 
@@ -58,7 +59,8 @@ public class SparkClusterRuleTest {
 
     @Test
     public void classpathSubmit() throws IOException {
-        final File out = new File(jarLocation(SparkClusterRuleTest.class).getParentFile(), testName.getMethodName() + ".out");
+        final File out =
+                new File(jarLocation(SparkClusterRuleTest.class).getParentFile(), testName.getMethodName() + ".out");
         if (out.exists()) {
             out.delete();
         }
@@ -76,8 +78,12 @@ public class SparkClusterRuleTest {
             final SparkConf conf = new SparkConf().setAppName(SubmittableMain.class.getName()).setMaster(args[0]);
             final JavaSparkContext context = new JavaSparkContext(conf);
 
-            context.parallelize(singletonList("a b")).flatMap((FlatMapFunction<String, String>) text -> asList(text.split(" ")))
-                    .mapToPair(word -> new Tuple2<>(word, 1)).reduceByKey((a, b) -> a + b).foreach(result -> {
+            context
+                    .parallelize(singletonList("a b"))
+                    .flatMap((FlatMapFunction<String, String>) text -> asList(text.split(" ")))
+                    .mapToPair(word -> new Tuple2<>(word, 1))
+                    .reduceByKey((a, b) -> a + b)
+                    .foreach(result -> {
                         try (final FileWriter writer = new FileWriter(args[1], true)) {
                             writer.write(result._1 + " -> " + result._2 + '\n');
                         }

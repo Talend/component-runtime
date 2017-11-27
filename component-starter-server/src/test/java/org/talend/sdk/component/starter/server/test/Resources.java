@@ -31,9 +31,8 @@ import static org.junit.Assert.fail;
 public class Resources {
 
     public static String resourceFileToString(final String filePath) {
-        try (final BufferedReader reader = new BufferedReader(
-                new InputStreamReader(
-                        requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath), filePath)))) {
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(requireNonNull(
+                Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath), filePath)))) {
             return reader.lines().collect(joining("\n"));
         } catch (final IOException e) {
             fail(e.getMessage());

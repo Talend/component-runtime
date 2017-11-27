@@ -71,7 +71,8 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             afterGroup = findMethods(AfterGroup.class).collect(toList());
             process = findMethods(ElementListener.class).findFirst().get();
 
-            // IMPORTANT: ensure you call only once the create(....), see studio integration (mojo)
+            // IMPORTANT: ensure you call only once the create(....), see studio integration
+            // (mojo)
             parameterBuilder = Stream.of(process.getParameters()).map(parameter -> {
                 if (parameter.isAnnotationPresent(Output.class)) {
                     return (BiFunction<InputFactory, OutputFactory, Object>) (inputs, outputs) -> outputs
@@ -80,13 +81,13 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
                 final Class<?> parameterType = parameter.getType();
                 final boolean isObjectMap = ObjectMap.class.isAssignableFrom(parameterType);
-                final AccessorCache cache = ofNullable(
-                        ContainerFinder.Instance.get().find(plugin()).findService(AccessorCache.class))
+                final AccessorCache cache =
+                        ofNullable(ContainerFinder.Instance.get().find(plugin()).findService(AccessorCache.class))
                                 .orElseGet(() -> new AccessorCache(plugin()));
-                final String inputName = ofNullable(parameter.getAnnotation(Input.class)).map(Input::value)
-                        .orElse(Branches.DEFAULT_BRANCH);
-                return (BiFunction<InputFactory, OutputFactory, Object>) (inputs, outputs) -> doConvertInput(parameterType,
-                        isObjectMap, cache, inputs.read(inputName));
+                final String inputName = ofNullable(parameter.getAnnotation(Input.class)).map(Input::value).orElse(
+                        Branches.DEFAULT_BRANCH);
+                return (BiFunction<InputFactory, OutputFactory, Object>) (inputs,
+                        outputs) -> doConvertInput(parameterType, isObjectMap, cache, inputs.read(inputName));
             }).collect(toList());
             forwardReturn = process.getReturnType() != void.class;
         }
@@ -129,8 +130,8 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     }
 
     protected Object newSubClassInstance(final Class<?> type, final ObjectMap data) {
-        throw new UnsupportedOperationException("Subclass " + getClass().getName() + " to support " + type + " as input or "
-                + "use an ObjectMap in " + plugin() + "#" + rootName() + "#" + name());
+        throw new UnsupportedOperationException("Subclass " + getClass().getName() + " to support " + type
+                + " as input or " + "use an ObjectMap in " + plugin() + "#" + rootName() + "#" + name());
     }
 
     Object writeReplace() throws ObjectStreamException {

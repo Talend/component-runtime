@@ -135,12 +135,13 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
     private Instance<Application> applications;
 
     @Override
-    public void contextInitialized(ServletContextEvent sce) {
+    public void contextInitialized(final ServletContextEvent sce) {
         final ServerContainer container = ServerContainer.class
                 .cast(sce.getServletContext().getAttribute(ServerContainer.class.getName()));
 
-        final JAXRSServiceFactoryBean factory = JAXRSServiceFactoryBean.class.cast(bus.getExtension(ServerRegistry.class)
-                .getServers().iterator().next().getEndpoint().get(JAXRSServiceFactoryBean.class.getName()));
+        final JAXRSServiceFactoryBean factory = JAXRSServiceFactoryBean.class
+                .cast(bus.getExtension(ServerRegistry.class).getServers().iterator().next().getEndpoint()
+                        .get(JAXRSServiceFactoryBean.class.getName()));
 
         final String appBase = StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(applications.iterator(), Spliterator.IMMUTABLE), false)
@@ -186,12 +187,14 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         }, new ServiceListGeneratorServlet(registry, bus));
         webSocketRegistry.controller = controller;
 
-        factory.getClassResourceInfo().stream().flatMap(cri -> cri.getMethodDispatcher().getOperationResourceInfos().stream())
-                .map(ori -> {
-                    final String uri = ori.getClassResourceInfo().getURITemplate().getValue() + ori.getURITemplate().getValue();
+        factory.getClassResourceInfo().stream()
+                .flatMap(cri -> cri.getMethodDispatcher().getOperationResourceInfos().stream()).map(ori -> {
+                    final String uri = ori.getClassResourceInfo().getURITemplate().getValue()
+                            + ori.getURITemplate().getValue();
                     return ServerEndpointConfig.Builder
                             .create(Endpoint.class,
-                                    "/websocket" + version + "/" + String.valueOf(ori.getHttpMethod()).toLowerCase(ENGLISH) + uri)
+                                    "/websocket" + version + "/"
+                                            + String.valueOf(ori.getHttpMethod()).toLowerCase(ENGLISH) + uri)
                             .configurator(new ServerEndpointConfig.Configurator() {
 
                                 @Override
@@ -205,8 +208,8 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                                         headers.put(HttpHeaders.ACCEPT,
                                                 singletonList(ori.getConsumeTypes().iterator().next().toString()));
                                     }
-                                    return (T) new JAXRSEndpoint(appBase, controller, servletContext, ori.getHttpMethod(), uri,
-                                            headers);
+                                    return (T) new JAXRSEndpoint(appBase, controller, servletContext,
+                                            ori.getHttpMethod(), uri, headers);
                                 }
                             }).build();
                 }).sorted(Comparator.comparing(ServerEndpointConfig::getPath))
@@ -259,7 +262,8 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                             if (del < 0) {
                                 headers.put(line.trim(), emptyList());
                             } else {
-                                headers.put(line.substring(0, del).trim(), singletonList(line.substring(del + 1).trim()));
+                                headers.put(line.substring(0, del).trim(),
+                                        singletonList(line.substring(del + 1).trim()));
                             }
                         }
                         if (done) {
@@ -290,8 +294,8 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 }
 
                 try {
-                    final WebSocketRequest request = new WebSocketRequest(method, headers, path, appBase + path, appBase,
-                            queryString, 8080, context, new WebSocketInputStream(message), session);
+                    final WebSocketRequest request = new WebSocketRequest(method, headers, path, appBase + path,
+                            appBase, queryString, 8080, context, new WebSocketInputStream(message), session);
                     controller.invoke(request, new WebSocketResponse(session));
                 } catch (final ServletException e) {
                     throw new IllegalArgumentException(e);
@@ -332,7 +336,8 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         private static final Cookie[] NO_COOKIE = new Cookie[0];
 
-        private static final SimpleDateFormat DATE_FORMATS[] = { new SimpleDateFormat(FastHttpDateFormat.RFC1123_DATE, Locale.US),
+        private static final SimpleDateFormat DATE_FORMATS[] = {
+                new SimpleDateFormat(FastHttpDateFormat.RFC1123_DATE, Locale.US),
                 new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
                 new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US) };
 
@@ -538,7 +543,8 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         }
 
         @Override
-        public boolean authenticate(final HttpServletResponse httpServletResponse) throws IOException, ServletException {
+        public boolean authenticate(final HttpServletResponse httpServletResponse)
+                throws IOException, ServletException {
             return false;
         }
 
@@ -729,7 +735,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         }
 
         @Override
-        public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+        public AsyncContext startAsync(final ServletRequest servletRequest, final ServletResponse servletResponse)
                 throws IllegalStateException {
             throw new UnsupportedOperationException();
         }
@@ -833,8 +839,10 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         /**
          * sets a header to be sent back to the browser
          *
-         * @param name the name of the header
-         * @param value the value of the header
+         * @param name
+         *            the name of the header
+         * @param value
+         *            the value of the header
          */
         public void setHeader(final String name, final String value) {
             headers.put(name, new ArrayList<>(singletonList(value)));
@@ -980,8 +988,8 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
             return sosi = new ServletByteArrayOutputStream(session, () -> {
                 final StringBuilder top = new StringBuilder("MESSAGE\r\n");
                 top.append("status: ").append(getStatus()).append("\r\n");
-                headers.forEach(
-                        (k, v) -> top.append(k).append(": ").append(v.stream().collect(Collectors.joining(","))).append("\r\n"));
+                headers.forEach((k, v) -> top.append(k).append(": ").append(v.stream().collect(Collectors.joining(",")))
+                        .append("\r\n"));
                 top.append("\r\n");// empty line, means the next bytes are the payload
                 return top.toString();
             });
@@ -1231,7 +1239,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         }
 
         @Override
-        public Conduit getBackChannel(Message inMessage) throws IOException {
+        public Conduit getBackChannel(final Message inMessage) throws IOException {
             return delegate.getBackChannel(inMessage);
         }
 
@@ -1382,13 +1390,14 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         private boolean isNew;
 
-        private WebSocketContinuation(final Message message, final HttpServletRequest request, final HttpServletResponse response,
-                final WebSocketRegistry registry) {
+        private WebSocketContinuation(final Message message, final HttpServletRequest request,
+                final HttpServletResponse response, final WebSocketRegistry registry) {
             this.message = message;
             this.request = request;
             this.response = response;
             this.registry = registry;
-            this.request.setAttribute(AbstractHTTPDestination.CXF_CONTINUATION_MESSAGE, message.getExchange().getInMessage());
+            this.request.setAttribute(AbstractHTTPDestination.CXF_CONTINUATION_MESSAGE,
+                    message.getExchange().getInMessage());
             this.callback = message.getExchange().get(ContinuationCallback.class);
         }
 

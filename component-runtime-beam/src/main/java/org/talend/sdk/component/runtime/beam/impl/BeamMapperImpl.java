@@ -61,7 +61,8 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
 
     private final ClassLoader loader;
 
-    public BeamMapperImpl(final PTransform<PBegin, ?> begin, final String plugin, final String family, final String name) {
+    public BeamMapperImpl(final PTransform<PBegin, ?> begin, final String plugin, final String family,
+            final String name) {
         this(begin, createFlowDefinition(begin, plugin, family, name), plugin, family, name);
     }
 
@@ -171,14 +172,14 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
 
         if (Read.Bounded.class.isInstance(transform)) {
             final Processor processor = sourceExtractor.getTransforms().isEmpty() ? null
-                    : new BeamProcessorChainImpl(sourceExtractor.getTransforms(), capturingPipeline.getCoderRegistry(), plugin,
-                            family, name);
+                    : new BeamProcessorChainImpl(sourceExtractor.getTransforms(), capturingPipeline.getCoderRegistry(),
+                            plugin, family, name);
             return new FlowDefinition(Read.Bounded.class.cast(transform).getSource(), processor);
         }
         if (Read.Unbounded.class.isInstance(transform)) {
             final Processor processor = sourceExtractor.getTransforms().isEmpty() ? null
-                    : new BeamProcessorChainImpl(sourceExtractor.getTransforms(), capturingPipeline.getCoderRegistry(), plugin,
-                            family, name);
+                    : new BeamProcessorChainImpl(sourceExtractor.getTransforms(), capturingPipeline.getCoderRegistry(),
+                            plugin, family, name);
             return new FlowDefinition(Read.Unbounded.class.cast(transform).getSource(), processor);
         }
 

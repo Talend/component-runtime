@@ -41,6 +41,7 @@ public class Transform implements Serializable {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Record implements Serializable {
+
         private String value;
     }
 }

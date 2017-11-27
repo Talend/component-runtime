@@ -74,10 +74,10 @@ public class ExecutionResourceTest {
         final File outputFile = new File(jarLocation(ExecutionResourceTest.class).getParentFile(),
                 getClass().getSimpleName() + "_" + testName.getMethodName() + ".output");
         final JsonBuilderFactory objectFactory = Json.createBuilderFactory(emptyMap());
-        final WriteStatistics stats = base.path("execution/write/{family}/{component}").resolveTemplate("family", "file")
-                .resolveTemplate("component", "output").request(APPLICATION_JSON_TYPE)
-                .post(entity(objectFactory.createObjectBuilder().add("file", outputFile.getAbsolutePath()).build() + "\n"
-                        + objectFactory.createObjectBuilder().add("line1", "v1").build() + "\n"
+        final WriteStatistics stats = base.path("execution/write/{family}/{component}")
+                .resolveTemplate("family", "file").resolveTemplate("component", "output").request(APPLICATION_JSON_TYPE)
+                .post(entity(objectFactory.createObjectBuilder().add("file", outputFile.getAbsolutePath()).build()
+                        + "\n" + objectFactory.createObjectBuilder().add("line1", "v1").build() + "\n"
                         + objectFactory.createObjectBuilder().add("line2", "v2").build(), "talend/stream"),
                         WriteStatistics.class);
         assertTrue(outputFile.isFile());

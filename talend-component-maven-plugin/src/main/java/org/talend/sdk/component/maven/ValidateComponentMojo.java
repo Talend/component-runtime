@@ -63,9 +63,11 @@ import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSE
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 
 /**
- * Validate ComponentManager constraints to ensure a component doesn't have any "simple" error before being packaged.
+ * Validate ComponentManager constraints to ensure a component doesn't have any
+ * "simple" error before being packaged.
  */
-@Mojo(name = "validate", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME, threadSafe = true)
+@Mojo(name = "validate", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
+        threadSafe = true)
 public class ValidateComponentMojo extends ClasspathMojoBase {
 
     /**
@@ -75,32 +77,36 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     private boolean validateFamily;
 
     /**
-     * By default the plugin ensures the components are serializable. Skip this validation if this flag is true.
+     * By default the plugin ensures the components are serializable. Skip this
+     * validation if this flag is true.
      */
     @Parameter(defaultValue = "true", property = "talend.validation.serializable")
     private boolean validateSerializable;
 
     /**
-     * By default the plugin ensures resource bundle exists and is populated. Skip this validation if this flag is true.
+     * By default the plugin ensures resource bundle exists and is populated. Skip
+     * this validation if this flag is true.
      */
     @Parameter(defaultValue = "true", property = "talend.validation.internationalization")
     private boolean validateInternationalization;
 
     /**
-     * By default the plugin ensures the methods follow the expected signatures. Skipped if this flag is true.
+     * By default the plugin ensures the methods follow the expected signatures.
+     * Skipped if this flag is true.
      */
     @Parameter(defaultValue = "true", property = "talend.validation.model")
     private boolean validateModel;
 
     /**
-     * Should {@link org.talend.sdk.component.api.component.Version} and {@link org.talend.sdk.component.api.component.Icon}
-     * be enforced.
+     * Should {@link org.talend.sdk.component.api.component.Version} and
+     * {@link org.talend.sdk.component.api.component.Icon} be enforced.
      */
     @Parameter(defaultValue = "true", property = "talend.validation.metadata")
     private boolean validateMetadata;
 
     /**
-     * Should component model be validated deeply or not (useful for beam components).
+     * Should component model be validated deeply or not (useful for beam
+     * components).
      */
     @Parameter(defaultValue = "true", property = "talend.validation.component")
     private boolean validateComponent;
@@ -120,12 +126,13 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
         final AnnotationFinder finder = newFinder();
-        final List<Class<?>> components = componentMarkers().flatMap(a -> finder.findAnnotatedClasses(a).stream())
-                                                            .collect(toList());
+        final List<Class<?>> components =
+                componentMarkers().flatMap(a -> finder.findAnnotatedClasses(a).stream()).collect(toList());
         components.forEach(c -> getLog().debug("Found component: " + c));
 
         if (validateFamily) {
-            // todo: better fix is to get the pcakage with @Components then check it has icon
+            // todo: better fix is to get the pcakage with @Components then check it has
+            // icon
             // but it should be enough for now
             components.forEach(c -> findPackageOrFail(c, Icon.class));
         }
@@ -141,8 +148,9 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         }
 
         if (validateInternationalization) {
-            final List<String> errors = components.stream().map(this::validateComponentResourceBundle).filter(Objects::nonNull)
-                                                  .collect(toList());
+            final List<String> errors =
+                    components.stream().map(this::validateComponentResourceBundle).filter(Objects::nonNull).collect(
+                            toList());
             if (!errors.isEmpty()) {
                 errors.forEach(m -> getLog().error(m));
                 throw new MojoExecutionException("Some component internationalization is not complete");
@@ -151,18 +159,23 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
             for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
                 final ResourceBundle resourceBundle = findResourceBundle(i);
                 if (resourceBundle != null) {
-                    final Collection<String> keys = Stream.of(i.getMethods()).filter(m -> m.getDeclaringClass() != Object.class)
-                                                          .map(m -> i.getName() + "." + m.getName()).collect(toSet());
-                    final Collection<String> missingKeys = keys.stream().filter(k -> !resourceBundle.containsKey(k))
-                                                               .collect(toList());
+                    final Collection<String> keys = Stream
+                            .of(i.getMethods())
+                            .filter(m -> m.getDeclaringClass() != Object.class)
+                            .map(m -> i.getName() + "." + m.getName())
+                            .collect(toSet());
+                    final Collection<String> missingKeys =
+                            keys.stream().filter(k -> !resourceBundle.containsKey(k)).collect(toList());
                     if (!missingKeys.isEmpty()) {
                         missingKeys.forEach(k -> getLog().error("Missing key " + k + " in " + i + " resource bundle"));
                         throw new MojoExecutionException(i + " is missing some internalization messages");
                     }
 
-                    final List<String> outdatedKeys = resourceBundle.keySet().stream()
-                                                                    .filter(k -> k.startsWith(i.getName() + ".") && !keys
-                                                                            .contains(k)).collect(toList());
+                    final List<String> outdatedKeys = resourceBundle
+                            .keySet()
+                            .stream()
+                            .filter(k -> k.startsWith(i.getName() + ".") && !keys.contains(k))
+                            .collect(toList());
                     if (!outdatedKeys.isEmpty()) {
                         outdatedKeys.forEach(k -> getLog().error("Key " + k + " from " + i + " is no more used"));
                         throw new MojoExecutionException(i + " has some deleted keys in its resource bundle");
@@ -175,13 +188,13 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         }
 
         if (validateModel) {
-            final List<Class<?>> ambiguousComponents = components.stream()
-                                                                 .filter(c ->
-                                                                         componentMarkers().filter(c::isAnnotationPresent).count()
-                                                                                 > 1).collect(toList());
+            final List<Class<?>> ambiguousComponents = components
+                    .stream()
+                    .filter(c -> componentMarkers().filter(c::isAnnotationPresent).count() > 1)
+                    .collect(toList());
             if (!ambiguousComponents.isEmpty()) {
-                ambiguousComponents
-                        .forEach(i -> getLog().error(i + " has conflicting component annotations, ensure it has a single one"));
+                ambiguousComponents.forEach(
+                        i -> getLog().error(i + " has conflicting component annotations, ensure it has a single one"));
                 throw new MojoExecutionException("Ambiguous components are present: " + ambiguousComponents);
             }
 
@@ -212,8 +225,11 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         }
 
         if (validateDataStore) {
-            final List<String> datastores = finder.findAnnotatedClasses(DataStore.class).stream()
-                                                  .map(d -> d.getAnnotation(DataStore.class).value()).collect(toList());
+            final List<String> datastores = finder
+                    .findAnnotatedClasses(DataStore.class)
+                    .stream()
+                    .map(d -> d.getAnnotation(DataStore.class).value())
+                    .collect(toList());
 
             Set<String> uniqueDatastores = new HashSet<>(datastores);
 
@@ -223,11 +239,16 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
                         .collect(groupingBy(identity()))
                         .entrySet()
                         .stream()
-                        .filter(e -> e.getValue().size() > 1).map(Map.Entry::getKey).collect(joining(", ")));
+                        .filter(e -> e.getValue().size() > 1)
+                        .map(Map.Entry::getKey)
+                        .collect(joining(", ")));
             }
 
-            final Set<String> healthchecks = finder.findAnnotatedMethods(HealthCheck.class).stream()
-                                                   .map(m -> m.getAnnotation(HealthCheck.class).value()).collect(toSet());
+            final Set<String> healthchecks = finder
+                    .findAnnotatedMethods(HealthCheck.class)
+                    .stream()
+                    .map(m -> m.getAnnotation(HealthCheck.class).value())
+                    .collect(toSet());
             if (!healthchecks.containsAll(datastores)) {
                 final Set<String> missing = new HashSet<>(datastores);
                 datastores.removeAll(healthchecks);
@@ -240,32 +261,45 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
             final Set<String> errors = new HashSet<>();
 
             // returned types
-            errors.addAll(Stream.of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class)
-                                .flatMap(action -> {
-                                    final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
-                                    return finder.findAnnotatedMethods(action).stream()
-                                                 .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
-                                                 .map(m -> m + " doesn't return a " + returnedType + ", please fix it")
-                                                 .collect(toSet()).stream();
-                                }).collect(toSet()));
+            errors.addAll(Stream
+                    .of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class)
+                    .flatMap(action -> {
+                        final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
+                        return finder
+                                .findAnnotatedMethods(action)
+                                .stream()
+                                .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
+                                .map(m -> m + " doesn't return a " + returnedType + ", please fix it")
+                                .collect(toSet())
+                                .stream();
+                    })
+                    .collect(toSet()));
 
             // parameters for @DynamicValues
-            errors.addAll(finder.findAnnotatedMethods(DynamicValues.class).stream().filter(m -> countParameters(m) != 0)
-                                .map(m -> m + " should have no parameter").collect(toSet()));
+            errors.addAll(finder
+                    .findAnnotatedMethods(DynamicValues.class)
+                    .stream()
+                    .filter(m -> countParameters(m) != 0)
+                    .map(m -> m + " should have no parameter")
+                    .collect(toSet()));
 
             // parameters for @HealthCheck
-            errors.addAll(finder.findAnnotatedMethods(HealthCheck.class).stream()
-                                .filter(m -> countParameters(m) != 1 || !m.getParameterTypes()[0]
-                                        .isAnnotationPresent(DataStore.class))
-                                .map(m -> m + " should have its first parameter being a datastore (marked with @DataStore)")
-                                .collect(toSet()));
+            errors.addAll(finder
+                    .findAnnotatedMethods(HealthCheck.class)
+                    .stream()
+                    .filter(m -> countParameters(m) != 1
+                            || !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
+                    .map(m -> m + " should have its first parameter being a datastore (marked with @DataStore)")
+                    .collect(toSet()));
 
             // parameters for @DiscoverSchema
-            errors.addAll(finder.findAnnotatedMethods(DiscoverSchema.class).stream()
-                                .filter(m -> countParameters(m) != 1 || !m.getParameterTypes()[0]
-                                        .isAnnotationPresent(DataSet.class))
-                                .map(m -> m + " should have its first parameter being a dataset (marked with @Config)")
-                                .collect(toSet()));
+            errors.addAll(finder
+                    .findAnnotatedMethods(DiscoverSchema.class)
+                    .stream()
+                    .filter(m -> countParameters(m) != 1
+                            || !m.getParameterTypes()[0].isAnnotationPresent(DataSet.class))
+                    .map(m -> m + " should have its first parameter being a dataset (marked with @Config)")
+                    .collect(toSet()));
 
             if (!errors.isEmpty()) {
                 throw new MojoExecutionException(errors.stream().collect(joining("\n- ", "\n- ", "")));
@@ -274,23 +308,26 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     }
 
     private int countParameters(final Method m) {
-        return (int) Stream.of(m.getParameterTypes()).filter(
-                p -> !p.getName().startsWith("org.talend.sdk.component.api.service") && !p.isAnnotationPresent(Service.class))
-                           .count();
+        return (int) Stream
+                .of(m.getParameterTypes())
+                .filter(p -> !p.getName().startsWith("org.talend.sdk.component.api.service")
+                        && !p.isAnnotationPresent(Service.class))
+                .count();
     }
 
     private String validateComponentResourceBundle(final Class<?> component) {
         final String baseName = ofNullable(component.getPackage()).map(p -> p.getName() + ".").orElse("") + "Messages";
         final ResourceBundle bundle = findResourceBundle(component);
         if (bundle == null) {
-            return "No resource bundle for " + component.getName() + ", you should create a " + baseName.replace('.', '/')
-                    + ".properties at least.";
+            return "No resource bundle for " + component.getName() + ", you should create a "
+                    + baseName.replace('.', '/') + ".properties at least.";
         }
 
-        final String prefix = components(component).map(c -> findFamily(c, component) + "." + c.name())
-                                                   .orElseThrow(() -> new IllegalStateException(component.getName()));
-        final Collection<String> missingKeys = Stream.of("_displayName").map(n -> prefix + "." + n)
-                                                     .filter(k -> !bundle.containsKey(k)).collect(toList());
+        final String prefix = components(component).map(c -> findFamily(c, component) + "." + c.name()).orElseThrow(
+                () -> new IllegalStateException(component.getName()));
+        final Collection<String> missingKeys =
+                Stream.of("_displayName").map(n -> prefix + "." + n).filter(k -> !bundle.containsKey(k)).collect(
+                        toList());
         if (!missingKeys.isEmpty()) {
             return baseName + " is missing the keys:" + missingKeys.stream().collect(joining("\n"));
         }
@@ -298,16 +335,18 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     }
 
     private Optional<Component> components(final Class<?> component) {
-        return componentMarkers().map(component::getAnnotation).filter(Objects::nonNull).findFirst().map(this::asComponent);
+        return componentMarkers().map(component::getAnnotation).filter(Objects::nonNull).findFirst().map(
+                this::asComponent);
     }
 
     private String findFamily(final Component c, final Class<?> component) {
-        return of(c.family()).filter(name -> !name.isEmpty())
-                             .orElseGet(() -> findPackageOrFail(component, Components.class).family());
+        return of(c.family()).filter(name -> !name.isEmpty()).orElseGet(
+                () -> findPackageOrFail(component, Components.class).family());
     }
 
     private <A extends Annotation> A findPackageOrFail(final Class<?> component, final Class<A> api) {
-        final AccessibleClassLoader loader = AccessibleClassLoader.class.cast(Thread.currentThread().getContextClassLoader());
+        final AccessibleClassLoader loader =
+                AccessibleClassLoader.class.cast(Thread.currentThread().getContextClassLoader());
         final String pck = component.getPackage() == null ? null : component.getPackage().getName();
         if (pck != null) {
             String currentPackage = pck;
@@ -329,8 +368,8 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
                 currentPackage = currentPackage.substring(0, endPreviousPackage);
             } while (true);
         }
-        throw new IllegalArgumentException("No @" + api.getName() + " on " + component + ", add it or disable this validation" +
-                " (which can have side effects in integrations/designers)");
+        throw new IllegalArgumentException("No @" + api.getName() + " on " + component
+                + ", add it or disable this validation" + " (which can have side effects in integrations/designers)");
     }
 
     private ResourceBundle findResourceBundle(final Class<?> component) {
@@ -347,9 +386,9 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     }
 
     private Component asComponent(final Annotation a) {
-        return Component.class
-                .cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] { Component.class },
-                        (proxy, method, args) -> a.annotationType().getMethod(method.getName()).invoke(a)));
+        return Component.class.cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                new Class<?>[] { Component.class },
+                (proxy, method, args) -> a.annotationType().getMethod(method.getName()).invoke(a)));
     }
 
     public interface Component {

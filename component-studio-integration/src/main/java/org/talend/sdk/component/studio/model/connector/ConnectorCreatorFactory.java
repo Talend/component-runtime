@@ -15,22 +15,22 @@
  */
 package org.talend.sdk.component.studio.model.connector;
 
+import static lombok.AccessLevel.PRIVATE;
 import static org.talend.core.model.process.EConnectionType.FLOW_MAIN;
 import static org.talend.sdk.component.studio.model.connector.AbstractConnectorCreator.getType;
 
 import org.talend.core.model.process.INode;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 
+import lombok.NoArgsConstructor;
+
 /**
  * Creates appropriate {@link ConnectorCreator} according component meta
  */
+@NoArgsConstructor(access = PRIVATE)
 public final class ConnectorCreatorFactory {
 
-    private ConnectorCreatorFactory() {
-        // no-op
-    }
-
-    public static ConnectorCreator create(ComponentDetail component, INode node) {
+    public static ConnectorCreator create(final ComponentDetail component, final INode node) {
         if (!hasInputs(component) && !hasOutputs(component)) {
             return new StandAloneConnectorCreator(component, node);
         } else if (!hasInputs(component) && hasOutputs(component)) {
@@ -41,13 +41,17 @@ public final class ConnectorCreatorFactory {
         return new ProcessorConnectorCreator(component, node);
     }
 
-    private static boolean hasInputs(ComponentDetail component) {
-        return component.getInputFlows().stream() //
+    private static boolean hasInputs(final ComponentDetail component) {
+        return component
+                .getInputFlows()
+                .stream() //
                 .anyMatch(input -> FLOW_MAIN.equals(getType(input)));
     }
 
-    private static boolean hasOutputs(ComponentDetail component) {
-        return component.getOutputFlows().stream() //
+    private static boolean hasOutputs(final ComponentDetail component) {
+        return component
+                .getOutputFlows()
+                .stream() //
                 .anyMatch(output -> FLOW_MAIN.equals(getType(output)));
     }
 }

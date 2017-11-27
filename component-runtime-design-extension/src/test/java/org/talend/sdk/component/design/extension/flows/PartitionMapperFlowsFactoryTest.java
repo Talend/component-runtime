@@ -38,5 +38,5 @@ public class PartitionMapperFlowsFactoryTest {
         Assert.assertEquals(1, outputs.size());
         Assert.assertTrue(outputs.contains("__default__"));
     }
-    
+
 }

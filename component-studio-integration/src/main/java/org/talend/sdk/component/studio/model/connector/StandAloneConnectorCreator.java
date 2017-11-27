@@ -29,11 +29,12 @@ import org.talend.core.model.process.INodeConnector;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 
 /**
- * Creates connectors for StandAlone component (Processor with no inputs or output)
+ * Creates connectors for StandAlone component (Processor with no inputs or
+ * output)
  */
 class StandAloneConnectorCreator extends AbstractConnectorCreator {
 
-    protected StandAloneConnectorCreator(ComponentDetail detail, INode node) {
+    protected StandAloneConnectorCreator(final ComponentDetail detail, final INode node) {
         super(detail, node);
     }
 
@@ -42,14 +43,15 @@ class StandAloneConnectorCreator extends AbstractConnectorCreator {
      */
     @Override
     protected List<INodeConnector> createMainConnectors() {
-        INodeConnector main = createConnector(FLOW_MAIN, FLOW_MAIN.getName(), node);
+        final INodeConnector main = createConnector(FLOW_MAIN, FLOW_MAIN.getName(), node);
         main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
         main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
         return Collections.singletonList(main);
     }
 
     /**
-     * StandAlone component can't have Reject connector, thus returns {@link Optional#empty()}
+     * StandAlone component can't have Reject connector, thus returns
+     * {@link Optional#empty()}
      */
     @Override
     protected Optional<INodeConnector> createRejectConnector() {

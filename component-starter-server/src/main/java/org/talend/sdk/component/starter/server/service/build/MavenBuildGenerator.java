@@ -57,8 +57,8 @@ public class MavenBuildGenerator implements BuildGenerator {
     public Build createBuild(final ProjectRequest.BuildConfiguration buildConfiguration, final String packageBase,
             final Collection<Dependency> dependencies, final Collection<String> facets) {
         return new Build(buildConfiguration.getArtifact(), "src/main/java", "src/test/java", "src/main/resources",
-                "src/test/resources", "src/main/webapp", "pom.xml", renderer
-                .render("generator/maven/pom.xml",
+                "src/test/resources", "src/main/webapp", "pom.xml",
+                renderer.render("generator/maven/pom.xml",
                         new Pom(buildConfiguration, dependencies,
                                 createPlugins(facets, packageBase, plugins.get(buildConfiguration.getPackaging())))),
                 "target");
@@ -69,9 +69,12 @@ public class MavenBuildGenerator implements BuildGenerator {
         final Collection<Plugin> buildPlugins = new ArrayList<>(plugins);
 
         buildPlugins.add(new Plugin("org.talend.sdk.component", "talend-component-maven-plugin", Versions.KIT,
-                new ArrayList<Execution>() {{
-                    add(new Execution("validate+metadata", "package", "validate"));
-                }}, null));
+                new ArrayList<Execution>() {
+
+                    {
+                        add(new Execution("validate+metadata", "package", "validate"));
+                    }
+                }, null));
 
         buildPlugins.add(new Plugin("org.apache.maven.plugins", "maven-surefire-plugin", Versions.SUREFIRE, emptySet(),
                 new LinkedHashMap<String, String>() {
@@ -88,11 +91,10 @@ public class MavenBuildGenerator implements BuildGenerator {
                     new LinkedHashMap<String, String>() {
 
                         {
-                            put("wadlOptions",
-                                    "\n            <wadlOption>\n"
-                                            + "              <wadl>${project.basedir}/src/main/resources/wadl/client.xml</wadl>\n"
-                                            + "              <packagename>" + packageBase + ".client.wadl</packagename>\n"
-                                            + "            </wadlOption>\n          ");
+                            put("wadlOptions", "\n            <wadlOption>\n"
+                                    + "              <wadl>${project.basedir}/src/main/resources/wadl/client.xml</wadl>\n"
+                                    + "              <packagename>" + packageBase + ".client.wadl</packagename>\n"
+                                    + "            </wadlOption>\n          ");
                         }
                     }.entrySet()));
         }

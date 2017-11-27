@@ -51,7 +51,8 @@ public class ContainerManagerTest {
             ref = manager;
             final Container container = manager.create("foo", createZiplockJar().getAbsolutePath());
             assertNotNull(container);
-            // container is not tested here but in ContainerTest. Here we just take care of the manager.
+            // container is not tested here but in ContainerTest. Here we just take care
+            // of the manager.
 
             assertEquals(1, manager.findAll().size());
             assertEquals(singletonList(container), new ArrayList<>(manager.findAll()));
@@ -73,7 +74,8 @@ public class ContainerManagerTest {
 
     @Test
     public void autoContainerId() {
-        Stream.of("ziplock-7.00.3.jar", "ziplock-7.3.jar", "ziplock-7.3-SNAPSHOT.jar", "ziplock-7.3.0-SNAPSHOT.jar")
+        Stream
+                .of("ziplock-7.00.3.jar", "ziplock-7.3.jar", "ziplock-7.3-SNAPSHOT.jar", "ziplock-7.3.0-SNAPSHOT.jar")
                 .forEach(jarName -> {
                     try (final ContainerManager manager = createDefaultManager()) {
                         final File module = createZiplockJar();
@@ -129,10 +131,10 @@ public class ContainerManagerTest {
     }
 
     private ContainerManager createDefaultManager() {
-        return new ContainerManager(
-                ContainerManager.DependenciesResolutionConfiguration.builder()
-                        .resolver(new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH))
-                        .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION)).create(),
-                ContainerManager.ClassLoaderConfiguration.builder().create());
+        return new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
+                .builder()
+                .resolver(new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH))
+                .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION))
+                .create(), ContainerManager.ClassLoaderConfiguration.builder().create());
     }
 }

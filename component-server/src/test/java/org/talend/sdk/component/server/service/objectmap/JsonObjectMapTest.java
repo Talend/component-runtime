@@ -25,9 +25,10 @@ import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 public class JsonObjectMapTest {
 
-    private final ObjectMap map = new JsonObjectMap(
-            Json.createObjectBuilder().add("directString", "test").add("directInt", 1).add("nested", Json.createObjectBuilder()
-                    .add("value", "n").add("list", Json.createArrayBuilder().add(1).add(2).build()).build()).build());
+    private final ObjectMap map = new JsonObjectMap(Json.createObjectBuilder().add("directString", "test")
+            .add("directInt", 1).add("nested", Json.createObjectBuilder().add("value", "n")
+                    .add("list", Json.createArrayBuilder().add(1).add(2).build()).build())
+            .build());
 
     @Test
     public void get() {

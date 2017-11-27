@@ -53,7 +53,7 @@ public class ComponentFamilyMeta {
     private static final FamilyBundle NO_COMPONENT_BUNDLE = new FamilyBundle(null, null) {
 
         @Override
-        public Optional<String> configurationDisplayName(String type, String name) {
+        public Optional<String> configurationDisplayName(final String type, final String name) {
             return empty();
         }
 
@@ -82,8 +82,8 @@ public class ComponentFamilyMeta {
     public FamilyBundle findBundle(final ClassLoader loader, final Locale locale) {
         return bundles.computeIfAbsent(locale, l -> {
             try {
-                final ResourceBundle bundle = ResourceBundle
-                        .getBundle((packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
+                final ResourceBundle bundle = ResourceBundle.getBundle(
+                        (packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
                 return new FamilyBundle(bundle, name + '.');
             } catch (final MissingResourceException mre) {
                 log.warn("No bundle for " + packageName + " (" + name
@@ -135,8 +135,8 @@ public class ComponentFamilyMeta {
 
         private final boolean validated;
 
-        BaseMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version, final Class<?> type,
-                final List<ParameterMeta> parameterMetas, final MigrationHandler migrationHandler,
+        BaseMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
+                final Class<?> type, final List<ParameterMeta> parameterMetas, final MigrationHandler migrationHandler,
                 final Function<Map<String, String>, T> instantiator, final boolean validated) {
             this.parent = parent;
             this.name = name;
@@ -156,8 +156,8 @@ public class ComponentFamilyMeta {
         public ComponentBundle findBundle(final ClassLoader loader, final Locale locale) {
             return bundles.computeIfAbsent(locale, l -> {
                 try {
-                    final ResourceBundle bundle = ResourceBundle
-                            .getBundle((packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
+                    final ResourceBundle bundle = ResourceBundle.getBundle(
+                            (packageName.isEmpty() ? packageName : (packageName + '.')) + "Messages", locale, loader);
                     return new ComponentBundle(bundle, parent.name + '.' + name + '.');
                 } catch (final MissingResourceException mre) {
                     log.warn("No bundle for " + packageName + " (" + parent.name + " / " + name
@@ -171,8 +171,10 @@ public class ComponentFamilyMeta {
         /**
          * Sets data provided by extension
          *
-         * @param key      {@link Class} of data provided
-         * @param instance data instance
+         * @param key
+         * {@link Class} of data provided
+         * @param instance
+         * data instance
          * @return data instance
          */
         public <D> D set(final Class<D> key, final D instance) {
@@ -182,7 +184,8 @@ public class ComponentFamilyMeta {
         /**
          * Returns extension data instance
          *
-         * @param key {@link Class} of data instance to return
+         * @param key
+         * {@link Class} of data instance to return
          * @return data instance
          */
         public <D> D get(final Class<D> key) {
@@ -219,8 +222,11 @@ public class ComponentFamilyMeta {
          * @return listener method
          */
         public Method getListener() {
-            return Stream.of(getType().getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).findFirst()
-                         .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + getType()));
+            return Stream
+                    .of(getType().getMethods())
+                    .filter(m -> m.isAnnotationPresent(ElementListener.class))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + getType()));
         }
     }
 }

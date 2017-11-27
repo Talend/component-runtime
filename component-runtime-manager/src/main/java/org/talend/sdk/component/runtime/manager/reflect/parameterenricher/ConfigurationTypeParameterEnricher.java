@@ -38,10 +38,13 @@ public class ConfigurationTypeParameterEnricher implements ParameterExtensionEnr
             final String type = configType.value();
             final String name = getName(annotation);
             if (name != null) {
-                return new HashMap<String, String>() {{
-                    put(META_PREFIX + "type", type);
-                    put(META_PREFIX + "name", name);
-                }};
+                return new HashMap<String, String>() {
+
+                    {
+                        put(META_PREFIX + "type", type);
+                        put(META_PREFIX + "name", name);
+                    }
+                };
             }
         }
         return emptyMap();

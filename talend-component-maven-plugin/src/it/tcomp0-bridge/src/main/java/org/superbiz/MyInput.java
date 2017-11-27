@@ -39,7 +39,7 @@ import org.talend.sdk.component.api.input.Split;
 public class MyInput implements Serializable {
     private Configuration configuration;
 
-    public MyInput(@Option("config") Configuration configuration) {
+    public MyInput(@Option("config") final Configuration configuration) {
         this.configuration = configuration;
     }
 
@@ -61,7 +61,7 @@ public class MyInput implements Serializable {
     public static class SomeInput implements Serializable {
         private int remaining = 5;
 
-        public SomeInput(Configuration configuration) {
+        public SomeInput(final Configuration configuration) {
             // no-op
         }
 

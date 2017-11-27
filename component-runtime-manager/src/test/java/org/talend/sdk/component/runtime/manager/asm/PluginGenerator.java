@@ -1,33 +1,33 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager.asm;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static org.apache.xbean.asm5.ClassReader.EXPAND_FRAMES;
-import static org.apache.xbean.asm5.ClassWriter.COMPUTE_FRAMES;
-import static org.apache.xbean.asm5.Opcodes.ACC_PUBLIC;
-import static org.apache.xbean.asm5.Opcodes.ACC_SUPER;
-import static org.apache.xbean.asm5.Opcodes.ALOAD;
-import static org.apache.xbean.asm5.Opcodes.ARETURN;
-import static org.apache.xbean.asm5.Opcodes.DUP;
-import static org.apache.xbean.asm5.Opcodes.INVOKESPECIAL;
-import static org.apache.xbean.asm5.Opcodes.NEW;
-import static org.apache.xbean.asm5.Opcodes.RETURN;
-import static org.apache.xbean.asm5.Opcodes.V1_8;
+import static org.apache.xbean.asm6.ClassReader.EXPAND_FRAMES;
+import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.xbean.asm6.Opcodes.ACC_PUBLIC;
+import static org.apache.xbean.asm6.Opcodes.ACC_SUPER;
+import static org.apache.xbean.asm6.Opcodes.ALOAD;
+import static org.apache.xbean.asm6.Opcodes.ARETURN;
+import static org.apache.xbean.asm6.Opcodes.DUP;
+import static org.apache.xbean.asm6.Opcodes.INVOKESPECIAL;
+import static org.apache.xbean.asm6.Opcodes.NEW;
+import static org.apache.xbean.asm6.Opcodes.RETURN;
+import static org.apache.xbean.asm6.Opcodes.V1_8;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.Assert.fail;
 
@@ -43,13 +43,13 @@ import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
-import org.apache.xbean.asm5.AnnotationVisitor;
-import org.apache.xbean.asm5.ClassReader;
-import org.apache.xbean.asm5.ClassWriter;
-import org.apache.xbean.asm5.MethodVisitor;
-import org.apache.xbean.asm5.Type;
-import org.apache.xbean.asm5.commons.Remapper;
-import org.apache.xbean.asm5.commons.RemappingClassAdapter;
+import org.apache.xbean.asm6.AnnotationVisitor;
+import org.apache.xbean.asm6.ClassReader;
+import org.apache.xbean.asm6.ClassWriter;
+import org.apache.xbean.asm6.MethodVisitor;
+import org.apache.xbean.asm6.Type;
+import org.apache.xbean.asm6.commons.Remapper;
+import org.apache.xbean.asm6.commons.RemappingClassAdapter;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.Action;
@@ -70,7 +70,10 @@ public class PluginGenerator {
             final String fromPack = sourcePackage.replace('/', '.');
             final String toPack = packageName.replace('.', '/');
             final File root = new File(jarLocation(getClass()), sourcePackage);
-            ofNullable(root.listFiles()).map(Stream::of).orElseGet(Stream::empty).filter(c -> c.getName().endsWith(".class"))
+            ofNullable(root.listFiles())
+                    .map(Stream::of)
+                    .orElseGet(Stream::empty)
+                    .filter(c -> c.getName().endsWith(".class"))
                     .forEach(clazz -> {
                         try (final InputStream is = new FileInputStream(clazz)) {
                             final ClassReader reader = new ClassReader(is);
@@ -94,7 +97,8 @@ public class PluginGenerator {
         return target;
     }
 
-    // avoid to load any class and since we have a shade of asm in the classpath just generate the jars directly
+    // avoid to load any class and since we have a shade of asm in the classpath
+    // just generate the jars directly
     public File createPlugin(final File pluginFolder, final String name, final String... deps) throws IOException {
         final File target = new File(pluginFolder, name);
         try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(target))) {

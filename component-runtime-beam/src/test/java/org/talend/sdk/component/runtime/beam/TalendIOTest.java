@@ -88,7 +88,9 @@ public class TalendIOTest implements Serializable {
     @Test
     public void output() {
         Output.DATA.clear();
-        pipeline.apply(Create.of(new Sample("a"), new Sample("b"))).apply(new ViewsMappingTransform<>(emptyMap()))
+        pipeline
+                .apply(Create.of(new Sample("a"), new Sample("b")))
+                .apply(new ViewsMappingTransform<>(emptyMap()))
                 .apply(TalendIO.write(new BaseTestProcessor() {
 
                     @Override
@@ -102,15 +104,18 @@ public class TalendIOTest implements Serializable {
 
     @Test
     public void processor() {
-        final PCollection<SampleLength> out = pipeline.apply(Create.of(new Sample("a"), new Sample("bb")))
-                .apply(new ViewsMappingTransform<>(emptyMap())).apply(TalendFn.asFn(new BaseTestProcessor() {
+        final PCollection<SampleLength> out = pipeline
+                .apply(Create.of(new Sample("a"), new Sample("bb")))
+                .apply(new ViewsMappingTransform<>(emptyMap()))
+                .apply(TalendFn.asFn(new BaseTestProcessor() {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
-                        factory.create(Branches.DEFAULT_BRANCH)
-                                .emit(new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
+                        factory.create(Branches.DEFAULT_BRANCH).emit(
+                                new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
                     }
-                })).apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
+                }))
+                .apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
 
                     @ProcessElement
                     public void onElement(final ProcessContext ctx) {
@@ -129,15 +134,18 @@ public class TalendIOTest implements Serializable {
 
     @Test
     public void processorMulti() {
-        final PCollection<SampleLength> out = pipeline.apply(Create.of(new Sample("a"), new Sample("bb")))
-                .apply(new ViewsMappingTransform<>(emptyMap())).apply(TalendFn.asFn(new BaseTestProcessor() {
+        final PCollection<SampleLength> out = pipeline
+                .apply(Create.of(new Sample("a"), new Sample("bb")))
+                .apply(new ViewsMappingTransform<>(emptyMap()))
+                .apply(TalendFn.asFn(new BaseTestProcessor() {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
-                        factory.create(Branches.DEFAULT_BRANCH)
-                                .emit(new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
+                        factory.create(Branches.DEFAULT_BRANCH).emit(
+                                new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
                     }
-                })).apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
+                }))
+                .apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
 
                     @ProcessElement
                     public void onElement(final ProcessContext ctx) {

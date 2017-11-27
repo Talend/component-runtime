@@ -15,27 +15,30 @@
  */
 package org.talend.sdk.component.runtime.manager.util;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
+
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.stream.Collectors;
 
 public class IdGenerator {
 
     /**
-     * /!\  keep this algorithm private for now and don't assume it is reversible, we can revise it to something more compressed later
+     * /!\ keep this algorithm private for now and don't assume it is reversible, we
+     * can revise it to something more compressed later
      *
      * @param args
-     * @return a {@link Base64} url encoded string from the strings parameter joined by #
+     * @return a {@link Base64} url encoded string from the strings parameter joined
+     * by #
      */
-    public static String get(String... args) {
+    public static String get(final String... args) {
 
         if (args == null || args.length == 0) {
             return null;
         }
 
-        return Base64.getUrlEncoder().withoutPadding()
-                     .encodeToString(Arrays.stream(args).collect(Collectors.joining("#")).getBytes(StandardCharsets.UTF_8));
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(
+                stream(args).collect(joining("#")).getBytes(StandardCharsets.UTF_8));
     }
 
 }

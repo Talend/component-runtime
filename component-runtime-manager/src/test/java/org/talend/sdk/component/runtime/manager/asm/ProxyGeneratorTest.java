@@ -44,8 +44,8 @@ public class ProxyGeneratorTest {
             assertFalse(Serializable.class.isInstance(new CatService())); // if this fails the whole test is pointless
 
             final ProxyGenerator generator = new ProxyGenerator();
-            final Class<?> proxyType = generator.generateProxy(Thread.currentThread().getContextClassLoader(), CatService.class,
-                    "test", CatService.class.getName());
+            final Class<?> proxyType = generator.generateProxy(Thread.currentThread().getContextClassLoader(),
+                    CatService.class, "test", CatService.class.getName());
             assertNotNull(proxyType);
 
             final Object proxy = proxyType.getConstructor().newInstance();

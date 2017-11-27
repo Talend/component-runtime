@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager;
 
@@ -112,15 +112,17 @@ public class ComponentManagerTest {
         return Date.class.cast(mBeanServer.getAttribute(name, "created"));
     }
 
-    private void doCheckRegistry(final File plugin1, final File plugin2, final ComponentManager manager) throws Exception {
+    private void doCheckRegistry(final File plugin1, final File plugin2, final ComponentManager manager)
+            throws Exception {
         Stream.of(plugin1, plugin2).map(File::getAbsolutePath).forEach(manager::addPlugin);
-        final List<ContainerComponentRegistry> registries = manager.find(c -> Stream.of(c.get(ContainerComponentRegistry.class)))
-                .collect(toList());
+        final List<ContainerComponentRegistry> registries =
+                manager.find(c -> Stream.of(c.get(ContainerComponentRegistry.class))).collect(toList());
         assertEquals(2, registries.size()); // we saw both plugin
 
         registries.forEach(registry -> {
             final Container container = manager
-                    .find(c -> registry == c.get(ContainerComponentRegistry.class) ? Stream.of(c) : Stream.empty()).findFirst()
+                    .find(c -> registry == c.get(ContainerComponentRegistry.class) ? Stream.of(c) : Stream.empty())
+                    .findFirst()
                     .get();
 
             assertEquals(1, registry.getServices().size());
@@ -160,12 +162,14 @@ public class ComponentManagerTest {
             });
         });
 
-        // now try to execute the processor outside the correct TCCL and ensure it still works
+        // now try to execute the processor outside the correct TCCL and ensure it still
+        // works
         final Container container = manager.find(Stream::of).findFirst().get();
         final String packageName = pluginGenerator.toPackage(container.getId());
         final ContainerComponentRegistry registry = container.get(ContainerComponentRegistry.class);
         final ComponentFamilyMeta componentFamilyMeta = registry.getComponents().values().iterator().next();
-        final ComponentFamilyMeta.ProcessorMeta processorMeta = componentFamilyMeta.getProcessors().values().iterator().next();
+        final ComponentFamilyMeta.ProcessorMeta processorMeta =
+                componentFamilyMeta.getProcessors().values().iterator().next();
         final Processor processor = processorMeta.getInstantiator().apply(emptyMap());
         final Object aModel = container.getLoader().loadClass(packageName + ".AModel").getConstructor().newInstance();
         runProcessorLifecycle(aModel, processor);
@@ -176,19 +180,21 @@ public class ComponentManagerTest {
         runProcessorLifecycle(aModel, copy(processor, container.getLoader()));
     }
 
-    private org.talend.sdk.component.runtime.output.Processor copy(
-            final org.talend.sdk.component.runtime.output.Processor processor, final ClassLoader loader)
-            throws IOException, ClassNotFoundException {
+    private org.talend.sdk.component.runtime.output.Processor
+            copy(final org.talend.sdk.component.runtime.output.Processor processor, final ClassLoader loader)
+                    throws IOException, ClassNotFoundException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (final ObjectOutputStream oos = new ObjectOutputStream(baos)) {
             oos.writeObject(processor);
         }
-        try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(baos.toByteArray()), loader)) {
+        try (final ObjectInputStream ois =
+                new EnhancedObjectInputStream(new ByteArrayInputStream(baos.toByteArray()), loader)) {
             return org.talend.sdk.component.runtime.output.Processor.class.cast(ois.readObject());
         }
     }
 
-    private void runProcessorLifecycle(final Object model, final org.talend.sdk.component.runtime.output.Processor proc) {
+    private void runProcessorLifecycle(final Object model,
+            final org.talend.sdk.component.runtime.output.Processor proc) {
         proc.start();
         proc.beforeGroup();
         final AtomicReference<Object> transformedRef = new AtomicReference<>();

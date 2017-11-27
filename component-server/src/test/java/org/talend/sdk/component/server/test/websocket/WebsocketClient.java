@@ -54,7 +54,8 @@ public class WebsocketClient {
         return read(response, method, uri, body, "application/json");
     }
 
-    public <T> T read(final Class<T> response, final String method, final String uri, final String body, final String type) {
+    public <T> T read(final Class<T> response, final String method, final String uri, final String body,
+            final String type) {
         final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<String> indexHolder = new AtomicReference<>();
@@ -105,7 +106,8 @@ public class WebsocketClient {
                         fail(e.getMessage());
                     }
                 }
-            }, clientEndpointConfig, URI.create("ws://localhost:" + config.getHttpPort() + "/websocket/v1/" + method + uri));
+            }, clientEndpointConfig,
+                    URI.create("ws://localhost:" + config.getHttpPort() + "/websocket/v1/" + method + uri));
         } catch (final DeploymentException | IOException e) {
             fail(e.getMessage());
             throw new IllegalStateException(e);

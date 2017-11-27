@@ -38,8 +38,8 @@ public class PropertiesService {
     @Inject
     private PropertyValidationService propertyValidationService;
 
-    public Stream<SimplePropertyDefinition> buildProperties(final Collection<ParameterMeta> meta, final ClassLoader loader,
-            final Locale locale) {
+    public Stream<SimplePropertyDefinition> buildProperties(final Collection<ParameterMeta> meta,
+            final ClassLoader loader, final Locale locale) {
         return meta.stream().flatMap(p -> {
             final String path = sanitizePropertyName(p.getPath());
             final String name = sanitizePropertyName(p.getName());
@@ -48,14 +48,15 @@ public class PropertiesService {
             if (p.getType() == ParameterMeta.Type.ENUM) {
                 validation.setEnumValues(p.getProposals());
             }
-            final Map<String, String> metadata = ofNullable(p.getMetadata())
-                    .map(m -> m.entrySet().stream().filter(e -> !e.getKey().startsWith(ValidationParameterEnricher.META_PREFIX))
-                            .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)))
-                    .orElse(null);
-            return Stream.concat(Stream.of(new SimplePropertyDefinition(path, name,
-                    p.findBundle(loader, locale).displayName().orElse(name), type, validation, metadata)),
+            final Map<String, String> metadata = ofNullable(p.getMetadata()).map(m -> m.entrySet().stream()
+                    .filter(e -> !e.getKey().startsWith(ValidationParameterEnricher.META_PREFIX))
+                    .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue))).orElse(null);
+            return Stream.concat(
+                    Stream.of(new SimplePropertyDefinition(path, name,
+                            p.findBundle(loader, locale).displayName().orElse(name), type, validation, metadata)),
                     buildProperties(p.getNestedParameters(), loader, locale));
-        }).sorted(Comparator.comparing(SimplePropertyDefinition::getPath)); // important cause it is the way you want to see it
+        }).sorted(Comparator.comparing(SimplePropertyDefinition::getPath)); // important cause it is the way you want to
+                                                                            // see it
     }
 
     private String sanitizePropertyName(final String path) {

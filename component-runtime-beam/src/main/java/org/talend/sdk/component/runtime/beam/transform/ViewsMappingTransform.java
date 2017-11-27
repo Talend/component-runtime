@@ -34,7 +34,8 @@ import org.apache.beam.sdk.values.PCollectionView;
 import org.talend.sdk.component.runtime.beam.TalendCoder;
 
 /**
- * Adapter to convert a ProcessContext to a <code><pre>Map<String, List<?>></pre></code>.
+ * Adapter to convert a ProcessContext to a
+ * <code><pre>Map<String, List<?>></pre></code>.
  */
 public class ViewsMappingTransform<I extends Serializable>
         extends PTransform<PCollection<I>, PCollection<Map<String, List<Serializable>>>> {

@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.classloader;
 
@@ -49,7 +49,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
         ClassLoader.registerAsParallelCapable();
     }
 
-    // note: is there any reason to make it configurable? normally it shouldn't or it breaks some logic.
+    // note: is there any reason to make it configurable? normally it shouldn't or
+    // it
+    // breaks some logic.
     public static final String NESTED_MAVEN_REPOSITORY = "MAVEN-INF/repository/";
 
     private static final ClassLoader SYSTEM_CLASS_LOADER = getSystemClassLoader();
@@ -109,7 +111,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 }
             }
 
-            // if this class was a parent first then try to load it now parent loading failed
+            // if this class was a parent first then try to load it now parent loading
+            // failed
             if (!childFirst) {
                 clazz = loadInternal(name, resolve);
                 if (clazz != null) {
@@ -130,13 +133,14 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     @Override
     public URL findResource(final String name) {
-        return hasNoNestedRepositories() ? super.findResource(name) : ofNullable(super.findResource(name)).orElseGet(() -> {
-            final Resource nestedResource = findNestedResource(name);
-            if (nestedResource != null) {
-                return nestedResourceToURL(name, nestedResource);
-            }
-            return null;
-        });
+        return hasNoNestedRepositories() ? super.findResource(name)
+                : ofNullable(super.findResource(name)).orElseGet(() -> {
+                    final Resource nestedResource = findNestedResource(name);
+                    if (nestedResource != null) {
+                        return nestedResourceToURL(name, nestedResource);
+                    }
+                    return null;
+                });
     }
 
     @Override
@@ -144,7 +148,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
         return hasNoNestedRepositories() || Stream.of(nestedDependencies).anyMatch(d -> d.equals(name))
                 ? super.getResourceAsStream(name)
                 : ofNullable(super.getResourceAsStream(name)).orElseGet(() -> ofNullable(findNestedResource(name))
-                        .map(r -> new ByteArrayInputStream(r.resource)).map(InputStream.class::cast).orElse(null));
+                        .map(r -> new ByteArrayInputStream(r.resource))
+                        .map(InputStream.class::cast)
+                        .orElse(null));
     }
 
     @Override
@@ -168,7 +174,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     }
                 }
                 if (entry != null) {
-                    final ByteArrayOutputStream out = new ByteArrayOutputStream(8192 /* should be good for most of cases */);
+                    final ByteArrayOutputStream out =
+                            new ByteArrayOutputStream(8192 /* should be good for most of cases */);
                     final byte[] buffer = new byte[8192];
                     int read;
                     while ((read = jarInputStream.read(buffer, 0, buffer.length)) >= 0) {
@@ -328,7 +335,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
         return false;
     }
 
-    private boolean postLoad(boolean resolve, Class<?> clazz) {
+    private boolean postLoad(final boolean resolve, final Class<?> clazz) {
         if (clazz != null) {
             if (resolve) {
                 resolveClass(clazz);
@@ -338,7 +345,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
         return false;
     }
 
-    private Class<?> loadFromJvm(String name, boolean resolve) {
+    private Class<?> loadFromJvm(final String name, final boolean resolve) {
         Class<?> clazz;
         try {
             clazz = SYSTEM_CLASS_LOADER.loadClass(name);
@@ -402,7 +409,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     }
                 }
                 if (entry != null) {
-                    final ByteArrayOutputStream out = new ByteArrayOutputStream(8192 /* should be good for most of cases */);
+                    final ByteArrayOutputStream out =
+                            new ByteArrayOutputStream(8192 /* should be good for most of cases */);
                     final byte[] buffer = new byte[8192];
                     int read;
                     while ((read = jarInputStream.read(buffer, 0, buffer.length)) >= 0) {

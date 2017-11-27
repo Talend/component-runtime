@@ -18,7 +18,8 @@ package org.talend.sdk.component.runtime.manager.spi;
 import org.talend.sdk.component.container.ContainerListener;
 
 /**
- * SPI which provides way to extend ContainerManager with listeners, which enrich Container onCreate and onClose
+ * SPI which provides way to extend ContainerManager with listeners, which
+ * enrich Container onCreate and onClose
  */
 public interface ContainerListenerExtension extends ContainerListener {
 

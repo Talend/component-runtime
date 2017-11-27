@@ -20,8 +20,10 @@ import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.viewer.content.ProjectRepoDirectChildrenNodeContentProvider;
 
 public class MetadataContentProvider extends ProjectRepoDirectChildrenNodeContentProvider {
+
     @Override
-    protected RepositoryNode getTopLevelNodeFromProjectRepositoryNode(final ProjectRepositoryNode projectRepositoryNode) {
+    protected RepositoryNode
+            getTopLevelNodeFromProjectRepositoryNode(final ProjectRepositoryNode projectRepositoryNode) {
         return null;
     }
 }

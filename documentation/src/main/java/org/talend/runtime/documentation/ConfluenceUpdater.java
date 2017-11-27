@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.runtime.documentation;
 
@@ -51,7 +51,8 @@ import lombok.NoArgsConstructor;
 
 // NOTE: in progress until we find a way to have confluence 5 REST API
 /**
- * create in ~/.m2/settings.xml a server with the id "talend-confluence" to ensure this main can work.
+ * create in ~/.m2/settings.xml a server with the id "talend-confluence" to
+ * ensure this main can work.
  */
 // note: confluence 4.2.12 compatible
 public class ConfluenceUpdater implements Runnable {
@@ -71,11 +72,13 @@ public class ConfluenceUpdater implements Runnable {
     @Option(name = "--confluence-space", usage = "Confluence space")
     private String space = "rd";
 
-    @Option(name = "--settings-security-location", usage = "Where confluence credentials master key is stored, default to ~/.m2/settings-security.xml")
-    private String settingsSecurityLocation = new File(System.getProperty("user.home"), ".m2/settings-security.xml")
-            .getAbsolutePath();
+    @Option(name = "--settings-security-location",
+            usage = "Where confluence credentials master key is stored, default to ~/.m2/settings-security.xml")
+    private String settingsSecurityLocation =
+            new File(System.getProperty("user.home"), ".m2/settings-security.xml").getAbsolutePath();
 
-    @Option(name = "--settings-location", usage = "Where confluence credentials are read, default to ~/.m2/settings.xml")
+    @Option(name = "--settings-location",
+            usage = "Where confluence credentials are read, default to ~/.m2/settings.xml")
     private String settingsLocation = new File(System.getProperty("user.home"), ".m2/settings.xml").getAbsolutePath();
 
     @Option(name = "--maven-settings-server-id", usage = "~/.m2/settings.xml server id with confluence credentials")
@@ -136,7 +139,8 @@ public class ConfluenceUpdater implements Runnable {
 
         public static void main(final String[] args) {
             final ConfluenceUpdater confluenceUpdater = new ConfluenceUpdater();
-            final CmdLineParser parser = new CmdLineParser(confluenceUpdater, ParserProperties.defaults().withUsageWidth(80));
+            final CmdLineParser parser =
+                    new CmdLineParser(confluenceUpdater, ParserProperties.defaults().withUsageWidth(80));
 
             try {
                 parser.parseArgument(args);
@@ -168,8 +172,8 @@ public class ConfluenceUpdater implements Runnable {
         }
 
         @Override
-        public void startElement(final String uri, final String localName, final String qName, final Attributes attributes)
-                throws SAXException {
+        public void startElement(final String uri, final String localName, final String qName,
+                final Attributes attributes) throws SAXException {
             if ("server".equalsIgnoreCase(qName)) {
                 server = new Server();
             } else if (server != null) {
@@ -275,8 +279,8 @@ public class ConfluenceUpdater implements Runnable {
         private StringBuilder current;
 
         @Override
-        public void startElement(final String uri, final String localName, final String qName, final Attributes attributes)
-                throws SAXException {
+        public void startElement(final String uri, final String localName, final String qName,
+                final Attributes attributes) throws SAXException {
             if ("master".equalsIgnoreCase(qName)) {
                 current = new StringBuilder();
             }

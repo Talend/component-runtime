@@ -34,11 +34,14 @@ public class PoolProducer {
 
     @Produces
     @ApplicationScoped
-    public ExecutorService executorService(final ComponentServerConfiguration configuration, final HttpTracing tracing) {
-        return tracing.tracing().currentTraceContext().executorService(Executors.newFixedThreadPool(configuration.executionPoolSize()));
+    public ExecutorService executorService(final ComponentServerConfiguration configuration,
+            final HttpTracing tracing) {
+        return tracing.tracing().currentTraceContext()
+                .executorService(Executors.newFixedThreadPool(configuration.executionPoolSize()));
     }
 
-    public void release(@Disposes final ExecutorService executorService, final ComponentServerConfiguration configuration) {
+    public void release(@Disposes final ExecutorService executorService,
+            final ComponentServerConfiguration configuration) {
         final long timeout = Duration.parse(configuration.executionPoolShutdownTimeout()).toMillis();
         executorService.shutdown();
         try {

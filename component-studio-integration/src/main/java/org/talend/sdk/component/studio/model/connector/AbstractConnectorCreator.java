@@ -46,22 +46,23 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
 
     protected final Set<EConnectionType> existingTypes = new HashSet<>();
 
-    protected AbstractConnectorCreator(ComponentDetail detail, INode node) {
+    protected AbstractConnectorCreator(final ComponentDetail detail, final INode node) {
         this.detail = detail;
         this.node = node;
     }
 
     /**
-     * Maps connection name to {@link EConnectionType}
-     * It returns {@link EConnectionType#FLOW_MAIN}, if <code>connectionName</code> is "Main"
-     * It returns {@link EConnectionType#REJECT}. if <code>connectionName</code> is "Reject"
-     * It returns {@link EConnectionType#FLOW_MAIN} for any other <code>connectionName</code>
-     * including "__default__"
+     * Maps connection name to {@link EConnectionType} It returns
+     * {@link EConnectionType#FLOW_MAIN}, if <code>connectionName</code> is "Main"
+     * It returns {@link EConnectionType#REJECT}. if <code>connectionName</code> is
+     * "Reject" It returns {@link EConnectionType#FLOW_MAIN} for any other
+     * <code>connectionName</code> including "__default__"
      * 
-     * @param connectionName name of this connection
+     * @param connectionName
+     * name of this connection
      * @return {@link EConnectionType} of connection
      */
-    protected static EConnectionType getType(String connectionName) {
+    protected static EConnectionType getType(final String connectionName) {
         if (connectionName == null) {
             throw new IllegalArgumentException("arg should not be null");
         }
@@ -75,10 +76,11 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
      * Returns "Main", if connectionName is "__default__", else returns input
      * argument unchanged
      * 
-     * @param connectionName name of this connection
+     * @param connectionName
+     * name of this connection
      * @return name, which should be used as INodeConnector name
      */
-    protected static String getName(String connectionName) {
+    protected static String getName(final String connectionName) {
         if (connectionName == null) {
             throw new IllegalArgumentException("arg should not be null");
         }
@@ -88,8 +90,8 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
         return connectionName;
     }
 
-    protected static INodeConnector createConnector(EConnectionType type, String name, INode node) {
-        NodeConnector connector = new NodeConnector(node);
+    protected static INodeConnector createConnector(final EConnectionType type, final String name, final INode node) {
+        final NodeConnector connector = new NodeConnector(node);
         connector.setName(name);
         connector.setBaseSchema(name);
         connector.setDefaultConnectionType(type);
@@ -106,11 +108,13 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
     /**
      * Creates component connectors in following way:
      * <ol>
-     * <li>create Main connectors. It may have both incoming and outgoing connections</li>
-     * <li>create optional Reject connector. It may have only outgoing connections</li>
+     * <li>create Main connectors. It may have both incoming and outgoing
+     * connections</li>
+     * <li>create optional Reject connector. It may have only outgoing
+     * connections</li>
      * <li>create Iterate connector</li>
-     * <li>create standard for all components connectors: ON_COMPONENT_OK, ON_COMPONENT_ERROR,
-     * ON_SUBJOB_OK, ON_SUBJOB_ERROR, RUN_IF</li>
+     * <li>create standard for all components connectors: ON_COMPONENT_OK,
+     * ON_COMPONENT_ERROR, ON_SUBJOB_OK, ON_SUBJOB_ERROR, RUN_IF</li>
      * <li>create all remaining connectors</li>
      * <ol>
      */
@@ -167,7 +171,8 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
      * @return remaining connectors
      */
     protected final List<INodeConnector> createRestConnectors() {
-        return Arrays.stream(EConnectionType.values()) //
+        return Arrays
+                .stream(EConnectionType.values()) //
                 .filter(type -> !existingTypes.contains(type)) //
                 .map(type -> {
                     INodeConnector connector = createConnector(type, type.getName(), node); //
@@ -175,7 +180,8 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
                         connector.setMaxLinkInput(1); //
                     } //
                     return connector;
-                }).collect(Collectors.toList()); //
+                })
+                .collect(Collectors.toList()); //
     }
 
 }

@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.container;
 
@@ -82,8 +82,8 @@ public class ContainerManager implements Lifecycle {
                 ofNullable(classLoaderConfiguration.getClassesFilter()).orElseGet(() -> name -> true),
                 classLoaderConfiguration.isSupportsResourceDependencies(), nestedPluginMappingResource);
         if (classLoaderConfiguration.isSupportsResourceDependencies()) {
-            try (final InputStream mappingStream = classLoaderConfiguration.getParent()
-                    .getResourceAsStream(nestedPluginMappingResource)) {
+            try (final InputStream mappingStream =
+                    classLoaderConfiguration.getParent().getResourceAsStream(nestedPluginMappingResource)) {
                 if (mappingStream != null) {
                     final Properties properties = new Properties() {
 
@@ -92,8 +92,8 @@ public class ContainerManager implements Lifecycle {
                             load(mappingStream);
                         }
                     };
-                    nestedContainerMapping.putAll(
-                            properties.stringPropertyNames().stream().collect(toMap(identity(), properties::getProperty)));
+                    nestedContainerMapping.putAll(properties.stringPropertyNames().stream().collect(
+                            toMap(identity(), properties::getProperty)));
                     log.info("Mapped " + getDefinedNestedPlugin() + " plugins");
                 } else {
                     log.info("No " + nestedPluginMappingResource + " found, will use file resolution");
@@ -121,9 +121,11 @@ public class ContainerManager implements Lifecycle {
     }
 
     /**
-     * @param id the container id (how to find it back from the manager).
-     * @param module the module "reference", can be a nested resource (MAVEN-INF/repository) or direct file path or m2 related
-     * path.
+     * @param id
+     * the container id (how to find it back from the manager).
+     * @param module
+     * the module "reference", can be a nested resource
+     * (MAVEN-INF/repository) or direct file path or m2 related path.
      * @return the newly created container.
      */
     public Container create(final String id, final String module) {
@@ -138,23 +140,23 @@ public class ContainerManager implements Lifecycle {
         log.info("Creating module " + moduleLocation + " (from " + module + ", location=" + location + ")");
         final Stream<String> classpath = resolver.resolve(classLoaderConfiguration.getParent(), location);
 
-        final Container container = new Container(id, location, classpath.toArray(String[]::new), classLoaderConfiguration,
-                this::resolve) {
+        final Container container =
+                new Container(id, location, classpath.toArray(String[]::new), classLoaderConfiguration, this::resolve) {
 
-            @Override
-            public void close() {
-                try {
-                    listeners.forEach(l -> safeInvoke(() -> l.onClose(this)));
-                } finally {
-                    try {
-                        super.close();
-                    } finally {
-                        containers.remove(id);
+                    @Override
+                    public void close() {
+                        try {
+                            listeners.forEach(l -> safeInvoke(() -> l.onClose(this)));
+                        } finally {
+                            try {
+                                super.close();
+                            } finally {
+                                containers.remove(id);
+                            }
+                        }
+                        log.info("Closed container " + id);
                     }
-                }
-                log.info("Closed container " + id);
-            }
-        };
+                };
 
         if (containers.putIfAbsent(id, container) != null) {
             throw new IllegalArgumentException("Container '" + id + "' already exists");
@@ -174,8 +176,9 @@ public class ContainerManager implements Lifecycle {
 
         final String[] coords = path.split(":");
         if (coords.length > 2) { // mvn gav
-            final String relativePath = String.format("%s/%s/%s/%s-%s%s.%s", coords[0].replace('.', '/'), coords[1], coords[2],
-                    coords[1], coords[2], coords.length == 5 ? coords[4] : "", coords.length >= 4 ? coords[3] : "jar");
+            final String relativePath =
+                    String.format("%s/%s/%s/%s-%s%s.%s", coords[0].replace('.', '/'), coords[1], coords[2], coords[1],
+                            coords[2], coords.length == 5 ? coords[4] : "", coords.length >= 4 ? coords[3] : "jar");
             final File file = new File(rootRepositoryLocation, relativePath);
             if (file.exists()) {
                 return file;
@@ -191,7 +194,8 @@ public class ContainerManager implements Lifecycle {
 
     public String buildAutoIdFromName(final String module) {
         final String[] segments = module.split(":");
-        if (segments.length > 2) { // == 2 can be a windows path so enforce > 2 but then assume it is mvn GAV
+        if (segments.length > 2) { // == 2 can be a windows path so enforce > 2 but then
+                                   // assume it is mvn GAV
             return segments[1];
         }
 
@@ -296,6 +300,7 @@ public class ContainerManager implements Lifecycle {
 
         private final String nestedPluginMappingResource;
 
-        // note: we can add if needed resource filters too (to filter META-INF/services for instance)
+        // note: we can add if needed resource filters too (to filter META-INF/services
+        // for instance)
     }
 }
