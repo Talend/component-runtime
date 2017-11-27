@@ -49,11 +49,6 @@ public class ElementParameterCreator {
      * Flag representing whether it is startable component
      */
     private static final boolean CAN_START = true;
-    
-    /**
-     * Separator used in component name parameter value between family and component names
-     */
-    private static final String COMPONENT_NAME_SEPARATOR = "/";
 
     private final INode node;
 
@@ -195,11 +190,33 @@ public class ElementParameterCreator {
         parameter.setShow(false);
         parameters.add(parameter);
     }
+    
+    /**
+     * Creates and adds {@link EParameterName#VERSION} parameter
+     * Its value is component version. More specifically it is a version of component configuration.
+     * It is used for migration to check whether serialized configuration
+     * has the same version as component in Studio. If version is smaller than component in Studio,
+     * migration is launched.
+     * TODO Probably it is not required, so it should be removed
+     */
+    private void addVersionParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.VERSION.getName());
+        parameter.setValue(String.valueOf(detail.getVersion()));
+        parameter.setDisplayName(EParameterName.VERSION.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.TEXT);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setNumRow(1);
+        parameter.setReadOnly(true);
+        parameter.setShow(false);
+        parameters.add(parameter);
+    }
 
     private void addMainParameters() {
         
         addUniqueNameParameter();
         addComponentNameParameter();
+        addVersionParameter();
 
         ElementParameter param;
         param = new ElementParameter(node);

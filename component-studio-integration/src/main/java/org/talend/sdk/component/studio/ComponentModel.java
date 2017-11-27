@@ -201,6 +201,16 @@ public class ComponentModel extends AbstractBasicComponent {
     public ImageDescriptor getIcon16() {
         return image16;
     }
+    
+    /**
+     * Returns Component configuration version
+     * When Configuration is changed its version should be incremented and corresponding MigrationHandler implemented to migrate from 
+     * older versions to newer during deserialization
+     */
+    @Override
+    public String getVersion() {
+        return Integer.toString(detail.getVersion());
+    }
 
     /**
      * Creates component parameters aka Properties/Configuration
