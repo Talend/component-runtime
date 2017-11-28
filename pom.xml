@@ -39,11 +39,11 @@
     <module>component-form</module>
     <module>component-avro-integration</module>
     <module>talend-component-maven-plugin</module>
+    <module>gradle-talend-component</module>
     <module>component-starter-server</module>
     <module>component-studio-integration</module>
     <module>documentation</module>
     <module>i18n-loader</module>
-    <module>gradle-talend-component</module>
   </modules>
 
   <repositories>
