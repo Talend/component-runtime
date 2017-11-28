@@ -17,6 +17,7 @@ package org.talend.sdk.component.gradle;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -85,7 +86,17 @@ public class ValidateTask extends DefaultTask {
 
         final Class<?> config =
                 tccl.loadClass("org.talend.sdk.component.runtime.manager.validator.ComponentValidator$Configuration");
-        final Object configuration = config.getMethod("from", Object.class).invoke(null, extension);
+        final Object configuration = config.getConstructor().newInstance();
+
+        set(configuration, "setValidateFamily", extension.isValidateFamily());
+        set(configuration, "setValidateSerializable", extension.isValidateSerializable());
+        set(configuration, "setValidateInternationalization", extension.isValidateInternationalization());
+        set(configuration, "setValidateModel", extension.isValidateModel());
+        set(configuration, "setValidateMetadata", extension.isValidateMetadata());
+        set(configuration, "setValidateComponent", extension.isValidateComponent());
+        set(configuration, "setValidateDataStore", extension.isValidateDataStore());
+        set(configuration, "setValidateDataSet", extension.isValidateDataSet());
+        set(configuration, "setValidateActions", extension.isValidateActions());
 
         final Class<?> log =
                 tccl.loadClass("org.talend.sdk.component.runtime.manager.validator.ComponentValidator$Log");
@@ -95,5 +106,10 @@ public class ValidateTask extends DefaultTask {
                 Runnable.class.cast(validator.getConstructor(config, File.class, log).newInstance(configuration,
                         findClasses().findFirst().orElseGet(() -> getProject().getBuildFile()), getLogger()));
         runnable.run();
+    }
+
+    private void set(final Object configuration, final String mtd, final boolean value)
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        configuration.getClass().getMethod(mtd, boolean.class).invoke(configuration, value);
     }
 }

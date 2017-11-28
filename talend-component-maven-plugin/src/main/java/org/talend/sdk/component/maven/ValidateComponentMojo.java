@@ -93,6 +93,16 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        new ComponentValidator(ComponentValidator.Configuration.from(this), classes, getLog()).run();
+        final ComponentValidator.Configuration configuration = new ComponentValidator.Configuration();
+        configuration.setValidateFamily(validateFamily);
+        configuration.setValidateSerializable(validateSerializable);
+        configuration.setValidateInternationalization(validateInternationalization);
+        configuration.setValidateModel(validateModel);
+        configuration.setValidateMetadata(validateMetadata);
+        configuration.setValidateComponent(validateComponent);
+        configuration.setValidateDataStore(validateDataStore);
+        configuration.setValidateDataSet(validateDataSet);
+        configuration.setValidateActions(validateActions);
+        new ComponentValidator(configuration, classes, getLog()).run();
     }
 }

@@ -456,30 +456,5 @@ public class ComponentValidator implements Runnable {
         private boolean validateDataSet;
 
         private boolean validateActions;
-
-        public static Configuration from(final Object template) {
-            final Configuration configuration = new Configuration();
-            Stream.of(template.getClass().getDeclaredFields()).filter(f -> {
-                // validate the field is the same then we'll
-                // be able to set it, also set them as
-                // accessible at the same time
-                try {
-                    Configuration.class.getDeclaredField(f.getName()).setAccessible(true);
-                    f.setAccessible(true);
-                    return true;
-                } catch (final NoSuchFieldException e) {
-                    return false;
-                }
-            }).forEach(f -> {
-                try {
-                    final Object value = f.get(template);
-                    Configuration.class.getDeclaredField(f.getName()).set(configuration,
-                            Boolean.class.isInstance(value) ? Boolean.class.cast(value).booleanValue() : value);
-                } catch (final IllegalAccessException | NoSuchFieldException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            });
-            return configuration;
-        }
     }
 }
