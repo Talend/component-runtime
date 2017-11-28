@@ -401,9 +401,17 @@ public class ComponentValidator implements Runnable {
 
         private ReflectiveLog(final Object delegate) throws NoSuchMethodException {
             this.delegate = delegate;
+            this.error = findMethod("error");
+            this.debug = findMethod("debug");
+        }
+
+        private Method findMethod(final String name) throws NoSuchMethodException {
             final Class<?> delegateClass = delegate.getClass();
-            this.error = delegateClass.getMethod("error", String.class);
-            this.debug = delegateClass.getMethod("debug", String.class);
+            try {
+                return delegateClass.getMethod(name, String.class);
+            } catch (final NoSuchMethodException nsme) {
+                return delegateClass.getMethod(name, CharSequence.class);
+            }
         }
 
         @Override
