@@ -34,6 +34,10 @@
   </properties>
 
   <dependencies>
+    <!--
+    TEMPTED TO PUT SOME TaCoKit DEPENDENCY?
+    THINK AGAIN PLEASE, see validate task
+    -->
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-all</artifactId>

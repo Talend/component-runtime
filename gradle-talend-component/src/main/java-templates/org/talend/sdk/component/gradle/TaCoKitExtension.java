@@ -20,7 +20,42 @@ import lombok.Data;
 @Data
 public class TaCoKitExtension {
 
+    //
+    // dependency task
+    //
+
     private String dependenciesLocation = "TALEND-INF/dependencies.txt";
 
-    private boolean skipDependenciesFile;
+    private boolean skipDependenciesFile = false;
+
+    //
+    // classpath for validation utilities
+    //
+
+    private String sdkVersion = "${project.version}";
+
+    private String apiVersion = "${component-api.version}";
+
+    //
+    // validation
+    //
+    private boolean skipValidation = false;
+
+    private boolean validateFamily = true;
+
+    private boolean validateSerializable = true;
+
+    private boolean validateInternationalization = true;
+
+    private boolean validateModel = true;
+
+    private boolean validateMetadata = true;
+
+    private boolean validateComponent = true;
+
+    private boolean validateDataStore = true;
+
+    private boolean validateDataSet = true;
+
+    private boolean validateActions = true;
 }

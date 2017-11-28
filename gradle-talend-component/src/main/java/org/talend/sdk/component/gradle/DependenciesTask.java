@@ -25,15 +25,9 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.ResolvedArtifact;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
 public class DependenciesTask extends DefaultTask {
-
-    @Optional
-    @Input
-    private String path;
 
     @TaskAction // based on maven dependency:list
     public void createTalendComponentDependenciesTxt() {

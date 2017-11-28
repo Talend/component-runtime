@@ -21,6 +21,9 @@ import java.util.HashMap;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.DependencySet;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 
 public class TaCoKitPlugin implements Plugin<Project> {
 
@@ -31,6 +34,22 @@ public class TaCoKitPlugin implements Plugin<Project> {
 
         // ensure we can find our dependencies
         project.afterEvaluate(actionProject -> actionProject.getRepositories().mavenCentral());
+
+        // create the configuration for our task execution
+        final Configuration configuration = project.getConfigurations()
+                .maybeCreate("talendComponentKit");
+        configuration.getIncoming().beforeResolve(resolvableDependencies -> {
+            TaCoKitExtension extension = TaCoKitExtension.class.cast(project.getExtensions().findByName("talendComponentKit"));
+            if (extension == null) {
+                extension = new TaCoKitExtension();
+            }
+
+            final DependencyHandler dependencyHandler = project.getDependencies();
+            final DependencySet dependencies = configuration.getDependencies();
+            dependencies.add(dependencyHandler.create("org.talend.sdk.component:component-api:" + extension.getApiVersion()));
+            dependencies.add(dependencyHandler.create("org.talend.sdk.component:component-runtime-manager:" + extension.getSdkVersion()));
+            dependencies.add(dependencyHandler.create("org.talend.sdk.component:component-runtime-design-extension:" + extension.getSdkVersion()));
+        });
 
         // tasks
         final String group = "Talend Component Kit";
@@ -47,5 +66,18 @@ public class TaCoKitPlugin implements Plugin<Project> {
         }, "talendComponentKitDependencies");
         project.afterEvaluate(p -> p.getTasksByName("compileJava", false).stream().findFirst().ifPresent(
                 compileJava -> compileJava.setFinalizedBy(singleton("talendComponentKitDependencies"))));
+
+        // validation
+        project.task(new HashMap<String, Object>() {
+
+            {
+                put("type", ValidateTask.class);
+                put("group", group);
+                put("description",
+                        "Validates that the module components are respecting the component standards.");
+            }
+        }, "talendComponentKitValidation");
+        project.afterEvaluate(p -> p.getTasksByName("compileJava", false).stream().findFirst().ifPresent(
+                compileJava -> compileJava.setFinalizedBy(singleton("talendComponentKitValidation"))));
     }
 }

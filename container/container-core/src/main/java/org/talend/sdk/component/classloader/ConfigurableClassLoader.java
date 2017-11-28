@@ -425,10 +425,6 @@ public class ConfigurableClassLoader extends URLClassLoader {
         }).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
-    public Package findPackage(final String pck) {
-        return getPackage(pck);
-    }
-
     @RequiredArgsConstructor
     private static class Resource {
 
