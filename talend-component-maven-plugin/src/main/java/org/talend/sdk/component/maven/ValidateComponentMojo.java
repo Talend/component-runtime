@@ -263,13 +263,21 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         }
 
         if (validateDataSet) {
-            final List<String> datasets = finder.findAnnotatedClasses(DataSet.class).stream()
-                                                .map(d -> d.getAnnotation(DataSet.class).value()).collect(toList());
+            final List<String> datasets = finder
+                    .findAnnotatedClasses(DataSet.class)
+                    .stream()
+                    .map(d -> d.getAnnotation(DataSet.class).value())
+                    .collect(toList());
             Set<String> uniqueDatasets = new HashSet<>(datasets);
             if (datasets.size() != uniqueDatasets.size()) {
                 throw new MojoExecutionException("Duplicated DataSet found : " + datasets
-                        .stream().collect(groupingBy(identity())).entrySet()
-                        .stream().filter(e -> e.getValue().size() > 1).map(Map.Entry::getKey).collect(joining(", ")));
+                        .stream()
+                        .collect(groupingBy(identity()))
+                        .entrySet()
+                        .stream()
+                        .filter(e -> e.getValue().size() > 1)
+                        .map(Map.Entry::getKey)
+                        .collect(joining(", ")));
             }
         }
 
