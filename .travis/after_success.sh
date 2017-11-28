@@ -8,7 +8,7 @@ if [ "$TRAVIS_PULL_REQUEST" = "true" ] || [ "x$encrypted_03e441b90173_key" = "x"
     exit 0
 fi
 
-OPTS="--batch-mode --settings .travis/settings.xml "
+OPTS="--batch-mode --settings $PWD/.travis/settings.xml "
 
 mvn clean deploy -DskipTests -Dinvoker.skip=true -Possrh -Prelease $OPTS
 
