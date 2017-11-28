@@ -36,19 +36,22 @@ public class TaCoKitPlugin implements Plugin<Project> {
         project.afterEvaluate(actionProject -> actionProject.getRepositories().mavenCentral());
 
         // create the configuration for our task execution
-        final Configuration configuration = project.getConfigurations()
-                .maybeCreate("talendComponentKit");
+        final Configuration configuration = project.getConfigurations().maybeCreate("talendComponentKit");
         configuration.getIncoming().beforeResolve(resolvableDependencies -> {
-            TaCoKitExtension extension = TaCoKitExtension.class.cast(project.getExtensions().findByName("talendComponentKit"));
+            TaCoKitExtension extension =
+                    TaCoKitExtension.class.cast(project.getExtensions().findByName("talendComponentKit"));
             if (extension == null) {
                 extension = new TaCoKitExtension();
             }
 
             final DependencyHandler dependencyHandler = project.getDependencies();
             final DependencySet dependencies = configuration.getDependencies();
-            dependencies.add(dependencyHandler.create("org.talend.sdk.component:component-api:" + extension.getApiVersion()));
-            dependencies.add(dependencyHandler.create("org.talend.sdk.component:component-runtime-manager:" + extension.getSdkVersion()));
-            dependencies.add(dependencyHandler.create("org.talend.sdk.component:component-runtime-design-extension:" + extension.getSdkVersion()));
+            dependencies.add(
+                    dependencyHandler.create("org.talend.sdk.component:component-api:" + extension.getApiVersion()));
+            dependencies.add(dependencyHandler
+                    .create("org.talend.sdk.component:component-runtime-manager:" + extension.getSdkVersion()));
+            dependencies.add(dependencyHandler.create(
+                    "org.talend.sdk.component:component-runtime-design-extension:" + extension.getSdkVersion()));
         });
 
         // tasks
@@ -73,8 +76,7 @@ public class TaCoKitPlugin implements Plugin<Project> {
             {
                 put("type", ValidateTask.class);
                 put("group", group);
-                put("description",
-                        "Validates that the module components are respecting the component standards.");
+                put("description", "Validates that the module components are respecting the component standards.");
             }
         }, "talendComponentKitValidation");
         project.afterEvaluate(p -> p.getTasksByName("compileJava", false).stream().findFirst().ifPresent(
