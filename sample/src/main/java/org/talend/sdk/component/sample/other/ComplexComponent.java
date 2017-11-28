@@ -23,6 +23,7 @@ import java.util.stream.IntStream;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 import org.talend.sdk.component.api.input.Emitter;
@@ -48,7 +49,7 @@ public class ComplexComponent implements Serializable {
     }
 
     @Data
-    @DataSet("complicated")
+    @DataStore("complicated")
     public static class Credentials implements Serializable {
 
         @Option
