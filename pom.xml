@@ -43,6 +43,7 @@
     <module>component-studio-integration</module>
     <module>documentation</module>
     <module>i18n-loader</module>
+    <module>gradle-talend-component</module>
   </modules>
 
   <repositories>
@@ -117,6 +118,7 @@
     <beam.version>2.2.0</beam.version>
 
     <talend-icon.version>0.127.0</talend-icon.version>
+    <component-api.version>1.0.0-SNAPSHOT</component-api.version>
 
     <groovy.version>2.6.0-alpha-1</groovy.version>
     <gmavenplus.version>1.6</gmavenplus.version>
@@ -148,7 +150,7 @@
       <dependency>
         <groupId>org.talend.sdk.component</groupId>
         <artifactId>component-api</artifactId>
-        <version>${project.version}</version>
+        <version>${component-api.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>

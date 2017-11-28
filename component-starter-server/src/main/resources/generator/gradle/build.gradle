@@ -1,11 +1,14 @@
 buildscript {
   repositories {
+    mavenLocal()
+    mavenCentral()
     maven {
       url "https://plugins.gradle.org/m2/"
     }
   }
   dependencies {
     classpath "com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3"
+    classpath "org.talend.sdk.component:gradle-talend-component:{{tckVersion}}"
     {{#buildDependencies}}
     classpath "{{this}}"
     {{/buildDependencies}}
@@ -16,6 +19,7 @@ import {{.}}
 {{/imports}}
 
 apply plugin: 'nebula.provided-base'
+apply plugin: 'org.talend.sdk.component'
 apply plugin: 'java'
 {{#plugins}}
 apply plugin: '{{this}}'

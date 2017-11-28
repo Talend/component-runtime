@@ -56,7 +56,7 @@ To code a component the only needed dependency is the API:
 <dependency>
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-api</artifactId>
-  <version>${project.version}</version>
+  <version>${component-api.version}</version>
 </dependency>
 ----
 

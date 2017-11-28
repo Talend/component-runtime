@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import static org.talend.sdk.component.starter.server.Versions.KIT;
+import static org.talend.sdk.component.starter.server.Versions.API_KIT;
 
 @Getter
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class Dependency {
     private static final Dependency JUNIT = new Dependency("junit", "junit", "4.12", "test");
 
     private static final Dependency COMPONENT =
-            new Dependency("org.talend.sdk.component", "component-api", KIT, "provided");
+            new Dependency("org.talend.sdk.component", "component-api", API_KIT, "provided");
 
     private final String group;
 

@@ -31,7 +31,7 @@
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-api</artifactId>
-      <version>@project.version@</version>
+      <version>@component-api.version@</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

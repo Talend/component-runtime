@@ -31,11 +31,13 @@ export default class Component extends React.Component {
       componentTypeActions: [
         {
           label: 'Input',
+          type: 'Input',
           className: theme.selected,
           _view: component => <Mapper component={component} theme={theme} onUpdateDrawers={this.updateDrawers} />
         },
         {
-          label: 'Processor',
+          label: 'Processor/Output',
+          type: 'Processor',
           _view: component => <Processor component={component} theme={theme}
                                          onUpdateDrawers={this.updateDrawers} />
         }
@@ -43,17 +45,17 @@ export default class Component extends React.Component {
     };
 
     this.componentPerType = this.state.componentTypeActions.reduce((a, i) => {
-      a[i.label] = i;
+      a[i.type] = i;
       return a;
     }, {});
 
     const onSelect = (ref, state, optProps) => {
       let props = optProps || this.props;
-      props.component.type = ref.label;
-      state.type = ref.label;
+      props.component.type = ref.type;
+      state.type = ref.type;
       state.drawers = [];
       state.componentTypeActions.forEach(i => {
-        if (i.label !== ref.label) {
+        if (i.type !== ref.type) {
           delete i.className;
         } else {
           i.className = theme.selected;
@@ -69,8 +71,8 @@ export default class Component extends React.Component {
 
     this.updateDrawers = this.updateDrawers.bind(this);
 
-    const selectedType = this.props.component.type || this.state.componentTypeActions[0].label;
-    onSelect(this.state.componentTypeActions.filter(i => i.label === selectedType)[0], this.state);
+    const selectedType = this.props.component.type || this.state.componentTypeActions[0].type;
+    onSelect(this.state.componentTypeActions.filter(i => i.type === selectedType)[0], this.state);
   }
 
   updateDrawers(drawers) {
@@ -78,8 +80,8 @@ export default class Component extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const selectedType = nextProps.component.type || this.state.componentTypeActions[0].label;
-    this.state.componentTypeActions.filter(i => i.label === selectedType)[0].init(nextProps);
+    const selectedType = nextProps.component.type || this.state.componentTypeActions[0].type;
+    this.state.componentTypeActions.filter(i => i.type === selectedType)[0].init(nextProps);
   }
 
   render() {
