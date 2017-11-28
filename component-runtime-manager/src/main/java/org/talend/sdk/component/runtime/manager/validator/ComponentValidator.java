@@ -92,8 +92,7 @@ public class ComponentValidator implements Runnable {
         components.forEach(c -> log.debug("Found component: " + c));
 
         if (configuration.isValidateFamily()) {
-            // todo: better fix is to get the pcakage with @Components then check it has
-            // icon
+            // todo: better fix is to get the package with @Components then check it has an icon
             // but it should be enough for now
             components.forEach(c -> findPackageOrFail(c, Icon.class));
         }
@@ -415,9 +414,9 @@ public class ComponentValidator implements Runnable {
         }
 
         @Override
-        public void debug(final String s) {
+        public void debug(final String msg) {
             try {
-                debug.invoke(delegate, s);
+                debug.invoke(delegate, msg);
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {
@@ -426,9 +425,9 @@ public class ComponentValidator implements Runnable {
         }
 
         @Override
-        public void error(final String s) {
+        public void error(final String msg) {
             try {
-                error.invoke(delegate, s);
+                error.invoke(delegate, msg);
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {
@@ -473,7 +472,9 @@ public class ComponentValidator implements Runnable {
                 }
             }).forEach(f -> {
                 try {
-                    Configuration.class.getDeclaredField(f.getName()).set(configuration, f.get(template));
+                    final Object value = f.get(template);
+                    Configuration.class.getDeclaredField(f.getName()).set(configuration,
+                            Boolean.class.isInstance(value) ? Boolean.class.cast(value).booleanValue() : value);
                 } catch (final IllegalAccessException | NoSuchFieldException e) {
                     throw new IllegalArgumentException(e);
                 }

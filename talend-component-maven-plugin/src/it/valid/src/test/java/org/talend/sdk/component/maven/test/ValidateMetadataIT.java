@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.maven.test;
 
@@ -34,8 +34,8 @@ public class ValidateMetadataIT {
 
     @Test
     public void checkExists() throws IOException {
-        final File jar = jarLocation(ValidateMetadataIT.class).getParentFile()
-                .listFiles((FilenameFilter) (dir, name) -> name.startsWith("sample-") && name.endsWith(".jar"))[0];
+        final File jar = jarLocation(ValidateMetadataIT.class).getParentFile().listFiles(
+                (FilenameFilter) (dir, name) -> name.startsWith("sample-") && name.endsWith(".jar"))[0];
         assertTrue(jar.getAbsolutePath(), jar.getName().endsWith(".jar")); // ensure we don't run from target/classes
 
         try (final JarFile jf = new JarFile(jar)) {
@@ -46,7 +46,8 @@ public class ValidateMetadataIT {
                 final String val = slurp(content);
                 System.out.println();
                 System.out.println();
-                System.out.println(val); // intended since a change in meta goal will affect this test so easier to iterate
+                System.out.println(val); // intended since a change in meta goal will affect this test so easier to
+                                         // iterate
                 System.out.println();
                 System.out.println();
                 assertEquals("{\"components\":[{\"categories\":[\"Misc\"],\"displayName\":\"Component Test my\","
