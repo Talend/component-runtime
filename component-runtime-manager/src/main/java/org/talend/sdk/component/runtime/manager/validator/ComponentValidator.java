@@ -91,14 +91,14 @@ public class ComponentValidator implements Runnable {
                 componentMarkers().flatMap(a -> finder.findAnnotatedClasses(a).stream()).collect(toList());
         components.forEach(c -> log.debug("Found component: " + c));
 
-        if (configuration.validateFamily) {
+        if (configuration.isValidateFamily()) {
             // todo: better fix is to get the pcakage with @Components then check it has
             // icon
             // but it should be enough for now
             components.forEach(c -> findPackageOrFail(c, Icon.class));
         }
 
-        if (configuration.validateSerializable) {
+        if (configuration.isValidateSerializable()) {
             final Collection<Class<?>> copy = new ArrayList<>(components);
             copy.removeIf(this::isSerializable);
             if (!copy.isEmpty()) {
@@ -108,7 +108,7 @@ public class ComponentValidator implements Runnable {
             }
         }
 
-        if (configuration.validateInternationalization) {
+        if (configuration.isValidateInternationalization()) {
             final List<String> errors =
                     components.stream().map(this::validateComponentResourceBundle).filter(Objects::nonNull).collect(
                             toList());
@@ -148,7 +148,7 @@ public class ComponentValidator implements Runnable {
             }
         }
 
-        if (configuration.validateModel) {
+        if (configuration.isValidateModel()) {
             final List<Class<?>> ambiguousComponents = components
                     .stream()
                     .filter(c -> componentMarkers().filter(c::isAnnotationPresent).count() > 1)
@@ -165,7 +165,7 @@ public class ComponentValidator implements Runnable {
             };
             final List<String> errors = components.stream().map(c -> {
                 try {
-                    modelVisitor.visit(c, noop, configuration.validateComponent);
+                    modelVisitor.visit(c, noop, configuration.isValidateComponent());
                     return null;
                 } catch (final RuntimeException re) {
                     return re.getMessage();
@@ -177,7 +177,7 @@ public class ComponentValidator implements Runnable {
             }
         }
 
-        if (configuration.validateMetadata) {
+        if (configuration.isValidateMetadata()) {
             components.forEach(component -> {
                 if (!component.isAnnotationPresent(Version.class) || !component.isAnnotationPresent(Icon.class)) {
                     throw new IllegalArgumentException("Component " + component + " should use @Icon and @Version");
@@ -185,7 +185,7 @@ public class ComponentValidator implements Runnable {
             });
         }
 
-        if (configuration.validateDataStore) {
+        if (configuration.isValidateDataStore()) {
             final List<String> datastores = finder
                     .findAnnotatedClasses(DataStore.class)
                     .stream()
@@ -217,7 +217,7 @@ public class ComponentValidator implements Runnable {
 
         }
 
-        if (configuration.validateDataSet) {
+        if (configuration.isValidateDataSet()) {
             final List<String> datasets = finder
                     .findAnnotatedClasses(DataSet.class)
                     .stream()
@@ -236,7 +236,7 @@ public class ComponentValidator implements Runnable {
             }
         }
 
-        if (configuration.validateActions) {
+        if (configuration.isValidateActions()) {
             final Set<String> errors = new HashSet<>();
 
             // returned types
@@ -417,7 +417,7 @@ public class ComponentValidator implements Runnable {
         @Override
         public void debug(final String s) {
             try {
-                debug.invoke(debug, s);
+                debug.invoke(delegate, s);
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {
@@ -428,7 +428,7 @@ public class ComponentValidator implements Runnable {
         @Override
         public void error(final String s) {
             try {
-                error.invoke(debug, s);
+                error.invoke(delegate, s);
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {
