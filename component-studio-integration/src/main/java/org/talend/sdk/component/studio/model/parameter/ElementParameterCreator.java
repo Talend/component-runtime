@@ -60,7 +60,17 @@ public class ElementParameterCreator {
         this.detail = detail;
         this.node = node;
     }
-    
+
+    /**
+     * Creates tree representation of {@link SimplePropertyDefinition} .
+     * Not all definitions represent Component property, which may store User setting.
+     * Some of them are holders for other definitions (like Forms in v0 or Properties)
+     * ElementParameters should be created only for leaf nodes in this tree
+     * Internal nodes store useful metadata information like ordering
+     * 
+     * @param properties a collections of {@link SimplePropertyDefinition} retrieved from {@link ComponentModel}
+     * @return root node of created tree
+     */
     public PropertyNode createPropertyTree(Collection<SimplePropertyDefinition> properties) {
         PropertyNode root = null;
         HashMap<String, PropertyNode> nodes = new HashMap<>();
@@ -87,6 +97,9 @@ public class ElementParameterCreator {
     public void sortPropertyRoot(PropertyNode root) {
         root.accept(new PropertyVisitor() {
             
+            /**
+             * OptionsOrder annotation metadata key
+             */
             private static final String OPTIONS_ORDER = "ui::optionsorder::value";
             
             private static final String ORDER_SEPARATOR = ",";
@@ -151,7 +164,7 @@ public class ElementParameterCreator {
     }
     
     /**
-     * Creates and adds {@linkp EParameterName#UNIQUE_NAME} parameter
+     * Creates and adds {@link EParameterName#UNIQUE_NAME} parameter
      * This parameter stores unique id of component instance in current job/process
      * It's value is like following "tJiraInput_1", "tJiraInput_2"
      * Value is computed later and can't be computed here as {@link ComponentModel}
@@ -215,6 +228,7 @@ public class ElementParameterCreator {
         addComponentNameParameter();
         addVersionParameter();
 
+        // TODO create separate methods for other properties for better readability
         ElementParameter param;
         param = new ElementParameter(node);
         param.setName(EParameterName.FAMILY.getName());
