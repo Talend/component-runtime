@@ -20,5 +20,5 @@ import java.io.Serializable;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 
 @DataStore
-public class DuplicatedDataStore implements Serializable {
+public class MyDataStore implements Serializable {
 }
