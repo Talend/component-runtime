@@ -109,18 +109,18 @@
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
     <ziplock.version>7.0.3</ziplock.version>
-    <johnzon.version>1.1.4</johnzon.version>
+    <johnzon.version>1.1.5</johnzon.version>
     <meecrowave.version>1.1.0</meecrowave.version>
-    <cxf.version>3.1.12</cxf.version>
-    <tomcat.version>9.0.0.M26</tomcat.version>
-    <log4j2.version>2.9.0</log4j2.version>
+    <tomcat.version>9.0.1</tomcat.version>
+    <log4j2.version>2.10.0</log4j2.version>
     <batik.version>1.9</batik.version>
     <beam.version>2.2.0</beam.version>
 
-    <talend-icon.version>0.121.0</talend-icon.version>
+    <talend-icon.version>0.127.0</talend-icon.version>
 
     <groovy.version>2.6.0-alpha-1</groovy.version>
     <gmavenplus.version>1.6</gmavenplus.version>
+    <dependency-plugin.version>3.0.2</dependency-plugin.version>
 
     <node.version>v8.4.0</node.version>
     <yarn.version>v0.28.4</yarn.version>
