@@ -1,0 +1,140 @@
+{
+  "v":"4.0",
+  "name":"component-runtime",
+  "workspace":{
+    "defaultEnv":"component-runtime",
+    "environments":[
+      {
+        "name":"component-runtime",
+        "machineConfigs":[
+          {
+            "limits":{
+              "ram":2000
+            },
+            "name":"dev-machine",
+            "type":"docker",
+            "source":{
+              "content":"FROM codenvy/ubuntu_jdk8",
+              "type":"dockerfile"
+            },
+            "dev":true,
+            "servers":[],
+            "envVariables":{},
+            "links":[]
+          }
+        ]
+      }
+    ],
+    "projects":[
+      {
+        "links":[],
+        "name":"component-runtime",
+        "attributes":{
+          "maven.groupId":[
+            "org.talend.sdk.component"
+          ],
+          "maven.artifactId":[
+            "component-runtime"
+          ],
+          "maven.version":[
+            "1.0.0-SNAPSHOT"
+          ],
+          "maven.packaging":[
+            "jar"
+          ],
+          "maven.source.folder":[
+            "src/main/java"
+          ],
+          "maven.test.source.folder":[
+            "src/test/java"
+          ],
+          "language":[
+            "java"
+          ],
+          "contribute_to_branch":[
+            "master"
+          ],
+          "git.repository.remotes":[
+            "https://github.com/rmannibucau/component-runtime"
+          ],
+          "containsJavaFiles":[
+            "true"
+          ],
+          "vcs.provider.name":[
+            "git"
+          ],
+          "git.current.branch.name":[
+            "master"
+          ]
+        },
+        "type":"maven",
+        "path":"/component-runtime",
+        "description":"Talend Component Kit Runtime.",
+        "problems":[
+
+        ],
+        "mixins":[
+          "pullrequest",
+          "git"
+        ]
+      }
+    ],
+    "name":"component-runtime",
+    "commands":[
+      {
+        "commandLine":"mvn -f ${current.project.path} clean install",
+        "name": "Build With Tests",
+        "attributes":{
+          "previewUrl":""
+        },
+        "type":"mvn"
+      },
+      {
+        "commandLine":"mvn -f ${current.project.path} clean install -DskipTests",
+        "name": "Build Without Tests",
+        "attributes":{
+          "previewUrl":""
+        },
+        "type":"mvn"
+      }
+    ],
+    "links":[
+    ]
+  },
+  "ide":{
+    "onProjectsLoaded":{
+      "actions":[
+        {
+          "properties":{
+            "file":"/component-runtime/README.adoc"
+          },
+          "id":"openFile"
+        },
+        {
+          "properties":{
+            "name":"Build With Tests"
+          },
+          "id":"runCommand"
+        }
+      ]
+    },
+    "onAppLoaded": {
+      "actions": [
+        {
+          "id": "openWelcomePage",
+          "properties": {
+            "greetingTitle": "Documentation",
+            "greetingContentUrl": "https://talend.github.io/component-runtime/documentation.html"
+          }
+        }
+      ]
+    },
+    "onAppClosed": {
+      "actions": [
+        {
+          "id": "warnOnClose"
+        }
+      ]
+    }
+  }
+}

@@ -58,21 +58,20 @@ public class CodenvyFacet implements FacetGenerator {
         return "Codenvy allows you to code on this project from any web browser if you host your sources in a Github repository.\n\n"
                 + "Click on this link and the project " + "will be opened on your account, ready to develop:\n\n"
                 + "image:http://beta.codenvy.com/factory/resources/codenvy-contribute.svg["
-                + "Codenvy,link=http://codenvy.io/f?url=https://github.com/@organization@/@repository@]";
+                + "Codenvy,link=http://codenvy.io/f?url=https://github.com/@organization@/@repository@,window=\"_blank\"]";
     }
 
     @Override
     public Stream<InMemoryFile> create(final String packageBase, final Build build, final Collection<String> facets,
             final Collection<ProjectRequest.SourceConfiguration> sources,
             final Collection<ProjectRequest.ProcessorConfiguration> processors) {
-        final String[] packageSegments = packageBase.split("\\.");
-        return Stream.of(new InMemoryFile(".factory.json",
-                tpl.render("generator/facet/codenvy/factory.json", new HashMap<String, String>() {
+        return Stream.of(new InMemoryFile(".codenvy.json",
+                tpl.render("generator/facet/codenvy/codenvy.json", new HashMap<String, String>() {
 
                     {
-                        put("company", packageSegments.length >= 2 ? packageSegments[1] : packageBase);
+                        put("group", build.getGroup());
                         put("artifact", build.getArtifact());
-                        put("name", packageBase + "." + build.getArtifact());
+                        put("version", build.getVersion());
                     }
                 })));
     }

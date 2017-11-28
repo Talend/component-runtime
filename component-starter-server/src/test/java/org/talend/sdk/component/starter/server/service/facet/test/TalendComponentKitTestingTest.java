@@ -16,6 +16,20 @@
 
 package org.talend.sdk.component.starter.server.service.facet.test;
 
+import org.apache.meecrowave.junit.MonoMeecrowave;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.talend.sdk.component.starter.server.service.domain.Build;
+import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
+import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+import org.talend.sdk.component.starter.server.service.facet.testing.TalendComponentKitTesting;
+
+import javax.inject.Inject;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -25,28 +39,13 @@ import static java.util.stream.Collectors.toMap;
 import static org.junit.Assert.assertEquals;
 import static org.talend.sdk.component.starter.server.test.Resources.resourceFileToString;
 
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.talend.sdk.component.starter.server.service.domain.Build;
-import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
-import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
-import org.talend.sdk.component.starter.server.service.facet.testing.TalendComponentKitTesting;
-
 @RunWith(MonoMeecrowave.Runner.class)
 public class TalendComponentKitTestingTest {
 
     @Inject
     private TalendComponentKitTesting generator;
 
-    private Build build = new Build("test", "src/main/java", "src/test/java", "src/main/resources",
+    private Build build = new Build("test", "test", null, "src/main/java", "src/test/java", "src/main/resources",
             "src/test/resources", "src/main/webapp", "pom.xml", "some pom", "target");
 
     @Test

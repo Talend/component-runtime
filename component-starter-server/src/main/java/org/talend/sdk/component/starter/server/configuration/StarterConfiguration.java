@@ -29,4 +29,21 @@ public interface StarterConfiguration {
             converter = ConfigurationConverters.SetConverter.class)
     Set<String> dictionaryCredentials();
 
+    @ConfigProperty(name = "work.dir", defaultValue = "${java.io.tmpdir}")
+    String workDir();
+
+    @ConfigProperty(name = "github.repository.pattern", defaultValue = "https://github.com/%s/%s")
+    String githubRepository();
+
+    @ConfigProperty(name = "github.api.base", defaultValue = "https://api.github.com")
+    String githubBaseApi();
+
+    @ConfigProperty(name = "github.api.project.user.create.path", defaultValue = "/user/repos")
+    String githubCreateProjectPath();
+
+    @ConfigProperty(name = "github.api.project.org.create.path", defaultValue = "/orgs/{name}/repos")
+    String githubOrgCreateProjectPath();
+
+    @ConfigProperty(name = "github.api.project.create.method", defaultValue = "POST")
+    String githubCreateProjectMethod();
 }

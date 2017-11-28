@@ -15,20 +15,7 @@
  */
 package org.talend.sdk.component.starter.server.service.build;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-
+import lombok.Data;
 import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
@@ -37,7 +24,18 @@ import org.talend.sdk.component.starter.server.service.event.GeneratorRegistrati
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
-import lombok.Data;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 
 @ApplicationScoped
 public class MavenBuildGenerator implements BuildGenerator {
@@ -56,7 +54,8 @@ public class MavenBuildGenerator implements BuildGenerator {
     @Override
     public Build createBuild(final ProjectRequest.BuildConfiguration buildConfiguration, final String packageBase,
             final Collection<Dependency> dependencies, final Collection<String> facets) {
-        return new Build(buildConfiguration.getArtifact(), "src/main/java", "src/test/java", "src/main/resources",
+        return new Build(buildConfiguration.getArtifact(), buildConfiguration.getGroup(),
+                buildConfiguration.getVersion(), "src/main/java", "src/test/java", "src/main/resources",
                 "src/test/resources", "src/main/webapp", "pom.xml",
                 renderer.render("generator/maven/pom.xml",
                         new Pom(buildConfiguration, dependencies,

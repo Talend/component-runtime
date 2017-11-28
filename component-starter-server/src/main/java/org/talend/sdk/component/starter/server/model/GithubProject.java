@@ -13,34 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.starter.server.service.domain;
+package org.talend.sdk.component.starter.server.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 
-@Getter
-@RequiredArgsConstructor
-public class Build {
+@Data
+public class GithubProject {
 
-    private final String artifact;
+    private ProjectModel model;
 
-    private final String group;
+    private Repository repository;
 
-    private final String version;
+    @Data
+    public static class Repository {
 
-    private final String mainJavaDirectory;
+        private String username;
 
-    private final String testJavaDirectory;
+        private String password;
 
-    private final String mainResourcesDirectory;
+        private String organization;
 
-    private final String testResourcesDirectory;
+        private String repository;
 
-    private final String mainWebResourcesDirectory;
-
-    private final String buildFileName;
-
-    private final String buildFileContent;
-
-    private final String buildDir;
+        private boolean useOrganization;
+    }
 }

@@ -145,7 +145,7 @@ export default class FacetSelector extends React.Component {
               title: cat.title,
               suggestions: cat.suggestions.filter(item => regex.test(item.title))
             }
-          });
+          }).filter(category => category.suggestions.length > 0);
       }
 
       return {
