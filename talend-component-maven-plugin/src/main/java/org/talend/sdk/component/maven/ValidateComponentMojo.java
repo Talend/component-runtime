@@ -18,6 +18,8 @@ package org.talend.sdk.component.maven;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 
+import java.io.File;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -103,6 +105,6 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateDataStore(validateDataStore);
         configuration.setValidateDataSet(validateDataSet);
         configuration.setValidateActions(validateActions);
-        new ComponentValidator(configuration, classes, getLog()).run();
+        new ComponentValidator(configuration, new File[] { classes }, getLog()).run();
     }
 }

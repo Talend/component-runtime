@@ -53,14 +53,8 @@ public class ValidateTask extends DefaultTask {
     private URLClassLoader createLoader(final ClassLoader parent) {
         return new URLClassLoader(Stream
                 .concat(Stream.concat(
-                        getProject()
-                                .getConfigurations()
-                                .getByName("talendComponentKit")
-                                .fileCollection()
-                                .getFiles()
-                                .stream(),
-                        getProject().getConfigurations().getByName("runtime").fileCollection().getFiles().stream()),
-                        findClasses())
+                        getProject().getConfigurations().getByName("talendComponentKit").getFiles().stream(),
+                        getProject().getConfigurations().getByName("runtime").getFiles().stream()), findClasses())
                 .distinct()
                 .map(f -> {
                     try {
@@ -98,13 +92,11 @@ public class ValidateTask extends DefaultTask {
         set(configuration, "setValidateDataSet", extension.isValidateDataSet());
         set(configuration, "setValidateActions", extension.isValidateActions());
 
-        final Class<?> log =
-                tccl.loadClass("org.talend.sdk.component.runtime.manager.validator.ComponentValidator$Log");
         final Class<?> validator =
                 tccl.loadClass("org.talend.sdk.component.runtime.manager.validator.ComponentValidator");
         final Runnable runnable =
-                Runnable.class.cast(validator.getConstructor(config, File.class, log).newInstance(configuration,
-                        findClasses().findFirst().orElseGet(() -> getProject().getBuildFile()), getLogger()));
+                Runnable.class.cast(validator.getConstructor(config, File[].class, Object.class).newInstance(
+                        configuration, findClasses().toArray(File[]::new), getLogger()));
         runnable.run();
     }
 

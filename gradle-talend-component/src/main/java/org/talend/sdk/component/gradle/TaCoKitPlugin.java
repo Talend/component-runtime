@@ -79,7 +79,7 @@ public class TaCoKitPlugin implements Plugin<Project> {
                 put("description", "Validates that the module components are respecting the component standards.");
             }
         }, "talendComponentKitValidation");
-        project.afterEvaluate(p -> p.getTasksByName("compileJava", false).stream().findFirst().ifPresent(
+        project.afterEvaluate(p -> p.getTasksByName("classes", false).stream().findFirst().ifPresent(
                 compileJava -> compileJava.setFinalizedBy(singleton("talendComponentKitValidation"))));
     }
 }

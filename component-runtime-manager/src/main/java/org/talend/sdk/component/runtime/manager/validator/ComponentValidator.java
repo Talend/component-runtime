@@ -43,6 +43,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
+import org.apache.xbean.finder.archive.Archive;
+import org.apache.xbean.finder.archive.CompositeArchive;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
@@ -70,11 +72,11 @@ public class ComponentValidator implements Runnable {
 
     private final Configuration configuration;
 
-    private final File classes;
+    private final File[] classes;
 
     private final Log log;
 
-    public ComponentValidator(final Configuration configuration, final File classes, final Object log) {
+    public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
         this.configuration = configuration;
         this.classes = classes;
         try {
@@ -317,7 +319,9 @@ public class ComponentValidator implements Runnable {
     }
 
     private AnnotationFinder newFinder() {
-        return new AnnotationFinder(new FileArchive(Thread.currentThread().getContextClassLoader(), classes));
+        return new AnnotationFinder(new CompositeArchive(
+                Stream.of(classes).map(c -> new FileArchive(Thread.currentThread().getContextClassLoader(), c)).toArray(
+                        Archive[]::new)));
     }
 
     private Optional<Component> components(final Class<?> component) {

@@ -36,6 +36,10 @@ export default class ProjectMetadata extends React.Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({ project: nextProps.project });
+  }
+
   componentWillMount() {
     fetch(`${CONFIGURATION_URL}`)
       .then(resp => resp.json())
@@ -59,15 +63,20 @@ export default class ProjectMetadata extends React.Component {
               // select one build tool, preferrably maven since it is the standard
               const maven = current.buildToolActions.filter(i => i.label === 'Maven');
               if (maven.length > 0) {
-                maven[0].className = theme.selected;
-
                 const mvnIdx = current.buildToolActions.indexOf(maven[0]);
                 const saved = current.buildToolActions[0];
                 current.buildToolActions[0] = maven[0];
                 current.buildToolActions[mvnIdx] = saved;
               } else {
-                current.buildToolActions[0].className = theme.selected;
                 current.project.buildType = current.buildToolActions[0].label;
+              }
+
+              const currentBuildTool = current.project.buildType || 'Maven';
+              const selected = current.buildToolActions.filter(i => i.label === currentBuildTool);
+              if (selected.length > 0) {
+                selected[0].className = theme.selected;
+              } else {
+                current.buildToolActions[0].className = theme.selected;
               }
           });
       });
