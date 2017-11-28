@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.talend.core.model.process.EComponentCategory;
-import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.INode;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -60,18 +59,41 @@ public class SettingsCreator implements PropertyVisitor {
     private void createParameter(PropertyNode node) {
         SimplePropertyDefinition definition = node.getProperty();
         ElementParameter parameter = new ElementParameter(iNode);
+        
+        // Set common state
         // TODO
         parameter.setCategory(EComponentCategory.BASIC);
         parameter.setCurrentRow(0);
         parameter.setDisplayName(definition.getDisplayName());
-        // TODO
-        parameter.setFieldType(EParameterFieldType.TEXT);
+        parameter.setFieldType(node.getFieldType());
         parameter.setName(definition.getPath());
         parameter.setNumRow(lastRowNumber++);
         parameter.setShow(true);
         parameter.setContextMode(false);
         parameter.setValue("default value will be here");
+        
+        // Set specific state. TODO refactor if possible
+        switch(parameter.getFieldType()) {
+        case CLOSED_LIST :
+            setupTableParameter(parameter);
+            break;
+        default :
+            // do nothing
+        }
         settings.add(parameter);
+    }
+    
+    private void setupTableParameter(ElementParameter parameter) {
+        parameter.setListItemsValue(new String[] {"Item1T", "Item2T", "Item3T"});
+        parameter.setListItemsDisplayName(new String[] {"Item1D", "Item2D", "Item3D"});
+        parameter.setListItemsDisplayCodeName(new String[] {"Item1C", "Item2C", "Item3C"});
+        parameter.setListItemsReadOnlyIf(new String[3]);
+        parameter.setListItemsNotReadOnlyIf(new String[3]);
+        parameter.setListItemsShowIf(new String[3]);
+        parameter.setListItemsNotShowIf(new String[3]);
+        parameter.setDefaultClosedListValue("Item1T");
+        parameter.setDefaultValue("Another default");
+        parameter.setValue("Item1D");
     }
     
 }
