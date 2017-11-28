@@ -39,6 +39,7 @@
     <module>component-form</module>
     <module>component-avro-integration</module>
     <module>talend-component-maven-plugin</module>
+    <module>gradle-talend-component</module>
     <module>component-starter-server</module>
     <module>component-studio-integration</module>
     <module>documentation</module>
@@ -117,6 +118,7 @@
     <beam.version>2.2.0</beam.version>
 
     <talend-icon.version>0.127.0</talend-icon.version>
+    <component-api.version>1.0.0-SNAPSHOT</component-api.version>
 
     <groovy.version>2.6.0-alpha-1</groovy.version>
     <gmavenplus.version>1.6</gmavenplus.version>
@@ -148,7 +150,7 @@
       <dependency>
         <groupId>org.talend.sdk.component</groupId>
         <artifactId>component-api</artifactId>
-        <version>${project.version}</version>
+        <version>${component-api.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -280,10 +282,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.1</version>
+        <version>3.7.0</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
+          <forceJavacCompilerUse>true</forceJavacCompilerUse>
+          <compilerId>javac</compilerId>
           <fork>true</fork>
         </configuration>
       </plugin>

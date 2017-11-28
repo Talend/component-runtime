@@ -17,6 +17,7 @@ package org.talend.sdk.component.starter.server;
 
 public interface Versions {
 
+    String API_KIT = "${component-api.version}";
     String KIT = "${project.version}";
     String BEAM = "${beam.version}";
     String SUREFIRE = "2.20.1";

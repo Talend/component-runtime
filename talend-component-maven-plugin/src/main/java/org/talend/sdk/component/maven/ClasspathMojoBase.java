@@ -15,12 +15,14 @@
  */
 package org.talend.sdk.component.maven;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -30,13 +32,11 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.xbean.finder.AnnotationFinder;
-import org.apache.xbean.finder.archive.FileArchive;
-import org.talend.sdk.component.api.input.Emitter;
-import org.talend.sdk.component.api.input.PartitionMapper;
-import org.talend.sdk.component.api.processor.Processor;
 
 public abstract class ClasspathMojoBase extends AbstractMojo {
+
+    @Parameter(defaultValue = "false")
+    private boolean skip;
 
     @Parameter(defaultValue = "${project.build.outputDirectory}")
     protected File classes;
@@ -51,6 +51,10 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (skip) {
+            getLog().info(getClass().getSimpleName() + " is skipped");
+            return;
+        }
         if (getClass().isAnnotationPresent(Deprecated.class)) {
             logDeprecated();
         }
@@ -67,23 +71,36 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
 
         pluginInit();
 
-        pluginLoader = Thread.currentThread().getContextClassLoader();
-        try (final URLClassLoader loader = new AccessibleClassLoader(
-                Stream.concat(Stream.of(classes), project.getArtifacts().stream().map(Artifact::getFile)).map(file -> {
+        final Thread thread = Thread.currentThread();
+        pluginLoader = thread.getContextClassLoader();
+        final Collection<String> excludedArtifacts = Stream
+                .of("container-core", "component-api", "component-spi", "component-runtime-impl",
+                        "component-runtime-manager", "component-runtime-design-extension", "component-runtime-di")
+                .collect(toSet());
+        try (final URLClassLoader loader = new URLClassLoader(Stream
+                .concat(Stream.of(classes),
+                        project
+                                .getArtifacts()
+                                .stream()
+                                .filter(a -> !"org.talend.sdk.component".equals(a.getGroupId())
+                                        || !excludedArtifacts.contains(a.getArtifactId()))
+                                .map(Artifact::getFile))
+                .map(file -> {
                     try {
                         return file.toURI().toURL();
                     } catch (final MalformedURLException e) {
                         throw new IllegalStateException(e.getMessage());
                     }
-                }).toArray(URL[]::new), Thread.currentThread().getContextClassLoader()) {
+                })
+                .toArray(URL[]::new), pluginLoader) {
 
             {
-                Thread.currentThread().setContextClassLoader(this);
+                thread.setContextClassLoader(this);
             }
 
             @Override
             public void close() throws IOException {
-                Thread.currentThread().setContextClassLoader(getParent());
+                thread.setContextClassLoader(pluginLoader);
                 super.close();
             }
         }) {
@@ -121,23 +138,4 @@ public abstract class ClasspathMojoBase extends AbstractMojo {
     }
 
     protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
-
-    protected Stream<Class<? extends Annotation>> componentMarkers() {
-        return Stream.of(PartitionMapper.class, Processor.class, Emitter.class);
-    }
-
-    protected AnnotationFinder newFinder() {
-        return new AnnotationFinder(new FileArchive(Thread.currentThread().getContextClassLoader(), classes));
-    }
-
-    protected static class AccessibleClassLoader extends URLClassLoader {
-
-        private AccessibleClassLoader(final URL[] urls, final ClassLoader parent) {
-            super(urls, parent);
-        }
-
-        public Package findPackage(final String pck) {
-            return getPackage(pck);
-        }
-    }
 }

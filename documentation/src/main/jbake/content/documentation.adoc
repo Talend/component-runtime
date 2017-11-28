@@ -1438,6 +1438,55 @@ For this command to work you will need to just register the plugin:
 </plugin>
 ----
 
+== Gradle Plugin
+
+`gradle-talend-component` intends to help you to write components
+validating components match best practices. It is inspired from the Maven plugin
+and adds the ability to generate automatically the `dependencies.txt` file the SDK
+uses to build the component classpath. For more information on the configuration
+you can check out the maven properties matching the attributes.
+
+Here is how to use it:
+
+[source,groovy]
+----
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+  dependencies {
+    classpath "org.talend.sdk.component:gradle-talend-component:${talendComponentVersion}"
+  }
+}
+
+apply plugin: 'org.talend.sdk.component'
+apply plugin: 'java'
+
+// optional customization
+talendComponentKit {
+    // dependencies.txt generation, replaces maven-dependency-plugin
+    dependenciesLocation = "TALEND-INF/dependencies.txt"
+    boolean skipDependenciesFile = false;
+
+    // classpath for validation utilities
+    sdkVersion = "${talendComponentVersion}"
+    apiVersion = "${talendComponentApiVersion}"
+
+    // validation
+    skipValidation = false
+    validateFamily = true
+    validateSerializable = true
+    validateInternationalization = true
+    validateModel = true
+    validateMetadata = true
+    validateComponent = true
+    validateDataStore = true
+    validateDataSet = true
+    validateActions = true
+}
+----
+
 == Advanced: define a custom API
 
 It is possible to extend the Component API for custom front features.

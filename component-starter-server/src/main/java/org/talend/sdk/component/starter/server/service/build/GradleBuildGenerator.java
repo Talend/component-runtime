@@ -15,7 +15,20 @@
  */
 package org.talend.sdk.component.starter.server.service.build;
 
-import lombok.Data;
+import static java.util.stream.Collectors.toList;
+import static org.talend.sdk.component.starter.server.Versions.CXF;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+
+import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
@@ -23,17 +36,7 @@ import org.talend.sdk.component.starter.server.service.event.GeneratorRegistrati
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import static java.util.stream.Collectors.toList;
-import static org.talend.sdk.component.starter.server.Versions.CXF;
+import lombok.Data;
 
 @ApplicationScoped
 public class GradleBuildGenerator implements BuildGenerator {
@@ -71,7 +74,7 @@ public class GradleBuildGenerator implements BuildGenerator {
             javaMainSourceSets.add("project.tasks.compileJava.dependsOn project.tasks.generateWadlClient");
         }
 
-        final GradleBuild model = new GradleBuild(buildConfiguration,
+        final GradleBuild model = new GradleBuild(Versions.KIT, buildConfiguration,
                 dependencies
                         .stream()
                         .map(d -> "test".equals(d.getScope()) ? new Dependency(d, "testCompile") : d)
@@ -86,6 +89,8 @@ public class GradleBuildGenerator implements BuildGenerator {
 
     @Data
     public static class GradleBuild {
+
+        private final String tckVersion;
 
         private final ProjectRequest.BuildConfiguration build;
 
