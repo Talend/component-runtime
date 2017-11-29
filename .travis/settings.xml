@@ -29,6 +29,11 @@
       <username>${env.TLND_GITHUB_USER}</username>
       <password>${env.TLND_GITHUB_PASS}</password>
     </server>
+    <server>
+      <id>jira</id>
+      <username>${env.TLND_JIRA_USER}</username>
+      <password>${env.TLND_JIRA_PASS}</password>
+    </server>
   </servers>
 
   <profiles>

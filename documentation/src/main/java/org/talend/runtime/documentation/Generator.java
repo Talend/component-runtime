@@ -15,10 +15,16 @@
  */
 package org.talend.runtime.documentation;
 
+import static java.util.Comparator.comparing;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
@@ -30,13 +36,25 @@ import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.apache.deltaspike.core.api.config.Configuration;
+import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.apache.johnzon.mapper.Mapper;
 import org.apache.johnzon.mapper.MapperBuilder;
 import org.apache.xbean.finder.AnnotationFinder;
@@ -63,6 +81,7 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.Valida
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
@@ -78,6 +97,133 @@ public class Generator {
         generatedActions(generatedDir);
         generatedUi(generatedDir);
         generatedServerConfiguration(generatedDir);
+
+        final boolean offline = "offline=true".equals(args[4]);
+        if (offline) {
+            System.out.println("System is offline, skipping jira changelog generation");
+            return;
+        }
+        generatedJira(generatedDir, args[1], args[2], args[3]);
+    }
+
+    private static void generatedJira(final File generatedDir, final String username, final String password,
+            final String version) throws FileNotFoundException {
+        if (username == null || username.trim().isEmpty() || "skip".equals(username)) {
+            System.err.println("No JIRA credentials, will skip changelog generation");
+            return;
+        }
+
+        final String project = "TCOMP";
+        final String jiraBase = "https://jira.talendforge.org";
+
+        final File file = new File(generatedDir, "changelog.adoc");
+        final Client client = ClientBuilder.newClient().register(new JsonbJaxrsProvider<>());
+        final String auth = "Basic "
+                + Base64.getEncoder().encodeToString((username + ':' + password).getBytes(StandardCharsets.UTF_8));
+
+        try {
+            final WebTarget restApi = client.target(jiraBase + "/rest/api/2");
+            final List<JiraVersion> versions = restApi
+                    .path("project/{project}/versions")
+                    .resolveTemplate("project", project)
+                    .request(APPLICATION_JSON_TYPE)
+                    .header("Authorization", auth)
+                    .get(new GenericType<List<JiraVersion>>() {
+                    });
+
+            final String currentVersion = version.replace("-SNAPSHOT", "");
+            final List<JiraVersion> loggedVersions = versions
+                    .stream()
+                    .filter(v -> (v.isReleased() || jiraVersionMatches(currentVersion, v.getName())))
+                    .sorted((o1, o2) -> { // reversed order
+                        final String[] parts1 = o1.getName().split("\\.");
+                        final String[] parts2 = o2.getName().split("\\.");
+                        for (int i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+                            try {
+                                final int major = (parts2.length > i ? Integer.parseInt(parts2[i]) : 0)
+                                        - (parts1.length > i ? Integer.parseInt(parts1[i]) : 0);
+                                if (major != 0) {
+                                    return major;
+                                }
+                            } catch (final NumberFormatException nfe) {
+                                // no-op
+                            }
+                        }
+                        return o2.getName().compareTo(o1.getId());
+                    })
+                    .collect(toList());
+            if (loggedVersions.isEmpty()) {
+                try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+                    stream.println("No version found.");
+                }
+                return;
+            }
+
+            final String jql = "project=" + project + " AND labels=\"changelog\""
+                    + loggedVersions.stream().map(v -> "fixVersion=" + v.getName()).collect(
+                            joining(" OR ", " AND (", ")"));
+            final Function<Long, JiraIssues> searchFrom = startAt -> restApi
+                    .path("search")
+                    .queryParam("jql", jql)
+                    .queryParam("startAt", startAt)
+                    .request(APPLICATION_JSON_TYPE)
+                    .header("Authorization", auth)
+                    .get(JiraIssues.class);
+            final Function<JiraIssues, Stream<JiraIssues>> paginate = new Function<JiraIssues, Stream<JiraIssues>>() {
+
+                @Override
+                public Stream<JiraIssues> apply(final JiraIssues issues) {
+                    final long nextStartAt = issues.getStartAt() + issues.getMaxResults();
+                    final Stream<JiraIssues> fetched = Stream.of(issues);
+                    return issues.getTotal() > nextStartAt
+                            ? Stream.concat(fetched, apply(searchFrom.apply(nextStartAt)))
+                            : fetched;
+                }
+            };
+            final String changelog = Stream
+                    .of(searchFrom.apply(0L))
+                    .flatMap(paginate)
+                    .flatMap(i -> ofNullable(i.getIssues()).map(Collection::stream).orElseGet(Stream::empty))
+                    .flatMap(i -> i.getFields().getFixVersions().stream().map(v -> Pair.of(v, i)))
+                    .collect(groupingBy(pair -> pair.getKey().getName(),
+                            collectingAndThen(mapping(Pair::getValue, toList()), list -> {
+                                list.sort(comparing(JiraIssue::getKey));
+                                return list;
+                            })))
+                    .entrySet()
+                    .stream()
+                    .map(e -> e
+                            .getValue()
+                            .stream()
+                            .collect(() -> new StringBuilder("== Version ").append(e.getKey()).append("\n\n"),
+                                    // note: for now we don't use the description since it is not that useful
+                                    (b, i) -> b
+                                            .append("- link:")
+                                            .append(jiraBase)
+                                            .append("/browse/")
+                                            .append(i.getKey())
+                                            .append("[")
+                                            .append(i.getKey())
+                                            .append("^]")
+                                            .append(": ")
+                                            .append(i.getFields().getSummary())
+                                            .append("\n"),
+                                    StringBuilder::append)
+                            .toString())
+                    .collect(joining("\n\n"));
+
+            try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+                stream.println(changelog);
+            }
+        } finally {
+            client.close();
+        }
+
+        System.out.println("Generated " + file);
+    }
+
+    private static boolean jiraVersionMatches(final String ref, final String name) {
+        return ref.equals(name) || ref.equals(name + ".0");
     }
 
     private static void generatedServerConfiguration(final File generatedDir)
@@ -483,5 +629,51 @@ public class Generator {
         private final Class<?> marker;
 
         private final String description;
+    }
+
+    @Data
+    public static class JiraVersion {
+
+        private String id;
+
+        private String name;
+
+        private boolean released;
+
+        private boolean archived;
+
+        private long projectId;
+    }
+
+    @Data
+    public static class JiraIssues {
+
+        private long startAt;
+
+        private long maxResults;
+
+        private long total;
+
+        private Collection<JiraIssue> issues;
+    }
+
+    @Data
+    public static class JiraIssue {
+
+        private String id;
+
+        private String key;
+
+        private Fields fields;
+    }
+
+    @Data
+    public static class Fields {
+
+        private String summary;
+
+        private String description;
+
+        private Collection<JiraVersion> fixVersions;
     }
 }

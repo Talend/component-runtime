@@ -36,6 +36,7 @@
             <li><a href="documentation-rest.html">REST API</a></li>
             <li><a href="wrapping-a-beam-io.html">How to wrap a Beam I/O</a></li>
             <li><a href="studio.html">Studio Integration</a></li>
+            <li><a href="changelog.html">Changelog</a></li>
             <li><a href="apidocs.html">API Documentation</a></li>
             <li><a href="appendix.html">Appendix</a></li>
           </ul>

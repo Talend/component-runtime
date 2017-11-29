@@ -103,6 +103,51 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>${gmavenplus.version}</version>
+        <executions>
+          <execution>
+            <id>decrypt-password</id>
+            <phase>compile</phase> <!-- before exec plugin -->
+            <goals>
+              <goal>execute</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <scripts>
+            <script><![CDATA[
+            import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest
+            import org.apache.maven.settings.crypto.SettingsDecrypter
+
+            def serverId = project.properties.getProperty('talend.jira.serverId', 'jira')
+            def serverIt = session.settings.servers.findAll { it.id == serverId }.iterator()
+            if (!serverIt.hasNext()) {
+              log.warn("no server '${serverId}' in your settings.xml, will skip changelog generation")
+              project.properties.setProperty('talend.jira.username', 'skip')
+              project.properties.setProperty('talend.jira.password', 'skip')
+              return
+            }
+
+            def server = serverIt.next()
+            def decryptedServer = session.container.lookup(SettingsDecrypter).decrypt(new DefaultSettingsDecryptionRequest(server))
+            server = decryptedServer.server != null ? decryptedServer.server : server
+            project.properties.setProperty('talend.jira.username', server.username)
+            project.properties.setProperty('talend.jira.password', server.password)
+            log.info("Set the Talend jira credentials into the project properties")
+            ]]></script>
+          </scripts>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.6.0</version>
@@ -118,6 +163,10 @@
               <includeProjectDependencies>true</includeProjectDependencies>
               <arguments>
                 <argument>${project.build.directory}</argument>
+                <argument>${talend.jira.username}</argument>
+                <argument>${talend.jira.password}</argument>
+                <argument>${project.version}</argument>
+                <argument>offline=${settings.offline}</argument>
               </arguments>
             </configuration>
           </execution>
