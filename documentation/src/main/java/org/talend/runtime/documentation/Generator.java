@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
@@ -43,7 +44,10 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.ws.rs.client.Client;
@@ -180,37 +184,53 @@ public class Generator {
                             : fetched;
                 }
             };
-            final String changelog = Stream
+            final Set<String> includeStatus =
+                    Stream.of("closed", "resolved", "development done", "qa done", "done").collect(toSet());
+            final Map<String, TreeMap<String, List<JiraIssue>>> issues = Stream
                     .of(searchFrom.apply(0L))
                     .flatMap(paginate)
                     .flatMap(i -> ofNullable(i.getIssues()).map(Collection::stream).orElseGet(Stream::empty))
+                    .filter(issue -> includeStatus
+                            .contains(issue.getFields().getStatus().getName().toLowerCase(ENGLISH)))
                     .flatMap(i -> i.getFields().getFixVersions().stream().map(v -> Pair.of(v, i)))
-                    .collect(groupingBy(pair -> pair.getKey().getName(),
-                            collectingAndThen(mapping(Pair::getValue, toList()), list -> {
-                                list.sort(comparing(JiraIssue::getKey));
-                                return list;
-                            })))
+                    .collect(groupingBy(pair -> pair.getKey().getName(), TreeMap::new,
+                            groupingBy(pair -> pair.getValue().getFields().getIssuetype().getName(), TreeMap::new,
+                                    collectingAndThen(mapping(Pair::getValue, toList()), l -> {
+                                        l.sort(comparing(JiraIssue::getKey));
+                                        return l;
+                                    }))));
+            final String changelog = issues
                     .entrySet()
                     .stream()
-                    .map(e -> e
-                            .getValue()
-                            .stream()
-                            .collect(() -> new StringBuilder("== Version ").append(e.getKey()).append("\n\n"),
-                                    // note: for now we don't use the description since it is not that useful
-                                    (b, i) -> b
-                                            .append("- link:")
-                                            .append(jiraBase)
-                                            .append("/browse/")
-                                            .append(i.getKey())
-                                            .append("[")
-                                            .append(i.getKey())
-                                            .append("^]")
-                                            .append(": ")
-                                            .append(i.getFields().getSummary())
-                                            .append("\n"),
-                                    StringBuilder::append)
-                            .toString())
-                    .collect(joining("\n\n"));
+                    .map(versionnedIssues -> new StringBuilder("\n\n== Version ")
+                            .append(versionnedIssues.getKey())
+                            .append(versionnedIssues.getValue().entrySet().stream().collect(
+                                    (Supplier<StringBuilder>) StringBuilder::new,
+                                    (builder, issuesByType) -> builder
+                                            .append("\n\n=== ")
+                                            .append(issuesByType.getKey())
+                                            .append("\n\n")
+                                            .append(issuesByType.getValue().stream().collect(
+                                                    (Supplier<StringBuilder>) StringBuilder::new,
+                                                    // note: for now we don't
+                                                    // use the description since
+                                                    // it is not that
+                                                    // useful
+                                                    (a, i) -> a
+                                                            .append("- link:")
+                                                            .append(jiraBase)
+                                                            .append("/browse/")
+                                                            .append(i.getKey())
+                                                            .append("[")
+                                                            .append(i.getKey())
+                                                            .append("^]")
+                                                            .append(": ")
+                                                            .append(i.getFields().getSummary())
+                                                            .append("\n"),
+                                                    StringBuilder::append)),
+                                    StringBuilder::append)))
+                    .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+                    .toString();
 
             try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
                 stream.println(changelog);
@@ -658,6 +678,12 @@ public class Generator {
     }
 
     @Data
+    public static class IssueType {
+
+        private String name;
+    }
+
+    @Data
     public static class JiraIssue {
 
         private String id;
@@ -674,6 +700,16 @@ public class Generator {
 
         private String description;
 
+        private IssueType issuetype;
+
+        private Status status;
+
         private Collection<JiraVersion> fixVersions;
+    }
+
+    @Data
+    public static class Status {
+
+        private String name;
     }
 }

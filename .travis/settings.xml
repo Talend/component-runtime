@@ -10,16 +10,6 @@
       <password>${env.OSSRH_PASS}</password>
     </server>
     <server>
-      <id>snapshots</id>
-      <username>${env.TLND_USER}</username>
-      <password>${env.TLND_PASS}</password>
-    </server>
-    <server>
-      <id>releases</id>
-      <username>${env.TLND_USER}</username>
-      <password>${env.TLND_PASS}</password>
-    </server>
-    <server>
       <id>TalendOpenSourceRelease</id>
       <username>${env.TLND_USER}</username>
       <password>${env.TLND_PASS}</password>
