@@ -54,12 +54,16 @@ import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
+import org.apache.tomcat.websocket.Constants;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.studio.lang.Pair;
+
+import lombok.Getter;
 
 // we shouldn't need the execution runtime so don't even include it here
 //
@@ -77,12 +81,15 @@ public class WebSocketClient implements AutoCloseable {
 
     private final String base;
 
+    private final long timeout;
+
     private final Jsonb jsonb;
 
     private Runnable synch;
 
-    public WebSocketClient(final String base) {
+    public WebSocketClient(final String base, final long timeout) {
         this.base = base;
+        this.timeout = timeout;
         this.container = ContainerProvider.getWebSocketContainer();
         this.jsonb = JsonbProvider.provider("org.apache.johnzon.jsonb.JohnzonProvider").create().build();
     }
@@ -117,7 +124,7 @@ public class WebSocketClient implements AutoCloseable {
             final boolean doCheck) {
         final Session session = getOrCreateSession(id, uri, doCheck);
 
-        final PayloadHandler handler = new PayloadHandler();
+        final PayloadHandler handler = new PayloadHandler(this);
         session.getUserProperties().put("handler", handler);
 
         final String buildRequest = buildRequest(uri, payload);
@@ -175,6 +182,7 @@ public class WebSocketClient implements AutoCloseable {
     private Session doConnect(final String method, final String uri) {
         final URI connectUri = URI.create(base + '/' + method + '/' + uri);
         final ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
+        endpointConfig.getUserProperties().put(Constants.IO_TIMEOUT_MS_PROPERTY, Long.toString(timeout));
         try {
             return container.connectToServer(new Endpoint() {
 
@@ -298,7 +306,12 @@ public class WebSocketClient implements AutoCloseable {
         }
 
         public byte[] icon(final String id) {
-            return root.sendAndWait("/v1/get/component/icon/{id}", "/icon/" + id, null, byte[].class, true);
+            return root.sendAndWait("/v1/get/component/icon/" + id, "/component/icon/" + id, null, byte[].class, true);
+        }
+
+        public byte[] familyIcon(final String id) {
+            return root.sendAndWait("/v1/get/component/icon/family/" + id, "/component/icon/family/" + id, null,
+                    byte[].class, true);
         }
 
         public ComponentDetailList getDetail(final String language, final String[] identifiers) {
@@ -346,6 +359,12 @@ public class WebSocketClient implements AutoCloseable {
 
         private final byte[] lastBytes = new byte[2];
 
+        private final WebSocketClient root;
+
+        public PayloadHandler(final WebSocketClient webSocketClient) {
+            root = webSocketClient;
+        }
+
         @Override
         public void accept(final ByteBuffer byteBuffer) {
             try {
@@ -367,6 +386,10 @@ public class WebSocketClient implements AutoCloseable {
         }
 
         private byte[] payload() {
+            return payload(true);
+        }
+
+        private byte[] payload(final boolean failOnBadStatus) {
             final byte[] value = out.toByteArray();
 
             // todo: check status header and fail if > 399 with the error message in the
@@ -378,15 +401,23 @@ public class WebSocketClient implements AutoCloseable {
                 final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 for (int idx = 0; idx < value.length - 1; idx++) {
                     if (value[idx] == '\r' && value[idx + 1] == '\n') {
-                        final String header = new String(baos.toByteArray(), StandardCharsets.UTF_8);
-                        if (header.startsWith("status:")) {
-                            try {
-                                if (Integer.parseInt(header.substring("status:".length()).trim()) > 399) {
-                                    throw new IllegalStateException(
-                                            "Bad response from server: '" + new String(value) + "'");
+                        if (failOnBadStatus) {
+                            final String header = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+                            if (header.startsWith("status:")) {
+                                try {
+                                    if (Integer.parseInt(header.substring("status:".length()).trim()) > 399) {
+                                        final String response = new String(value);
+                                        ErrorPayload errorPayload;
+                                        try {
+                                            errorPayload = root.parseResponse(payload(false), ErrorPayload.class);
+                                        } catch (final IllegalArgumentException iae) {
+                                            errorPayload = null;
+                                        }
+                                        throw new ClientException(response, errorPayload);
+                                    }
+                                } catch (final NumberFormatException nfe) {
+                                    // no-op: ignore this validation then
                                 }
-                            } catch (final NumberFormatException nfe) {
-                                // no-op: ignore this validation then
                             }
                         }
 
@@ -412,6 +443,17 @@ public class WebSocketClient implements AutoCloseable {
             final byte[] payload = new byte[len];
             System.arraycopy(value, start, payload, 0, len);
             return payload;
+        }
+    }
+
+    public static class ClientException extends RuntimeException {
+
+        @Getter
+        private ErrorPayload errorPayload;
+
+        private ClientException(final String raw, final ErrorPayload errorPayload) {
+            super(raw);
+            this.errorPayload = errorPayload;
         }
     }
 }

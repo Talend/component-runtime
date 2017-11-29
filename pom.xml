@@ -120,7 +120,7 @@
     <talend-icon.version>0.127.0</talend-icon.version>
     <component-api.version>1.0.0-SNAPSHOT</component-api.version>
 
-    <groovy.version>2.6.0-alpha-1</groovy.version>
+    <groovy.version>2.6.0-alpha-2</groovy.version>
     <gmavenplus.version>1.6</gmavenplus.version>
     <dependency-plugin.version>3.0.2</dependency-plugin.version>
 

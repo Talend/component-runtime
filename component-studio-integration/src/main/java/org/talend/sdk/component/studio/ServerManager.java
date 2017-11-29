@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 
+import org.apache.tomcat.websocket.Constants;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -53,7 +54,8 @@ public class ServerManager extends AbstractUIPlugin {
         manager = new ProcessManager(GROUP_ID, ARTIFACT_ID, findMavenResolver(), findConfigDir());
         manager.start();
 
-        client = new WebSocketClient("ws://localhost:" + manager.getPort() + "/websocket/v1");
+        client = new WebSocketClient("ws://localhost:" + manager.getPort() + "/websocket/v1",
+                Long.getLong("talend.component.websocket.client.timeout", Constants.IO_TIMEOUT_MS_DEFAULT));
         client.setSynch(() -> manager.waitForServer(() -> client.v1().healthCheck()));
 
         final BundleContext ctx = getBundle().getBundleContext();
