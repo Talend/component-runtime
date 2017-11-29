@@ -31,7 +31,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -73,8 +72,11 @@ public class ProjectResourceTest {
                         "Generates some tests using beam runtime instead of Talend Component Kit Testing framework.")));
                 put("Libraries", singletonList(new FactoryConfiguration.Facet("WADL Client Generation",
                         "Generates a HTTP client from a WADL.")));
-                put("Tool", singletonList(new FactoryConfiguration.Facet("Codenvy",
-                        "Pre-configures the project to be usable with Codenvy.")));
+                put("Tool",
+                        asList(new FactoryConfiguration.Facet("Codenvy",
+                                "Pre-configures the project to be usable with Codenvy."),
+                                new FactoryConfiguration.Facet("Travis CI",
+                                        "Creates a .travis.yml pre-configured for a component build.")));
             }
         }, new HashMap<>(config.getFacets()));
     }
@@ -135,6 +137,17 @@ public class ProjectResourceTest {
                                 + "            </wadlOption>\n" + "          </wadlOptions>\n"
                                 + "        </configuration>\n" + "      </plugin>")
                 .forEach(string -> assertThat(files.get("application/pom.xml"), containsString(string)));
+    }
+
+    @Test
+    public void travisFacet() throws IOException {
+        final ProjectModel projectModel = new ProjectModel();
+        projectModel.setFacets(singletonList("Travis CI"));
+        final Map<String, String> files = createZip(projectModel);
+
+        assertEquals(4, files.size());
+        assertThat(files.get("application/README.adoc"), containsString("=== Travis CI\n"));
+        assertThat(files.get("application/.travis.yml"), containsString("language: java"));
     }
 
     @Test
