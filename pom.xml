@@ -123,6 +123,7 @@
     <groovy.version>2.6.0-alpha-2</groovy.version>
     <gmavenplus.version>1.6</gmavenplus.version>
     <dependency-plugin.version>3.0.2</dependency-plugin.version>
+    <javadoc-plugin.version>3.0.0-M1</javadoc-plugin.version>
 
     <node.version>v8.4.0</node.version>
     <yarn.version>v0.28.4</yarn.version>

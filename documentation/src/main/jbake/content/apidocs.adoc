@@ -1,0 +1,13 @@
+= Talend Component Javadocs
+//:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: appendix
+:jbake-status: published
+
+* link:apidocs/api/index.html[API Documentation^]
+* link:apidocs/junit/index.html[JUnit API Documentation^]

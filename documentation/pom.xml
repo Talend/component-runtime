@@ -55,6 +55,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-runtime-junit</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.tomee</groupId>
       <artifactId>ziplock</artifactId>
       <version>${ziplock.version}</version>
@@ -351,6 +356,42 @@
                 <sample_project>${sample_project}</sample_project>
                 <sample_project_test>${sample_project_test}</sample_project_test>
               </attributes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>${dependency-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>unpack-javadoc</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.talend.sdk.component</groupId>
+                  <artifactId>component-api</artifactId>
+                  <version>${component-api.version}</version>
+                  <type>jar</type>
+                  <classifier>javadoc</classifier>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/api</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.talend.sdk.component</groupId>
+                  <artifactId>component-runtime-junit</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <classifier>javadoc</classifier>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/junit</outputDirectory>
+                </artifactItem>
+              </artifactItems>
             </configuration>
           </execution>
         </executions>
