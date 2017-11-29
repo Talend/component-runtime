@@ -15,13 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.validator;
 
-import static java.util.Optional.of;
-import static java.util.Optional.ofNullable;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import lombok.Data;
 
 import java.io.File;
 import java.io.Serializable;
@@ -64,9 +58,14 @@ import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 
-import lombok.Data;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
-// todo: for now the test coverage is in the maven module, we should move it here
 // IMPORTANT: this class is used by reflection in gradle integration, don't break signatures without checking it
 public class ComponentValidator implements Runnable {
 
@@ -357,8 +356,9 @@ public class ComponentValidator implements Runnable {
                 currentPackage = currentPackage.substring(0, endPreviousPackage);
             } while (true);
         }
-        throw new IllegalArgumentException("No @" + api.getName() + " on " + component
-                + ", add it or disable this validation" + " (which can have side effects in integrations/designers)");
+        throw new IllegalArgumentException("No @" + api.getName() + " for the component " + component
+                + ", add it in package-info.java or disable this validation"
+                + " (which can have side effects in integrations/designers)");
     }
 
     private ResourceBundle findResourceBundle(final Class<?> component) {
