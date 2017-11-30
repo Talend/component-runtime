@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
-import org.talend.sdk.component.studio.ComponentModel;
 
 import lombok.NoArgsConstructor;
 
@@ -39,10 +38,10 @@ public final class PropertyNodeUtils {
      * ElementParameters should be created only from leaf nodes in this tree
      * Internal nodes store useful metadata information like ordering
      * 
-     * @param properties a collections of {@link SimplePropertyDefinition} retrieved from {@link ComponentModel}
+     * @param properties a collections of {@link SimplePropertyDefinition} retrieved from ComponentModel
      * @return root node of created tree
      */
-    public static PropertyNode createPropertyTree(Collection<SimplePropertyDefinition> properties) {
+    public static PropertyNode createPropertyTree(final Collection<SimplePropertyDefinition> properties) {
         PropertyNode root = null;
         HashMap<String, PropertyNode> nodes = new HashMap<>();
 
@@ -65,11 +64,11 @@ public final class PropertyNodeUtils {
     /**
      * Sorts siblings according that how they should be shown on UI
      */
-    public static void sortPropertyTree(PropertyNode root) {
+    public static void sortPropertyTree(final PropertyNode root) {
         root.accept(new PropertyVisitor() {
 
             @Override
-            public void visit(PropertyNode node) {
+            public void visit(final PropertyNode node) {
                 SimplePropertyDefinition property = node.getProperty();
                 String optionsOrder = property.getMetadata().get(UI_OPTIONS_ORDER);
                 if (optionsOrder != null) {
@@ -84,7 +83,7 @@ public final class PropertyNodeUtils {
              * @param node current node
              * @param optionsOrder metadata value for ui::optionsorder::value
              */
-            private void optionsOrderSort(PropertyNode node, String optionsOrder) {
+            private void optionsOrderSort(final PropertyNode node, final String optionsOrder) {
                 HashMap<String, Integer> order = getOrder(optionsOrder);
 
                 node.getChildren().sort((node1, node2) -> {
@@ -100,7 +99,7 @@ public final class PropertyNodeUtils {
              * @param optionsOrder metadata value for ui::optionsorder::value
              * @return order
              */
-            private HashMap<String, Integer> getOrder(String optionsOrder) {
+            private HashMap<String, Integer> getOrder(final String optionsOrder) {
                 String[] values = optionsOrder.split(ORDER_SEPARATOR);
                 HashMap<String, Integer> order = new HashMap<>();
                 for (int i = 0; i < values.length; i++) {

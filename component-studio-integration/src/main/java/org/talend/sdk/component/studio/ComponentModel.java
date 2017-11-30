@@ -45,7 +45,7 @@ import org.talend.sdk.component.studio.model.parameter.ElementParameterCreator;
 
 // TODO: finish the impl
 public class ComponentModel extends AbstractBasicComponent {
-    
+
     /**
      * Separator between family and component name
      */
@@ -201,10 +201,11 @@ public class ComponentModel extends AbstractBasicComponent {
     public ImageDescriptor getIcon16() {
         return image16;
     }
-    
+
     /**
      * Returns Component configuration version
-     * When Configuration is changed its version should be incremented and corresponding MigrationHandler implemented to migrate from 
+     * When Configuration is changed its version should be incremented and corresponding MigrationHandler implemented to
+     * migrate from
      * older versions to newer during deserialization
      */
     @Override
@@ -217,7 +218,7 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     @Override // TODO This is dummy implementation. Correct impl should be added soon
     public List<? extends IElementParameter> createElementParameters(final INode node) {
-        ElementParameterCreator creator = new ElementParameterCreator(this, detail, node); 
+        ElementParameterCreator creator = new ElementParameterCreator(this, detail, node);
         List<IElementParameter> parameters = (List<IElementParameter>) creator.createParameters();
         return parameters;
     }

@@ -27,28 +27,28 @@ import lombok.Setter;
 
 @Data
 public class PropertyNode {
-    
+
     private static final String PATH_SEPARATOR = ".";
-    
+
     private static final String NO_PARENT_ID = "";
-    
+
     @Setter(AccessLevel.NONE)
     private List<PropertyNode> children = new ArrayList<>();
-    
+
     @Setter(AccessLevel.NONE)
     private SimplePropertyDefinition property;
-    
+
     @Setter(AccessLevel.NONE)
     private EParameterFieldType fieldType;
 
-    public void addChild(PropertyNode child) {
+    public void addChild(final PropertyNode child) {
         children.add(child);
     }
-    
+
     public String getId() {
         return property.getPath();
     }
-    
+
     public String getParentId() {
         String id = getId();
         if (!id.contains(PATH_SEPARATOR)) {
@@ -56,29 +56,29 @@ public class PropertyNode {
         }
         return id.substring(0, id.lastIndexOf("."));
     }
-    
+
     /**
      * Sets {@link SimplePropertyDefinition} and {@link EParameterFieldType}
      * These 2 fields should be set together
      * 
      * @param property Property Definition to set
      */
-    public void setProperty(SimplePropertyDefinition property) {
+    public void setProperty(final SimplePropertyDefinition property) {
         this.property = property;
         this.fieldType = new WidgetTypeMapper(property).getFieldType();
     }
-    
+
     public boolean isRoot() {
         return NO_PARENT_ID.equals(getParentId());
     }
-    
+
     public boolean isLeaf() {
         return children.isEmpty();
     }
-    
-    public void accept(PropertyVisitor visitor) {
+
+    public void accept(final PropertyVisitor visitor) {
         visitor.visit(this);
         children.forEach(child -> child.accept(visitor));
     }
-    
+
 }

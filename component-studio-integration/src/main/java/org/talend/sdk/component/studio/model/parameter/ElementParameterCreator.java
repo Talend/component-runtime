@@ -47,7 +47,7 @@ public class ElementParameterCreator {
     private final INode node;
 
     private final ComponentModel component;
-    
+
     private final ComponentDetail detail;
 
     private final List<ElementParameter> parameters = new ArrayList<>();
@@ -63,7 +63,7 @@ public class ElementParameterCreator {
         addComponentParameters();
         return parameters;
     }
-    
+
     private void addComponentParameters() {
         if (!detail.getProperties().isEmpty()) {
             PropertyNode root = PropertyNodeUtils.createPropertyTree(detail.getProperties());
@@ -73,13 +73,13 @@ public class ElementParameterCreator {
             parameters.addAll(settingsCreator.getSettings());
         }
     }
-    
+
     /**
      * Creates and adds {@link EParameterName#UNIQUE_NAME} parameter
      * This parameter stores unique id of component instance in current job/process
      * It's value is like following "tJiraInput_1", "tJiraInput_2"
      * Value is computed later and can't be computed here as {@link ComponentModel}
-     * doesn't now how many component instances were created before  
+     * doesn't now how many component instances were created before
      */
     private void addUniqueNameParameter() {
         ElementParameter parameter = new ElementParameter(node);
@@ -94,7 +94,7 @@ public class ElementParameterCreator {
         parameter.setShow(false);
         parameters.add(parameter);
     }
-    
+
     /**
      * Creates and adds {@link EParameterName#COMPONENT_NAME} parameter
      * TODO it is not clear where it is used for the moment
@@ -111,7 +111,7 @@ public class ElementParameterCreator {
         parameter.setShow(false);
         parameters.add(parameter);
     }
-    
+
     /**
      * Creates and adds {@link EParameterName#VERSION} parameter
      * Its value is component version. More specifically it is a version of component configuration.
@@ -134,7 +134,7 @@ public class ElementParameterCreator {
     }
 
     private void addMainParameters() {
-        
+
         addUniqueNameParameter();
         addComponentNameParameter();
         addVersionParameter();

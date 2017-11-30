@@ -111,8 +111,11 @@ public class Lookups {
                                                             // decide whether it is v0 or v1
                                                             IComponent component = node.getComponent();
                                                             if (component instanceof ComponentModel) {
-                                                                return creatComposite((Composite) args[0], (Element) args[1], (EComponentCategory) args[2], (boolean) args[3]);
-                                                            } else { // it is v0 component, so call GenericWizardService original method
+                                                                return creatComposite((Composite) args[0],
+                                                                        (Element) args[1], (EComponentCategory) args[2],
+                                                                        (boolean) args[3]);
+                                                            } else { // it is v0 component, so call GenericWizardService
+                                                                     // original method
                                                                 return method.invoke(service, args);
                                                             }
                                                         }
@@ -135,11 +138,12 @@ public class Lookups {
         /**
          * Substitutes {@link IGenericWizardService#creatDynamicComposite() original method
          */
-        private Composite creatComposite(Composite parent, Element element, EComponentCategory category, boolean isCompactView) {
-            
+        private Composite creatComposite(final Composite parent, final Element element,
+                final EComponentCategory category, final boolean isCompactView) {
+
             return new MissingSettingsMultiThreadDynamicComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS,
                     category, element, isCompactView);
         }
     }
-    
+
 }

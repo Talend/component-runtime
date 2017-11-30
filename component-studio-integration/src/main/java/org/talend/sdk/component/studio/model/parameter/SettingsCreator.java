@@ -28,27 +28,27 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
  * Creates properties from leafs
  */
 public class SettingsCreator implements PropertyVisitor {
-    
+
     private int lastRowNumber = 1;
-    
+
     private final INode iNode;
-    
+
     private List<ElementParameter> settings = new ArrayList<>();
-    
-    public SettingsCreator(INode iNode) {
+
+    public SettingsCreator(final INode iNode) {
         this.iNode = iNode;
     }
-    
+
     /**
      * Creates ElementParameters only for leafs
      */
     @Override
-    public void visit(PropertyNode node) {
+    public void visit(final PropertyNode node) {
         if (node.isLeaf()) {
             createParameter(node);
         }
     }
-    
+
     public List<ElementParameter> getSettings() {
         return Collections.unmodifiableList(settings);
     }
@@ -56,10 +56,10 @@ public class SettingsCreator implements PropertyVisitor {
     /**
      * @param node
      */
-    private void createParameter(PropertyNode node) {
+    private void createParameter(final PropertyNode node) {
         SimplePropertyDefinition definition = node.getProperty();
         ElementParameter parameter = new ElementParameter(iNode);
-        
+
         // Set common state
         // TODO
         parameter.setCategory(EComponentCategory.BASIC);
@@ -71,22 +71,22 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setShow(true);
         parameter.setContextMode(false);
         parameter.setValue("default value will be here");
-        
+
         // Set specific state. TODO refactor if possible
-        switch(parameter.getFieldType()) {
-        case CLOSED_LIST :
+        switch (parameter.getFieldType()) {
+        case CLOSED_LIST:
             setupTableParameter(parameter);
             break;
-        default :
+        default:
             // do nothing
         }
         settings.add(parameter);
     }
-    
-    private void setupTableParameter(ElementParameter parameter) {
-        parameter.setListItemsValue(new String[] {"Item1T", "Item2T", "Item3T"});
-        parameter.setListItemsDisplayName(new String[] {"Item1D", "Item2D", "Item3D"});
-        parameter.setListItemsDisplayCodeName(new String[] {"Item1C", "Item2C", "Item3C"});
+
+    private void setupTableParameter(final ElementParameter parameter) {
+        parameter.setListItemsValue(new String[] { "Item1T", "Item2T", "Item3T" });
+        parameter.setListItemsDisplayName(new String[] { "Item1D", "Item2D", "Item3D" });
+        parameter.setListItemsDisplayCodeName(new String[] { "Item1C", "Item2C", "Item3C" });
         parameter.setListItemsReadOnlyIf(new String[3]);
         parameter.setListItemsNotReadOnlyIf(new String[3]);
         parameter.setListItemsShowIf(new String[3]);
@@ -95,5 +95,5 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setDefaultValue("Another default");
         parameter.setValue("Item1D");
     }
-    
+
 }

@@ -16,7 +16,7 @@
 package org.talend.sdk.component.studio.model.parameter;
 
 public interface PropertyVisitor {
-    
+
     void visit(PropertyNode node);
 
 }

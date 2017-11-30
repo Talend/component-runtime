@@ -22,11 +22,11 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class PropertyTypes {
-    
+
     public static final String BOOLEAN = "BOOLEAN";
-    
+
     public static final String OBJECT = "OBJECT";
-    
+
     public static final String STRING = "STRING";
 
 }

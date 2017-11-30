@@ -42,7 +42,7 @@ import lombok.AllArgsConstructor;
 public class WidgetTypeMapper {
 
     private final SimplePropertyDefinition property;
-    
+
     /**
      * Recognizes {@link EParameterFieldType} for given {@link SimplePropertyDefinition}
      * Implementation note: Most possible types are located first.
@@ -71,35 +71,35 @@ public class WidgetTypeMapper {
         }
         return TEXT;
     }
-    
+
     /**
-     * Checks whether widget type is {@link EParameterFieldType#TEXT} 
+     * Checks whether widget type is {@link EParameterFieldType#TEXT}
      */
     private boolean isText() {
         return STRING.equals(property.getType()) && property.getMetadata().isEmpty();
     }
-    
+
     /**
-     * Checks whether widget type is {@link EParameterFieldType#HIDDEN_TEXT} 
+     * Checks whether widget type is {@link EParameterFieldType#HIDDEN_TEXT}
      */
     private boolean isHiddenText() {
         return STRING.equals(property.getType()) && property.getMetadata().containsKey(UI_CREDENTIAL);
     }
-    
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#CHECK}
      */
     private boolean isCheck() {
         return BOOLEAN.equals(property.getType());
     }
-    
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#CLOSED_LIST}
      */
     private boolean isClosedList() {
         return property.getMetadata().containsKey(ACTION_DYNAMIC_VALUES);
     }
-    
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#OPENED_LIST}
      * TODO
@@ -107,7 +107,7 @@ public class WidgetTypeMapper {
     private boolean isOpenedList() {
         return false;
     }
-    
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#FILE}
      * TODO decide and implement it
@@ -115,7 +115,7 @@ public class WidgetTypeMapper {
     private boolean isFile() {
         return false;
     }
-    
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#MEMO_JAVA}
      */
@@ -125,7 +125,7 @@ public class WidgetTypeMapper {
         }
         return JAVA.equals(property.getMetadata().get(UI_CODE));
     }
-    
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#TABLE}
      * TODO implement it
