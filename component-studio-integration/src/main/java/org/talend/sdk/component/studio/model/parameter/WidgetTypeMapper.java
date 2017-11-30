@@ -23,11 +23,11 @@ import static org.talend.core.model.process.EParameterFieldType.MEMO_JAVA;
 import static org.talend.core.model.process.EParameterFieldType.OPENED_LIST;
 import static org.talend.core.model.process.EParameterFieldType.TABLE;
 import static org.talend.core.model.process.EParameterFieldType.TEXT;
-import static org.talend.sdk.component.studio.model.parameter.Metadatas.ACTION_DYNAMIC_VALUES;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.JAVA;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CODE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CREDENTIAL;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.BOOLEAN;
+import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.ENUM;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.STRING;
 
 import org.talend.core.model.process.EParameterFieldType;
@@ -97,7 +97,7 @@ public class WidgetTypeMapper {
      * Checks whether widget type is {@link EParameterFieldType#CLOSED_LIST}
      */
     private boolean isClosedList() {
-        return property.getMetadata().containsKey(ACTION_DYNAMIC_VALUES);
+        return ENUM.equals(property.getType());
     }
 
     /**
