@@ -189,6 +189,10 @@ public class ProcessManager implements AutoCloseable {
                 .stream()
                 .filter(n -> n.startsWith("talend.component.server."))
                 .forEach(key -> command.add("-D" + key + "=" + System.getProperty(key, "")));
+        if (command.stream().noneMatch(c -> c.startsWith("-Dtalend.component.server.mode="))) {
+            command.add("-Dtalend.component.server.mode=dev"); // dev mode since it logs more and can help investigating
+                                                               // issues
+        }
 
         command.add("-classpath");
         command.add(paths.stream().collect(Collectors.joining(File.pathSeparator)));

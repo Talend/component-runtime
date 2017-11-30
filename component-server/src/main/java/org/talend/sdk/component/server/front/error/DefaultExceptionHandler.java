@@ -17,26 +17,51 @@ package org.talend.sdk.component.server.front.error;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
+import java.util.logging.Level;
+
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 
+import lombok.extern.java.Log;
+
+@Log
 @Dependent
 @Provider
 public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
 
+    @Inject
+    private ComponentServerConfiguration configuration;
+
+    private boolean debug;
+
+    private boolean replaceException;
+
+    @PostConstruct
+    private void init() {
+        debug = "dev".equalsIgnoreCase(configuration.mode());
+        replaceException = !"false".equalsIgnoreCase(configuration.defaultExceptionMessage());
+    }
+
     @Override
     public Response toResponse(final Throwable exception) {
+        if (debug) {
+            log.log(Level.SEVERE, exception.getMessage(), exception);
+        }
         if (WebApplicationException.class.isInstance(exception)) {
             return WebApplicationException.class.cast(exception).getResponse();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, exception.getMessage()))
+                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
+                        replaceException ? configuration.defaultExceptionMessage() : exception.getMessage()))
                 .type(APPLICATION_JSON_TYPE).build();
     }
 }
