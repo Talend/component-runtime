@@ -16,8 +16,6 @@
 package org.talend.sdk.component.studio.model.parameter;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import org.talend.core.CorePlugin;
@@ -34,7 +32,6 @@ import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.components.EmfComponent;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
-import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.ComponentModel;
 
 /**
@@ -61,92 +58,6 @@ public class ElementParameterCreator {
         this.node = node;
     }
 
-    /**
-     * Creates tree representation of {@link SimplePropertyDefinition} .
-     * Not all definitions represent Component property, which may store User setting.
-     * Some of them are holders for other definitions (like Forms in v0 or Properties)
-     * ElementParameters should be created only for leaf nodes in this tree
-     * Internal nodes store useful metadata information like ordering
-     * 
-     * @param properties a collections of {@link SimplePropertyDefinition} retrieved from {@link ComponentModel}
-     * @return root node of created tree
-     */
-    public PropertyNode createPropertyTree(Collection<SimplePropertyDefinition> properties) {
-        PropertyNode root = null;
-        HashMap<String, PropertyNode> nodes = new HashMap<>();
-        
-        for (SimplePropertyDefinition definition : properties) {
-            String id = definition.getPath();
-            PropertyNode current = nodes.computeIfAbsent(id, key -> new PropertyNode());
-            current.setProperty(definition);
-            
-            if (current.isRoot()) {
-                root = current;
-            } else {
-                String parentId = current.getParentId();
-                PropertyNode parent = nodes.computeIfAbsent(parentId, key -> new PropertyNode());
-                parent.addChild(current);
-            }
-        }
-        return root;
-    }
-    
-    /**
-     * Sorts siblings according that how ther should be shown on UI
-     */
-    public void sortPropertyRoot(PropertyNode root) {
-        root.accept(new PropertyVisitor() {
-            
-            /**
-             * OptionsOrder annotation metadata key
-             */
-            private static final String OPTIONS_ORDER = "ui::optionsorder::value";
-            
-            private static final String ORDER_SEPARATOR = ",";
-
-            @Override
-            public void visit(PropertyNode node) {
-                SimplePropertyDefinition property = node.getProperty();
-                String optionsOrder = property.getMetadata().get(OPTIONS_ORDER);
-                if (optionsOrder != null) {
-                    optionsOrderSort(node, optionsOrder);
-                }
-                // TODO implement sorting according GridLayout
-            }
-            
-            /**
-             * Sorts node children according order specified in OptionsOrder or GridLayout
-             * 
-             * @param node current node
-             * @param optionsOrder metadata value for ui::optionsorder
-             */
-            private void optionsOrderSort(PropertyNode node, String optionsOrder) {
-                HashMap<String, Integer> order = getOrder(optionsOrder);
-                
-                node.getChildren().sort((node1, node2) -> {
-                    Integer i1 = order.get(node1.getProperty().getName());
-                    Integer i2 = order.get(node2.getProperty().getName());
-                    return i1.compareTo(i2);
-                });
-            }
-            
-            /**
-             * Computes order for comparator
-             * 
-             * @param optionsOrder metadata value for ui::optionsorder
-             * @return order
-             */
-            private HashMap<String, Integer> getOrder(String optionsOrder) {
-                String[] values = optionsOrder.split(ORDER_SEPARATOR); 
-                HashMap<String, Integer> order = new HashMap<>();
-                for (int i=0; i<values.length; i++) {
-                    order.put(values[i], i);
-                }
-                return order;
-            }
-        });
-    }
-
     public List<? extends IElementParameter> createParameters() {
         addMainParameters();
         addComponentParameters();
@@ -155,8 +66,8 @@ public class ElementParameterCreator {
     
     private void addComponentParameters() {
         if (!detail.getProperties().isEmpty()) {
-            PropertyNode root = createPropertyTree(detail.getProperties());
-            sortPropertyRoot(root);
+            PropertyNode root = PropertyNodeUtils.createPropertyTree(detail.getProperties());
+            PropertyNodeUtils.sortPropertyTree(root);
             SettingsCreator settingsCreator = new SettingsCreator(node);
             root.accept(settingsCreator);
             parameters.addAll(settingsCreator.getSettings());
