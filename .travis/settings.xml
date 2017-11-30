@@ -24,6 +24,11 @@
       <username>${env.TLND_JIRA_USER}</username>
       <password>${env.TLND_JIRA_PASS}</password>
     </server>
+    <server>
+      <id>blackduck</id>
+      <username>${env.TLND_BLACKDUCK_USER}</username>
+      <password>${env.TLND_BLACKDUCK_PASS}</password>
+    </server>
   </servers>
 
   <profiles>

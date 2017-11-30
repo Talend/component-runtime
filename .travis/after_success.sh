@@ -10,7 +10,7 @@ fi
 
 OPTS="--batch-mode --settings $PWD/.travis/settings.xml "
 
-mvn clean deploy -DskipTests -Dinvoker.skip=true -Possrh -Prelease $OPTS
+mvn clean deploy verify -DskipTests -Dinvoker.skip=true -Possrh -Prelease $OPTS
 
 cd documentation
     mvn -Dgithub.site.profile=latest clean package pre-site -Pgh-pages $OPTS

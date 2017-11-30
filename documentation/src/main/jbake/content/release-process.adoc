@@ -49,6 +49,11 @@ for the release. Here is the overall template:
       <username>${env.TLND_JIRA_USER}</username>
       <password>${env.TLND_JIRA_PASS}</password>
     </server>
+    <server>
+      <id>blackduck</id>
+      <username>${env.TLND_BLACKDUCK_USER}</username>
+      <password>${env.TLND_BLACKDUCK_PASS}</password>
+    </server>
   </servers>
 
   <profiles>
@@ -78,7 +83,8 @@ to use maven encryption: https://maven.apache.org/guides/mini/guide-encryption.h
 If you don't have it already you can ask for one at https://issues.sonatype.org/projects/OSSRH using your talend address.
 2. The GITHUB variables are your Github account credentials. It is mainly used to update the documentation.
 3. The JIRA variables are your Talend account credentials with read permissions on https://jira.talendforge.org/projects/TCOMP/.
-4. The GPG variables reference the key you created in previous part.
+4. The Blackduck configuration is used for security scans.
+5. The GPG variables reference the key you created in previous part.
 
 == Clean up JIRA
 

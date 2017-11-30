@@ -23,6 +23,7 @@
   <packaging>pom</packaging>
   <version>1.0.0-SNAPSHOT</version>
   <name>Component Runtime</name>
+  <description>Talend Component Kit Runtime</description>
 
   <modules>
     <module>container</module>
@@ -120,10 +121,11 @@
     <talend-icon.version>0.127.0</talend-icon.version>
     <component-api.version>1.0.0-SNAPSHOT</component-api.version>
 
-    <groovy.version>2.6.0-alpha-2</groovy.version>
+    <groovy.version>3.0.0-alpha-1</groovy.version>
     <gmavenplus.version>1.6</gmavenplus.version>
     <dependency-plugin.version>3.0.2</dependency-plugin.version>
     <javadoc-plugin.version>3.0.0-M1</javadoc-plugin.version>
+    <download-plugin.version>1.2.1</download-plugin.version>
 
     <node.version>v8.4.0</node.version>
     <yarn.version>v0.28.4</yarn.version>
@@ -180,6 +182,25 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.talend.tools</groupId>
+        <artifactId>talend-tools-maven-plugin</artifactId>
+        <version>1.0.0</version>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+            <id>hub-detect</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>hub-detect</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <blackduckUrl>https://blackduck.talend.com</blackduckUrl>
+          <blackduckName>Talend Component (TCOMP)</blackduckName>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
         <version>${gmavenplus.version}</version>
@@ -200,6 +221,7 @@
                   def formatter = new File(base, 'formatter.xml').toURI().toURL().toExternalForm()
                   log.info("Setting formatter url to: ${formatter}")
                   project.properties.setProperty('componentFormatter', formatter)
+                  project.properties.setProperty('projectRoot', formatter.parentFile.absolutePath)
                 </script>
               </scripts>
             </configuration>
@@ -567,4 +589,51 @@
     <developerConnection>scm:git:https://github.com/Talend/component-runtime.git</developerConnection>
     <url>https://github.com/Talend/component-runtime</url>
   </scm>
+
+  <developers>
+    <developer>
+      <name>Romain Manni-Bucau</name>
+      <id>rmannibucau</id>
+      <email>rmannibucau@talend.com</email>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <name>Anas Khabali</name>
+      <id>akhabali</id>
+      <email>akhabali@talend.com</email>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <name>Dmytro Chmyga</name>
+      <id>rmannibucau</id>
+      <email>dchmyga@talend.com</email>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
+      <timezone>+2</timezone>
+    </developer>
+    <developer>
+      <name>Ivan Honchar</name>
+      <id>rmannibucau</id>
+      <email>igonchar@talend.com</email>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
+      <timezone>+2</timezone>
+    </developer>
+  </developers>
 </project>
