@@ -15,7 +15,13 @@
  */
 package org.talend.sdk.component.runtime.manager.validator;
 
-import lombok.Data;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import java.io.File;
 import java.io.Serializable;
@@ -43,6 +49,7 @@ import org.apache.xbean.finder.archive.FileArchive;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.input.Emitter;
@@ -58,13 +65,7 @@ import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 
-import static java.util.Optional.of;
-import static java.util.Optional.ofNullable;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import lombok.Data;
 
 // IMPORTANT: this class is used by reflection in gradle integration, don't break signatures without checking it
 public class ComponentValidator implements Runnable {
@@ -92,30 +93,30 @@ public class ComponentValidator implements Runnable {
                 componentMarkers().flatMap(a -> finder.findAnnotatedClasses(a).stream()).collect(toList());
         components.forEach(c -> log.debug("Found component: " + c));
 
+        final Set<String> errors = new HashSet<>();
+
         if (configuration.isValidateFamily()) {
             // todo: better fix is to get the package with @Components then check it has an icon
             // but it should be enough for now
-            components.forEach(c -> findPackageOrFail(c, Icon.class));
+            components.forEach(c -> {
+                try {
+                    findPackageOrFail(c, Icon.class);
+                } catch (final IllegalArgumentException iae) {
+                    errors.add(iae.getMessage());
+                }
+            });
         }
 
         if (configuration.isValidateSerializable()) {
             final Collection<Class<?>> copy = new ArrayList<>(components);
             copy.removeIf(this::isSerializable);
-            if (!copy.isEmpty()) {
-                copy.forEach(c -> log.error(c + " is not Serializable"));
-                throw new IllegalStateException("All components must be serializable for BEAM execution support");
-
-            }
+            errors.addAll(copy.stream().map(c -> c + " is not Serializable").collect(toList()));
         }
 
         if (configuration.isValidateInternationalization()) {
-            final List<String> errors =
+            errors.addAll(
                     components.stream().map(this::validateComponentResourceBundle).filter(Objects::nonNull).collect(
-                            toList());
-            if (!errors.isEmpty()) {
-                errors.forEach(log::error);
-                throw new IllegalStateException("Some component internationalization is not complete");
-            }
+                            toList()));
 
             for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
                 final ResourceBundle resourceBundle = findResourceBundle(i);
@@ -125,64 +126,52 @@ public class ComponentValidator implements Runnable {
                             .filter(m -> m.getDeclaringClass() != Object.class)
                             .map(m -> i.getName() + "." + m.getName())
                             .collect(toSet());
-                    final Collection<String> missingKeys =
-                            keys.stream().filter(k -> !resourceBundle.containsKey(k)).collect(toList());
-                    if (!missingKeys.isEmpty()) {
-                        missingKeys.forEach(k -> log.error("Missing key " + k + " in " + i + " resource bundle"));
-                        throw new IllegalStateException(i + " is missing some internalization messages");
-                    }
+                    errors.addAll(keys
+                            .stream()
+                            .filter(k -> !resourceBundle.containsKey(k))
+                            .map(k -> "Missing key " + k + " in " + i + " resource bundle")
+                            .collect(toList()));
 
-                    final List<String> outdatedKeys = resourceBundle
+                    errors.addAll(resourceBundle
                             .keySet()
                             .stream()
                             .filter(k -> k.startsWith(i.getName() + ".") && !keys.contains(k))
-                            .collect(toList());
-                    if (!outdatedKeys.isEmpty()) {
-                        outdatedKeys.forEach(k -> log.error("Key " + k + " from " + i + " is no more used"));
-                        throw new IllegalStateException(i + " has some deleted keys in its resource bundle");
-                    }
+                            .map(k -> "Key " + k + " from " + i + " is no more used")
+                            .collect(toList()));
                 } else {
-                    log.error("No resource bundle for " + i);
-                    throw new IllegalStateException("Missing resource bundle for " + i);
+                    errors.add("No resource bundle for " + i);
                 }
             }
         }
 
         if (configuration.isValidateModel()) {
-            final List<Class<?>> ambiguousComponents = components
+            errors.addAll(components
                     .stream()
                     .filter(c -> componentMarkers().filter(c::isAnnotationPresent).count() > 1)
-                    .collect(toList());
-            if (!ambiguousComponents.isEmpty()) {
-                ambiguousComponents.forEach(
-                        i -> log.error(i + " has conflicting component annotations, ensure it has a single one"));
-                throw new IllegalStateException("Ambiguous components are present: " + ambiguousComponents);
-            }
+                    .map(i -> i + " has conflicting component annotations, ensure it has a single one")
+                    .collect(toList()));
 
             final ModelVisitor modelVisitor = new ModelVisitor();
             final ModelListener noop = new ModelListener() {
 
             };
-            final List<String> errors = components.stream().map(c -> {
+            errors.addAll(components.stream().map(c -> {
                 try {
                     modelVisitor.visit(c, noop, configuration.isValidateComponent());
                     return null;
                 } catch (final RuntimeException re) {
                     return re.getMessage();
                 }
-            }).filter(Objects::nonNull).collect(toList());
-            if (!errors.isEmpty()) {
-                errors.forEach(log::error);
-                throw new IllegalStateException("Some model error were detected");
-            }
+            }).filter(Objects::nonNull).collect(toList()));
         }
 
         if (configuration.isValidateMetadata()) {
-            components.forEach(component -> {
+            errors.addAll(components.stream().map(component -> {
                 if (!component.isAnnotationPresent(Version.class) || !component.isAnnotationPresent(Icon.class)) {
-                    throw new IllegalArgumentException("Component " + component + " should use @Icon and @Version");
+                    return "Component " + component + " should use @Icon and @Version";
                 }
-            });
+                return null;
+            }).filter(Objects::nonNull).collect(toList()));
         }
 
         if (configuration.isValidateDataStore()) {
@@ -194,7 +183,7 @@ public class ComponentValidator implements Runnable {
 
             Set<String> uniqueDatastores = new HashSet<>(datastores);
             if (datastores.size() != uniqueDatastores.size()) {
-                throw new IllegalStateException("Duplicated DataStore found : " + datastores
+                errors.add("Duplicated DataStore found : " + datastores
                         .stream()
                         .collect(groupingBy(identity()))
                         .entrySet()
@@ -212,7 +201,7 @@ public class ComponentValidator implements Runnable {
             if (!healthchecks.containsAll(datastores)) {
                 final Set<String> missing = new HashSet<>(datastores);
                 datastores.removeAll(healthchecks);
-                throw new IllegalStateException("No @HealthCheck for " + missing + " datastores");
+                errors.add("No @HealthCheck for " + missing + " datastores");
             }
 
         }
@@ -223,9 +212,9 @@ public class ComponentValidator implements Runnable {
                     .stream()
                     .map(d -> d.getAnnotation(DataSet.class).value())
                     .collect(toList());
-            Set<String> uniqueDatasets = new HashSet<>(datasets);
+            final Set<String> uniqueDatasets = new HashSet<>(datasets);
             if (datasets.size() != uniqueDatasets.size()) {
-                throw new IllegalStateException("Duplicated DataSet found : " + datasets
+                errors.add("Duplicated DataSet found : " + datasets
                         .stream()
                         .collect(groupingBy(identity()))
                         .entrySet()
@@ -237,8 +226,6 @@ public class ComponentValidator implements Runnable {
         }
 
         if (configuration.isValidateActions()) {
-            final Set<String> errors = new HashSet<>();
-
             // returned types
             errors.addAll(Stream
                     .of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class)
@@ -280,9 +267,36 @@ public class ComponentValidator implements Runnable {
                     .map(m -> m + " should have its first parameter being a dataset (marked with @Config)")
                     .collect(toSet()));
 
-            if (!errors.isEmpty()) {
-                throw new IllegalStateException(errors.stream().collect(joining("\n- ", "\n- ", "")));
-            }
+            errors.addAll(finder
+                    .findAnnotatedFields(Proposable.class)
+                    .stream()
+                    .filter(f -> f.getType().isEnum())
+                    .map(f -> f.toString() + " must not define @Proposable since it is an enum")
+                    .collect(toList()));
+
+            final Set<String> proposables = finder
+                    .findAnnotatedFields(Proposable.class)
+                    .stream()
+                    .map(f -> f.getAnnotation(Proposable.class).value())
+                    .collect(toSet());
+            final Set<String> dynamicValues = finder
+                    .findAnnotatedFields(DynamicValues.class)
+                    .stream()
+                    .map(f -> f.getAnnotation(DynamicValues.class).value())
+                    .collect(toSet());
+            proposables.removeAll(dynamicValues);
+            errors.addAll(proposables
+                    .stream()
+                    .map(p -> "No @DynamicValues(\"" + p + "\"), add a service with this method: " + "@DynamicValues(\""
+                            + p + "\") Values proposals();")
+                    .collect(toList()));
+
+        }
+
+        if (!errors.isEmpty()) {
+            errors.forEach(log::error);
+            throw new IllegalStateException(
+                    "Some error were detected:" + errors.stream().collect(joining("\n- ", "\n- ", "")));
         }
     }
 
@@ -308,7 +322,7 @@ public class ComponentValidator implements Runnable {
                 Stream.of("_displayName").map(n -> prefix + "." + n).filter(k -> !bundle.containsKey(k)).collect(
                         toList());
         if (!missingKeys.isEmpty()) {
-            return baseName + " is missing the keys:" + missingKeys.stream().collect(joining("\n"));
+            return baseName + " is missing the key(s): " + missingKeys.stream().collect(joining("\n"));
         }
         return null;
     }
