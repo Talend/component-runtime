@@ -92,7 +92,7 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
 
     protected static INodeConnector createConnector(final EConnectionType type, final String name, final INode node) {
         final NodeConnector connector = new NodeConnector(node);
-        connector.setName(name);
+        connector.setName(type.getName());
         connector.setBaseSchema(name);
         connector.setDefaultConnectionType(type);
         connector.setLinkName(type.getDefaultLinkName());
