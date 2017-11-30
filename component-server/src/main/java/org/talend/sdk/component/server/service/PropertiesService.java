@@ -44,8 +44,11 @@ public class PropertiesService {
             final String path = sanitizePropertyName(p.getPath());
             final String name = sanitizePropertyName(p.getName());
             final String type = p.getType().name();
-            final PropertyValidation validation = propertyValidationService.map(p.getMetadata());
+            PropertyValidation validation = propertyValidationService.map(p.getMetadata());
             if (p.getType() == ParameterMeta.Type.ENUM) {
+                if (validation == null) {
+                    validation = new PropertyValidation();
+                }
                 validation.setEnumValues(p.getProposals());
             }
             final Map<String, String> metadata = ofNullable(p.getMetadata()).map(m -> m.entrySet().stream()
