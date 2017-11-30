@@ -218,10 +218,11 @@
                   while (!new File(base, 'formatter.xml').exists()) {
                     base = base.parentFile
                   }
-                  def formatter = new File(base, 'formatter.xml').toURI().toURL().toExternalForm()
+                  def formatterFile = new File(base, 'formatter.xml')
+                  def formatter = formatterFile.toURI().toURL().toExternalForm()
                   log.info("Setting formatter url to: ${formatter}")
                   project.properties.setProperty('componentFormatter', formatter)
-                  project.properties.setProperty('projectRoot', formatter.parentFile.absolutePath)
+                  project.properties.setProperty('projectRoot', formatterFile.parentFile.absolutePath)
                 </script>
               </scripts>
             </configuration>
