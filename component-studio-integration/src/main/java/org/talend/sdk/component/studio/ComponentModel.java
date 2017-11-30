@@ -40,11 +40,16 @@ import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.NodeReturn;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
-import org.talend.sdk.component.studio.model.ElementParameterCreator;
 import org.talend.sdk.component.studio.model.connector.ConnectorCreatorFactory;
+import org.talend.sdk.component.studio.model.parameter.ElementParameterCreator;
 
 // TODO: finish the impl
 public class ComponentModel extends AbstractBasicComponent {
+
+    /**
+     * Separator between family and component name
+     */
+    private static final String COMPONENT_SEPARATOR = "/";
 
     private final ComponentIndex index;
 
@@ -118,7 +123,7 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     @Override
     public String getName() {
-        return index.getId().getName();
+        return index.getId().getFamily() + COMPONENT_SEPARATOR + index.getId().getName();
     }
 
     /**
@@ -198,11 +203,24 @@ public class ComponentModel extends AbstractBasicComponent {
     }
 
     /**
+     * Returns Component configuration version
+     * When Configuration is changed its version should be incremented and corresponding MigrationHandler implemented to
+     * migrate from
+     * older versions to newer during deserialization
+     */
+    @Override
+    public String getVersion() {
+        return Integer.toString(detail.getVersion());
+    }
+
+    /**
      * Creates component parameters aka Properties/Configuration
      */
     @Override // TODO This is dummy implementation. Correct impl should be added soon
     public List<? extends IElementParameter> createElementParameters(final INode node) {
-        return new ElementParameterCreator(this, node).createParameters();
+        ElementParameterCreator creator = new ElementParameterCreator(this, detail, node);
+        List<IElementParameter> parameters = (List<IElementParameter>) creator.createParameters();
+        return parameters;
     }
 
     /**

@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.studio.model;
+package org.talend.sdk.component.studio.model.parameter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.talend.core.CorePlugin;
@@ -32,6 +31,7 @@ import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.components.EmfComponent;
+import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.studio.ComponentModel;
 
 /**
@@ -48,40 +48,99 @@ public class ElementParameterCreator {
 
     private final ComponentModel component;
 
+    private final ComponentDetail detail;
+
     private final List<ElementParameter> parameters = new ArrayList<>();
 
-    public ElementParameterCreator(final ComponentModel component, final INode node) {
-        this.node = node;
+    public ElementParameterCreator(final ComponentModel component, final ComponentDetail detail, final INode node) {
         this.component = component;
+        this.detail = detail;
+        this.node = node;
     }
 
     public List<? extends IElementParameter> createParameters() {
         addMainParameters();
-        return Collections.unmodifiableList(parameters);
+        addComponentParameters();
+        return parameters;
+    }
+
+    private void addComponentParameters() {
+        if (!detail.getProperties().isEmpty()) {
+            PropertyNode root = PropertyNodeUtils.createPropertyTree(detail.getProperties());
+            PropertyNodeUtils.sortPropertyTree(root);
+            SettingsCreator settingsCreator = new SettingsCreator(node);
+            root.accept(settingsCreator);
+            parameters.addAll(settingsCreator.getSettings());
+        }
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#UNIQUE_NAME} parameter
+     * This parameter stores unique id of component instance in current job/process
+     * It's value is like following "tJiraInput_1", "tJiraInput_2"
+     * Value is computed later and can't be computed here as {@link ComponentModel}
+     * doesn't now how many component instances were created before
+     */
+    private void addUniqueNameParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.UNIQUE_NAME.getName());
+        parameter.setValue("");
+        parameter.setDisplayName(EParameterName.UNIQUE_NAME.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.TEXT);
+        // TODO maybe change category to TECHICAL?
+        parameter.setCategory(EComponentCategory.ADVANCED);
+        parameter.setNumRow(1);
+        parameter.setReadOnly(true);
+        parameter.setShow(false);
+        parameters.add(parameter);
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#COMPONENT_NAME} parameter
+     * TODO it is not clear where it is used for the moment
+     */
+    private void addComponentNameParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.COMPONENT_NAME.getName());
+        parameter.setValue(component.getName());
+        parameter.setDisplayName(EParameterName.COMPONENT_NAME.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.TEXT);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setNumRow(1);
+        parameter.setReadOnly(true);
+        parameter.setShow(false);
+        parameters.add(parameter);
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#VERSION} parameter
+     * Its value is component version. More specifically it is a version of component configuration.
+     * It is used for migration to check whether serialized configuration
+     * has the same version as component in Studio. If version is smaller than component in Studio,
+     * migration is launched.
+     * TODO Probably it is not required, so it should be removed
+     */
+    private void addVersionParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.VERSION.getName());
+        parameter.setValue(String.valueOf(detail.getVersion()));
+        parameter.setDisplayName(EParameterName.VERSION.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.TEXT);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setNumRow(1);
+        parameter.setReadOnly(true);
+        parameter.setShow(false);
+        parameters.add(parameter);
     }
 
     private void addMainParameters() {
+
+        addUniqueNameParameter();
+        addComponentNameParameter();
+        addVersionParameter();
+
+        // TODO create separate methods for other properties for better readability
         ElementParameter param;
-        param = new ElementParameter(node);
-        param.setName(EParameterName.UNIQUE_NAME.getName());
-        param.setValue(""); //$NON-NLS-1$
-        param.setDisplayName(EParameterName.UNIQUE_NAME.getDisplayName());
-        param.setFieldType(EParameterFieldType.TEXT);
-        param.setCategory(EComponentCategory.ADVANCED);
-        param.setNumRow(1);
-        param.setReadOnly(true);
-        param.setShow(false);
-        parameters.add(param);
-        param = new ElementParameter(node);
-        param.setName(EParameterName.COMPONENT_NAME.getName());
-        param.setValue(component.getName());
-        param.setDisplayName(EParameterName.COMPONENT_NAME.getDisplayName());
-        param.setFieldType(EParameterFieldType.TEXT);
-        param.setCategory(EComponentCategory.TECHNICAL);
-        param.setNumRow(1);
-        param.setReadOnly(true);
-        param.setShow(false);
-        parameters.add(param);
         param = new ElementParameter(node);
         param.setName(EParameterName.FAMILY.getName());
         param.setValue(component.getOriginalFamilyName());
@@ -303,4 +362,5 @@ public class ElementParameterCreator {
             parameters.add(param);
         }
     }
+
 }
