@@ -22,15 +22,22 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class Metadatas {
-    
+
     public static final String ACTION_DYNAMIC_VALUES = "action::dynamic_values";
-    
+
     public static final String UI_CODE = "ui::code::value";
 
     public static final String UI_CREDENTIAL = "ui::credential";
-    
+
+    public static final String UI_OPTIONS_ORDER = "ui::optionsorder::value";
+
     public static final String UI_TEXTAREA = "ui::textarea";
-    
-    //Supported Code languages
+
+    /**
+     * Value separator for {@link #UI_OPTIONS_ORDER}
+     */
+    public static final String ORDER_SEPARATOR = ",";
+
+    // Supported Code languages
     public static final String JAVA = "Java";
 }
