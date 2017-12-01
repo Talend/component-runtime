@@ -29,4 +29,6 @@ public final class PropertyTypes {
 
     public static final String STRING = "STRING";
 
+    public static final String ENUM = "ENUM";
+
 }

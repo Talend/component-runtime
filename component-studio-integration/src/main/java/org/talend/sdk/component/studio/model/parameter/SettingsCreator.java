@@ -16,37 +16,40 @@
 package org.talend.sdk.component.studio.model.parameter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.INode;
 import org.talend.designer.core.model.components.ElementParameter;
-import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+import org.talend.sdk.component.server.front.model.PropertyValidation;
 
 /**
  * Creates properties from leafs
  */
 public class SettingsCreator implements PropertyVisitor {
 
+    /**
+     * {@link ElementParameter} has numRow field which stores widget relative position (row number on which it
+     * appears)
+     * If numRow = 10, this does not necessarily mean that widget will be shown on 10th line,
+     * but when 1 parameter has numRow = 8, and 2 has numRow = 10, then 2 will shown under 1
+     */
     private int lastRowNumber = 1;
 
+    /**
+     * Node for which parameters are created. It is required to set {@link ElementParameter} constructor
+     */
     private final INode iNode;
 
+    /**
+     * Stores configuration parameters for {@link INode}
+     */
     private List<ElementParameter> settings = new ArrayList<>();
 
     public SettingsCreator(final INode iNode) {
         this.iNode = iNode;
-    }
-
-    /**
-     * Creates ElementParameters only for leafs
-     */
-    @Override
-    public void visit(final PropertyNode node) {
-        if (node.isLeaf()) {
-            createParameter(node);
-        }
     }
 
     public List<ElementParameter> getSettings() {
@@ -54,46 +57,111 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     /**
-     * @param node
+     * Creates ElementParameters only from leafs
+     * 
      */
-    private void createParameter(final PropertyNode node) {
-        SimplePropertyDefinition definition = node.getProperty();
-        ElementParameter parameter = new ElementParameter(iNode);
+    @Override
+    public void visit(final PropertyNode node) {
+        if (node.isLeaf()) {
+            switch (node.getFieldType()) {
+            case CHECK:
+                visitCheck(node);
+                break;
+            case CLOSED_LIST:
+                visitClosedList(node);
+                break;
+            case MEMO_JAVA:
+                visitMemoJava(node);
+                break;
+            case HIDDEN_TEXT:
+            case TEXT:
+                visitText(node);
+                break;
+            default:
+                visitDefault(node);
+            }
+            createParameter(node);
+        }
+    }
 
-        // Set common state
-        // TODO
-        parameter.setCategory(EComponentCategory.BASIC);
-        parameter.setCurrentRow(0);
-        parameter.setDisplayName(definition.getDisplayName());
-        parameter.setFieldType(node.getFieldType());
-        parameter.setName(definition.getPath());
-        parameter.setNumRow(lastRowNumber++);
-        parameter.setShow(true);
-        parameter.setContextMode(false);
-        parameter.setValue("default value will be here");
+    /**
+     * Creates {@link ElementParameter} for Check field type and adds it to settings
+     * Sets false as default value
+     */
+    private void visitCheck(final PropertyNode node) {
+        ElementParameter parameter = createParameter(node);
+        parameter.setValue(false);
+        settings.add(parameter);
+    }
 
-        // Set specific state. TODO refactor if possible
-        switch (parameter.getFieldType()) {
-        case CLOSED_LIST:
-            setupTableParameter(parameter);
-            break;
-        default:
-            // do nothing
+    /**
+     * Creates {@link ElementParameter} for Closed List field type and adds it to settings
+     * Sets Closed List possible values and sets 1st element as default
+     */
+    private void visitClosedList(final PropertyNode node) {
+        ElementParameter parameter = createParameter(node);
+        PropertyValidation validation = node.getProperty().getValidation();
+        if (validation == null) {
+            throw new IllegalArgumentException("validation should not be null");
+        }
+        Collection<String> possibleValues = validation.getEnumValues();
+        if (possibleValues == null) {
+            throw new IllegalArgumentException("validation enum values should not be null");
+        }
+        parameter.setListItemsValue(possibleValues.toArray());
+        parameter.setListItemsDisplayName(possibleValues.toArray(new String[0]));
+        parameter.setListItemsDisplayCodeName(possibleValues.toArray(new String[0]));
+        parameter.setListItemsReadOnlyIf(new String[possibleValues.size()]);
+        parameter.setListItemsNotReadOnlyIf(new String[possibleValues.size()]);
+        parameter.setListItemsShowIf(new String[possibleValues.size()]);
+        parameter.setListItemsNotShowIf(new String[possibleValues.size()]);
+        if (!possibleValues.isEmpty()) {
+            parameter.setValue(possibleValues.iterator().next());
         }
         settings.add(parameter);
     }
 
-    private void setupTableParameter(final ElementParameter parameter) {
-        parameter.setListItemsValue(new String[] { "Item1T", "Item2T", "Item3T" });
-        parameter.setListItemsDisplayName(new String[] { "Item1D", "Item2D", "Item3D" });
-        parameter.setListItemsDisplayCodeName(new String[] { "Item1C", "Item2C", "Item3C" });
-        parameter.setListItemsReadOnlyIf(new String[3]);
-        parameter.setListItemsNotReadOnlyIf(new String[3]);
-        parameter.setListItemsShowIf(new String[3]);
-        parameter.setListItemsNotShowIf(new String[3]);
-        parameter.setDefaultClosedListValue("Item1T");
-        parameter.setDefaultValue("Another default");
-        parameter.setValue("Item1D");
+    /**
+     * Creates {@link ElementParameter} for MemoJava field type and adds it to settings
+     * Sets default value
+     */
+    private void visitMemoJava(final PropertyNode node) {
+        ElementParameter parameter = createParameter(node);
+        parameter.setValue("String foo = \"bar\";");
+        settings.add(parameter);
+    }
+
+    /**
+     * Creates {@link ElementParameter} for Text field type and adds it to settings
+     * Sets "" as default value
+     */
+    private void visitText(final PropertyNode node) {
+        ElementParameter parameter = createParameter(node);
+        parameter.setValue("");
+        settings.add(parameter);
+    }
+
+    /**
+     * Creates {@link ElementParameter} for default parameter type and adds it to settings
+     */
+    private void visitDefault(final PropertyNode node) {
+        settings.add(createParameter(node));
+    }
+
+    /**
+     * Creates {@link ElementParameter} and sets common state for different types of parameters
+     */
+    private ElementParameter createParameter(final PropertyNode node) {
+        ElementParameter parameter = new ElementParameter(iNode);
+        // TODO implement category computing
+        parameter.setCategory(EComponentCategory.BASIC);
+        parameter.setDisplayName(node.getProperty().getDisplayName());
+        parameter.setFieldType(node.getFieldType());
+        parameter.setName(node.getProperty().getPath());
+        parameter.setNumRow(lastRowNumber++);
+        parameter.setShow(true);
+        parameter.setValue("This is default value");
+        return parameter;
     }
 
 }
