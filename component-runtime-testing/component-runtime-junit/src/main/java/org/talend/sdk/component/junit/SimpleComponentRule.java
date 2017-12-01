@@ -15,11 +15,41 @@
  */
 package org.talend.sdk.component.junit;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static java.lang.Math.abs;
+import static java.util.Collections.emptyMap;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
+import static org.apache.ziplock.JarLocation.jarLocation;
+import static org.junit.Assert.fail;
+import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.talend.sdk.component.junit.lang.StreamDecorator;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -29,26 +59,8 @@ import org.talend.sdk.component.runtime.manager.chain.ExecutionChainBuilder;
 import org.talend.sdk.component.runtime.manager.chain.ToleratingErrorHandler;
 import org.talend.sdk.component.runtime.output.Processor;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import static java.util.Collections.emptyMap;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.stream.Collectors.toList;
-import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -111,6 +123,10 @@ public class SimpleComponentRule implements TestRule {
         return outputs;
     }
 
+    public <T> Stream<T> collect(final Class<T> recordType, final Mapper mapper, final int maxRecords) {
+        return collect(recordType, mapper, maxRecords, Runtime.getRuntime().availableProcessors());
+    }
+
     /**
      * Collects data emitted from this mapper. If the split creates more than one
      * mapper, it will create as much threads as mappers otherwise it will use the
@@ -126,61 +142,117 @@ public class SimpleComponentRule implements TestRule {
      * @param maxRecords
      * maximum number of records, allows to stop the source when
      * infinite.
+     * @param concurrency
+     * requested (1 can be used instead if <= 0) concurrency for the reader execution.
      * @param <T>
      * the returned type of the records of the mapper.
      * @return all the records emitted by the mapper.
      */
-    public <T> Stream<T> collect(final Class<T> recordType, final Mapper mapper, final int maxRecords) {
+    public <T> Stream<T> collect(final Class<T> recordType, final Mapper mapper, final int maxRecords,
+            final int concurrency) {
         mapper.start();
 
         final long assess = mapper.assess();
-        final int proc = Math.max(1, Runtime.getRuntime().availableProcessors());
+        final int proc = Math.max(1, concurrency);
         final List<Mapper> mappers = mapper.split(Math.max(assess / proc, 1));
         switch (mappers.size()) {
         case 0:
             return Stream.empty();
         case 1:
-            return asStream(
-                    asIterator(mappers.iterator().next().create(), mapper::stop, new AtomicInteger(maxRecords)));
-        default:
-            final ExecutorService es = Executors.newFixedThreadPool(mappers.size());
-            final Runnable cleaner = new Runnable() {
+            return StreamDecorator.decorate(
+                    asStream(asIterator(mappers.iterator().next().create(), new AtomicInteger(maxRecords))),
+                    collect -> {
+                        try {
+                            collect.run();
+                        } finally {
+                            mapper.stop();
+                        }
+                    });
+        default: // N producers-1 consumer pattern
+            final AtomicInteger threadCounter = new AtomicInteger(0);
+            final ExecutorService es = Executors.newFixedThreadPool(mappers.size(), r -> new Thread(r) {
 
-                private int remaining = mappers.size();
+                {
+                    setName(SimpleComponentRule.class.getSimpleName() + "-pool-" + abs(mapper.hashCode()) + "-"
+                            + threadCounter.incrementAndGet());
+                }
+            });
+            final AtomicInteger recordCounter = new AtomicInteger(maxRecords);
+            final Semaphore permissions = new Semaphore(0);
+            final Queue<T> records = new ConcurrentLinkedQueue<>();
+            final CountDownLatch latch = new CountDownLatch(mappers.size());
+            final List<? extends Future<?>> tasks = mappers
+                    .stream()
+                    .map(Mapper::create)
+                    .map(input -> (Iterator<T>) asIterator(input, recordCounter))
+                    .map(it -> es.submit(() -> {
+                        try {
+                            while (it.hasNext()) {
+                                final T next = it.next();
+                                records.add(next);
+                                permissions.release();
+                            }
+                        } finally {
+                            latch.countDown();
+                        }
+                    }))
+                    .collect(toList());
+            es.shutdown();
+
+            final int timeout = Integer.getInteger("talend.component.junit.timeout", 5);
+            new Thread() {
+
+                {
+                    setName(SimpleComponentRule.class.getSimpleName() + "-monitor_" + abs(mapper.hashCode()));
+                }
 
                 @Override
                 public void run() {
-                    synchronized (this) {
-                        remaining--;
-                        if (remaining > 0) {
-                            return;
-                        }
-                    }
-
-                    if (es.isShutdown()) {
-                        return;
-                    }
-
-                    es.shutdown();
-
-                    mapper.stop();
-
                     try {
-                        final int timeout = Integer.getInteger("talend.component.junit.timeout", 5);
-                        if (!es.awaitTermination(timeout, MINUTES)) {
-                            throw new IllegalStateException("Mapper collection lasted for more than " + timeout
-                                    + "mn, you can customize "
-                                    + "this value setting the system property -Dtalend.component.junit.timeout=x, x in minutes.");
-                        }
+                        latch.await(timeout, MINUTES);
                     } catch (final InterruptedException e) {
                         Thread.interrupted();
-                        throw new IllegalStateException(e);
+                    } finally {
+                        permissions.release();
                     }
                 }
-            };
-            final AtomicInteger recordCounter = new AtomicInteger(maxRecords);
-            return mappers.stream().map(m -> (Iterator<T>) asIterator(m.create(), cleaner, recordCounter)).flatMap(
-                    this::asStream);
+            }.start();
+            return StreamDecorator.decorate(asStream(new Iterator<T>() {
+
+                @Override
+                public boolean hasNext() {
+                    try {
+                        permissions.acquire();
+                    } catch (final InterruptedException e) {
+                        Thread.interrupted();
+                        fail(e.getMessage());
+                    }
+                    return !records.isEmpty();
+                }
+
+                @Override
+                public T next() {
+                    return records.poll();
+                }
+            }), task -> {
+                try {
+                    task.run();
+                } finally {
+                    tasks.forEach(f -> {
+                        try {
+                            f.get(5, SECONDS);
+                        } catch (final InterruptedException e) {
+                            Thread.interrupted();
+                        } catch (final ExecutionException | TimeoutException e) {
+                            // no-op
+                        } finally {
+                            if (!f.isDone() && !f.isCancelled()) {
+                                f.cancel(true);
+                            }
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -188,7 +260,7 @@ public class SimpleComponentRule implements TestRule {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.IMMUTABLE), false);
     }
 
-    private <T> Iterator<T> asIterator(final Input input, final Runnable onLast, final AtomicInteger counter) {
+    private <T> Iterator<T> asIterator(final Input input, final AtomicInteger counter) {
         input.start();
         return new Iterator<T>() {
 
@@ -206,17 +278,11 @@ public class SimpleComponentRule implements TestRule {
                 final boolean hasNext = (next = input.next()) != null;
                 if (!hasNext && !closed) {
                     closed = true;
-                    try {
-                        input.stop();
-                    } finally {
-                        try {
-                            onLast.run();
-                        } catch (final RuntimeException re) {
-                            log.warn(re.getMessage(), re);
-                        }
-                    }
+                    input.stop();
                 }
-                counter.decrementAndGet();
+                if (hasNext) {
+                    counter.decrementAndGet();
+                }
                 return hasNext;
             }
 
