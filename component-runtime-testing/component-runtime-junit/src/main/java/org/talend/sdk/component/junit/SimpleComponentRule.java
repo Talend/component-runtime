@@ -117,7 +117,7 @@ public class SimpleComponentRule implements TestRule {
      * caller thread.
      *
      * IMPORTANT: don't forget to consume all the stream to ensure the underlying
-     * {@see org.talend.sdk.component.runtime.input.Input} is closed.
+     * { @see org.talend.sdk.component.runtime.input.Input} is closed.
      *
      * @param recordType
      * the record type to use to type the returned type.
