@@ -56,48 +56,45 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
     private final String dependenciesListFile;
 
     @Override
-    public Stream<String> resolve(final ClassLoader rootLoader, final String artifact) {
-        return Stream
-                .of(readDependencies(
-                        of(new File(artifact)).filter(File::exists).map(this::findDependenciesFile).orElseGet(() -> {
-                            final boolean isNested;
-                            try (final InputStream stream = rootLoader
-                                    .getResourceAsStream(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + artifact)) {
-                                isNested = stream != null;
-                            } catch (final IOException e) {
-                                log.debug(e.getMessage(), e);
-                                return "";
-                            }
+    public Stream<Artifact> resolve(final ClassLoader rootLoader, final String artifact) {
+        return Stream.of(readDependencies(
+                of(new File(artifact)).filter(File::exists).map(this::findDependenciesFile).orElseGet(() -> {
+                    final boolean isNested;
+                    try (final InputStream stream = rootLoader
+                            .getResourceAsStream(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + artifact)) {
+                        isNested = stream != null;
+                    } catch (final IOException e) {
+                        log.debug(e.getMessage(), e);
+                        return "";
+                    }
 
-                            if (isNested) { // we reuse ConfigurableClassLoader just to not
-                                            // rewrite the logic but it is NOT a plugin!
-                                try (final ConfigurableClassLoader configurableClassLoader =
-                                        new ConfigurableClassLoader(new URL[0], rootLoader, name -> true, name -> true,
-                                                new String[] { artifact })) {
-                                    try (final InputStream deps =
-                                            configurableClassLoader.getResourceAsStream(dependenciesListFile)) {
-                                        return ofNullable(deps).map(s -> {
-                                            try {
-                                                return slurp(s);
-                                            } catch (final IOException e) {
-                                                log.debug(e.getMessage(), e);
-                                                return "";
-                                            }
-                                        }).orElse("");
+                    if (isNested) { // we reuse ConfigurableClassLoader just to not
+                                    // rewrite the logic but it is NOT a plugin!
+                        try (final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader(
+                                new URL[0], rootLoader, name -> true, name -> true, new String[] { artifact })) {
+                            try (final InputStream deps =
+                                    configurableClassLoader.getResourceAsStream(dependenciesListFile)) {
+                                return ofNullable(deps).map(s -> {
+                                    try {
+                                        return slurp(s);
+                                    } catch (final IOException e) {
+                                        log.debug(e.getMessage(), e);
+                                        return "";
                                     }
-                                } catch (final IOException e) {
-                                    log.debug(e.getMessage(), e);
-                                    return "";
-                                }
+                                }).orElse("");
                             }
-
+                        } catch (final IOException e) {
+                            log.debug(e.getMessage(), e);
                             return "";
-                        })))
-                .map(coordinateConverter::toPath);
+                        }
+                    }
+
+                    return "";
+                })));
     }
 
-    public Stream<String> resolveFromDescriptor(final InputStream descriptor) throws IOException {
-        return Stream.of(readDependencies(slurp(descriptor))).map(coordinateConverter::toPath);
+    public Stream<Artifact> resolveFromDescriptor(final InputStream descriptor) throws IOException {
+        return Stream.of(readDependencies(slurp(descriptor)));
     }
 
     private Artifact[] readDependencies(final String content) {

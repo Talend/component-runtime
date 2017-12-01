@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -145,6 +146,7 @@ public class ComponentManager implements AutoCloseable {
         }
     };
 
+    @Getter
     protected final ContainerManager container;
 
     // tcomp (org.talend + javax.annotation) + logging (slf4j) are/can be provided

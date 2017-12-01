@@ -32,6 +32,7 @@ import javax.management.ObjectName;
 import org.junit.Test;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerManager;
+import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.test.Constants;
 
 public class JmxManagerTest {
@@ -40,7 +41,7 @@ public class JmxManagerTest {
     public void jmx() throws Exception {
         final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
         final JmxManager manager = new JmxManager("org.talend.test:type=plugin,name=%s", mBeanServer);
-        final Container container = new Container("foo.jar", new File("missing/normally").getName(), new String[0],
+        final Container container = new Container("foo.jar", new File("missing/normally").getName(), new Artifact[0],
                 ContainerManager.ClassLoaderConfiguration.builder().create(),
                 path -> new File(Constants.DEPENDENCIES_LOCATION, path));
         manager.onCreate(container);

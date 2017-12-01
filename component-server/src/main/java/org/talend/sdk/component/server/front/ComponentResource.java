@@ -15,8 +15,21 @@
  */
 package org.talend.sdk.component.server.front;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
+import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
+import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
@@ -26,6 +39,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -40,9 +54,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -56,6 +72,8 @@ import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentId;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.server.front.model.Dependencies;
+import org.talend.sdk.component.server.front.model.DependencyDefinition;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.Icon;
 import org.talend.sdk.component.server.front.model.Link;
@@ -65,15 +83,7 @@ import org.talend.sdk.component.server.service.IconResolver;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
-import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
-import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Path("component")
@@ -105,6 +115,63 @@ public class ComponentResource {
 
         // preload some highly used data
         getIndex("en");
+    }
+
+    @GET
+    @Path("dependencies")
+    @Documentation("Returns a list of dependencies for the given components.\n\n"
+            + "IMPORTANT: don't forget to add the component itself since it will not be part of the dependencies.\n\n"
+            + "Then you can use /dependency/{id} to download the binary.")
+    public Dependencies getDependencies(@QueryParam("identifier") final String[] ids) {
+        if (ids.length == 0) {
+            return new Dependencies(emptyMap());
+        }
+        return new Dependencies(Stream.of(ids).map(id -> componentManagerService.findMetaById(id))
+                .collect(toMap(ComponentFamilyMeta.BaseMeta::getId,
+                        meta -> componentManagerService.manager().findPlugin(meta.getParent().getPlugin())
+                                .map(c -> new DependencyDefinition(
+                                        c.findDependencies().map(Artifact::toCoordinate).collect(toList())))
+                                .orElse(new DependencyDefinition(emptyList())))));
+    }
+
+    @GET
+    @Path("dependency/{id}")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Documentation("Return a binary of the dependency represented by `id`. It can be maven coordinates for dependencies "
+            + "or a component id.")
+    public StreamingOutput getDependency(@PathParam("id") final String id) {
+        final ComponentFamilyMeta.BaseMeta<?> component = componentManagerService.findMetaById(id);
+        final File file;
+        if (component != null) { // local dep
+            file = componentManagerService.manager().findPlugin(component.getParent().getPlugin())
+                    .orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+                            .type(APPLICATION_JSON_TYPE)
+                            .entity(new ErrorPayload(PLUGIN_MISSING, "No plugin matching the id: " + id)).build()))
+                    .getContainerFile()
+                    .orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+                            .type(APPLICATION_JSON_TYPE)
+                            .entity(new ErrorPayload(PLUGIN_MISSING, "No dependency matching the id: " + id)).build()));
+        } else { // just try to resolve it locally, note we would need to ensure some security here
+            // .map(Artifact::toPath).map(localDependencyRelativeResolver
+            final Artifact artifact = Artifact.from(id);
+            file = componentManagerService.manager().getContainer().resolve(artifact.toPath());
+        }
+        if (!file.exists()) {
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).type(APPLICATION_JSON_TYPE)
+                    .entity(new ErrorPayload(PLUGIN_MISSING, "No file found for: " + id)).build());
+        }
+        return output -> {
+            final byte[] buffer = new byte[40960]; // 5k
+            try (final InputStream stream = new BufferedInputStream(new FileInputStream(file), buffer.length)) {
+                int count;
+                while ((count = stream.read(buffer)) >= 0) {
+                    if (count == 0) {
+                        continue;
+                    }
+                    output.write(buffer, 0, count);
+                }
+            }
+        };
     }
 
     @GET

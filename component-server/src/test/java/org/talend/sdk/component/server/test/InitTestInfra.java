@@ -32,9 +32,11 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
@@ -51,9 +53,10 @@ import org.apache.xbean.asm6.ClassReader;
 import org.apache.xbean.asm6.ClassWriter;
 import org.apache.xbean.asm6.MethodVisitor;
 import org.apache.xbean.asm6.Type;
+import org.apache.xbean.asm6.commons.ClassRemapper;
 import org.apache.xbean.asm6.commons.Remapper;
-import org.apache.xbean.asm6.commons.RemappingClassAdapter;
 import org.apache.ziplock.Files;
+import org.apache.ziplock.IO;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.Action;
@@ -100,6 +103,15 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             final String artifactId = "file-component";
             final String version = "0.0.1";
             createComponent(m2, groupId, artifactId, version, generator::createFilePlugin);
+        }
+
+        final File ziplock = new File(m2, "org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar");
+        ziplock.getParentFile().mkdirs();
+        try (final InputStream from = new FileInputStream(jarLocation(IO.class));
+                final OutputStream to = new FileOutputStream(ziplock)) {
+            IO.copy(from, to);
+        } catch (final IOException e) {
+            fail(e.getMessage());
         }
 
         return m2.getAbsolutePath();
@@ -150,6 +162,10 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                         }
                     }.store(out, "i18n for the config types");
                     out.closeEntry();
+
+                    out.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
+                    out.write("org.apache.tomee:ziplock:jar:7.0.3:runtime".getBytes(StandardCharsets.UTF_8));
+                    out.closeEntry();
                 } catch (final IOException e) {
                     fail(e.getMessage());
                 }
@@ -173,7 +189,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                             try (final InputStream is = new FileInputStream(clazz)) {
                                 final ClassReader reader = new ClassReader(is);
                                 final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-                                reader.accept(new RemappingClassAdapter(writer, new Remapper() {
+                                reader.accept(new ClassRemapper(writer, new Remapper() {
 
                                     @Override
                                     public String map(final String key) {
