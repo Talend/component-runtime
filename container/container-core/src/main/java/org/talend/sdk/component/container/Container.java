@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -33,6 +34,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.lang.UnsafeSupplier;
 import org.talend.sdk.component.lifecycle.Lifecycle;
 import org.talend.sdk.component.lifecycle.LifecycleSupport;
@@ -53,7 +55,7 @@ public class Container implements Lifecycle {
     private final String rootModule;
 
     @Getter
-    private final String[] dependencies;
+    private final Artifact[] dependencies;
 
     private final AtomicReference<Date> created = new AtomicReference<>();
 
@@ -66,7 +68,7 @@ public class Container implements Lifecycle {
 
     private final ConcurrentMap<Class<?>, Object> data = new ConcurrentHashMap<>();
 
-    public Container(final String id, final String rootModule, final String[] dependencies,
+    public Container(final String id, final String rootModule, final Artifact[] dependencies,
             final ContainerManager.ClassLoaderConfiguration configuration,
             final Function<String, File> localDependencyRelativeResolver) {
         this.id = id;
@@ -91,7 +93,7 @@ public class Container implements Lifecycle {
                     configuration.getParentClassesFilter(),
                     configuration.isSupportsResourceDependencies()
                             ? Stream
-                                    .concat(Stream.of(dependencies),
+                                    .concat(Stream.of(dependencies).map(Artifact::toPath),
                                             of(rootModule)
                                                     .filter(m -> !new File(m).exists()
                                                             && !localDependencyRelativeResolver.apply(m).exists())
@@ -117,12 +119,18 @@ public class Container implements Lifecycle {
 
     public Stream<File> findExistingClasspathFiles() {
         return Stream
-                .concat(Stream
-                        .of(rootModule)
-                        .map(m -> of(new File(m)).filter(File::exists).orElseGet(
-                                () -> localDependencyRelativeResolver.apply(m))),
-                        Stream.of(dependencies).map(localDependencyRelativeResolver))
+                .concat(getContainerFile().map(Stream::of).orElseGet(Stream::empty),
+                        Stream.of(dependencies).map(Artifact::toPath).map(localDependencyRelativeResolver))
                 .filter(File::exists);
+    }
+
+    public Optional<File> getContainerFile() {
+        return Optional.of(rootModule).map(
+                m -> of(new File(m)).filter(File::exists).orElseGet(() -> localDependencyRelativeResolver.apply(m)));
+    }
+
+    public Stream<Artifact> findDependencies() {
+        return Stream.of(dependencies);
     }
 
     public <S, T> T executeAndContextualize(final Supplier<S> supplier, final Class<T> api) {

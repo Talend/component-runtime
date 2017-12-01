@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component;
 
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -33,6 +35,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.test.rule.ContainerProviderRule;
 
 public class ContainerTest {
@@ -45,6 +48,12 @@ public class ContainerTest {
 
     @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.5:runtime")
     private Container xbeanFinder;
+
+    @Test
+    public void findDependencies() {
+        assertEquals(singletonList("org.apache.xbean:xbean-finder:jar:4.5"),
+                xbeanFinder.findDependencies().map(Artifact::toCoordinate).collect(toList()));
+    }
 
     @Test
     public void ensureContainerCanLoadSpecificClasses() {

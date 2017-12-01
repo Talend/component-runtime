@@ -18,11 +18,17 @@ package org.talend.sdk.component.server.front;
 import static java.util.Collections.singletonList;
 import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -32,7 +38,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.jar.JarFile;
 
 import javax.inject.Inject;
 import javax.websocket.DeploymentException;
@@ -41,13 +50,20 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.meecrowave.junit.MonoMeecrowave;
+import org.apache.ziplock.IO;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.server.front.model.Dependencies;
+import org.talend.sdk.component.server.front.model.DependencyDefinition;
 import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -56,15 +72,63 @@ import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 @RunWith(MonoMeecrowave.Runner.class)
 public class ComponentResourceTest {
 
+    @ClassRule
+    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
+
     @Inject
     private WebTarget base;
 
     @Inject
     private WebsocketClient ws;
 
+    @Rule
+    public final TestName testName = new TestName();
+
     @Test
     public void webSocketGetIndex() throws IOException, DeploymentException {
         assertIndex(ws.read(ComponentIndices.class, "get", "/component/index", ""));
+    }
+
+    @Test
+    public void getDependencies() {
+        final String compId = getJdbcId();
+        final Dependencies dependencies = base.path("component/dependencies").queryParam("identifier", compId)
+                .request(APPLICATION_JSON_TYPE).get(Dependencies.class);
+        assertEquals(1, dependencies.getDependencies().size());
+        final DependencyDefinition definition = dependencies.getDependencies().get(compId);
+        assertNotNull(definition);
+        assertEquals(1, definition.getDependencies().size());
+        assertEquals("org.apache.tomee:ziplock:jar:7.0.3", definition.getDependencies().iterator().next());
+    }
+
+    @Test
+    public void getDependency() {
+        final Function<String, File> download = id -> {
+            final InputStream stream = base.path("component/dependency/{id}").resolveTemplate("id", id)
+                    .request(APPLICATION_OCTET_STREAM_TYPE).get(InputStream.class);
+            final File file = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName() + ".jar");
+            try (final OutputStream outputStream = new FileOutputStream(file)) {
+                IO.copy(stream, outputStream);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+            return file;
+        };
+
+        final Consumer<File> jarValidator = file -> {
+            assertTrue(file.exists());
+            try (final JarFile jar = new JarFile(file)) {
+                assertTrue(jar.entries().hasMoreElements());
+            } catch (final IOException e) {
+                fail(e.getMessage());
+            }
+        };
+
+        final File zipLock = download.apply("org.apache.tomee:ziplock:jar:7.0.3");
+        jarValidator.accept(zipLock);
+
+        final File component = download.apply(getJdbcId());
+        jarValidator.accept(component);
     }
 
     @Test
@@ -75,11 +139,7 @@ public class ComponentResourceTest {
     @Test
     public void migrate() {
         final Map<String, String> migrated = base.path("component/migrate/{id}/{version}")
-                .resolveTemplate("id", fetchIndex().getComponents().stream()
-                        .filter(c -> c.getId().getFamily().equals("jdbc") && c.getId().getName().equals("input"))
-                        .findFirst().orElseThrow(() -> new IllegalArgumentException("no jdbc#input component")).getId()
-                        .getId())
-                .resolveTemplate("version", 1).request(APPLICATION_JSON_TYPE)
+                .resolveTemplate("id", getJdbcId()).resolveTemplate("version", 1).request(APPLICATION_JSON_TYPE)
                 .post(entity(new HashMap<String, String>() {
 
                     {
@@ -132,11 +192,7 @@ public class ComponentResourceTest {
 
     @Test
     public void getDetailsMeta() {
-        final ComponentDetailList details = base.path("component/details")
-                .queryParam("identifiers", fetchIndex().getComponents().stream()
-                        .filter(c -> c.getId().getFamily().equals("jdbc") && c.getId().getName().equals("input"))
-                        .findFirst().orElseThrow(() -> new IllegalArgumentException("no jdbc#input component")).getId()
-                        .getId())
+        final ComponentDetailList details = base.path("component/details").queryParam("identifiers", getJdbcId())
                 .request(APPLICATION_JSON_TYPE).get(ComponentDetailList.class);
         assertEquals(1, details.getDetails().size());
 
@@ -145,6 +201,12 @@ public class ComponentResourceTest {
                 detail.getProperties().stream().filter(p -> p.getPath().equals("configuration.connection.password"))
                         .findFirst().orElseThrow(() -> new IllegalArgumentException("No credential found"))
                         .getMetadata().get("ui::credential"));
+    }
+
+    private String getJdbcId() {
+        return fetchIndex().getComponents().stream()
+                .filter(c -> c.getId().getFamily().equals("jdbc") && c.getId().getName().equals("input")).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("no jdbc#input component")).getId().getId();
     }
 
     private void assertValidation(final String path, final ComponentDetail aggregate,

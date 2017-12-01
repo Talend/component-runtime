@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.function.Function;
 
 import org.talend.sdk.component.api.service.dependency.Resolver;
+import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
@@ -44,6 +45,7 @@ public class ResolverImpl implements Resolver, Serializable {
         try {
             return new MvnDependencyListLocalRepositoryResolver(null)
                     .resolveFromDescriptor(descriptor)
+                    .map(Artifact::toPath)
                     .map(fileResolver)
                     .collect(toList());
         } catch (final IOException e) {

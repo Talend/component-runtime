@@ -48,8 +48,8 @@ import org.apache.xbean.asm6.ClassReader;
 import org.apache.xbean.asm6.ClassWriter;
 import org.apache.xbean.asm6.MethodVisitor;
 import org.apache.xbean.asm6.Type;
+import org.apache.xbean.asm6.commons.ClassRemapper;
 import org.apache.xbean.asm6.commons.Remapper;
-import org.apache.xbean.asm6.commons.RemappingClassAdapter;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.Action;
@@ -78,7 +78,7 @@ public class PluginGenerator {
                         try (final InputStream is = new FileInputStream(clazz)) {
                             final ClassReader reader = new ClassReader(is);
                             final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-                            reader.accept(new RemappingClassAdapter(writer, new Remapper() {
+                            reader.accept(new ClassRemapper(writer, new Remapper() {
 
                                 @Override
                                 public String map(final String key) {

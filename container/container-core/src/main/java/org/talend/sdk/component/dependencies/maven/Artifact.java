@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.dependencies.maven;
 
+import static java.util.Optional.ofNullable;
+
 import lombok.Data;
 
 @Data
@@ -31,4 +33,22 @@ public class Artifact {
     private final String version;
 
     private final String scope;
+
+    public String toPath() {
+        return String.format("%s/%s/%s/%s-%s%s.%s", group.replace(".", "/"), artifact, version, artifact, version,
+                ofNullable(classifier).map(c -> '-' + c).orElse(""), type);
+    }
+
+    public String toCoordinate() {
+        return group + ':' + artifact + ':' + type
+                + (classifier != null && !classifier.isEmpty() ? ':' + classifier : "") + ':' + version;
+    }
+
+    // symmetric from toCoordinate()
+    public static Artifact from(final String id) {
+        final String[] split = id.split(":");
+        return new Artifact(split[0], split.length >= 2 ? split[1] : null, split.length >= 3 ? split[2] : "jar",
+                split.length == 5 ? split[3] : null,
+                split.length == 4 ? split[3] : (split.length == 5 ? split[4] : null), "compile");
+    }
 }

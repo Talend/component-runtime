@@ -36,6 +36,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.dependencies.Resolver;
+import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.lifecycle.Lifecycle;
 import org.talend.sdk.component.lifecycle.LifecycleSupport;
 
@@ -138,25 +139,25 @@ public class ContainerManager implements Lifecycle {
                 : module;
         final String location = resolve(moduleLocation).getAbsolutePath();
         log.info("Creating module " + moduleLocation + " (from " + module + ", location=" + location + ")");
-        final Stream<String> classpath = resolver.resolve(classLoaderConfiguration.getParent(), location);
+        final Stream<Artifact> classpath = resolver.resolve(classLoaderConfiguration.getParent(), location);
 
-        final Container container =
-                new Container(id, location, classpath.toArray(String[]::new), classLoaderConfiguration, this::resolve) {
+        final Container container = new Container(id, location, classpath.toArray(Artifact[]::new),
+                classLoaderConfiguration, this::resolve) {
 
-                    @Override
-                    public void close() {
-                        try {
-                            listeners.forEach(l -> safeInvoke(() -> l.onClose(this)));
-                        } finally {
-                            try {
-                                super.close();
-                            } finally {
-                                containers.remove(id);
-                            }
-                        }
-                        log.info("Closed container " + id);
+            @Override
+            public void close() {
+                try {
+                    listeners.forEach(l -> safeInvoke(() -> l.onClose(this)));
+                } finally {
+                    try {
+                        super.close();
+                    } finally {
+                        containers.remove(id);
                     }
-                };
+                }
+                log.info("Closed container " + id);
+            }
+        };
 
         if (containers.putIfAbsent(id, container) != null) {
             throw new IllegalArgumentException("Container '" + id + "' already exists");
@@ -168,7 +169,7 @@ public class ContainerManager implements Lifecycle {
         return container;
     }
 
-    private File resolve(final String path) {
+    public File resolve(final String path) {
         final File direct = new File(path);
         if (direct.exists()) {
             return direct;

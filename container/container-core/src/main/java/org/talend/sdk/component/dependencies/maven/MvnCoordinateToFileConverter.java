@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.dependencies.maven;
 
-import static java.util.Optional.ofNullable;
-
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,11 +53,5 @@ public class MvnCoordinateToFileConverter {
         final int classifierOffset = segments.length == 5 ? 0 : 1;
         return new Artifact(segments[0], segments[1], segments[2], classifierOffset == 0 ? null : segments[3],
                 segments[3 + classifierOffset], segments[4 + classifierOffset]);
-    }
-
-    public String toPath(final Artifact artifact) {
-        return String.format("%s/%s/%s/%s-%s%s.%s", artifact.getGroup().replace(".", "/"), artifact.getArtifact(),
-                artifact.getVersion(), artifact.getArtifact(), artifact.getVersion(),
-                ofNullable(artifact.getClassifier()).map(c -> '-' + c).orElse(""), artifact.getType());
     }
 }

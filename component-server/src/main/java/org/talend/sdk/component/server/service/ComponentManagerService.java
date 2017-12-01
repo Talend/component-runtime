@@ -15,6 +15,12 @@
  */
 package org.talend.sdk.component.server.service;
 
+import static java.util.Collections.emptySet;
+import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,6 +33,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Stream;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -44,12 +51,6 @@ import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 import org.talend.sdk.component.runtime.output.data.AccessorCache;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
-
-import static java.util.Collections.emptySet;
-import static java.util.Optional.ofNullable;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
 
 @ApplicationScoped
 public class ComponentManagerService {
@@ -78,17 +79,16 @@ public class ComponentManagerService {
     private void loadComponents() {
         final String mvnRepo = StrSubstitutor.replaceSystemProperties(configuration.mavenRepository());
         // because we will use the default instance
-        ofNullable(mvnRepo).ifPresent(repo -> System.setProperty("talend.component.manager.m2.repository", repo));
+        System.setProperty("talend.component.manager.m2.repository", mvnRepo);
 
         instance = ComponentManager.instance();
+
         final MvnCoordinateToFileConverter mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
         ofNullable(configuration.componentCoordinates()).orElse(emptySet()).stream()
-                .map(mvnCoordinateToFileConverter::toArtifact)
-                .map(artifact -> new File(StrSubstitutor.replaceSystemProperties(mvnRepo),
-                        mvnCoordinateToFileConverter.toPath(artifact)))
+                .map(mvnCoordinateToFileConverter::toArtifact).map(artifact -> new File(mvnRepo, artifact.toPath()))
                 .filter(Objects::nonNull).forEach(plugin -> instance.addPlugin(plugin.getAbsolutePath()));
         ofNullable(configuration.componentRegistry()).map(File::new).filter(File::exists).ifPresent(registry -> {
             final Properties properties = new Properties();
@@ -97,11 +97,9 @@ public class ComponentManagerService {
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }
-            properties.stringPropertyNames()
-                    .forEach(name -> instance.addPlugin(new File(mvnRepo,
-                            mvnCoordinateToFileConverter
-                                    .toPath(mvnCoordinateToFileConverter.toArtifact(properties.getProperty(name))))
-                                            .getAbsolutePath()));
+            properties.stringPropertyNames().forEach(name -> instance.addPlugin(
+                    new File(mvnRepo, mvnCoordinateToFileConverter.toArtifact(properties.getProperty(name)).toPath())
+                            .getAbsolutePath()));
         });
 
         cacheEvictorPool = Executors.newScheduledThreadPool(1, new ThreadFactory() {
