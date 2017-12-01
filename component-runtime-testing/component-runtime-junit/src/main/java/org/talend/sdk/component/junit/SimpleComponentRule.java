@@ -143,7 +143,7 @@ public class SimpleComponentRule implements TestRule {
      * maximum number of records, allows to stop the source when
      * infinite.
      * @param concurrency
-     * requested (1 can be used instead if <= 0) concurrency for the reader execution.
+     * requested (1 can be used instead if &lt;= 0) concurrency for the reader execution.
      * @param <T>
      * the returned type of the records of the mapper.
      * @return all the records emitted by the mapper.

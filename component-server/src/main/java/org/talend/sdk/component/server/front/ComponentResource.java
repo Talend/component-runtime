@@ -277,7 +277,8 @@ public class ComponentResource {
                             ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor"
                                     : "input"/* PartitionMapperMeta */,
                             meta.getVersion(),
-                            propertiesService.buildProperties(meta.getParameterMetas(), container.getLoader(), locale)
+                            propertiesService
+                                    .buildProperties(meta.getParameterMetas(), container.getLoader(), locale, null)
                                     .collect(toList()),
                             findActions(meta.getParent().getName(), toStream(meta.getParameterMetas())
                                     .flatMap(p -> p.getMetadata().entrySet().stream())
@@ -307,7 +308,7 @@ public class ComponentResource {
                 .filter(s -> s.getFamily().equals(family))
                 .filter(s -> actions.containsKey(s.getType()) && actions.get(s.getType()).equals(s.getAction()))
                 .map(s -> new ActionReference(s.getFamily(), s.getAction(), s.getType(), propertiesService
-                        .buildProperties(s.getParameters(), container.getLoader(), locale).collect(toList())))
+                        .buildProperties(s.getParameters(), container.getLoader(), locale, null).collect(toList())))
                 .collect(toList());
     }
 

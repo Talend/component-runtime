@@ -21,6 +21,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -201,6 +202,10 @@ public class ComponentResourceTest {
                 detail.getProperties().stream().filter(p -> p.getPath().equals("configuration.connection.password"))
                         .findFirst().orElseThrow(() -> new IllegalArgumentException("No credential found"))
                         .getMetadata().get("ui::credential"));
+        assertEquals("0", detail.getProperties().stream().filter(p -> p.getPath().equals("configuration.timeout"))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("No timeout found")).getDefaultValue());
+        assertNull(detail.getProperties().stream().filter(p -> p.getPath().equals("configuration.connection.url"))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("No url found")).getDefaultValue());
     }
 
     private String getJdbcId() {

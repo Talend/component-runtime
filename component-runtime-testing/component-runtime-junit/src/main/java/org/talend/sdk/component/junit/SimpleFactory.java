@@ -49,11 +49,11 @@ public class SimpleFactory {
         }
         final ParameterMeta params = new SimpleParameterModelService().build(prefix, prefix, instance.getClass(),
                 new Annotation[0], instance.getClass().getPackage().getName());
-        return computeConfiguration(params.getNestedParameters(), prefix, instance);
+        return computeConfiguration(params.getNestedParameters(), instance);
     }
 
     private static Map<String, String> computeConfiguration(final List<ParameterMeta> nestedParameters,
-            final String prefix, final Object instance) {
+            final Object instance) {
         if (nestedParameters == null) {
             return emptyMap();
         }
@@ -65,7 +65,7 @@ public class SimpleFactory {
 
             switch (param.getType()) {
             case OBJECT:
-                return computeConfiguration(param.getNestedParameters(), param.getPath() + '.', value);
+                return computeConfiguration(param.getNestedParameters(), value);
             case ARRAY:
                 final Collection<Object> values = Collection.class.isInstance(value) ? Collection.class.cast(value)
                         : /* array */asList(Object[].class.cast(value));
@@ -76,7 +76,7 @@ public class SimpleFactory {
                             && isPrimitive(param.getNestedParameters().iterator().next())) {
                         return singletonMap(param.getPath() + "[" + idx + "]", item.toString());
                     }
-                    return computeConfiguration(param.getNestedParameters(), param.getPath() + "[" + idx + "].", item);
+                    return computeConfiguration(param.getNestedParameters(), item);
                 }).flatMap(m -> m.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
             default: // primitives
                 return singletonMap(param.getPath(), value.toString());
