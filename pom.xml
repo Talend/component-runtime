@@ -184,8 +184,7 @@
       <plugin>
         <groupId>org.talend.tools</groupId>
         <artifactId>talend-tools-maven-plugin</artifactId>
-        <version>1.0.0</version>
-        <inherited>false</inherited>
+        <version>1.0.1</version>
         <executions>
           <execution>
             <id>hub-detect</id>
