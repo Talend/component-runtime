@@ -34,6 +34,8 @@ public class SimplePropertyDefinition {
 
     private String type;
 
+    private String defaultValue;
+
     private PropertyValidation validation;
 
     private Map<String, String> metadata;

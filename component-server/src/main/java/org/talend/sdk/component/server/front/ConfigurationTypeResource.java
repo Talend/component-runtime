@@ -106,7 +106,7 @@ public class ConfigurationTypeResource {
                     resourcesBundle.configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
                             .orElse(c.getKey().getConfigName()));
             node.setProperties(
-                    propertiesService.buildProperties(singleton(c.getMeta()), loader, locale).collect(toList()));
+                    propertiesService.buildProperties(singleton(c.getMeta()), loader, locale, null).collect(toList()));
 
             if (c.getChildConfigs() == null) {
                 return Stream.of(node);

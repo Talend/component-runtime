@@ -130,7 +130,7 @@ public class ActionResource {
                 .find(c -> c.get(ContainerComponentRegistry.class).getServices().stream()
                         .map(s -> s.getActions().stream()).flatMap(identity()).filter(typeMatcher.and(componentMatcher))
                         .map(s -> new ActionItem(s.getFamily(), s.getType(), s.getAction(), propertiesService
-                                .buildProperties(s.getParameters(), c.getLoader(), locale).collect(toList()))))
+                                .buildProperties(s.getParameters(), c.getLoader(), locale, null).collect(toList()))))
                 .collect(toList()));
     }
 }
