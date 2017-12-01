@@ -15,22 +15,21 @@ package org.talend.sdk.component.studio.metadata.node;
 import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
-import org.talend.sdk.component.studio.util.ETaCoKitImage;
 
 /**
  * DOC cmeng class global comment. Detailled comment
  */
-public class TaCoKitConfigurationRepositoryNode extends AbsTaCoKitRepositoryNode {
+public class TaCoKitLeafRepositoryNode extends AbsTaCoKitRepositoryNode {
 
-    public TaCoKitConfigurationRepositoryNode(final IRepositoryViewObject repViewObject, final RepositoryNode parent,
+    public TaCoKitLeafRepositoryNode(final IRepositoryViewObject repViewObject, final RepositoryNode parent,
             final ITaCoKitRepositoryNode parentTaCoKitNode, final String label, final ConfigTypeNode configTypeNode) {
         super(repViewObject, parent, parentTaCoKitNode, label, configTypeNode);
-        setIcon(ETaCoKitImage.TACOKIT_CONFIGURATION_ICON);
+        this.setType(ENodeType.REPOSITORY_ELEMENT);
     }
 
     @Override
     public boolean isLeafNode() {
-        return false;
+        return true;
     }
 
 }

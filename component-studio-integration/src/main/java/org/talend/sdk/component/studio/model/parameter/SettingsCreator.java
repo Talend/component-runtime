@@ -167,6 +167,7 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setDisplayName(node.getProperty().getDisplayName());
         parameter.setFieldType(node.getFieldType());
         parameter.setName(node.getProperty().getPath());
+        parameter.setRepositoryValue(node.getProperty().getPath());
         parameter.setNumRow(lastRowNumber++);
         parameter.setShow(true);
         parameter.setValue(node.getProperty().getDefaultValue());

@@ -17,7 +17,7 @@ package org.talend.sdk.component.studio.metadata.tester;
 
 import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.tester.AbstractNodeTester;
-import org.talend.sdk.component.studio.metadata.node.AbsTaCoKitRepositoryNode;
+import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 
 public class TaCoKitNodeTest extends AbstractNodeTester {
 
@@ -28,7 +28,7 @@ public class TaCoKitNodeTest extends AbstractNodeTester {
             final Object expectedValue) {
         if (receiver instanceof RepositoryNode) {
             if (IS_TACOKIT_NODE.equals(property)) {
-                if (receiver instanceof AbsTaCoKitRepositoryNode) {
+                if (receiver instanceof ITaCoKitRepositoryNode) {
                     return true;
                 } else {
                     return false;

@@ -19,7 +19,7 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.talend.repository.viewer.label.RepositoryViewLabelProvider;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
-import org.talend.sdk.component.studio.metadata.node.AbsTaCoKitRepositoryNode;
+import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.metadata.node.TaCoKitConfigurationRepositoryNode;
 
 public class TaCoKitMetadataLabelProvider extends RepositoryViewLabelProvider implements ILabelProvider {
@@ -40,8 +40,8 @@ public class TaCoKitMetadataLabelProvider extends RepositoryViewLabelProvider im
     @Override
     public Image getImage(final Object element) {
         Image image = null;
-        if (element instanceof AbsTaCoKitRepositoryNode) {
-            image = ((AbsTaCoKitRepositoryNode) element).getImage();
+        if (element instanceof ITaCoKitRepositoryNode) {
+            image = ((ITaCoKitRepositoryNode) element).getImage();
         }
         if (image != null) {
             return image;

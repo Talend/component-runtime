@@ -25,8 +25,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -43,8 +46,10 @@ import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.NodeReturn;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.model.connector.ConnectorCreatorFactory;
 import org.talend.sdk.component.studio.model.parameter.ElementParameterCreator;
+import org.talend.sdk.component.studio.model.parameter.Metadatas;
 
 // TODO: finish the impl
 public class ComponentModel extends AbstractBasicComponent {
@@ -384,12 +389,51 @@ public class ComponentModel extends AbstractBasicComponent {
         return EComponentType.GENERIC;
     }
 
+    @Override
     public String getTemplateFolder() {
         return "tacokit/jet_stub/generic/" + detail.getType().toLowerCase();
     }
 
+    @Override
     public String getTemplateNamePrefix() {
         return detail.getType().toLowerCase();
+    }
+
+    /**
+     * Check whether current component can use the given configuration
+     * 
+     * @param familyNodeName family name
+     * @param configType configuration type
+     * @param configName configuration name
+     * @return
+     */
+    public boolean supports(final String familyNodeName, final String configType, final String configName) {
+        Collection<SimplePropertyDefinition> properties = detail.getProperties();
+        if (properties == null || properties.isEmpty()) {
+            return false;
+        }
+        String expectedFamilyName = index.getId().getFamily();
+        if (expectedFamilyName == null || !expectedFamilyName.endsWith(familyNodeName)) { // $NON-NLS-1$
+            return false;
+        }
+        Iterator<SimplePropertyDefinition> iter = properties.iterator();
+        while (iter.hasNext()) {
+            SimplePropertyDefinition simplePropDefine = iter.next();
+            Map<String, String> metadata = simplePropDefine.getMetadata();
+            if (metadata == null) {
+                continue;
+            }
+            String type = metadata.get(Metadatas.CONFIG_TYPE);
+            if (type == null || !type.equals(configType)) {
+                continue;
+            }
+            String name = metadata.get(Metadatas.CONFIG_NAME);
+            if (name == null || !name.equals(configName)) {
+                continue;
+            }
+            return true;
+        }
+        return false;
     }
 
 }
