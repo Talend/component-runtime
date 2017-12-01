@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.studio.metadata;
+package org.talend.sdk.component.studio.metadata.provider;
 
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
@@ -83,19 +83,19 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
             if (!ERepositoryObjectType.METADATA_CON_TABLE.equals(nodeType)
                     && !ERepositoryObjectType.METADATA_CON_COLUMN.equals(nodeType)) {
                 final IRepositoryViewObject repObj = rn.getObject();
-                if (repObj == null) {
-                    createAction(null, sel);
-                } else {
-                    client
-                            .details(Locale.getDefault().getLanguage())
-                            .flatMap(detail -> detail
-                                    .getSecond()
-                                    .getProperties()
-                                    .stream()
-                                    .filter(service::isConfiguration)
-                                    .map(p -> new Pair<>(detail, p)))
-                            .forEach(pair -> createAction(pair, sel).update(pair, sel));
-                }
+                // if (repObj == null) {
+                // createAction(null, sel);
+                // } else {
+                client
+                        .details(Locale.getDefault().getLanguage())
+                        .flatMap(detail -> detail
+                                .getSecond()
+                                .getProperties()
+                                .stream()
+                                .filter(service::isConfiguration)
+                                .map(p -> new Pair<>(detail, p)))
+                        .forEach(pair -> createAction(pair, sel).update(pair, sel));
+                // }
                 manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
             }
         }

@@ -16,46 +16,112 @@
 <?eclipse version="3.4"?>
 <plugin>
   <extension point="org.talend.designer.core.process_provider">
-    <ProcessProvider pluginId="${project.artifactId}" class="org.talend.sdk.component.studio.TaCoKitGenericProvider"/>
+    <ProcessProvider pluginId="org.talend.sdk.component.studio-integration" class="org.talend.sdk.component.studio.TaCoKitGenericProvider"/>
+  </extension>
+  <extension
+        point="org.talend.core.repository.repository_node_provider">
+     <repositoryNode
+           alias="TACOKIT"
+           folder="metadata/tacokit"
+           icon="icon/connection.png"
+           isResouce="true"
+           key="repository.metadata.TaCoKit"
+           label="%TaCoKitConnection"
+           ordinal="1"
+           parentNodeType="METADATA"
+           products="DI"
+           type="TACOKIT">
+     </repositoryNode>
+  </extension>
+  <extension
+        point="org.talend.core.repository.repository_content">
+     <RepositoryContent
+           class="org.talend.sdk.component.studio.metadata.handler.TaCoKitRepositoryContentHandler">
+     </RepositoryContent>
+  </extension>
+  <extension
+        point="org.eclipse.core.expressions.propertyTesters">
+     <propertyTester
+           class="org.talend.sdk.component.studio.metadata.tester.TaCoKitNodeTest"
+           id="org.talend.sdk.component.tester.TaCoKitConnectionNodeTester"
+           namespace="org.talend.sdk.component.node.metadata"
+           properties="isTaCoKitNode"
+           type="org.talend.repository.model.RepositoryNode">
+     </propertyTester>
   </extension>
   <extension point="org.eclipse.ui.navigator.navigatorContent">
-    <navigatorContent id="${project.groupId}.metadata.connection"
-                      activeByDefault="true" priority="higher"
-                      appearsBefore="org.talend.repository.viewer.metadata.genericSchemas"
-                      contentProvider="org.talend.sdk.component.studio.metadata.MetadataContentProvider"
-                      labelProvider="org.talend.repository.viewer.label.RepositoryViewLabelProvider"
-                      name="TaCoKit Connection">
-      <triggerPoints>
-        <and>
-          <instanceof value="org.talend.repository.model.RepositoryNode"/>
-          <or>
-            <test forcePluginActivation="true" property="org.talend.repository.node.isMetadataTopNode"/>
-            <test property="${project.groupId}.node.metadata"/>
-          </or>
-        </and>
-      </triggerPoints>
-      <possibleChildren>
-        <and>
-          <instanceof value="org.talend.repository.model.RepositoryNode"/>
-          <or>
-            <test property="${project.groupId}.node.metadata"/>
-          </or>
-        </and>
-      </possibleChildren>
-      <actionProvider id="org.talend.sdk.component.studio.metadata.NodeActionProvider"
-                      class="org.talend.sdk.component.studio.metadata.NodeActionProvider">
-        <enablement>
+    <navigatorContent
+          activeByDefault="true"
+          contentProvider="org.talend.sdk.component.studio.metadata.provider.TaCoKitMetadataContentProvider"
+          icon="icon/connection.png"
+          id="org.talend.repository.viewer.metadata.TaCoKit"
+          labelProvider="org.talend.sdk.component.studio.metadata.provider.TaCoKitMetadataLabelProvider"
+          name="TaCoKit Connection"
+          priority="higher">
+       <possibleChildren>
           <and>
-            <instanceof value="org.talend.repository.model.RepositoryNode"/>
-            <test property="${project.groupId}.node.metadata" forcePluginActivation="true"/>
-            <not>
-              <test property="org.talend.repository.node.isDeleted" forcePluginActivation="true"/>
-            </not>
+             <instanceof
+                   value="org.talend.repository.model.RepositoryNode">
+             </instanceof>
+             <or>
+                 <test
+                       property="org.talend.sdk.component.node.metadata.isTaCoKitNode">
+                 </test>
+             </or>
           </and>
-        </enablement>
-      </actionProvider>
+       </possibleChildren>
+       <triggerPoints>
+          <and>
+             <instanceof
+                   value="org.talend.repository.model.RepositoryNode">
+             </instanceof>
+             <or>
+                 <test
+                       forcePluginActivation="true"
+                       property="org.talend.repository.node.isMetadataTopNode">
+                 </test>
+                 <test
+                       property="org.talend.sdk.component.node.metadata.isTaCoKitNode">
+                 </test>
+             </or>
+          </and>
+       </triggerPoints>
+       <actionProvider
+             class="org.talend.sdk.component.studio.metadata.provider.NodeActionProvider"
+             id="org.talend.sdk.component.studio.metadata.provider.NodeActionProvider">
+          <enablement>
+             <and>
+                <instanceof
+                      value="org.talend.repository.model.RepositoryNode">
+                </instanceof>
+                <or>
+                   <test
+                         property="org.talend.sdk.component.node.metadata.isTaCoKitNode">
+                   </test>
+                </or>
+                <not>
+                   <test
+                         property="org.talend.repository.node.isDeleted">
+                   </test>
+                </not>
+             </and>
+          </enablement>
+       </actionProvider>
+
     </navigatorContent>
   </extension>
+  <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding
+            viewerId="org.talend.repository.cnf.view">
+         <includes>
+            <contentExtension
+                  pattern="org.talend.sdk.component.*">
+            </contentExtension>
+         </includes>
+      </viewerContentBinding>
+  </extension>
+
   <!-- don't use it since there is already one which is integrated and studio doesnt support composition here
   <extension point="org.talend.core.runtime.service">
     <Service serviceId="IGenericWizardService" class="org.talend.sdk.component.studio.metadata.WizardRegistry" />
