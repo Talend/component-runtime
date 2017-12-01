@@ -15,18 +15,31 @@
  */
 package org.talend.sdk.component.junit;
 
+import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.stream.Collectors.toList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
+
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.talend.sdk.component.junit.component.Source;
 import org.talend.sdk.component.junit.component.Transform;
 import org.talend.sdk.component.runtime.input.Input;
+import org.talend.sdk.component.runtime.input.InputImpl;
 import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.output.Processor;
-
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 
 public class SimpleComponentRuleTest {
 
@@ -58,6 +71,59 @@ public class SimpleComponentRuleTest {
             }
         });
         assertEquals(asList("a", "b"), COMPONENT_FACTORY.collectAsList(String.class, mapper));
+    }
+
+    @Test
+    public void sourceCollectorParallel() {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final Mapper mapper = new PartitionMapperImpl() {
+
+            @Override
+            public long assess() {
+                return 2;
+            }
+
+            @Override
+            public List<Mapper> split(final long desiredSize) {
+                assertEquals(1, desiredSize);
+                return asList(this, this);
+            }
+
+            @Override
+            public Input create() {
+                return new InputImpl() {
+
+                    private final AtomicBoolean done = new AtomicBoolean();
+
+                    @Override
+                    public Object next() {
+                        try {
+                            latch.await(1, MINUTES);
+                        } catch (final InterruptedException e) {
+                            Thread.interrupted();
+                            fail();
+                        }
+                        return done.compareAndSet(false, true) ? Thread.currentThread().getName() : null;
+                    }
+
+                    @Override
+                    protected Stream<Method> findMethods(final Class<? extends Annotation> marker) {
+                        return Stream.empty();
+                    }
+                };
+            }
+
+            @Override
+            protected Stream<Method> findMethods(final Class<? extends Annotation> marker) {
+                return Stream.empty();
+            }
+        };
+        latch.countDown();
+
+        final Stream<String> collect = COMPONENT_FACTORY.collect(String.class, mapper, 2, 2);
+        final List<String> threads = collect.collect(toList());
+        assertEquals(threads.toString(), 2, threads.size());
+        threads.forEach(n -> assertTrue(n, n.startsWith("SimpleComponentRule-pool-")));
     }
 
     @Test
