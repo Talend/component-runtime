@@ -47,11 +47,15 @@ public class ParameterModelService {
 
     private final Collection<ParameterExtensionEnricher> enrichers;
 
+    protected ParameterModelService(final Collection<ParameterExtensionEnricher> enrichers) {
+        this.enrichers = enrichers;
+    }
+
     public ParameterModelService() {
-        enrichers = StreamSupport
+        this(StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(
                         ServiceLoader.load(ParameterExtensionEnricher.class).iterator(), Spliterator.IMMUTABLE), false)
-                .collect(toList());
+                .collect(toList()));
     }
 
     public List<ParameterMeta> buildParameterMetas(final Executable executable, final String i18nPackage) {

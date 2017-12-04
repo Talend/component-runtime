@@ -81,5 +81,17 @@ public class TaCoKitPlugin implements Plugin<Project> {
         }, "talendComponentKitValidation");
         project.afterEvaluate(p -> p.getTasksByName("classes", false).stream().findFirst().ifPresent(
                 compileJava -> compileJava.setFinalizedBy(singleton("talendComponentKitValidation"))));
+
+        // documentation
+        project.task(new HashMap<String, Object>() {
+
+            {
+                put("type", DocumentationTask.class);
+                put("group", group);
+                put("description", "Generates an asciidoc file with the documentation of the components.");
+            }
+        }, "talendComponentKitDocumentation");
+        project.afterEvaluate(p -> p.getTasksByName("classes", false).stream().findFirst().ifPresent(
+                compileJava -> compileJava.setFinalizedBy(singleton("talendComponentKitDocumentation"))));
     }
 }

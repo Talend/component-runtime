@@ -17,6 +17,8 @@ package org.talend.sdk.component.gradle;
 
 import lombok.Data;
 
+import java.io.File;
+
 @Data
 public class TaCoKitExtension {
 
@@ -35,6 +37,15 @@ public class TaCoKitExtension {
     private String sdkVersion = "${project.version}";
 
     private String apiVersion = "${component-api.version}";
+
+    //
+    // documentation
+    //
+    private boolean skipDocumentation = false;
+
+    private int documentationLevel = 2;
+
+    private File documentationOutput;
 
     //
     // validation
