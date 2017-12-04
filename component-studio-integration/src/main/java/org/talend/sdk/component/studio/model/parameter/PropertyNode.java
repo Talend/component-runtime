@@ -41,6 +41,11 @@ public class PropertyNode {
     @Setter(AccessLevel.NONE)
     private EParameterFieldType fieldType;
 
+    /**
+     * Denotes whether this node is root in current tree
+     */
+    private final boolean root;
+
     public void addChild(final PropertyNode child) {
         children.add(child);
     }
@@ -66,10 +71,6 @@ public class PropertyNode {
     public void setProperty(final SimplePropertyDefinition property) {
         this.property = property;
         this.fieldType = new WidgetTypeMapper(property).getFieldType();
-    }
-
-    public boolean isRoot() {
-        return NO_PARENT_ID.equals(getParentId());
     }
 
     public boolean isLeaf() {
