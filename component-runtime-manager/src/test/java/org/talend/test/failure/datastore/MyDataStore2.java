@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,6 @@ import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 
 @Checkable
-@DataStore
-public class MyDataStore implements Serializable {
+public class MyDataStore2 implements Serializable {
+
 }
