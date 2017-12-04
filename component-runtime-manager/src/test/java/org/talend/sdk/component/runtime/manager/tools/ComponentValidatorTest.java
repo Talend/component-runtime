@@ -114,7 +114,8 @@ public class ComponentValidatorTest {
     @Test
     @ComponentPackage("org.talend.test.failure.datastore")
     public void testFailureDataStore() throws IOException {
-        expectedException.expectMessage("No @HealthCheck for [default] datastores");
+        expectedException.expectMessage("No @HealthCheck for dataStore: 'default' with checkable: 'default'\n"
+                + "- org.talend.test.failure.datastore.MyDataStore2 has @Checkable but is not a @DataStore");
     }
 
     @Test
@@ -197,6 +198,15 @@ public class ComponentValidatorTest {
                 });
     }
 
+    @Target(METHOD)
+    @Retention(RUNTIME)
+    public @interface ComponentPackage {
+
+        String value();
+
+        boolean success() default false;
+    }
+
     @Log
     public static class TestLog implements org.talend.sdk.component.runtime.manager.tools.Log {
 
@@ -209,14 +219,5 @@ public class ComponentValidatorTest {
         public void error(final String s) {
             log.severe(s);
         }
-    }
-
-    @Target(METHOD)
-    @Retention(RUNTIME)
-    public @interface ComponentPackage {
-
-        String value();
-
-        boolean success() default false;
     }
 }

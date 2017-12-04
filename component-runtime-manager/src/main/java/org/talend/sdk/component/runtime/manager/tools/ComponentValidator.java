@@ -20,11 +20,13 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -38,6 +40,7 @@ import java.util.stream.Stream;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
@@ -159,11 +162,10 @@ public class ComponentValidator extends BaseTask {
         }
 
         if (configuration.isValidateDataStore()) {
-            final List<String> datastores = finder
-                    .findAnnotatedClasses(DataStore.class)
-                    .stream()
-                    .map(d -> d.getAnnotation(DataStore.class).value())
-                    .collect(toList());
+            final List<Class<?>> datastoreClasses = finder.findAnnotatedClasses(DataStore.class);
+
+            final List<String> datastores = datastoreClasses.stream().map(d -> d.getAnnotation(DataStore.class).value())
+                                                            .collect(toList());
 
             Set<String> uniqueDatastores = new HashSet<>(datastores);
             if (datastores.size() != uniqueDatastores.size()) {
@@ -177,17 +179,26 @@ public class ComponentValidator extends BaseTask {
                         .collect(joining(", ")));
             }
 
-            final Set<String> healthchecks = finder
-                    .findAnnotatedMethods(HealthCheck.class)
+            final List<Class<?>> checkableClasses = finder.findAnnotatedClasses(Checkable.class);
+            errors.addAll(checkableClasses.stream()
+                                   .filter(d -> !d.isAnnotationPresent(DataStore.class))
+                                   .map(c -> c.getName() + " has @Checkable but is not a @DataStore")
+                                          .collect(toList()));
+
+            final Map<String, String> checkableDataStoresMap = checkableClasses
                     .stream()
+                    .filter(d -> d.isAnnotationPresent(DataStore.class))
+                    .collect(toMap(d -> d.getAnnotation(DataStore.class).value(), d -> d.getAnnotation(Checkable.class).value()));
+
+            final Set<String> healthchecks = finder
+                    .findAnnotatedMethods(HealthCheck.class).stream()
+                    .filter(h -> h.getDeclaringClass().isAnnotationPresent(Service.class))
                     .map(m -> m.getAnnotation(HealthCheck.class).value())
                     .collect(toSet());
-            if (!healthchecks.containsAll(datastores)) {
-                final Set<String> missing = new HashSet<>(datastores);
-                datastores.removeAll(healthchecks);
-                errors.add("No @HealthCheck for " + missing + " datastores");
-            }
-
+            errors.addAll(checkableDataStoresMap.entrySet().stream()
+                                            .filter(e -> !healthchecks.contains(e.getValue()))
+                                            .map(e -> "No @HealthCheck for dataStore: '" + e.getKey() + "' with checkable: '" + e.getValue() + "'")
+                                            .collect(toList()));
         }
 
         if (configuration.isValidateDataSet()) {
@@ -215,13 +226,13 @@ public class ComponentValidator extends BaseTask {
                     .of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class)
                     .flatMap(action -> {
                         final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
-                        return finder
-                                .findAnnotatedMethods(action)
-                                .stream()
+                        final List<Method> annotatedMethods = finder.findAnnotatedMethods(action);
+                        return Stream.concat(annotatedMethods.stream()
                                 .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
-                                .map(m -> m + " doesn't return a " + returnedType + ", please fix it")
-                                .collect(toSet())
-                                .stream();
+                                .map(m -> m + " doesn't return a " + returnedType + ", please fix it"),
+                                annotatedMethods.stream()
+                                                .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class) && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
+                                                .map(m -> m + " is not declared into a service class"));
                     })
                     .collect(toSet()));
 
@@ -264,7 +275,7 @@ public class ComponentValidator extends BaseTask {
                     .map(f -> f.getAnnotation(Proposable.class).value())
                     .collect(toSet());
             final Set<String> dynamicValues = finder
-                    .findAnnotatedFields(DynamicValues.class)
+                    .findAnnotatedMethods(DynamicValues.class)
                     .stream()
                     .map(f -> f.getAnnotation(DynamicValues.class).value())
                     .collect(toSet());
