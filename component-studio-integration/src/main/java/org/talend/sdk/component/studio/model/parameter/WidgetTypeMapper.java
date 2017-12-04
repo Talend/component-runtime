@@ -23,9 +23,11 @@ import static org.talend.core.model.process.EParameterFieldType.MEMO_JAVA;
 import static org.talend.core.model.process.EParameterFieldType.OPENED_LIST;
 import static org.talend.core.model.process.EParameterFieldType.TABLE;
 import static org.talend.core.model.process.EParameterFieldType.TEXT;
+import static org.talend.core.model.process.EParameterFieldType.TEXT_AREA;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.JAVA;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CODE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CREDENTIAL;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_TEXTAREA;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.BOOLEAN;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.ENUM;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.STRING;
@@ -56,6 +58,8 @@ public class WidgetTypeMapper {
             return TEXT;
         } else if (isHiddenText()) {
             return HIDDEN_TEXT;
+        } else if (isTextArea()) {
+            return TEXT_AREA;
         } else if (isCheck()) {
             return CHECK;
         } else if (isClosedList()) {
@@ -77,6 +81,13 @@ public class WidgetTypeMapper {
      */
     private boolean isText() {
         return STRING.equals(property.getType()) && property.getMetadata().isEmpty();
+    }
+    
+    /**
+     * Checks whether widget type is {@link EParameterFieldType#TEXT_AREA}
+     */
+    private boolean isTextArea() {
+       return property.getMetadata().containsKey(UI_TEXTAREA); 
     }
 
     /**
