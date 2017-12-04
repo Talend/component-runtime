@@ -92,6 +92,8 @@ public class ProjectResourceTest {
         Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>").forEach(
                 token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
         assertEquals("= A Talend generated Component Starter Project\n", files.get("application/README.adoc"));
+        assertEquals(resourceFileToString("generated/ProjectResourceTest/emptyProject/pom.xml"),
+                files.get("application/pom.xml"));
     }
 
     @Test

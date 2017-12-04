@@ -43,19 +43,19 @@
       <plugin>
         <groupId>{{groupId}}</groupId>
         <artifactId>{{artifactId}}</artifactId>
-        <version>{{version}}</version>{{#executions}}
-        <executions>
+        <version>{{version}}</version>{{#executions}}{{#-first}}
+        <executions>{{/-first}}
           <execution>
             <id>{{id}}</id>
             <phase>{{phase}}</phase>
             <goals>
               <goal>{{goal}}</goal>
             </goals>
-          </execution>
-        </executions>{{/executions}}
-        <configuration>{{#configuration}}
-          <{{key}}>{{value}}</{{key}}>{{/configuration}}
-        </configuration>
+          </execution>{{#-last}}
+        </executions>{{/-last}}{{/executions}}{{#configuration}}{{#-first}}
+        <configuration>{{/-first}}
+          <{{key}}>{{value}}</{{key}}>{{#-last}}
+        </configuration>{{/-last}}{{/configuration}}
       </plugin>{{/plugins}}
     </plugins>
   </build>
