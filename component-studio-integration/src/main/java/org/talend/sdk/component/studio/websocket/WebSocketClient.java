@@ -16,6 +16,7 @@
 package org.talend.sdk.component.studio.websocket;
 
 import static java.util.Collections.emptyList;
+import static java.util.Locale.ENGLISH;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -28,8 +29,6 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -70,13 +69,11 @@ import lombok.Getter;
 //
 // technical note: this client includes the transport (websocket) but also the protocol/payload formatting/parsing
 // todo: better error handling, can need some server bridge love too to support ERROR responses
-//
-// todo: some caching here instead of the server side?
 public class WebSocketClient implements AutoCloseable {
 
     private static final byte[] EOM = "^@".getBytes(StandardCharsets.UTF_8);
 
-    private final Map<String, Queue<Session>> sessions = new HashMap<>();
+    private final Queue<Session> sessions = new ConcurrentLinkedQueue<>();
 
     private final WebSocketContainer container;
 
@@ -99,9 +96,11 @@ public class WebSocketClient implements AutoCloseable {
         this.synch = synch;
     }
 
-    private String buildRequest(final String uri, final Object payload) {
-        return "SEND\r\ndestination:" + uri + "\r\nAccept: application/json\r\nContent-Type: "
-                + "application/json\r\n\r\n" + (payload == null ? "" : jsonb.toJson(payload)) + "^@";
+    private String buildRequest(final String id, final String uri, final Object payload) {
+        final String method = id.substring("/v1/".length(), id.indexOf('/', "/v1/".length() + 1));
+        return "SEND\r\ndestination:" + uri + "\r\ndestinationMethod:" + method.toUpperCase(ENGLISH)
+                + "\r\nAccept: application/json\r\nContent-Type: " + "application/json\r\n\r\n"
+                + (payload == null ? "" : jsonb.toJson(payload)) + "^@";
     }
 
     private <T> T parseResponse(final byte[] payload, final Class<T> expectedResponse) {
@@ -123,12 +122,12 @@ public class WebSocketClient implements AutoCloseable {
 
     private <T> T sendAndWait(final String id, final String uri, final Object payload, final Class<T> expectedResponse,
             final boolean doCheck) {
-        final Session session = getOrCreateSession(id, uri, doCheck);
+        final Session session = getOrCreateSession(id, doCheck);
 
         final PayloadHandler handler = new PayloadHandler(this);
         session.getUserProperties().put("handler", handler);
 
-        final String buildRequest = buildRequest(uri, payload);
+        final String buildRequest = buildRequest(id, uri, payload);
         try {
             try {
                 session.getBasicRemote().sendBinary(ByteBuffer.wrap(buildRequest.getBytes(StandardCharsets.UTF_8)));
@@ -143,17 +142,17 @@ public class WebSocketClient implements AutoCloseable {
                 throw new IllegalStateException(e);
             }
         } finally {
-            doRelease(id, session);
+            doRelease(session);
         }
 
         return parseResponse(handler.payload(), expectedResponse);
     }
 
-    private void doRelease(final String id, final Session session) {
-        sessions.get(id).add(session);
+    private void doRelease(final Session session) {
+        sessions.add(session);
     }
 
-    private Session getOrCreateSession(final String id, final String uri, final boolean doCheck) {
+    private Session getOrCreateSession(final String id, final boolean doCheck) {
         if (doCheck && synch != null) {
             synchronized (this) {
                 if (synch != null) {
@@ -163,8 +162,7 @@ public class WebSocketClient implements AutoCloseable {
             }
         }
 
-        final Queue<Session> session = sessions.computeIfAbsent(id, key -> new ConcurrentLinkedQueue<>());
-        Session poll = session.poll();
+        Session poll = sessions.poll();
         if (poll != null && !poll.isOpen()) {
             try {
                 poll.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "Session is no more opened"));
@@ -175,13 +173,13 @@ public class WebSocketClient implements AutoCloseable {
             poll = null;
         }
         if (poll == null) {
-            poll = doConnect(id.substring("/v1/".length(), id.indexOf('/', "/v1/".length() + 1)), uri);
+            poll = doConnect();
         }
         return poll;
     }
 
-    private Session doConnect(final String method, final String uri) {
-        final URI connectUri = URI.create(base + '/' + method + '/' + uri);
+    private Session doConnect() {
+        final URI connectUri = URI.create(base + "/bus");
         final ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create().build();
         endpointConfig.getUserProperties().put(Constants.IO_TIMEOUT_MS_PROPERTY, Long.toString(timeout));
         try {
@@ -217,7 +215,7 @@ public class WebSocketClient implements AutoCloseable {
 
     @Override
     public synchronized void close() {
-        sessions.values().stream().flatMap(Collection::stream).forEach(s -> {
+        sessions.forEach(s -> {
             try {
                 s.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "Shutting down the studio"));
             } catch (final IOException e) {

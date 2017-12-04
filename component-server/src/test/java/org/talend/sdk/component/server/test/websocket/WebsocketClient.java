@@ -106,8 +106,7 @@ public class WebsocketClient {
                         fail(e.getMessage());
                     }
                 }
-            }, clientEndpointConfig,
-                    URI.create("ws://localhost:" + config.getHttpPort() + "/websocket/v1/" + method + uri));
+            }, clientEndpointConfig, URI.create("ws://localhost:" + config.getHttpPort() + "/websocket/v1/bus"));
         } catch (final DeploymentException | IOException e) {
             fail(e.getMessage());
             throw new IllegalStateException(e);
@@ -115,8 +114,8 @@ public class WebsocketClient {
 
         try {
             final RemoteEndpoint.Async asyncRemote = session.getAsyncRemote();
-            final String payload = "SEND\r\ndestination:" + uri + "\r\nAccept: " + type + "\r\nContent-Type: "
-                    + "application/json\r\n\r\n" + body + "^@";
+            final String payload = "SEND\r\ndestination:" + uri + "\r\ndestinationMethod:" + method + "\r\nAccept: "
+                    + type + "\r\nContent-Type: " + "application/json\r\n\r\n" + body + "^@";
             asyncRemote.sendBinary(ByteBuffer.wrap(payload.getBytes(StandardCharsets.UTF_8)));
 
             latch.await(1, MINUTES);

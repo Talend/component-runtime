@@ -59,6 +59,19 @@ status: <http status code>
 
 TIP: if you have a doubt about the endpoint, they are all logged during startup and you can find them in the logs.
 
+If you don't want to create a pool of connection per endpoint/verb you can use the bus endpoint: `/websocket/v1/bus`.
+This endpoint requires that you add the header `destinationMethod` to each request with the verb value - default would be `GET`:
+
+[source]
+----
+SEND
+destination: /component/index
+destinationMethod: GET
+Accept: application/json
+
+^@
+----
+
 == Web forms and REST API
 
 `component-form` library provides a way to build a component REST API facade compatible with react form library.

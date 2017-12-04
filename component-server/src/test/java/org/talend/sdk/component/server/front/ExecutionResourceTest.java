@@ -61,6 +61,14 @@ public class ExecutionResourceTest {
     }
 
     @Test
+    public void websocketBusRead() {
+        final String result = ws.read(String.class, "post", "/execution/read/chain/list",
+                Json.createObjectBuilder().add("values[0]", "v1").add("values[1]", "v2").build().toString(),
+                "talend/stream");
+        assertEquals("{\"value\":\"v1\"}\n{\"value\":\"v2\"}\n", result);
+    }
+
+    @Test
     public void read() {
         final String output = base.path("execution/read/{family}/{component}").resolveTemplate("family", "chain")
                 .resolveTemplate("component", "list").request("talend/stream")

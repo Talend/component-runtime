@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.configuration;
 
 import static java.util.Collections.emptyEnumeration;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.enumeration;
 import static java.util.Collections.singleton;
@@ -50,6 +51,7 @@ import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.enterprise.context.Dependent;
@@ -187,7 +189,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         }, new ServiceListGeneratorServlet(registry, bus));
         webSocketRegistry.controller = controller;
 
-        factory.getClassResourceInfo().stream()
+        Stream.concat(factory.getClassResourceInfo().stream()
                 .flatMap(cri -> cri.getMethodDispatcher().getOperationResourceInfos().stream()).map(ori -> {
                     final String uri = ori.getClassResourceInfo().getURITemplate().getValue()
                             + ori.getURITemplate().getValue();
@@ -212,7 +214,17 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                                             ori.getHttpMethod(), uri, headers);
                                 }
                             }).build();
-                }).sorted(Comparator.comparing(ServerEndpointConfig::getPath))
+                }), Stream.of(ServerEndpointConfig.Builder.create(Endpoint.class, "/websocket" + version + "/bus")
+                        .configurator(new ServerEndpointConfig.Configurator() {
+
+                            @Override
+                            public <T> T getEndpointInstance(final Class<T> clazz) throws InstantiationException {
+
+                                return (T) new JAXRSEndpoint(appBase, controller, servletContext, "GET", "/",
+                                        emptyMap());
+                            }
+                        }).build()))
+                .sorted(Comparator.comparing(ServerEndpointConfig::getPath))
                 .peek(e -> log.info("Deploying WebSocket(path={})", e.getPath())).forEach(config -> {
                     try {
                         container.addEndpoint(config);
@@ -231,7 +243,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         private final ServletContext context;
 
-        private final String method;
+        private final String defaultMethod;
 
         private final String defaultUri;
 
@@ -282,6 +294,14 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                     uri = uris.iterator().next();
                 }
 
+                final List<String> methods = headers.get("destinationMethod");
+                final String method;
+                if (methods == null || methods.isEmpty()) {
+                    method = defaultMethod;
+                } else {
+                    method = methods.iterator().next();
+                }
+
                 final String queryString;
                 final String path;
                 final int query = uri.indexOf('?');
@@ -294,8 +314,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 }
 
                 try {
-                    final WebSocketRequest request = new WebSocketRequest(method, headers, path, appBase + path,
-                            appBase, queryString, 8080, context, new WebSocketInputStream(message), session);
+                    final WebSocketRequest request = new WebSocketRequest(method.toUpperCase(ENGLISH), headers, path,
+                            appBase + path, appBase, queryString, 8080, context, new WebSocketInputStream(message),
+                            session);
                     controller.invoke(request, new WebSocketResponse(session));
                 } catch (final ServletException e) {
                     throw new IllegalArgumentException(e);
