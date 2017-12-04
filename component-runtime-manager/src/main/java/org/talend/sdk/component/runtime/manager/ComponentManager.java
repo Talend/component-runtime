@@ -15,11 +15,15 @@
  */
 package org.talend.sdk.component.runtime.manager;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static org.apache.xbean.finder.archive.FileArchive.decode;
+import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +58,7 @@ import java.util.function.Supplier;
 import java.util.jar.JarInputStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.xml.parsers.DocumentBuilder;
@@ -74,7 +79,6 @@ import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
-import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.internationalization.Internationalized;
@@ -112,14 +116,11 @@ import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import org.talend.sdk.component.spi.component.ComponentExtension;
 import org.w3c.dom.Document;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Optional.of;
-import static java.util.Optional.ofNullable;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
-import static org.apache.xbean.finder.archive.FileArchive.decode;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ComponentManager implements AutoCloseable {
@@ -1135,33 +1136,6 @@ public class ComponentManager implements AutoCloseable {
                             ? of(i.custom()).filter(s -> !s.isEmpty()).orElse("default")
                             : i.value().getKey())
                     .orElse("default");
-        }
-
-        private Constructor<?> findConstructor(final Class<?> type) {
-            return Stream
-                    .of(type.getConstructors())
-                    // we select the constructor with arguments which uses @Option or no-arg
-                    // constructor if no param construct
-                    // is matching
-                    .sorted((c1, c2) -> {
-                        final int options1 = Stream
-                                .of(c1.getParameters())
-                                .mapToInt(p -> p.isAnnotationPresent(Option.class) ? 1 : 0)
-                                .sum();
-                        final int options2 = Stream
-                                .of(c1.getParameters())
-                                .mapToInt(p -> p.isAnnotationPresent(Option.class) ? 1 : 0)
-                                .sum();
-                        if (options1 == options2) {
-                            final int paramCount1 = c1.getParameterCount();
-                            final int paramCount2 = c2.getParameterCount();
-                            return paramCount2 - paramCount1;
-                        }
-                        return options2 - options1;
-
-                    })
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("No constructor usable in " + type.getName()));
         }
 
         // we keep the component (family) value since it is more user fiendly than

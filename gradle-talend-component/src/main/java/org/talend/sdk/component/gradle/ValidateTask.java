@@ -16,61 +16,21 @@
 package org.talend.sdk.component.gradle;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.stream.Stream;
 
-import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
-public class ValidateTask extends DefaultTask {
+public class ValidateTask extends TaCoKitTask {
 
     @TaskAction
     public void validateTalendComponents() {
-        final Thread thread = Thread.currentThread();
-        final ClassLoader old = thread.getContextClassLoader();
-        final URLClassLoader loader = createLoader(old);
-        try {
-            thread.setContextClassLoader(loader);
-            doValidateTalendComponents();
-        } catch (final RuntimeException e) {
-            throw e;
-        } catch (final Exception e) {
-            throw new IllegalStateException(e);
-        } finally {
-            thread.setContextClassLoader(old);
+        executeInContext(() -> {
             try {
-                loader.close();
-            } catch (final IOException e) {
-                getLogger().error(e.getMessage(), e);
+                doValidateTalendComponents();
+            } catch (final Exception e) {
+                throw new IllegalStateException(e);
             }
-        }
-    }
-
-    private URLClassLoader createLoader(final ClassLoader parent) {
-        return new URLClassLoader(Stream
-                .concat(Stream.concat(
-                        getProject().getConfigurations().getByName("talendComponentKit").getFiles().stream(),
-                        getProject().getConfigurations().getByName("runtime").getFiles().stream()), findClasses())
-                .distinct()
-                .map(f -> {
-                    try {
-                        return f.toURI().toURL();
-                    } catch (final MalformedURLException e) {
-                        throw new IllegalArgumentException(e);
-                    }
-                })
-                .toArray(URL[]::new), parent);
-    }
-
-    private Stream<File> findClasses() {
-        return Stream
-                .of("classes/main", "classes/java/main", "resources/main")
-                .map(p -> new File(getProject().getBuildDir(), p))
-                .filter(File::exists);
+        });
     }
 
     private void doValidateTalendComponents() throws Exception {
@@ -79,7 +39,7 @@ public class ValidateTask extends DefaultTask {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
         final Class<?> config =
-                tccl.loadClass("org.talend.sdk.component.runtime.manager.validator.ComponentValidator$Configuration");
+                tccl.loadClass("org.talend.sdk.component.runtime.manager.tools.ComponentValidator$Configuration");
         final Object configuration = config.getConstructor().newInstance();
 
         set(configuration, "setValidateFamily", extension.isValidateFamily());
@@ -92,8 +52,7 @@ public class ValidateTask extends DefaultTask {
         set(configuration, "setValidateDataSet", extension.isValidateDataSet());
         set(configuration, "setValidateActions", extension.isValidateActions());
 
-        final Class<?> validator =
-                tccl.loadClass("org.talend.sdk.component.runtime.manager.validator.ComponentValidator");
+        final Class<?> validator = tccl.loadClass("org.talend.sdk.component.runtime.manager.tools.ComponentValidator");
         final Runnable runnable =
                 Runnable.class.cast(validator.getConstructor(config, File[].class, Object.class).newInstance(
                         configuration, findClasses().toArray(File[]::new), getLogger()));

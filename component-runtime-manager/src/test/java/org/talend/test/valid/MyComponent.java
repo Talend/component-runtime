@@ -21,13 +21,20 @@ import java.io.Serializable;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 
+@Documentation("super my component")
 @Version
 @Icon(FILE_JOB_O)
 @Processor(family = "test", name = "my")
 public class MyComponent implements Serializable {
+
+    public MyComponent(@Option("configuration") final MyConfig config) {
+        // no-op
+    }
 
     @ElementListener
     public Foo passthrough(final Foo item) {
@@ -35,5 +42,26 @@ public class MyComponent implements Serializable {
     }
 
     public static class Foo {
+    }
+
+    public static class MyConfig implements Serializable {
+
+        @Option
+        @Documentation("the input value")
+        private String input;
+
+        @Option
+        private int undocumented;
+
+        @Option
+        @Documentation("it is nested")
+        private MyNestedConfig nested = new MyNestedConfig();
+    }
+
+    public static class MyNestedConfig implements Serializable {
+
+        @Option
+        @Documentation("the user to log in")
+        private String user = "unknown";
     }
 }

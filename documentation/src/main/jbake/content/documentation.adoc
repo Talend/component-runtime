@@ -1326,7 +1326,43 @@ adding the corresponding flags to `false` in the `<configuration>` block of the 
 |validateFamily|Validate the family, i.e. the package containing the `@Components` has also a `@Icon`.|true
 |===
 
+=== Documentation
+
+This goal generates an Asciidoc file documenting your component from the configuration model (`@Option`) and
+`@Documentation` you can put on options and the component itself.
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${component.version}</version>
+  <executions>
+    <execution>
+      <id>talend-component-documentation</id>
+      <goals>
+        <goal>asciidoc</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+----
+
+[options="header,autowidth"]
+|===
+|Name|Description|Default
+|level
+|Which level are the root title
+a|2 which means `==`
+
+|output
+a|Where to store the output, it is *NOT* recommended to change it
+a|`${classes}/TALEND-INF/documentation.adoc`
+|===
+
 === Prepare
+
+IMPORTANT: this goal is deprecated.
 
 The `prepare` goal is to build artifacts you can deploy out of the box into the studio. It is a temporarly phase
 until the framework programming model is fully integrated in Talend suite.
@@ -1472,6 +1508,11 @@ talendComponentKit {
     // classpath for validation utilities
     sdkVersion = "${talendComponentVersion}"
     apiVersion = "${talendComponentApiVersion}"
+
+    // documentation
+    skipDocumentation = false
+    documentationOutput = new File(....)
+    documentationLevel = 2 // first level will be == in the generated adoc
 
     // validation
     skipValidation = false

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.talend.sdk.component.runtime.manager.validator;
+package org.talend.sdk.component.runtime.manager.tools;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -198,7 +198,7 @@ public class ComponentValidatorTest {
     }
 
     @Log
-    public static class TestLog implements ComponentValidator.Log {
+    public static class TestLog implements org.talend.sdk.component.runtime.manager.tools.Log {
 
         @Override
         public void debug(final String s) {

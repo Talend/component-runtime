@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.manager.validator;
+package org.talend.sdk.component.runtime.manager.tools;
 
-import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -25,37 +24,24 @@ import static java.util.stream.Collectors.toSet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
-import org.apache.xbean.finder.archive.Archive;
-import org.apache.xbean.finder.archive.CompositeArchive;
-import org.apache.xbean.finder.archive.FileArchive;
-import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.input.Emitter;
-import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.internationalization.Internationalized;
-import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
@@ -68,17 +54,15 @@ import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import lombok.Data;
 
 // IMPORTANT: this class is used by reflection in gradle integration, don't break signatures without checking it
-public class ComponentValidator implements Runnable {
+public class ComponentValidator extends BaseTask {
 
     private final Configuration configuration;
-
-    private final File[] classes;
 
     private final Log log;
 
     public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
+        super(classes);
         this.configuration = configuration;
-        this.classes = classes;
         try {
             this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
@@ -327,131 +311,8 @@ public class ComponentValidator implements Runnable {
         return null;
     }
 
-    private Stream<Class<? extends Annotation>> componentMarkers() {
-        return Stream.of(PartitionMapper.class, Processor.class, Emitter.class);
-    }
-
-    private AnnotationFinder newFinder() {
-        return new AnnotationFinder(new CompositeArchive(
-                Stream.of(classes).map(c -> new FileArchive(Thread.currentThread().getContextClassLoader(), c)).toArray(
-                        Archive[]::new)));
-    }
-
-    private Optional<Component> components(final Class<?> component) {
-        return componentMarkers().map(component::getAnnotation).filter(Objects::nonNull).findFirst().map(
-                this::asComponent);
-    }
-
-    private String findFamily(final Component c, final Class<?> component) {
-        return of(c.family()).filter(name -> !name.isEmpty()).orElseGet(
-                () -> findPackageOrFail(component, Components.class).family());
-    }
-
-    private <A extends Annotation> A findPackageOrFail(final Class<?> component, final Class<A> api) {
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        final String pck = component.getPackage() == null ? null : component.getPackage().getName();
-        if (pck != null) {
-            String currentPackage = pck;
-            do {
-                try {
-                    final Class<?> pckInfo = loader.loadClass(currentPackage + ".package-info");
-                    if (pckInfo.isAnnotationPresent(api)) {
-                        return pckInfo.getAnnotation(api);
-                    }
-                } catch (final ClassNotFoundException e) {
-                    // no-op
-                }
-
-                final int endPreviousPackage = currentPackage.lastIndexOf('.');
-                if (endPreviousPackage < 0) { // we don't accept default package since it is not specific enough
-                    break;
-                }
-
-                currentPackage = currentPackage.substring(0, endPreviousPackage);
-            } while (true);
-        }
-        throw new IllegalArgumentException("No @" + api.getName() + " for the component " + component
-                + ", add it in package-info.java or disable this validation"
-                + " (which can have side effects in integrations/designers)");
-    }
-
-    private ResourceBundle findResourceBundle(final Class<?> component) {
-        final String baseName = ofNullable(component.getPackage()).map(p -> p.getName() + ".").orElse("") + "Messages";
-        try {
-            return ResourceBundle.getBundle(baseName, Locale.ENGLISH, Thread.currentThread().getContextClassLoader());
-        } catch (final MissingResourceException mre) {
-            return null;
-        }
-    }
-
     private boolean isSerializable(final Class<?> aClass) {
         return Serializable.class.isAssignableFrom(aClass);
-    }
-
-    private Component asComponent(final Annotation a) {
-        return Component.class.cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                new Class<?>[] { Component.class },
-                (proxy, method, args) -> a.annotationType().getMethod(method.getName()).invoke(a)));
-    }
-
-    public interface Component {
-
-        String family();
-
-        String name();
-    }
-
-    public interface Log {
-
-        void debug(String s);
-
-        void error(String s);
-    }
-
-    private static class ReflectiveLog implements Log {
-
-        private final Object delegate;
-
-        private final Method error;
-
-        private final Method debug;
-
-        private ReflectiveLog(final Object delegate) throws NoSuchMethodException {
-            this.delegate = delegate;
-            this.error = findMethod("error");
-            this.debug = findMethod("debug");
-        }
-
-        private Method findMethod(final String name) throws NoSuchMethodException {
-            final Class<?> delegateClass = delegate.getClass();
-            try {
-                return delegateClass.getMethod(name, String.class);
-            } catch (final NoSuchMethodException nsme) {
-                return delegateClass.getMethod(name, CharSequence.class);
-            }
-        }
-
-        @Override
-        public void debug(final String msg) {
-            try {
-                debug.invoke(delegate, msg);
-            } catch (final IllegalAccessException e) {
-                throw new IllegalStateException(e);
-            } catch (final InvocationTargetException e) {
-                throw new IllegalStateException(e.getTargetException());
-            }
-        }
-
-        @Override
-        public void error(final String msg) {
-            try {
-                error.invoke(delegate, msg);
-            } catch (final IllegalAccessException e) {
-                throw new IllegalStateException(e);
-            } catch (final InvocationTargetException e) {
-                throw new IllegalStateException(e.getTargetException());
-            }
-        }
     }
 
     @Data
