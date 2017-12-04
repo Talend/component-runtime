@@ -18,9 +18,9 @@ package org.talend.sdk.component.studio.model.parameter;
 import static org.talend.core.model.process.EParameterFieldType.CHECK;
 import static org.talend.core.model.process.EParameterFieldType.CLOSED_LIST;
 import static org.talend.core.model.process.EParameterFieldType.FILE;
-import static org.talend.core.model.process.EParameterFieldType.HIDDEN_TEXT;
 import static org.talend.core.model.process.EParameterFieldType.MEMO_JAVA;
 import static org.talend.core.model.process.EParameterFieldType.OPENED_LIST;
+import static org.talend.core.model.process.EParameterFieldType.PASSWORD;
 import static org.talend.core.model.process.EParameterFieldType.TABLE;
 import static org.talend.core.model.process.EParameterFieldType.TEXT;
 import static org.talend.core.model.process.EParameterFieldType.TEXT_AREA;
@@ -56,8 +56,8 @@ public class WidgetTypeMapper {
     public EParameterFieldType getFieldType() {
         if (isText()) {
             return TEXT;
-        } else if (isHiddenText()) {
-            return HIDDEN_TEXT;
+        } else if (isPassword()) {
+            return PASSWORD;
         } else if (isTextArea()) {
             return TEXT_AREA;
         } else if (isCheck()) {
@@ -82,19 +82,19 @@ public class WidgetTypeMapper {
     private boolean isText() {
         return STRING.equals(property.getType()) && property.getMetadata().isEmpty();
     }
-    
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#TEXT_AREA}
      */
     private boolean isTextArea() {
-       return property.getMetadata().containsKey(UI_TEXTAREA); 
+        return property.getMetadata().containsKey(UI_TEXTAREA);
     }
 
     /**
-     * Checks whether widget type is {@link EParameterFieldType#HIDDEN_TEXT}
+     * Checks whether widget type is {@link EParameterFieldType#PASSWORD}
      */
-    private boolean isHiddenText() {
-        return STRING.equals(property.getType()) && property.getMetadata().containsKey(UI_CREDENTIAL);
+    private boolean isPassword() {
+        return property.getMetadata().containsKey(UI_CREDENTIAL);
     }
 
     /**
