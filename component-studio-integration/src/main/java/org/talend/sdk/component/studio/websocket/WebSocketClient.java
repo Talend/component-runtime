@@ -60,6 +60,7 @@ import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.Environment;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.studio.lang.Pair;
 
@@ -252,9 +253,7 @@ public class WebSocketClient implements AutoCloseable {
         }
 
         public boolean healthCheck() {
-            root.sendAndWait("/v1/get/component/index",
-                    "/component/index?language=" + Locale.getDefault().getLanguage(), null, ComponentIndices.class,
-                    false);
+            root.sendAndWait("/v1/get/environment", "/environment", null, Environment.class, false);
             return true;
         }
     }

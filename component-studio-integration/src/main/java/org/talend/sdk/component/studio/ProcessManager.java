@@ -238,7 +238,7 @@ public class ProcessManager implements AutoCloseable {
                     }
 
                     try (final Socket s = new Socket("localhost", port)) {
-                        new URL("http://localhost:" + port + "/api/v1/component/index").openStream().close();
+                        new URL("http://localhost:" + port + "/api/v1/environment").openStream().close();
                         ready.countDown();
                         return; // opened :)
                     } catch (final IOException e) {
