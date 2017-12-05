@@ -28,7 +28,9 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -136,13 +138,13 @@ public class StudioInstaller implements Runnable {
                 config.getProperty("talend.component.server.component.registry"));
         if (registry == null) {
             final File registryLocation = new File(configIni.getParentFile(), "components-registration.properties");
-            registryLocation.mkdirs();
+            registryLocation.getParentFile().mkdirs();
             registry = registryLocation.getAbsolutePath();
 
             config.setProperty("component.java.registry", registry);
             try {
-                final File backup = new File(configIni.getParentFile(),
-                        "backup/" + configIni.getName() + "_" + LocalDateTime.now());
+                final File backup = new File(configIni.getParentFile(), "backup/" + configIni.getName() + "_"
+                        + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-mm-dd_HH-mm-ss")));
                 mkdirP(backup.getParentFile());
                 log.info("Saving configuration in " + backup);
                 Files.copy(configIni.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -156,6 +158,11 @@ public class StudioInstaller implements Runnable {
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
+            try {
+                Files.write(registryLocation.toPath(), new byte[0], StandardOpenOption.CREATE_NEW);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
         }
         final Properties components = new Properties();
         try (final Reader reader = new FileReader(registry)) {
@@ -163,8 +170,10 @@ public class StudioInstaller implements Runnable {
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
-        if (!components.containsKey(mainGav)) {
-            components.setProperty(mainGav.split(":")[1], mainGav);
+
+        final String key = mainGav.split(":")[1];
+        if (!components.containsKey(key)) {
+            components.setProperty(key, mainGav);
             try (final Writer writer = new FileWriter(registry)) {
                 components.store(writer, "File rewritten to add " + mainGav);
                 log.info("Updated " + registry + " with '" + mainGav + "'");

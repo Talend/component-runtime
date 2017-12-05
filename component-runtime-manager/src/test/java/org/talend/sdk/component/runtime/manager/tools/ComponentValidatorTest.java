@@ -39,7 +39,7 @@ import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
 import org.junit.runners.model.Statement;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 
 public class ComponentValidatorTest {
 
@@ -207,7 +207,7 @@ public class ComponentValidatorTest {
         boolean success() default false;
     }
 
-    @Log
+    @Slf4j
     public static class TestLog implements org.talend.sdk.component.runtime.manager.tools.Log {
 
         @Override
@@ -217,7 +217,7 @@ public class ComponentValidatorTest {
 
         @Override
         public void error(final String s) {
-            log.severe(s);
+            log.error(s);
         }
 
         @Override
