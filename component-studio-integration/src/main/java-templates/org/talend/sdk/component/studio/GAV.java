@@ -21,4 +21,6 @@ public interface GAV {
 
     String ARTIFACT_ID = "${project.artifactId}";
 
+    String VERSION = "${project.version}";
+
 }

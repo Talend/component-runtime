@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.studio;
 
-import static java.util.Collections.emptyList;
 import static org.talend.sdk.component.studio.model.ReturnVariables.AFTER;
 import static org.talend.sdk.component.studio.model.ReturnVariables.RETURN_ERROR_MESSAGE;
 import static org.talend.sdk.component.studio.model.ReturnVariables.RETURN_TOTAL_RECORD_COUNT;
@@ -49,7 +48,7 @@ public class ComponentModel extends AbstractBasicComponent {
     /**
      * Separator between family and component name
      */
-    private static final String COMPONENT_SEPARATOR = "/";
+    private static final String COMPONENT_SEPARATOR = "";
 
     private final ComponentIndex index;
 
@@ -114,8 +113,9 @@ public class ComponentModel extends AbstractBasicComponent {
      * @return
      */
     private List<ECodePart> createCodePartList() {
-        return Collections
-                .unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY));
+        return (detail.getType().equalsIgnoreCase("input"))
+                ? Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.END, ECodePart.FINALLY))
+                : Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.FINALLY));
     }
 
     /**
@@ -289,7 +289,7 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     @Override // TODO
     public List<ModuleNeeded> getModulesNeeded() {
-        return emptyList();
+        return getModulesNeeded(null);
     }
 
     /**
@@ -302,7 +302,13 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     @Override // TODO
     public List<ModuleNeeded> getModulesNeeded(final INode iNode) {
-        return emptyList();
+        ModuleNeeded slf4jModule =
+                new ModuleNeeded(getName(), "", true, "mvn:org.talend.libraries/slf4j-log4j12-1.7.2/6.0.0");
+        ModuleNeeded runtimeManager = new ModuleNeeded(getName(), "", true,
+                "mvn:org.talend.sdk.component/component-runtime-manager/" + GAV.VERSION);
+        ModuleNeeded runtimeDi = new ModuleNeeded(getName(), "", true,
+                "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.VERSION);
+        return Collections.unmodifiableList(Arrays.asList(slf4jModule, runtimeManager, runtimeDi));
     }
 
     /**
@@ -327,4 +333,13 @@ public class ComponentModel extends AbstractBasicComponent {
     public EComponentType getComponentType() {
         return EComponentType.GENERIC;
     }
+
+    public String getTemplateFolder() {
+        return "tacokit/jet_stub/generic/" + detail.getType().toLowerCase();
+    }
+
+    public String getTemplateNamePrefix() {
+        return detail.getType().toLowerCase();
+    }
+
 }
