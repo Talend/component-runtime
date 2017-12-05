@@ -53,6 +53,10 @@ def git = Git.cloneRepository()
         .setBranch(branch)
         .call()
 
+if ('skip' == profile) {
+    log.info("Skipping as requested")
+    return
+}
 def isLatest = 'latest' == profile
 def ant = new AntBuilder()
 

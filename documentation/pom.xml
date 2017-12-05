@@ -117,26 +117,7 @@
         </executions>
         <configuration>
           <scripts>
-            <script><![CDATA[
-            import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest
-            import org.apache.maven.settings.crypto.SettingsDecrypter
-
-            def serverId = project.properties.getProperty('talend.jira.serverId', 'jira')
-            def serverIt = session.settings.servers.findAll { it.id == serverId }.iterator()
-            if (!serverIt.hasNext()) {
-              log.warn("no server '${serverId}' in your settings.xml, will skip changelog generation")
-              project.properties.setProperty('talend.jira.username', 'skip')
-              project.properties.setProperty('talend.jira.password', 'skip')
-              return
-            }
-
-            def server = serverIt.next()
-            def decryptedServer = session.container.lookup(SettingsDecrypter).decrypt(new DefaultSettingsDecryptionRequest(server))
-            server = decryptedServer.server != null ? decryptedServer.server : server
-            project.properties.setProperty('talend.jira.username', server.username)
-            project.properties.setProperty('talend.jira.password', server.password)
-            log.info("Set the Talend jira credentials into the project properties")
-            ]]></script>
+            <script>${project.basedir}/src/build/DecryptJiraCredentials.groovy</script>
           </scripts>
         </configuration>
         <dependencies>
@@ -449,7 +430,7 @@
   </build>
 
   <profiles>
-    <profile> <!-- mvn clean package gplus:execute@deploy-site -Pgh-pages -Dgithub.site.profile=latest -->
+    <profile> <!-- mvn clean verify -Pgh-pages -Dgithub.site.profile=latest -->
       <id>gh-pages</id>
 
       <properties>
@@ -476,6 +457,7 @@
             </executions>
             <configuration>
               <scripts>
+                <script>${project.basedir}/src/build/DecryptJiraCredentials.groovy</script>
                 <script>${project.basedir}/src/build/GithubPages.groovy</script>
               </scripts>
             </configuration>
