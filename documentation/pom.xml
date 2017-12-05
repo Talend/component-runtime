@@ -449,7 +449,7 @@
   </build>
 
   <profiles>
-    <profile> <!-- mvn package pre-site -Pgh-pages -->
+    <profile> <!-- mvn clean package gplus:execute@deploy-site -Pgh-pages -Dgithub.site.profile=latest -->
       <id>gh-pages</id>
 
       <properties>
@@ -468,7 +468,7 @@
             <executions>
               <execution>
                 <id>deploy-site</id>
-                <phase>pre-site</phase>
+                <phase>none</phase>
                 <goals>
                   <goal>execute</goal>
                 </goals>
