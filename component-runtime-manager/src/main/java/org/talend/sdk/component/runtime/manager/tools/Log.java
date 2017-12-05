@@ -20,4 +20,6 @@ public interface Log {
     void debug(String s);
 
     void error(String s);
+
+    void info(String s);
 }

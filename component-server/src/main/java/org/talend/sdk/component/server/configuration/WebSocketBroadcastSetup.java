@@ -118,6 +118,7 @@ import org.apache.cxf.transport.servlet.servicelist.ServiceListGeneratorServlet;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.tomcat.util.http.FastHttpDateFormat;
+import org.talend.sdk.component.server.front.security.ConnectionSecurityProvider;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -127,7 +128,6 @@ import lombok.extern.slf4j.Slf4j;
 @Dependent
 @WebListener
 public class WebSocketBroadcastSetup implements ServletContextListener {
-
     private static final String EOM = "^@";
 
     @Inject
@@ -596,6 +596,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         @Override
         public Object getAttribute(final String s) {
+            if (ConnectionSecurityProvider.SKIP.equalsIgnoreCase(s)) {
+                return Boolean.TRUE;
+            }
             return attributes.get(s);
         }
 

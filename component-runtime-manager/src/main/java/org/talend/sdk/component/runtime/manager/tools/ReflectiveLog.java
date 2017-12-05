@@ -26,10 +26,13 @@ class ReflectiveLog implements Log {
 
     private final Method debug;
 
+    private final Method info;
+
     ReflectiveLog(final Object delegate) throws NoSuchMethodException {
         this.delegate = delegate;
         this.error = findMethod("error");
         this.debug = findMethod("debug");
+        this.info = findMethod("info");
     }
 
     private Method findMethod(final String name) throws NoSuchMethodException {
@@ -56,6 +59,17 @@ class ReflectiveLog implements Log {
     public void error(final String msg) {
         try {
             error.invoke(delegate, msg);
+        } catch (final IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        } catch (final InvocationTargetException e) {
+            throw new IllegalStateException(e.getTargetException());
+        }
+    }
+
+    @Override
+    public void info(final String msg) {
+        try {
+            info.invoke(delegate, msg);
         } catch (final IllegalAccessException e) {
             throw new IllegalStateException(e);
         } catch (final InvocationTargetException e) {

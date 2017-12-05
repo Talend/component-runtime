@@ -39,6 +39,11 @@ public class TaCoKitExtension {
     private String apiVersion = "${component-api.version}";
 
     //
+    // deploy in studio
+    //
+    private File studioHome;
+
+    //
     // documentation
     //
     private boolean skipDocumentation = false;

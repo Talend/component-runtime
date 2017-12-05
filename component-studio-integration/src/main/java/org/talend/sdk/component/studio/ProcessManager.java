@@ -174,7 +174,7 @@ public class ProcessManager implements AutoCloseable {
         if (components != null) {
             command.add("-Dtalend.component.server.component.coordinates=" + components);
         }
-        if (components != null) {
+        if (registry != null) {
             command.add("-Dtalend.component.server.component.registry=" + registry);
         }
         if (Boolean.getBoolean("component.java.debug")) {
@@ -193,6 +193,10 @@ public class ProcessManager implements AutoCloseable {
             command.add("-Dtalend.component.server.mode=dev"); // dev mode since it logs more and can help investigating
                                                                // issues
         }
+
+        // local instance, no need of any security
+        command.add("-Dtalend.component.server.security.connection.handler=securityNoopHandler");
+        command.add("-Dtalend.component.server.security.command.handler=securityNoopHandler");
 
         command.add("-classpath");
         command.add(paths.stream().collect(Collectors.joining(File.pathSeparator)));
