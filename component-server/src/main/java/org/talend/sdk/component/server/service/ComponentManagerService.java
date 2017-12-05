@@ -90,17 +90,19 @@ public class ComponentManagerService {
         ofNullable(configuration.componentCoordinates()).orElse(emptySet()).stream()
                 .map(mvnCoordinateToFileConverter::toArtifact).map(artifact -> new File(mvnRepo, artifact.toPath()))
                 .filter(Objects::nonNull).forEach(plugin -> instance.addPlugin(plugin.getAbsolutePath()));
-        ofNullable(configuration.componentRegistry()).map(File::new).filter(File::exists).ifPresent(registry -> {
-            final Properties properties = new Properties();
-            try (final InputStream is = new FileInputStream(registry)) {
-                properties.load(is);
-            } catch (final IOException e) {
-                throw new IllegalArgumentException(e);
-            }
-            properties.stringPropertyNames().forEach(name -> instance.addPlugin(
-                    new File(mvnRepo, mvnCoordinateToFileConverter.toArtifact(properties.getProperty(name)).toPath())
-                            .getAbsolutePath()));
-        });
+        ofNullable(configuration.componentRegistry()).map(StrSubstitutor::replaceSystemProperties).map(File::new)
+                .filter(File::exists).ifPresent(registry -> {
+                    final Properties properties = new Properties();
+                    try (final InputStream is = new FileInputStream(registry)) {
+                        properties.load(is);
+                    } catch (final IOException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                    properties.stringPropertyNames()
+                            .forEach(name -> instance.addPlugin(new File(mvnRepo,
+                                    mvnCoordinateToFileConverter.toArtifact(properties.getProperty(name)).toPath())
+                                            .getAbsolutePath()));
+                });
 
         cacheEvictorPool = Executors.newScheduledThreadPool(1, new ThreadFactory() {
 

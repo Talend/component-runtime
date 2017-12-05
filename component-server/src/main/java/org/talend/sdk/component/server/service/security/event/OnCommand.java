@@ -13,8 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+package org.talend.sdk.component.server.service.security.event;
 
-public enum ErrorDictionary {
-    PLUGIN_MISSING, COMPONENT_MISSING, ICON_MISSING, ACTION_MISSING, ACTION_ERROR, BAD_FORMAT, DESIGN_MODEL_MISSING, UNEXPECTED, UNAUTHORIZED
+import java.lang.reflect.Method;
+
+import lombok.Data;
+
+@Data
+public class OnCommand extends ValidableEvent {
+    private final Class<?> clazz;
+    private final Method method;
 }

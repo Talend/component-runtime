@@ -94,4 +94,14 @@ public interface ComponentServerConfiguration {
     @Documentation("Should the /documentation endpoint be activated.")
     @ConfigProperty(name = "monitoring.documentation.active", defaultValue = "true")
     boolean supportsDocumentation();
+
+    // sync with org.talend.sdk.component.server.service.security.SecurityExtension.addSecurityHandlers()
+    @Documentation("How to validate a connection. Accepted values: securityNoopHandler.")
+    @ConfigProperty(name = "security.connection.handler", defaultValue = "securityNoopHandler")
+    String securityConnectionHandler();
+
+    // sync with org.talend.sdk.component.server.service.security.SecurityExtension.addSecurityHandlers(
+    @Documentation("How to validate a command/request. Accepted values: securityNoopHandler.")
+    @ConfigProperty(name = "security.command.handler", defaultValue = "securityNoopHandler")
+    String securityCommandHandler();
 }

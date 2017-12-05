@@ -219,5 +219,10 @@ public class ComponentValidatorTest {
         public void error(final String s) {
             log.severe(s);
         }
+
+        @Override
+        public void info(final String s) {
+            log.info(s);
+        }
     }
 }
