@@ -164,8 +164,8 @@ public class ComponentValidator extends BaseTask {
         if (configuration.isValidateDataStore()) {
             final List<Class<?>> datastoreClasses = finder.findAnnotatedClasses(DataStore.class);
 
-            final List<String> datastores = datastoreClasses.stream().map(d -> d.getAnnotation(DataStore.class).value())
-                                                            .collect(toList());
+            final List<String> datastores =
+                    datastoreClasses.stream().map(d -> d.getAnnotation(DataStore.class).value()).collect(toList());
 
             Set<String> uniqueDatastores = new HashSet<>(datastores);
             if (datastores.size() != uniqueDatastores.size()) {
@@ -180,25 +180,30 @@ public class ComponentValidator extends BaseTask {
             }
 
             final List<Class<?>> checkableClasses = finder.findAnnotatedClasses(Checkable.class);
-            errors.addAll(checkableClasses.stream()
-                                   .filter(d -> !d.isAnnotationPresent(DataStore.class))
-                                   .map(c -> c.getName() + " has @Checkable but is not a @DataStore")
-                                          .collect(toList()));
-
-            final Map<String, String> checkableDataStoresMap = checkableClasses
+            errors.addAll(checkableClasses
                     .stream()
-                    .filter(d -> d.isAnnotationPresent(DataStore.class))
-                    .collect(toMap(d -> d.getAnnotation(DataStore.class).value(), d -> d.getAnnotation(Checkable.class).value()));
+                    .filter(d -> !d.isAnnotationPresent(DataStore.class))
+                    .map(c -> c.getName() + " has @Checkable but is not a @DataStore")
+                    .collect(toList()));
+
+            final Map<String, String> checkableDataStoresMap =
+                    checkableClasses.stream().filter(d -> d.isAnnotationPresent(DataStore.class)).collect(
+                            toMap(d -> d.getAnnotation(DataStore.class).value(),
+                                    d -> d.getAnnotation(Checkable.class).value()));
 
             final Set<String> healthchecks = finder
-                    .findAnnotatedMethods(HealthCheck.class).stream()
+                    .findAnnotatedMethods(HealthCheck.class)
+                    .stream()
                     .filter(h -> h.getDeclaringClass().isAnnotationPresent(Service.class))
                     .map(m -> m.getAnnotation(HealthCheck.class).value())
                     .collect(toSet());
-            errors.addAll(checkableDataStoresMap.entrySet().stream()
-                                            .filter(e -> !healthchecks.contains(e.getValue()))
-                                            .map(e -> "No @HealthCheck for dataStore: '" + e.getKey() + "' with checkable: '" + e.getValue() + "'")
-                                            .collect(toList()));
+            errors.addAll(checkableDataStoresMap
+                    .entrySet()
+                    .stream()
+                    .filter(e -> !healthchecks.contains(e.getValue()))
+                    .map(e -> "No @HealthCheck for dataStore: '" + e.getKey() + "' with checkable: '" + e.getValue()
+                            + "'")
+                    .collect(toList()));
         }
 
         if (configuration.isValidateDataSet()) {
@@ -227,12 +232,16 @@ public class ComponentValidator extends BaseTask {
                     .flatMap(action -> {
                         final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
                         final List<Method> annotatedMethods = finder.findAnnotatedMethods(action);
-                        return Stream.concat(annotatedMethods.stream()
-                                .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
-                                .map(m -> m + " doesn't return a " + returnedType + ", please fix it"),
-                                annotatedMethods.stream()
-                                                .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class) && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
-                                                .map(m -> m + " is not declared into a service class"));
+                        return Stream.concat(
+                                annotatedMethods
+                                        .stream()
+                                        .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
+                                        .map(m -> m + " doesn't return a " + returnedType + ", please fix it"),
+                                annotatedMethods
+                                        .stream()
+                                        .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class)
+                                                && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
+                                        .map(m -> m + " is not declared into a service class"));
                     })
                     .collect(toSet()));
 
