@@ -102,7 +102,7 @@ public class ElementParameterCreator {
     private void addComponentNameParameter() {
         ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.COMPONENT_NAME.getName());
-        parameter.setValue(component.getName());
+        parameter.setValue(detail.getId().getName());
         parameter.setDisplayName(EParameterName.COMPONENT_NAME.getDisplayName());
         parameter.setFieldType(EParameterFieldType.TEXT);
         parameter.setCategory(EComponentCategory.TECHNICAL);
@@ -143,7 +143,7 @@ public class ElementParameterCreator {
         ElementParameter param;
         param = new ElementParameter(node);
         param.setName(EParameterName.FAMILY.getName());
-        param.setValue(component.getOriginalFamilyName());
+        param.setValue(detail.getId().getFamily());
         param.setDisplayName(EParameterName.FAMILY.getDisplayName());
         param.setFieldType(EParameterFieldType.TEXT);
         param.setCategory(EComponentCategory.TECHNICAL);

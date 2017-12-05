@@ -15,15 +15,6 @@
  */
 package org.talend.sdk.component.studio;
 
-import static org.talend.sdk.component.studio.GAV.ARTIFACT_ID;
-import static org.talend.sdk.component.studio.GAV.GROUP_ID;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
-
 import org.apache.tomcat.websocket.Constants;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -34,6 +25,15 @@ import org.talend.osgi.hook.URIUtil;
 import org.talend.osgi.hook.maven.MavenResolver;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
+
+import java.io.File;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+
+import static org.talend.sdk.component.studio.GAV.ARTIFACT_ID;
+import static org.talend.sdk.component.studio.GAV.GROUP_ID;
 
 public class ServerManager extends AbstractUIPlugin {
 
@@ -48,6 +48,12 @@ public class ServerManager extends AbstractUIPlugin {
     @Override
     public void start(final BundleContext context) throws Exception {
         super.start(context);
+
+        TemplatesExtractor extractor = new TemplatesExtractor("jet_stub/generic",
+                Platform
+                        .asLocalURL(Platform.getPlugin("org.talend.designer.codegen").getDescriptor().getInstallURL())
+                        .getFile());
+        extractor.extract();
 
         reset = Lookups.init();
 
