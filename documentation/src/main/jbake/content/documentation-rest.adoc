@@ -229,3 +229,13 @@ More details are available on link:https://logging.apache.org/log4j/2.x/manual/a
 
 
 TIP: of course you can compose previous layout (message format) and appenders (where logs are written).
+
+== Server Configuration
+
+The server module contains several configuration you can set in:
+
+- Environment variables
+- System properties
+- A file located based on the `--component-configuration` CLI option
+
+include::{generated_adoc}/server-configuration.adoc[]
