@@ -95,7 +95,7 @@ public class ComponentModelTest {
     }
 
     @Test
-    public void testGetAvailableCodeParts() {
+    public void testGetAvailableProcessorCodeParts() {
 
         ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
@@ -104,9 +104,23 @@ public class ComponentModelTest {
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
         List<ECodePart> codeParts = componentModel.getAvailableCodeParts();
-        Assert.assertEquals(4, codeParts.size());
+        Assert.assertEquals(3, codeParts.size());
         Assert.assertTrue(codeParts.contains(ECodePart.BEGIN));
         Assert.assertTrue(codeParts.contains(ECodePart.MAIN));
+        Assert.assertTrue(codeParts.contains(ECodePart.FINALLY));
+    }
+
+    @Test
+    public void testGetAvailableInputCodeParts() {
+
+        ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
+        ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Input", 1, null, null, null, null, null);
+        ComponentModel componentModel = new ComponentModel(idx, detail);
+
+        List<ECodePart> codeParts = componentModel.getAvailableCodeParts();
+        Assert.assertEquals(3, codeParts.size());
+        Assert.assertTrue(codeParts.contains(ECodePart.BEGIN));
         Assert.assertTrue(codeParts.contains(ECodePart.END));
         Assert.assertTrue(codeParts.contains(ECodePart.FINALLY));
     }
