@@ -105,7 +105,9 @@ public class StudioInstallerTest {
                 Files.readAllLines(registration.toPath()).stream().filter(l -> !l.startsWith("#")).collect(toSet()));
 
         final File configIni = new File(studioHome, "configuration/config.ini");
-        assertEquals(singleton("component.java.registry=" + registration.getAbsolutePath()),
+        assertEquals(
+                singleton("component.java.registry="
+                        + registration.getAbsolutePath().replace("\\", "\\\\").replace(":", "\\:")),
                 Files.readAllLines(configIni.toPath()).stream().filter(l -> !l.startsWith("#")).collect(toSet()));
     }
 }
