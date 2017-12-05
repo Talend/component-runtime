@@ -468,7 +468,7 @@
             <executions>
               <execution>
                 <id>deploy-site</id>
-                <phase>none</phase>
+                <phase>verify</phase>
                 <goals>
                   <goal>execute</goal>
                 </goals>

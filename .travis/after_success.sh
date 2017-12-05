@@ -13,5 +13,5 @@ OPTS="--batch-mode --settings $PWD/.travis/settings.xml"
 mvn clean deploy verify -Dhub-detect.skip=false -DskipTests -Dinvoker.skip=true -Possrh -Prelease $OPTS
 
 cd documentation
-    mvn clean package gplus:execute@deploy-site -Pgh-pages -Dgithub.site.profile=latest $OPTS
+    mvn clean verify -Pgh-pages -Dgithub.site.profile=latest $OPTS
 cd -

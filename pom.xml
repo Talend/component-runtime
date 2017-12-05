@@ -482,7 +482,7 @@
         <configuration>
           <localCheckout>true</localCheckout>
           <pushChanges>false</pushChanges>
-          <releaseProfiles>release</releaseProfiles>
+          <releaseProfiles>release,gh-pages</releaseProfiles>
         </configuration>
       </plugin>
       <plugin>
