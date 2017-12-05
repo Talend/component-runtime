@@ -46,6 +46,8 @@ import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
 public class ParameterModelService {
 
+    private static final Annotation[] NO_ANNOTATIONS = new Annotation[0];
+
     private final Collection<ParameterExtensionEnricher> enrichers;
 
     protected ParameterModelService(final Collection<ParameterExtensionEnricher> enrichers) {
@@ -67,7 +69,11 @@ public class ParameterModelService {
                 .map(parameter -> {
                     final String name = findName(parameter);
                     return buildParameter(name, name, parameter.getParameterizedType(),
-                            parameter.getType().getAnnotations(), i18nPackage);
+                            Stream
+                                    .concat(Stream.of(parameter.getType().getAnnotations()),
+                                            Stream.of(parameter.getAnnotations()))
+                                    .toArray(Annotation[]::new),
+                            i18nPackage);
                 })
                 .collect(toList());
     }
@@ -86,11 +92,12 @@ public class ParameterModelService {
             nested.addAll(meta);
             break;
         case ARRAY:
-            nested.addAll(buildParametersMetas(name + "[${index}]", normalizedPrefix + "[${index}].",
-                    Class.class.isInstance(genericType) && Class.class.cast(genericType).isArray()
-                            ? Class.class.cast(genericType).getComponentType()
-                            : ParameterizedType.class.cast(genericType).getActualTypeArguments()[0],
-                    annotations, i18nPackage));
+            final Type nestedType = Class.class.isInstance(genericType) && Class.class.cast(genericType).isArray()
+                    ? Class.class.cast(genericType).getComponentType()
+                    : ParameterizedType.class.cast(genericType).getActualTypeArguments()[0];
+            nested.addAll(buildParametersMetas(name + "[${index}]", normalizedPrefix + "[${index}].", nestedType,
+                    Class.class.isInstance(nestedType) ? Class.class.cast(nestedType).getAnnotations() : NO_ANNOTATIONS,
+                    i18nPackage));
             break;
         case ENUM:
             proposals.addAll(Stream

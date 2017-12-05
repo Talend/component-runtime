@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 
 public class MethodsHolder {
@@ -59,6 +60,7 @@ public class MethodsHolder {
     public static class Config {
 
         @Option
+        @Proposable("test")
         private List<String> urls;
 
         @Option

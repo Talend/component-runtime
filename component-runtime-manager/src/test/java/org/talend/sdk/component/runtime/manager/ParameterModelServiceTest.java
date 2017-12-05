@@ -24,6 +24,7 @@ import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class ParameterModelServiceTest {
@@ -177,6 +178,11 @@ public class ParameterModelServiceTest {
         assertConfigModel("prefixed", params.get(1));
         assertEquals(expectedDataSet, params.get(0).getMetadata());
         assertEquals(expectedDataSet, params.get(1).getMetadata());
+
+        assertEquals("test",
+                params.get(0).getNestedParameters().get(1).getMetadata().get("tcomp::action::dynamic_values"));
+        assertNull(params.get(0).getNestedParameters().get(1).getNestedParameters().get(0).getMetadata().get(
+                "tcomp::action::dynamic_values"));
     }
 
     @Test
