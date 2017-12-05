@@ -64,34 +64,13 @@ public class SettingsCreator implements PropertyVisitor {
     public void visit(final PropertyNode node) {
         if (node.isLeaf()) {
             switch (node.getFieldType()) {
-            case CHECK:
-                visitCheck(node);
-                break;
             case CLOSED_LIST:
                 visitClosedList(node);
-                break;
-            case MEMO_JAVA:
-                visitMemoJava(node);
-                break;
-            case HIDDEN_TEXT:
-            case TEXT:
-                visitText(node);
                 break;
             default:
                 visitDefault(node);
             }
-            createParameter(node);
         }
-    }
-
-    /**
-     * Creates {@link ElementParameter} for Check field type and adds it to settings
-     * Sets false as default value
-     */
-    private void visitCheck(final PropertyNode node) {
-        ElementParameter parameter = createParameter(node);
-        parameter.setValue(false);
-        settings.add(parameter);
     }
 
     /**
@@ -115,29 +94,6 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setListItemsNotReadOnlyIf(new String[possibleValues.size()]);
         parameter.setListItemsShowIf(new String[possibleValues.size()]);
         parameter.setListItemsNotShowIf(new String[possibleValues.size()]);
-        if (!possibleValues.isEmpty()) {
-            parameter.setValue(possibleValues.iterator().next());
-        }
-        settings.add(parameter);
-    }
-
-    /**
-     * Creates {@link ElementParameter} for MemoJava field type and adds it to settings
-     * Sets default value
-     */
-    private void visitMemoJava(final PropertyNode node) {
-        ElementParameter parameter = createParameter(node);
-        parameter.setValue("String foo = \"bar\";");
-        settings.add(parameter);
-    }
-
-    /**
-     * Creates {@link ElementParameter} for Text field type and adds it to settings
-     * Sets "" as default value
-     */
-    private void visitText(final PropertyNode node) {
-        ElementParameter parameter = createParameter(node);
-        parameter.setValue("");
         settings.add(parameter);
     }
 
@@ -160,7 +116,7 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setName(node.getProperty().getPath());
         parameter.setNumRow(lastRowNumber++);
         parameter.setShow(true);
-        parameter.setValue("This is default value");
+        parameter.setValue(node.getProperty().getDefaultValue());
         return parameter;
     }
 

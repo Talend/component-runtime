@@ -18,14 +18,16 @@ package org.talend.sdk.component.studio.model.parameter;
 import static org.talend.core.model.process.EParameterFieldType.CHECK;
 import static org.talend.core.model.process.EParameterFieldType.CLOSED_LIST;
 import static org.talend.core.model.process.EParameterFieldType.FILE;
-import static org.talend.core.model.process.EParameterFieldType.HIDDEN_TEXT;
 import static org.talend.core.model.process.EParameterFieldType.MEMO_JAVA;
 import static org.talend.core.model.process.EParameterFieldType.OPENED_LIST;
+import static org.talend.core.model.process.EParameterFieldType.PASSWORD;
 import static org.talend.core.model.process.EParameterFieldType.TABLE;
 import static org.talend.core.model.process.EParameterFieldType.TEXT;
+import static org.talend.core.model.process.EParameterFieldType.TEXT_AREA;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.JAVA;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CODE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CREDENTIAL;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_TEXTAREA;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.BOOLEAN;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.ENUM;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.STRING;
@@ -54,8 +56,10 @@ public class WidgetTypeMapper {
     public EParameterFieldType getFieldType() {
         if (isText()) {
             return TEXT;
-        } else if (isHiddenText()) {
-            return HIDDEN_TEXT;
+        } else if (isPassword()) {
+            return PASSWORD;
+        } else if (isTextArea()) {
+            return TEXT_AREA;
         } else if (isCheck()) {
             return CHECK;
         } else if (isClosedList()) {
@@ -80,10 +84,17 @@ public class WidgetTypeMapper {
     }
 
     /**
-     * Checks whether widget type is {@link EParameterFieldType#HIDDEN_TEXT}
+     * Checks whether widget type is {@link EParameterFieldType#TEXT_AREA}
      */
-    private boolean isHiddenText() {
-        return STRING.equals(property.getType()) && property.getMetadata().containsKey(UI_CREDENTIAL);
+    private boolean isTextArea() {
+        return property.getMetadata().containsKey(UI_TEXTAREA);
+    }
+
+    /**
+     * Checks whether widget type is {@link EParameterFieldType#PASSWORD}
+     */
+    private boolean isPassword() {
+        return property.getMetadata().containsKey(UI_CREDENTIAL);
     }
 
     /**

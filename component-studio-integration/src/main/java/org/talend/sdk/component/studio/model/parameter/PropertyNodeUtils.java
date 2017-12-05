@@ -19,6 +19,7 @@ import static org.talend.sdk.component.studio.model.parameter.Metadatas.ORDER_SE
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_OPTIONS_ORDER;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -42,22 +43,69 @@ public final class PropertyNodeUtils {
      * @return root node of created tree
      */
     public static PropertyNode createPropertyTree(final Collection<SimplePropertyDefinition> properties) {
-        PropertyNode root = null;
+        if (properties == null) {
+            throw new NullPointerException("properties should not be null");
+        }
+        if (properties.isEmpty()) {
+            throw new IllegalArgumentException("properties should not be empty");
+        }
+        PropertyNode root = createRootNode(properties);
         HashMap<String, PropertyNode> nodes = new HashMap<>();
+        nodes.put(root.getId(), root);
 
         for (SimplePropertyDefinition definition : properties) {
             String id = definition.getPath();
-            PropertyNode current = nodes.computeIfAbsent(id, key -> new PropertyNode());
-            current.setProperty(definition);
-
-            if (current.isRoot()) {
-                root = current;
-            } else {
+            PropertyNode current = nodes.computeIfAbsent(id, key -> new PropertyNode(false));
+            if (!current.isRoot()) {
+                current.setProperty(definition);
                 String parentId = current.getParentId();
-                PropertyNode parent = nodes.computeIfAbsent(parentId, key -> new PropertyNode());
+                PropertyNode parent = nodes.computeIfAbsent(parentId, key -> new PropertyNode(false));
                 parent.addChild(current);
             }
         }
+        return root;
+    }
+
+    /**
+     * Creates and returns root PropertyNode
+     * 
+     * @param properties
+     * @return root PropertyNode
+     */
+    static PropertyNode createRootNode(final Collection<SimplePropertyDefinition> properties) {
+        SimplePropertyDefinition rootDefinition = findRootDefinition(properties);
+        PropertyNode rootNode = new PropertyNode(true);
+        rootNode.setProperty(rootDefinition);
+        return rootNode;
+    }
+
+    /**
+     * Finds a root of {@link SimplePropertyDefinition} subtree represented by <code>properties</code> Collection.
+     * Root is such {@link SimplePropertyDefinition}, which <code>path</code> is "shortest" (minimal) in following
+     * meaning:
+     * path1 is less than path2, when path2 contains path1. </br>
+     * E.g. path1 = "p0.p1"; path2 = "p0.p1.p2"; // path1 is less than path2</br>
+     * It is assumed input <code>properties</code> is not null and not empty.
+     * Also it is assumed Collection contains only single root element.
+     * Note, not any 2 arbitrary SimplePropertyDefinition may be compared. They may belong to different branches in a
+     * tree.
+     * Such SimplePropertyDefinition assumed to be equal
+     * 
+     * @param properties Collection of {@link SimplePropertyDefinition}
+     * @return root SimplePropertyDefinition
+     */
+    static SimplePropertyDefinition findRootDefinition(final Collection<SimplePropertyDefinition> properties) {
+        SimplePropertyDefinition root = Collections.min(properties, (p1, p2) -> {
+            String path1 = p1.getPath();
+            String path2 = p2.getPath();
+            if (path2.contains(path1)) {
+                return -1;
+            }
+            if (path1.contains(path2)) {
+                return 1;
+            }
+            return 0;
+        });
         return root;
     }
 
