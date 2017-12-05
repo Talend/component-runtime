@@ -21,6 +21,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
@@ -36,6 +37,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
@@ -283,10 +285,9 @@ public class ComponentResource {
                             findActions(meta.getParent().getName(), toStream(meta.getParameterMetas())
                                     .flatMap(p -> p.getMetadata().entrySet().stream())
                                     .filter(e -> e.getKey().startsWith(ActionParameterEnricher.META_PREFIX))
-                                    .collect(toMap(
-                                            e -> e.getKey().substring(ActionParameterEnricher.META_PREFIX.length()),
-                                            Map.Entry::getValue)),
-                                    container, locale),
+                                    .map(e -> new ActionReference(meta.getParent().getName(), e.getValue(),
+                                            e.getKey().substring(ActionParameterEnricher.META_PREFIX.length()), null))
+                                    .collect(toSet()), container, locale),
                             model.getInputFlows(), model.getOutputFlows(), /* todo? */emptyList());
                 }).collect(toList()));
         if (!errors.isEmpty()) {
@@ -301,12 +302,14 @@ public class ComponentResource {
                 .filter(Objects::nonNull).flatMap(this::toStream));
     }
 
-    private Collection<ActionReference> findActions(final String family, final Map<String, String> actions,
+    private Collection<ActionReference> findActions(final String family, final Set<ActionReference> actions,
             final Container container, final Locale locale) {
         final ContainerComponentRegistry registry = container.get(ContainerComponentRegistry.class);
         return registry.getServices().stream().flatMap(s -> s.getActions().stream())
                 .filter(s -> s.getFamily().equals(family))
-                .filter(s -> actions.containsKey(s.getType()) && actions.get(s.getType()).equals(s.getAction()))
+                .filter(s -> actions.stream()
+                        .anyMatch(e -> s.getFamily().equals(e.getFamily()) && s.getType().equals(e.getType())
+                                && s.getAction().equals(e.getName())))
                 .map(s -> new ActionReference(s.getFamily(), s.getAction(), s.getType(), propertiesService
                         .buildProperties(s.getParameters(), container.getLoader(), locale, null).collect(toList())))
                 .collect(toList());
