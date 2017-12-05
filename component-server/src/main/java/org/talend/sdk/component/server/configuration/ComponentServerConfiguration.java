@@ -66,24 +66,35 @@ public interface ComponentServerConfiguration {
     String serviceName();
 
     @Documentation("The accuracy rate of the sampling.")
-    @ConfigProperty(name = "monitoring.brave.sampling.rate", defaultValue = "0.1")
+    @ConfigProperty(name = "monitoring.brave.sampling.rate", defaultValue = "-1.")
     float samplerRate();
 
+    @Documentation("The accuracy rate of the sampling for environment endpoints.")
+    @ConfigProperty(name = "monitoring.brave.sampling.environment.rate", defaultValue = "-1")
+    float samplerEnvironmentRate();
+
+    @Documentation("The accuracy rate of the sampling for environment endpoints.")
+    @ConfigProperty(name = "monitoring.brave.sampling.configurationtype.rate", defaultValue = "-1")
+    float samplerConfigurationTypeRate();
+
     @Documentation("The accuracy rate of the sampling for component endpoints.")
-    @ConfigProperty(name = "monitoring.brave.sampling.rate", defaultValue = "0.2")
+    @ConfigProperty(name = "monitoring.brave.sampling.component.rate", defaultValue = "-1")
     float samplerComponentRate();
 
     @Documentation("The accuracy rate of the sampling for action endpoints.")
-    @ConfigProperty(name = "monitoring.brave.sampling.rate", defaultValue = "0.8")
+    @ConfigProperty(name = "monitoring.brave.sampling.action.rate", defaultValue = "-1")
     float samplerActionRate();
 
     @Documentation("The accuracy rate of the sampling for execution endpoints.")
-    @ConfigProperty(name = "monitoring.brave.sampling.rate", defaultValue = "1")
+    @ConfigProperty(name = "monitoring.brave.sampling.execution.rate", defaultValue = "1")
     float samplerExecutionRate();
 
-    @Documentation("The brave reporter to use to send the spans. Supported values are [console, noop, url]. When configuration is needed,"
-            + "you can use this syntax to configure the repoter if needed: `<name>(config1=value1, config2=value2)`, for example: `url(endpoint=http://brave.company.com`.")
-    @ConfigProperty(name = "monitoring.brave.reporter.type", defaultValue = "console")
+    @Documentation("The brave reporter to use to send the spans. Supported values are [auto, console, noop, url]. When configuration is needed,"
+            + "you can use this syntax to configure the repoter if needed: `<name>(config1=value1, config2=value2)`, "
+            + "for example: `url(endpoint=http://brave.company.com`.\n\n"
+            + "In `auto` mode, if environment variable `TRACING_ON` doesn't exist or is set to `false`, `noop` will be selected, "
+            + "and is set to `true`, `TRACING_KAFKA_URL`, `TRACING_KAFKA_TOPIC` and `TRACING_SAMPLING_RATE` will configure `kafka` reporter..")
+    @ConfigProperty(name = "monitoring.brave.reporter.type", defaultValue = "auto")
     String reporter();
 
     @Documentation("When using url or kafka reporter, you can configure the async reporter with properties passed to this configuration entry."

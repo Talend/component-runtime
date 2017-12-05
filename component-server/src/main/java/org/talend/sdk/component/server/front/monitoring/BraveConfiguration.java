@@ -24,7 +24,9 @@ import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
+import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.lang.StringPropertiesTokenizer;
 
@@ -41,23 +43,57 @@ import zipkin2.reporter.Sender;
 @ApplicationScoped
 public class BraveConfiguration {
 
+    @Inject
+    @ConfigProperty(name = "TRACING_ON", defaultValue = "false")
+    private Boolean tracingOn;
+
+    @Inject
+    @ConfigProperty(name = "TRACING_KAFKA_URL")
+    private String kafkaUrl;
+
+    @Inject
+    @ConfigProperty(name = "TRACING_KAFKA_TOPIC", defaultValue = "zipkin")
+    private String kafkaTopic;
+
+    @Inject
+    @ConfigProperty(name = "TRACING_SAMPLING_RATE")
+    private Float samplingRate;
+
     @Produces
     @ApplicationScoped
     public HttpTracing httpTracing(final ComponentServerConfiguration configuration) {
         return HttpTracing
                 .newBuilder(Tracing.newBuilder().localServiceName(configuration.serviceName())
-                        .sampler(CountingSampler.create(configuration.samplerRate()))
+                        .sampler(CountingSampler.create(toActualRate(configuration.samplerRate())))
                         .spanReporter(createReporter(configuration)).build())
                 .serverSampler(HttpRuleSampler.newBuilder()
-                        .addRule("GET", "/api/v1/component", configuration.samplerComponentRate())
+                        .addRule("GET", "/api/v1/environment", toActualRate(configuration.samplerComponentRate()))
+                        .addRule("GET", "/api/v1/configurationtype", toActualRate(configuration.samplerComponentRate()))
+                        .addRule("GET", "/api/v1/component", toActualRate(configuration.samplerComponentRate()))
+                        .addRule("POST", "/api/v1/component", toActualRate(configuration.samplerComponentRate()))
                         .addRule("POST", "/api/v1/execution", configuration.samplerExecutionRate())
-                        .addRule("GET", "/api/v1/action", configuration.samplerActionRate())
-                        .addRule("POST", "/api/v1/action", configuration.samplerActionRate()).build())
+                        .addRule("GET", "/api/v1/action", toActualRate(configuration.samplerActionRate()))
+                        .addRule("POST", "/api/v1/action", toActualRate(configuration.samplerActionRate())).build())
                 .clientSampler(HttpRuleSampler.newBuilder().build()).build();
+    }
+
+    private float toActualRate(final float rate) {
+        if (rate < 0) {
+            return tracingOn && samplingRate != null ? samplingRate : 0.1f;
+        }
+        return rate;
     }
 
     private Reporter<Span> createReporter(final ComponentServerConfiguration configuration) {
         final String reporter = configuration.reporter();
+        if ("auto".equalsIgnoreCase(reporter)) {
+            if (!tracingOn || kafkaUrl == null) {
+                return Reporter.NOOP;
+            }
+            return customizeAsyncReporter(configuration, AsyncReporter
+                    .builder(toKafkaSender("kafka(" + "servers=" + kafkaUrl + ",topic=" + kafkaTopic + ")")));
+        }
+
         final String type = reporter.contains("(") ? reporter.substring(0, reporter.indexOf('(')) : reporter;
         switch (type) {
         case "noop":
