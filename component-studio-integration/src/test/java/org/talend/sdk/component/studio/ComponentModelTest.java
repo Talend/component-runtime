@@ -15,12 +15,16 @@
  */
 package org.talend.sdk.component.studio;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.process.INodeConnector;
 import org.talend.core.model.process.INodeReturn;
 import org.talend.core.model.temp.ECodePart;
@@ -32,6 +36,26 @@ import org.talend.sdk.component.server.front.model.ComponentIndex;
  * Unit-tests for {@link ComponentModel}
  */
 public class ComponentModelTest {
+
+    @Test
+    public void getModuleNeeded() {
+        final ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        final ComponentIndex idx =
+                new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
+        final ComponentDetail detail =
+                new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
+        final ComponentModel componentModel = new ComponentModel(idx, detail);
+        final List<ModuleNeeded> modulesNeeded = componentModel.getModulesNeeded();
+        assertEquals(10, modulesNeeded.size());
+        // just assert a few
+        assertTrue(modulesNeeded.stream().anyMatch(
+                m -> "component-runtime-manager-1.0.0-SNAPSHOT.jar".equals(m.getModuleName())));
+        assertTrue(modulesNeeded.stream().anyMatch(
+                m -> "component-runtime-impl-1.0.0-SNAPSHOT.jar".equals(m.getModuleName())));
+        assertTrue(modulesNeeded.stream().anyMatch(
+                m -> "component-runtime-di-1.0.0-SNAPSHOT.jar".equals(m.getModuleName())));
+        assertTrue(modulesNeeded.stream().anyMatch(m -> "xbean-reflect-4.6.jar".equals(m.getModuleName())));
+    }
 
     @Test
     public void testGetOriginalFamilyName() {

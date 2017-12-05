@@ -167,7 +167,12 @@
       <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -228,13 +233,25 @@
             <goals>
               <goal>execute</goal>
             </goals>
+            <configuration>
+              <scripts>
+                <script>${project.basedir}/src/build/StudioDependencies.groovy</script>
+              </scripts>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compute-framework-dependencies</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <scripts>
+                <script>${project.basedir}/src/build/TaCoKitDependencies.groovy</script>
+              </scripts>
+            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <scripts>
-            <script>${project.basedir}/src/build/StudioDependencies.groovy</script>
-          </scripts>
-        </configuration>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>

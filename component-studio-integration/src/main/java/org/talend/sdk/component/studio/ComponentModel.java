@@ -15,10 +15,14 @@
  */
 package org.talend.sdk.component.studio;
 
+import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.studio.model.ReturnVariables.AFTER;
 import static org.talend.sdk.component.studio.model.ReturnVariables.RETURN_ERROR_MESSAGE;
 import static org.talend.sdk.component.studio.model.ReturnVariables.RETURN_TOTAL_RECORD_COUNT;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,6 +71,8 @@ public class ComponentModel extends AbstractBasicComponent {
      * categories, "Salesforce" - is familyName
      */
     private final String familyName;
+
+    private volatile List<ModuleNeeded> modulesNeeded;
 
     public ComponentModel(final ComponentIndex component, final ComponentDetail detail, final ImageDescriptor image32) {
         setPaletteType("DI");
@@ -287,7 +293,7 @@ public class ComponentModel extends AbstractBasicComponent {
      * 
      * @return common v1 components Job dependencies
      */
-    @Override // TODO
+    @Override
     public List<ModuleNeeded> getModulesNeeded() {
         return getModulesNeeded(null);
     }
@@ -298,17 +304,33 @@ public class ComponentModel extends AbstractBasicComponent {
      * dependencies All component specific dependencies will be resolved by
      * ComponentManager class
      * 
-     * @return
+     * @return the needed dependencies for the framework,
+     * component dependencies are loaded later through ComponentManager.
      */
-    @Override // TODO
+    @Override
     public List<ModuleNeeded> getModulesNeeded(final INode iNode) {
-        ModuleNeeded slf4jModule =
-                new ModuleNeeded(getName(), "", true, "mvn:org.talend.libraries/slf4j-log4j12-1.7.2/6.0.0");
-        ModuleNeeded runtimeManager = new ModuleNeeded(getName(), "", true,
-                "mvn:org.talend.sdk.component/component-runtime-manager/" + GAV.VERSION);
-        ModuleNeeded runtimeDi = new ModuleNeeded(getName(), "", true,
-                "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.VERSION);
-        return Collections.unmodifiableList(Arrays.asList(slf4jModule, runtimeManager, runtimeDi));
+        if (modulesNeeded == null) {
+            synchronized (this) {
+                if (modulesNeeded == null) {
+                    modulesNeeded = new ArrayList<>();
+                    try (final BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(ComponentModel.class.getClassLoader().getResourceAsStream(
+                                    "TALEND-INF/tacokit.dependencies")))) {
+                        modulesNeeded.addAll(reader
+                                .lines()
+                                .map(String::trim)
+                                .filter(s -> !s.isEmpty())
+                                .map(s -> new ModuleNeeded(getName(), "", true, s))
+                                .collect(toList()));
+                    } catch (final IOException e) {
+                        throw new IllegalStateException("No TALEND-INF/tacokit.dependencies found");
+                    }
+                    modulesNeeded.add(new ModuleNeeded(getName(), "", true,
+                            "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.VERSION));
+                }
+            }
+        }
+        return modulesNeeded;
     }
 
     /**
