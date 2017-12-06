@@ -78,28 +78,29 @@ workDir.listFiles(new FilenameFilter() {
     versions.append("            <li><a href=\"${root}/${it.name}/index.html\">${it.name}</a></li>\n")
 }
 
+def copySite = { to ->
+    ant.copy(todir: to.absolutePath, overwrite: true) {
+        filterset(begintoken: "<!-- ", endtoken: ' -->') {
+            filter(token: 'VERSIONS', value: "${versions.toString()}")
+        }
+        fileset(dir: source.absolutePath) {
+            include(name: '**/*.html')
+        }
+    }
+    ant.copy(todir: to.absolutePath, overwrite: true) {
+        fileset(dir: source.absolutePath) {
+            exclude(name: '**/*.html')
+        }
+    }
+}
+
 if (isLatest) {
-    ant.copy(todir: new File(workDir, 'latest').absolutePath, overwrite: true) {
-        filterset(begintoken: "<!-- ", endtoken: ' -->') {
-            filter(token: 'VERSIONS', value: "${versions.toString()}")
-        }
-        fileset(dir: source.absolutePath)
-    }
+    copySite(new File(workDir, 'latest'))
 } else {
-    ant.copy(todir: workDir.absolutePath, overwrite: true) {
-        filterset(begintoken: "<!-- ", endtoken: ' -->') {
-            filter(token: 'VERSIONS', value: "${versions.toString()}")
-        }
-        fileset(dir: source.absolutePath)
-    }
+    copySite(workDir)
     // versionned version to keep an history - we can need to add version links later on on the main page
     // note: this is not yet a need since we'll not break anything for now
-    ant.copy(todir: new File(workDir, project.version).absolutePath, overwrite: true) {
-        filterset(begintoken: "<!-- ", endtoken: ' -->') {
-            filter(token: 'VERSIONS', value: "${versions.toString()}")
-        }
-        fileset(dir: source.absolutePath)
-    }
+    copySite(new File(workDir, project.version))
 }
 
 def message = isLatest ? 'Updating latest website' : "Updating the website with version ${project.version}"
