@@ -216,10 +216,10 @@ public final class PropertyNodeUtils {
         SimplePropertyDefinition rootProperty = Collections.min(properties, (p1, p2) -> {
             String path1 = p1.getPath();
             String path2 = p2.getPath();
-            if (path2.contains(path1)) {
+            if (path2.startsWith(path1)) {
                 return -1;
             }
-            if (path1.contains(path2)) {
+            if (path1.startsWith(path2)) {
                 return 1;
             }
             return 0;
