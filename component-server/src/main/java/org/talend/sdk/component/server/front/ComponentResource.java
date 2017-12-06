@@ -181,20 +181,17 @@ public class ComponentResource {
     @Documentation("Returns the list of available components.")
     public ComponentIndices getIndex(@QueryParam("language") @DefaultValue("en") final String language) {
         final Locale locale = localeMapper.mapLocale(language);
-        return indicesPerRequest
-                .computeIfAbsent(new RequestKey(locale),
-                        k -> new ComponentIndices(manager
-                                .find(c -> c
-                                        .execute(() -> Stream.of(c.get(ContainerComponentRegistry.class))
-                                                .flatMap(registry -> registry.getComponents().values().stream())
-                                                .flatMap(component -> Stream.concat(
-                                                        component.getPartitionMappers().values().stream()
-                                                                .map(mapper -> toComponentIndex(c.getLoader(), locale,
-                                                                        c.getId(), mapper)),
-                                                        component.getProcessors().values().stream()
-                                                                .map(proc -> toComponentIndex(c.getLoader(), locale,
-                                                                        c.getId(), proc))))))
-                                .collect(toList())));
+        return indicesPerRequest.computeIfAbsent(new RequestKey(locale), k -> new ComponentIndices(manager
+                .find(c -> c.execute(() -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
+                        .flatMap(
+                                component -> Stream.concat(
+                                        component.getPartitionMappers().values().stream()
+                                                .map(mapper -> toComponentIndex(c.getLoader(), locale, c.getId(),
+                                                        mapper, c.get(ComponentManager.OriginalId.class))),
+                                        component.getProcessors().values().stream()
+                                                .map(proc -> toComponentIndex(c.getLoader(), locale, c.getId(), proc,
+                                                        c.get(ComponentManager.OriginalId.class))))))
+                .collect(toList())));
     }
 
     @GET
@@ -272,8 +269,10 @@ public class ComponentResource {
                     });
 
                     return new ComponentDetail(
-                            new ComponentId(meta.getId(), meta.getParent().getPlugin(), meta.getParent().getName(),
-                                    meta.getName()),
+                            new ComponentId(meta.getId(), meta.getParent().getPlugin(),
+                                    ofNullable(container.get(ComponentManager.OriginalId.class))
+                                            .map(ComponentManager.OriginalId::getValue).orElse(container.getId()),
+                                    meta.getParent().getName(), meta.getName()),
                             meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()),
                             meta.getIcon(),
                             ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor"
@@ -316,12 +315,15 @@ public class ComponentResource {
     }
 
     private ComponentIndex toComponentIndex(final ClassLoader loader, final Locale locale, final String plugin,
-            final ComponentFamilyMeta.BaseMeta meta) {
+            final ComponentFamilyMeta.BaseMeta meta, final ComponentManager.OriginalId originalId) {
         final String icon = meta.getIcon();
         final String familyIcon = meta.getParent().getIcon();
         final IconResolver.Icon iconContent = iconResolver.resolve(loader, icon);
         final IconResolver.Icon iconFamilyContent = iconResolver.resolve(loader, familyIcon);
-        return new ComponentIndex(new ComponentId(meta.getId(), plugin, meta.getParent().getName(), meta.getName()),
+        return new ComponentIndex(
+                new ComponentId(meta.getId(), plugin,
+                        ofNullable(originalId).map(ComponentManager.OriginalId::getValue).orElse(plugin),
+                        meta.getParent().getName(), meta.getName()),
                 meta.findBundle(loader, locale).displayName().orElse(meta.getName()),
                 new Icon(icon, iconContent == null ? null : iconContent.getType(),
                         iconContent == null ? null : iconContent.getBytes()),

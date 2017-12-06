@@ -269,5 +269,6 @@ public class ComponentResourceTest {
         assertComponent("another-test-component", "comp", "proc", "proc", component, 1);
         assertComponent("file-component", "file", "output", "output", component, 1);
         assertComponent("jdbc-component", "jdbc", "input", "input", component, 2);
+        list.forEach(c -> assertNotNull(c.getId().getPluginLocation().startsWith("org.talend.test2:")));
     }
 }
