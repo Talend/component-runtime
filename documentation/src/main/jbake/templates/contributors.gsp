@@ -32,7 +32,7 @@
                 <div>
                     <h3 class="contributor-name" style="font-size:1.4em;">${contributor.name}</h3>
                     <h3 class="contributor-commits" style="font-size:1.4em;">#${contributor.commits} commits</h3>
-                    <p>${contributor.description}</p>
+                    <p class="contributor-description">${contributor.description}</p>
                 </div>
             </div>
             <% } %>

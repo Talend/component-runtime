@@ -32,4 +32,7 @@ h5 {
 .contributor-commits {
   font-style: italic;
 }
+.contributor-description {
+  font-size: x-small;
+}
 
