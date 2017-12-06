@@ -126,6 +126,7 @@ public class SettingsCreator implements PropertyVisitor {
     /**
      * Creates {@link ElementParameter} for Table field type
      * Sets special fields specific for Table parameter
+     * Based on schema field controls whether table toolbox (buttons under table) is shown
      */
     private ElementParameter visitTable(final TablePropertyNode tableNode) {
         ElementParameter parameter = createParameter(tableNode);
@@ -145,7 +146,7 @@ public class SettingsCreator implements PropertyVisitor {
 
         parameter.setValue(createTableValue());
         // TODO change to real value
-        parameter.setBasedOnSchema(true);
+        parameter.setBasedOnSchema(false);
         return parameter;
     }
 
