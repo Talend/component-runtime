@@ -211,7 +211,8 @@
               org.talend.metadata.managment.ui,
               org.talend.repository.view.di
             </Require-Bundle>
-            <Include-Resource>{maven-resources}</Include-Resource>
+            <Include-Resource>{maven-resources},
+              {TALEND-INF/tacokit.dependencies=${project.build.outputDirectory}/TALEND-INF/tacokit.dependencies}</Include-Resource>
             <Import-Package/>
             <Bundle-SymbolicName>${project.artifactId};singleton=true</Bundle-SymbolicName>
             <Bundle-Vendor>.Talend SA.</Bundle-Vendor>
