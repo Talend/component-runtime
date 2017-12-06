@@ -565,6 +565,7 @@ of supported keys:
 |${family}.${configurationType}.${name}._displayName|the display name of a configuration type (dataStore or dataSet)
 |${family}.${component_name}._displayName|the display name of the component (used by the GUIs)
 |${property_path}._displayName|the display name of the option.
+|${simple_class_name}.${property_name}._displayName|the display name of the option using it class name.
 |====
 
 Example of configuration for a component named `list` belonging to the family `memory` (`@Emitter(family = "memory", name = "list")`):
@@ -573,6 +574,31 @@ Example of configuration for a component named `list` belonging to the family `m
 ----
 memory.list._displayName = Memory List
 ----
+
+Configuration class are also translatable using the simple class name in the messages properties file.
+This useful when you have some common configuration shared within multiple components.
+
+If you have a configuration class like :
+[source,java]
+----
+public class MyConfig {
+
+    @Option
+    private String host;
+
+    @Option
+    private int port;
+}
+----
+
+You can give it a translatable display name by adding ${simple_class_name}.${property_name}._displayName to Messages.properties under the same package as the config class.
+[source]
+----
+MyConfig.host._displayName = Server Host Name
+MyConfig.port._displayName = Server Port
+----
+
+IMPORTANT: If you have a display name using the property path, it will override the display name defined using the simple class name
 
 == Component loading
 
