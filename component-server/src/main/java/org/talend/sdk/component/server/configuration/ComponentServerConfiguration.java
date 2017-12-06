@@ -27,10 +27,6 @@ import org.talend.sdk.component.api.meta.Documentation;
 @Configuration(prefix = "talend.component.server.")
 public interface ComponentServerConfiguration {
 
-    @Documentation("Flag to set the server in debug mode")
-    @ConfigProperty(name = "mode", defaultValue = "production")
-    String mode();
-
     @Documentation("If set it will replace any message for exceptions. Set to `false` to use the actual exception message.")
     @ConfigProperty(name = "jaxrs.exceptionhandler.defaultMessage", defaultValue = "false")
     String defaultExceptionMessage();
