@@ -1360,6 +1360,149 @@ a|Where to store the output, it is *NOT* recommended to change it
 a|`${classes}/TALEND-INF/documentation.adoc`
 |===
 
+==== Render your documentation
+
+===== HTML
+
+To render the generated documentation you can use the Asciidoctor Maven plugin (or Gradle equivalent):
+
+[source,xml]
+----
+<plugin> (1)
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${talend-component-kit.version}</version>
+  <executions>
+    <execution>
+      <id>documentation</id>
+      <phase>prepare-package</phase>
+      <goals>
+        <goal>asciidoc</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+<plugin> (2)
+  <groupId>org.asciidoctor</groupId>
+  <artifactId>asciidoctor-maven-plugin</artifactId>
+  <version>1.5.6</version>
+  <executions>
+    <execution>
+      <id>doc-html</id>
+      <phase>prepare-package</phase>
+      <goals>
+        <goal>process-asciidoc</goal>
+      </goals>
+      <configuration>
+        <sourceDirectory>${project.build.outputDirectory}/TALEND-INF</sourceDirectory>
+        <sourceDocumentName>documentation.adoc</sourceDocumentName>
+        <outputDirectory>${project.build.directory}/documentation</outputDirectory>
+        <backend>html5</backend>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+----
+
+1. Will generate in `target/classes/TALEND-INF/documentation.adoc` the components documentation.
+2. Will render the documenation as an html file in `target/documentation/documentation.html`.
+
+TIP: ensure to execute it after the documentation generation.
+
+===== PDF
+
+If you prefer a PDF rendering you can configure the following execution
+in the asciidoctor plugin (note that you can configure both executions if you want
+both HTML and PDF rendering):
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.asciidoctor</groupId>
+  <artifactId>asciidoctor-maven-plugin</artifactId>
+  <version>1.5.6</version>
+  <executions>
+    <execution>
+      <id>doc-html</id>
+      <phase>prepare-package</phase>
+      <goals>
+        <goal>process-asciidoc</goal>
+      </goals>
+      <configuration>
+        <sourceDirectory>${project.build.outputDirectory}/TALEND-INF</sourceDirectory>
+        <sourceDocumentName>documentation.adoc</sourceDocumentName>
+        <outputDirectory>${project.build.directory}/documentation</outputDirectory>
+        <backend>pdf</backend>
+      </configuration>
+    </execution>
+  </executions>
+  <dependencies>
+    <dependency>
+      <groupId>org.asciidoctor</groupId>
+      <artifactId>asciidoctorj-pdf</artifactId>
+      <version>1.5.0-alpha.16</version>
+    </dependency>
+  </dependencies>
+</plugin>
+----
+
+===== Include the documentation into a document
+
+If you want to add some more content or add a title, you can include the generated document into
+another document using Asciidoc `include` directive.
+
+A common example is:
+
+[source,adoc]
+----
+= Super Components
+Super Writer
+:toc:
+:toclevels: 3
+:source-highlighter: prettify
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+
+include::{generated_doc}/documentation.adoc[]
+----
+
+This assumes you pass to the plugin the attribute `generated_doc`, this can be done this way:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.asciidoctor</groupId>
+  <artifactId>asciidoctor-maven-plugin</artifactId>
+  <version>1.5.6</version>
+  <executions>
+    <execution>
+      <id>doc-html</id>
+      <phase>prepare-package</phase>
+      <goals>
+        <goal>process-asciidoc</goal>
+      </goals>
+      <configuration>
+        <sourceDirectory>${project.basedir}/src/main/asciidoc</sourceDirectory>
+        <sourceDocumentName>my-main-doc.adoc</sourceDocumentName>
+        <outputDirectory>${project.build.directory}/documentation</outputDirectory>
+        <backend>html5</backend>
+        <attributes>
+          <generated_adoc>${project.build.outputDirectory}/TALEND-INF</generated_adoc>
+        </attributes>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+----
+
+This is optional but allows to reuse maven placeholders to pass paths which is quite convenient in an automated build.
+
+===== More
+
+You can find more customizations on Asciidoctor link:http://asciidoctor.org/docs/asciidoctor-maven-plugin/[website].
+
 === Prepare
 
 IMPORTANT: this goal is deprecated.

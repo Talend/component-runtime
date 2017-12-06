@@ -33,7 +33,7 @@
     <sample_project>${sample_project-base}/src/main/java/org/talend/sdk/component/sample</sample_project>
     <sample_project_test>${sample_project-base}/src/test/java/org/talend/sdk/component/sample</sample_project_test>
     <generated_adoc>${project.build.directory}/generated-adoc</generated_adoc>
-    <asciidoctorj.version>1.6.0-alpha.5</asciidoctorj.version>
+    <asciidoctorj.version>1.6.0-alpha.6</asciidoctorj.version>
     <revealjs.version>3.5.0</revealjs.version>
     <asciidoctor-revealjs.version>1.0.2</asciidoctor-revealjs.version>
     <jbake.site.rootpath></jbake.site.rootpath>
@@ -199,7 +199,7 @@
           <dependency>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctorj-diagram</artifactId>
-            <version>1.5.4</version>
+            <version>1.5.4.1</version>
           </dependency>
           <dependency> <!-- just to avoid a warning in the console -->
             <groupId>org.pegdown</groupId>
@@ -285,7 +285,7 @@
       <plugin>
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
-        <version>1.5.5</version>
+        <version>1.5.6</version>
         <dependencies>
           <dependency>
             <groupId>org.asciidoctor</groupId>
