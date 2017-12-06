@@ -17,6 +17,8 @@
 package org.talend.sdk.component.studio;
 
 import lombok.AllArgsConstructor;
+import org.eclipse.core.runtime.FileLocator;
+import org.osgi.framework.FrameworkUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,7 +37,7 @@ public class TemplatesExtractor {
     private final String destinationFolder;
 
     public void extract() throws IOException, URISyntaxException {
-        final File jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        final File jarFile = FileLocator.getBundleFile(FrameworkUtil.getBundle(this.getClass()));
         final File destDir = new File(destinationFolder, "tacokit");
 
         if (jarFile.isFile()) { // Run with JAR file
