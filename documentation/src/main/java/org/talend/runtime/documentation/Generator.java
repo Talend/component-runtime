@@ -32,7 +32,9 @@ import static org.apache.ziplock.JarLocation.jarLocation;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Proxy;
@@ -50,6 +52,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -101,6 +105,7 @@ public class Generator {
         generatedActions(generatedDir);
         generatedUi(generatedDir);
         generatedServerConfiguration(generatedDir);
+        generatedContributors(generatedDir);
 
         final boolean offline = "offline=true".equals(args[4]);
         if (offline) {
@@ -108,6 +113,14 @@ public class Generator {
             return;
         }
         generatedJira(generatedDir, args[1], args[2], args[3]);
+    }
+
+    private static void generatedContributors(final File generatedDir) throws Exception {
+        final Collection<Gravatars.Contributor> contributors = Gravatars.load();
+        final File file = new File(generatedDir, "contributors.json");
+        try (final Jsonb jsonb = JsonbBuilder.create(); final Writer writer = new FileWriter(file)) {
+            jsonb.toJson(contributors, writer);
+        }
     }
 
     private static void generatedJira(final File generatedDir, final String username, final String password,

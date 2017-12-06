@@ -12,3 +12,24 @@ h5 {
 .github-fork-ribbon:before {
   background-color: #B6CC1F !important;
 }
+
+.contributors {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-around;
+}
+.contributor {
+  width: 140px;
+}
+.contributor:nth-child(1) {
+  text-align: center;
+}
+.contributor-name {
+  word-wrap: break-word;
+}
+.contributor-commits {
+  font-style: italic;
+}
+

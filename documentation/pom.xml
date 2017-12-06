@@ -70,6 +70,12 @@
       <version>${xbean.version}</version>
     </dependency>
 
+
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>${jgit.version}</version>
+    </dependency>
     <dependency>
       <groupId>args4j</groupId>
       <artifactId>args4j</artifactId>
@@ -173,6 +179,11 @@
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
+            <version>${groovy.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-json</artifactId>
             <version>${groovy.version}</version>
           </dependency>
           <dependency>
@@ -470,7 +481,7 @@
               <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
-                <version>4.9.0.201710071750-r</version>
+                <version>${jgit.version}</version>
               </dependency>
             </dependencies>
           </plugin>

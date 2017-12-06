@@ -1,0 +1,12 @@
+= Wall of Fame
+//:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: contributors
+:jbake-tags: appendix
+:jbake-status: published
+
+

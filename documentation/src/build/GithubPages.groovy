@@ -22,6 +22,11 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 import static java.util.Collections.singleton
 
+if (!new File(project.build.directory, 'generated-adoc/contributors.json').exists()) {
+    log.debug('Not yet in deploy phase, should generate the site before')
+    return
+}
+
 def profile = System.getProperty('github.site.profile', project.properties.getProperty('github.site.profile', 'latest'))
 log.info("Site deployment profile: ${profile}")
 

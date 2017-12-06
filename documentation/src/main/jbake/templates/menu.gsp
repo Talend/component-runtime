@@ -37,6 +37,7 @@
             <li><a href="wrapping-a-beam-io.html">How to wrap a Beam I/O</a></li>
             <li><a href="studio.html">Studio Integration</a></li>
             <li><a href="changelog.html">Changelog</a></li>
+            <li><a href="contributors.html">Wall of Fame</a></li>
             <li><a href="apidocs.html">API Documentation</a></li>
             <li><a href="appendix.html">Appendix</a></li>
           </ul>

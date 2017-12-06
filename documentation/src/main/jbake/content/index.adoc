@@ -26,5 +26,6 @@ NOTE: if you prefer you can use the <<all-in-one.adoc#, single page>> documentat
 * <<studio.adoc#, Experimental Talend Studio Integration>>
 * <<extensions.adoc#, Experimental Extensions>>
 * <<changelog.adoc#, Changelog>>
+* <<contributors.adoc#, Wall Of Fame>>
 * link:apidocs.html[API Documentation]
 * <<appendix.adoc#, Appendix>>
