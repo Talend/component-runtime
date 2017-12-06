@@ -39,7 +39,7 @@ public class ComponentModelTest {
 
     @Test
     public void getModuleNeeded() {
-        final ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        final ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
         final ComponentIndex idx =
                 new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
         final ComponentDetail detail =
@@ -61,7 +61,7 @@ public class ComponentModelTest {
     public void testGetOriginalFamilyName() {
         String expectedFamilyName = "Local/XML|File/XML";
 
-        ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
         ComponentDetail detail =
                 new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
@@ -74,7 +74,7 @@ public class ComponentModelTest {
     public void testGetLongName() {
         String expectedName = "XML Input";
 
-        ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
         ComponentDetail detail =
                 new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
@@ -87,7 +87,7 @@ public class ComponentModelTest {
     @Test
     public void testCreateConnectors() {
 
-        ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
         ComponentDetail detail =
                 new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
@@ -100,7 +100,7 @@ public class ComponentModelTest {
     @Test
     public void testCreateReturns() {
 
-        ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
         ComponentDetail detail =
                 new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
@@ -121,7 +121,7 @@ public class ComponentModelTest {
     @Test
     public void testGetAvailableProcessorCodeParts() {
 
-        ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
         ComponentDetail detail =
                 new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
@@ -137,7 +137,7 @@ public class ComponentModelTest {
     @Test
     public void testGetAvailableInputCodeParts() {
 
-        ComponentId id = new ComponentId("id", "plugin", "XML", "XMLInput");
+        ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
         ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Input", 1, null, null, null, null, null);
         ComponentModel componentModel = new ComponentModel(idx, detail);

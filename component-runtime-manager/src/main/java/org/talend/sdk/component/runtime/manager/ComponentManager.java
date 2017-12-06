@@ -503,13 +503,25 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public String addPlugin(final String pluginRootFile) {
-        final String id = container.create(pluginRootFile).getId();
+        final Container container = this.container.create(pluginRootFile);
+        container.set(OriginalId.class, new OriginalId(pluginRootFile));
+        final String id = container.getId();
+        log.info("Adding plugin: " + pluginRootFile + ", as " + id);
+        return id;
+    }
+
+    public String addWithLocationPlugin(final String location, final String pluginRootFile) {
+        final Container container = this.container.create(pluginRootFile);
+        container.set(OriginalId.class, new OriginalId(location));
+        final String id = container.getId();
         log.info("Adding plugin: " + pluginRootFile + ", as " + id);
         return id;
     }
 
     protected String addPlugin(final String forcedId, final String pluginRootFile) {
-        final String id = container.create(forcedId, pluginRootFile).getId();
+        final Container container = this.container.create(forcedId, pluginRootFile);
+        container.set(OriginalId.class, new OriginalId(forcedId));
+        final String id = container.getId();
         log.info("Adding plugin: " + pluginRootFile + ", as " + id);
         return id;
     }
@@ -1171,5 +1183,11 @@ public class ComponentManager implements AutoCloseable {
                 }
             });
         }
+    }
+
+    @Data
+    public static class OriginalId {
+
+        private final String value;
     }
 }

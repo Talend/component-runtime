@@ -28,6 +28,8 @@ public class ComponentId {
 
     private String plugin;
 
+    private String pluginLocation;
+
     private String family;
 
     private String name;

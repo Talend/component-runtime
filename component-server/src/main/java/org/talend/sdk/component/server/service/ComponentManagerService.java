@@ -87,9 +87,9 @@ public class ComponentManagerService {
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
-        ofNullable(configuration.componentCoordinates()).orElse(emptySet()).stream()
-                .map(mvnCoordinateToFileConverter::toArtifact).map(artifact -> new File(mvnRepo, artifact.toPath()))
-                .filter(Objects::nonNull).forEach(plugin -> instance.addPlugin(plugin.getAbsolutePath()));
+        ofNullable(configuration.componentCoordinates()).orElse(emptySet())
+                .forEach(plugin -> instance.addWithLocationPlugin(plugin,
+                        new File(mvnRepo, mvnCoordinateToFileConverter.toArtifact(plugin).toPath()).getAbsolutePath()));
         ofNullable(configuration.componentRegistry()).map(StrSubstitutor::replaceSystemProperties).map(File::new)
                 .filter(File::exists).ifPresent(registry -> {
                     final Properties properties = new Properties();
@@ -98,10 +98,12 @@ public class ComponentManagerService {
                     } catch (final IOException e) {
                         throw new IllegalArgumentException(e);
                     }
-                    properties.stringPropertyNames()
-                            .forEach(name -> instance.addPlugin(new File(mvnRepo,
-                                    mvnCoordinateToFileConverter.toArtifact(properties.getProperty(name)).toPath())
-                                            .getAbsolutePath()));
+                    properties.stringPropertyNames().forEach(name -> {
+                        final String gav = properties.getProperty(name);
+                        instance.addWithLocationPlugin(gav,
+                                new File(mvnRepo, mvnCoordinateToFileConverter.toArtifact(gav).toPath())
+                                        .getAbsolutePath());
+                    });
                 });
 
         cacheEvictorPool = Executors.newScheduledThreadPool(1, new ThreadFactory() {
