@@ -18,6 +18,8 @@
 import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest
 import org.apache.maven.settings.crypto.SettingsDecrypter
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.Status
+import org.eclipse.jgit.dircache.DirCache
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 import static java.util.Collections.singleton
@@ -103,9 +105,13 @@ if (isLatest) {
     copySite(new File(workDir, project.version))
 }
 
-def message = isLatest ? 'Updating latest website' : "Updating the website with version ${project.version}"
+def message = (isLatest ? 'Updating latest website' : "Updating the website with version ${project.version}") + new Date().toString()
 git.add().addFilepattern(".").call()
+if (Boolean.getBoolean("component.gh-page.debug")) {
+    def status = git.status().call()
+    log.info("Status:\n  Changed: ${status.changed}\n  Added: ${status.added}\n  Removed: ${status.removed}")
+}
 git.commit().setMessage(message).call()
 git.status().call()
 git.push().setCredentialsProvider(credentialsProvider).add(branch).call()
-println("Updated the website")
+log.info("Updated the website on ${new Date()}")
