@@ -28,6 +28,7 @@ import static org.talend.sdk.component.studio.model.parameter.Metadatas.JAVA;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CODE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CREDENTIAL;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_TEXTAREA;
+import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.ARRAY;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.BOOLEAN;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.ENUM;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.STRING;
@@ -139,9 +140,8 @@ public class WidgetTypeMapper {
 
     /**
      * Checks whether widget type is {@link EParameterFieldType#TABLE}
-     * TODO implement it
      */
     private boolean isTable() {
-        return false;
+        return ARRAY.equals(property.getType());
     }
 }

@@ -23,12 +23,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class PropertyTypes {
 
+    public static final String ARRAY = "ARRAY";
+
     public static final String BOOLEAN = "BOOLEAN";
+
+    public static final String ENUM = "ENUM";
 
     public static final String OBJECT = "OBJECT";
 
     public static final String STRING = "STRING";
-
-    public static final String ENUM = "ENUM";
 
 }
