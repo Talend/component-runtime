@@ -67,6 +67,9 @@ public class SettingsCreator implements PropertyVisitor {
         if (node.isLeaf()) {
             ElementParameter parameter = null;
             switch (node.getFieldType()) {
+            case CHECK:
+                parameter = visitCheck(node);
+                break;
             case CLOSED_LIST:
                 parameter = visitClosedList(node);
                 break;
@@ -81,7 +84,22 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     /**
-     * Creates {@link ElementParameter} for Closed List field type and adds it to settings
+     * Creates {@link ElementParameter} for Check field type
+     * Converts default value from String to Boolean and sets it
+     */
+    private ElementParameter visitCheck(final PropertyNode node) {
+        ElementParameter parameter = createParameter(node);
+        String defaultValue = node.getProperty().getDefaultValue();
+        if (defaultValue == null) {
+            parameter.setValue(false);
+        } else {
+            parameter.setValue(Boolean.parseBoolean(defaultValue));
+        }
+        return parameter;
+    }
+
+    /**
+     * Creates {@link ElementParameter} for Closed List field type
      * Sets Closed List possible values and sets 1st element as default
      */
     private ElementParameter visitClosedList(final PropertyNode node) {
@@ -105,7 +123,7 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     /**
-     * Creates {@link ElementParameter} for Table field type and adds it to settings
+     * Creates {@link ElementParameter} for Table field type
      * Sets special fields specific for Table parameter
      */
     private ElementParameter visitTable(final TablePropertyNode tableNode) {
