@@ -60,7 +60,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = PRIVATE)
 public class Gravatars {
 
-    private static final String GRAVATAR_BASE = "http://fr.gravatar.com/";
+    private static final String GRAVATAR_BASE = "https://fr.gravatar.com/";
 
     private static Contributor singleLoad(final WebTarget target, final String input) throws IOException {
         try {
@@ -74,7 +74,7 @@ public class Gravatars {
     private static Contributor loadGravatar(final WebTarget target, final String input) throws IOException {
         final String hash = gravatarHash(input);
         final Response gravatar = target.path(hash + ".json").request(APPLICATION_JSON_TYPE).get();
-        final String gravatarUrl = "http://www.gravatar.com/avatar/" + hash + "?s=140";
+        final String gravatarUrl = "https://www.gravatar.com/avatar/" + hash + "?s=140";
         return ofNullable(gravatar)
                 .filter(r -> r.getStatus() == HttpURLConnection.HTTP_OK)
                 .map(r -> r.readEntity(Gravatar.class).getEntry())
