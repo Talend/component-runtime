@@ -34,7 +34,8 @@ public class TablePropertyNode extends PropertyNode {
      * @param fieldType widget type, defines UI representation
      * @param root specifies whether this node is root node
      */
-    public TablePropertyNode(final SimplePropertyDefinition property, final EParameterFieldType fieldType, final boolean root) {
+    public TablePropertyNode(final SimplePropertyDefinition property, final EParameterFieldType fieldType,
+            final boolean root) {
         super(property, fieldType, root);
     }
 
