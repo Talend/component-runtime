@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,9 +15,8 @@
  */
 package org.talend.sdk.component.runtime.manager;
 
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
-import static java.util.Optional.ofNullable;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,17 +30,23 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 
 @Data
 @Slf4j
 public class ParameterMeta {
 
-    private static final ParameterBundle NO_PARAMETER_BUNDLE = new ParameterBundle(null, null) {
+    private static final ParameterBundle NO_PARAMETER_BUNDLE = new ParameterBundle(null, null, null) {
 
         @Override
         public Optional<String> displayName() {
+            return empty();
+        }
+
+        @Override
+        public Optional<String> displayName(final String child) {
             return empty();
         }
     };
@@ -76,7 +81,7 @@ public class ParameterMeta {
                 final String baseName = (packageName.isEmpty() ? i18nPackage : (packageName + '.')) + "Messages";
                 log.debug("Using resource bundle " + baseName + " for " + ParameterMeta.this);
                 final ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale, loader);
-                return new ParameterBundle(bundle, path + '.');
+                return new ParameterBundle(bundle, path + '.', type == null ? null : type.getSimpleName());
             } catch (final MissingResourceException mre) {
                 log.warn("No bundle for " + packageName + " (" + ParameterMeta.this
                         + "), means the display names will be the technical names");

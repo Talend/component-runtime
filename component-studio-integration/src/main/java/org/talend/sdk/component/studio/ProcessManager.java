@@ -189,10 +189,6 @@ public class ProcessManager implements AutoCloseable {
                 .stream()
                 .filter(n -> n.startsWith("talend.component.server."))
                 .forEach(key -> command.add("-D" + key + "=" + System.getProperty(key, "")));
-        if (command.stream().noneMatch(c -> c.startsWith("-Dtalend.component.server.mode="))) {
-            command.add("-Dtalend.component.server.mode=dev"); // dev mode since it logs more and can help investigating
-                                                               // issues
-        }
 
         // local instance, no need of any security
         command.add("-Dtalend.component.server.security.connection.handler=securityNoopHandler");

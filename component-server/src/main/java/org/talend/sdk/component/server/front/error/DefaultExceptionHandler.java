@@ -47,15 +47,12 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
 
     @PostConstruct
     private void init() {
-        debug = "dev".equalsIgnoreCase(configuration.mode());
         replaceException = !"false".equalsIgnoreCase(configuration.defaultExceptionMessage());
     }
 
     @Override
     public Response toResponse(final Throwable exception) {
-        if (debug) {
-            log.log(Level.SEVERE, exception.getMessage(), exception);
-        }
+        log.log(Level.SEVERE, exception.getMessage(), exception);
         if (WebApplicationException.class.isInstance(exception)) {
             return WebApplicationException.class.cast(exception).getResponse();
         }
