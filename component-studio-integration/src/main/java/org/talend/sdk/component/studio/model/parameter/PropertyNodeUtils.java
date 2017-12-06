@@ -75,6 +75,55 @@ public final class PropertyNodeUtils {
     }
 
     /**
+     * Sorts siblings according that how they should be shown on UI
+     */
+    public static void sortPropertyTree(final PropertyNode root) {
+        root.accept(new PropertyVisitor() {
+
+            @Override
+            public void visit(final PropertyNode node) {
+                SimplePropertyDefinition property = node.getProperty();
+                String optionsOrder = property.getMetadata().get(UI_OPTIONS_ORDER);
+                if (optionsOrder != null) {
+                    optionsOrderSort(node, optionsOrder);
+                }
+                // TODO implement sorting according GridLayout
+            }
+
+            /**
+             * Sorts node children according order specified in OptionsOrder or GridLayout
+             * 
+             * @param node current node
+             * @param optionsOrder metadata value for ui::optionsorder::value
+             */
+            private void optionsOrderSort(final PropertyNode node, final String optionsOrder) {
+                HashMap<String, Integer> order = getOrder(optionsOrder);
+
+                node.getChildren().sort((node1, node2) -> {
+                    Integer i1 = order.get(node1.getProperty().getName());
+                    Integer i2 = order.get(node2.getProperty().getName());
+                    return i1.compareTo(i2);
+                });
+            }
+
+            /**
+             * Computes order for comparator
+             * 
+             * @param optionsOrder metadata value for ui::optionsorder::value
+             * @return order
+             */
+            private HashMap<String, Integer> getOrder(final String optionsOrder) {
+                String[] values = optionsOrder.split(ORDER_SEPARATOR);
+                HashMap<String, Integer> order = new HashMap<>();
+                for (int i = 0; i < values.length; i++) {
+                    order.put(values[i], i);
+                }
+                return order;
+            }
+        });
+    }
+
+    /**
      * Creates all nodes and put them into <code>nodes</code> except root node, as it is already there
      * 
      * @param properties all {@link SimplePropertyDefinition}
@@ -178,52 +227,4 @@ public final class PropertyNodeUtils {
         return rootProperty;
     }
 
-    /**
-     * Sorts siblings according that how they should be shown on UI
-     */
-    public static void sortPropertyTree(final PropertyNode root) {
-        root.accept(new PropertyVisitor() {
-
-            @Override
-            public void visit(final PropertyNode node) {
-                SimplePropertyDefinition property = node.getProperty();
-                String optionsOrder = property.getMetadata().get(UI_OPTIONS_ORDER);
-                if (optionsOrder != null) {
-                    optionsOrderSort(node, optionsOrder);
-                }
-                // TODO implement sorting according GridLayout
-            }
-
-            /**
-             * Sorts node children according order specified in OptionsOrder or GridLayout
-             * 
-             * @param node current node
-             * @param optionsOrder metadata value for ui::optionsorder::value
-             */
-            private void optionsOrderSort(final PropertyNode node, final String optionsOrder) {
-                HashMap<String, Integer> order = getOrder(optionsOrder);
-
-                node.getChildren().sort((node1, node2) -> {
-                    Integer i1 = order.get(node1.getProperty().getName());
-                    Integer i2 = order.get(node2.getProperty().getName());
-                    return i1.compareTo(i2);
-                });
-            }
-
-            /**
-             * Computes order for comparator
-             * 
-             * @param optionsOrder metadata value for ui::optionsorder::value
-             * @return order
-             */
-            private HashMap<String, Integer> getOrder(final String optionsOrder) {
-                String[] values = optionsOrder.split(ORDER_SEPARATOR);
-                HashMap<String, Integer> order = new HashMap<>();
-                for (int i = 0; i < values.length; i++) {
-                    order.put(values[i], i);
-                }
-                return order;
-            }
-        });
-    }
 }
