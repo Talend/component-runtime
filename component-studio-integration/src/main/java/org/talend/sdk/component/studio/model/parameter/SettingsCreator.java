@@ -19,9 +19,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.core.model.process.EComponentCategory;
-import org.talend.core.model.process.INode;
+import org.talend.core.model.process.IElement;
+import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 
@@ -39,16 +41,16 @@ public class SettingsCreator implements PropertyVisitor {
     private int lastRowNumber = 1;
 
     /**
-     * Node for which parameters are created. It is required to set {@link ElementParameter} constructor
+     * Element(Node) for which parameters are created. It is required to set {@link ElementParameter} constructor
      */
-    private final INode iNode;
+    private final IElement iNode;
 
     /**
-     * Stores configuration parameters for {@link INode}
+     * Stores created component parameters
      */
     private List<ElementParameter> settings = new ArrayList<>();
 
-    public SettingsCreator(final INode iNode) {
+    public SettingsCreator(final IElement iNode) {
         this.iNode = iNode;
     }
 
@@ -63,13 +65,18 @@ public class SettingsCreator implements PropertyVisitor {
     @Override
     public void visit(final PropertyNode node) {
         if (node.isLeaf()) {
+            ElementParameter parameter = null;
             switch (node.getFieldType()) {
             case CLOSED_LIST:
-                visitClosedList(node);
+                parameter = visitClosedList(node);
+                break;
+            case TABLE:
+                parameter = visitTable((TablePropertyNode) node);
                 break;
             default:
-                visitDefault(node);
+                parameter = createParameter(node);
             }
+            settings.add(parameter);
         }
     }
 
@@ -77,7 +84,7 @@ public class SettingsCreator implements PropertyVisitor {
      * Creates {@link ElementParameter} for Closed List field type and adds it to settings
      * Sets Closed List possible values and sets 1st element as default
      */
-    private void visitClosedList(final PropertyNode node) {
+    private ElementParameter visitClosedList(final PropertyNode node) {
         ElementParameter parameter = createParameter(node);
         PropertyValidation validation = node.getProperty().getValidation();
         if (validation == null) {
@@ -94,14 +101,33 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setListItemsNotReadOnlyIf(new String[possibleValues.size()]);
         parameter.setListItemsShowIf(new String[possibleValues.size()]);
         parameter.setListItemsNotShowIf(new String[possibleValues.size()]);
-        settings.add(parameter);
+        return parameter;
     }
 
     /**
-     * Creates {@link ElementParameter} for default parameter type and adds it to settings
+     * Creates {@link ElementParameter} for Table field type and adds it to settings
+     * Sets special fields specific for Table parameter
      */
-    private void visitDefault(final PropertyNode node) {
-        settings.add(createParameter(node));
+    private ElementParameter visitTable(final TablePropertyNode tableNode) {
+        ElementParameter parameter = createParameter(tableNode);
+
+        List<ElementParameter> tableParameters = createTableParameters(tableNode);
+        List<String> codeNames = new ArrayList<>(tableParameters.size());
+        List<String> displayNames = new ArrayList<>(tableParameters.size());
+        for (ElementParameter param : tableParameters) {
+            codeNames.add(param.getName());
+            displayNames.add(param.getDisplayName());
+        }
+        parameter.setListItemsDisplayName(displayNames.toArray(new String[0]));
+        parameter.setListItemsDisplayCodeName(codeNames.toArray(new String[0]));
+        parameter.setListItemsValue(tableParameters.toArray(new ElementParameter[0]));
+        parameter.setListItemsShowIf(new String[tableParameters.size()]);
+        parameter.setListItemsNotShowIf(new String[tableParameters.size()]);
+
+        parameter.setValue(createTableValue());
+        // TODO change to real value
+        parameter.setBasedOnSchema(true);
+        return parameter;
     }
 
     /**
@@ -120,4 +146,24 @@ public class SettingsCreator implements PropertyVisitor {
         return parameter;
     }
 
+    /**
+     * Creates table parameters (columns) for Table property
+     * 
+     * @param tableNode {@link TablePropertyNode}
+     * @return list of table parameters
+     */
+    private List<ElementParameter> createTableParameters(final TablePropertyNode tableNode) {
+        List<PropertyNode> columns = tableNode.getColumns();
+        SettingsCreator creator = new SettingsCreator(new FakeElement("table"));
+        columns.forEach(column -> creator.visit(column));
+        return creator.getSettings();
+    }
+
+    /**
+     * Creates value holder for Table {@link ElementParameter}
+     * TODO maybe inline it
+     */
+    private static List<Map<String, Object>> createTableValue() {
+        return new ArrayList<Map<String, Object>>();
+    }
 }
