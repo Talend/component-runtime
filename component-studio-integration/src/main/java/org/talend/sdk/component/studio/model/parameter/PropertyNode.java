@@ -35,11 +35,9 @@ public class PropertyNode {
     @Setter(AccessLevel.NONE)
     private List<PropertyNode> children = new ArrayList<>();
 
-    @Setter(AccessLevel.NONE)
-    private SimplePropertyDefinition property;
+    private final SimplePropertyDefinition property;
 
-    @Setter(AccessLevel.NONE)
-    private EParameterFieldType fieldType;
+    private final EParameterFieldType fieldType;
 
     /**
      * Denotes whether this node is root in current tree
@@ -60,17 +58,6 @@ public class PropertyNode {
             return NO_PARENT_ID;
         }
         return id.substring(0, id.lastIndexOf("."));
-    }
-
-    /**
-     * Sets {@link SimplePropertyDefinition} and {@link EParameterFieldType}
-     * These 2 fields should be set together
-     * 
-     * @param property Property Definition to set
-     */
-    public void setProperty(final SimplePropertyDefinition property) {
-        this.property = property;
-        this.fieldType = new WidgetTypeMapper(property).getFieldType();
     }
 
     public boolean isLeaf() {

@@ -21,7 +21,9 @@ import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_OPTIO
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
+import org.talend.core.model.process.EParameterFieldType;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.NoArgsConstructor;
@@ -33,11 +35,24 @@ import lombok.NoArgsConstructor;
 public final class PropertyNodeUtils {
 
     /**
-     * Creates tree representation of {@link SimplePropertyDefinition} .
+     * Creates tree representation of {@link SimplePropertyDefinition}.
      * Not all definitions represent Component property, which may store User setting.
      * Some of them are holders for other definitions (like Forms or Properties in v0 integration)
      * ElementParameters should be created only from leaf nodes in this tree
-     * Internal nodes store useful metadata information like ordering
+     * Internal nodes store useful metadata information like ordering </br>
+     * 
+     * There may be different types of node (different {@link PropertyNode} implementations)
+     * Node type is defined by {@link SimplePropertyDefinition}, so it should be known during
+     * node creation </br>
+     * 
+     * Tree is created according following algorithm:
+     * <ol>
+     * <li>Find root {@link SimplePropertyDefinition}</li>
+     * <li>Create root node</li>
+     * <li>Create other nodes, but not root</li>
+     * <li>Create links between nodes</li>
+     * </ol>
+     * Note, there are 3 traversals through Collection
      * 
      * @param properties a collections of {@link SimplePropertyDefinition} retrieved from ComponentModel
      * @return root node of created tree
@@ -53,30 +68,69 @@ public final class PropertyNodeUtils {
         HashMap<String, PropertyNode> nodes = new HashMap<>();
         nodes.put(root.getId(), root);
 
-        for (SimplePropertyDefinition definition : properties) {
-            String id = definition.getPath();
-            PropertyNode current = nodes.computeIfAbsent(id, key -> new PropertyNode(false));
+        createRemainingNodes(properties, nodes);
+        linkNodes(properties, nodes);
+        return root;
+    }
+
+    /**
+     * Creates all nodes and put them into <code>nodes</code> except root node, as it is already there
+     * 
+     * @param properties all {@link SimplePropertyDefinition}
+     * @param nodes stores all created {@link PropertyNode}
+     */
+    static void createRemainingNodes(final Collection<SimplePropertyDefinition> properties,
+            final Map<String, PropertyNode> nodes) {
+        properties.forEach(property -> nodes.putIfAbsent(property.getPath(), createNode(property, false)));
+    }
+
+    /**
+     * Links child nodes with their parent nodes. Only root node has no parent node, so it is skipped
+     * 
+     * @param properties all {@link SimplePropertyDefinition}
+     * @param nodes all {@link PropertyNode}
+     */
+    static void linkNodes(final Collection<SimplePropertyDefinition> properties,
+            final Map<String, PropertyNode> nodes) {
+        properties.stream().map(property -> property.getPath()).forEach(id -> {
+            PropertyNode current = nodes.get(id);
             if (!current.isRoot()) {
-                current.setProperty(definition);
                 String parentId = current.getParentId();
-                PropertyNode parent = nodes.computeIfAbsent(parentId, key -> new PropertyNode(false));
+                PropertyNode parent = nodes.get(parentId);
                 parent.addChild(current);
             }
+        });
+    }
+
+    /**
+     * Factory method, which creates specific {@link PropertyNode} implementation according Property type
+     * Method also sets {@link SimplePropertyDefinition}
+     * 
+     * @param property Property Definition
+     * @param isRoot specifies whether this Node is root Node
+     * @return {@link PropertyNode} implementation
+     */
+    static PropertyNode createNode(final SimplePropertyDefinition property, final boolean isRoot) {
+        EParameterFieldType fieldType = new WidgetTypeMapper(property).getFieldType();
+        PropertyNode node = null;
+        switch (fieldType) {
+        case TABLE:
+            node = new TablePropertyNode(property, fieldType, isRoot);
+            break;
+        default:
+            node = new PropertyNode(property, fieldType, isRoot);
         }
-        return root;
+        return node;
     }
 
     /**
      * Creates and returns root PropertyNode
      * 
-     * @param properties
+     * @param properties all SimplePropertyDefinitions
      * @return root PropertyNode
      */
     static PropertyNode createRootNode(final Collection<SimplePropertyDefinition> properties) {
-        SimplePropertyDefinition rootDefinition = findRootDefinition(properties);
-        PropertyNode rootNode = new PropertyNode(true);
-        rootNode.setProperty(rootDefinition);
-        return rootNode;
+        return createNode(findRootProperty(properties), true);
     }
 
     /**
@@ -92,10 +146,10 @@ public final class PropertyNodeUtils {
      * Such SimplePropertyDefinition assumed to be equal
      * 
      * @param properties Collection of {@link SimplePropertyDefinition}
-     * @return root SimplePropertyDefinition
+     * @return root {@link SimplePropertyDefinition}
      */
-    static SimplePropertyDefinition findRootDefinition(final Collection<SimplePropertyDefinition> properties) {
-        SimplePropertyDefinition root = Collections.min(properties, (p1, p2) -> {
+    static SimplePropertyDefinition findRootProperty(final Collection<SimplePropertyDefinition> properties) {
+        SimplePropertyDefinition rootProperty = Collections.min(properties, (p1, p2) -> {
             String path1 = p1.getPath();
             String path2 = p2.getPath();
             if (path2.contains(path1)) {
@@ -106,7 +160,7 @@ public final class PropertyNodeUtils {
             }
             return 0;
         });
-        return root;
+        return rootProperty;
     }
 
     /**

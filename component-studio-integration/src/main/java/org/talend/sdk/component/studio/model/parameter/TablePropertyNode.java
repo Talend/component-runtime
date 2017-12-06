@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.talend.core.model.process.EParameterFieldType;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+
 /**
  * Property node for Table property. It stores nested properties, which represent table columns
  */
@@ -27,10 +30,12 @@ public class TablePropertyNode extends PropertyNode {
     private List<PropertyNode> nestedProperties = new ArrayList<>();
 
     /**
-     * @param root defines whether this node is root
+     * @param property {@link SimplePropertyDefinition}
+     * @param fieldType widget type, defines UI representation
+     * @param root specifies whether this node is root node
      */
-    public TablePropertyNode(final boolean root) {
-        super(root);
+    public TablePropertyNode(final SimplePropertyDefinition property, final EParameterFieldType fieldType, final boolean root) {
+        super(property, fieldType, root);
     }
 
     public List<PropertyNode> getColumns() {
