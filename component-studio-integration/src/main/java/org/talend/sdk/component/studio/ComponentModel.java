@@ -330,6 +330,15 @@ public class ComponentModel extends AbstractBasicComponent {
                     modulesNeeded.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/1.7.12"));
                     modulesNeeded.add(new ModuleNeeded(getName(), "", true,
                             "mvn:org.talend.libraries/slf4j-log4j12-1.7.2/6.0.0"));
+                    // We're assuming that pluginLocation has format of groupId:artifactId:version
+                    String location = index.getId().getPluginLocation();
+                    if (location != null) {
+                        String[] splitLocation = location.split(":");
+                        if (splitLocation.length > 2) {
+                            modulesNeeded.add(new ModuleNeeded(getName(), "", true,
+                                    "mvn:" + splitLocation[0] + "/" + splitLocation[1] + "/" + splitLocation[2]));
+                        }
+                    }
                 }
             }
         }
