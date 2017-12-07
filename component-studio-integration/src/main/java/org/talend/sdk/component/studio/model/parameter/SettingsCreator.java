@@ -45,6 +45,13 @@ public class SettingsCreator implements PropertyVisitor {
      * Element(Node) for which parameters are created. It is required to set {@link ElementParameter} constructor
      */
     private final IElement iNode;
+    
+    /**
+     * Defines {@link EComponentCategory} to be set in created {@link ElementParameter}
+     * It may be {@link EComponentCategory#BASIC} or {@link EComponentCategory#ADVANCED}
+     * for Basic and Advanced view correspondingly
+     */
+    private final EComponentCategory category;
 
     /**
      * Stores created component parameters
@@ -52,7 +59,12 @@ public class SettingsCreator implements PropertyVisitor {
     private List<ElementParameter> settings = new ArrayList<>();
 
     public SettingsCreator(final IElement iNode) {
+        this(iNode, EComponentCategory.BASIC);
+    }
+    
+    public SettingsCreator(final IElement iNode, final EComponentCategory category) {
         this.iNode = iNode;
+        this.category = category;
     }
 
     public List<ElementParameter> getSettings() {
@@ -156,7 +168,7 @@ public class SettingsCreator implements PropertyVisitor {
     private ElementParameter createParameter(final PropertyNode node) {
         ElementParameter parameter = new TaCoKitElementParameter(iNode);
         // TODO implement category computing
-        parameter.setCategory(EComponentCategory.BASIC);
+        parameter.setCategory(category);
         parameter.setDisplayName(node.getProperty().getDisplayName());
         parameter.setFieldType(node.getFieldType());
         parameter.setName(node.getProperty().getPath());
