@@ -22,4 +22,5 @@ public interface Versions {
     String BEAM = "${beam.version}";
     String SUREFIRE = "2.20.1";
     String CXF = "3.2.1";
+    String GRADLE = "${gradle.version}";
 }

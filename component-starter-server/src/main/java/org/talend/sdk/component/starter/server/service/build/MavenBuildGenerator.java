@@ -17,10 +17,12 @@ package org.talend.sdk.component.starter.server.service.build;
 
 import lombok.Data;
 import org.talend.sdk.component.starter.server.Versions;
+import org.talend.sdk.component.starter.server.service.Resources;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
+import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
@@ -31,8 +33,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -60,7 +64,7 @@ public class MavenBuildGenerator implements BuildGenerator {
                 renderer.render("generator/maven/pom.xml",
                         new Pom(buildConfiguration, dependencies,
                                 createPlugins(facets, packageBase, plugins.get(buildConfiguration.getPackaging())))),
-                "target");
+                "target", generateWrapperFiles());
     }
 
     private Collection<Plugin> createPlugins(final Collection<String> facets, final String packageBase,
@@ -100,6 +104,20 @@ public class MavenBuildGenerator implements BuildGenerator {
         }
 
         return buildPlugins;
+    }
+
+    private List<FacetGenerator.InMemoryFile> generateWrapperFiles() {
+        final FacetGenerator.InMemoryFile mvnw =
+                new FacetGenerator.InMemoryFile("mvnw", Resources.resourceFileToString("generator/maven/mvnw"));
+        final FacetGenerator.InMemoryFile mvnwCmd =
+                new FacetGenerator.InMemoryFile("mvnw.cmd", Resources.resourceFileToString("generator/maven/mvnw.cmd"));
+        final FacetGenerator.InMemoryFile mvnwWrapperProps =
+                new FacetGenerator.InMemoryFile(".mvn/wrapper/maven-wrapper.properties",
+                        Resources.resourceFileToString("generator/maven/maven-wrapper.properties"));
+        final FacetGenerator.InMemoryFile mvnwWrapperJar = new FacetGenerator.InMemoryFile(
+                ".mvn/wrapper/maven-wrapper.jar", Resources.resourceFileToBytes("generator/maven/maven-wrapper.jar"));
+
+        return asList(mvnw, mvnwCmd, mvnwWrapperProps, mvnwWrapperJar);
     }
 
     @Data

@@ -15,28 +15,30 @@
  */
 package org.talend.sdk.component.starter.server.service.build;
 
-import static java.util.stream.Collectors.toList;
-import static org.talend.sdk.component.starter.server.Versions.CXF;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.talend.sdk.component.starter.server.Versions;
+import org.talend.sdk.component.starter.server.service.Resources;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
+import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
-import lombok.Data;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static org.talend.sdk.component.starter.server.Versions.CXF;
 
 @ApplicationScoped
 public class GradleBuildGenerator implements BuildGenerator {
@@ -84,7 +86,23 @@ public class GradleBuildGenerator implements BuildGenerator {
         return new Build(buildConfiguration.getArtifact(), buildConfiguration.getGroup(),
                 buildConfiguration.getVersion(), "src/main/java", "src/test/java", "src/main/resources",
                 "src/test/resources", "src/main/webapp", "build.gradle",
-                tpl.render("generator/gradle/build.gradle", model), "build");
+                tpl.render("generator/gradle/build.gradle", model), "build", generateWrapperFiles());
+    }
+
+    private List<FacetGenerator.InMemoryFile> generateWrapperFiles() {
+
+        final FacetGenerator.InMemoryFile mvnw =
+                new FacetGenerator.InMemoryFile("gradlew", Resources.resourceFileToString("generator/gradle/gradlew"));
+        final FacetGenerator.InMemoryFile mvnwCmd = new FacetGenerator.InMemoryFile("gradlew.bat",
+                Resources.resourceFileToString("generator/gradle/gradlew.bat"));
+        final FacetGenerator.InMemoryFile mvnwWrapperProps =
+                new FacetGenerator.InMemoryFile("gradle/wrapper/gradle-wrapper.properties",
+                        Resources.resourceFileToString("generator/gradle/gradle-wrapper.properties"));
+        final FacetGenerator.InMemoryFile mvnwWrapperJar =
+                new FacetGenerator.InMemoryFile("gradle/wrapper/gradle-wrapper.jar",
+                        Resources.resourceFileToBytes("generator/gradle/gradle-wrapper.jar"));
+
+        return asList(mvnw, mvnwCmd, mvnwWrapperProps, mvnwWrapperJar);
     }
 
     @Data

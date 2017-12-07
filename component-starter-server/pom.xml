@@ -27,6 +27,13 @@
   <name>Component Runtime :: Starter Server</name>
   <description>Web application allowing to generate maven or gradle project skeleton to speed up component development.</description>
 
+  <properties>
+    <download-plugin.version>1.2.1</download-plugin.version>
+    <gradle.version>4.4</gradle.version>
+    <mvn.version>3.5.2</mvn.version>
+  </properties>
+
+
   <dependencies>
     <dependency> <!-- override until we upgrade meecrowave -->
       <groupId>org.apache.johnzon</groupId>
@@ -264,6 +271,91 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <artifactItems>
+            <artifactItem>
+              <groupId>io.takari</groupId>
+              <artifactId>maven-wrapper</artifactId>
+              <version>0.3.0</version>
+              <type>jar</type>
+              <overWrite>true</overWrite>
+              <outputDirectory>${project.build.directory}/classes/generator/maven</outputDirectory>
+              <destFileName>maven-wrapper.jar</destFileName>
+            </artifactItem>
+          </artifactItems>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.googlecode.maven-download-plugin</groupId>
+        <artifactId>download-maven-plugin</artifactId>
+        <version>${download-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>download-gradle</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>wget</goal>
+            </goals>
+            <configuration>
+              <url>https://services.gradle.org/distributions/gradle-${gradle.version}-bin.zip</url>
+              <outputFileName>gradle-${gradle.version}.zip</outputFileName>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+              <unpack>true</unpack>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>${gmavenplus.version}</version>
+        <executions>
+          <execution>
+            <id>grab-gradle-wrapper</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <scripts>
+            <script>${project.basedir}/src/build/GrabGradleWrapper.groovy</script>
+            <script>${project.basedir}/src/build/GrabMavenWrapper.groovy</script>
+          </scripts>
+          <properties>
+            <gradleHome>${project.build.directory}/gradle-${gradle.version}</gradleHome>
+            <mvnHome>${env.M2_HOME}</mvnHome>
+            <mvnVersion>${mvn.version}</mvnVersion>
+          </properties>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${jgit.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>

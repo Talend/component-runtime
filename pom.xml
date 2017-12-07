@@ -77,6 +77,10 @@
         <enabled>false</enabled>
       </releases>
     </repository>
+    <repository>
+      <id>gradle-libs-releases-local</id>
+      <url>http://repo.gradle.org/gradle/libs-releases-local/</url>
+    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
@@ -220,7 +224,7 @@
                 <script>
                   def base = project.basedir
                   while (!new File(base, 'formatter.xml').exists()) {
-                    base = base.parentFile
+                  base = base.parentFile
                   }
                   def formatterFile = new File(base, 'formatter.xml')
                   def formatter = formatterFile.toURI().toURL().toExternalForm()

@@ -51,7 +51,7 @@ public class ComponentGeneratorTest {
     private ComponentGenerator generator;
 
     private Build build = new Build("test", "test", null, "src/main/java", "src/test/java", "src/main/resources",
-            "src/test/resources", "src/main/webapp", "pom.xml", "some pom", "target");
+            "src/test/resources", "src/main/webapp", "pom.xml", "some pom", "target", emptyList());
 
     @Test
     public void source() {

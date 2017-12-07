@@ -15,13 +15,7 @@
  */
 package org.talend.sdk.component.starter.server.service;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -37,7 +31,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -53,7 +46,13 @@ import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.component.ComponentGenerator;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
-import lombok.Getter;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @ApplicationScoped
 public class ProjectGenerator {
@@ -172,6 +171,9 @@ public class ProjectGenerator {
                         request.getSources(), request.getProcessors())
                 .forEach(file -> files.put(file.getPath(), file.getContent()));
 
+        // add wrapper build files
+        build.getWrapperdFiles().forEach(f -> files.put(f.getPath(), f.getContent()));
+
         // now create the zip prefixing it with the artifact value
         final String rootName = request.getBuildConfiguration().getArtifact();
         final Set<String> createdFolders = new HashSet<>();
@@ -215,4 +217,5 @@ public class ProjectGenerator {
 
         onCreate.fire(new CreateProject(request));
     }
+
 }
