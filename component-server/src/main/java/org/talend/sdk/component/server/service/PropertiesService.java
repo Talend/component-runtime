@@ -25,7 +25,7 @@ import javax.inject.Inject;
 
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
-import org.talend.sdk.component.runtime.manager.tools.DefaultValueInspector;
+import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 

@@ -25,6 +25,7 @@
 
   <artifactId>sample</artifactId>
   <name>Component Runtime :: Sample</name>
+  <description>A sample component. IMPORTANT: it is used by some tests.</description>
 
   <dependencies>
     <dependency>

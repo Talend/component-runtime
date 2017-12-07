@@ -25,6 +25,7 @@
 
   <artifactId>component-server</artifactId>
   <name>Component Runtime :: Server</name>
+  <description>The Web server of the framework. Mainly provides UI interaction hooks.</description>
 
   <pluginRepositories>
     <pluginRepository>

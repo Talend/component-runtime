@@ -26,6 +26,7 @@
   <artifactId>component-runtime-testing</artifactId>
   <name>Component Runtime :: Testing</name>
   <packaging>pom</packaging>
+  <description>Umbrella parent for testing utilities.</description>
 
   <modules>
     <module>component-runtime-testing-spark</module>

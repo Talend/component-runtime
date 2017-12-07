@@ -24,7 +24,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.talend.sdk.component.runtime.manager.tools.ComponentValidator;
+import org.talend.sdk.component.tools.ComponentValidator;
 
 /**
  * Validate ComponentManager constraints to ensure a component doesn't have any

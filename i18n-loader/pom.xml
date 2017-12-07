@@ -25,6 +25,7 @@
 
   <artifactId>i18n-loader</artifactId>
   <name>Component Runtime :: i18n Loader</name>
+  <description>Pluggable i18n loader implementation for java 8.</description>
 
   <!--
   IF YOU LOOK TO ADD A DEPENDENCY, YOU ARE IN THE WRONG PLACE,

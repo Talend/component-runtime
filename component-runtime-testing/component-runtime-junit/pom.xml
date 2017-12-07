@@ -25,6 +25,7 @@
 
   <artifactId>component-runtime-junit</artifactId>
   <name>Component Runtime :: Testing :: JUnit</name>
+  <description>JUnit (4) integration of the framework.</description>
 
   <dependencies>
     <dependency>

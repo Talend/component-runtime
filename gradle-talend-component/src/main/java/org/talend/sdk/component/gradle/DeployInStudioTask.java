@@ -49,7 +49,7 @@ public class DeployInStudioTask extends TaCoKitTask {
 
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
-        final Class<?> impl = tccl.loadClass("org.talend.sdk.component.runtime.manager.tools.StudioInstaller");
+        final Class<?> impl = tccl.loadClass("org.talend.sdk.component.tools.StudioInstaller");
         final Map<String, File> artifacts = getProject()
                 .getConfigurations()
                 .getByName("runtime")

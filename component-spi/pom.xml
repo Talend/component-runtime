@@ -25,6 +25,7 @@
 
   <artifactId>component-spi</artifactId>
   <name>Component Runtime :: Component SPI</name>
+  <description>The runtime SPI to support components with an external programming model.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

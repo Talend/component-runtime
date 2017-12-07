@@ -26,6 +26,7 @@
   <artifactId>org.talend.sdk.component.studio-integration</artifactId>
   <packaging>bundle</packaging> <!-- let's not use yet eclipse-plugin which implies a p2 repo which is a pain -->
   <name>Component Runtime :: Studio Integration</name>
+  <description>Studio integration of the Framework.</description>
 
   <properties>
     <studio.version>7.0.1-M1</studio.version>

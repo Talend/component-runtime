@@ -29,7 +29,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.talend.sdk.component.runtime.manager.tools.StudioInstaller;
+import org.talend.sdk.component.tools.StudioInstaller;
 
 // mvn talend-component:deploy-in-studio -Dtalend.component.studioHome=/path/to/studio
 @Mojo(name = "deploy-in-studio", requiresDependencyResolution = COMPILE_PLUS_RUNTIME)

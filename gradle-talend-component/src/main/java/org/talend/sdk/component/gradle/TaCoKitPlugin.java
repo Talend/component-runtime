@@ -48,8 +48,8 @@ public class TaCoKitPlugin implements Plugin<Project> {
             final DependencySet dependencies = configuration.getDependencies();
             dependencies.add(
                     dependencyHandler.create("org.talend.sdk.component:component-api:" + extension.getApiVersion()));
-            dependencies.add(dependencyHandler
-                    .create("org.talend.sdk.component:component-runtime-manager:" + extension.getSdkVersion()));
+            dependencies.add(
+                    dependencyHandler.create("org.talend.sdk.component:component-tools:" + extension.getSdkVersion()));
             dependencies.add(dependencyHandler.create(
                     "org.talend.sdk.component:component-runtime-design-extension:" + extension.getSdkVersion()));
         });

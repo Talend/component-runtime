@@ -25,6 +25,7 @@
 
   <artifactId>nested-maven-repository</artifactId>
   <name>Component Runtime :: Container :: Nested Maven Repository Maven Plugin</name>
+  <description>A maven shade extension to include dependencies in a nested (in jar) maven repository.</description>
 
   <dependencies>
     <dependency>

@@ -1384,6 +1384,26 @@ a|2 which means `==`
 |output
 a|Where to store the output, it is *NOT* recommended to change it
 a|`${classes}/TALEND-INF/documentation.adoc`
+
+|formats
+|A map of the renderings to do, keys are the format (`pdf` or `html`) and values the output paths
+| -
+
+|attributes
+|A map of asciidoctor attributes when formats is set
+| -
+
+|templateDir / templateEngine
+|Template configuration for the rendering
+| -
+
+|title
+|Document title
+| ${project.name}
+
+|attachDocumentations
+|Should the documentations (`.adoc`, and `formats` keys) should be attached to the project (and deployed)
+| true
 |===
 
 ==== Render your documentation
@@ -1682,6 +1702,9 @@ talendComponentKit {
     skipDocumentation = false
     documentationOutput = new File(....)
     documentationLevel = 2 // first level will be == in the generated adoc
+    documentationTitle = 'My Component Family' // default to project name
+    documentationFormats = [:] // adoc attributes
+    documentationFormats = [:] // renderings to do
 
     // validation
     skipValidation = false

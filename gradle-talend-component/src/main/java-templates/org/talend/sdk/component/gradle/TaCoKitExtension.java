@@ -18,6 +18,7 @@ package org.talend.sdk.component.gradle;
 import lombok.Data;
 
 import java.io.File;
+import java.util.Map;
 
 @Data
 public class TaCoKitExtension {
@@ -51,6 +52,16 @@ public class TaCoKitExtension {
     private int documentationLevel = 2;
 
     private File documentationOutput;
+
+    private Map<String, String> documentationFormats;
+
+    private Map<String, String> documentationAttributes;
+
+    private File documentationTemplateDir;
+
+    private String documentationTitle;
+
+    private String documentationTemplateEngine;
 
     //
     // validation

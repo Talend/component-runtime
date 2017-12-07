@@ -26,6 +26,7 @@
 
   <artifactId>container-core</artifactId>
   <name>Component Runtime :: Container :: Core</name>
+  <description>The classloader manager and implementation supporting isolation between components.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

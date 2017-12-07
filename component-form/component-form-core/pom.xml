@@ -25,6 +25,7 @@
 
   <artifactId>component-form-core</artifactId>
   <name>Component Runtime :: Form :: Core</name>
+  <description>This module is reponsible to convert TaCoKit model to UISpec one.</description>
 
   <dependencies>
     <dependency>

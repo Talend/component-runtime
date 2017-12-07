@@ -25,7 +25,7 @@
 
   <artifactId>documentation</artifactId>
   <name>Component Runtime :: Documentation</name>
-  <description>Actually TComp documentation</description>
+  <description>Actually framework documentation, generated as a website and pushed to Github pages.</description>
 
   <properties>
     <project_version>${project.version}</project_version>
@@ -33,7 +33,6 @@
     <sample_project>${sample_project-base}/src/main/java/org/talend/sdk/component/sample</sample_project>
     <sample_project_test>${sample_project-base}/src/test/java/org/talend/sdk/component/sample</sample_project_test>
     <generated_adoc>${project.build.directory}/generated-adoc</generated_adoc>
-    <asciidoctorj.version>1.6.0-alpha.6</asciidoctorj.version>
     <revealjs.version>3.5.0</revealjs.version>
     <asciidoctor-revealjs.version>1.0.2</asciidoctor-revealjs.version>
     <jbake.site.rootpath></jbake.site.rootpath>

@@ -26,6 +26,7 @@
   <artifactId>talend-component-maven-plugin</artifactId>
   <name>Component Runtime :: Maven Plugin</name>
   <packaging>maven-plugin</packaging>
+  <description>Provides Talend Component Kit Tools wrapped as Maven Mojos.</description>
 
   <properties>
     <maven.version>3.5.0</maven.version>
@@ -41,7 +42,7 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-runtime-manager</artifactId>
+      <artifactId>component-tools</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency> <!-- extends runtime manager with design time data -->
