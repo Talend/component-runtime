@@ -25,6 +25,7 @@
 
   <artifactId>component-form-demo</artifactId>
   <name>Component Runtime :: Form :: Demo</name>
+  <description>Sample of the form-core usage.</description>
 
   <properties>
     <meecrowave.version>1.0.0</meecrowave.version>

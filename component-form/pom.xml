@@ -28,6 +28,7 @@
   <artifactId>component-form</artifactId>
   <packaging>pom</packaging>
   <name>Component Runtime :: Form</name>
+  <description>Umbrella parent for the Web UI representation of the properties of the components.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -38,8 +38,7 @@ public class ValidateTask extends TaCoKitTask {
                 TaCoKitExtension.class.cast(getProject().getExtensions().findByName("talendComponentKit"));
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
-        final Class<?> config =
-                tccl.loadClass("org.talend.sdk.component.runtime.manager.tools.ComponentValidator$Configuration");
+        final Class<?> config = tccl.loadClass("org.talend.sdk.component.tools.ComponentValidator$Configuration");
         final Object configuration = config.getConstructor().newInstance();
 
         set(configuration, "setValidateFamily", extension.isValidateFamily());
@@ -52,7 +51,7 @@ public class ValidateTask extends TaCoKitTask {
         set(configuration, "setValidateDataSet", extension.isValidateDataSet());
         set(configuration, "setValidateActions", extension.isValidateActions());
 
-        final Class<?> validator = tccl.loadClass("org.talend.sdk.component.runtime.manager.tools.ComponentValidator");
+        final Class<?> validator = tccl.loadClass("org.talend.sdk.component.tools.ComponentValidator");
         final Runnable runnable =
                 Runnable.class.cast(validator.getConstructor(config, File[].class, Object.class).newInstance(
                         configuration, findClasses().toArray(File[]::new), getLogger()));

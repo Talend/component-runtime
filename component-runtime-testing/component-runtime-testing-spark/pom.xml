@@ -25,6 +25,7 @@
 
   <artifactId>component-runtime-testing-spark</artifactId>
   <name>Component Runtime :: Testing :: Spark</name>
+  <description>Utility to start a local spark cluster.</description>
 
   <dependencies>
     <dependency>

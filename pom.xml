@@ -45,6 +45,7 @@
     <module>component-studio-integration</module>
     <module>documentation</module>
     <module>i18n-loader</module>
+    <module>component-tools</module>
   </modules>
 
   <repositories>
@@ -117,6 +118,8 @@
     <log4j2.version>2.10.0</log4j2.version>
     <batik.version>1.9</batik.version>
     <beam.version>2.2.0</beam.version>
+    <asciidoctorj.version>1.6.0-alpha.6</asciidoctorj.version>
+    <asciidoctorj-pdf.version>1.5.0-alpha.16</asciidoctorj-pdf.version>
 
     <talend-icon.version>0.127.0</talend-icon.version>
     <component-api.version>1.0.0-SNAPSHOT</component-api.version>
@@ -124,14 +127,14 @@
     <groovy.version>3.0.0-alpha-1</groovy.version>
     <gmavenplus.version>1.6</gmavenplus.version>
     <dependency-plugin.version>3.0.2</dependency-plugin.version>
-    <javadoc-plugin.version>3.0.0-M1</javadoc-plugin.version>
+    <javadoc-plugin.version>3.0.0</javadoc-plugin.version>
     <download-plugin.version>1.2.1</download-plugin.version>
     <git-commit-id-plugin.version>2.2.4</git-commit-id-plugin.version>
     <jgit.version>4.9.0.201710071750-r</jgit.version>
 
     <node.version>v8.4.0</node.version>
-    <yarn.version>v0.28.4</yarn.version>
-    <frontend.version>1.5</frontend.version>
+    <yarn.version>v1.3.2</yarn.version>
+    <frontend.version>1.6</frontend.version>
   </properties>
 
   <dependencies>
@@ -538,7 +541,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.0.0-M1</version>
+            <version>${javadoc-plugin.version}</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>

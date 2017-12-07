@@ -25,6 +25,7 @@
 
   <artifactId>component-starter-server</artifactId>
   <name>Component Runtime :: Starter Server</name>
+  <description>Web application allowing to generate maven or gradle project skeleton to speed up component development.</description>
 
   <dependencies>
     <dependency> <!-- override until we upgrade meecrowave -->

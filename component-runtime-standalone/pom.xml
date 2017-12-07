@@ -25,6 +25,7 @@
 
   <artifactId>component-runtime-standalone</artifactId>
   <name>Component Runtime :: Standalone</name>
+  <description>Locator for standalone run, it allows to lookup services and components after serialization.</description>
 
   <dependencies>
     <dependency>
