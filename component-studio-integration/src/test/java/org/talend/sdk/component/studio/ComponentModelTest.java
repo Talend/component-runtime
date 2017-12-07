@@ -39,14 +39,14 @@ public class ComponentModelTest {
 
     @Test
     public void getModuleNeeded() {
-        final ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
+        final ComponentId id = new ComponentId("id", "plugin", "group:plugin:1", "XML", "XMLInput");
         final ComponentIndex idx =
                 new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
         final ComponentDetail detail =
                 new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
         final ComponentModel componentModel = new ComponentModel(idx, detail);
         final List<ModuleNeeded> modulesNeeded = componentModel.getModulesNeeded();
-        assertEquals(12, modulesNeeded.size());
+        assertEquals(13, modulesNeeded.size());
         // just assert a few
         assertTrue(modulesNeeded.stream().anyMatch(
                 m -> "component-runtime-manager-1.0.0-SNAPSHOT.jar".equals(m.getModuleName())));
@@ -55,6 +55,7 @@ public class ComponentModelTest {
         assertTrue(modulesNeeded.stream().anyMatch(
                 m -> "component-runtime-di-1.0.0-SNAPSHOT.jar".equals(m.getModuleName())));
         assertTrue(modulesNeeded.stream().anyMatch(m -> "xbean-reflect-4.6.jar".equals(m.getModuleName())));
+        assertTrue(modulesNeeded.stream().anyMatch(m -> "plugin-1.jar".equals(m.getModuleName())));
     }
 
     @Test

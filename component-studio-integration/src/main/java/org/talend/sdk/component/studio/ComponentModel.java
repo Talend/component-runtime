@@ -330,10 +330,35 @@ public class ComponentModel extends AbstractBasicComponent {
                     modulesNeeded.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/1.7.12"));
                     modulesNeeded.add(new ModuleNeeded(getName(), "", true,
                             "mvn:org.talend.libraries/slf4j-log4j12-1.7.2/6.0.0"));
+                    // We're assuming that pluginLocation has format of groupId:artifactId:version
+                    final String location = index.getId().getPluginLocation().trim();
+                    modulesNeeded.add(new ModuleNeeded(getName(), "", true, locationToMvn(location)));
                 }
             }
         }
         return modulesNeeded;
+    }
+
+    private String locationToMvn(final String location) {
+        String[] segments = location.split(":");
+        if (segments.length < 3) {
+            throw new IllegalArgumentException("Invalid coordinate: " + location);
+        }
+
+        switch (segments.length) { // support some optional values 3: g:a:v, 4: g:a:t:v
+        case 3:
+            segments = new String[] { segments[0], segments[1], "jar", segments[2], "compile" };
+            break;
+        case 4:
+            segments = (location + ":compile").split(":");
+            break;
+        default:
+        }
+
+        // mvn:group/artifact/version/type[/classifier]
+        final int classifierOffset = segments.length == 5 ? 0 : 1;
+        return "mvn:" + segments[0] + "/" + segments[1] + "/" + segments[3 + classifierOffset] + "/" + segments[2]
+                + ((classifierOffset == 0) ? "" : "/" + segments[3]);
     }
 
     /**
