@@ -305,11 +305,12 @@ public class ComponentValidator extends BaseTask {
     }
 
     private int countParameters(final Method m) {
-        return (int) Stream
-                .of(m.getParameterTypes())
-                .filter(p -> !p.getName().startsWith("org.talend.sdk.component.api.service")
-                        && !p.isAnnotationPresent(Service.class))
-                .count();
+        return (int) Stream.of(m.getParameterTypes()).filter(p -> !isService(p)).count();
+    }
+
+    private boolean isService(final Class<?> p) {
+        return p.isAnnotationPresent(Service.class) || p.isAnnotationPresent(Internationalized.class)
+                || p.getName().startsWith("org.talend.sdk.component.api.service");
     }
 
     private String validateComponentResourceBundle(final Class<?> component) {
