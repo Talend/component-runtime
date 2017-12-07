@@ -210,7 +210,7 @@
         <version>${gmavenplus.version}</version>
         <executions>
           <execution>
-            <id>setup-deps-and-copy-icons</id>
+            <id>initialize-formatter.xml</id>
             <phase>initialize</phase>
             <goals>
               <goal>execute</goal>
