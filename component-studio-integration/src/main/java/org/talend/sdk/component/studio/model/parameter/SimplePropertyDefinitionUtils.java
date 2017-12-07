@@ -17,7 +17,6 @@ package org.talend.sdk.component.studio.model.parameter;
 
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_GRIDLAYOUT_ADVANCED;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_GRIDLAYOUT_MAIN;
-import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_OPTIONS_ORDER;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.OBJECT;
 
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -57,34 +56,23 @@ public final class SimplePropertyDefinitionUtils {
     public static boolean isObject(final SimplePropertyDefinition property) {
         return OBJECT.equals(property.getType());
     }
-    
+
     /**
-     * Checks whether specified {@link SimplePropertyDefinition} contains Main form
-     * There are 2 metadatas, which specify properties form: gridlayout and optionsorder
-     * These metadatas are exclusive - if one is specified, another can't be present
-     * 
-     * Property is considered to contain Main form in following cases:
-     * <ol>
-     *     <li>It is explicitly defined by gridlayout:Main metadata presence</li>
-     *     <li>optionsorder metadata is present (thus, no gridlayout metadata)</li>
-     *     <li>both gridlayout and optionsorder metadatas are not present</li>
-     * </ol>
+     * Checks whether specified {@link SimplePropertyDefinition} has {@link Metadatas#UI_GRIDLAYOUT_MAIN} metadata
      * 
      * @param property
+     * @return true, is contains main gridlayout metadata
      */
     public static boolean hasMainGridLayout(final SimplePropertyDefinition property) {
-        if (property.getMetadata().containsKey(UI_GRIDLAYOUT_MAIN)) {
-            return true;
-        }
-        if (property.getMetadata().containsKey(UI_OPTIONS_ORDER)) {
-            return true;
-        }
-        if (!property.getMetadata().containsKey(UI_GRIDLAYOUT_ADVANCED)) {
-            return true;
-        }
-        return false;
+        return property.getMetadata().containsKey(UI_GRIDLAYOUT_MAIN);
     }
-    
+
+    /**
+     * Checks whether specified {@link SimplePropertyDefinition} has {@link Metadatas#UI_GRIDLAYOUT_ADVANCED} metadata
+     * 
+     * @param property
+     * @return true, is contains advanced gridlayout metadata
+     */
     public static boolean hasAdvancedGridLayout(final SimplePropertyDefinition property) {
         return property.getMetadata().containsKey(UI_GRIDLAYOUT_ADVANCED);
     }

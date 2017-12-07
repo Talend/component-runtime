@@ -45,7 +45,7 @@ public class SettingsCreator implements PropertyVisitor {
      * Element(Node) for which parameters are created. It is required to set {@link ElementParameter} constructor
      */
     private final IElement iNode;
-    
+
     /**
      * Defines {@link EComponentCategory} to be set in created {@link ElementParameter}
      * It may be {@link EComponentCategory#BASIC} or {@link EComponentCategory#ADVANCED}
@@ -61,7 +61,7 @@ public class SettingsCreator implements PropertyVisitor {
     public SettingsCreator(final IElement iNode) {
         this(iNode, EComponentCategory.BASIC);
     }
-    
+
     public SettingsCreator(final IElement iNode, final EComponentCategory category) {
         this.iNode = iNode;
         this.category = category;

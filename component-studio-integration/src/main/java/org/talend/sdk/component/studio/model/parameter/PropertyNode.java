@@ -94,7 +94,7 @@ public class PropertyNode {
     }
 
     /**
-     * Traverses Main form nodes in sorted according metadata order 
+     * Traverses Main form nodes in sorted according metadata order
      * 
      * @param visitor
      */
@@ -102,7 +102,7 @@ public class PropertyNode {
         visitor.visit(this);
         getMainChildren().forEach(child -> child.acceptMain(visitor));
     }
-    
+
     /**
      * Returns only those children, which should be present on Main form
      * Result is sorted according order specified in metadata
@@ -111,9 +111,10 @@ public class PropertyNode {
      */
     private List<PropertyNode> getMainChildren() {
         Set<String> mainChildrenNames = getMainChildrenNames();
-        return children.stream().filter(node -> mainChildrenNames.contains(node.property.getName())).collect(Collectors.toList());
+        return children.stream().filter(node -> mainChildrenNames.contains(node.property.getName())).collect(
+                Collectors.toList());
     }
-    
+
     private Set<String> getMainChildrenNames() {
         if (SimplePropertyDefinitionUtils.hasMainGridLayout(property)) {
             String gridLayout = property.getMetadata().get(UI_GRIDLAYOUT_MAIN);
@@ -129,9 +130,9 @@ public class PropertyNode {
         children.forEach(node -> names.add(node.getProperty().getName()));
         return names;
     }
-    
+
     /**
-     * Traverses Advanced form nodes in sorted according metadata order 
+     * Traverses Advanced form nodes in sorted according metadata order
      * 
      * @param visitor
      */
@@ -139,7 +140,7 @@ public class PropertyNode {
         visitor.visit(this);
         getAdvancedChildren().forEach(child -> child.acceptAdvanced(visitor));
     }
-    
+
     /**
      * Returns only those children, which should be present on Advanced form
      * Result is sorted according order specified in metadata
@@ -148,7 +149,8 @@ public class PropertyNode {
      */
     private List<PropertyNode> getAdvancedChildren() {
         Set<String> advancedChildrenNames = getAdvancedChildrenNames();
-        return children.stream().filter(node -> advancedChildrenNames.contains(node.property.getName())).collect(Collectors.toList());
+        return children.stream().filter(node -> advancedChildrenNames.contains(node.property.getName())).collect(
+                Collectors.toList());
     }
 
     private Set<String> getAdvancedChildrenNames() {
