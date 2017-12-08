@@ -48,5 +48,5 @@ public class Build {
 
     private final String buildDir;
 
-    private final List<FacetGenerator.InMemoryFile> wrapperdFiles;
+    private final List<FacetGenerator.InMemoryFile> wrapperFiles;
 }

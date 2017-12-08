@@ -172,7 +172,7 @@ public class ProjectGenerator {
                 .forEach(file -> files.put(file.getPath(), file.getContent()));
 
         // add wrapper build files
-        build.getWrapperdFiles().forEach(f -> files.put(f.getPath(), f.getContent()));
+        build.getWrapperFiles().forEach(f -> files.put(f.getPath(), f.getContent()));
 
         // now create the zip prefixing it with the artifact value
         final String rootName = request.getBuildConfiguration().getArtifact();

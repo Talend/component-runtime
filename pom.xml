@@ -222,9 +222,9 @@
             <configuration>
               <scripts>
                 <script>
-                  def base = project.basedir
+                  def base =  project.basedir
                   while (!new File(base, 'formatter.xml').exists()) {
-                  base = base.parentFile
+                    base = base.parentFile
                   }
                   def formatterFile = new File(base, 'formatter.xml')
                   def formatter = formatterFile.toURI().toURL().toExternalForm()

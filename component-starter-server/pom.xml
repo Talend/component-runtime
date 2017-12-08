@@ -317,7 +317,7 @@
               <outputFileName>gradle-${gradle.version}.zip</outputFileName>
               <outputDirectory>${project.build.directory}</outputDirectory>
               <unpack>true</unpack>
-              <cacheDirectory>${project.basedir/.cache</cacheDirectory>
+              <cacheDirectory>${project.basedir}/.cache</cacheDirectory>
             </configuration>
           </execution>
         </executions>

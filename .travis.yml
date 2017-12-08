@@ -17,6 +17,8 @@ cache:
   - "$HOME/build/Talend/component-runtime/component-runtime/component-tools/.node"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-tools/src/main/frontend/node_modules"
   - "$HOME/build/Talend/component-runtime/component-studio-integration/.p2localrepository"
+  - "$HOME/build/Talend/component-runtime/component-starter-server/.cache"
+
 notifications:
   email: false
   slack:
