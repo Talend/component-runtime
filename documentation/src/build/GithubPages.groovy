@@ -70,7 +70,7 @@ def ant = new AntBuilder()
 def versions = new StringBuilder()
 def root = System.getProperty('jbake.site.rootpath', project.properties.getProperty('jbake.site.rootpath'))
 workDir.listFiles(new FilenameFilter() {
-    private final Collection<String> excluded = ['css', 'images', 'js', 'presentations', 'tags', 'latest', 'current']
+    private final Collection<String> excluded = ['css', 'images', 'js', 'presentations', 'tags', 'latest', 'current', 'apidocs']
 
     @Override
     boolean accept(File dir, String name) {
@@ -111,7 +111,7 @@ if (Boolean.getBoolean("component.gh-page.debug")) {
     def status = git.status().call()
     log.info("Status:\n  Changed: ${status.changed}\n  Added: ${status.added}\n  Removed: ${status.removed}")
 }
-git.commit().setMessage(message).call()
+git.commit().setAll(true).setMessage(message).call()
 git.status().call()
 git.push().setCredentialsProvider(credentialsProvider).add(branch).call()
 log.info("Updated the website on ${new Date()}")
