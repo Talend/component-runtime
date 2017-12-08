@@ -16,6 +16,7 @@
 package org.talend.sdk.component.studio.model.parameter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.talend.core.CorePlugin;
@@ -66,11 +67,17 @@ public class ElementParameterCreator {
 
     private void addComponentParameters() {
         if (!detail.getProperties().isEmpty()) {
-            PropertyNode root = PropertyNodeUtils.createPropertyTree(detail.getProperties());
-            PropertyNodeUtils.sortPropertyTree(root);
-            SettingsCreator settingsCreator = new SettingsCreator(node);
-            root.accept(settingsCreator);
-            parameters.addAll(settingsCreator.getSettings());
+            Collection<PropertyDefinitionDecorator> properties =
+                    PropertyDefinitionDecorator.wrap(detail.getProperties());
+            PropertyNode root = PropertyNodeUtils.createPropertyTree(properties);
+            // add main parameters
+            SettingsCreator mainCreator = new SettingsCreator(node, EComponentCategory.BASIC);
+            root.acceptMain(mainCreator);
+            parameters.addAll(mainCreator.getSettings());
+            // add advanced parameters
+            SettingsCreator advancedCreator = new SettingsCreator(node, EComponentCategory.ADVANCED);
+            root.acceptAdvanced(advancedCreator);
+            parameters.addAll(advancedCreator.getSettings());
         }
     }
 

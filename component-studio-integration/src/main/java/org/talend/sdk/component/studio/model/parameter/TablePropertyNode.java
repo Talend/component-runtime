@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.talend.core.model.process.EParameterFieldType;
-import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 /**
  * Property node for Table property. It stores nested properties, which represent table columns
@@ -30,20 +29,28 @@ public class TablePropertyNode extends PropertyNode {
     private List<PropertyNode> nestedProperties = new ArrayList<>();
 
     /**
-     * @param property {@link SimplePropertyDefinition}
+     * @param property {@link PropertyDefinitionDecorator}
      * @param fieldType widget type, defines UI representation
      * @param root specifies whether this node is root node
      */
-    public TablePropertyNode(final SimplePropertyDefinition property, final EParameterFieldType fieldType,
+    public TablePropertyNode(final PropertyDefinitionDecorator property, final EParameterFieldType fieldType,
             final boolean root) {
         super(property, fieldType, root);
     }
 
-    public List<PropertyNode> getColumns() {
-        return Collections.unmodifiableList(nestedProperties);
+    /**
+     * Adds child as nested property
+     * {@link TablePropertyNode} can't have children nodes. It is leaf node.
+     * But it may have nested properties, which represent table columns
+     * 
+     * @param column {@link PropertyNode} to be added as table column
+     */
+    @Override
+    public void addChild(final PropertyNode column) {
+        nestedProperties.add(column);
     }
 
-    public void addColumn(final PropertyNode column) {
-        nestedProperties.add(column);
+    public List<PropertyNode> getColumns() {
+        return Collections.unmodifiableList(nestedProperties);
     }
 }
