@@ -139,6 +139,71 @@ You can also add custom actions/buttons for specific needs of the application.
 
 NOTE: the  `/migrate` endpoint has nothing special so was not shown in previous snippet but if you need it you must add it as well.
 
+=== Use UiSpec model without all the tooling
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>component-form-model</artifactId>
+  <version>${talend-component-kit.version}</version>
+</dependency>
+----
+
+This maven dependency provides the UISpec model classes. You can use the `Ui` API (with or without the builders)
+to create UiSpec representations.
+
+Example:
+
+[source,java]
+----
+final Ui form1 = ui()
+    // (1)
+    .withJsonSchema(JsonSchema.jsonSchemaFrom(Form1.class).build())
+    // (2)
+    .withUiSchema(uiSchema()
+        .withKey("multiSelectTag")
+        .withRestricted(false)
+        .withTitle("Simple multiSelectTag")
+        .withDescription("This datalist accepts values that are not in the list of suggestions")
+        .withWidget("multiSelectTag")
+        .build())
+    // (3)
+    .withProperties(myFormInstance)
+    .build();
+
+// (4)
+final String json = jsonb.toJson(form1);
+----
+
+1. We extract the `JsonSchema` from reflection on the class `Form1`. Note that `@JsonSchemaIgnore` allows
+to ignore a field and `@JsonSchemaProperty` allows to rename a property,
+2. We build programmatically using the builder API a `UiSchema`,
+3. We pass an instance of the form to let the serializer extracts it JSON model,
+4. We serialize the `Ui` model which can be used by UiSpec compatible front widgets.
+
+IMPORTANT: the model uses JSON-B API to define the binding, ensure to have an implementation in your classpath.
+This can be done adding these dependencies:
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.apache.geronimo.specs</groupId>
+  <artifactId>geronimo-jsonb_1.0_spec</artifactId>
+  <version>1.0</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.geronimo.specs</groupId>
+  <artifactId>geronimo-json_1.1_spec</artifactId>
+  <version>1.0</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.johnzon</groupId>
+  <artifactId>johnzon-jsonb</artifactId>
+  <version>${johnzon.version}</version> <!-- 1.1.5 for instance -->
+</dependency>
+----
+
 == Logging
 
 The logging uses Log4j2, you can specify a custom configuration using the system property `-Dlog4j.configurationFile`
