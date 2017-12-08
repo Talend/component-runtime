@@ -31,6 +31,7 @@ public class TaCoKitElementParameter extends ElementParameter {
 
     public TaCoKitElementParameter(final IElement element) {
         super(element);
+        setTaggedValue("plugin", "tacokit");
     }
 
     @Override

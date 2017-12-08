@@ -26,6 +26,7 @@ import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
+import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 
 /**
  * Creates properties from leafs
@@ -152,7 +153,7 @@ public class SettingsCreator implements PropertyVisitor {
      * Creates {@link ElementParameter} and sets common state for different types of parameters
      */
     private ElementParameter createParameter(final PropertyNode node) {
-        ElementParameter parameter = new ElementParameter(iNode);
+        ElementParameter parameter = new TaCoKitElementParameter(iNode);
         // TODO implement category computing
         parameter.setCategory(EComponentCategory.BASIC);
         parameter.setDisplayName(node.getProperty().getDisplayName());
