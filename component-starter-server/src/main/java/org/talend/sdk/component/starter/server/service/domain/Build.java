@@ -18,6 +18,10 @@ package org.talend.sdk.component.starter.server.service.domain;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
+import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+
 @Getter
 @RequiredArgsConstructor
 public class Build {
@@ -43,4 +47,6 @@ public class Build {
     private final String buildFileContent;
 
     private final String buildDir;
+
+    private final List<FacetGenerator.InMemoryFile> wrapperFiles;
 }

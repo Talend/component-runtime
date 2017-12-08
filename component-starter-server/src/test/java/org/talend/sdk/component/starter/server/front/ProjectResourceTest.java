@@ -15,18 +15,6 @@
  */
 package org.talend.sdk.component.starter.server.front;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toSet;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.talend.sdk.component.starter.server.Versions.CXF;
-import static org.talend.sdk.component.starter.server.test.Resources.resourceFileToString;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +26,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
@@ -49,6 +36,18 @@ import org.junit.runner.RunWith;
 import org.talend.sdk.component.starter.server.model.FactoryConfiguration;
 import org.talend.sdk.component.starter.server.model.ProjectModel;
 import org.talend.sdk.component.starter.server.test.ClientRule;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.talend.sdk.component.starter.server.Versions.CXF;
+import static org.talend.sdk.component.starter.server.service.Resources.resourceFileToString;
 
 @RunWith(MonoMeecrowave.Runner.class)
 public class ProjectResourceTest {
@@ -82,13 +81,16 @@ public class ProjectResourceTest {
     }
 
     @Test
-    public void emptyProject() throws IOException {
+    public void emptyMavenProject() throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         final Map<String, String> files = createZip(projectModel);
 
-        assertEquals(3, files.size());
-        assertEquals(Stream.of("application/", "application/pom.xml", "application/README.adoc").collect(toSet()),
-                files.keySet());
+        assertEquals(Stream
+                .of("application/.mvn/wrapper/", "application/mvnw.cmd", "application/", "application/mvnw",
+                        "application/.mvn/", "application/.mvn/wrapper/maven-wrapper.jar",
+                        "application/.mvn/wrapper/maven-wrapper.properties", "application/pom.xml",
+                        "application/README.adoc")
+                .collect(toSet()), files.keySet());
         Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>").forEach(
                 token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
         assertEquals("= A Talend generated Component Starter Project\n", files.get("application/README.adoc"));
@@ -97,15 +99,31 @@ public class ProjectResourceTest {
     }
 
     @Test
+    public void emptyGradleProject() throws IOException {
+        final ProjectModel projectModel = new ProjectModel();
+        projectModel.setBuildType("Gradle");
+        final Map<String, String> files = createZip(projectModel);
+
+        assertEquals(Stream
+                .of("application/gradle/", "application/", "application/gradle/wrapper/gradle-wrapper.jar",
+                        "application/gradlew.bat", "application/gradlew",
+                        "application/gradle/wrapper/gradle-wrapper.properties", "application/gradle/wrapper/",
+                        "application/README.adoc", "application/build.gradle")
+                .collect(toSet()), files.keySet());
+    }
+
+    @Test
     public void testingProject() throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setFacets(singletonList("Talend Component Kit Testing"));
         // todo: add source/proc
         final Map<String, String> files = createZip(projectModel);
-
-        assertEquals(3, files.size()); // TODO: should be more since we generate tests
-        assertEquals(Stream.of("application/", "application/pom.xml", "application/README.adoc").collect(toSet()),
-                files.keySet());
+        assertEquals(Stream
+                .of("application/.mvn/wrapper/", "application/mvnw.cmd", "application/", "application/mvnw",
+                        "application/.mvn/", "application/.mvn/wrapper/maven-wrapper.jar",
+                        "application/.mvn/wrapper/maven-wrapper.properties", "application/pom.xml",
+                        "application/README.adoc")
+                .collect(toSet()), files.keySet());
         Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>").forEach(
                 token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
         assertEquals("= A Talend generated Component Starter Project\n" + "\n" + "== Test\n" + "\n"
@@ -120,7 +138,6 @@ public class ProjectResourceTest {
         projectModel.setFacets(singletonList("WADL Client Generation"));
         final Map<String, String> files = createZip(projectModel);
 
-        assertEquals(8, files.size());
         assertWadl(files);
         Stream
                 .of("    <dependency>\n" + "      <groupId>org.apache.cxf</groupId>\n"
@@ -147,7 +164,6 @@ public class ProjectResourceTest {
         projectModel.setFacets(singletonList("Travis CI"));
         final Map<String, String> files = createZip(projectModel);
 
-        assertEquals(4, files.size());
         assertThat(files.get("application/README.adoc"), containsString("=== Travis CI\n"));
         assertThat(files.get("application/.travis.yml"), containsString("language: java"));
     }
@@ -160,7 +176,6 @@ public class ProjectResourceTest {
         projectModel.setFacets(singletonList("WADL Client Generation"));
         final Map<String, String> files = createZip(projectModel);
 
-        assertEquals(8, files.size());
         assertWadl(files);
         Stream
                 .of("    classpath \"org.apache.cxf:cxf-tools-wadlto-jaxrs:" + CXF,
@@ -205,8 +220,6 @@ public class ProjectResourceTest {
         }
 
         final Map<String, String> files = createZip(projectModel);
-
-        assertEquals(41, files.size());
         assertTrue(files.toString(), files.get("application/README.adoc").contains("=== Apache Beam"));
         assertEquals(resourceFileToString("generated/ProjectResourceTest/beamFacet/TInMapperBeamTest.java"),
                 files.get("application/src/test/java/com/foo/source/TInMapperBeamTest.java"));
@@ -238,8 +251,6 @@ public class ProjectResourceTest {
         }
 
         final Map<String, String> files = createZip(projectModel);
-
-        assertEquals(32, files.size());
         assertEquals(
                 resourceFileToString(
                         "generated/ProjectResourceTest/beamFacetProcessorOutput/TInProcessorBeamTest.java"),
@@ -254,7 +265,6 @@ public class ProjectResourceTest {
 
         final Map<String, String> files = createZip(projectModel);
 
-        assertEquals(4, files.size());
         assertEquals(resourceFileToString("generated/ProjectResourceTest/codenvy/README.adoc").trim(),
                 files.get("application/README.adoc").trim());
         assertEquals(resourceFileToString("generated/ProjectResourceTest/codenvy/codenvy.json"),
