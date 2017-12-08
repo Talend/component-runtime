@@ -58,10 +58,6 @@ public class SettingsCreator implements PropertyVisitor {
      */
     private List<ElementParameter> settings = new ArrayList<>();
 
-    public SettingsCreator(final IElement iNode) {
-        this(iNode, EComponentCategory.BASIC);
-    }
-
     public SettingsCreator(final IElement iNode, final EComponentCategory category) {
         this.iNode = iNode;
         this.category = category;
@@ -156,7 +152,7 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setListItemsShowIf(new String[tableParameters.size()]);
         parameter.setListItemsNotShowIf(new String[tableParameters.size()]);
 
-        parameter.setValue(createTableValue());
+        parameter.setValue(new ArrayList<Map<String, Object>>());
         // TODO change to real value
         parameter.setBasedOnSchema(false);
         return parameter;
@@ -167,7 +163,6 @@ public class SettingsCreator implements PropertyVisitor {
      */
     private ElementParameter createParameter(final PropertyNode node) {
         ElementParameter parameter = new TaCoKitElementParameter(iNode);
-        // TODO implement category computing
         parameter.setCategory(category);
         parameter.setDisplayName(node.getProperty().getDisplayName());
         parameter.setFieldType(node.getFieldType());
@@ -186,16 +181,8 @@ public class SettingsCreator implements PropertyVisitor {
      */
     private List<ElementParameter> createTableParameters(final TablePropertyNode tableNode) {
         List<PropertyNode> columns = tableNode.getColumns();
-        SettingsCreator creator = new SettingsCreator(new FakeElement("table"));
+        SettingsCreator creator = new SettingsCreator(new FakeElement("table"), category);
         columns.forEach(column -> creator.visit(column));
         return creator.getSettings();
-    }
-
-    /**
-     * Creates value holder for Table {@link ElementParameter}
-     * TODO maybe inline it
-     */
-    private static List<Map<String, Object>> createTableValue() {
-        return new ArrayList<Map<String, Object>>();
     }
 }
