@@ -274,33 +274,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.0.2</version>
-        <executions>
-          <execution>
-            <id>copy</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <artifactItems>
-            <artifactItem>
-              <groupId>io.takari</groupId>
-              <artifactId>maven-wrapper</artifactId>
-              <version>0.3.0</version>
-              <type>jar</type>
-              <overWrite>true</overWrite>
-              <outputDirectory>${project.build.directory}/classes/generator/maven</outputDirectory>
-              <destFileName>maven-wrapper.jar</destFileName>
-            </artifactItem>
-          </artifactItems>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>com.googlecode.maven-download-plugin</groupId>
         <artifactId>download-maven-plugin</artifactId>
         <version>${download-plugin.version}</version>
