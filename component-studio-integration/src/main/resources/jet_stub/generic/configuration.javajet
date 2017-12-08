@@ -14,14 +14,17 @@
 */%>
 final java.util.Map<String, String> configuration_<%=cid%> = new java.util.HashMap<>();
 <%
-    final List<IElementParameter> params = List.class.cast(node.getElementParametersWithChildrens());
+    final List<ElementParameter> params = List.class.cast(node.getElementParametersWithChildrens());
     if (params != null && !params.isEmpty()) {
-        for (final IElementParameter p : params) {
+        for (final ElementParameter p : params) {
+            Object pluginValue = p.getTaggedValue("org.talend.sdk.component.source");
+            if(pluginValue != null && String.class.cast(pluginValue).equalsIgnoreCase("tacokit")) {
 %>
             configuration_<%=cid%>.put(
                 "<%=p.getName().replace('$', '.')%>",
                 "<%=p.getFieldType() == EParameterFieldType.PASSWORD ? ElementParameterParser.getPasswordValue(node, p.getVariableName()) : ElementParameterParser.getStringElementParameterValue(p)%>");
 <%
+            }
         }
     }
 %>
