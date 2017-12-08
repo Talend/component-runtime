@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.core.model.process.EParameterFieldType;
-import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.NoArgsConstructor;
 
@@ -36,29 +35,29 @@ import lombok.NoArgsConstructor;
 public final class PropertyNodeUtils {
 
     /**
-     * Creates tree representation of {@link SimplePropertyDefinition}.
+     * Creates tree representation of {@link PropertyDefinitionDecorator}.
      * Not all definitions represent Component property, which may store User setting.
      * Some of them are holders for other definitions (like Forms or Properties in v0 integration)
      * ElementParameters should be created only from leaf nodes in this tree
      * Internal nodes store useful metadata information like ordering </br>
      * 
      * There may be different types of node (different {@link PropertyNode} implementations)
-     * Node type is defined by {@link SimplePropertyDefinition}, so it should be known during
+     * Node type is defined by {@link PropertyDefinitionDecorator}, so it should be known during
      * node creation </br>
      * 
      * Tree is created according following algorithm:
      * <ol>
-     * <li>Find root {@link SimplePropertyDefinition}</li>
+     * <li>Find root {@link PropertyDefinitionDecorator}</li>
      * <li>Create root node</li>
      * <li>Create other nodes, but not root</li>
      * <li>Create links between nodes</li>
      * </ol>
      * Note, there are 3 traversals through Collection
      * 
-     * @param properties a collections of {@link SimplePropertyDefinition} retrieved from ComponentModel
+     * @param properties a collections of {@link PropertyDefinitionDecorator} retrieved from ComponentModel
      * @return root node of created tree
      */
-    public static PropertyNode createPropertyTree(final Collection<SimplePropertyDefinition> properties) {
+    public static PropertyNode createPropertyTree(final Collection<? extends PropertyDefinitionDecorator> properties) {
         if (properties == null) {
             throw new NullPointerException("properties should not be null");
         }
@@ -82,7 +81,7 @@ public final class PropertyNodeUtils {
 
             @Override
             public void visit(final PropertyNode node) {
-                SimplePropertyDefinition property = node.getProperty();
+                PropertyDefinitionDecorator property = node.getProperty();
                 String optionsOrder = property.getMetadata().get(UI_OPTIONS_ORDER);
                 if (optionsOrder != null) {
                     optionsOrderSort(node, optionsOrder);
@@ -126,10 +125,10 @@ public final class PropertyNodeUtils {
     /**
      * Creates all nodes and put them into <code>nodes</code> except root node, as it is already there
      * 
-     * @param properties all {@link SimplePropertyDefinition}
+     * @param properties all {@link PropertyDefinitionDecorator}
      * @param nodes stores all created {@link PropertyNode}
      */
-    static void createRemainingNodes(final Collection<SimplePropertyDefinition> properties,
+    static void createRemainingNodes(final Collection<? extends PropertyDefinitionDecorator> properties,
             final Map<String, PropertyNode> nodes) {
         properties.forEach(property -> nodes.putIfAbsent(property.getPath(), createNode(property, false)));
     }
@@ -137,10 +136,10 @@ public final class PropertyNodeUtils {
     /**
      * Links child nodes with their parent nodes. Only root node has no parent node, so it is skipped
      * 
-     * @param properties all {@link SimplePropertyDefinition}
+     * @param properties all {@link PropertyDefinitionDecorator}
      * @param nodes all {@link PropertyNode}
      */
-    static void linkNodes(final Collection<SimplePropertyDefinition> properties,
+    static void linkNodes(final Collection<? extends PropertyDefinitionDecorator> properties,
             final Map<String, PropertyNode> nodes) {
         properties.stream().map(property -> property.getPath()).forEach(id -> {
             PropertyNode current = nodes.get(id);
@@ -168,13 +167,12 @@ public final class PropertyNodeUtils {
 
     /**
      * Factory method, which creates specific {@link PropertyNode} implementation according Property type
-     * Method also sets {@link SimplePropertyDefinition}
      * 
      * @param property Property Definition
      * @param isRoot specifies whether this Node is root Node
      * @return {@link PropertyNode} implementation
      */
-    static PropertyNode createNode(final SimplePropertyDefinition property, final boolean isRoot) {
+    static PropertyNode createNode(final PropertyDefinitionDecorator property, final boolean isRoot) {
         EParameterFieldType fieldType = new WidgetTypeMapper(property).getFieldType();
         PropertyNode node = null;
         switch (fieldType) {
@@ -190,30 +188,31 @@ public final class PropertyNodeUtils {
     /**
      * Creates and returns root PropertyNode
      * 
-     * @param properties all SimplePropertyDefinitions
+     * @param properties all {@link PropertyDefinitionDecorator}
      * @return root PropertyNode
      */
-    static PropertyNode createRootNode(final Collection<SimplePropertyDefinition> properties) {
+    static PropertyNode createRootNode(final Collection<? extends PropertyDefinitionDecorator> properties) {
         return createNode(findRootProperty(properties), true);
     }
 
     /**
-     * Finds a root of {@link SimplePropertyDefinition} subtree represented by <code>properties</code> Collection.
-     * Root is such {@link SimplePropertyDefinition}, which <code>path</code> is "shortest" (minimal) in following
+     * Finds a root of {@link PropertyDefinitionDecorator} subtree represented by <code>properties</code> Collection.
+     * Root is such {@link PropertyDefinitionDecorator}, which <code>path</code> is "shortest" (minimal) in following
      * meaning:
      * path1 is less than path2, when path2 contains path1. </br>
      * E.g. path1 = "p0.p1"; path2 = "p0.p1.p2"; // path1 is less than path2</br>
      * It is assumed input <code>properties</code> is not null and not empty.
      * Also it is assumed Collection contains only single root element.
-     * Note, not any 2 arbitrary SimplePropertyDefinition may be compared. They may belong to different branches in a
+     * Note, not any 2 arbitrary PropertyDefinitionDecorator may be compared. They may belong to different branches in a
      * tree.
-     * Such SimplePropertyDefinition assumed to be equal
+     * Such PropertyDefinitionDecorator assumed to be equal
      * 
-     * @param properties Collection of {@link SimplePropertyDefinition}
-     * @return root {@link SimplePropertyDefinition}
+     * @param properties Collection of {@link PropertyDefinitionDecorator}
+     * @return root {@link PropertyDefinitionDecorator}
      */
-    static SimplePropertyDefinition findRootProperty(final Collection<SimplePropertyDefinition> properties) {
-        SimplePropertyDefinition rootProperty = Collections.min(properties, (p1, p2) -> {
+    static PropertyDefinitionDecorator
+            findRootProperty(final Collection<? extends PropertyDefinitionDecorator> properties) {
+        PropertyDefinitionDecorator rootProperty = Collections.min(properties, (p1, p2) -> {
             String path1 = p1.getPath();
             String path2 = p2.getPath();
             if (path2.startsWith(path1)) {

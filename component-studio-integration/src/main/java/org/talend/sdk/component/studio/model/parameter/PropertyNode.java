@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.talend.core.model.process.EParameterFieldType;
-import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -44,7 +43,7 @@ public class PropertyNode {
     private static final String NO_PARENT_ID = "";
 
     /**
-     * Suffix used in id ({@link SimplePropertyDefinition#getPath()}), which denotes Array typed property
+     * Suffix used in id SimplePropertyDefinition.getPath(), which denotes Array typed property
      * (which is Table property in Studio)
      */
     private static final String ARRAY_PATH = "[]";
@@ -52,7 +51,7 @@ public class PropertyNode {
     @Setter(AccessLevel.NONE)
     private List<PropertyNode> children = new ArrayList<>();
 
-    private final SimplePropertyDefinition property;
+    private final PropertyDefinitionDecorator property;
 
     private final EParameterFieldType fieldType;
 
@@ -122,13 +121,13 @@ public class PropertyNode {
     }
 
     private Set<String> getMainChildrenNames() {
-        if (SimplePropertyDefinitionUtils.hasMainGridLayout(property)) {
+        if (property.hasMainGridLayout()) {
             String gridLayout = property.getMetadata().get(UI_GRIDLAYOUT_MAIN);
             String[] names = gridLayout.split(",|\\|");
             return new HashSet<>(Arrays.asList(names));
         }
         // has advanced, but has no main gridlayout
-        if (SimplePropertyDefinitionUtils.hasAdvancedGridLayout(property)) {
+        if (property.hasAdvancedGridLayout()) {
             return Collections.emptySet();
         }
         // else has no gridlayout at all, thus all children go to Main form
@@ -163,7 +162,7 @@ public class PropertyNode {
     }
 
     private Set<String> getAdvancedChildrenNames() {
-        if (SimplePropertyDefinitionUtils.hasAdvancedGridLayout(property)) {
+        if (property.hasAdvancedGridLayout()) {
             String gridLayout = property.getMetadata().get(UI_GRIDLAYOUT_ADVANCED);
             String[] names = gridLayout.split(",|\\|");
             return new HashSet<>(Arrays.asList(names));
