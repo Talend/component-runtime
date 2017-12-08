@@ -36,8 +36,8 @@ public class PoolProducer {
     @ApplicationScoped
     public ExecutorService executorService(final ComponentServerConfiguration configuration,
             final HttpTracing tracing) {
-        return tracing.tracing().currentTraceContext()
-                .executorService(Executors.newFixedThreadPool(configuration.executionPoolSize()));
+        return tracing.tracing().currentTraceContext().executorService(
+                Executors.newFixedThreadPool(configuration.executionPoolSize()));
     }
 
     public void release(@Disposes final ExecutorService executorService,

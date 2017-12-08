@@ -52,7 +52,12 @@ public class ConfigurationTypeResourceTest {
         // assert there is at least one parent node
         assertTrue(index.getNodes().values().stream().anyMatch(n -> n.getParentId() == null));
         // assert all edges nodes are in the index
-        index.getNodes().values().stream().filter(n -> !n.getEdges().isEmpty()).flatMap(n -> n.getEdges().stream())
+        index
+                .getNodes()
+                .values()
+                .stream()
+                .filter(n -> !n.getEdges().isEmpty())
+                .flatMap(n -> n.getEdges().stream())
                 .forEach(e -> assertTrue(index.getNodes().containsKey(e)));
 
     }

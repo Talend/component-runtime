@@ -63,18 +63,24 @@ public class BraveConfiguration {
     @ApplicationScoped
     public HttpTracing httpTracing(final ComponentServerConfiguration configuration) {
         return HttpTracing
-                .newBuilder(Tracing.newBuilder().localServiceName(configuration.serviceName())
+                .newBuilder(Tracing
+                        .newBuilder()
+                        .localServiceName(configuration.serviceName())
                         .sampler(CountingSampler.create(toActualRate(configuration.samplerRate())))
-                        .spanReporter(createReporter(configuration)).build())
-                .serverSampler(HttpRuleSampler.newBuilder()
+                        .spanReporter(createReporter(configuration))
+                        .build())
+                .serverSampler(HttpRuleSampler
+                        .newBuilder()
                         .addRule("GET", "/api/v1/environment", toActualRate(configuration.samplerComponentRate()))
                         .addRule("GET", "/api/v1/configurationtype", toActualRate(configuration.samplerComponentRate()))
                         .addRule("GET", "/api/v1/component", toActualRate(configuration.samplerComponentRate()))
                         .addRule("POST", "/api/v1/component", toActualRate(configuration.samplerComponentRate()))
                         .addRule("POST", "/api/v1/execution", configuration.samplerExecutionRate())
                         .addRule("GET", "/api/v1/action", toActualRate(configuration.samplerActionRate()))
-                        .addRule("POST", "/api/v1/action", toActualRate(configuration.samplerActionRate())).build())
-                .clientSampler(HttpRuleSampler.newBuilder().build()).build();
+                        .addRule("POST", "/api/v1/action", toActualRate(configuration.samplerActionRate()))
+                        .build())
+                .clientSampler(HttpRuleSampler.newBuilder().build())
+                .build();
     }
 
     private float toActualRate(final float rate) {
@@ -130,8 +136,11 @@ public class BraveConfiguration {
         }
 
         try {
-            Object builder = Thread.currentThread().getContextClassLoader()
-                    .loadClass("zipkin2.reporter.urlconnection.URLConnectionSender").getMethod("create", String.class)
+            Object builder = Thread
+                    .currentThread()
+                    .getContextClassLoader()
+                    .loadClass("zipkin2.reporter.urlconnection.URLConnectionSender")
+                    .getMethod("create", String.class)
                     .invoke(null, configuration.get("endpoint"));
             builder = builderSet(builder, "connectTimeout", configuration, int.class);
             builder = builderSet(builder, "readTimeout", configuration, int.class);
@@ -158,8 +167,11 @@ public class BraveConfiguration {
         }
 
         try {
-            Object builder = Thread.currentThread().getContextClassLoader()
-                    .loadClass("zipkin2.reporter.kafka11.KafkaSender").getMethod("create", String.class)
+            Object builder = Thread
+                    .currentThread()
+                    .getContextClassLoader()
+                    .loadClass("zipkin2.reporter.kafka11.KafkaSender")
+                    .getMethod("create", String.class)
                     .invoke(null, configuration.get("servers"));
             builder = builderSet(builder, "messageMaxBytes", configuration, int.class);
             builder = builderSet(builder, "encoding", configuration, Encoding.class);
@@ -190,9 +202,9 @@ public class BraveConfiguration {
         } else if (Map.class == type) {
             value = readConfiguration(value.toString());
         }
-        final Class<?>[] params = Stream
-                .concat(Stream.of(type), otherParams == null ? Stream.empty() : Stream.of(otherParams))
-                .toArray(Class[]::new);
+        final Class<?>[] params =
+                Stream.concat(Stream.of(type), otherParams == null ? Stream.empty() : Stream.of(otherParams)).toArray(
+                        Class[]::new);
         final Object[] values = new Object[params.length];
         values[0] = value;
         if (otherParams != null) {
@@ -217,7 +229,10 @@ public class BraveConfiguration {
     private Map<String, String> readConfiguration(final String reporter) {
         return new StringPropertiesTokenizer(
                 reporter.contains("(") ? reporter.substring(reporter.indexOf('(') + 1, reporter.length() - 1) : "")
-                        .tokens().stream().map(data -> data.split("=")).collect(toMap(s -> s[0], s -> s[1]));
+                        .tokens()
+                        .stream()
+                        .map(data -> data.split("="))
+                        .collect(toMap(s -> s[0], s -> s[1]));
 
     }
 }

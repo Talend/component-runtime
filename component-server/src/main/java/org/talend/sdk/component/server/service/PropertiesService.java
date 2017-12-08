@@ -58,13 +58,19 @@ public class PropertiesService {
                 }
                 validation.setEnumValues(p.getProposals());
             }
-            final Map<String, String> metadata = ofNullable(p.getMetadata()).map(m -> m.entrySet().stream()
-                    .filter(e -> !e.getKey().startsWith(ValidationParameterEnricher.META_PREFIX))
-                    .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue))).orElse(null);
+            final Map<String, String> metadata = ofNullable(p.getMetadata())
+                    .map(m -> m
+                            .entrySet()
+                            .stream()
+                            .filter(e -> !e.getKey().startsWith(ValidationParameterEnricher.META_PREFIX))
+                            .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)))
+                    .orElse(null);
             final Object instance = defaultValueInspector.createDemoInstance(rootInstance, p);
             return Stream.concat(
                     Stream.of(new SimplePropertyDefinition(path, name,
-                            p.findBundle(loader, locale).displayName()
+                            p
+                                    .findBundle(loader, locale)
+                                    .displayName()
                                     .orElseGet(() -> parent == null ? name
                                             : parent.findBundle(loader, locale).displayName(p.getName()).orElse(name)),
                             type, defaultValueInspector.findDefault(instance, p), validation, metadata)),

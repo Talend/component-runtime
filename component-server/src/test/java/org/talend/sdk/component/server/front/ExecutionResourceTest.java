@@ -70,8 +70,11 @@ public class ExecutionResourceTest {
 
     @Test
     public void read() {
-        final String output = base.path("execution/read/{family}/{component}").resolveTemplate("family", "chain")
-                .resolveTemplate("component", "list").request("talend/stream")
+        final String output = base
+                .path("execution/read/{family}/{component}")
+                .resolveTemplate("family", "chain")
+                .resolveTemplate("component", "list")
+                .request("talend/stream")
                 .post(entity(Json.createObjectBuilder().add("values[0]", "v1").add("values[1]", "v2").build(),
                         APPLICATION_JSON_TYPE), String.class);
         assertEquals("{\"value\":\"v1\"}\n{\"value\":\"v2\"}\n", output);
@@ -82,8 +85,11 @@ public class ExecutionResourceTest {
         final File outputFile = new File(jarLocation(ExecutionResourceTest.class).getParentFile(),
                 getClass().getSimpleName() + "_" + testName.getMethodName() + ".output");
         final JsonBuilderFactory objectFactory = Json.createBuilderFactory(emptyMap());
-        final WriteStatistics stats = base.path("execution/write/{family}/{component}")
-                .resolveTemplate("family", "file").resolveTemplate("component", "output").request(APPLICATION_JSON_TYPE)
+        final WriteStatistics stats = base
+                .path("execution/write/{family}/{component}")
+                .resolveTemplate("family", "file")
+                .resolveTemplate("component", "output")
+                .request(APPLICATION_JSON_TYPE)
                 .post(entity(objectFactory.createObjectBuilder().add("file", outputFile.getAbsolutePath()).build()
                         + "\n" + objectFactory.createObjectBuilder().add("line1", "v1").build() + "\n"
                         + objectFactory.createObjectBuilder().add("line2", "v2").build(), "talend/stream"),

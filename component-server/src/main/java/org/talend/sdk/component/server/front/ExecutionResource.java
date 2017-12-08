@@ -136,11 +136,13 @@ public class ExecutionResource {
         response.setTimeoutHandler(asyncResponse -> log.warn("Timeout on dataset retrieval"));
         response.setTimeout(appConfiguration.datasetRetrieverTimeout(), SECONDS);
         executorService.submit(() -> {
-            final Optional<Mapper> mapperOptional = manager.findMapper(family, component,
-                    getConfigComponentVersion(configuration), configuration);
+            final Optional<Mapper> mapperOptional =
+                    manager.findMapper(family, component, getConfigComponentVersion(configuration), configuration);
             if (!mapperOptional.isPresent()) {
-                response.resume(new WebApplicationException(Response.status(BAD_REQUEST)
-                        .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find the input component")).build()));
+                response.resume(new WebApplicationException(Response
+                        .status(BAD_REQUEST)
+                        .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find the input component"))
+                        .build()));
                 return;
             }
 
@@ -192,12 +194,14 @@ public class ExecutionResource {
         executorService.submit(() -> {
             Processor processor = null;
             final WriteStatistics statistics = new WriteStatistics(0);
-            try (final BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            try (final BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
                 String line = reader.readLine();
                 if (line == null || line.trim().isEmpty()) {
-                    response.resume(new WebApplicationException(Response.status(BAD_REQUEST)
-                            .entity(new ErrorPayload(ACTION_ERROR, "No configuration sent")).build()));
+                    response.resume(new WebApplicationException(Response
+                            .status(BAD_REQUEST)
+                            .entity(new ErrorPayload(ACTION_ERROR, "No configuration sent"))
+                            .build()));
                     return;
                 }
 
@@ -207,11 +211,13 @@ public class ExecutionResource {
                 }
 
                 final Map<String, String> config = convertConfig(configuration);
-                final Optional<Processor> processorOptional = manager.findProcessor(family, component,
-                        getConfigComponentVersion(config), config);
+                final Optional<Processor> processorOptional =
+                        manager.findProcessor(family, component, getConfigComponentVersion(config), config);
                 if (!processorOptional.isPresent()) {
-                    response.resume(new WebApplicationException(Response.status(BAD_REQUEST)
-                            .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find the output component")).build()));
+                    response.resume(new WebApplicationException(Response
+                            .status(BAD_REQUEST)
+                            .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find the output component"))
+                            .build()));
                     return;
                 }
 
@@ -244,8 +250,10 @@ public class ExecutionResource {
                     }
                 }
             } catch (final Exception e) {
-                response.resume(new WebApplicationException(Response.status(BAD_REQUEST)
-                        .entity(new ErrorPayload(ACTION_ERROR, "Didn't find the input component")).build()));
+                response.resume(new WebApplicationException(Response
+                        .status(BAD_REQUEST)
+                        .entity(new ErrorPayload(ACTION_ERROR, "Didn't find the input component"))
+                        .build()));
             } finally {
                 ofNullable(processor).ifPresent(Processor::stop);
             }
@@ -265,8 +273,10 @@ public class ExecutionResource {
             case STRING:
                 return JsonString.class.cast(e.getValue()).getString();
             default:
-                throw new WebApplicationException(Response.status(BAD_REQUEST).entity(
-                        new ErrorPayload(BAD_FORMAT, "Unsupported parameter " + e.getKey() + "=" + e.getValue()))
+                throw new WebApplicationException(Response
+                        .status(BAD_REQUEST)
+                        .entity(new ErrorPayload(BAD_FORMAT,
+                                "Unsupported parameter " + e.getKey() + "=" + e.getValue()))
                         .build());
             }
         }));

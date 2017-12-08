@@ -45,9 +45,11 @@ import org.talend.sdk.component.server.service.security.event.OnConnection;
 public class SecurityExtension implements Extension {
 
     private final Map<String, ObserverMethod<OnConnection>> onConnectionObservers = new HashMap<>();
+
     private final Map<String, ObserverMethod<OnCommand>> onCommandObservers = new HashMap<>();
 
     private ObserverMethod<OnConnection> onConnectionMtd;
+
     private ObserverMethod<OnCommand> onCommandMtd;
 
     void findOnConnectionMethod(@Observes final ProcessObserverMethod<OnConnection, ?> processObserverMethod) {

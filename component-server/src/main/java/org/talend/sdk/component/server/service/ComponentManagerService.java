@@ -87,11 +87,14 @@ public class ComponentManagerService {
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
-        ofNullable(configuration.componentCoordinates()).orElse(emptySet())
-                .forEach(plugin -> instance.addWithLocationPlugin(plugin,
+        ofNullable(configuration.componentCoordinates()).orElse(emptySet()).forEach(
+                plugin -> instance.addWithLocationPlugin(plugin,
                         new File(mvnRepo, mvnCoordinateToFileConverter.toArtifact(plugin).toPath()).getAbsolutePath()));
-        ofNullable(configuration.componentRegistry()).map(StrSubstitutor::replaceSystemProperties).map(File::new)
-                .filter(File::exists).ifPresent(registry -> {
+        ofNullable(configuration.componentRegistry())
+                .map(StrSubstitutor::replaceSystemProperties)
+                .map(File::new)
+                .filter(File::exists)
+                .ifPresent(registry -> {
                     final Properties properties = new Properties();
                     try (final InputStream is = new FileInputStream(registry)) {
                         properties.load(is);
@@ -117,21 +120,27 @@ public class ComponentManagerService {
             }
         });
         // trivial mecanism for now, just reset all accessor caches
-        evictor = cacheEvictorPool
-                .schedule(() -> instance.find(c -> Stream.of(c.get(ComponentManager.AllServices.class).getServices()))
-                        .filter(Objects::nonNull).map(s -> AccessorCache.class.cast(s.get(AccessorCache.class)))
-                        .filter(Objects::nonNull).peek(AccessorCache::reset).count(), 1, MINUTES);
+        evictor = cacheEvictorPool.schedule(() -> instance
+                .find(c -> Stream.of(c.get(ComponentManager.AllServices.class).getServices()))
+                .filter(Objects::nonNull)
+                .map(s -> AccessorCache.class.cast(s.get(AccessorCache.class)))
+                .filter(Objects::nonNull)
+                .peek(AccessorCache::reset)
+                .count(), 1, MINUTES);
 
-        idMapping = instance.find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
+        idMapping = instance
+                .find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
                 .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
                         c.getProcessors().values().stream()))
                 .collect(toMap(ComponentFamilyMeta.BaseMeta::getId, identity()));
-        actionIndex = instance.find(c -> c.get(ContainerComponentRegistry.class).getServices().stream())
+        actionIndex = instance
+                .find(c -> c.get(ContainerComponentRegistry.class).getServices().stream())
                 .flatMap(c -> c.getActions().stream())
                 .collect(toMap(e -> new ActionKey(e.getFamily(), e.getType(), e.getAction()), identity()));
 
-        familyIdMapping = instance.find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
-                .collect(toMap(f -> IdGenerator.get(f.getName()), identity()));
+        familyIdMapping =
+                instance.find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream()).collect(
+                        toMap(f -> IdGenerator.get(f.getName()), identity()));
     }
 
     public ServiceMeta.ActionMeta findActionById(final String component, final String type, final String action) {

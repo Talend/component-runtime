@@ -128,9 +128,13 @@ public class ComponentResource {
         if (ids.length == 0) {
             return new Dependencies(emptyMap());
         }
-        return new Dependencies(Stream.of(ids).map(id -> componentManagerService.findMetaById(id))
+        return new Dependencies(Stream
+                .of(ids)
+                .map(id -> componentManagerService.findMetaById(id))
                 .collect(toMap(ComponentFamilyMeta.BaseMeta::getId,
-                        meta -> componentManagerService.manager().findPlugin(meta.getParent().getPlugin())
+                        meta -> componentManagerService
+                                .manager()
+                                .findPlugin(meta.getParent().getPlugin())
                                 .map(c -> new DependencyDefinition(
                                         c.findDependencies().map(Artifact::toCoordinate).collect(toList())))
                                 .orElse(new DependencyDefinition(emptyList())))));
@@ -145,22 +149,31 @@ public class ComponentResource {
         final ComponentFamilyMeta.BaseMeta<?> component = componentManagerService.findMetaById(id);
         final File file;
         if (component != null) { // local dep
-            file = componentManagerService.manager().findPlugin(component.getParent().getPlugin())
-                    .orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+            file = componentManagerService
+                    .manager()
+                    .findPlugin(component.getParent().getPlugin())
+                    .orElseThrow(() -> new WebApplicationException(Response
+                            .status(Response.Status.NOT_FOUND)
                             .type(APPLICATION_JSON_TYPE)
-                            .entity(new ErrorPayload(PLUGIN_MISSING, "No plugin matching the id: " + id)).build()))
+                            .entity(new ErrorPayload(PLUGIN_MISSING, "No plugin matching the id: " + id))
+                            .build()))
                     .getContainerFile()
-                    .orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+                    .orElseThrow(() -> new WebApplicationException(Response
+                            .status(Response.Status.NOT_FOUND)
                             .type(APPLICATION_JSON_TYPE)
-                            .entity(new ErrorPayload(PLUGIN_MISSING, "No dependency matching the id: " + id)).build()));
+                            .entity(new ErrorPayload(PLUGIN_MISSING, "No dependency matching the id: " + id))
+                            .build()));
         } else { // just try to resolve it locally, note we would need to ensure some security here
             // .map(Artifact::toPath).map(localDependencyRelativeResolver
             final Artifact artifact = Artifact.from(id);
             file = componentManagerService.manager().getContainer().resolve(artifact.toPath());
         }
         if (!file.exists()) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).type(APPLICATION_JSON_TYPE)
-                    .entity(new ErrorPayload(PLUGIN_MISSING, "No file found for: " + id)).build());
+            throw new WebApplicationException(Response
+                    .status(Response.Status.NOT_FOUND)
+                    .type(APPLICATION_JSON_TYPE)
+                    .entity(new ErrorPayload(PLUGIN_MISSING, "No file found for: " + id))
+                    .build());
         }
         return output -> {
             final byte[] buffer = new byte[40960]; // 5k
@@ -182,15 +195,21 @@ public class ComponentResource {
     public ComponentIndices getIndex(@QueryParam("language") @DefaultValue("en") final String language) {
         final Locale locale = localeMapper.mapLocale(language);
         return indicesPerRequest.computeIfAbsent(new RequestKey(locale), k -> new ComponentIndices(manager
-                .find(c -> c.execute(() -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
-                        .flatMap(
-                                component -> Stream.concat(
-                                        component.getPartitionMappers().values().stream()
-                                                .map(mapper -> toComponentIndex(c.getLoader(), locale, c.getId(),
-                                                        mapper, c.get(ComponentManager.OriginalId.class))),
-                                        component.getProcessors().values().stream()
-                                                .map(proc -> toComponentIndex(c.getLoader(), locale, c.getId(), proc,
-                                                        c.get(ComponentManager.OriginalId.class))))))
+                .find(c -> c
+                        .execute(() -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
+                        .flatMap(component -> Stream.concat(
+                                component
+                                        .getPartitionMappers()
+                                        .values()
+                                        .stream()
+                                        .map(mapper -> toComponentIndex(c.getLoader(), locale, c.getId(), mapper,
+                                                c.get(ComponentManager.OriginalId.class))),
+                                component
+                                        .getProcessors()
+                                        .values()
+                                        .stream()
+                                        .map(proc -> toComponentIndex(c.getLoader(), locale, c.getId(), proc,
+                                                c.get(ComponentManager.OriginalId.class))))))
                 .collect(toList())));
     }
 
@@ -201,16 +220,20 @@ public class ComponentResource {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta meta = componentManagerService.findFamilyMetaById(id);
         if (meta == null) {
-            return Response.status(Response.Status.NOT_FOUND)
+            return Response
+                    .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No family for identifier: " + id))
-                    .type(APPLICATION_JSON_TYPE).build();
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
         }
-        final IconResolver.Icon iconContent = iconResolver
-                .resolve(manager.findPlugin(meta.getPlugin()).get().getLoader(), meta.getIcon());
+        final IconResolver.Icon iconContent =
+                iconResolver.resolve(manager.findPlugin(meta.getPlugin()).get().getLoader(), meta.getIcon());
         if (iconContent == null) {
-            return Response.status(Response.Status.NOT_FOUND)
+            return Response
+                    .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family identifier: " + id))
-                    .type(APPLICATION_JSON_TYPE).build();
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
         }
         return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
     }
@@ -222,16 +245,20 @@ public class ComponentResource {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta.BaseMeta<Object> meta = componentManagerService.findMetaById(id);
         if (meta == null) {
-            return Response.status(Response.Status.NOT_FOUND)
+            return Response
+                    .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component for identifier: " + id))
-                    .type(APPLICATION_JSON_TYPE).build();
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
         }
         final IconResolver.Icon iconContent = iconResolver
                 .resolve(manager.findPlugin(meta.getParent().getPlugin()).get().getLoader(), meta.getIcon());
         if (iconContent == null) {
-            return Response.status(Response.Status.NOT_FOUND)
+            return Response
+                    .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for identifier: " + id))
-                    .type(APPLICATION_JSON_TYPE).build();
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
         }
         return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
     }
@@ -271,7 +298,8 @@ public class ComponentResource {
                     return new ComponentDetail(
                             new ComponentId(meta.getId(), meta.getParent().getPlugin(),
                                     ofNullable(container.get(ComponentManager.OriginalId.class))
-                                            .map(ComponentManager.OriginalId::getValue).orElse(container.getId()),
+                                            .map(ComponentManager.OriginalId::getValue)
+                                            .orElse(container.getId()),
                                     meta.getParent().getName(), meta.getName()),
                             meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()),
                             meta.getIcon(),
@@ -297,20 +325,27 @@ public class ComponentResource {
     }
 
     private Stream<ParameterMeta> toStream(final Collection<ParameterMeta> parameterMetas) {
-        return Stream.concat(parameterMetas.stream(), parameterMetas.stream().map(ParameterMeta::getNestedParameters)
-                .filter(Objects::nonNull).flatMap(this::toStream));
+        return Stream.concat(parameterMetas.stream(),
+                parameterMetas.stream().map(ParameterMeta::getNestedParameters).filter(Objects::nonNull).flatMap(
+                        this::toStream));
     }
 
     private Collection<ActionReference> findActions(final String family, final Set<ActionReference> actions,
             final Container container, final Locale locale) {
         final ContainerComponentRegistry registry = container.get(ContainerComponentRegistry.class);
-        return registry.getServices().stream().flatMap(s -> s.getActions().stream())
+        return registry
+                .getServices()
+                .stream()
+                .flatMap(s -> s.getActions().stream())
                 .filter(s -> s.getFamily().equals(family))
-                .filter(s -> actions.stream()
+                .filter(s -> actions
+                        .stream()
                         .anyMatch(e -> s.getFamily().equals(e.getFamily()) && s.getType().equals(e.getType())
                                 && s.getAction().equals(e.getName())))
-                .map(s -> new ActionReference(s.getFamily(), s.getAction(), s.getType(), propertiesService
-                        .buildProperties(s.getParameters(), container.getLoader(), locale, null).collect(toList())))
+                .map(s -> new ActionReference(s.getFamily(), s.getAction(), s.getType(),
+                        propertiesService
+                                .buildProperties(s.getParameters(), container.getLoader(), locale, null)
+                                .collect(toList())))
                 .collect(toList());
     }
 

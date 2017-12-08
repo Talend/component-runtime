@@ -93,8 +93,9 @@ public class ComponentResourceTest {
     @Test
     public void getDependencies() {
         final String compId = getJdbcId();
-        final Dependencies dependencies = base.path("component/dependencies").queryParam("identifier", compId)
-                .request(APPLICATION_JSON_TYPE).get(Dependencies.class);
+        final Dependencies dependencies =
+                base.path("component/dependencies").queryParam("identifier", compId).request(APPLICATION_JSON_TYPE).get(
+                        Dependencies.class);
         assertEquals(1, dependencies.getDependencies().size());
         final DependencyDefinition definition = dependencies.getDependencies().get(compId);
         assertNotNull(definition);
@@ -105,8 +106,11 @@ public class ComponentResourceTest {
     @Test
     public void getDependency() {
         final Function<String, File> download = id -> {
-            final InputStream stream = base.path("component/dependency/{id}").resolveTemplate("id", id)
-                    .request(APPLICATION_OCTET_STREAM_TYPE).get(InputStream.class);
+            final InputStream stream = base
+                    .path("component/dependency/{id}")
+                    .resolveTemplate("id", id)
+                    .request(APPLICATION_OCTET_STREAM_TYPE)
+                    .get(InputStream.class);
             final File file = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName() + ".jar");
             try (final OutputStream outputStream = new FileOutputStream(file)) {
                 IO.copy(stream, outputStream);
@@ -139,8 +143,11 @@ public class ComponentResourceTest {
 
     @Test
     public void migrate() {
-        final Map<String, String> migrated = base.path("component/migrate/{id}/{version}")
-                .resolveTemplate("id", getJdbcId()).resolveTemplate("version", 1).request(APPLICATION_JSON_TYPE)
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", getJdbcId())
+                .resolveTemplate("version", 1)
+                .request(APPLICATION_JSON_TYPE)
                 .post(entity(new HashMap<String, String>() {
 
                     {
@@ -153,12 +160,18 @@ public class ComponentResourceTest {
 
     @Test
     public void getDetails() {
-        final ComponentDetailList details = base.path("component/details")
-                .queryParam("identifiers", fetchIndex().getComponents().stream()
+        final ComponentDetailList details = base
+                .path("component/details")
+                .queryParam("identifiers", fetchIndex()
+                        .getComponents()
+                        .stream()
                         .filter(c -> c.getId().getFamily().equals("chain") && c.getId().getName().equals("list"))
-                        .findFirst().orElseThrow(() -> new IllegalArgumentException("no chain#list component")).getId()
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("no chain#list component"))
+                        .getId()
                         .getId())
-                .request(APPLICATION_JSON_TYPE).get(ComponentDetailList.class);
+                .request(APPLICATION_JSON_TYPE)
+                .get(ComponentDetailList.class);
         assertEquals(1, details.getDetails().size());
 
         final ComponentDetail detail = details.getDetails().iterator().next();
@@ -193,25 +206,49 @@ public class ComponentResourceTest {
 
     @Test
     public void getDetailsMeta() {
-        final ComponentDetailList details = base.path("component/details").queryParam("identifiers", getJdbcId())
-                .request(APPLICATION_JSON_TYPE).get(ComponentDetailList.class);
+        final ComponentDetailList details = base
+                .path("component/details")
+                .queryParam("identifiers", getJdbcId())
+                .request(APPLICATION_JSON_TYPE)
+                .get(ComponentDetailList.class);
         assertEquals(1, details.getDetails().size());
 
         final ComponentDetail detail = details.getDetails().iterator().next();
         assertEquals("true",
-                detail.getProperties().stream().filter(p -> p.getPath().equals("configuration.connection.password"))
-                        .findFirst().orElseThrow(() -> new IllegalArgumentException("No credential found"))
-                        .getMetadata().get("ui::credential"));
-        assertEquals("0", detail.getProperties().stream().filter(p -> p.getPath().equals("configuration.timeout"))
-                .findFirst().orElseThrow(() -> new IllegalArgumentException("No timeout found")).getDefaultValue());
-        assertNull(detail.getProperties().stream().filter(p -> p.getPath().equals("configuration.connection.url"))
-                .findFirst().orElseThrow(() -> new IllegalArgumentException("No url found")).getDefaultValue());
+                detail
+                        .getProperties()
+                        .stream()
+                        .filter(p -> p.getPath().equals("configuration.connection.password"))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("No credential found"))
+                        .getMetadata()
+                        .get("ui::credential"));
+        assertEquals("0",
+                detail
+                        .getProperties()
+                        .stream()
+                        .filter(p -> p.getPath().equals("configuration.timeout"))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("No timeout found"))
+                        .getDefaultValue());
+        assertNull(detail
+                .getProperties()
+                .stream()
+                .filter(p -> p.getPath().equals("configuration.connection.url"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No url found"))
+                .getDefaultValue());
     }
 
     private String getJdbcId() {
-        return fetchIndex().getComponents().stream()
-                .filter(c -> c.getId().getFamily().equals("jdbc") && c.getId().getName().equals("input")).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("no jdbc#input component")).getId().getId();
+        return fetchIndex()
+                .getComponents()
+                .stream()
+                .filter(c -> c.getId().getFamily().equals("jdbc") && c.getId().getName().equals("input"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("no jdbc#input component"))
+                .getId()
+                .getId();
     }
 
     private void assertValidation(final String path, final ComponentDetail aggregate,
@@ -220,8 +257,8 @@ public class ComponentResourceTest {
     }
 
     private SimplePropertyDefinition findProperty(final String path, final ComponentDetail aggregate) {
-        return aggregate.getProperties().stream().filter(p -> p.getPath().equals(path)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No path " + path));
+        return aggregate.getProperties().stream().filter(p -> p.getPath().equals(path)).findFirst().orElseThrow(
+                () -> new IllegalArgumentException("No path " + path));
     }
 
     private ComponentIndices fetchIndex() {
@@ -241,10 +278,8 @@ public class ComponentResourceTest {
         assertEquals(1, data.getLinks().size());
         final Link link = data.getLinks().iterator().next();
         assertEquals("Detail", link.getName());
-        assertEquals(
-                "/component/details?identifiers=" + Base64.getUrlEncoder().withoutPadding()
-                        .encodeToString((plugin + "#" + family + "#" + name).getBytes(StandardCharsets.UTF_8)),
-                link.getPath());
+        assertEquals("/component/details?identifiers=" + Base64.getUrlEncoder().withoutPadding().encodeToString(
+                (plugin + "#" + family + "#" + name).getBytes(StandardCharsets.UTF_8)), link.getPath());
         assertEquals(MediaType.APPLICATION_JSON, link.getContentType());
 
         if ("jdbc".equals(data.getId().getFamily()) && "input".equals(data.getId().getName())) {

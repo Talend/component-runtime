@@ -37,8 +37,8 @@ public class ScmConfigurationLoader extends MapConfigSource {
 
     @PostConstruct
     private void init() {
-        try (final InputStream stream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("TALEND-INF/git.properties")) {
+        try (final InputStream stream =
+                Thread.currentThread().getContextClassLoader().getResourceAsStream("TALEND-INF/git.properties")) {
             final Properties properties = new Properties() {
 
                 {

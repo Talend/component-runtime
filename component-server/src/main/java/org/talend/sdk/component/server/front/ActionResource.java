@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.server.front;
 
@@ -80,12 +80,15 @@ public class ActionResource {
     public Response execute(@QueryParam("family") final String component, @QueryParam("type") final String type,
             @QueryParam("action") final String action, final Map<String, String> params) {
         if (action == null) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new ErrorPayload(ErrorDictionary.ACTION_MISSING, "Action can't be null")).build());
+            throw new WebApplicationException(Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorPayload(ErrorDictionary.ACTION_MISSING, "Action can't be null"))
+                    .build());
         }
         final ServiceMeta.ActionMeta actionMeta = service.findActionById(component, type, action);
         if (actionMeta == null) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+            throw new WebApplicationException(Response
+                    .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(ErrorDictionary.ACTION_MISSING, "No action with id '" + action + "'"))
                     .build());
         }
@@ -94,8 +97,10 @@ public class ActionResource {
             return Response.ok(result).type(APPLICATION_JSON_TYPE).build();
         } catch (final RuntimeException re) {
             log.warn(re.getMessage(), re);
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(
-                    new ErrorPayload(ErrorDictionary.ACTION_ERROR, "Action execution failed with: " + re.getMessage()))
+            throw new WebApplicationException(Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
+                            "Action execution failed with: " + re.getMessage()))
                     .build());
         }
     }
@@ -127,10 +132,17 @@ public class ActionResource {
         };
         final Locale locale = localeMapper.mapLocale(language);
         return new ActionList(manager
-                .find(c -> c.get(ContainerComponentRegistry.class).getServices().stream()
-                        .map(s -> s.getActions().stream()).flatMap(identity()).filter(typeMatcher.and(componentMatcher))
-                        .map(s -> new ActionItem(s.getFamily(), s.getType(), s.getAction(), propertiesService
-                                .buildProperties(s.getParameters(), c.getLoader(), locale, null).collect(toList()))))
+                .find(c -> c
+                        .get(ContainerComponentRegistry.class)
+                        .getServices()
+                        .stream()
+                        .map(s -> s.getActions().stream())
+                        .flatMap(identity())
+                        .filter(typeMatcher.and(componentMatcher))
+                        .map(s -> new ActionItem(s.getFamily(), s.getType(), s.getAction(),
+                                propertiesService
+                                        .buildProperties(s.getParameters(), c.getLoader(), locale, null)
+                                        .collect(toList()))))
                 .collect(toList()));
     }
 }

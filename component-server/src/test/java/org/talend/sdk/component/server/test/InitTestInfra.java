@@ -178,13 +178,16 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         private File createRepackaging(final File target, final String sourcePackage,
                 final Consumer<JarOutputStream> custom) {
             try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(target))) {
-                final String packageName = toPackage(target.getParentFile().getParentFile().getName()).replace(".",
-                        "/");
+                final String packageName =
+                        toPackage(target.getParentFile().getParentFile().getName()).replace(".", "/");
                 final String fromPack = sourcePackage.replace('/', '.');
                 final String toPack = packageName.replace('.', '/');
                 final File root = new File(jarLocation(InitTestInfra.class), sourcePackage);
-                ofNullable(root.listFiles()).map(Stream::of).orElseGet(Stream::empty)
-                        .filter(c -> c.getName().endsWith(".class")).forEach(clazz -> {
+                ofNullable(root.listFiles())
+                        .map(Stream::of)
+                        .orElseGet(Stream::empty)
+                        .filter(c -> c.getName().endsWith(".class"))
+                        .forEach(clazz -> {
                             try (final InputStream is = new FileInputStream(clazz)) {
                                 final ClassReader reader = new ClassReader(is);
                                 final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
@@ -210,8 +213,8 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
         private File createPlugin(final File target) {
             try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(target))) {
-                final String packageName = toPackage(target.getParentFile().getParentFile().getName()).replace(".",
-                        "/");
+                final String packageName =
+                        toPackage(target.getParentFile().getParentFile().getName()).replace(".", "/");
                 outputStream.write(createProcessor(outputStream, packageName));
                 outputStream.write(createModel(outputStream, packageName));
                 outputStream.write(createService(outputStream, packageName, target.getName()));
@@ -273,8 +276,8 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             final String className = packageName + "/AProcessor.class";
             outputStream.putNextEntry(new ZipEntry(className));
             final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-            final AnnotationVisitor processorAnnotation = writer.visitAnnotation(Type.getDescriptor(Processor.class),
-                    true);
+            final AnnotationVisitor processorAnnotation =
+                    writer.visitAnnotation(Type.getDescriptor(Processor.class), true);
             processorAnnotation.visit("family", "comp");
             processorAnnotation.visit("name", "proc");
             processorAnnotation.visitEnd();

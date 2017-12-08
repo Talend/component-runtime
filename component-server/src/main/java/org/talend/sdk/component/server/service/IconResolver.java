@@ -35,15 +35,20 @@ public class IconResolver {
             return null;
         }
 
-        return Stream.of(icon + "_icon32.png", "icons/" + icon + "_icon32.png")
-                .map(pattern -> String.format(pattern, icon)).map(path -> {
+        return Stream
+                .of(icon + "_icon32.png", "icons/" + icon + "_icon32.png")
+                .map(pattern -> String.format(pattern, icon))
+                .map(path -> {
                     final InputStream resource = loader.getResourceAsStream(path);
                     if (resource == null) {
                         return null;
                     }
                     return new Icon(path.endsWith("svg") ? MediaType.APPLICATION_SVG_XML : "image/png",
                             toBytes(resource));
-                }).filter(Objects::nonNull).findFirst().orElse(null);
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     @Data

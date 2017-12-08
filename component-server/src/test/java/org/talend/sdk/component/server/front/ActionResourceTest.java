@@ -58,15 +58,23 @@ public class ActionResourceTest {
 
     @Test
     public void indexFiltered() {
-        final ActionList index = base.path("action/index").queryParam("type", "wizard").queryParam("family", "jdbc")
-                .request(APPLICATION_JSON_TYPE).get(ActionList.class);
+        final ActionList index = base
+                .path("action/index")
+                .queryParam("type", "wizard")
+                .queryParam("family", "jdbc")
+                .request(APPLICATION_JSON_TYPE)
+                .get(ActionList.class);
         assertEquals(1, index.getItems().size());
     }
 
     @Test
     public void wizard() {
-        final JdbcDataSet dataSet = base.path("action/execute").queryParam("family", "jdbc")
-                .queryParam("type", "wizard").queryParam("action", "dataset").request(APPLICATION_JSON_TYPE)
+        final JdbcDataSet dataSet = base
+                .path("action/execute")
+                .queryParam("family", "jdbc")
+                .queryParam("type", "wizard")
+                .queryParam("action", "dataset")
+                .request(APPLICATION_JSON_TYPE)
                 .post(entity(new HashMap<String, String>() {
 
                     {

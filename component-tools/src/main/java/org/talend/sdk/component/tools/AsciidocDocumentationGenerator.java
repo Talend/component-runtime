@@ -24,11 +24,15 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -155,7 +159,31 @@ public class AsciidocDocumentationGenerator extends BaseTask {
     }
 
     private String toAsciidoctor(final ParameterMeta p, final Object instance) {
-        return "|" + p.getPath() + '|' + p.getMetadata().getOrDefault("documentation", p.getName() + " configuration")
-                + '|' + ofNullable(defaultValueInspector.findDefault(instance, p)).orElse("-");
+        return "|" + p.getPath() + '|' + findDocumentation(p) + '|'
+                + ofNullable(defaultValueInspector.findDefault(instance, p)).orElse("-");
+    }
+
+    private String findDocumentation(final ParameterMeta p) {
+        final String inline = p.getMetadata().get("documentation");
+        if (inline != null) {
+            if (inline.startsWith("resource:")) {
+                final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                        inline.substring("resource:".length()));
+                if (stream != null) {
+                    try (final BufferedReader reader =
+                            new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+
+                        return reader.lines().collect(joining("\n"));
+                    } catch (final IOException e) {
+                        throw new IllegalArgumentException("Bad resource: '" + inline + "'", e);
+                    }
+                } else {
+                    throw new IllegalArgumentException("No resource: '" + inline + "'");
+                }
+
+            }
+            return inline;
+        }
+        return p.getName() + " configuration";
     }
 }

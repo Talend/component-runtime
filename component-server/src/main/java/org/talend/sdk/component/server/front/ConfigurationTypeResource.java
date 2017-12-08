@@ -66,8 +66,14 @@ public class ConfigurationTypeResource {
     @Documentation("Returns all available configuration type - storable models.")
     public ConfigTypeNodes getRepositoryModel(@QueryParam("language") @DefaultValue("en") final String language) {
         final Locale locale = localeMapper.mapLocale(language);
-        return manager.find(Stream::of).filter(c -> c.get(RepositoryModel.class) != null)
-                .map(c -> c.get(RepositoryModel.class).getFamilies().stream().filter(f -> !f.getConfigs().isEmpty())
+        return manager
+                .find(Stream::of)
+                .filter(c -> c.get(RepositoryModel.class) != null)
+                .map(c -> c
+                        .get(RepositoryModel.class)
+                        .getFamilies()
+                        .stream()
+                        .filter(f -> !f.getConfigs().isEmpty())
                         .flatMap(family -> {
                             final ConfigTypeNode node = new ConfigTypeNode();
                             node.setId(family.getId());
@@ -86,8 +92,8 @@ public class ConfigurationTypeResource {
                     final ConfigTypeNodes nodes = new ConfigTypeNodes();
                     nodes.setNodes(new HashMap<>());
                     return nodes;
-                }, (root, children) -> root.getNodes()
-                        .putAll(children.collect(toMap(ConfigTypeNode::getId, identity()))),
+                }, (root,
+                        children) -> root.getNodes().putAll(children.collect(toMap(ConfigTypeNode::getId, identity()))),
                         (first, second) -> first.getNodes().putAll(second.getNodes()));
     }
 
@@ -102,9 +108,9 @@ public class ConfigurationTypeResource {
             node.setConfigurationType(c.getKey().getConfigType());
             node.setName(c.getKey().getConfigName());
             node.setParentId(parentId);
-            node.setDisplayName(
-                    resourcesBundle.configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
-                            .orElse(c.getKey().getConfigName()));
+            node.setDisplayName(resourcesBundle
+                    .configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
+                    .orElse(c.getKey().getConfigName()));
             node.setProperties(
                     propertiesService.buildProperties(singleton(c.getMeta()), loader, locale, null).collect(toList()));
 

@@ -19,6 +19,7 @@ import lombok.Data;
 
 @Data
 public abstract class ValidableEvent {
+
     private boolean valid;
 
     public boolean isValid() {

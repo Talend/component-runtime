@@ -21,6 +21,8 @@ import lombok.Data;
 
 @Data
 public class OnCommand extends ValidableEvent {
+
     private final Class<?> clazz;
+
     private final Method method;
 }

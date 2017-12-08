@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.server.service;
 
@@ -39,8 +39,8 @@ public class PropertyValidationService {
     private void initMapper() {
         // precompute the mapping of validations to centralize the convention - note: can be moved to impl for setters
         // part
-        final Collection<BiFunction<Object, Map<String, String>, Boolean>> validationSetters = Stream
-                .of(PropertyValidation.class.getDeclaredFields()).map(f -> {
+        final Collection<BiFunction<Object, Map<String, String>, Boolean>> validationSetters =
+                Stream.of(PropertyValidation.class.getDeclaredFields()).map(f -> {
                     // we need boolean, int, string, collection<string>
                     final Function<String, Object> valueConverter;
                     if (Integer.class == f.getType()) {
@@ -57,14 +57,16 @@ public class PropertyValidationService {
                     }
                     return (BiFunction<Object, Map<String, String>, Boolean>) (instance,
                             meta) -> ofNullable(meta.get(ValidationParameterEnricher.META_PREFIX + f.getName()))
-                                    .map(valueConverter).map(val -> {
+                                    .map(valueConverter)
+                                    .map(val -> {
                                         try {
                                             f.set(instance, val);
                                         } catch (IllegalAccessException e) {
                                             throw new IllegalStateException(e);
                                         }
                                         return true;
-                                    }).orElse(false);
+                                    })
+                                    .orElse(false);
                 }).collect(toList());
         propertyValidationCreator = config -> {
             final PropertyValidation validation = new PropertyValidation();

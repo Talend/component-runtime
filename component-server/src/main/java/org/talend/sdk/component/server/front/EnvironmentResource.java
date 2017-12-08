@@ -1,17 +1,17 @@
 /**
- *  Copyright (C) 2006-2017 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.server.front;
 
@@ -33,6 +33,7 @@ import org.talend.sdk.component.server.front.model.Environment;
 @Path("environment")
 @ApplicationScoped
 public class EnvironmentResource {
+
     private Environment environment;
 
     @Inject
@@ -56,7 +57,10 @@ public class EnvironmentResource {
                 .stream(Spliterators.spliteratorUnknownSize(applications.iterator(), Spliterator.IMMUTABLE), false)
                 .filter(a -> a.getClass().isAnnotationPresent(ApplicationPath.class))
                 .map(a -> a.getClass().getAnnotation(ApplicationPath.class).value())
-                .map(path -> path.replace("api/v", "")).mapToInt(Integer::parseInt).max().orElse(1);
+                .map(path -> path.replace("api/v", ""))
+                .mapToInt(Integer::parseInt)
+                .max()
+                .orElse(1);
         environment = new Environment(latestApiVersion, version, commit, time);
     }
 

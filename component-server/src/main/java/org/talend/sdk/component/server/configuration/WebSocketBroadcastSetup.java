@@ -128,6 +128,7 @@ import lombok.extern.slf4j.Slf4j;
 @Dependent
 @WebListener
 public class WebSocketBroadcastSetup implements ServletContextListener {
+
     private static final String EOM = "^@";
 
     @Inject
@@ -138,25 +139,28 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
     @Override
     public void contextInitialized(final ServletContextEvent sce) {
-        final ServerContainer container = ServerContainer.class
-                .cast(sce.getServletContext().getAttribute(ServerContainer.class.getName()));
+        final ServerContainer container =
+                ServerContainer.class.cast(sce.getServletContext().getAttribute(ServerContainer.class.getName()));
 
         final JAXRSServiceFactoryBean factory = JAXRSServiceFactoryBean.class
-                .cast(bus.getExtension(ServerRegistry.class).getServers().iterator().next().getEndpoint()
-                        .get(JAXRSServiceFactoryBean.class.getName()));
+                .cast(bus.getExtension(ServerRegistry.class).getServers().iterator().next().getEndpoint().get(
+                        JAXRSServiceFactoryBean.class.getName()));
 
         final String appBase = StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(applications.iterator(), Spliterator.IMMUTABLE), false)
                 .filter(a -> a.getClass().isAnnotationPresent(ApplicationPath.class))
-                .map(a -> a.getClass().getAnnotation(ApplicationPath.class)).map(ApplicationPath::value).findFirst()
-                .map(s -> !s.startsWith("/") ? "/" + s : s).orElse("/api/v1");
+                .map(a -> a.getClass().getAnnotation(ApplicationPath.class))
+                .map(ApplicationPath::value)
+                .findFirst()
+                .map(s -> !s.startsWith("/") ? "/" + s : s)
+                .orElse("/api/v1");
         final String version = appBase.replaceFirst("/api", "");
 
         final DestinationRegistry registry;
         try {
             final HTTPTransportFactory transportFactory = HTTPTransportFactory.class
-                    .cast(bus.getExtension(DestinationFactoryManager.class)
-                            .getDestinationFactory("http://cxf.apache.org/transports/http" + "/configuration"));
+                    .cast(bus.getExtension(DestinationFactoryManager.class).getDestinationFactory(
+                            "http://cxf.apache.org/transports/http" + "/configuration"));
             registry = transportFactory.getRegistry();
         } catch (final BusException e) {
             throw new IllegalStateException(e);
@@ -189,43 +193,54 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         }, new ServiceListGeneratorServlet(registry, bus));
         webSocketRegistry.controller = controller;
 
-        Stream.concat(factory.getClassResourceInfo().stream()
-                .flatMap(cri -> cri.getMethodDispatcher().getOperationResourceInfos().stream()).map(ori -> {
-                    final String uri = ori.getClassResourceInfo().getURITemplate().getValue()
-                            + ori.getURITemplate().getValue();
-                    return ServerEndpointConfig.Builder
-                            .create(Endpoint.class,
-                                    "/websocket" + version + "/"
-                                            + String.valueOf(ori.getHttpMethod()).toLowerCase(ENGLISH) + uri)
-                            .configurator(new ServerEndpointConfig.Configurator() {
+        Stream
+                .concat(factory
+                        .getClassResourceInfo()
+                        .stream()
+                        .flatMap(cri -> cri.getMethodDispatcher().getOperationResourceInfos().stream())
+                        .map(ori -> {
+                            final String uri = ori.getClassResourceInfo().getURITemplate().getValue()
+                                    + ori.getURITemplate().getValue();
+                            return ServerEndpointConfig.Builder
+                                    .create(Endpoint.class,
+                                            "/websocket" + version + "/"
+                                                    + String.valueOf(ori.getHttpMethod()).toLowerCase(ENGLISH) + uri)
+                                    .configurator(new ServerEndpointConfig.Configurator() {
 
-                                @Override
-                                public <T> T getEndpointInstance(final Class<T> clazz) throws InstantiationException {
-                                    final Map<String, List<String>> headers = new HashMap<>();
-                                    if (!ori.getProduceTypes().isEmpty()) {
-                                        headers.put(HttpHeaders.CONTENT_TYPE,
-                                                singletonList(ori.getProduceTypes().iterator().next().toString()));
+                                        @Override
+                                        public <T> T getEndpointInstance(final Class<T> clazz)
+                                                throws InstantiationException {
+                                            final Map<String, List<String>> headers = new HashMap<>();
+                                            if (!ori.getProduceTypes().isEmpty()) {
+                                                headers.put(HttpHeaders.CONTENT_TYPE, singletonList(
+                                                        ori.getProduceTypes().iterator().next().toString()));
+                                            }
+                                            if (!ori.getConsumeTypes().isEmpty()) {
+                                                headers.put(HttpHeaders.ACCEPT, singletonList(
+                                                        ori.getConsumeTypes().iterator().next().toString()));
+                                            }
+                                            return (T) new JAXRSEndpoint(appBase, controller, servletContext,
+                                                    ori.getHttpMethod(), uri, headers);
+                                        }
+                                    })
+                                    .build();
+                        }),
+                        Stream.of(ServerEndpointConfig.Builder
+                                .create(Endpoint.class, "/websocket" + version + "/bus")
+                                .configurator(new ServerEndpointConfig.Configurator() {
+
+                                    @Override
+                                    public <T> T getEndpointInstance(final Class<T> clazz)
+                                            throws InstantiationException {
+
+                                        return (T) new JAXRSEndpoint(appBase, controller, servletContext, "GET", "/",
+                                                emptyMap());
                                     }
-                                    if (!ori.getConsumeTypes().isEmpty()) {
-                                        headers.put(HttpHeaders.ACCEPT,
-                                                singletonList(ori.getConsumeTypes().iterator().next().toString()));
-                                    }
-                                    return (T) new JAXRSEndpoint(appBase, controller, servletContext,
-                                            ori.getHttpMethod(), uri, headers);
-                                }
-                            }).build();
-                }), Stream.of(ServerEndpointConfig.Builder.create(Endpoint.class, "/websocket" + version + "/bus")
-                        .configurator(new ServerEndpointConfig.Configurator() {
-
-                            @Override
-                            public <T> T getEndpointInstance(final Class<T> clazz) throws InstantiationException {
-
-                                return (T) new JAXRSEndpoint(appBase, controller, servletContext, "GET", "/",
-                                        emptyMap());
-                            }
-                        }).build()))
+                                })
+                                .build()))
                 .sorted(Comparator.comparing(ServerEndpointConfig::getPath))
-                .peek(e -> log.info("Deploying WebSocket(path={})", e.getPath())).forEach(config -> {
+                .peek(e -> log.info("Deploying WebSocket(path={})", e.getPath()))
+                .forEach(config -> {
                     try {
                         container.addEndpoint(config);
                     } catch (final DeploymentException e) {
@@ -314,9 +329,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 }
 
                 try {
-                    final WebSocketRequest request = new WebSocketRequest(method.toUpperCase(ENGLISH), headers, path,
-                            appBase + path, appBase, queryString, 8080, context, new WebSocketInputStream(message),
-                            session);
+                    final WebSocketRequest request =
+                            new WebSocketRequest(method.toUpperCase(ENGLISH), headers, path, appBase + path, appBase,
+                                    queryString, 8080, context, new WebSocketInputStream(message), session);
                     controller.invoke(request, new WebSocketResponse(session));
                 } catch (final ServletException e) {
                     throw new IllegalArgumentException(e);
@@ -357,10 +372,10 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         private static final Cookie[] NO_COOKIE = new Cookie[0];
 
-        private static final SimpleDateFormat DATE_FORMATS[] = {
-                new SimpleDateFormat(FastHttpDateFormat.RFC1123_DATE, Locale.US),
-                new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
-                new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US) };
+        private static final SimpleDateFormat DATE_FORMATS[] =
+                { new SimpleDateFormat(FastHttpDateFormat.RFC1123_DATE, Locale.US),
+                        new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
+                        new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US) };
 
         private final Map<String, Object> attributes = new HashMap<>();
 
@@ -864,9 +879,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
          * sets a header to be sent back to the browser
          *
          * @param name
-         *            the name of the header
+         * the name of the header
          * @param value
-         *            the value of the header
+         * the value of the header
          */
         public void setHeader(final String name, final String value) {
             headers.put(name, new ArrayList<>(singletonList(value)));
@@ -1012,8 +1027,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
             return sosi = new ServletByteArrayOutputStream(session, () -> {
                 final StringBuilder top = new StringBuilder("MESSAGE\r\n");
                 top.append("status: ").append(getStatus()).append("\r\n");
-                headers.forEach((k, v) -> top.append(k).append(": ").append(v.stream().collect(Collectors.joining(",")))
-                        .append("\r\n"));
+                headers.forEach(
+                        (k, v) -> top.append(k).append(": ").append(v.stream().collect(Collectors.joining(","))).append(
+                                "\r\n"));
                 top.append("\r\n");// empty line, means the next bytes are the payload
                 return top.toString();
             });
