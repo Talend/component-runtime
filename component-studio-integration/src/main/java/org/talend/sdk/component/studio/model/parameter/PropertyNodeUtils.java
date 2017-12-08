@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
-import static org.talend.core.model.process.EParameterFieldType.TABLE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.ORDER_SEPARATOR;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_OPTIONS_ORDER;
 
@@ -146,23 +145,9 @@ public final class PropertyNodeUtils {
             if (!current.isRoot()) {
                 String parentId = current.getParentId();
                 PropertyNode parent = nodes.get(parentId);
-                if (isTable(parent)) {
-                    ((TablePropertyNode) parent).addColumn(current);
-                } else {
-                    parent.addChild(current);
-                }
+                parent.addChild(current);
             }
         });
-    }
-
-    /**
-     * Checks whether specified node is {@link TablePropertyNode}
-     * 
-     * @param node node to be checked
-     * @return true, if it is {@link TablePropertyNode}; false, otherwise
-     */
-    static boolean isTable(final PropertyNode node) {
-        return TABLE.equals(node.getFieldType());
     }
 
     /**

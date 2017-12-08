@@ -38,16 +38,6 @@ import lombok.Setter;
 @Data
 public class PropertyNode {
 
-    private static final String PATH_SEPARATOR = ".";
-
-    private static final String NO_PARENT_ID = "";
-
-    /**
-     * Suffix used in id SimplePropertyDefinition.getPath(), which denotes Array typed property
-     * (which is Table property in Studio)
-     */
-    private static final String ARRAY_PATH = "[]";
-
     @Setter(AccessLevel.NONE)
     private List<PropertyNode> children = new ArrayList<>();
 
@@ -69,16 +59,7 @@ public class PropertyNode {
     }
 
     public String getParentId() {
-        String id = getId();
-        if (!id.contains(PATH_SEPARATOR)) {
-            return NO_PARENT_ID;
-        }
-        String parentId = id.substring(0, id.lastIndexOf("."));
-        // following is true, when parent is Table property
-        if (parentId.endsWith(ARRAY_PATH)) {
-            parentId = parentId.substring(0, parentId.lastIndexOf("[]"));
-        }
-        return parentId;
+        return property.getParentPath();
     }
 
     public boolean isLeaf() {

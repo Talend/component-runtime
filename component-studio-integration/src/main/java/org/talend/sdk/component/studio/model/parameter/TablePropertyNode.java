@@ -38,11 +38,19 @@ public class TablePropertyNode extends PropertyNode {
         super(property, fieldType, root);
     }
 
-    public List<PropertyNode> getColumns() {
-        return Collections.unmodifiableList(nestedProperties);
+    /**
+     * Adds child as nested property
+     * {@link TablePropertyNode} can't have children nodes. It is leaf node.
+     * But it may have nested properties, which represent table columns
+     * 
+     * @param column {@link PropertyNode} to be added as table column
+     */
+    @Override
+    public void addChild(final PropertyNode column) {
+        nestedProperties.add(column);
     }
 
-    public void addColumn(final PropertyNode column) {
-        nestedProperties.add(column);
+    public List<PropertyNode> getColumns() {
+        return Collections.unmodifiableList(nestedProperties);
     }
 }
