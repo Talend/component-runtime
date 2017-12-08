@@ -15,10 +15,12 @@
  */
 package org.talend.sdk.component.form.model.uischema;
 
+import static java.util.Arrays.asList;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
@@ -268,12 +270,30 @@ public class UiSchema {
         }
 
         public Builder withItems(final Collection<UiSchema> items) {
-            this.items = items;
+            if (this.items == null) {
+                this.items = new ArrayList<>();
+            }
+            this.items.addAll(items);
+            return this;
+        }
+
+        public Builder withItems(final UiSchema... items) {
+            return withItems(asList(items));
+        }
+
+        public Builder withOptions(final String name, final String value) {
+            if (this.options == null) {
+                this.options = new HashMap<>();
+            }
+            this.options.put(name, value);
             return this;
         }
 
         public Builder withOptions(final Map<String, String> options) {
-            this.options = options;
+            if (this.options == null) {
+                this.options = new HashMap<>();
+            }
+            this.options.putAll(options);
             return this;
         }
 
@@ -307,13 +327,27 @@ public class UiSchema {
             return this;
         }
 
+        public Builder withTriggers(final Trigger... triggers) {
+            return withTriggers(asList(triggers));
+        }
+
         public Builder withTriggers(final Collection<Trigger> triggers) {
-            this.triggers = triggers;
+            if (this.triggers == null) {
+                this.triggers = new ArrayList<>();
+            }
+            this.triggers.addAll(triggers);
             return this;
         }
 
+        public Builder withTitleMap(final NameValue... titleMap) {
+            return withTitleMap(asList(titleMap));
+        }
+
         public Builder withTitleMap(final Collection<NameValue> titleMap) {
-            this.titleMap = titleMap;
+            if (this.titleMap == null) {
+                this.titleMap = new ArrayList<>();
+            }
+            this.titleMap.addAll(titleMap);
             return this;
         }
 
