@@ -341,7 +341,6 @@
           </scripts>
           <properties>
             <gradleHome>${project.build.directory}/gradle-${gradle.version}</gradleHome>
-            <mvnHome>${env.M2_HOME}</mvnHome>
             <mvnVersion>${mvn.version}</mvnVersion>
           </properties>
         </configuration>

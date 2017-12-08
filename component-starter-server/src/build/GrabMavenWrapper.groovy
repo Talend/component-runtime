@@ -52,7 +52,7 @@ if (System.properties['os.name'].toLowerCase(Locale.ENGLISH).contains('windows')
 final int exit = new ProcessBuilder().inheritIO()
         .directory(fakeProject)
         .command(
-        new File(mvnHome, "bin/" + mvnCommand).getAbsolutePath(),
+        new File(System.getProperty('maven.home'), "bin/" + mvnCommand).getAbsolutePath(),
         "-N", "io.takari:maven:wrapper", "-Dmaven=" + mvnVersion)
         .start().waitFor()
 if (exit != 0) {
