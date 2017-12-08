@@ -25,7 +25,9 @@
 
   <artifactId>component-starter-server</artifactId>
   <name>Component Runtime :: Starter Server</name>
-  <description>Web application allowing to generate maven or gradle project skeleton to speed up component development.</description>
+  <description>Web application allowing to generate maven or gradle project skeleton to speed up component
+    development.
+  </description>
 
   <properties>
     <download-plugin.version>1.2.1</download-plugin.version>
@@ -272,7 +274,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -316,6 +317,7 @@
               <outputFileName>gradle-${gradle.version}.zip</outputFileName>
               <outputDirectory>${project.build.directory}</outputDirectory>
               <unpack>true</unpack>
+              <cacheDirectory>${project.basedir/.cache</cacheDirectory>
             </configuration>
           </execution>
         </executions>

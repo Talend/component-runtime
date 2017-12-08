@@ -13,12 +13,36 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+def validateWrapperFile(File baseDir, String file){
+    def from = new File(baseDir, file)
+    if(!from.exists()){
+        throw new IllegalStateException("wrapper file doesn't exist: " + file);
+    }
+    switch (file){
+        case "gradle/wrapper/gradle-wrapper.properties":
+            if(!from.text.contains('distributionUrl=https')){
+                throw new IllegalStateException("Invalid file: " + file);
+            }
+            break
+        case "gradlew":
+            if(!from.text.contains('$DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\\"-Dorg.gradle.appname=$APP_BASE_NAME\\"" -classpath "\\"$CLASSPATH\\"" org.gradle.wrapper.GradleWrapperMain "$APP_ARGS"')){
+                throw new IllegalStateException("Invalid file: " + file);
+            }
+            break
+        case "gradlew.bat":
+            if(!from.text.contains('"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %CMD_LINE_ARGS%')){
+                throw new IllegalStateException("Invalid file: " + file);
+            }
+            break
+    }
+}
+
 def gradleHomeFile = new File(gradleHome)
-def fakeproject = new File(project.build.directory, 'gradle-fake-project-wrapper')
-fakeproject.mkdirs()
+def fakeProject = new File(project.build.directory, 'gradle-fake-project-wrapper')
+fakeProject.mkdirs()
 
 final int exit = new ProcessBuilder().inheritIO()
-        .directory(fakeproject)
+        .directory(fakeProject)
         .command(
         new File(System.getProperty("java.home"), "bin/java").getAbsolutePath(),
         "-cp", new File(gradleHomeFile, "lib").listFiles(new FilenameFilter() {
@@ -35,12 +59,13 @@ if (exit != 0) {
 }
 
 [
-        'gradle/wrapper/gradle-wrapper.jar',
-        'gradle/wrapper/gradle-wrapper.properties',
-        'gradlew',
-        'gradlew.bat'
+    'gradle/wrapper/gradle-wrapper.jar',
+    'gradle/wrapper/gradle-wrapper.properties',
+    'gradlew',
+    'gradlew.bat'
 ].each {
-    def from = new File(fakeproject, it)
+    validateWrapperFile(fakeProject, it)
+    def from = new File(fakeProject, it)
     def slash = it.lastIndexOf('/')
     def to = new File(project.build.outputDirectory, 'generator/gradle/' + (slash < 0 ? it : it.substring(slash + 1)))
     def fromIs = from.newInputStream()

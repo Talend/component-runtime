@@ -13,16 +13,44 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-def fakeproject = new File(project.build.directory, 'maven-fake-project-wrapper')
-fakeproject.mkdirs()
+def validateWrapperFile(File baseDir, String file){
+    def from = new File(baseDir, file)
+    if(!from.exists()){
+        throw new IllegalStateException("wrapper file doesn't exist: " + file);
+    }
+    switch (file){
+        case ".mvn/wrapper/maven-wrapper.properties":
+            if(!from.text.contains('distributionUrl=https://')){
+                throw new IllegalStateException("Invalid file: " + file);
+            }
+            break
+        case "mvnw":
+            if(!from.text.contains('exec "$JAVACMD" \\\n' +
+                    '  $MAVEN_OPTS \\\n' +
+                    '  -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \\\n' +
+                    '  "-Dmaven.home=${M2_HOME}" "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \\\n' +
+                    '  ${WRAPPER_LAUNCHER} $MAVEN_CONFIG "$@"')){
+                throw new IllegalStateException("Invalid file: " + file);
+            }
+            break
+        case "mvnw.cmd":
+            if(!from.text.contains('%MAVEN_JAVA_EXE% %JVM_CONFIG_MAVEN_PROPS% %MAVEN_OPTS% %MAVEN_DEBUG_OPTS% -classpath %WRAPPER_JAR% "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" %WRAPPER_LAUNCHER% %MAVEN_CONFIG% %*')){
+                throw new IllegalStateException("Invalid file: " + file);
+            }
+            break
+    }
+}
+
+def fakeProject = new File(project.build.directory, 'maven-fake-project-wrapper')
+fakeProject.mkdirs()
 
 def mvnCommand = "mvn"
-if (System.properties['os.name'].toLowerCase().contains('windows')) {
+if (System.properties['os.name'].toLowerCase(Locale.ENGLISH).contains('windows')) {
     mvnCommand += ".cmd"
 }
 
 final int exit = new ProcessBuilder().inheritIO()
-        .directory(fakeproject)
+        .directory(fakeProject)
         .command(
         new File(mvnHome, "bin/" + mvnCommand).getAbsolutePath(),
         "-N", "io.takari:maven:wrapper", "-Dmaven=" + mvnVersion)
@@ -32,12 +60,13 @@ if (exit != 0) {
 }
 
 [
-        '.mvn/wrapper/maven-wrapper.jar',
-        '.mvn/wrapper/maven-wrapper.properties',
-        'mvnw',
-        'mvnw.cmd'
+    '.mvn/wrapper/maven-wrapper.jar',
+    '.mvn/wrapper/maven-wrapper.properties',
+    'mvnw',
+    'mvnw.cmd'
 ].each {
-    def from = new File(fakeproject, it)
+    validateWrapperFile(fakeProject, it)
+    def from = new File(fakeProject, it)
     def slash = it.lastIndexOf('/')
     def to = new File(project.build.outputDirectory, 'generator/maven/' + (slash < 0 ? it : it.substring(slash + 1)))
     def fromIs = from.newInputStream()
