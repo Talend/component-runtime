@@ -15,9 +15,6 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
-import static org.talend.sdk.component.studio.model.parameter.Metadatas.ORDER_SEPARATOR;
-import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_OPTIONS_ORDER;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -70,55 +67,6 @@ public final class PropertyNodeUtils {
         createRemainingNodes(properties, nodes);
         linkNodes(properties, nodes);
         return root;
-    }
-
-    /**
-     * Sorts siblings according that how they should be shown on UI
-     */
-    public static void sortPropertyTree(final PropertyNode root) {
-        root.accept(new PropertyVisitor() {
-
-            @Override
-            public void visit(final PropertyNode node) {
-                PropertyDefinitionDecorator property = node.getProperty();
-                String optionsOrder = property.getMetadata().get(UI_OPTIONS_ORDER);
-                if (optionsOrder != null) {
-                    optionsOrderSort(node, optionsOrder);
-                }
-                // TODO implement sorting according GridLayout
-            }
-
-            /**
-             * Sorts node children according order specified in OptionsOrder or GridLayout
-             * 
-             * @param node current node
-             * @param optionsOrder metadata value for ui::optionsorder::value
-             */
-            private void optionsOrderSort(final PropertyNode node, final String optionsOrder) {
-                HashMap<String, Integer> order = getOrder(optionsOrder);
-
-                node.getChildren().sort((node1, node2) -> {
-                    Integer i1 = order.get(node1.getProperty().getName());
-                    Integer i2 = order.get(node2.getProperty().getName());
-                    return i1.compareTo(i2);
-                });
-            }
-
-            /**
-             * Computes order for comparator
-             * 
-             * @param optionsOrder metadata value for ui::optionsorder::value
-             * @return order
-             */
-            private HashMap<String, Integer> getOrder(final String optionsOrder) {
-                String[] values = optionsOrder.split(ORDER_SEPARATOR);
-                HashMap<String, Integer> order = new HashMap<>();
-                for (int i = 0; i < values.length; i++) {
-                    order.put(values[i], i);
-                }
-                return order;
-            }
-        });
     }
 
     /**
