@@ -226,7 +226,9 @@
                   def formatter = formatterFile.toURI().toURL().toExternalForm()
                   log.info("Setting formatter url to: ${formatter}")
                   project.properties.setProperty('componentFormatter', formatter)
-                  project.properties.setProperty('projectRoot', formatterFile.parentFile.absolutePath)
+
+                  def projectRoot = formatterFile.parentFile.absolutePath
+                  project.properties.setProperty('projectRoot', projectRoot)
                 </script>
               </scripts>
             </configuration>
@@ -507,6 +509,24 @@
         </executions>
       </plugin>
     </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${javadoc-plugin.version}</version>
+          <configuration>
+            <splitindex>true</splitindex>
+            <linksource>true</linksource>
+            <windowtitle>${project.name}</windowtitle>
+            <header>${project.name} - ${project.version}</header>
+            <doctitle>${project.name} - ${project.version}</doctitle>
+            <bottom>${project.version} - Copyright &amp;copy; 2017 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
+            <use>true</use>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
   <profiles>

@@ -123,6 +123,7 @@
         <configuration>
           <scripts>
             <script>${project.basedir}/src/build/DecryptJiraCredentials.groovy</script>
+            <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
           </scripts>
         </configuration>
         <dependencies>
@@ -469,6 +470,7 @@
               <scripts>
                 <script>${project.basedir}/src/build/DecryptJiraCredentials.groovy</script>
                 <script>${project.basedir}/src/build/GithubPages.groovy</script>
+                <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
               </scripts>
             </configuration>
             <dependencies>
