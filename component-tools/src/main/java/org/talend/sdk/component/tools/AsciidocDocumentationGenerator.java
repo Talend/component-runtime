@@ -21,7 +21,6 @@ import static java.util.Collections.singletonMap;
 import static java.util.Comparator.comparing;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
-import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
@@ -139,15 +138,23 @@ public class AsciidocDocumentationGenerator extends BaseTask {
     private String toAsciidoc(final Class<?> aClass) {
         final Collection<ParameterMeta> parameterMetas = parameterModelService.buildParameterMetas(
                 Constructors.findConstructor(aClass), ofNullable(aClass.getPackage()).map(Package::getName).orElse(""));
-        return levelPrefix + " " + aClass.getSimpleName() + "\n\n"
+        return levelPrefix + " "
+                + componentMarkers()
+                        .filter(aClass::isAnnotationPresent)
+                        .map(aClass::getAnnotation)
+                        .map(this::asComponent)
+                        .findFirst()
+                        .get()
+                        .name()
+                + "\n\n"
                 + ofNullable(aClass.getAnnotation(Documentation.class))
                         .map(Documentation::value)
                         .map(v -> v + "\n\n")
                         .orElse("")
                 + (parameterMetas.isEmpty() ? ""
-                        : (levelPrefix + "= Configuration\n\n"
-                                + toAsciidocRows(parameterMetas, null).sorted(comparing(identity())).collect(
-                                        joining("\n", "|===\n|Path|Description|Default Value\n", "\n|===\n\n"))));
+                        : (levelPrefix + "= Configuration\n\n" + toAsciidocRows(parameterMetas, null)
+                                .sorted(comparing(line -> line.substring(1, line.indexOf('|', 1))))
+                                .collect(joining("\n", "|===\n|Path|Description|Default Value\n", "\n|===\n\n"))));
     }
 
     private Stream<String> toAsciidocRows(final Collection<ParameterMeta> parameterMetas, final Object parentInstance) {
