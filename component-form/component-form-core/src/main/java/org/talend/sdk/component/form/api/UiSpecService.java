@@ -35,7 +35,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import org.talend.sdk.component.form.model.UiSpecPayload;
+import org.talend.sdk.component.form.model.Ui;
+import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
+import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
@@ -50,10 +52,10 @@ public class UiSpecService {
         this.client = client;
     }
 
-    public UiSpecPayload convert(final ComponentDetail detail) {
-        final UiSpecPayload converted = new UiSpecPayload();
+    public Ui convert(final ComponentDetail detail) {
+        final Ui converted = new Ui();
         { // build the jsonschema
-            final UiSpecPayload.JsonSchema jsonSchema = new UiSpecPayload.JsonSchema();
+            final JsonSchema jsonSchema = new JsonSchema();
             jsonSchema.setTitle(detail.getDisplayName());
             jsonSchema.setType("object");
             jsonSchema.setProperties(createJsonSchemaPropertiesLevel("", detail.getProperties()));
@@ -102,7 +104,7 @@ public class UiSpecService {
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private Collection<UiSpecPayload.UiSchema> createUiSchemaLevel(final ComponentDetail detail, final String prefix,
+    private Collection<UiSchema> createUiSchemaLevel(final ComponentDetail detail, final String prefix,
             final Collection<SimplePropertyDefinition> properties) {
         if (properties == null) {
             return null;
@@ -111,15 +113,14 @@ public class UiSpecService {
                 toList());
     }
 
-    private UiSpecPayload.UiSchema toUiSchema(final ComponentDetail detail,
-            final Collection<SimplePropertyDefinition> properties, final SimplePropertyDefinition prop) {
+    private UiSchema toUiSchema(final ComponentDetail detail, final Collection<SimplePropertyDefinition> properties,
+            final SimplePropertyDefinition prop) {
         if ("object".equalsIgnoreCase(prop.getType())) {
-            final UiSpecPayload.UiSchema schema = new UiSpecPayload.UiSchema();
+            final UiSchema schema = new UiSchema();
             // schema.setKey(prop.getPath());
             schema.setTitle(prop.getDisplayName());
             schema.setWidget("fieldset");
-            final Collection<UiSpecPayload.UiSchema> items =
-                    createUiSchemaLevel(detail, prop.getPath() + '.', properties);
+            final Collection<UiSchema> items = createUiSchemaLevel(detail, prop.getPath() + '.', properties);
             schema.setItems(items);
 
             // add common actions if needed
@@ -130,7 +131,7 @@ public class UiSpecService {
                             .filter(a -> a.getName().equals(v) && "schema".equals(a.getType()))
                             .findFirst())
                     .ifPresent(ref -> {
-                        final UiSpecPayload.Trigger trigger = toTrigger(properties, prop, ref);
+                        final UiSchema.Trigger trigger = toTrigger(properties, prop, ref);
                         if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
                             // find the matching dataset
                             detail
@@ -139,15 +140,14 @@ public class UiSpecService {
                                     .filter(p -> ref.getName().equals(p.getMetadata().get("dataset")))
                                     .findFirst()
                                     .ifPresent(dataset -> {
-                                        final UiSpecPayload.Trigger.Parameter parameter =
-                                                new UiSpecPayload.Trigger.Parameter();
+                                        final UiSchema.Parameter parameter = new UiSchema.Parameter();
                                         parameter.setKey("dataset");
                                         parameter.setPath(prop.getPath());
                                         trigger.setParameters(toParams(properties, prop, ref, prop.getPath()));
                                     });
                         }
 
-                        final UiSpecPayload.UiSchema button = new UiSpecPayload.UiSchema();
+                        final UiSchema button = new UiSchema();
                         button.setKey("button_schema_" + prop.getPath());
                         button.setTitle("Guess Schema");
                         button.setWidget("button");
@@ -160,7 +160,7 @@ public class UiSpecService {
                                     .filter(a -> a.getName().equals(v) && "healthcheck".equals(a.getType()))
                                     .findFirst())
                     .ifPresent(ref -> {
-                        final UiSpecPayload.Trigger trigger = toTrigger(properties, prop, ref);
+                        final UiSchema.Trigger trigger = toTrigger(properties, prop, ref);
                         if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
                             // find the matching dataset
                             detail
@@ -172,7 +172,7 @@ public class UiSpecService {
                                             .setParameters(toParams(properties, datastore, ref, datastore.getPath())));
                         }
 
-                        final UiSpecPayload.UiSchema button = new UiSpecPayload.UiSchema();
+                        final UiSchema button = new UiSchema();
                         button.setKey("button_healthcheck_" + prop.getPath());
                         button.setTitle("Validate Datastore");
                         button.setWidget("button");
@@ -185,9 +185,9 @@ public class UiSpecService {
         return primitiveToUiSchema(properties, detail, prop);
     }
 
-    private UiSpecPayload.Trigger toTrigger(final Collection<SimplePropertyDefinition> properties,
+    private UiSchema.Trigger toTrigger(final Collection<SimplePropertyDefinition> properties,
             final SimplePropertyDefinition prop, final ActionReference ref) {
-        final UiSpecPayload.Trigger trigger = new UiSpecPayload.Trigger();
+        final UiSchema.Trigger trigger = new UiSchema.Trigger();
         trigger.setAction(ref.getName());
         trigger.setFamily(ref.getFamily());
         trigger.setType(ref.getType());
@@ -196,9 +196,9 @@ public class UiSpecService {
         return trigger;
     }
 
-    private UiSpecPayload.UiSchema primitiveToUiSchema(final Collection<SimplePropertyDefinition> properties,
+    private UiSchema primitiveToUiSchema(final Collection<SimplePropertyDefinition> properties,
             final ComponentDetail detail, final SimplePropertyDefinition prop) {
-        final UiSpecPayload.UiSchema schema = new UiSpecPayload.UiSchema();
+        final UiSchema schema = new UiSchema();
         schema.setKey(prop.getPath());
         schema.setTitle(prop.getDisplayName());
         if ("true".equalsIgnoreCase(prop.getMetadata().get("ui::credential"))) {
@@ -213,13 +213,13 @@ public class UiSpecService {
         } else if ("enum".equalsIgnoreCase(prop.getType())) {
             schema.setWidget("datalist");
             schema.setTitleMap(prop.getValidation().getEnumValues().stream().sorted().map(v -> {
-                final UiSpecPayload.NameValue nameValue = new UiSpecPayload.NameValue();
+                final UiSchema.NameValue nameValue = new UiSchema.NameValue();
                 nameValue.setName(v);
                 nameValue.setValue(v);
                 return nameValue;
             }).collect(toList()));
 
-            final UiSpecPayload.JsonSchema jsonSchema = new UiSpecPayload.JsonSchema();
+            final JsonSchema jsonSchema = new JsonSchema();
             jsonSchema.setType("string");
             jsonSchema.setEnumValues(prop.getValidation().getEnumValues());
             schema.setSchema(jsonSchema);
@@ -230,7 +230,7 @@ public class UiSpecService {
             schema.setWidget("datalist");
             schema.setRestricted(false);
 
-            final UiSpecPayload.JsonSchema jsonSchema = new UiSpecPayload.JsonSchema();
+            final JsonSchema jsonSchema = new JsonSchema();
             jsonSchema.setType("string");
             schema.setSchema(jsonSchema);
 
@@ -239,7 +239,7 @@ public class UiSpecService {
                 final Map<String, Object> values = client.action(detail.getId().getFamily(), "dynamic_values",
                         prop.getMetadata().get("action::dynamic_values"), emptyMap());
 
-                final List<UiSpecPayload.NameValue> namedValues =
+                final List<UiSchema.NameValue> namedValues =
                         ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance).map(c -> {
                             final Collection<?> dynamicValues = Collection.class.cast(c);
                             return dynamicValues
@@ -250,7 +250,7 @@ public class UiSpecService {
                                             && Map.class.cast(m).get("id") instanceof String)
                                     .map(Map.class::cast)
                                     .map(entry -> {
-                                        UiSpecPayload.NameValue val = new UiSpecPayload.NameValue();
+                                        final UiSchema.NameValue val = new UiSchema.NameValue();
                                         val.setName((String) entry.get("id"));
                                         val.setValue(entry.get("label") == null ? (String) entry.get("id")
                                                 : (String) entry.get("label"));
@@ -259,7 +259,8 @@ public class UiSpecService {
                                     .collect(toList());
                         }).orElse(emptyList());
                 schema.setTitleMap(namedValues);
-                jsonSchema.setEnumValues(namedValues.stream().map(c -> c.getName()).sorted().collect(toList()));
+                jsonSchema.setEnumValues(
+                        namedValues.stream().map(UiSchema.NameValue::getName).sorted().collect(toList()));
             } else {
                 schema.setTitleMap(emptyList());
                 jsonSchema.setEnumValues(emptyList());
@@ -290,7 +291,7 @@ public class UiSpecService {
                 && prop.getValidation().getRequired();
     }
 
-    private List<UiSpecPayload.Trigger.Parameter> toParams(final Collection<SimplePropertyDefinition> properties,
+    private List<UiSchema.Parameter> toParams(final Collection<SimplePropertyDefinition> properties,
             final SimplePropertyDefinition prop, final ActionReference ref, final String parameters) {
         final Iterator<SimplePropertyDefinition> expectedProperties = ref.getProperties().iterator();
         return ofNullable(parameters).map(params -> Stream.of(params.split(",")).flatMap(paramRef -> {
@@ -299,12 +300,12 @@ public class UiSpecService {
             }
             final String parameterPrefix = expectedProperties.next().getPath();
             final String propertiesPrefix = resolveProperty(prop, paramRef);
-            final List<UiSpecPayload.Trigger.Parameter> resolvedParams = properties
+            final List<UiSchema.Parameter> resolvedParams = properties
                     .stream()
                     .filter(p -> p.getPath().startsWith(propertiesPrefix))
                     .filter(o -> !"object".equalsIgnoreCase(o.getType()) && !"array".equalsIgnoreCase(o.getType()))
                     .map(o -> {
-                        final UiSpecPayload.Trigger.Parameter parameter = new UiSpecPayload.Trigger.Parameter();
+                        final UiSchema.Parameter parameter = new UiSchema.Parameter();
                         parameter.setKey(parameterPrefix + o.getPath().substring(propertiesPrefix.length()));
                         parameter.setPath(o.getPath());
                         return parameter;
@@ -344,13 +345,13 @@ public class UiSpecService {
         return paramRef;
     }
 
-    private Map<String, UiSpecPayload.JsonSchema> createJsonSchemaPropertiesLevel(final String prefix,
+    private Map<String, JsonSchema> createJsonSchemaPropertiesLevel(final String prefix,
             final Collection<SimplePropertyDefinition> properties) {
         if (properties == null) {
             return null;
         }
         return filterPropertyLevel(prefix, properties).collect(toMap(SimplePropertyDefinition::getName, prop -> {
-            final UiSpecPayload.JsonSchema property = new UiSpecPayload.JsonSchema();
+            final JsonSchema property = new JsonSchema();
             property.setTitle(prop.getDisplayName());
 
             switch (prop.getType().toUpperCase(ENGLISH)) { // tcomp meta model
@@ -363,11 +364,11 @@ public class UiSpecService {
                 property.setType(prop.getType().toLowerCase(ENGLISH));
             }
 
-            final Map<String, UiSpecPayload.JsonSchema> nestedProperties =
+            final Map<String, JsonSchema> nestedProperties =
                     createJsonSchemaPropertiesLevel(prop.getPath() + '.', properties);
             final String order = prop.getMetadata().get("ui::optionsorder::value");
             if (order != null) {
-                property.setProperties(new TreeMap<String, UiSpecPayload.JsonSchema>(new Comparator<String>() {
+                property.setProperties(new TreeMap<String, JsonSchema>(new Comparator<String>() {
 
                     private final List<String> propertiesOrder = new ArrayList<>(asList(order.split(",")));
 

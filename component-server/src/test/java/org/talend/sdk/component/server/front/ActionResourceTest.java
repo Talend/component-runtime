@@ -45,14 +45,13 @@ public class ActionResourceTest {
     @Test
     public void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-        assertEquals(3, index.getItems().size());
+        assertEquals(2, index.getItems().size());
 
         final List<ActionItem> items = new ArrayList<>(index.getItems());
         items.sort(Comparator.comparing(ActionItem::getName));
 
         final Iterator<ActionItem> it = items.iterator();
         assertAction("proc", "user", "another-test-component-14.11.1986.jarAction", 1, it.next());
-        assertAction("jdbc", "wizard", "dataset", 9, it.next());
         assertAction("chain", "healthcheck", "default", 6, it.next());
     }
 
@@ -60,39 +59,11 @@ public class ActionResourceTest {
     public void indexFiltered() {
         final ActionList index = base
                 .path("action/index")
-                .queryParam("type", "wizard")
-                .queryParam("family", "jdbc")
+                .queryParam("type", "healthcheck")
+                .queryParam("family", "chain")
                 .request(APPLICATION_JSON_TYPE)
                 .get(ActionList.class);
         assertEquals(1, index.getItems().size());
-    }
-
-    @Test
-    public void wizard() {
-        final JdbcDataSet dataSet = base
-                .path("action/execute")
-                .queryParam("family", "jdbc")
-                .queryParam("type", "wizard")
-                .queryParam("action", "dataset")
-                .request(APPLICATION_JSON_TYPE)
-                .post(entity(new HashMap<String, String>() {
-
-                    {
-                        put("driver.driver", "com.h2.Driver");
-                        put("query.query", "select * from customers");
-                        put("query.timeout", "1000");
-                        put("store.username", "test");
-                        put("store.password", "secret");
-                        put("store.url", "jdbc:h2:mem:customers");
-                    }
-                }, APPLICATION_JSON_TYPE), JdbcDataSet.class);
-        assertEquals("com.h2.Driver", dataSet.getDriver());
-        assertEquals("select * from customers", dataSet.getQuery());
-        assertEquals(1000, dataSet.getTimeout());
-        assertNotNull(dataSet.getConnection());
-        assertEquals("jdbc:h2:mem:customers", dataSet.getConnection().getUrl());
-        assertEquals("test", dataSet.getConnection().getUsername());
-        assertEquals("secret", dataSet.getConnection().getPassword());
     }
 
     private void assertAction(final String component, final String type, final String name, final int params,

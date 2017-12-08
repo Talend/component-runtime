@@ -39,5 +39,6 @@
   <modules>
     <module>component-form-core</module>
     <module>component-form-demo</module>
+    <module>component-form-model</module>
   </modules>
 </project>

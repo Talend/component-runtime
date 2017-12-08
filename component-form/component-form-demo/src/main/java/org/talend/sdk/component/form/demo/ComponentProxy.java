@@ -33,8 +33,8 @@ import org.talend.sdk.component.form.api.ActionService;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.api.WebException;
+import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.UiActionResult;
-import org.talend.sdk.component.form.model.UiSpecPayload;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 
@@ -77,7 +77,7 @@ public class ComponentProxy {
     @GET
     @Path("detail/{id}") // bulk mode to avoid to fetch components one by one when reloading a
                          // pipeline/job
-    public UiSpecPayload getDetail(@QueryParam("language") @DefaultValue("en") final String language,
+    public Ui getDetail(@QueryParam("language") @DefaultValue("en") final String language,
             @PathParam("id") final String id) {
         final List<ComponentDetail> details = client.details(language, id, new String[0]).getDetails();
         if (details.isEmpty()) {

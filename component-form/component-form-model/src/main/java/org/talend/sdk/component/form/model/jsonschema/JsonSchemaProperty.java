@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.form.api;
+package org.talend.sdk.component.form.model.jsonschema;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Ignore("waiting for ui specs")
-public class ActionServiceTest {
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-    private final ActionService service = new ActionService();
+@Target(TYPE)
+@Retention(RUNTIME)
+public @interface JsonSchemaProperty {
 
-    @Test
-    public void mapException() {
-        // no-op for now, waiting for ui specs
-    }
-
-    @Test
-    public void mapData() {
-        // no-op for now, waiting for ui specs
-    }
+    String value();
 }

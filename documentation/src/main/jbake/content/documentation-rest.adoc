@@ -80,7 +80,7 @@ A trivial facade can be:
 
 [source,java]
 ----
-@Path("tcomp-facade")
+@Path("tacokit-facade")
 @ApplicationScoped
 public class ComponentFacade {
 
@@ -117,7 +117,7 @@ public class ComponentFacade {
 
     @GET
     @Path("detail/{id}")
-    public UiSpecPayload getDetail(@QueryParam("language") @DefaultValue("en") final String language,
+    public Ui getDetail(@QueryParam("language") @DefaultValue("en") final String language,
             @PathParam("id") final String id) {
         final List<ComponentDetail> details = client.details(language, id, new String[0]).getDetails();
         if (details.isEmpty()) {
