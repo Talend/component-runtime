@@ -38,7 +38,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * Adapter to convert a ProcessContext coming from a CoGBK to a
- * <code><pre>Map<String, List<?>></pre></code>.
+ * {@code Map<String, List<?>>}
  */
 public class CoGroupByKeyResultMappingTransform<K>
         extends PTransform<PCollection<KV<K, CoGbkResult>>, PCollection<Map<String, List<Serializable>>>> {

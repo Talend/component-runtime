@@ -35,11 +35,11 @@ public final class PropertyNodeUtils {
      * Not all definitions represent Component property, which may store User setting.
      * Some of them are holders for other definitions (like Forms or Properties in v0 integration)
      * ElementParameters should be created only from leaf nodes in this tree
-     * Internal nodes store useful metadata information like ordering </br>
+     * Internal nodes store useful metadata information like ordering <br>
      * 
      * There may be different types of node (different {@link PropertyNode} implementations)
      * Node type is defined by {@link PropertyDefinitionDecorator}, so it should be known during
-     * node creation </br>
+     * node creation <br>
      * 
      * Tree is created according following algorithm:
      * <ol>

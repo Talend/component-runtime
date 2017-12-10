@@ -27,6 +27,6 @@ notifications:
 before_install:
 - chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
 install: mvn clean install -DskipTests -Dinvoker.skip=true --batch-mode --settings .travis/settings.xml -Possrh
-script: mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh -Ptravis
+script: mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Dgpg.signing=true
 after_success:
 - chmod +x ./.travis/after_success.sh && ./.travis/after_success.sh

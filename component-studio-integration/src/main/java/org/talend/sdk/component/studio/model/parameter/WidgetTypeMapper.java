@@ -50,7 +50,7 @@ public class WidgetTypeMapper {
      * Recognizes {@link EParameterFieldType} for given {@link SimplePropertyDefinition}
      * Implementation note: Most possible types are located first.
      * All checks are implemented in separate methods
-     * Only one checker method returns <code>true<code> for particular Property Definition
+     * Only one checker method returns {@code true} for particular Property Definition
      * 
      * @return widget type
      */

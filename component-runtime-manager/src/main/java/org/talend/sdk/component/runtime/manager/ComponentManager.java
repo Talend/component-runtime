@@ -211,6 +211,8 @@ public class ComponentManager implements AutoCloseable {
      * Creates a default manager with default maven local repository,
      * TALEND-INF/dependencies.txt file to find the dependencies of the plugins and
      * a default JMX pattern for plugins. It also adds the caller as a plugin.
+     *
+     * @return the contextual manager instance.
      */
     public static ComponentManager instance() {
         ComponentManager manager = CONTEXTUAL_INSTANCE.get();

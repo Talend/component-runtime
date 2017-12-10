@@ -23,7 +23,7 @@
         </div>
         <div class="row contributors">
             <%
-                new groovy.json.JsonSlurper().parseText(new File('target/generated-adoc/contributors.json').text).each {contributor ->
+                new groovy.json.JsonSlurper().parseText(new File(config.generated_adoc, 'contributors.json').text).each {contributor ->
             %>
             <div class="contributor">
                 <div>

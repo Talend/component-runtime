@@ -175,6 +175,7 @@ public class ComponentFamilyMeta {
          * {@link Class} of data provided
          * @param instance
          * data instance
+         * @param <D> the type of the instance to store.
          * @return data instance
          */
         public <D> D set(final Class<D> key, final D instance) {
@@ -186,6 +187,7 @@ public class ComponentFamilyMeta {
          *
          * @param key
          * {@link Class} of data instance to return
+         * @param <D> the type of the instance to store.
          * @return data instance
          */
         public <D> D get(final Class<D> key) {

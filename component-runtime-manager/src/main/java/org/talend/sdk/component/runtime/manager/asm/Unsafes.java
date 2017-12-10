@@ -74,6 +74,9 @@ public class Unsafes {
      * The 'defineClass' method on the ClassLoader is private, thus we need to
      * invoke it via reflection.
      *
+     * @param classLoader the classloader to use to define the proxy.
+     * @param proxyName the class name to define.
+     * @param proxyBytes the bytes of the class to define.
      * @return the Class which got loaded in the classloader
      */
     public static <T> Class<T> defineAndLoadClass(final ClassLoader classLoader, final String proxyName,

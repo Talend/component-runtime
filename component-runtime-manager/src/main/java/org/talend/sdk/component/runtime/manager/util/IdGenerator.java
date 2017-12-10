@@ -27,7 +27,7 @@ public class IdGenerator {
      * /!\ keep this algorithm private for now and don't assume it is reversible, we
      * can revise it to something more compressed later
      *
-     * @param args
+     * @param args the list of strings to concatenate and encode as an identifier.
      * @return a {@link Base64} url encoded string from the strings parameter joined
      * by #
      */

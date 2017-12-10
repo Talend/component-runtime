@@ -31,6 +31,8 @@ public interface ParameterExtensionEnricher {
      *
      * @param parameterName
      * the name of the parameter currently visited.
+     * @param parameterType
+     * the type of the parameter currently visited.
      * @param annotation
      * the currently visited annotation.
      * @return the extensions to add for this parameter.

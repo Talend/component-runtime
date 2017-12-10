@@ -107,16 +107,17 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
 
     /**
      * Creates component connectors in following way:
+     *
      * <ol>
-     * <li>create Main connectors. It may have both incoming and outgoing
-     * connections</li>
-     * <li>create optional Reject connector. It may have only outgoing
-     * connections</li>
+     * <li>create Main connectors, it may have both incoming and outgoing connections</li>
+     * <li>create optional Reject connector, it may have only outgoing connections</li>
      * <li>create Iterate connector</li>
-     * <li>create standard for all components connectors: ON_COMPONENT_OK,
-     * ON_COMPONENT_ERROR, ON_SUBJOB_OK, ON_SUBJOB_ERROR, RUN_IF</li>
+     * <li>create standard for all components connectors: ON_COMPONENT_OK, ON_COMPONENT_ERROR, ON_SUBJOB_OK,
+     * ON_SUBJOB_ERROR, RUN_IF</li>
      * <li>create all remaining connectors</li>
-     * <ol>
+     * </ol>
+     *
+     * @return the connectors for the underlying component.
      */
     @Override
     public List<INodeConnector> createConnectors() {

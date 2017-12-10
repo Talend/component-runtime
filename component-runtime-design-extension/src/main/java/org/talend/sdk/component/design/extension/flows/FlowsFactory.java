@@ -31,7 +31,8 @@ public abstract class FlowsFactory {
      * Creates appropriate factory according {@link BaseMeta} type (either
      * {@link ProcessorMeta} or {@link PartitionMapperMeta})
      * 
-     * @param meta
+     * @param meta the meta instance to use as reference to find the right factory.
+     * @return the factory to use to create a flow for this meta.
      */
     public static FlowsFactory get(final BaseMeta<?> meta) {
         if (meta == null) {

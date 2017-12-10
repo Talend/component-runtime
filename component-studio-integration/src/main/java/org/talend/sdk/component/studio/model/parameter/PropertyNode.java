@@ -69,7 +69,7 @@ public class PropertyNode {
     /**
      * Traverses all nodes
      * 
-     * @param visitor
+     * @param visitor the property visitor to use to traverse the nodes.
      */
     public void accept(final PropertyVisitor visitor) {
         visitor.visit(this);
@@ -79,7 +79,7 @@ public class PropertyNode {
     /**
      * Traverses Main form nodes in sorted according metadata order
      * 
-     * @param visitor
+     * @param visitor the property visitor to use to traverse the nodes.
      */
     public void acceptMain(final PropertyVisitor visitor) {
         visitor.visit(this);
@@ -120,7 +120,7 @@ public class PropertyNode {
     /**
      * Traverses Advanced form nodes in sorted according metadata order
      * 
-     * @param visitor
+     * @param visitor the property visitor to use to traverse the nodes.
      */
     public void acceptAdvanced(final PropertyVisitor visitor) {
         visitor.visit(this);
