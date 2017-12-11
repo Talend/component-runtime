@@ -47,10 +47,6 @@ public final class Metadatas {
      */
     public static final String UI_GRIDLAYOUT_SUFFIX = "::value";
 
-    public static final String UI_GRIDLAYOUT_MAIN = "ui::gridlayout::Main::value";
-
-    public static final String UI_GRIDLAYOUT_ADVANCED = "ui::gridlayout::Advanced::value";
-
     /**
      * Value separator for {@link #UI_OPTIONS_ORDER}
      */
