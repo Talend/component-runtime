@@ -1166,6 +1166,10 @@ a| `org.talend.sdk.component.api.service.dependency.Resolver` a| Allows to resol
 
 IMPORTANT: it assumes the dependency is locally available to the execution instance which is not guaranteed yet by the framework.
 
+a| `org.talend.sdk.component.api.service.configuration.LocalConfiguration` a| Represents the local configuration which can be used during the design.
+
+WARNING: it is not recommanded to use it for the runtime since the local configuration is generally different and the instances are distincts.
+
 |===
 
 == Creating an execution chain or pipeline

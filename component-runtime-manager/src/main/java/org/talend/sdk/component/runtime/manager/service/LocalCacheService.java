@@ -50,7 +50,7 @@ public class LocalCacheService implements LocalCache, Serializable {
     }
 
     private String internalKey(final String key) {
-        return plugin + key;
+        return plugin + '@' + key;
     }
 
     @AllArgsConstructor

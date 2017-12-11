@@ -39,6 +39,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,6 +49,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,6 +87,7 @@ import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.dependency.Resolver;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
@@ -105,6 +108,7 @@ import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
+import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
@@ -586,12 +590,46 @@ public class ComponentManager implements AutoCloseable {
 
     protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
         services.put(LocalCacheService.class, new LocalCacheService(container.getId()));
+        services.put(LocalConfiguration.class,
+                new LocalConfigurationService(createRawLocalConfigurations(), container.getId()));
         services.put(ProxyGenerator.class, proxyGenerator);
         services.put(AccessorCache.class, new AccessorCache(container.getId()));
         services.put(Resolver.class,
                 new ResolverImpl(container.getId(), container.getLocalDependencyRelativeResolver()));
         services.put(SubclassesCache.class, new SubclassesCache(container.getId(), proxyGenerator,
                 container.getLoader(), new ConcurrentHashMap<>()));
+    }
+
+    protected Collection<LocalConfiguration> createRawLocalConfigurations() {
+        final List<LocalConfiguration> configurations = new ArrayList<>(2);
+        configurations.addAll(
+                toStream(loadServiceProviders(LocalConfiguration.class, LocalConfiguration.class.getClassLoader()))
+                        .collect(toList()));
+        configurations.add(new LocalConfiguration() {
+
+            @Override
+            public String get(final String key) {
+                return System.getProperty(key);
+            }
+
+            @Override
+            public Set<String> keys() {
+                return System.getProperties().stringPropertyNames();
+            }
+        });
+        configurations.add(new LocalConfiguration() {
+
+            @Override
+            public String get(final String key) {
+                return System.getenv(key);
+            }
+
+            @Override
+            public Set<String> keys() {
+                return System.getenv().keySet();
+            }
+        });
+        return configurations;
     }
 
     private <T extends Annotation> T findComponentsConfig(final Map<String, AnnotatedElement> componentDefaults,
