@@ -67,14 +67,14 @@ public class PropertyNode {
     public boolean isLeaf() {
         return children.isEmpty();
     }
-    
+
     /**
      * Checks whether it is column according ui::gridlayout for specified <code>form</code>
      * 
      * @param form Name of form
      * @return true, if it column; false - otherwise
      */
-    public boolean isColumn(String form) {
+    public boolean isColumn(final String form) {
         if (isRoot()) {
             return false;
         }
