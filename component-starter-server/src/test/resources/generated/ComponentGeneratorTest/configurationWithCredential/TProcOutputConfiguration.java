@@ -3,6 +3,7 @@ package com.foo.output;
 import java.io.Serializable;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 
 @GridLayout({
@@ -12,14 +13,18 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
     @GridLayout.Row({ "port" }),
     @GridLayout.Row({ "credential" })
 })
+@Documentation("TODO fill the documentation for this configuration")
 public class TProcOutputConfiguration implements Serializable {
     @Option
+    @Documentation("TODO fill the documentation for this parameter")
     private String host;
 
     @Option
+    @Documentation("TODO fill the documentation for this parameter")
     private String port;
 
     @Option
+    @Documentation("TODO fill the documentation for this parameter")
     private CredentialConfiguration credential;
 
     public String getHost() {

@@ -6,10 +6,12 @@ import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 import com.foo.service.TestService;
 
+@Documentation("TODO fill the documentation for this source")
 public class MycompSource implements Serializable {
     private final MycompMapperConfiguration configuration;
     private final TestService service;

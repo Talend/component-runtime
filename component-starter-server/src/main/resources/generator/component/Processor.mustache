@@ -18,6 +18,7 @@ import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 {{/outputs.size}}
+import org.talend.sdk.component.api.meta.Documentation;
 {{#generic}}
 import org.talend.sdk.component.api.processor.data.ObjectMap;
 {{/generic}}
@@ -27,6 +28,7 @@ import {{servicePackage}}.{{serviceName}};
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
 @Icon({{icon}}) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename_icon32.png in resources
 @Processor(name = "{{name}}")
+@Documentation("TODO fill the documentation for this processor")
 public class {{className}} implements Serializable {
     private final {{configurationName}} configuration;
     private final {{serviceName}} service;

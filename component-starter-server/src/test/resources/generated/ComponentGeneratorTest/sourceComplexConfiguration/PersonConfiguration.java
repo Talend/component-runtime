@@ -3,6 +3,7 @@ package com.foo.source;
 import java.io.Serializable;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 
 @GridLayout({
@@ -11,11 +12,14 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
     @GridLayout.Row({ "name" }),
     @GridLayout.Row({ "age" })
 })
+@Documentation("TODO fill the documentation for this configuration")
 public class PersonConfiguration implements Serializable {
     @Option
+    @Documentation("TODO fill the documentation for this parameter")
     private String name;
 
     @Option
+    @Documentation("TODO fill the documentation for this parameter")
     private int age;
 
     public String getName() {

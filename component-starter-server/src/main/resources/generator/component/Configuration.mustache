@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 {{#structure.size}}
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 {{#hasCredential}}
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
@@ -17,12 +18,14 @@ import org.talend.sdk.component.api.configuration.ui.widget.Credential;
     @GridLayout.Row({ "{{name}}" }){{^-last}},{{/-last}}
  {{/structure}}
 })
+@Documentation("TODO fill the documentation for this configuration")
 public class {{className}} implements Serializable {
 {{#structure}}
 {{#isCredential}}
     @Credential
 {{/isCredential}}
     @Option
+    @Documentation("TODO fill the documentation for this parameter")
     private {{type}} {{name}};
 
 {{/structure}}

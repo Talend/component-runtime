@@ -5,9 +5,11 @@ import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.processor.data.ObjectMap;
+import org.talend.sdk.component.api.meta.Documentation;
 
 import com.foo.service.TestService;
 
+@Documentation("TODO fill the documentation for this source")
 public class MycompSource implements Serializable {
     private final MycompSourceConfiguration configuration;
     private final TestService service;
