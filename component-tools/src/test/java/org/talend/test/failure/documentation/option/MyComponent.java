@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.test.valid;
+package org.talend.test.failure.documentation.option;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
@@ -25,6 +25,7 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 @Documentation("super my component")
 @Version
@@ -37,28 +38,13 @@ public class MyComponent implements Serializable {
     }
 
     @ElementListener
-    public Foo passthrough(final Foo item) {
-        return item;
-    }
-
-    public static class Foo {
+    public ObjectMap passthrough(final ObjectMap item) {
+        return null;
     }
 
     public static class MyConfig implements Serializable {
 
         @Option
-        @Documentation("the input value")
         private String input;
-
-        @Option
-        @Documentation("it is nested")
-        private MyNestedConfig nested = new MyNestedConfig();
-    }
-
-    public static class MyNestedConfig implements Serializable {
-
-        @Option
-        @Documentation("the user to log in")
-        private String user = "unknown";
     }
 }

@@ -262,9 +262,8 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
                 return;
             }
         }
-        TaCoKitLeafRepositoryNode leafRepositoryNode =
-                createLeafRepositoryNode(parentNode, parentTaCoKitNode, itemModule,
-                        Lookups.taCoKitCache().getConfigTypeNodeMap().get(module.getConfigurationId()), viewObject);
+        TaCoKitLeafRepositoryNode leafRepositoryNode = createLeafRepositoryNode(parentNode, parentTaCoKitNode,
+                itemModule, Lookups.taCoKitCache().getConfigTypeNodeMap().get(module.getConfigurationId()), viewObject);
         parentNode.getChildren().add(leafRepositoryNode);
         leafRepositoryNode.setInitialized(true);
         repoNodeMap.put(leafRepositoryNode.getId(), leafRepositoryNode);

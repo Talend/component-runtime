@@ -40,11 +40,13 @@ import java.util.stream.Stream;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.internationalization.Internationalized;
+import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
@@ -297,6 +299,22 @@ public class ComponentValidator extends BaseTask {
 
         }
 
+        if (configuration.isValidateDocumentation()) {
+            errors.addAll(components
+                    .stream()
+                    .filter(c -> !c.isAnnotationPresent(Documentation.class))
+                    .map(c -> "No @Documentation on '" + c.getName() + "'")
+                    .sorted()
+                    .collect(toList()));
+            errors.addAll(finder
+                    .findAnnotatedFields(Option.class)
+                    .stream()
+                    .filter(field -> !field.isAnnotationPresent(Documentation.class))
+                    .map(field -> "No @Documentation on '" + field + "'")
+                    .sorted()
+                    .collect(toSet()));
+        }
+
         if (!errors.isEmpty()) {
             errors.forEach(log::error);
             throw new IllegalStateException(
@@ -356,5 +374,7 @@ public class ComponentValidator extends BaseTask {
         private boolean validateDataSet;
 
         private boolean validateActions;
+
+        private boolean validateDocumentation;
     }
 }

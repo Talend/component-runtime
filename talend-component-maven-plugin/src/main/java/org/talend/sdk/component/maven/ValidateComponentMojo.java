@@ -93,6 +93,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Parameter(defaultValue = "true", property = "talend.validation.action")
     private boolean validateActions;
 
+    /**
+     * Should the presence of documentation for the components be validated.
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.documentation")
+    private boolean validateDocumentation;
+
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
         final ComponentValidator.Configuration configuration = new ComponentValidator.Configuration();
@@ -105,6 +111,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateDataStore(validateDataStore);
         configuration.setValidateDataSet(validateDataSet);
         configuration.setValidateActions(validateActions);
+        configuration.setValidateDocumentation(validateDocumentation);
         new ComponentValidator(configuration, new File[] { classes }, getLog()).run();
     }
 }

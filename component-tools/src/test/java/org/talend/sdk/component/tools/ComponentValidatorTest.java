@@ -68,6 +68,7 @@ public class ComponentValidatorTest {
                     cfg.setValidateComponent(true);
                     cfg.setValidateModel(true);
                     cfg.setValidateDataStore(true);
+                    cfg.setValidateDocumentation(config.validateDocumentation());
                     listPackageClasses(pluginDir, config.value().replace('.', '/'));
                     final Runnable validator = new ComponentValidator(cfg, new File[] { pluginDir }, new TestLog());
                     base.evaluate(); // setup the expectations
@@ -80,61 +81,61 @@ public class ComponentValidatorTest {
 
     @Test
     @ComponentPackage("org.talend.test.failure.action.dynamicvalues")
-    public void testFailureActionDynamicValues() throws IOException {
+    public void testFailureActionDynamicValues() {
         expectedException.expectMessage(
                 "Some error were detected:\n- No @DynamicValues(\"TheValues\"), add a service with this method: @DynamicValues(\"TheValues\") Values proposals();");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.proposal.enumconfig")
-    public void testFailureEnumProposal() throws IOException {
+    public void testFailureEnumProposal() {
         expectedException.expectMessage(
                 "Some error were detected:\n- private org.talend.test.failure.proposal.enumconfig.ComponentConfiguredWithEnum$TheEnum org.talend.test.failure.proposal.enumconfig.ComponentConfiguredWithEnum$Foo.value must not define @Proposable since it is an enum");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.action")
-    public void testFailureAction() throws IOException {
+    public void testFailureAction() {
         expectedException.expectMessage(
                 "public java.lang.String org.talend.test.failure.action.MyService.test(org.talend.test.failure.action.MyDataStore) doesn't return a class org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus, please fix it");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.duplicated.dataset")
-    public void testFailureDuplicatedDataSet() throws IOException {
+    public void testFailureDuplicatedDataSet() {
         expectedException.expectMessage("Duplicated DataSet found : default");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.duplicated.datastore")
-    public void testFailureDuplicatedDataStore() throws IOException {
+    public void testFailureDuplicatedDataStore() {
         expectedException.expectMessage("Duplicated DataStore found : default");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.datastore")
-    public void testFailureDataStore() throws IOException {
+    public void testFailureDataStore() {
         expectedException.expectMessage("No @HealthCheck for dataStore: 'default' with checkable: 'default'\n"
                 + "- org.talend.test.failure.datastore.MyDataStore2 has @Checkable but is not a @DataStore");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.family")
-    public void testFailureFamily() throws IOException {
+    public void testFailureFamily() {
         expectedException.expectMessage("Some error were detected:\n"
                 + "- No resource bundle for org.talend.test.failure.family.MyComponent, you should create a org/talend/test/failure/family/Messages.properties at least.");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.i18n")
-    public void testFailureI18n() throws IOException {
+    public void testFailureI18n() {
         expectedException.expectMessage(
                 "Some error were detected:\n- org.talend.test.failure.i18n.Messages is missing the key(s): test.my._displayName");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.i18n.custom")
-    public void testFailureI18nCustom() throws IOException {
+    public void testFailureI18nCustom() {
         expectedException.expectMessage(
                 "Some error were detected:\n- Key org.talend.test.failure.i18n.custom.MyInternalization.message_wrong from interface org.talend.test.failure.i18n.custom.MyInternalization is no more used\n"
                         + "- Missing key org.talend.test.failure.i18n.custom.MyInternalization.message in interface org.talend.test.failure.i18n.custom.MyInternalization resource bundle");
@@ -142,46 +143,60 @@ public class ComponentValidatorTest {
 
     @Test
     @ComponentPackage("org.talend.test.failure.i18n.missing")
-    public void testFailureI18nMissing() throws IOException {
+    public void testFailureI18nMissing() {
         expectedException.expectMessage(
                 "Some error were detected:\n- No resource bundle for org.talend.test.failure.i18n.missing.MyComponent, you should create a org/talend/test/failure/i18n/missing/Messages.properties at least.");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.missing.icon")
-    public void testFailureMissingIcon() throws IOException {
+    public void testFailureMissingIcon() {
         expectedException.expectMessage(
                 "Some error were detected:\n- Component class org.talend.test.failure.missing.icon.MyComponent should use @Icon and @Version");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.missing.version")
-    public void testFailureMissingVersion() throws IOException {
+    public void testFailureMissingVersion() {
         expectedException.expectMessage(
                 "Some error were detected:\n- Component class org.talend.test.failure.missing.version.MyComponent should use @Icon and @Version");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.serialization")
-    public void testFailureSerialization() throws IOException {
+    public void testFailureSerialization() {
         expectedException.expectMessage(
                 "Some error were detected:\n- class org.talend.test.failure.serialization.MyComponent is not Serializable");
     }
 
     @Test
+    @ComponentPackage(value = "org.talend.test.failure.documentation.component", validateDocumentation = true)
+    public void testFailureDocumentationComponent() {
+        expectedException.expectMessage("Some error were detected:\n"
+                + "- No @Documentation on 'org.talend.test.failure.documentation.component.MyComponent'");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.failure.documentation.option", validateDocumentation = true)
+    public void testFailureDocumentationOption() {
+        expectedException.expectMessage("Some error were detected:\n"
+                + "- No @Documentation on 'private java.lang.String org.talend.test.failure.documentation.option.MyComponent$MyConfig.input'");
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.valid.datastore", success = true)
-    public void testSucessDataStore() throws IOException {
+    public void testSucessDataStore() {
         // no-op
     }
 
     @Test
-    @ComponentPackage(value = "org.talend.test.valid", success = true)
-    public void testFullValidation() throws IOException {
+    @ComponentPackage(value = "org.talend.test.valid", success = true, validateDocumentation = true)
+    public void testFullValidation() {
         // no-op
     }
 
     // .properties are ok from the classpath, no need to copy them
-    private void listPackageClasses(final File pluginDir, final String sourcePackage) throws IOException {
+    private void listPackageClasses(final File pluginDir, final String sourcePackage) {
         final File root = new File(jarLocation(getClass()), sourcePackage);
         File classDir = new File(pluginDir, sourcePackage);
         classDir.mkdirs();
@@ -205,6 +220,8 @@ public class ComponentValidatorTest {
         String value();
 
         boolean success() default false;
+
+        boolean validateDocumentation() default false;
     }
 
     @Slf4j

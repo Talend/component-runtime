@@ -85,4 +85,6 @@ public class TaCoKitExtension {
     private boolean validateDataSet = true;
 
     private boolean validateActions = true;
+
+    private boolean validateDocumentation = true;
 }

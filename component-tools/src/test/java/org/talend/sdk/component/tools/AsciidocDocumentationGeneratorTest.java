@@ -58,8 +58,7 @@ public class AsciidocDocumentationGeneratorTest {
                     "== my\n" + "\n" + "super my component\n" + "\n" + "=== Configuration\n" + "\n" + "|===\n"
                             + "|Path|Description|Default Value\n" + "|configuration|configuration configuration|-\n"
                             + "|configuration.input|the input value|-\n" + "|configuration.nested|it is nested|-\n"
-                            + "|configuration.nested.user|the user to log in|unknown\n"
-                            + "|configuration.undocumented|undocumented configuration|0\n" + "|===\n",
+                            + "|configuration.nested.user|the user to log in|unknown\n" + "|===\n",
                     reader.lines().collect(joining("\n")));
         }
     }
