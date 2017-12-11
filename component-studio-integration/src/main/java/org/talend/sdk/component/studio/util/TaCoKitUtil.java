@@ -30,10 +30,10 @@ public class TaCoKitUtil {
     /**
      * Get ConnectionItem from specified project
      * 
-     * @param project {@link Project}
-     * @param itemId
-     * @return
-     * @throws Exception
+     * @param project {@link Project} only search from the given project
+     * @param itemId item id
+     * @return stored item of the given parameters, or null
+     * @throws Exception unexpected exception occured during searching
      */
     public static ConnectionItem getLatestTaCoKitConnectionItem(final Project project, final String itemId)
             throws Exception {
@@ -48,9 +48,9 @@ public class TaCoKitUtil {
     /**
      * Get ConnectionItem from main project or it's reference project
      * 
-     * @param itemId
-     * @return
-     * @throws Exception
+     * @param itemId item id
+     * @return stored item of the given parameters, or null
+     * @throws Exception unexpected exception occured during searching
      */
     public static ConnectionItem getLatestTaCoKitConnectionItem(final String itemId) throws Exception {
         ConnectionItem item = getLatestTaCoKitConnectionItem(ProjectManager.getInstance().getCurrentProject(), itemId);

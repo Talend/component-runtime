@@ -405,7 +405,7 @@ public class ComponentModel extends AbstractBasicComponent {
      * @param familyNodeName family name
      * @param configType configuration type
      * @param configName configuration name
-     * @return
+     * @return true if support, otherwise false
      */
     public boolean supports(final String familyNodeName, final String configType, final String configName) {
         Collection<SimplePropertyDefinition> properties = detail.getProperties();

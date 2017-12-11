@@ -74,8 +74,8 @@ public final class PropertyNodeUtils {
      * Creates tree representation of {@link ConfigTypeNode}.<br>
      * Also see {@link #createPropertyTree(Collection)}
      * 
-     * @param configTypeNode
-     * @return
+     * @param configTypeNode configuration type node: {@link ConfigTypeNode}
+     * @return root node of created tree: {@link PropertyNode}
      */
     public static PropertyNode createPropertyTree(final ConfigTypeNode configTypeNode) {
         Collection<PropertyDefinitionDecorator> properties =
