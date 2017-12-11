@@ -266,7 +266,7 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         for (String row : rows) {
             String[] columns = row.split(",");
             for (int i = 1; i < columns.length; i++) {
-                if (form.equals(columns[i])) {
+                if (child.equals(columns[i])) {
                     return true;
                 }
             }

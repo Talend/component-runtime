@@ -48,6 +48,7 @@ public class TablePropertyNode extends PropertyNode {
     @Override
     public void addChild(final PropertyNode column) {
         nestedProperties.add(column);
+        column.setParent(this);
     }
 
     public List<PropertyNode> getColumns() {

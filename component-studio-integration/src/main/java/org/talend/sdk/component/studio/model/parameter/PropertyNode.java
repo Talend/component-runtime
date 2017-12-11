@@ -36,7 +36,7 @@ import lombok.ToString;
 @ToString(exclude = "parent")
 public class PropertyNode {
 
-    @Setter(AccessLevel.PRIVATE)
+    @Setter(AccessLevel.PROTECTED)
     private PropertyNode parent;
 
     @Setter(AccessLevel.NONE)
