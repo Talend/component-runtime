@@ -275,6 +275,7 @@
           </execution>
         </executions>
         <configuration>
+          <consoleOutput>true</consoleOutput>
           <reportFile>${project.build.directory}/${project.build.finalName}.rat</reportFile>
           <excludes>
             <exclude>**/target/**/*</exclude>
