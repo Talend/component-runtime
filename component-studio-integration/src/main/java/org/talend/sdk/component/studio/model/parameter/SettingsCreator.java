@@ -54,6 +54,11 @@ public class SettingsCreator implements PropertyVisitor {
     private final EComponentCategory category;
 
     /**
+     * Defines a Form name, for which properties are built. E.g. "Main" or "Advanced"
+     */
+    private final String formName;
+
+    /**
      * Stores created component parameters
      */
     private List<ElementParameter> settings = new ArrayList<>();
@@ -61,6 +66,7 @@ public class SettingsCreator implements PropertyVisitor {
     public SettingsCreator(final IElement iNode, final EComponentCategory category) {
         this.iNode = iNode;
         this.category = category;
+        formName = (category == EComponentCategory.ADVANCED) ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
     }
 
     public List<ElementParameter> getSettings() {
@@ -168,7 +174,10 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setFieldType(node.getFieldType());
         parameter.setName(node.getProperty().getPath());
         parameter.setRepositoryValue(node.getProperty().getPath());
-        parameter.setNumRow(lastRowNumber++);
+        if (!node.isColumn(formName)) {
+            lastRowNumber++;
+        } // else property should be shown on the same row
+        parameter.setNumRow(lastRowNumber);
         parameter.setShow(true);
         parameter.setValue(node.getProperty().getDefaultValue());
         return parameter;
