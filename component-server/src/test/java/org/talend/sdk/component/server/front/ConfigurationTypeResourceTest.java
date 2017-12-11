@@ -74,6 +74,14 @@ public class ConfigurationTypeResourceTest {
         assertEquals("jdbc", jdbcConnection.getName());
         assertEquals("JDBC DataStore", jdbcConnection.getDisplayName());
         assertEquals("datastore", jdbcConnection.getConfigurationType());
+        assertEquals("[{\"description\":\"D1\",\"driver\":\"d1\"},{\"description\":\"D2\",\"driver\":\"d2\"}]",
+                jdbcConnection
+                        .getProperties()
+                        .stream()
+                        .filter(p -> "configuration.connection.configurations".equals(p.getPath()))
+                        .findFirst()
+                        .get()
+                        .getDefaultValue());
 
         final ConfigTypeNode jdbcDataSet = index.getNodes().get("amRiYyNkYXRhc2V0I2pkYmM");
         assertNotNull(jdbcDataSet);

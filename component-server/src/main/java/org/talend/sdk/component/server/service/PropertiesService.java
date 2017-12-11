@@ -15,13 +15,23 @@
  */
 package org.talend.sdk.component.server.service;
 
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.config.PropertyOrderStrategy;
 
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
@@ -29,9 +39,9 @@ import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toMap;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 public class PropertiesService {
 
@@ -39,6 +49,23 @@ public class PropertiesService {
 
     @Inject
     private PropertyValidationService propertyValidationService;
+
+    private Jsonb defaultMapper;
+
+    @PostConstruct
+    private void init() {
+        defaultMapper =
+                JsonbBuilder.create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL));
+    }
+
+    @PreDestroy
+    private void destroy() {
+        try {
+            defaultMapper.close();
+        } catch (final Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
 
     public Stream<SimplePropertyDefinition> buildProperties(final Collection<ParameterMeta> meta,
             final ClassLoader loader, final Locale locale, final Object rootInstance) {
@@ -73,10 +100,18 @@ public class PropertiesService {
                                     .displayName()
                                     .orElseGet(() -> parent == null ? name
                                             : parent.findBundle(loader, locale).displayName(p.getName()).orElse(name)),
-                            type, defaultValueInspector.findDefault(instance, p), validation, metadata)),
+                            type, toDefault(instance, p), validation, metadata)),
                     buildProperties(p.getNestedParameters(), loader, locale, instance, p));
         }).sorted(Comparator.comparing(SimplePropertyDefinition::getPath)); // important cause it is the way you want to
         // see it
+    }
+
+    private String toDefault(final Object instance, final ParameterMeta p) {
+        if (Collection.class.isInstance(instance) || Map.class.isInstance(instance)) {
+            // @Experimental("not primitives are a challenge, for now use that but can change if not adapted")
+            return defaultMapper.toJson(instance);
+        }
+        return defaultValueInspector.findDefault(instance, p);
     }
 
     private String sanitizePropertyName(final String path) {
