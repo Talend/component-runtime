@@ -170,7 +170,7 @@ public class PropertyNode {
         if (property.hasGridLayout(MAIN_FORM)) {
             return property.getChildrenNames(MAIN_FORM);
         }
-        if (property.hasGridLayout()) {
+        if (property.hasGridLayouts()) {
             return Collections.emptySet();
         }
         if (property.hasOptionsOrder()) {

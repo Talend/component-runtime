@@ -223,7 +223,7 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
      * 
      * @return true, if it has any grid layout; false - otherwise
      */
-    boolean hasGridLayout() {
+    boolean hasGridLayouts() {
         Set<String> keys = delegate.getMetadata().keySet();
         return keys.stream().filter(key -> key.startsWith(UI_GRIDLAYOUT_PREFIX)).count() > 0;
     }
