@@ -413,7 +413,7 @@ public class ComponentModel extends AbstractBasicComponent {
             return false;
         }
         String expectedFamilyName = index.getId().getFamily();
-        if (expectedFamilyName == null || !expectedFamilyName.endsWith(familyNodeName)) { // $NON-NLS-1$
+        if (expectedFamilyName == null || !expectedFamilyName.equals(familyNodeName)) { // $NON-NLS-1$
             return false;
         }
         Iterator<SimplePropertyDefinition> iter = properties.iterator();
