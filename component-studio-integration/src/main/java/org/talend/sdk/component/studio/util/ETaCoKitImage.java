@@ -22,7 +22,8 @@ import org.talend.commons.ui.runtime.image.IImage;
  */
 public enum ETaCoKitImage implements IImage {
 
-    TACOKIT_REPOSITORY_ICON(TaCoKitConst.IMAGE_TACOKIT_REPOSITORY_PATH);
+    TACOKIT_REPOSITORY_ICON(TaCoKitConst.IMAGE_TACOKIT_REPOSITORY_PATH),
+    TACOKIT_CONFIGURATION_ICON(TaCoKitConst.IMAGE_TACOKIT_CONFIGURATION_PATH);
 
     private String path;
 

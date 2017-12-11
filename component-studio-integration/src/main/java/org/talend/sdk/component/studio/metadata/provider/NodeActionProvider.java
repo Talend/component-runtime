@@ -1,21 +1,19 @@
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package org.talend.sdk.component.studio.metadata.provider;
 
-import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,10 +32,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
+import org.talend.commons.ui.swt.actions.ITreeContextualAction;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.properties.Property;
 import org.talend.core.model.repository.ERepositoryObjectType;
-import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.model.repository.RepositoryObject;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.core.repository.ui.actions.metadata.AbstractCreateAction;
@@ -51,9 +49,14 @@ import org.talend.repository.model.RepositoryNodeUtilities;
 import org.talend.repository.view.di.metadata.action.MetedataNodeActionProvier;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.lang.Pair;
+import org.talend.sdk.component.studio.metadata.TaCoKitCache;
+import org.talend.sdk.component.studio.metadata.action.CreateTaCoKitConfigurationAction;
+import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
+import org.talend.sdk.component.studio.metadata.node.TaCoKitFamilyRepositoryNode;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
@@ -75,41 +78,38 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
     @Override
     public void fillContextMenu(final IMenuManager manager) {
         final IStructuredSelection sel = IStructuredSelection.class.cast(getContext().getSelection());
+        if (1 < sel.size()) {
+            super.fillContextMenu(manager);
+            return;
+        }
         final Object selObj = sel.getFirstElement();
-        if (RepositoryNode.class.isInstance(selObj)) {
-            final RepositoryNode rn = RepositoryNode.class.cast(selObj);
-            final ERepositoryObjectType nodeType =
-                    ERepositoryObjectType.class.cast(rn.getProperties(IRepositoryNode.EProperties.CONTENT_TYPE));
-            if (!ERepositoryObjectType.METADATA_CON_TABLE.equals(nodeType)
-                    && !ERepositoryObjectType.METADATA_CON_COLUMN.equals(nodeType)) {
-                final IRepositoryViewObject repObj = rn.getObject();
-                // if (repObj == null) {
-                // createAction(null, sel);
-                // } else {
-                client
-                        .details(Locale.getDefault().getLanguage())
-                        .flatMap(detail -> detail
-                                .getSecond()
-                                .getProperties()
-                                .stream()
-                                .filter(service::isConfiguration)
-                                .map(p -> new Pair<>(detail, p)))
-                        .forEach(pair -> createAction(pair, sel).update(pair, sel));
-                // }
+        if (selObj instanceof ITaCoKitRepositoryNode) {
+            ITaCoKitRepositoryNode tacokitNode = (ITaCoKitRepositoryNode) selObj;
+            if (!(tacokitNode instanceof TaCoKitFamilyRepositoryNode)) {
+                ConfigTypeNode configTypeNode = tacokitNode.getConfigTypeNode();
                 manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+
+                if (tacokitNode.isLeafNode()) {
+                    Set<String> edges = configTypeNode.getEdges();
+                    if (edges != null && !edges.isEmpty()) {
+                        TaCoKitCache cache = Lookups.taCoKitCache();
+                        Map<String, ConfigTypeNode> configTypeNodeMap = cache.getConfigTypeNodeMap();
+                        for (String edge : edges) {
+                            ConfigTypeNode subTypeNode = configTypeNodeMap.get(edge);
+                            ITreeContextualAction createAction = new CreateTaCoKitConfigurationAction(subTypeNode);
+                            createAction.init((TreeViewer) getActionSite().getStructuredViewer(), sel);
+                            manager.add(createAction);
+                        }
+                    }
+                } else {
+                    ITreeContextualAction createAction = new CreateTaCoKitConfigurationAction(configTypeNode);
+                    createAction.init((TreeViewer) getActionSite().getStructuredViewer(), sel);
+                    manager.add(createAction);
+                }
             }
+            manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         }
         super.fillContextMenu(manager);
-    }
-
-    private ConfigAction createAction(final Pair<Pair<ComponentIndex, ComponentDetail>, SimplePropertyDefinition> data,
-            final IStructuredSelection sel) {
-        return actions.computeIfAbsent(data.getFirst().getSecond().getId().getId() + "//" + data.getSecond().getPath(),
-                k -> {
-                    ConfigAction action = new ConfigAction(new AtomicReference<>(), service);
-                    action.init(TreeViewer.class.cast(getActionSite().getStructuredViewer()), sel);
-                    return action;
-                });
     }
 
     @Data
@@ -218,11 +218,9 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
 
         private void init() {
             /*
-             * ERepositoryObjectType repObjType = repository.getObjectType(); if (repObjType
-             * == null || repository.getType() !=
-             * IRepositoryNode.ENodeType.REPOSITORY_ELEMENT) { repObjType =
-             * ERepositoryObjectType.class.cast(repository.getProperties(IRepositoryNode.
-             * EProperties.CONTENT_TYPE)); }
+             * ERepositoryObjectType repObjType = repository.getObjectType(); if (repObjType == null ||
+             * repository.getType() != IRepositoryNode.ENodeType.REPOSITORY_ELEMENT) { repObjType =
+             * ERepositoryObjectType.class.cast(repository.getProperties(IRepositoryNode. EProperties.CONTENT_TYPE)); }
              */
 
             final IRepositoryNode.ENodeType nodeType = repository.getType();
@@ -241,34 +239,30 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
             case SIMPLE_FOLDER:
             case SYSTEM_FOLDER:
                 /*
-                 * connection = GenericMetadataFactory.eINSTANCE.createGenericConnection();
-                 * connectionProperty = PropertiesFactory.eINSTANCE.createProperty();
+                 * connection = GenericMetadataFactory.eINSTANCE.createGenericConnection(); connectionProperty =
+                 * PropertiesFactory.eINSTANCE.createProperty();
                  * 
                  * connectionProperty.setId(ProxyRepositoryFactory.getInstance().getNextId());
-                 * connectionProperty.setAuthor(((RepositoryContext)
-                 * CoreRuntimePlugin.getInstance().getContext()
+                 * connectionProperty.setAuthor(((RepositoryContext) CoreRuntimePlugin.getInstance().getContext()
                  * .getProperty(Context.REPOSITORY_CONTEXT_KEY)).getUser());
-                 * connectionProperty.setVersion(VersionUtils.DEFAULT_VERSION);
-                 * connectionProperty.setStatusCode(""); //$NON-NLS-1$
+                 * connectionProperty.setVersion(VersionUtils.DEFAULT_VERSION); connectionProperty.setStatusCode("");
+                 * //$NON-NLS-1$
                  */
 
                 /*
-                 * connectionItem =
-                 * GenericMetadataFactory.eINSTANCE.createGenericConnectionItem();
+                 * connectionItem = GenericMetadataFactory.eINSTANCE.createGenericConnectionItem();
                  * 
-                 * connectionItem.setProperty(connectionProperty);
-                 * connectionItem.setConnection(connection);
+                 * connectionItem.setProperty(connectionProperty); connectionItem.setConnection(connection);
                  */
                 break;
             case REPOSITORY_ELEMENT:
                 final RepositoryObject object = new RepositoryObject(repository.getObject().getProperty());
                 setRepositoryObject(object);
                 /*
-                 * connection = (GenericConnection) ((ConnectionItem)
-                 * object.getProperty().getItem()).getConnection(); // Set context name to null
-                 * so as to open context select dialog once if there are more than one context
-                 * // group when opening a connection. connection.setContextName(null);
-                 * connectionProperty = object.getProperty();
+                 * connection = (GenericConnection) ((ConnectionItem) object.getProperty().getItem()).getConnection();
+                 * // Set context name to null so as to open context select dialog once if there are more than one
+                 * context // group when opening a connection. connection.setContextName(null); connectionProperty =
+                 * object.getProperty();
                  */
                 connectionItem = (ConnectionItem) object.getProperty().getItem();
                 // set the repositoryObject, lock and set isRepositoryObjectEditable
@@ -283,10 +277,9 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
                         property.getPurpose(), property.getStatusCode());
             }
             /*
-             * oldMetadataTable =
-             * GenericUpdateManager.getConversionMetadataTables(connectionItem.getConnection
-             * ()); compService = new GenericWizardInternalService().getComponentService();
-             * compService.setRepository(new GenericRepository());
+             * oldMetadataTable = GenericUpdateManager.getConversionMetadataTables(connectionItem.getConnection ());
+             * compService = new GenericWizardInternalService().getComponentService(); compService.setRepository(new
+             * GenericRepository());
              */
 
             ConnectionContextHelper.checkContextMode(connectionItem);
@@ -315,9 +308,8 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
         @Override
         public boolean performFinish() {
             /*
-             * todo if (page.isPageComplete()) { try { createOrUpdateConnectionItem(); }
-             * catch (final Throwable e) { ExceptionHandler.process(e); return false; }
-             * return true; } else { return false; }
+             * todo if (page.isPageComplete()) { try { createOrUpdateConnectionItem(); } catch (final Throwable e) {
+             * ExceptionHandler.process(e); return false; } return true; } else { return false; }
              */
             return true;
         }

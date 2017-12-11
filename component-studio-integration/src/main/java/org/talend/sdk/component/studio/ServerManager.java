@@ -15,6 +15,15 @@
  */
 package org.talend.sdk.component.studio;
 
+import static org.talend.sdk.component.studio.GAV.ARTIFACT_ID;
+import static org.talend.sdk.component.studio.GAV.GROUP_ID;
+
+import java.io.File;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+
 import org.apache.tomcat.websocket.Constants;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -23,17 +32,9 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.talend.osgi.hook.URIUtil;
 import org.talend.osgi.hook.maven.MavenResolver;
+import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
-
-import static org.talend.sdk.component.studio.GAV.ARTIFACT_ID;
-import static org.talend.sdk.component.studio.GAV.GROUP_ID;
 
 public class ServerManager extends AbstractUIPlugin {
 
@@ -68,6 +69,7 @@ public class ServerManager extends AbstractUIPlugin {
         services.add(ctx.registerService(ProcessManager.class.getName(), manager, new Hashtable<>()));
         services.add(ctx.registerService(WebSocketClient.class.getName(), client, new Hashtable<>()));
         services.add(ctx.registerService(ComponentService.class.getName(), new ComponentService(), new Hashtable<>()));
+        services.add(ctx.registerService(TaCoKitCache.class.getName(), new TaCoKitCache(), new Hashtable<>()));
     }
 
     @Override

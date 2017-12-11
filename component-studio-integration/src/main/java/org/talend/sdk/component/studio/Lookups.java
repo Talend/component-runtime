@@ -36,6 +36,7 @@ import org.talend.core.model.process.INode;
 import org.talend.core.runtime.services.IGenericWizardService;
 import org.talend.designer.core.ui.views.properties.composites.MissingSettingsMultiThreadDynamicComposite;
 import org.talend.repository.model.RepositoryNode;
+import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.metadata.WizardRegistry;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
@@ -71,6 +72,10 @@ public class Lookups {
 
     public static ComponentService service() {
         return lookup(ComponentService.class);
+    }
+
+    public static TaCoKitCache taCoKitCache() {
+        return lookup(TaCoKitCache.class);
     }
 
     private static <T> T lookup(final Class<T> type) {

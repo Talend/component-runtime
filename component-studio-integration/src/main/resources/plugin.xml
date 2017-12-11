@@ -40,6 +40,24 @@
      </RepositoryContent>
   </extension>
   <extension
+        point="org.talend.core.repository.repository_handler">
+     <RepositoryHandler
+           class="org.talend.sdk.component.studio.metadata.handler.TaCoKitDragAndDropHandler">
+     </RepositoryHandler>
+  </extension>
+  <extension
+        point="org.talend.core.repositoryContextualsActions">
+     <Action
+           class="org.talend.sdk.component.studio.metadata.action.EditTaCoKitConfigurationAction"
+           id="org.talend.sdk.component.metadata.action.EditTaCoKitConfigurationAction"
+           isEditAction="true"
+           isPropertiesAction="false"
+           isReadAction="true"
+           level="1"
+           name="Edit TaCoKit">
+     </Action>
+  </extension>
+  <extension
         point="org.eclipse.core.expressions.propertyTesters">
      <propertyTester
            class="org.talend.sdk.component.studio.metadata.tester.TaCoKitNodeTest"

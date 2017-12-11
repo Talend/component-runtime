@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.core.model.process.EParameterFieldType;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 
 import lombok.NoArgsConstructor;
 
@@ -67,6 +68,19 @@ public final class PropertyNodeUtils {
         createRemainingNodes(properties, nodes);
         linkNodes(properties, nodes);
         return root;
+    }
+
+    /**
+     * Creates tree representation of {@link ConfigTypeNode}.<br>
+     * Also see {@link #createPropertyTree(Collection)}
+     * 
+     * @param configTypeNode configuration type node: {@link ConfigTypeNode}
+     * @return root node of created tree: {@link PropertyNode}
+     */
+    public static PropertyNode createPropertyTree(final ConfigTypeNode configTypeNode) {
+        Collection<PropertyDefinitionDecorator> properties =
+                PropertyDefinitionDecorator.wrap(configTypeNode.getProperties());
+        return createPropertyTree(properties);
     }
 
     /**

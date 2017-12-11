@@ -1,50 +1,125 @@
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package org.talend.sdk.component.studio.metadata.handler;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature.Setting;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.jface.wizard.IWizard;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
+import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.exception.PersistenceException;
 import org.talend.commons.ui.runtime.image.IImage;
+import org.talend.core.model.general.Project;
+import org.talend.core.model.metadata.MetadataManager;
+import org.talend.core.model.metadata.builder.connection.Connection;
+import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.properties.Item;
+import org.talend.core.model.properties.PropertiesFactory;
+import org.talend.core.model.properties.PropertiesPackage;
 import org.talend.core.model.repository.AbstractRepositoryContentHandler;
 import org.talend.core.model.repository.ERepositoryObjectType;
+import org.talend.core.model.repository.IRepositoryViewObject;
+import org.talend.core.model.repository.RepositoryViewObject;
+import org.talend.core.repository.model.ProxyRepositoryFactory;
+import org.talend.core.repository.utils.XmiResourceManager;
+import org.talend.repository.ProjectManager;
+import org.talend.repository.model.IRepositoryNode.ENodeType;
+import org.talend.repository.model.IRepositoryNode.EProperties;
+import org.talend.repository.model.RepositoryNode;
+import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
+import org.talend.sdk.component.studio.metadata.node.TaCoKitConfigurationRepositoryNode;
+import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
+import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationWizard;
 import org.talend.sdk.component.studio.util.ETaCoKitImage;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
 
+import orgomg.cwm.foundation.businessinformation.BusinessinformationPackage;
+
 public class TaCoKitRepositoryContentHandler extends AbstractRepositoryContentHandler {
+
+    private XmiResourceManager xmiResourceManager = new XmiResourceManager();
 
     @Override
     public Resource create(final IProject project, final Item item, final int classifierID, final IPath path)
             throws PersistenceException {
-        // TODO Auto-generated method stub
-        return null;
+        Resource itemResource = null;
+        if (item.eClass() == PropertiesPackage.Literals.CONNECTION_ITEM) {
+            ERepositoryObjectType type = TaCoKitConst.METADATA_TACOKIT;
+            itemResource = create(project, (ConnectionItem) item, path, type);
+        }
+
+        return itemResource;
+    }
+
+    private Resource create(final IProject project, final ConnectionItem item, final IPath path,
+            final ERepositoryObjectType type) throws PersistenceException {
+        Resource itemResource = xmiResourceManager.createItemResource(project, item, path, type, false);
+        itemResource.getContents().add(item.getConnection());
+
+        return itemResource;
     }
 
     @Override
     public Resource save(final Item item) throws PersistenceException {
-        // TODO Auto-generated method stub
-        return null;
+        Resource itemResource = null;
+        if (item.eClass() == PropertiesPackage.Literals.CONNECTION_ITEM) {
+            itemResource = save((ConnectionItem) item);
+        }
+
+        return itemResource;
+    }
+
+    private Resource save(final ConnectionItem item) {
+        Resource itemResource = xmiResourceManager.getItemResource(item);
+        itemResource.getContents().clear();
+        MetadataManager.addContents(item, itemResource);
+
+        // add to the current resource all Document and Description instances because they are not reference in
+        // containment references.
+        Map<EObject, Collection<Setting>> externalCrossref =
+                EcoreUtil.ExternalCrossReferencer.find(item.getConnection());
+        Collection<Object> documents =
+                EcoreUtil.getObjectsByType(externalCrossref.keySet(), BusinessinformationPackage.Literals.DOCUMENT);
+        for (Object doc : documents) {
+            itemResource.getContents().add((EObject) doc);
+        }
+        Collection<Object> descriptions =
+                EcoreUtil.getObjectsByType(externalCrossref.keySet(), BusinessinformationPackage.Literals.DESCRIPTION);
+        for (Object doc : descriptions) {
+            itemResource.getContents().add((EObject) doc);
+        }
+
+        return itemResource;
     }
 
     @Override
     public Item createNewItem(final ERepositoryObjectType type) {
-        // TODO Auto-generated method stub
-        return null;
+        Item item = null;
+        if (type == TaCoKitConst.METADATA_TACOKIT) {
+            item = PropertiesFactory.eINSTANCE.createConnectionItem();
+        }
+
+        return item;
     }
 
     @Override
@@ -54,9 +129,12 @@ public class TaCoKitRepositoryContentHandler extends AbstractRepositoryContentHa
 
     @Override
     public ERepositoryObjectType getRepositoryObjectType(final Item item) {
-        // TODO
-        // return ERepositoryObjectType.METADATA_TACOKIT_CONNECTION;
-        return null;
+        ERepositoryObjectType type = null;
+        if (item.eClass() == PropertiesPackage.Literals.CONNECTION_ITEM) {
+            type = TaCoKitConst.METADATA_TACOKIT;
+        }
+
+        return type;
     }
 
     @Override
@@ -73,8 +151,65 @@ public class TaCoKitRepositoryContentHandler extends AbstractRepositoryContentHa
     }
 
     @Override
+    public void addNode(final ERepositoryObjectType type, final RepositoryNode parentNode,
+            final IRepositoryViewObject repositoryObject, final RepositoryNode node) {
+        if (type == TaCoKitConst.METADATA_TACOKIT) {
+            String configId = repositoryObject.getProperty().getId();
+            Project project = new Project(ProjectManager.getInstance().getProject(node.getObject().getProperty()));
+            List<ConnectionItem> items = new ArrayList<ConnectionItem>();
+            try {
+                List<IRepositoryViewObject> repObjs =
+                        ProxyRepositoryFactory.getInstance().getAll(project, TaCoKitConst.METADATA_TACOKIT);
+                for (IRepositoryViewObject repObj : repObjs) {
+                    if (repObj != null && repObj.getProperty() != null) {
+                        ConnectionItem item = (ConnectionItem) repObj.getProperty().getItem();
+                        Connection connection = item.getConnection();
+                        TaCoKitConfigurationModel model = new TaCoKitConfigurationModel(connection);
+                        if (!items.contains(item) && model.getConfigurationId().equals(configId)) {
+                            items.add(item);
+                        }
+                    }
+                }
+            } catch (PersistenceException e) {
+                ExceptionHandler.process(e);
+            }
+
+            if (items.size() == 0) {
+                return;
+            }
+            for (ConnectionItem item : items) {
+                IRepositoryViewObject viewObject = new RepositoryViewObject(item.getProperty());
+                RepositoryNode childNode = new RepositoryNode(viewObject, node, ENodeType.REPOSITORY_ELEMENT);
+                viewObject.setRepositoryNode(childNode);
+                childNode.setProperties(EProperties.LABEL, viewObject.getLabel());
+                childNode.setProperties(EProperties.CONTENT_TYPE, TaCoKitConst.METADATA_TACOKIT);
+                node.getChildren().add(childNode);
+            }
+        }
+    }
+
+    @Override
     public boolean hasSchemas() {
         return true;
+    }
+
+    @Override
+    public IWizard newWizard(final IWorkbench workbench, final boolean creation, final RepositoryNode node,
+            final String[] existingNames) {
+        if (!(node instanceof TaCoKitConfigurationRepositoryNode)) {
+            return null;
+        }
+        IWorkbench wb = workbench;
+        if (wb == null) {
+            wb = PlatformUI.getWorkbench();
+        }
+
+        TaCoKitConfigurationRuntimeData runtimeData = new TaCoKitConfigurationRuntimeData();
+        runtimeData.setTaCoKitRepositoryNode((TaCoKitConfigurationRepositoryNode) node);
+        runtimeData.setCreation(true);
+        runtimeData.setReadonly(false);
+
+        return new TaCoKitConfigurationWizard(wb, runtimeData);
     }
 
 }

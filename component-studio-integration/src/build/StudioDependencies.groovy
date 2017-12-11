@@ -42,17 +42,30 @@ def dependencies = [
         'org.talend.core.repository',
         'org.talend.repository.view',
         'org.talend.repository.view.di',
+        'org.talend.designer.core.generic',
         'org.talend.metadata.managment.ui',
         'org.talend.repository.view.di',
         'org.eclipse.emf.ecore',
         'org.eclipse.emf.common',
         'org.eclipse.m2e.core',
         'org.eclipse.ui.workbench',
-        'org.eclipse.ui.navigator'
+        'org.eclipse.ui.navigator',
+        'org.apache.commons.collections',
+        'org.talend.components.api',
+        'org.talend.cwm.mip'
 ]
 
-def studioVersion = project.properties['studio.version'].replace('-', '.');
-def studioRepo = "https://artifacts-oss.talend.com/nexus/content/unzip/TalendP2UnzipOpenSourceRelease/org/talend/studio/talend-tos-p2-repo/${studioVersion}/talend-tos-p2-repo-${studioVersion}.zip-unzip/"
+def useReleaseVersion = false
+def studioVersion = ""
+def studioRepo = ""
+if (useReleaseVersion) {
+    studioVersion = project.properties['studio.version'].replace('-', '.')
+    studioRepo = "https://artifacts-oss.talend.com/nexus/content/unzip/TalendP2UnzipOpenSourceRelease/org/talend/studio/talend-tos-p2-repo/${studioVersion}/talend-tos-p2-repo-${studioVersion}.zip-unzip/"
+} else {
+    studioVersion = project.properties['studio.version']
+    studioRepo = "https://artifacts-oss.talend.com/nexus/content/unzip/TalendP2UnzipOpenSourceSnapshot/org/talend/studio/talend-tos-p2-repo/${studioVersion}/talend-tos-p2-repo-${studioVersion}.zip-unzip/"
+
+}
 def p2LocalRepository = new File(project.basedir, '.p2localrepository')
 
 def doIndex= { base ->

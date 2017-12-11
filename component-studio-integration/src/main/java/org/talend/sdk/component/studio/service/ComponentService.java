@@ -29,6 +29,7 @@ import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.sdk.component.server.front.model.Icon;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.ComponentModel;
+import org.talend.sdk.component.studio.model.parameter.Metadatas;
 
 public class ComponentService {
 
@@ -40,7 +41,7 @@ public class ComponentService {
     // for now whitelist the support types and ensure it works all the way along
     // before just checking it doesn't contain "::"
     public boolean isConfiguration(final SimplePropertyDefinition prop) {
-        return prop.getMetadata().containsKey("dataset") || prop.getMetadata().containsKey("datastore");
+        return prop.getMetadata().containsKey(Metadatas.CONFIG_TYPE);
     }
 
     public ImageDescriptor toEclipseIcon(final Icon componentIcon) {

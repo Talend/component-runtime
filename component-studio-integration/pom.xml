@@ -29,7 +29,7 @@
   <description>Studio integration of the Framework.</description>
 
   <properties>
-    <studio.version>7.0.1-M1</studio.version>
+    <studio.version>7.0.1-SNAPSHOT</studio.version>
   </properties>
 
   <dependencies>
@@ -205,12 +205,16 @@
               org.talend.core.runtime;visibility:=reexport,
               org.talend.core.repository,
               org.talend.designer.core,
+              org.talend.designer.core.generic,
               org.talend.librariesmanager,
               org.talend.model,
               org.talend.commons.ui,
               org.talend.repository,
               org.talend.metadata.managment.ui,
-              org.talend.repository.view.di
+              org.talend.repository.view.di,
+              org.apache.commons.collections,
+              org.talend.components.api,
+              org.talend.cwm.mip
             </Require-Bundle>
             <Include-Resource>{maven-resources},
               {TALEND-INF/tacokit.dependencies=${project.build.outputDirectory}/TALEND-INF/tacokit.dependencies}</Include-Resource>
