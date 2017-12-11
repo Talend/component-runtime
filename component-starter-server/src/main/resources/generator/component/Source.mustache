@@ -6,12 +6,14 @@ import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.meta.Documentation;
 {{#generic}}
 import org.talend.sdk.component.api.processor.data.ObjectMap;
 {{/generic}}
 
 import {{servicePackage}}.{{serviceName}};
 
+@Documentation("TODO fill the documentation for this source")
 public class {{className}} implements Serializable {
     private final {{configurationName}} configuration;
     private final {{serviceName}} service;

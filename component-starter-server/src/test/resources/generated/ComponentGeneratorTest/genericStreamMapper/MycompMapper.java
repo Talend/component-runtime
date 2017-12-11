@@ -13,6 +13,7 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionSize;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.Split;
+import org.talend.sdk.component.api.meta.Documentation;
 
 import com.foo.service.TestService;
 
@@ -22,6 +23,7 @@ import com.foo.service.TestService;
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
 @Icon(Icon.IconType.STAR) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename_icon32.png in resources
 @PartitionMapper(name = "mycomp", infinite = true)
+@Documentation("TODO fill the documentation for this mapper")
 public class MycompMapper implements Serializable {
     private final MycompMapperConfiguration configuration;
     private final TestService service;

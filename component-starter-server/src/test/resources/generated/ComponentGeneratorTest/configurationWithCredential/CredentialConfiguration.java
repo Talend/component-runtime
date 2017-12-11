@@ -3,6 +3,7 @@ package com.foo.output;
 import java.io.Serializable;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 
@@ -12,12 +13,15 @@ import org.talend.sdk.component.api.configuration.ui.widget.Credential;
     @GridLayout.Row({ "username" }),
     @GridLayout.Row({ "password" })
 })
+@Documentation("TODO fill the documentation for this configuration")
 public class CredentialConfiguration implements Serializable {
     @Option
+    @Documentation("TODO fill the documentation for this parameter")
     private String username;
 
     @Credential
     @Option
+    @Documentation("TODO fill the documentation for this parameter")
     private String password;
 
     public String getUsername() {
