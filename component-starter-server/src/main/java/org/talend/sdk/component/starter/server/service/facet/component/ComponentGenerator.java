@@ -285,6 +285,7 @@ public class ComponentGenerator {
                                     put("servicePackage", packageBase + ".service");
                                     put("configurationName", configurationClassName);
                                     put("inputs", inputNames);
+                                    put("hasInputs", inputNames.size() != 0);
                                     put("outputs", outputNames);
                                     put("hasOutputs", outputNames.size() != 0);
                                     put("icon", ofNullable(processor.getIcon()).filter(s -> !s.isEmpty()).orElse(

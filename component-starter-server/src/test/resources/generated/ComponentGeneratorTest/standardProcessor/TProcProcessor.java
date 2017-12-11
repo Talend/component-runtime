@@ -48,6 +48,7 @@ public class TProcProcessor implements Serializable {
     @ElementListener
     public void onNext(
         @Input final ObjectMap defaultInput,
+        @Input("Input_1") final ObjectMap Input1Input,
         @Output final OutputEmitter<TProcDefaultOutput> defaultOutput,
         @Output("reject") final OutputEmitter<ObjectMap> rejectOutput,
         @Output("reject2") final OutputEmitter<ObjectMap> reject2Output,

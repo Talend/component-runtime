@@ -15,22 +15,6 @@
  */
 package org.talend.sdk.component.starter.server.service.facet.component;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.talend.sdk.component.starter.server.service.domain.Build;
-import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
-import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
-
-import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -44,6 +28,22 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import javax.inject.Inject;
+
+import org.apache.meecrowave.junit.MonoMeecrowave;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.talend.sdk.component.starter.server.service.domain.Build;
+import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
+import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+
 @RunWith(MonoMeecrowave.Runner.class)
 public class ComponentGeneratorTest {
 
@@ -55,21 +55,24 @@ public class ComponentGeneratorTest {
 
     @Test
     public void source() {
-        final Set<ProjectRequest.SourceConfiguration> sources = singleton(new ProjectRequest.SourceConfiguration(
-                "mycomp", "", false,
-                new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("name", "string", null))),
-                new ProjectRequest.StructureConfiguration(
+        final Set<ProjectRequest.SourceConfiguration> sources = singleton(
+                new ProjectRequest.SourceConfiguration("mycomp", "", false,
                         new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("name", "string", null))),
-                        false)));
-        final Map<String, String> files =
-                generator.create("com.foo", build, "superfamily", "supercategory", sources, emptyList()).collect(toMap(
-                        FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+                        new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(
+                                singleton(new ProjectRequest.Entry("name", "string", null))), false)));
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory", sources,
+                emptyList())
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
         assertEquals(9, files.size());
 
-        assertTrue(files.keySet().stream().anyMatch(k -> k.contains(".png")));
+        assertTrue(files.keySet()
+                        .stream()
+                        .anyMatch(k -> k.contains(".png")));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/package-info.java"),
-                files.get("src/main/java/com/foo/package-info.java").trim());
+                files.get("src/main/java/com/foo/package-info.java")
+                     .trim());
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/source/TestService.java"),
                 files.get("src/main/java/com/foo/service/TestService.java"));
@@ -88,9 +91,11 @@ public class ComponentGeneratorTest {
     }
 
     private String resourceFileToString(final String filePath) {
-        try (final BufferedReader reader =
-                new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(filePath)))) {
-            return reader.lines().collect(joining("\n"));
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader()
+                                                                                              .getResourceAsStream(
+                                                                                                      filePath)))) {
+            return reader.lines()
+                         .collect(joining("\n"));
         } catch (final IOException e) {
             fail(e.getMessage());
             throw new IllegalStateException(e);
@@ -99,47 +104,39 @@ public class ComponentGeneratorTest {
 
     @Test
     public void sourceComplexConfiguration() {
-        final Map<String, String> files = generator
-                .create("com.foo", build, "superfamily", "supercategory",
-                        singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false,
-                                new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("person", "",
-                                        new ProjectRequest.DataStructure(
-                                                asList(new ProjectRequest.Entry("name", "string", null),
-                                                        new ProjectRequest.Entry("age", "int", null)))))),
-                                new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(emptyList()),
-                                        false))),
-                        emptyList())
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                        i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory", singleton(
+                new ProjectRequest.SourceConfiguration("mycomp", "", false, new ProjectRequest.DataStructure(singleton(
+                        new ProjectRequest.Entry("person", "", new ProjectRequest.DataStructure(
+                                asList(new ProjectRequest.Entry("name", "string", null),
+                                        new ProjectRequest.Entry("age", "int", null)))))),
+                        new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(emptyList()),
+                                false))), emptyList())
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
-        assertEquals(
-                resourceFileToString(
-                        "generated/ComponentGeneratorTest/sourceComplexConfiguration/MycompMapperConfiguration.java"),
+        assertEquals(resourceFileToString(
+                "generated/ComponentGeneratorTest/sourceComplexConfiguration/MycompMapperConfiguration.java"),
                 files.get("src/main/java/com/foo/source/MycompMapperConfiguration.java"));
 
-        assertEquals(
-                resourceFileToString(
-                        "generated/ComponentGeneratorTest/sourceComplexConfiguration/PersonConfiguration.java"),
+        assertEquals(resourceFileToString(
+                "generated/ComponentGeneratorTest/sourceComplexConfiguration/PersonConfiguration.java"),
                 files.get("src/main/java/com/foo/source/PersonConfiguration.java"));
 
-        assertEquals(
-                resourceFileToString(
-                        "generated/ComponentGeneratorTest/sourceComplexConfiguration/RootMessages.properties"),
+        assertEquals(resourceFileToString(
+                "generated/ComponentGeneratorTest/sourceComplexConfiguration/RootMessages.properties"),
                 files.get("src/main/resources/com/foo/Messages.properties"));
 
-        assertEquals(
-                resourceFileToString(
-                        "generated/ComponentGeneratorTest/sourceComplexConfiguration/SourceMessages.properties"),
+        assertEquals(resourceFileToString(
+                "generated/ComponentGeneratorTest/sourceComplexConfiguration/SourceMessages.properties"),
                 files.get("src/main/resources/com/foo/source/Messages.properties"));
     }
 
     @Test
     public void genericSource() {
-        final Map<String, String> files = generator
-                .create("com.foo", build, "superfamily", "supercategory",
-                        singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false, null, null)), emptyList())
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                        i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory",
+                singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false, null, null)), emptyList())
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/genericSource/MycompSource.java"),
                 files.get("src/main/java/com/foo/source/MycompSource.java"));
@@ -147,11 +144,10 @@ public class ComponentGeneratorTest {
 
     @Test
     public void genericStreamMapper() {
-        final Map<String, String> files = generator
-                .create("com.foo", build, "superfamily", "supercategory",
-                        singleton(new ProjectRequest.SourceConfiguration("mycomp", "", true, null, null)), emptyList())
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                        i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory",
+                singleton(new ProjectRequest.SourceConfiguration("mycomp", "", true, null, null)), emptyList())
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/genericStreamMapper/MycompMapper.java"),
                 files.get("src/main/java/com/foo/source/MycompMapper.java"));
@@ -159,11 +155,10 @@ public class ComponentGeneratorTest {
 
     @Test
     public void isolatedProcessor() {
-        final Map<String, String> files = generator
-                .create("com.foo", build, "superfamily", "supercategory", emptyList(),
-                        singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, null, null)))
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                        i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory",
+                emptyList(), singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, null, null)))
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/isolatedProcessor/TProcProcessor.java"),
                 files.get("src/main/java/com/foo/output/TProcOutput.java"));
@@ -171,21 +166,19 @@ public class ComponentGeneratorTest {
 
     @Test
     public void processorOutput() {
-        final Map<String, String> files = generator
-                .create("com.foo", build, "superfamily", "supercategory", emptyList(),
-                        singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, null,
-                                new HashMap<String, ProjectRequest.StructureConfiguration>() {
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory",
+                emptyList(), singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, null,
+                        new HashMap<String, ProjectRequest.StructureConfiguration>() {
 
-                                    {
-                                        put("__default__",
-                                                new ProjectRequest.StructureConfiguration(
-                                                        new ProjectRequest.DataStructure(singletonList(
-                                                                new ProjectRequest.Entry("name", "string", null))),
-                                                        false));
-                                    }
-                                })))
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                        i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+                            {
+                                put("__default__", new ProjectRequest.StructureConfiguration(
+                                        new ProjectRequest.DataStructure(
+                                                singletonList(new ProjectRequest.Entry("name", "string", null))),
+                                        false));
+                            }
+                        })))
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/processorOutput/TProcProcessor.java"),
                 files.get("src/main/java/com/foo/processor/TProcProcessor.java"));
@@ -197,14 +190,11 @@ public class ComponentGeneratorTest {
 
     @Test
     public void processorGenericOutput() {
-        final Map<String, String> files =
-                generator
-                        .create("com.foo", build, "superfamily", "supercategory", emptyList(),
-                                singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, null,
-                                        singletonMap("__default__",
-                                                new ProjectRequest.StructureConfiguration(null, true)))))
-                        .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                                i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory",
+                emptyList(), singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, null,
+                        singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)))))
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertNull(files.get("src/main/java/com/foo/processor/TProcDefaultOutput.java"));
         assertEquals(
@@ -214,15 +204,13 @@ public class ComponentGeneratorTest {
 
     @Test
     public void processorInput() {
-        final Map<String, String> files = generator
-                .create("com.foo", build, "superfamily", "supercategory", emptyList(),
-                        singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, singletonMap(
-                                "__default__",
-                                new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(
-                                        singleton(new ProjectRequest.Entry("name", "string", null))), false)),
-                                null)))
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                        i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory",
+                emptyList(), singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null,
+                        singletonMap("__default__", new ProjectRequest.StructureConfiguration(
+                                new ProjectRequest.DataStructure(
+                                        singleton(new ProjectRequest.Entry("name", "string", null))), false)), null)))
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/processorInput/TProcProcessor.java"),
                 files.get("src/main/java/com/foo/output/TProcOutput.java"));
@@ -233,15 +221,11 @@ public class ComponentGeneratorTest {
 
     @Test
     public void processorGenericInput() {
-        final Map<String, String> files =
-                generator
-                        .create("com.foo", build, "superfamily", "supercategory", emptyList(),
-                                singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null,
-                                        singletonMap("__default__",
-                                                new ProjectRequest.StructureConfiguration(null, true)),
-                                        null)))
-                        .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                                i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory",
+                emptyList(), singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null,
+                        singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)), null)))
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/processorGenericInput/TProcProcessor.java"),
                 files.get("src/main/java/com/foo/output/TProcOutput.java"));
@@ -249,29 +233,31 @@ public class ComponentGeneratorTest {
 
     @Test
     public void standardProcessor() {
-        final Map<String, String> files = generator
-                .create("com.foo", build, "superfamily", "supercategory", emptyList(),
-                        singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null,
-                                singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)),
-                                new HashMap<String, ProjectRequest.StructureConfiguration>() {
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory",
+                emptyList(), singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null,
+                        new HashMap<String, ProjectRequest.StructureConfiguration>() {
+                            {
 
-                                    {
-                                        put("__default__", new ProjectRequest.StructureConfiguration(
-                                                new ProjectRequest.DataStructure(
-                                                        singleton(new ProjectRequest.Entry("age", "int", null))),
-                                                false));
-                                        put("reject", new ProjectRequest.StructureConfiguration(null, true));
-                                        put("reject2", new ProjectRequest.StructureConfiguration(null, true));
-                                        put("reject3", new ProjectRequest.StructureConfiguration(null, true)); // to
-                                        // test
-                                        // the
-                                        // sort
-                                        // of
-                                        // branches
-                                    }
-                                })))
-                .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                        i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+                                put("__default__", new ProjectRequest.StructureConfiguration(null, true));
+                                put("Input_1", new ProjectRequest.StructureConfiguration(null, true));
+                            }
+                        }, new HashMap<String, ProjectRequest.StructureConfiguration>() {
+
+                    {
+                        put("__default__", new ProjectRequest.StructureConfiguration(new ProjectRequest.DataStructure(
+                                singleton(new ProjectRequest.Entry("age", "int", null))), false));
+                        put("reject", new ProjectRequest.StructureConfiguration(null, true));
+                        put("reject2", new ProjectRequest.StructureConfiguration(null, true));
+                        put("reject3", new ProjectRequest.StructureConfiguration(null, true)); // to
+                        // test
+                        // the
+                        // sort
+                        // of
+                        // branches
+                    }
+                })))
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         assertEquals(resourceFileToString("generated/ComponentGeneratorTest/standardProcessor/TProcProcessor.java"),
                 files.get("src/main/java/com/foo/processor/TProcProcessor.java"));
@@ -283,32 +269,29 @@ public class ComponentGeneratorTest {
     @Test
     public void configurationWithCredential() {
 
-        ProjectRequest.DataStructure config = new ProjectRequest.DataStructure(asList(
-                new ProjectRequest.Entry("host", "string", null), new ProjectRequest.Entry("port", "string", null),
-                new ProjectRequest.Entry("credential", null, // type
-                        // with
-                        // nested
-                        new ProjectRequest.DataStructure(asList(new ProjectRequest.Entry("username", "string", null),
-                                new ProjectRequest.Entry("password", "string", null))))));
+        ProjectRequest.DataStructure config = new ProjectRequest.DataStructure(
+                asList(new ProjectRequest.Entry("host", "string", null),
+                        new ProjectRequest.Entry("port", "string", null),
+                        new ProjectRequest.Entry("credential", null, // type
+                                // with
+                                // nested
+                                new ProjectRequest.DataStructure(
+                                        asList(new ProjectRequest.Entry("username", "string", null),
+                                                new ProjectRequest.Entry("password", "string", null))))));
 
-        final Map<String, String> files =
-                generator
-                        .create("com.foo", build, "superfamily", "supercategory", emptyList(),
-                                singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", config,
-                                        singletonMap("__default__",
-                                                new ProjectRequest.StructureConfiguration(null, true)),
-                                        emptyMap())))
-                        .collect(toMap(FacetGenerator.InMemoryFile::getPath,
-                                i -> new String(i.getContent(), StandardCharsets.UTF_8)));
+        final Map<String, String> files = generator.create("com.foo", build, "superfamily", "supercategory",
+                emptyList(), singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", config,
+                        singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)),
+                        emptyMap())))
+                                                   .collect(toMap(FacetGenerator.InMemoryFile::getPath,
+                                                           i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
-        assertEquals(
-                resourceFileToString(
-                        "generated/ComponentGeneratorTest/configurationWithCredential/CredentialConfiguration.java"),
+        assertEquals(resourceFileToString(
+                "generated/ComponentGeneratorTest/configurationWithCredential/CredentialConfiguration.java"),
                 files.get("src/main/java/com/foo/output/CredentialConfiguration.java"));
 
-        assertEquals(
-                resourceFileToString(
-                        "generated/ComponentGeneratorTest/configurationWithCredential/TProcOutputConfiguration.java"),
+        assertEquals(resourceFileToString(
+                "generated/ComponentGeneratorTest/configurationWithCredential/TProcOutputConfiguration.java"),
                 files.get("src/main/java/com/foo/output/TProcOutputConfiguration.java"));
 
     }
