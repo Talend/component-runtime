@@ -30,9 +30,14 @@ import org.talend.core.model.process.EParameterFieldType;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
+import lombok.ToString;
 
 @Data
+@ToString(exclude = "parent")
 public class PropertyNode {
+
+    @Setter(AccessLevel.PRIVATE)
+    private PropertyNode parent;
 
     @Setter(AccessLevel.NONE)
     private List<PropertyNode> children = new ArrayList<>();
@@ -48,6 +53,7 @@ public class PropertyNode {
 
     public void addChild(final PropertyNode child) {
         children.add(child);
+        child.setParent(this);
     }
 
     public String getId() {
