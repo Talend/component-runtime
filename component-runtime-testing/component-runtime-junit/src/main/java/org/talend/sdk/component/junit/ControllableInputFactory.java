@@ -17,6 +17,11 @@ package org.talend.sdk.component.junit;
 
 import org.talend.sdk.component.runtime.output.InputFactory;
 
+/**
+ * An input factory which is integrable with the testing runtime.
+ * The main difference with other input factories is that it must
+ * be aware of the data stream.
+ */
 public interface ControllableInputFactory extends InputFactory {
 
     boolean hasMoreData();

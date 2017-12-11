@@ -63,8 +63,14 @@ public class DefaultValueInspector {
         case NUMBER:
         case BOOLEAN:
             return String.valueOf(instance);
-        case ARRAY:
-            return ((Collection<Object>) instance).stream().map(String::valueOf).collect(joining(","));
+        case ARRAY: // can be enhanced
+            if (!param.getNestedParameters().isEmpty()) {
+                return null;
+            } else if (Collection.class.isInstance(instance)) {
+                return ((Collection<Object>) instance).stream().map(String::valueOf).collect(joining(","));
+            } else { // primitives
+                return String.valueOf(instance);
+            }
         default:
             throw new IllegalArgumentException("Unsupported type: " + param.getType());
         }
@@ -83,6 +89,13 @@ public class DefaultValueInspector {
                 // next
             }
             current = current.getSuperclass();
+        }
+        if (Collection.class.isInstance(rootInstance)) {
+            final Collection<?> collection = Collection.class.cast(rootInstance);
+            if (!collection.isEmpty()) {
+                return findField(collection.iterator().next(), param);
+            }
+            return null;
         }
         throw new IllegalArgumentException("Didn't find field '" + param.getName() + "' in " + rootInstance);
     }

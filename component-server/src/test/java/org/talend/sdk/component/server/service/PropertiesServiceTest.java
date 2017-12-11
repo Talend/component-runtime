@@ -15,10 +15,16 @@
  */
 package org.talend.sdk.component.server.service;
 
-import lombok.Data;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 import java.util.Locale;
+
 import javax.inject.Inject;
 
 import org.apache.meecrowave.junit.MonoMeecrowave;
@@ -27,12 +33,7 @@ import org.junit.runner.RunWith;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
+import lombok.Data;
 
 @RunWith(MonoMeecrowave.Runner.class)
 public class PropertiesServiceTest {
@@ -77,7 +78,7 @@ public class PropertiesServiceTest {
         ParameterMeta config = new ParameterMeta(Config.class, ParameterMeta.Type.OBJECT, "configuration",
                 "configuration", null, singletonList(attribute), null, emptyMap());
 
-        final List<SimplePropertyDefinition> props = propertiesService
+        propertiesService
                 .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.getDefault(), null)
                 .collect(toList());
     }

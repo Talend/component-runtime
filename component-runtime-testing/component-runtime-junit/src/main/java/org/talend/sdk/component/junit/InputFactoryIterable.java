@@ -25,6 +25,9 @@ import java.util.Map;
 
 import lombok.Data;
 
+/**
+ * An iterable representing the input data.
+ */
 @Data
 class InputFactoryIterable implements Iterable<Map<String, List<Serializable>>>, Serializable {
 

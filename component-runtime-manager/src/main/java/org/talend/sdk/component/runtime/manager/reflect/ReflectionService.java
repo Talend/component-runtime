@@ -394,6 +394,41 @@ public class ReflectionService {
         for (final Map.Entry<String, Object> entry : objectEntries.entrySet()) {
             final String nestedName =
                     entry.getKey().substring(prefix.length(), entry.getKey().indexOf('.', prefix.length() + 1));
+            if (nestedName.endsWith("]")) {
+                final int idxStart = nestedName.indexOf('[');
+                if (idxStart > 0) {
+                    final String listName = nestedName.substring(0, idxStart);
+                    final Field field = findField(listName, clazz);
+                    if (ParameterizedType.class.isInstance(field.getGenericType())) {
+                        final ParameterizedType pt = ParameterizedType.class.cast(field.getGenericType());
+                        if (Class.class.isInstance(pt.getRawType())) {
+                            final Class<?> rawType = Class.class.cast(pt.getRawType());
+                            if (Set.class.isAssignableFrom(rawType)) {
+                                final Collection<Object> aggregator = Collection.class
+                                        .cast(preparedObjects.computeIfAbsent(listName, k -> new HashSet<>(2)));
+                                final Class<?> itemType = Class.class.cast(pt.getActualTypeArguments()[0]);
+                                aggregator.add(createObject(loader, contextualSupplier, itemType,
+                                        findArgsName(itemType), prefix + nestedName, config));
+                            } else if (Collection.class.isAssignableFrom(rawType)) {
+                                final Collection<Object> aggregator = Collection.class
+                                        .cast(preparedObjects.computeIfAbsent(listName, k -> new ArrayList<>(2)));
+                                final Class<?> itemType = Class.class.cast(pt.getActualTypeArguments()[0]);
+                                aggregator.add(createObject(loader, contextualSupplier, itemType,
+                                        findArgsName(itemType), prefix + nestedName, config));
+                            } else {
+                                throw new IllegalArgumentException("unsupported configuration type: " + pt);
+                            }
+                            continue;
+                        } else {
+                            throw new IllegalArgumentException("unsupported configuration type: " + pt);
+                        }
+                    } else {
+                        throw new IllegalArgumentException("unsupported configuration type: " + field.getType());
+                    }
+                } else {
+                    throw new IllegalArgumentException("unsupported configuration type: " + nestedName);
+                }
+            }
             final Field field = findField(nestedName, clazz);
             preparedObjects.put(nestedName, createObject(loader, contextualSupplier, field.getType(),
                     findArgsName(field.getType()), prefix + nestedName, config));

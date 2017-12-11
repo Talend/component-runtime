@@ -15,31 +15,22 @@
  */
 package org.talend.sdk.component.server.test.jdbc;
 
-import static java.util.Arrays.asList;
-
 import java.io.Serializable;
-import java.util.List;
 
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@DataStore("jdbc")
-public class JdbcDataStore implements Serializable {
+@AllArgsConstructor
+@NoArgsConstructor
+public class JdbcConfig implements Serializable {
 
     @Option
-    private String url;
+    private String driver;
 
     @Option
-    private String username;
-
-    @Option
-    @Credential
-    private String password;
-
-    @Option // to test tables
-    private List<JdbcConfig> configurations = asList(new JdbcConfig("d1", "D1"), new JdbcConfig("d2", "D2"));
+    private String description;
 }

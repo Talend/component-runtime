@@ -22,6 +22,9 @@ import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Processor wrapper allowing to "auto" manage the chunking/grouping.
+ */
 @RequiredArgsConstructor
 class AutoChunkProcessor implements Lifecycle {
 
@@ -29,10 +32,19 @@ class AutoChunkProcessor implements Lifecycle {
         throw new IllegalArgumentException("Output from @AfterGroup is not supported here");
     };
 
+    /**
+     * The size of the chunks.
+     */
     private final int chunkSize;
 
+    /**
+     * The delegate processor.
+     */
     private final Processor processor;
 
+    /**
+     * Internal counter to handle the chunking.
+     */
     private int processedItemCount = 0;
 
     public void onElement(final InputFactory ins, final OutputFactory outs) {

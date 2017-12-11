@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -24,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,9 +33,12 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.Test;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
+
+import lombok.Data;
 
 public class ReflectionServiceTest {
 
@@ -205,5 +210,60 @@ public class ReflectionServiceTest {
         assertEquals(new HashSet<>(asList("k1", "k2")), value.getKeyed().keySet());
         assertEquals(asList("v1", "v2"), value.getKeyed().get("k1").getUrls());
         assertEquals(asList("v3", "v4"), value.getKeyed().get("k2").getUrls());
+    }
+
+    @Test
+    public void tables() throws NoSuchMethodException {
+        final Method factory = TableOwner.class.getMethod("factory", TableOwner.class);
+        final Object[] tests =
+                new ReflectionService(new ParameterModelService()).parameterFactory(factory, emptyMap()).apply(
+                        new HashMap<String, String>() {
+
+                            {
+                                put("root.table[0].value", "test1");
+                                put("root.table[1].value", "test2");
+                                put("root.map.key[0]", "test1k");
+                                put("root.map.value[0].value", "test1v");
+                                put("root.map.key[1]", "test2k");
+                                put("root.map.value[1].value", "test2v");
+                            }
+                        });
+        assertEquals(1, tests.length);
+        assertThat(tests[0], instanceOf(TableOwner.class));
+
+        final TableOwner tableOwner = TableOwner.class.cast(tests[0]);
+        {
+            assertNotNull(tableOwner.table);
+            assertEquals(2, tableOwner.table.size());
+            assertEquals(Stream.of("test1", "test2").collect(toList()),
+                    tableOwner.table.stream().map(Column::getValue).collect(toList()));
+        }
+        {
+            assertNotNull(tableOwner.map);
+            assertEquals(2, tableOwner.map.size());
+            assertEquals("test1v", tableOwner.map.get("test1k").value);
+            assertEquals("test2v", tableOwner.map.get("test2k").value);
+        }
+    }
+
+    @Data
+    public static class TableOwner {
+
+        @Option
+        private List<Column> table;
+
+        @Option
+        private Map<String, Column> map;
+
+        public static void factory(@Option("root") final TableOwner owner) {
+            // no-op
+        }
+    }
+
+    @Data
+    public static class Column {
+
+        @Option
+        private String value;
     }
 }

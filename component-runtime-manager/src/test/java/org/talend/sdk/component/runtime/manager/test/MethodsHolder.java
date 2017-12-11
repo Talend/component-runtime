@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.test;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +72,7 @@ public class MethodsHolder {
     public static class ConfigOfConfig {
 
         @Option
-        private List<Config> multiple;
+        private List<Config> multiple = new ArrayList<>();
 
         @Option
         private Map<String, Config> keyed;

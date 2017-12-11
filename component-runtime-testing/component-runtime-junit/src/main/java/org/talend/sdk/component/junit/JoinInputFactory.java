@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * An input factory which joins multiple distinct sources reading them in "parallel".
+ *
  * IMPORTANT: all entries of the map but have the same "size".
  */
 public class JoinInputFactory implements ControllableInputFactory {
