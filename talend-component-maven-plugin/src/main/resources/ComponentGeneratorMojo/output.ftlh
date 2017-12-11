@@ -26,6 +26,7 @@ import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
@@ -34,6 +35,7 @@ import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 @Version
 @Icon(Icon.IconType.FILTER)
+@Documentation("${configuration.className}${configuration.template} component")
 @Processor(family = "${configuration.family}", name = "${configuration.className}${configuration.template}")
 public class ${configuration.className}${configuration.template} implements Serializable {
     @PostConstruct

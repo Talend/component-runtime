@@ -30,9 +30,11 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionSize;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.Split;
+import org.talend.sdk.component.api.meta.Documentation;
 
 @Version
 @Icon(Icon.IconType.SEARCH)
+@Documentation("${configuration.className}${configuration.template} component")
 @PartitionMapper(family = "${configuration.family}", name = "${configuration.className}${configuration.template}")
 public class ${configuration.className}${configuration.template} implements Serializable {
     @Assessor
