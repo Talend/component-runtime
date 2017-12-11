@@ -67,6 +67,23 @@ public class PropertyNode {
     public boolean isLeaf() {
         return children.isEmpty();
     }
+    
+    /**
+     * Checks whether it is column according ui::gridlayout for specified <code>form</code>
+     * 
+     * @param form Name of form
+     * @return true, if it column; false - otherwise
+     */
+    public boolean isColumn(String form) {
+        if (isRoot()) {
+            return false;
+        }
+        PropertyDefinitionDecorator parentProperty = getParent().getProperty();
+        if (!parentProperty.hasGridLayout(form)) {
+            return false;
+        }
+        return parentProperty.isColumn(property.getName(), form);
+    }
 
     /**
      * Traverses all nodes

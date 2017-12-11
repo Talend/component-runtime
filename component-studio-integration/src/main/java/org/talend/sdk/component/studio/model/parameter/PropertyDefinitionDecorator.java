@@ -246,6 +246,33 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
     private String buildGridLayoutKey(final String formName) {
         return UI_GRIDLAYOUT_PREFIX + formName + UI_GRIDLAYOUT_SUFFIX;
     }
+    
+    /**
+     * Checks whether specified <code>child</code> is a column on specified <code>form</code>
+     * It is a column, when it is second property on the same line.
+     * Consider following ui::gridlayout value: "p1|p2,p3,p4".
+     * p1 and p2 are not columns and p3, p4 are columns.
+     * 
+     * @param child Child Property name
+     * @param form Name of form
+     * @return true, if it is column; false - otherwise
+     */
+    boolean isColumn(String child, String form) {
+        if (!hasGridLayout(form)) {
+            return false;
+        }
+        String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
+        String[] rows = gridLayout.split("\\|");
+        for (String row : rows) {
+            String[] columns = row.split(",");
+            for (int i=1; i<columns.length; i++) {
+                if(form.equals(columns[i])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     @Override
     public boolean equals(final Object o) {
