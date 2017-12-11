@@ -278,6 +278,7 @@
           <consoleOutput>true</consoleOutput>
           <reportFile>${project.build.directory}/${project.build.finalName}.rat</reportFile>
           <excludes>
+            <exclude>travis_wait*log</exclude>
             <exclude>**/target/**/*</exclude>
             <exclude>cobertura.ser</exclude>
             <exclude>.classpath</exclude>
