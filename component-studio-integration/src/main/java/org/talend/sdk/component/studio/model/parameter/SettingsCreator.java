@@ -39,7 +39,7 @@ public class SettingsCreator implements PropertyVisitor {
      * If numRow = 10, this does not necessarily mean that widget will be shown on 10th line,
      * but when 1 parameter has numRow = 8, and 2 has numRow = 10, then 2 will shown under 1
      */
-    private int lastRowNumber = 1;
+    private int lastRowNumber = 2;
 
     /**
      * Element(Node) for which parameters are created. It is required to set {@link ElementParameter} constructor
@@ -96,6 +96,14 @@ public class SettingsCreator implements PropertyVisitor {
             }
             settings.add(parameter);
         }
+    }
+
+    IElement getNode() {
+        return this.iNode;
+    }
+
+    void addSetting(final ElementParameter setting) {
+        settings.add(setting);
     }
 
     /**

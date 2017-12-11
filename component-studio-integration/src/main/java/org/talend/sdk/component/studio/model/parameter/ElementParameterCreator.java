@@ -71,7 +71,7 @@ public class ElementParameterCreator {
                     PropertyDefinitionDecorator.wrap(detail.getProperties());
             PropertyNode root = PropertyNodeUtils.createPropertyTree(properties);
             // add main parameters
-            SettingsCreator mainCreator = new SettingsCreator(node, EComponentCategory.BASIC);
+            SettingsCreator mainCreator = new SchemaSettingsCreator(node, EComponentCategory.BASIC);
             root.accept(mainCreator, Metadatas.MAIN_FORM);
             parameters.addAll(mainCreator.getSettings());
             // add advanced parameters
