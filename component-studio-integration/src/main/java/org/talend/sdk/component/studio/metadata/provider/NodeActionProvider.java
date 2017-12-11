@@ -92,7 +92,7 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
                 if (tacokitNode.isLeafNode()) {
                     Set<String> edges = configTypeNode.getEdges();
                     if (edges != null && !edges.isEmpty()) {
-                        TaCoKitCache cache = TaCoKitCache.getInstance();
+                        TaCoKitCache cache = Lookups.taCoKitCache();
                         Map<String, ConfigTypeNode> configTypeNodeMap = cache.getConfigTypeNodeMap();
                         for (String edge : edges) {
                             ConfigTypeNode subTypeNode = configTypeNodeMap.get(edge);

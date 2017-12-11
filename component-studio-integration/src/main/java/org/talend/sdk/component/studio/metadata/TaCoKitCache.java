@@ -27,17 +27,8 @@ public class TaCoKitCache {
 
     private Map<String, ConfigTypeNode> configTypeNodeMapCache;
 
-    private static TaCoKitCache instance;
-
-    private TaCoKitCache() {
+    public TaCoKitCache() {
         // nothing to do
-    }
-
-    public static TaCoKitCache getInstance() {
-        if (instance == null) {
-            instance = new TaCoKitCache();
-        }
-        return instance;
     }
 
     public ConfigTypeNode getFamilyNode(final ConfigTypeNode configNode) {

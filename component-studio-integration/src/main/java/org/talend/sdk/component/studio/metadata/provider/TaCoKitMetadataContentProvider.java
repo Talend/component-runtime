@@ -42,7 +42,7 @@ import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.model.nodes.IProjectRepositoryNode;
 import org.talend.repository.view.di.metadata.content.AbstractMetadataContentProvider;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
-import org.talend.sdk.component.studio.metadata.TaCoKitCache;
+import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
@@ -148,7 +148,7 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
 
         // 1. create sub configuration
         if (edges != null && !edges.isEmpty()) {
-            Map<String, ConfigTypeNode> nodes = TaCoKitCache.getInstance().getConfigTypeNodeMap();
+            Map<String, ConfigTypeNode> nodes = Lookups.taCoKitCache().getConfigTypeNodeMap();
             for (String edge : edges) {
                 ConfigTypeNode edgeNode = nodes.get(edge);
                 TaCoKitConfigurationRepositoryNode configurationRepositoryNode =
@@ -264,7 +264,7 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
         }
         TaCoKitLeafRepositoryNode leafRepositoryNode =
                 createLeafRepositoryNode(parentNode, parentTaCoKitNode, itemModule,
-                        TaCoKitCache.getInstance().getConfigTypeNodeMap().get(module.getConfigurationId()), viewObject);
+                        Lookups.taCoKitCache().getConfigTypeNodeMap().get(module.getConfigurationId()), viewObject);
         parentNode.getChildren().add(leafRepositoryNode);
         leafRepositoryNode.setInitialized(true);
         repoNodeMap.put(leafRepositoryNode.getId(), leafRepositoryNode);
@@ -273,7 +273,7 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
     private Set<RepositoryNode> getTaCoKitFamilies(final RepositoryNode repositoryNode,
             final RootContainer<String, IRepositoryViewObject> itemObjs) {
         try {
-            Map<String, ConfigTypeNode> nodes = TaCoKitCache.getInstance().getConfigTypeNodeMap();
+            Map<String, ConfigTypeNode> nodes = Lookups.taCoKitCache().getConfigTypeNodeMap();
             Set<RepositoryNode> familyNodes = new HashSet<>();
             if (nodes != null) {
                 for (ConfigTypeNode node : nodes.values()) {
@@ -338,7 +338,7 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
     @Override
     public void clearCache() {
         super.clearCache();
-        TaCoKitCache.getInstance().clearCache();
+        Lookups.taCoKitCache().clearCache();
 
         if (familyNodesCache != null && !familyNodesCache.isEmpty()) {
             familyNodesCache.clear();

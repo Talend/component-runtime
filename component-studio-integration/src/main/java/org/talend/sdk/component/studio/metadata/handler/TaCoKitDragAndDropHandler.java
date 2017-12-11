@@ -34,7 +34,7 @@ import org.talend.core.repository.RepositoryComponentSetting;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.ComponentModel;
-import org.talend.sdk.component.studio.metadata.TaCoKitCache;
+import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel.ValueModel;
@@ -100,7 +100,7 @@ public class TaCoKitDragAndDropHandler extends AbstractDragAndDropServiceHandler
         }
         ITaCoKitRepositoryNode tacokitNode = (ITaCoKitRepositoryNode) selectedNode;
         ConfigTypeNode configTypeNode = tacokitNode.getConfigTypeNode();
-        ConfigTypeNode familyTypeNode = TaCoKitCache.getInstance().getFamilyNode(configTypeNode);
+        ConfigTypeNode familyTypeNode = Lookups.taCoKitCache().getFamilyNode(configTypeNode);
         String familyName = familyTypeNode.getName();
         String configType = configTypeNode.getConfigurationType();
         String configName = configTypeNode.getName();

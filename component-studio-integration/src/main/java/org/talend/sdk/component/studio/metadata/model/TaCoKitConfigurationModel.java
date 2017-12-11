@@ -18,7 +18,7 @@ import java.util.Map;
 import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
-import org.talend.sdk.component.studio.metadata.TaCoKitCache;
+import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
 /**
@@ -140,7 +140,7 @@ public class TaCoKitConfigurationModel {
             configTypeNodeCache = null;
             configTypeNodeIdCache = getConfigurationId();
             if (!TaCoKitUtil.isEmpty(configTypeNodeIdCache)) {
-                configTypeNodeCache = TaCoKitCache.getInstance().getConfigTypeNodeMap().get(configTypeNodeIdCache);
+                configTypeNodeCache = Lookups.taCoKitCache().getConfigTypeNodeMap().get(configTypeNodeIdCache);
             }
         }
         return configTypeNodeCache;
