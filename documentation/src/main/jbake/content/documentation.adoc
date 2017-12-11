@@ -1152,6 +1152,22 @@ for instance. Here is the list of all actions:
 
 include::{generated_adoc}/actions.adoc[]
 
+== Built in services
+
+The framework provides some built-in services you can inject by type in components and actions out of the box.
+
+Here is the list:
+
+[options="header,autowidth"]
+|===
+| Type | Description
+a| `org.talend.sdk.component.api.service.cache.LocalCache` | Provides a small abstraction to cache data which don't need to be recomputed very often. Commonly used by actions for the UI interactions.
+a| `org.talend.sdk.component.api.service.dependency.Resolver` a| Allows to resolve a dependency from its Maven coordinates.
+
+IMPORTANT: it assumes the dependency is locally available to the execution instance which is not guaranteed yet by the framework.
+
+|===
+
 == Creating an execution chain or pipeline
 
 There are two kind of chains the framework supports:

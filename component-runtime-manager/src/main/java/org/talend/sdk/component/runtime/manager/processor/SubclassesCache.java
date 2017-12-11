@@ -66,16 +66,6 @@ public class SubclassesCache implements Serializable {
     }
 
     Object writeReplace() throws ObjectStreamException {
-        return new Replacer(plugin);
-    }
-
-    @AllArgsConstructor
-    private static class Replacer implements Serializable {
-
-        private final String plugin;
-
-        Object readResolve() throws ObjectStreamException {
-            return new SerializableService(plugin, SubclassesCache.class.getName());
-        }
+        return new SerializableService(plugin, SubclassesCache.class.getName());
     }
 }

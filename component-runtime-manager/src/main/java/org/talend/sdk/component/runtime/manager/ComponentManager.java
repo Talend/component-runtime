@@ -104,6 +104,7 @@ import org.talend.sdk.component.runtime.manager.processor.SubclassesCache;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
+import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
@@ -584,6 +585,7 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
+        services.put(LocalCacheService.class, new LocalCacheService(container.getId()));
         services.put(ProxyGenerator.class, proxyGenerator);
         services.put(AccessorCache.class, new AccessorCache(container.getId()));
         services.put(Resolver.class,
@@ -781,27 +783,27 @@ public class ComponentManager implements AutoCloseable {
                 services.put(proxy, instance);
                 registry.getServices().add(new ServiceMeta(instance, emptyList()));
             });
-            finder.findAnnotatedClasses(Service.class).forEach(service -> {
-                try {
-                    final Object instance;
-                    final Thread thread = Thread.currentThread();
-                    final ClassLoader old = thread.getContextClassLoader();
-                    thread.setContextClassLoader(container.getLoader());
-                    try {
-                        instance = enforceSerializable(container, service).getConstructor().newInstance();
-                        doInvoke(container.getId(), instance, PostConstruct.class);
-                    } catch (final InstantiationException | IllegalAccessException e) {
-                        throw new IllegalArgumentException(e);
-                    } catch (final InvocationTargetException e) {
-                        throw new IllegalArgumentException(e.getTargetException());
-                    } finally {
-                        thread.setContextClassLoader(old);
-                    }
-                    services.put(service, instance);
-                    registry
-                            .getServices()
-                            .add(new ServiceMeta(instance,
-                                    Stream
+            finder.findAnnotatedClasses(Service.class).stream().filter(s -> !services.keySet().contains(s)).forEach(
+                    service -> {
+                        try {
+                            final Object instance;
+                            final Thread thread = Thread.currentThread();
+                            final ClassLoader old = thread.getContextClassLoader();
+                            thread.setContextClassLoader(container.getLoader());
+                            try {
+                                instance = enforceSerializable(container, service).getConstructor().newInstance();
+                                doInvoke(container.getId(), instance, PostConstruct.class);
+                            } catch (final InstantiationException | IllegalAccessException e) {
+                                throw new IllegalArgumentException(e);
+                            } catch (final InvocationTargetException e) {
+                                throw new IllegalArgumentException(e.getTargetException());
+                            } finally {
+                                thread.setContextClassLoader(old);
+                            }
+                            services.put(service, instance);
+                            registry
+                                    .getServices()
+                                    .add(new ServiceMeta(instance, Stream
                                             .of(service.getMethods())
                                             .filter(m -> Stream.of(m.getAnnotations()).anyMatch(
                                                     a -> a.annotationType().isAnnotationPresent(ActionType.class)))
@@ -890,12 +892,12 @@ public class ComponentManager implements AutoCloseable {
                                                         invoker);
                                             })
                                             .collect(toList())));
-                } catch (final NoSuchMethodException e) {
-                    throw new IllegalArgumentException("No default constructor for " + service);
-                }
+                        } catch (final NoSuchMethodException e) {
+                            throw new IllegalArgumentException("No default constructor for " + service);
+                        }
 
-                log.info("Added @Service " + service + " for container-id=" + container.getId());
-            });
+                        log.info("Added @Service " + service + " for container-id=" + container.getId());
+                    });
 
             Stream
                     .of(PartitionMapper.class, Processor.class, Emitter.class)

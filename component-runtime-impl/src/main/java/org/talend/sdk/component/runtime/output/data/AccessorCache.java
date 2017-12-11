@@ -37,8 +37,6 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.api.processor.data.ObjectMap;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
-import lombok.AllArgsConstructor;
-
 public class AccessorCache implements Serializable {
 
     private final ConcurrentMap<Class<?>, ClassCache> cache = new ConcurrentHashMap<>();
@@ -204,17 +202,7 @@ public class AccessorCache implements Serializable {
     }
 
     Object writeReplace() throws ObjectStreamException {
-        return new Replacer(plugin);
-    }
-
-    @AllArgsConstructor
-    private static class Replacer implements Serializable {
-
-        private final String plugin;
-
-        Object readResolve() throws ObjectStreamException {
-            return new SerializableService(plugin, AccessorCache.class.getName());
-        }
+        return new SerializableService(plugin, AccessorCache.class.getName());
     }
 
     public static class ClassCache {

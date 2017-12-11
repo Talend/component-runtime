@@ -30,7 +30,6 @@ import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -54,17 +53,6 @@ public class ResolverImpl implements Resolver, Serializable {
     }
 
     Object writeReplace() throws ObjectStreamException {
-        return new Replacer(plugin);
+        return new SerializableService(plugin, Resolver.class.getName());
     }
-
-    @AllArgsConstructor
-    private static class Replacer implements Serializable {
-
-        private final String plugin;
-
-        Object readResolve() throws ObjectStreamException {
-            return new SerializableService(plugin, Resolver.class.getName());
-        }
-    }
-
 }
