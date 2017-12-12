@@ -200,7 +200,13 @@ public class ProxyGenerator implements Serializable {
                 superClassName, interfaceNames);
         cw.visitSource(classFileName + ".java", null);
 
-        createSerialisation(cw, plugin, key);
+        if (!Serializable.class.isAssignableFrom(classToProxy)) {
+            try {
+                classToProxy.getMethod("writeReplace");
+            } catch (final NoSuchMethodException e) {
+                createSerialisation(cw, plugin, key);
+            }
+        }
 
         createConstructor(cw, classToProxy, superClassName,
                 Stream.of(classToProxy.getDeclaredConstructors()).filter(c -> {
