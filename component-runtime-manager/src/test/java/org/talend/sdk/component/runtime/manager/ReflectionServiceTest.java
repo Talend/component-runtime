@@ -26,10 +26,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -220,12 +222,16 @@ public class ReflectionServiceTest {
                         new HashMap<String, String>() {
 
                             {
-                                put("root.table[0].value", "test1");
-                                put("root.table[1].value", "test2");
+                                put("root.table[0].value1", "test1");
+                                put("root.table[0].value2", "12");
+                                put("root.table[1].value1", "test2");
+                                put("root.table[1].value2", "22");
+                                put("root.table[1].nestedList[0].value1", "nested");
+                                put("root.table[1].nestedList[0].value2", "1");
                                 put("root.map.key[0]", "test1k");
-                                put("root.map.value[0].value", "test1v");
+                                put("root.map.value[0].value1", "test1v");
                                 put("root.map.key[1]", "test2k");
-                                put("root.map.value[1].value", "test2v");
+                                put("root.map.value[1].value1", "test2v");
                             }
                         });
         assertEquals(1, tests.length);
@@ -236,13 +242,19 @@ public class ReflectionServiceTest {
             assertNotNull(tableOwner.table);
             assertEquals(2, tableOwner.table.size());
             assertEquals(Stream.of("test1", "test2").collect(toList()),
-                    tableOwner.table.stream().map(Column::getValue).collect(toList()));
+                    tableOwner.table.stream().map(Column::getValue1).collect(toList()));
+            assertArrayEquals(IntStream.of(12, 22).toArray(),
+                    tableOwner.table.stream().mapToInt(Column::getValue2).toArray());
+            assertNotNull(tableOwner.table.get(1).nestedList);
+            assertEquals(1, tableOwner.table.get(1).nestedList.size());
+            assertEquals("nested", tableOwner.table.get(1).nestedList.get(0).value1);
+            assertEquals(1, tableOwner.table.get(1).nestedList.get(0).value2);
         }
         {
             assertNotNull(tableOwner.map);
             assertEquals(2, tableOwner.map.size());
-            assertEquals("test1v", tableOwner.map.get("test1k").value);
-            assertEquals("test2v", tableOwner.map.get("test2k").value);
+            assertEquals("test1v", tableOwner.map.get("test1k").value1);
+            assertEquals("test2v", tableOwner.map.get("test2k").value1);
         }
     }
 
@@ -264,6 +276,12 @@ public class ReflectionServiceTest {
     public static class Column {
 
         @Option
-        private String value;
+        private String value1;
+
+        @Option
+        private int value2;
+
+        @Option
+        private List<Column> nestedList;
     }
 }

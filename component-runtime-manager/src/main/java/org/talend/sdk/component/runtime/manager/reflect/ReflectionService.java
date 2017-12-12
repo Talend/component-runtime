@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -388,13 +389,34 @@ public class ReflectionService {
         final Map<String, Object> objectEntries = specificMapping.entrySet().stream().filter(e -> {
             final String key = e.getKey();
             return key.indexOf('.', prefix.length() + 1) > 0;
-        }).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        }).sorted((o1, o2) -> {
+            final String key1 = o1.getKey();
+            final String key2 = o2.getKey();
+            if (key1.equals(key2)) {
+                return 0;
+            }
+
+            final String nestedName1 = key1.substring(prefix.length(), key1.indexOf('.', prefix.length() + 1));
+            final String nestedName2 = key2.substring(prefix.length(), key2.indexOf('.', prefix.length() + 1));
+
+            final int idxStart1 = nestedName1.indexOf('[');
+            final int idxStart2 = nestedName2.indexOf('[');
+            if (idxStart1 > 0 && idxStart2 > 0
+                    && nestedName1.substring(0, idxStart1).equals(nestedName2.substring(0, idxStart2))) {
+                final int idx1 = Integer.parseInt(nestedName1.substring(idxStart1 + 1, nestedName1.length() - 1));
+                final int idx2 = Integer.parseInt(nestedName2.substring(idxStart2 + 1, nestedName2.length() - 1));
+                return idx1 - idx2;
+            }
+            return key1.compareTo(key2);
+        }).collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (o, o2) -> {
+            throw new IllegalArgumentException("Can't merge " + o + " and " + o2);
+        }, LinkedHashMap::new));
         objectEntries.keySet().forEach(specificMapping::remove);
         final Map<String, Object> preparedObjects = new HashMap<>();
         for (final Map.Entry<String, Object> entry : objectEntries.entrySet()) {
             final String nestedName =
                     entry.getKey().substring(prefix.length(), entry.getKey().indexOf('.', prefix.length() + 1));
-            if (nestedName.endsWith("]")) {
+            if (nestedName.endsWith("]")) { // complex lists
                 final int idxStart = nestedName.indexOf('[');
                 if (idxStart > 0) {
                     final String listName = nestedName.substring(0, idxStart);
@@ -404,17 +426,11 @@ public class ReflectionService {
                         if (Class.class.isInstance(pt.getRawType())) {
                             final Class<?> rawType = Class.class.cast(pt.getRawType());
                             if (Set.class.isAssignableFrom(rawType)) {
-                                final Collection<Object> aggregator = Collection.class
-                                        .cast(preparedObjects.computeIfAbsent(listName, k -> new HashSet<>(2)));
-                                final Class<?> itemType = Class.class.cast(pt.getActualTypeArguments()[0]);
-                                aggregator.add(createObject(loader, contextualSupplier, itemType,
-                                        findArgsName(itemType), prefix + nestedName, config));
+                                addListElement(loader, contextualSupplier, config, prefix, preparedObjects, nestedName,
+                                        listName, pt, () -> new HashSet<>(2));
                             } else if (Collection.class.isAssignableFrom(rawType)) {
-                                final Collection<Object> aggregator = Collection.class
-                                        .cast(preparedObjects.computeIfAbsent(listName, k -> new ArrayList<>(2)));
-                                final Class<?> itemType = Class.class.cast(pt.getActualTypeArguments()[0]);
-                                aggregator.add(createObject(loader, contextualSupplier, itemType,
-                                        findArgsName(itemType), prefix + nestedName, config));
+                                addListElement(loader, contextualSupplier, config, prefix, preparedObjects, nestedName,
+                                        listName, pt, () -> new ArrayList<>(2));
                             } else {
                                 throw new IllegalArgumentException("unsupported configuration type: " + pt);
                             }
@@ -462,6 +478,19 @@ public class ReflectionService {
         preparedObjects.forEach(recipe::setProperty);
         normalizedConfig.forEach(recipe::setProperty);
         return recipe.create(loader);
+    }
+
+    private void addListElement(final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier,
+            final Map<String, Object> config, final String prefix, final Map<String, Object> preparedObjects,
+            final String nestedName, final String listName, final ParameterizedType pt, final Supplier<?> init) {
+        final Collection<Object> aggregator =
+                Collection.class.cast(preparedObjects.computeIfAbsent(listName, k -> init.get()));
+        final Class<?> itemType = Class.class.cast(pt.getActualTypeArguments()[0]);
+        final int index = Integer.parseInt(nestedName.substring(listName.length() + 1, nestedName.length() - 1));
+        if (aggregator.size() <= index) {
+            aggregator.add(createObject(loader, contextualSupplier, itemType, findArgsName(itemType),
+                    prefix + nestedName, config));
+        }
     }
 
     private Field findField(final String name, final Class clazz) {
