@@ -17,10 +17,10 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -41,6 +41,7 @@ import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.page.TaCoKitConfigurationWizardPage;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
+import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
 /**
  * DOC cmeng class global comment. Detailled comment
@@ -64,15 +65,22 @@ public class TaCoKitConfigurationWizard extends AbsTaCoKitWizard {
         connectionItem = runtimeData.getConnectionItem();
         runtimeData.setReadonly(runtimeData.isReadonly() || !isRepositoryObjectEditable());
         ITaCoKitRepositoryNode repositoryNode = runtimeData.getTaCoKitRepositoryNode();
+        IPath basePath = TaCoKitUtil.getTaCoKitBaseFolder(runtimeData.getConfigTypeNode());
 
         ENodeType nodeType = repositoryNode.getType();
         switch (nodeType) {
         case SIMPLE_FOLDER:
+            pathToSave = basePath.append(RepositoryNodeUtilities.getPath(repositoryNode));
+            break;
         case REPOSITORY_ELEMENT:
-            pathToSave = RepositoryNodeUtilities.getPath(repositoryNode);
+            if (creation) {
+                pathToSave = basePath;
+            } else {
+                pathToSave = basePath.append(RepositoryNodeUtilities.getPath(repositoryNode));
+            }
             break;
         case SYSTEM_FOLDER:
-            pathToSave = new Path(""); //$NON-NLS-1$
+            pathToSave = basePath; // $NON-NLS-1$
             break;
         default:
             // nothing todo

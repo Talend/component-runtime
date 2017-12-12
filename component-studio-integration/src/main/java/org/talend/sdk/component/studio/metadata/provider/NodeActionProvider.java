@@ -19,6 +19,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -38,6 +41,7 @@ import org.talend.core.model.properties.Property;
 import org.talend.core.model.repository.ERepositoryObjectType;
 import org.talend.core.model.repository.RepositoryObject;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
+import org.talend.core.repository.ui.actions.CreateFolderAction;
 import org.talend.core.repository.ui.actions.metadata.AbstractCreateAction;
 import org.talend.metadata.managment.ui.utils.ConnectionContextHelper;
 import org.talend.metadata.managment.ui.wizard.CheckLastVersionRepositoryWizard;
@@ -55,9 +59,11 @@ import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.lang.Pair;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.metadata.action.CreateTaCoKitConfigurationAction;
+import org.talend.sdk.component.studio.metadata.action.CreateTaCoKitFolderAction;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.metadata.node.TaCoKitFamilyRepositoryNode;
 import org.talend.sdk.component.studio.service.ComponentService;
+import org.talend.sdk.component.studio.util.TaCoKitUtil;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 import lombok.Data;
@@ -107,9 +113,31 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
                     manager.add(createAction);
                 }
             }
-            manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+            // manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+            if (!tacokitNode.isFamilyNode() && !tacokitNode.isLeafNode()) {
+                manager.add(new CreateTaCoKitFolderAction());
+            }
         }
         super.fillContextMenu(manager);
+        IContributionItem[] items = manager.getItems();
+        if (items != null && 0 < items.length) {
+            String createFolderItemId = null;
+            for (IContributionItem item : items) {
+                if (item instanceof ActionContributionItem) {
+                    IAction action = ((ActionContributionItem) item).getAction();
+                    if (action instanceof CreateTaCoKitFolderAction) {
+                        continue;
+                    }
+                    if (action instanceof CreateFolderAction) {
+                        createFolderItemId = item.getId();
+                        break;
+                    }
+                }
+            }
+            if (!TaCoKitUtil.isEmpty(createFolderItemId)) {
+                manager.remove(createFolderItemId);
+            }
+        }
     }
 
     @Data

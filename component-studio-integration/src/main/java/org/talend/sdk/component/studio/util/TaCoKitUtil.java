@@ -14,11 +14,15 @@ package org.talend.sdk.component.studio.util;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.talend.core.model.general.Project;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.repository.ProjectManager;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
+import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 
@@ -67,6 +71,30 @@ public class TaCoKitUtil {
             }
         }
         return null;
+    }
+
+    public static IPath getTaCoKitBaseFolder(final ConfigTypeNode configNode) {
+        if (configNode == null) {
+            return null;
+        }
+        IPath baseFolderPath = new Path(""); //$NON-NLS-1$
+        String parentId = configNode.getParentId();
+        if (!isEmpty(parentId)) {
+            ConfigTypeNode parentTypeNode = Lookups.taCoKitCache().getConfigTypeNodeMap().get(parentId);
+            if (parentTypeNode == null) {
+                throw new NullPointerException("Can't find parent node: " + parentId);
+            }
+            IPath parentPath = getTaCoKitBaseFolder(parentTypeNode);
+            baseFolderPath = parentPath;
+        }
+        // better to use lowercase, since different OS support different path name
+        String configName = getTaCoKitFolderName(configNode);
+        baseFolderPath = baseFolderPath.append(configName);
+        return baseFolderPath;
+    }
+
+    public static String getTaCoKitFolderName(final ConfigTypeNode configNode) {
+        return configNode.getName().toLowerCase();
     }
 
     public static TaCoKitConfigurationModel getTaCoKitConfigurationModel(final String itemId) throws Exception {

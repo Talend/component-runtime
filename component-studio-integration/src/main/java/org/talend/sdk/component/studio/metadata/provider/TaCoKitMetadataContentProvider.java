@@ -21,8 +21,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.ui.navigator.CommonNavigator;
+import org.eclipse.ui.navigator.CommonViewer;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.runtime.model.repository.ERepositoryStatus;
 import org.talend.commons.ui.runtime.image.ECoreImage;
@@ -40,7 +43,11 @@ import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.IRepositoryNode;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.model.nodes.IProjectRepositoryNode;
+import org.talend.repository.navigator.RepoViewCommonNavigator;
+import org.talend.repository.navigator.RepoViewCommonViewer;
 import org.talend.repository.view.di.metadata.content.AbstractMetadataContentProvider;
+import org.talend.repository.viewer.content.VisitResourceHelper;
+import org.talend.repository.viewer.content.listener.ResourceCollectorVisitor;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
@@ -51,10 +58,13 @@ import org.talend.sdk.component.studio.metadata.node.TaCoKitFamilyRepositoryNode
 import org.talend.sdk.component.studio.metadata.node.TaCoKitFolderRepositoryNode;
 import org.talend.sdk.component.studio.metadata.node.TaCoKitLeafRepositoryNode;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
+import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
 public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvider {
 
     private final Object[] EMPTY_ARRAY = new Object[0];
+
+    private MetadataTaCoKitChildrenNodeVisitor testVisitor;
 
     private Set<RepositoryNode> familyNodesCache;
 
@@ -67,10 +77,8 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
     @Override
     public boolean hasChildren(final Object element) {
         if (element instanceof ITaCoKitRepositoryNode) {
-            List<IRepositoryNode> children = ((ITaCoKitRepositoryNode) element).getChildren();
-            if (children == null || children.isEmpty()) {
-                return false;
-            } else {
+            ITaCoKitRepositoryNode tacokitNode = (ITaCoKitRepositoryNode) element;
+            if (tacokitNode.isFamilyNode()) {
                 return true;
             }
         }
@@ -82,15 +90,21 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
         if (isRootNodeType(element)) {
             return getTopLevelNodes().toArray();
         }
-        if (element instanceof RepositoryNode) {
+        if (element instanceof ITaCoKitRepositoryNode) {
             RepositoryNode repNode = (RepositoryNode) element;
             if (!repNode.isInitialized()) {
                 try {
+                    Map<String, IRepositoryViewObject> repoViewObjMap = new HashMap<>();
+                    Map<String, ITaCoKitRepositoryNode> repoNodeMap = new HashMap<>();
+                    Set<IRepositoryViewObject> visitedCollection = new HashSet<>();
                     RootContainer<String, IRepositoryViewObject> metadata =
                             ProxyRepositoryFactory.getInstance().getMetadata(
                                     ProjectManager.getInstance().getCurrentProject(), TaCoKitConst.METADATA_TACOKIT,
                                     true);
-                    getConfigurations((ITaCoKitRepositoryNode) repNode, metadata);
+                    ITaCoKitRepositoryNode tacoNode = (ITaCoKitRepositoryNode) repNode;
+                    Container<String, IRepositoryViewObject> subContainer =
+                            metadata.getSubContainer(TaCoKitUtil.getTaCoKitFolderName(tacoNode.getConfigTypeNode()));
+                    getConfigurations(tacoNode, subContainer, repoViewObjMap, repoNodeMap, visitedCollection);
                     repNode.setInitialized(true);
                 } catch (Exception e) {
                     ExceptionHandler.process(e);
@@ -112,11 +126,7 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
                         repoNode.getChildren().removeAll(familyNodesCache);
                     }
                     clearCache();
-                    RootContainer<String, IRepositoryViewObject> metadata =
-                            ProxyRepositoryFactory.getInstance().getMetadata(
-                                    ProjectManager.getInstance().getCurrentProject(), TaCoKitConst.METADATA_TACOKIT,
-                                    true);
-                    familyNodesCache = getTaCoKitFamilies(repoNode, metadata);
+                    familyNodesCache = getTaCoKitFamilies(repoNode);
                 }
             }
             return familyNodesCache;
@@ -139,27 +149,26 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
     }
 
     private Object[] getConfigurations(final ITaCoKitRepositoryNode tacoNode,
-            final Container<String, IRepositoryViewObject> itemObjs) {
+            final Container<String, IRepositoryViewObject> itemObjs,
+            final Map<String, IRepositoryViewObject> repoViewObjMap,
+            final Map<String, ITaCoKitRepositoryNode> repoNodeMap, final Set<IRepositoryViewObject> visitedCollection) {
         ConfigTypeNode configTypeNode = tacoNode.getConfigTypeNode();
+
         Set<String> edges = null;
         if (!tacoNode.isFolderNode() && !tacoNode.isLeafNode()) {
             edges = configTypeNode.getEdges();
         }
-
-        // 1. create sub configuration
+        Set<String> configFolderNames = new HashSet<>();
         if (edges != null && !edges.isEmpty()) {
             Map<String, ConfigTypeNode> nodes = Lookups.taCoKitCache().getConfigTypeNodeMap();
             for (String edge : edges) {
                 ConfigTypeNode edgeNode = nodes.get(edge);
-                TaCoKitConfigurationRepositoryNode configurationRepositoryNode =
-                        createConfigurationRepositoryNode((RepositoryNode) tacoNode, tacoNode, edgeNode);
-                tacoNode.getChildren().add(configurationRepositoryNode);
-                getConfigurations(configurationRepositoryNode, itemObjs);
-                configurationRepositoryNode.setInitialized(true);
+                String folderName = TaCoKitUtil.getTaCoKitFolderName(edgeNode);
+                configFolderNames.add(folderName);
             }
         }
 
-        // 2. create nodes from storage
+        // 1. create nodes from storage
         if (!tacoNode.isFamilyNode() && itemObjs != null) {
             IProxyRepositoryFactory factory = ProxyRepositoryFactory.getInstance();
             // 2.1 create folders and their children
@@ -168,6 +177,10 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
                 Iterator<Container<String, IRepositoryViewObject>> subContainerIter = subContainers.iterator();
                 while (subContainerIter.hasNext()) {
                     Container<String, IRepositoryViewObject> subContainer = subContainerIter.next();
+                    String label = subContainer.getLabel();
+                    if (configFolderNames.contains(label)) {
+                        continue;
+                    }
                     Folder oFolder = new Folder((Property) subContainer.getProperty(), TaCoKitConst.METADATA_TACOKIT);
                     if (factory.getStatus(oFolder) != ERepositoryStatus.DELETED) {
                         ITaCoKitRepositoryNode parentTaCoKitNode = null;
@@ -179,9 +192,9 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
                             parentTaCoKitNode = tacoNode;
                         }
                         TaCoKitFolderRepositoryNode folderNode = new TaCoKitFolderRepositoryNode(oFolder,
-                                (RepositoryNode) tacoNode, parentTaCoKitNode, subContainer.getLabel(), configTypeNode);
+                                (RepositoryNode) tacoNode, parentTaCoKitNode, label, configTypeNode);
                         tacoNode.getChildren().add(folderNode);
-                        getConfigurations(folderNode, subContainer);
+                        getConfigurations(folderNode, subContainer, repoViewObjMap, repoNodeMap, visitedCollection);
                         folderNode.setInitialized(true);
                     }
                 }
@@ -190,13 +203,10 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
             List<IRepositoryViewObject> members = itemObjs.getMembers();
             if (members != null && !members.isEmpty()) {
                 Iterator<IRepositoryViewObject> iter = members.iterator();
-                Map<String, IRepositoryViewObject> repoViewObjMap = new HashMap<>();
                 while (iter.hasNext()) {
                     IRepositoryViewObject viewObject = iter.next();
                     repoViewObjMap.put(viewObject.getId(), viewObject);
                 }
-                Map<String, ITaCoKitRepositoryNode> repoNodeMap = new HashMap<>();
-                Set<IRepositoryViewObject> visitedCollection = new HashSet<>();
                 iter = members.iterator();
                 while (iter.hasNext()) {
                     IRepositoryViewObject viewObject = iter.next();
@@ -212,6 +222,25 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
                     }
                     visitedCollection.add(viewObject);
                 }
+            }
+        }
+
+        // 2. create sub configuration
+        if (edges != null && !edges.isEmpty()) {
+            Map<String, ConfigTypeNode> nodes = Lookups.taCoKitCache().getConfigTypeNodeMap();
+            for (String edge : edges) {
+                ConfigTypeNode edgeNode = nodes.get(edge);
+                TaCoKitConfigurationRepositoryNode configurationRepositoryNode =
+                        createConfigurationRepositoryNode((RepositoryNode) tacoNode, tacoNode, edgeNode);
+                tacoNode.getChildren().add(0, configurationRepositoryNode);
+                String name = TaCoKitUtil.getTaCoKitFolderName(edgeNode);
+                Container<String, IRepositoryViewObject> subContainer = null;
+                if (itemObjs != null) {
+                    subContainer = itemObjs.getSubContainer(name);
+                }
+                getConfigurations(configurationRepositoryNode, subContainer, repoViewObjMap, repoNodeMap,
+                        visitedCollection);
+                configurationRepositoryNode.setInitialized(true);
             }
         }
         return tacoNode.getChildren().toArray();
@@ -269,8 +298,7 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
         repoNodeMap.put(leafRepositoryNode.getId(), leafRepositoryNode);
     }
 
-    private Set<RepositoryNode> getTaCoKitFamilies(final RepositoryNode repositoryNode,
-            final RootContainer<String, IRepositoryViewObject> itemObjs) {
+    private Set<RepositoryNode> getTaCoKitFamilies(final RepositoryNode repositoryNode) {
         try {
             Map<String, ConfigTypeNode> nodes = Lookups.taCoKitCache().getConfigTypeNodeMap();
             Set<RepositoryNode> familyNodes = new HashSet<>();
@@ -286,8 +314,7 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
                     initilizeContentProviderWithTopLevelNode(familyRepositoryNode);
                     repositoryNode.getChildren().add(familyRepositoryNode);
                     familyNodes.add(familyRepositoryNode);
-                    getConfigurations(familyRepositoryNode, itemObjs);
-                    familyRepositoryNode.setInitialized(true);
+                    familyRepositoryNode.setInitialized(false);
                 }
             }
             return familyNodes;
@@ -295,6 +322,19 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
             ExceptionHandler.process(e);
         }
         return Collections.EMPTY_SET;
+    }
+
+    @Override
+    protected String getTopLevelNodeProjectRelativePath(final RepositoryNode topLevelNode) {
+        String relativePathStr = super.getTopLevelNodeProjectRelativePath(topLevelNode);
+        if (relativePathStr != null && topLevelNode instanceof ITaCoKitRepositoryNode) {
+            IPath relativePath = new Path(relativePathStr);
+            IPath basePath =
+                    TaCoKitUtil.getTaCoKitBaseFolder(((ITaCoKitRepositoryNode) topLevelNode).getConfigTypeNode());
+            relativePath = relativePath.append(basePath);
+            relativePathStr = relativePath.toPortableString();
+        }
+        return relativePathStr;
     }
 
     private TaCoKitFamilyRepositoryNode createFamilyRepositoryNode(final RepositoryNode parentNode,
@@ -331,6 +371,11 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
                         Path.fromPortableString('/' + projectName).append(TaCoKitConst.METADATA_TACOKIT_PATH); // $NON-NLS-1$
             }
         }
+        if (topLevelNode instanceof ITaCoKitRepositoryNode) {
+            IPath relativePath =
+                    TaCoKitUtil.getTaCoKitBaseFolder(((ITaCoKitRepositoryNode) topLevelNode).getConfigTypeNode());
+            workspaceRelativePath = workspaceRelativePath.append(relativePath);
+        }
         return workspaceRelativePath;
     }
 
@@ -348,5 +393,103 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
     public void dispose() {
         super.dispose();
         clearCache();
+    }
+
+    @Override
+    protected void addResourceVisitor(final CommonViewer v) {
+        // super.addResourceVisitor(v);
+        if (v == null) {
+            return;
+        }
+        RepoViewCommonNavigator navigator = null;
+        if (v instanceof RepoViewCommonViewer) {
+            CommonNavigator commonNavigator = ((RepoViewCommonViewer) v).getCommonNavigator();
+            if (commonNavigator instanceof RepoViewCommonNavigator) {
+                navigator = ((RepoViewCommonNavigator) commonNavigator);
+            }
+        }
+        if (navigator == null) {
+            return;
+        }
+        if (this.testVisitor != null) {
+            navigator.removeVisitor(this.testVisitor);
+        }
+        this.testVisitor = new MetadataTaCoKitChildrenNodeVisitor();
+        navigator.addVisitor(this.testVisitor);
+
+    }
+
+    private final class MetadataTaCoKitChildrenNodeVisitor extends ResourceCollectorVisitor {
+
+        @Override
+        protected Set<RepositoryNode> getTopNodes() {
+            Set<RepositoryNode> nodes = getTopLevelNodes();
+            RepositoryNode node = ProjectRepositoryNode.getInstance().getRootRepositoryNode(
+                    ERepositoryObjectType.METADATA_CONNECTIONS);
+            if (node != null) {
+                nodes.add(node);
+            }
+            return nodes;
+        }
+
+        @Override
+        protected IPath getTopLevelNodePath(final RepositoryNode repoNode) {
+            IPath topLevelNodeWorkspaceRelativePath = null;
+            if (repoNode instanceof ITaCoKitRepositoryNode) {
+                IProjectRepositoryNode root = repoNode.getRoot();
+                if (root != null) {
+                    String projectName = root.getProject().getTechnicalLabel();
+                    topLevelNodeWorkspaceRelativePath = Path
+                            .fromPortableString('/' + projectName)
+                            .append(root
+                                    .getRootRepositoryNode(TaCoKitConst.METADATA_TACOKIT)
+                                    .getContentType()
+                                    .getFolder())
+                            .append(TaCoKitUtil
+                                    .getTaCoKitBaseFolder(((ITaCoKitRepositoryNode) repoNode).getConfigTypeNode()));
+                }
+            }
+            return topLevelNodeWorkspaceRelativePath;
+        }
+
+        @Override
+        protected boolean isValidResourceDelta(final IResourceDelta delta) {
+            VisitResourceHelper visitHelper = new VisitResourceHelper(delta);
+            boolean merged = ProjectRepositoryNode.getInstance().getMergeRefProject();
+            Set<RepositoryNode> topLevelNodes = getTopNodes();
+            for (final RepositoryNode repoNode : topLevelNodes) {
+                IPath topLevelNodeWorkspaceRelativePath = null;
+                if (repoNode.getContentType() == ERepositoryObjectType.METADATA_CONNECTIONS) {
+                    IProjectRepositoryNode root = repoNode.getRoot();
+                    if (root != null) {
+                        String projectName = root.getProject().getTechnicalLabel();
+                        topLevelNodeWorkspaceRelativePath = Path.fromPortableString('/' + projectName).append(
+                                repoNode.getContentType().getFolder());
+                    }
+                } else if (repoNode instanceof ITaCoKitRepositoryNode) {
+                    topLevelNodeWorkspaceRelativePath = getWorkspaceTopNodePath(repoNode);
+                }
+                if (topLevelNodeWorkspaceRelativePath != null
+                        && visitHelper.valid(topLevelNodeWorkspaceRelativePath, merged)) {
+                    return true;
+                }
+            }
+            // this visitor doesn't handle the current folder
+            return false;
+        }
+
+        @Override
+        protected IRepositoryNode getTopNodeFromResourceDelta(final IResourceDelta delta) {
+            Set<RepositoryNode> topLevelNodes = getTopNodes();
+            for (final RepositoryNode repoNode : topLevelNodes) {
+                IPath topLevelNodeWorkspaceRelativePath = getTopLevelNodePath(repoNode);
+                if (topLevelNodeWorkspaceRelativePath != null
+                        && topLevelNodeWorkspaceRelativePath.isPrefixOf(delta.getFullPath())) {
+                    return repoNode;
+                }
+            }
+            // this visitor doesn't handle the current folder
+            return null;
+        }
     }
 }

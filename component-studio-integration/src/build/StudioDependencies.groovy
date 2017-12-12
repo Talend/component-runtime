@@ -50,6 +50,7 @@ def dependencies = [
         'org.eclipse.m2e.core',
         'org.eclipse.ui.workbench',
         'org.eclipse.ui.navigator',
+        'org.eclipse.ui.views.properties.tabbed',
         'org.apache.commons.collections',
         'org.talend.components.api',
         'org.talend.cwm.mip'

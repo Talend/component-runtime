@@ -33,6 +33,8 @@ import org.talend.sdk.component.studio.util.TaCoKitConst;
  */
 public class TaCoKitFamilyRepositoryNode extends StableRepositoryNode implements ITaCoKitRepositoryNode {
 
+    private static final int PRIME = 31;
+
     private ConfigTypeNode configTypeNode;
 
     private Image image;
@@ -129,6 +131,17 @@ public class TaCoKitFamilyRepositoryNode extends StableRepositoryNode implements
     @Override
     public boolean isFamilyNode() {
         return true;
+    }
+
+    @Override
+    public boolean isConfigNode() {
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        return result = PRIME * result + ((this.configTypeNode == null) ? 0 : this.configTypeNode.hashCode());
     }
 
 }

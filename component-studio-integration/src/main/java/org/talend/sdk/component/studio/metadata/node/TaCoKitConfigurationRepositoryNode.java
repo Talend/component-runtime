@@ -22,15 +22,28 @@ import org.talend.sdk.component.studio.util.ETaCoKitImage;
  */
 public class TaCoKitConfigurationRepositoryNode extends AbsTaCoKitRepositoryNode {
 
+    private String label;
+
     public TaCoKitConfigurationRepositoryNode(final IRepositoryViewObject repViewObject, final RepositoryNode parent,
             final ITaCoKitRepositoryNode parentTaCoKitNode, final String label, final ConfigTypeNode configTypeNode) {
         super(repViewObject, parent, parentTaCoKitNode, label, configTypeNode);
+        this.label = label;
         setIcon(ETaCoKitImage.TACOKIT_CONFIGURATION_ICON);
     }
 
     @Override
     public boolean isLeafNode() {
         return false;
+    }
+
+    @Override
+    public boolean isConfigNode() {
+        return true;
+    }
+
+    @Override
+    public String getLabel() {
+        return label;
     }
 
 }
