@@ -37,14 +37,24 @@ public final class Metadatas {
 
     public static final String UI_TEXTAREA = "ui::textarea";
 
-    public static final String UI_GRIDLAYOUT_MAIN = "ui::gridlayout::Main::value";
+    /**
+     * UI gridlayout key prefix used to build gridlayout metadata key with arbitrary form name
+     */
+    public static final String UI_GRIDLAYOUT_PREFIX = "ui::gridlayout::";
 
-    public static final String UI_GRIDLAYOUT_ADVANCED = "ui::gridlayout::Advanced::value";
+    /**
+     * UI gridlayout key suffix used to build gridlayout metadata key with arbitrary form name
+     */
+    public static final String UI_GRIDLAYOUT_SUFFIX = "::value";
 
     /**
      * Value separator for {@link #UI_OPTIONS_ORDER}
      */
     public static final String ORDER_SEPARATOR = ",";
+
+    public static final String MAIN_FORM = "Main";
+
+    public static final String ADVANCED_FORM = "Advanced";
 
     // Supported Code languages
     public static final String JAVA = "Java";
