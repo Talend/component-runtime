@@ -15,9 +15,6 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-  <extension point="org.talend.designer.core.process_provider">
-    <ProcessProvider pluginId="org.talend.sdk.component.studio-integration" class="org.talend.sdk.component.studio.TaCoKitGenericProvider"/>
-  </extension>
   <extension
         point="org.talend.core.repository.repository_node_provider">
      <repositoryNode
@@ -56,6 +53,21 @@
            level="1"
            name="Edit TaCoKit">
      </Action>
+  </extension>
+  <extension
+        point="org.talend.designer.core.process_provider">
+     <ProcessProvider
+           class="org.talend.sdk.component.studio.TaCoKitGenericProvider"
+           pluginId="org.talend.sdk.component.studio-integration">
+     </ProcessProvider>
+  </extension>
+  <extension
+        point="org.talend.repository.view.repositorySorter">
+     <sorter
+           class="org.talend.sdk.component.studio.metadata.sorter.TaCoKitRepositoryNodeSorter"
+           id="org.talend.sdk.component.studio-integration.sorter1"
+           name="org.talend.sdk.component.studio-integration.sorter1">
+     </sorter>
   </extension>
   <extension
         point="org.eclipse.core.expressions.propertyTesters">

@@ -30,4 +30,6 @@ public interface ITaCoKitRepositoryNode extends IRepositoryNode {
 
     boolean isFamilyNode();
 
+    boolean isConfigNode();
+
 }

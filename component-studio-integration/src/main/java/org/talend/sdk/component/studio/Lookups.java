@@ -20,7 +20,6 @@ import static lombok.AccessLevel.PRIVATE;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
-import java.util.Collection;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
@@ -35,7 +34,6 @@ import org.talend.core.model.process.Element;
 import org.talend.core.model.process.INode;
 import org.talend.core.runtime.services.IGenericWizardService;
 import org.talend.designer.core.ui.views.properties.composites.MissingSettingsMultiThreadDynamicComposite;
-import org.talend.repository.model.RepositoryNode;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.metadata.WizardRegistry;
 import org.talend.sdk.component.studio.service.ComponentService;
@@ -104,11 +102,11 @@ public class Lookups {
                                                     switch (method.getName()) {
                                                     case "createNodesFromComponentService":
                                                         final Object invoke = method.invoke(service, args);
-                                                        if (args[0] != null) {
-                                                            final Collection<RepositoryNode> nodes = customService
-                                                                    .createNodes(RepositoryNode.class.cast(args[0]));
-                                                            Collection.class.cast(invoke).addAll(nodes);
-                                                        }
+                                                        // if (args[0] != null) {
+                                                        // final Collection<RepositoryNode> nodes = customService
+                                                        // .createNodes(RepositoryNode.class.cast(args[0]));
+                                                        // Collection.class.cast(invoke).addAll(nodes);
+                                                        // }
                                                         return invoke;
                                                     case "creatDynamicComposite":
                                                         if (args[1] != null && args[1] instanceof INode) {
