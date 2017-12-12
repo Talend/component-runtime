@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.asm;
 
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
@@ -30,13 +31,30 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.lang.annotation.Retention;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.junit.Test;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.interceptor.InterceptorHandler;
+import org.talend.sdk.component.api.service.interceptor.Intercepts;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 
 public class ProxyGeneratorTest {
+
+    @Test
+    public void interceptors()
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        final ProxyGenerator generator = new ProxyGenerator();
+        final Class<?> proxyClass = generator.generateProxy(Thread.currentThread().getContextClassLoader(),
+                Intercepted.class, "test", Intercepted.class.getName());
+        final Intercepted proxy = Intercepted.class.cast(proxyClass.getConstructor().newInstance());
+        generator.initialize(proxy, (method, args) -> "intercepted");
+
+        assertEquals("123[4]", proxy.ok(1, "2", "3", singletonList("4")));
+        assertEquals("intercepted", proxy.preempted(1, "2", "3", singletonList("4")));
+    }
 
     @Test
     public void serialization() throws Exception {
@@ -88,5 +106,23 @@ public class ProxyGeneratorTest {
         public String cat(final int v1, final String v2, final Object v3, final List<String> v4) {
             return v1 + v2 + v3 + v4;
         }
+    }
+
+    @Service
+    public static class Intercepted {
+
+        public String ok(final int v1, final String v2, final Object v3, final List<String> v4) {
+            return v1 + v2 + v3 + v4;
+        }
+
+        @Preempted
+        public String preempted(final int v1, final String v2, final Object v3, final List<String> v4) {
+            return ok(v1, v2, v3, v4);
+        }
+    }
+
+    @Intercepts(InterceptorHandler.class)
+    @Retention(RUNTIME)
+    public @interface Preempted {
     }
 }

@@ -1170,7 +1170,66 @@ a| `org.talend.sdk.component.api.service.configuration.LocalConfiguration` a| Re
 
 WARNING: it is not recommanded to use it for the runtime since the local configuration is generally different and the instances are distincts.
 
+TIP: you can also use the local cache as an interceptor with `@Cached`
+
 |===
+
+== Services and interceptors
+
+For common concerns like caching, auditing etc, it can be fancy to use interceptor like API. It is enabled by the framework
+on services.
+
+An interceptor defines an annotation marked with `@Intercepts` which defines the implementation of the interceptor (an `InterceptorHandler`).
+
+Here is an example:
+
+[source,java]
+----
+@Intercepts(LoggingHandler.class)
+@Target({ TYPE, METHOD })
+@Retention(RUNTIME)
+public @interface Logged {
+    String value();
+}
+----
+
+Then handler is created from its constructor and can take service injections (by type). The first parameter, however, can be
+a `BiFunction<Method, Object[], Object>` which representes the invocation chain if your interceptor can be used with others.
+
+IMPORTANT: if you do a generic interceptor it is important to pass the invoker as first parameter. If you don't do so
+you can't combine interceptors at all.
+
+Here is an interceptor implementation for our `@Logged` API:
+
+[source,java]
+----
+public class LoggingHandler implements InterceptorHandler {
+    // injected
+    private final BiFunction<Method, Object[], Object> invoker;
+    private final SomeService service;
+
+    // internal
+    private final ConcurrentMap<Method, String> loggerNames = new ConcurrentHashMap<>();
+
+    public CacheHandler(final BiFunction<Method, Object[], Object> invoker, final SomeService service) {
+        this.invoker = invoker;
+        this.service = service;
+    }
+
+    @Override
+    public Object invoke(final Method method, final Object[] args) {
+        final String name = loggerNames.computeIfAbsent(method, m -> findAnnotation(m, Logged.class).get().value());
+        service.getLogger(name).info("Invoking {}", method.getName());
+        return invoker.apply(method, args);
+    }
+}
+----
+
+This implementation is compatible with interceptor chains since it takes the invoker as first constructor parameter
+and it also takes a service injection. Then the implementation just does what is needed - logging the invoked method here.
+
+NOTE: the `findAnnotation` annotation - inherited from `InterceptorHandler` is an utility method to find an annotation on a method
+or class (in this order).
 
 == Creating an execution chain or pipeline
 

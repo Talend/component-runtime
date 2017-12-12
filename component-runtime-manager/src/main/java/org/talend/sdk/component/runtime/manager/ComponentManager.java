@@ -36,6 +36,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -87,6 +88,7 @@ import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.dependency.Resolver;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
@@ -102,6 +104,7 @@ import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
 import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
+import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
 import org.talend.sdk.component.runtime.manager.processor.AdvancedProcessorImpl;
 import org.talend.sdk.component.runtime.manager.processor.SubclassesCache;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
@@ -589,7 +592,7 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
-        services.put(LocalCacheService.class, new LocalCacheService(container.getId()));
+        services.put(LocalCache.class, new LocalCacheService(container.getId()));
         services.put(LocalConfiguration.class,
                 new LocalConfigurationService(createRawLocalConfigurations(), container.getId()));
         services.put(ProxyGenerator.class, proxyGenerator);
@@ -685,15 +688,9 @@ public class ComponentManager implements AutoCloseable {
         return ofNullable(type.getPackage().getName()).orElse("");
     }
 
-    private Class<?> enforceSerializable(final Container container, final Class<?> type) {
-        if (Serializable.class.isAssignableFrom(type)) {
+    private Class<?> handleProxy(final Container container, final Class<?> type) {
+        if (!proxyGenerator.hasInterceptors(type) && proxyGenerator.isSerializable(type)) {
             return type;
-        }
-        try {
-            type.getMethod("writeReplace");
-            return type;
-        } catch (final NoSuchMethodException e) {
-            // no-op, let's try to generate a proxy
         }
         return container.execute(
                 () -> proxyGenerator.generateProxy(container.getLoader(), type, container.getId(), type.getName()));
@@ -829,7 +826,11 @@ public class ComponentManager implements AutoCloseable {
                             final ClassLoader old = thread.getContextClassLoader();
                             thread.setContextClassLoader(container.getLoader());
                             try {
-                                instance = enforceSerializable(container, service).getConstructor().newInstance();
+                                instance = handleProxy(container, service).getConstructor().newInstance();
+                                if (proxyGenerator.hasInterceptors(service)) {
+                                    proxyGenerator.initialize(instance, new InterceptorHandlerFacade(
+                                            service.getConstructor().newInstance(), services));
+                                }
                                 doInvoke(container.getId(), instance, PostConstruct.class);
                             } catch (final InstantiationException | IllegalAccessException e) {
                                 throw new IllegalArgumentException(e);
@@ -845,90 +846,8 @@ public class ComponentManager implements AutoCloseable {
                                             .of(service.getMethods())
                                             .filter(m -> Stream.of(m.getAnnotations()).anyMatch(
                                                     a -> a.annotationType().isAnnotationPresent(ActionType.class)))
-                                            .map(serviceMethod -> {
-                                                final Components components = findComponentsConfig(componentDefaults,
-                                                        serviceMethod.getDeclaringClass(), container.getLoader(),
-                                                        Components.class, DEFAULT_COMPONENT);
-
-                                                final Annotation marker = Stream
-                                                        .of(serviceMethod.getAnnotations())
-                                                        .filter(a -> a.annotationType().isAnnotationPresent(
-                                                                ActionType.class))
-                                                        .findFirst()
-                                                        .orElseThrow(() -> new IllegalStateException(
-                                                                "Something went wrong with " + serviceMethod));
-                                                final ActionType actionType =
-                                                        marker.annotationType().getAnnotation(ActionType.class);
-
-                                                if (actionType.expectedReturnedType() != Object.class
-                                                        && !actionType.expectedReturnedType().isAssignableFrom(
-                                                                serviceMethod.getReturnType())) {
-                                                    throw new IllegalArgumentException("Can't use " + marker + " on "
-                                                            + serviceMethod + ", expected returned type: "
-                                                            + actionType.expectedReturnedType() + ", actual one: "
-                                                            + serviceMethod.getReturnType());
-                                                }
-
-                                                final String component;
-                                                try {
-                                                    component = ofNullable(String.class.cast(
-                                                            marker.annotationType().getMethod("family").invoke(marker)))
-                                                                    .filter(c -> !c.isEmpty())
-                                                                    .orElseGet(components::family);
-                                                    if (component.isEmpty()) {
-                                                        throw new IllegalArgumentException(
-                                                                "No component for " + serviceMethod
-                                                                        + ", maybe add a @Components on your package "
-                                                                        + service.getDeclaringClass().getPackage());
-                                                    }
-                                                } catch (final NoSuchMethodException | IllegalAccessException e) {
-                                                    throw new IllegalStateException(e);
-                                                } catch (final InvocationTargetException e) {
-                                                    throw new IllegalStateException(e.getTargetException());
-                                                }
-                                                final String name = Stream.of("name", "value").map(mName -> {
-                                                    try {
-                                                        return String.class
-                                                                .cast(marker.annotationType().getMethod(mName).invoke(
-                                                                        marker));
-                                                    } catch (final IllegalAccessException e) {
-                                                        throw new IllegalStateException(e);
-                                                    } catch (final InvocationTargetException e) {
-                                                        throw new IllegalStateException(e.getTargetException());
-                                                    } catch (final NoSuchMethodException e) {
-                                                        return null;
-                                                    }
-                                                }).filter(Objects::nonNull).findFirst().orElse("default");
-
-                                                final Function<Map<String, String>, Object[]> parameterFactory =
-                                                        createParametersFactory(container.getId(), serviceMethod,
-                                                                services);
-                                                final Object actionInstance =
-                                                        Modifier.isStatic(serviceMethod.getModifiers()) ? null
-                                                                : instance;
-                                                final Function<Map<String, String>, Object> invoker =
-                                                        arg -> executeInContainer(container.getId(), () -> {
-                                                            try {
-                                                                final Object[] args = parameterFactory.apply(arg);
-                                                                return serviceMethod.invoke(actionInstance, args);
-                                                            } catch (final IllegalAccessException e) {
-                                                                throw new IllegalStateException(e);
-                                                            } catch (final InvocationTargetException e) { // do we want
-                                                                                                          // to unwrap
-                                                                // it?
-                                                                throw new IllegalStateException(e.getTargetException());
-                                                            }
-                                                        });
-
-                                                return new ServiceMeta.ActionMeta(component, actionType.value(), name,
-                                                        serviceMethod.getGenericParameterTypes(),
-                                                        parameterModelService.buildParameterMetas(serviceMethod,
-                                                                ofNullable(
-                                                                        serviceMethod.getDeclaringClass().getPackage())
-                                                                                .map(Package::getName)
-                                                                                .orElse("")),
-                                                        invoker);
-                                            })
+                                            .map(serviceMethod -> createServiceMeta(container, services,
+                                                    componentDefaults, service, instance, serviceMethod))
                                             .collect(toList())));
                         } catch (final NoSuchMethodException e) {
                             throw new IllegalArgumentException("No default constructor for " + service);
@@ -991,6 +910,76 @@ public class ComponentManager implements AutoCloseable {
 
                         log.info("Parsed component " + type + " for container-id=" + container.getId());
                     });
+        }
+
+        private ServiceMeta.ActionMeta createServiceMeta(final Container container,
+                final Map<Class<?>, Object> services, final Map<String, AnnotatedElement> componentDefaults,
+                final Class<?> service, final Object instance, final Method serviceMethod) {
+            final Components components = findComponentsConfig(componentDefaults, serviceMethod.getDeclaringClass(),
+                    container.getLoader(), Components.class, DEFAULT_COMPONENT);
+
+            final Annotation marker = Stream
+                    .of(serviceMethod.getAnnotations())
+                    .filter(a -> a.annotationType().isAnnotationPresent(ActionType.class))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Something went wrong with " + serviceMethod));
+            final ActionType actionType = marker.annotationType().getAnnotation(ActionType.class);
+
+            if (actionType.expectedReturnedType() != Object.class
+                    && !actionType.expectedReturnedType().isAssignableFrom(serviceMethod.getReturnType())) {
+                throw new IllegalArgumentException(
+                        "Can't use " + marker + " on " + serviceMethod + ", expected returned type: "
+                                + actionType.expectedReturnedType() + ", actual one: " + serviceMethod.getReturnType());
+            }
+
+            final String component;
+            try {
+                component = ofNullable(String.class.cast(marker.annotationType().getMethod("family").invoke(marker)))
+                        .filter(c -> !c.isEmpty())
+                        .orElseGet(components::family);
+                if (component.isEmpty()) {
+                    throw new IllegalArgumentException("No component for " + serviceMethod
+                            + ", maybe add a @Components on your package " + service.getDeclaringClass().getPackage());
+                }
+            } catch (final NoSuchMethodException | IllegalAccessException e) {
+                throw new IllegalStateException(e);
+            } catch (final InvocationTargetException e) {
+                throw new IllegalStateException(e.getTargetException());
+            }
+            final String name = Stream.of("name", "value").map(mName -> {
+                try {
+                    return String.class.cast(marker.annotationType().getMethod(mName).invoke(marker));
+                } catch (final IllegalAccessException e) {
+                    throw new IllegalStateException(e);
+                } catch (final InvocationTargetException e) {
+                    throw new IllegalStateException(e.getTargetException());
+                } catch (final NoSuchMethodException e) {
+                    return null;
+                }
+            }).filter(Objects::nonNull).findFirst().orElse("default");
+
+            final Function<Map<String, String>, Object[]> parameterFactory =
+                    createParametersFactory(container.getId(), serviceMethod, services);
+            final Object actionInstance = Modifier.isStatic(serviceMethod.getModifiers()) ? null : instance;
+            final Function<Map<String, String>, Object> invoker = arg -> executeInContainer(container.getId(), () -> {
+                try {
+                    final Object[] args = parameterFactory.apply(arg);
+                    return serviceMethod.invoke(actionInstance, args);
+                } catch (final IllegalAccessException e) {
+                    throw new IllegalStateException(e);
+                } catch (final InvocationTargetException e) { // do we want
+                                                              // to unwrap
+                    // it?
+                    throw new IllegalStateException(e.getTargetException());
+                }
+            });
+
+            return new ServiceMeta.ActionMeta(component, actionType.value(), name,
+                    serviceMethod.getGenericParameterTypes(),
+                    parameterModelService.buildParameterMetas(serviceMethod,
+                            ofNullable(serviceMethod.getDeclaringClass().getPackage()).map(Package::getName).orElse(
+                                    "")),
+                    invoker);
         }
 
         private Archive toArchive(final Container container, final ConfigurableClassLoader loader,

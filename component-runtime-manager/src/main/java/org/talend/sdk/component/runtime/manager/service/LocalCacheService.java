@@ -42,10 +42,6 @@ public class LocalCacheService implements LocalCache, Serializable {
         if (element == null) {
             return null;
         }
-        if (element.isExpired()) {
-            cache.remove(internalKey);
-            return null;
-        }
         return (T) element.value;
     }
 
