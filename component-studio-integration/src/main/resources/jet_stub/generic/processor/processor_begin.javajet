@@ -18,6 +18,7 @@
         org.talend.designer.codegen.config.CodeGeneratorArgument
         org.talend.designer.core.model.components.EParameterName
         org.talend.designer.core.model.components.ElementParameter
+        org.talend.core.model.process.IElementParameter
         org.talend.core.model.process.ElementParameterParser
         org.talend.core.model.process.EParameterFieldType
         org.talend.core.model.metadata.IMetadataColumn

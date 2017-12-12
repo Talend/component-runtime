@@ -18,11 +18,39 @@ final java.util.Map<String, String> configuration_<%=cid%> = new java.util.HashM
     if (params != null && !params.isEmpty()) {
         for (final ElementParameter p : params) {
             Object pluginValue = p.getTaggedValue("org.talend.sdk.component.source");
-            if(pluginValue != null && String.class.cast(pluginValue).equalsIgnoreCase("tacokit")) {
+            if(pluginValue == null || !String.class.cast(pluginValue).equalsIgnoreCase("tacokit")) {
+                continue;
+            }
+            //TODO: modify this part for Maps and nested lists.
+            if (p.getFieldType() == EParameterFieldType.TABLE) {
+                java.util.List<java.util.Map<String, Object>> tableValues = (java.util.List<java.util.Map<String, Object>>) p.getValue();
+                String[] items = p.getListItemsDisplayCodeName();
+                String tableName = p.getName().replace('$', '.');
+                String tableNamePrefix = tableName + "[].";
+                for (int i = 0; i < tableValues.size(); i++) {
+                    java.util.Map<String, Object> lineValues = tableValues.get(i);
+                    for (int j = 0; j < items.length; j++) {
+                        String columnName = items[j].substring(tableNamePrefix.length(), items[j].length());
+                        Object currentValue = lineValues.get(items[j]);
+                        %>
+                        configuration_<%=cid%>.put("<%=tableName%>[<%=i%>].<%=columnName%>",
+                        "<%=currentValue%>");
+                        <%
+                    }
+                }
+            } else {
 %>
             configuration_<%=cid%>.put(
                 "<%=p.getName().replace('$', '.')%>",
-                "<%=p.getFieldType() == EParameterFieldType.PASSWORD ? ElementParameterParser.getPasswordValue(node, p.getVariableName()) : ElementParameterParser.getStringElementParameterValue(p)%>");
+                <%if(p.getFieldType() == EParameterFieldType.PASSWORD) {%>
+                <%=ElementParameterParser.getPasswordValue(node, p.getVariableName())%>
+                <%} else {
+                    String value = ElementParameterParser.getStringElementParameterValue(p);
+                    value = org.talend.core.model.utils.TalendTextUtils.removeQuotes(value);
+                %>
+                <%=org.talend.core.model.utils.TalendTextUtils.addQuotes(value)%>
+                <%}%>
+                );
 <%
             }
         }
