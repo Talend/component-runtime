@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -391,12 +392,12 @@ public class ComponentModel extends AbstractBasicComponent {
 
     @Override
     public String getTemplateFolder() {
-        return "tacokit/jet_stub/generic/" + detail.getType().toLowerCase();
+        return "tacokit/jet_stub/generic/" + detail.getType().toLowerCase(Locale.ENGLISH);
     }
 
     @Override
     public String getTemplateNamePrefix() {
-        return detail.getType().toLowerCase();
+        return detail.getType().toLowerCase(Locale.ENGLISH);
     }
 
     /**
