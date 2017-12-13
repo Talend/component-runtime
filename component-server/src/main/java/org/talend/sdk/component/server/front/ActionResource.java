@@ -43,11 +43,11 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
+import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.front.model.ActionItem;
 import org.talend.sdk.component.server.front.model.ActionList;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
-import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 
@@ -64,7 +64,7 @@ public class ActionResource {
     private ComponentManager manager;
 
     @Inject
-    private ComponentManagerService service;
+    private ComponentActionDao actionDao;
 
     @Inject
     private PropertiesService propertiesService;
@@ -85,7 +85,7 @@ public class ActionResource {
                     .entity(new ErrorPayload(ErrorDictionary.ACTION_MISSING, "Action can't be null"))
                     .build());
         }
-        final ServiceMeta.ActionMeta actionMeta = service.findActionById(component, type, action);
+        final ServiceMeta.ActionMeta actionMeta = actionDao.findBy(component, type, action);
         if (actionMeta == null) {
             throw new WebApplicationException(Response
                     .status(Response.Status.NOT_FOUND)

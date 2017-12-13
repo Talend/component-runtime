@@ -107,6 +107,20 @@ public class ContainerManager implements Lifecycle {
         }
     }
 
+    /**
+     * @param task
+     * @return false if no error occurred during invocation of the task, true otherwise
+     */
+    private static boolean safeInvoke(final Runnable task) {
+        try {
+            task.run();
+            return false;
+        } catch (final RuntimeException re) {
+            log.error(re.getMessage(), re);
+            return true;
+        }
+    }
+
     public Set<String> getDefinedNestedPlugin() {
         return nestedContainerMapping.keySet();
     }
@@ -122,10 +136,8 @@ public class ContainerManager implements Lifecycle {
     }
 
     /**
-     * @param id
-     * the container id (how to find it back from the manager).
-     * @param module
-     * the module "reference", can be a nested resource
+     * @param id the container id (how to find it back from the manager).
+     * @param module the module "reference", can be a nested resource
      * (MAVEN-INF/repository) or direct file path or m2 related path.
      * @return the newly created container.
      */
@@ -159,11 +171,14 @@ public class ContainerManager implements Lifecycle {
             }
         };
 
-        if (containers.putIfAbsent(id, container) != null) {
-            throw new IllegalArgumentException("Container '" + id + "' already exists");
+        if (listeners.stream().noneMatch(l -> safeInvoke(() -> l.onCreate(container)))) {
+            if (containers.putIfAbsent(id, container) != null) {
+                throw new IllegalArgumentException("Container '" + id + "' already exists");
+            }
+        } else {
+            log.info("Failed creating container " + id);
+            throw new IllegalArgumentException(id);
         }
-
-        listeners.forEach(l -> safeInvoke(() -> l.onCreate(container)));
 
         log.info("Created container " + id);
         return container;
@@ -196,7 +211,7 @@ public class ContainerManager implements Lifecycle {
     public String buildAutoIdFromName(final String module) {
         final String[] segments = module.split(":");
         if (segments.length > 2) { // == 2 can be a windows path so enforce > 2 but then
-                                   // assume it is mvn GAV
+            // assume it is mvn GAV
             return segments[1];
         }
 
@@ -267,14 +282,6 @@ public class ContainerManager implements Lifecycle {
     @Override
     public boolean isClosed() {
         return lifecycle.isClosed();
-    }
-
-    private static void safeInvoke(final Runnable task) {
-        try {
-            task.run();
-        } catch (final RuntimeException re) {
-            log.error(re.getMessage(), re);
-        }
     }
 
     @Getter
