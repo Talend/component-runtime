@@ -74,6 +74,24 @@ public class TaCoKitElementParameter extends ElementParameter {
         }
     }
 
+    /**
+     * Computes index of specified <code>item</code> either in itemsDisplayCodeName or itemsDisplayCodeName
+     * super class fields
+     * This overridden implementation fixes an error, when <code>item</code> wasn't found in both arrays.
+     * It returns 0 in such case instead of -1. -1 causes ArrayIndexOutOfBoundsException, when new table column is added
+     * 
+     * @param item default closed list value
+     * @return default value index in possible values array
+     */
+    @Override
+    public int getIndexOfItemFromList(final String item) {
+        int index = super.getIndexOfItemFromList(item);
+        if (index == -1) {
+            return 0;
+        }
+        return index;
+    }
+
     public interface IValueChangedListener {
 
         void onValueChanged(final TaCoKitElementParameter elementParameter, final Object oldValue,
