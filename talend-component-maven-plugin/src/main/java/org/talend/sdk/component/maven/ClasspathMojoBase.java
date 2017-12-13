@@ -35,7 +35,7 @@ import org.apache.maven.project.MavenProject;
 
 public abstract class ClasspathMojoBase extends AbstractMojo {
 
-    @Parameter(defaultValue = "false")
+    @Parameter(defaultValue = "false", property = "talend.skip")
     private boolean skip;
 
     @Parameter(defaultValue = "${project.build.outputDirectory}")
