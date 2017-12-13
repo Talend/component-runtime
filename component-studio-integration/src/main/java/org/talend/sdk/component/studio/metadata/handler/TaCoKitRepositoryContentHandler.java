@@ -14,6 +14,7 @@ package org.talend.sdk.component.studio.metadata.handler;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,8 @@ import org.eclipse.ui.PlatformUI;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.exception.PersistenceException;
 import org.talend.commons.ui.runtime.image.IImage;
+import org.talend.commons.utils.data.container.Container;
+import org.talend.commons.utils.data.container.RootContainer;
 import org.talend.core.model.general.Project;
 import org.talend.core.model.metadata.MetadataManager;
 import org.talend.core.model.metadata.builder.connection.Connection;
@@ -36,6 +39,7 @@ import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.properties.Item;
 import org.talend.core.model.properties.PropertiesFactory;
 import org.talend.core.model.properties.PropertiesPackage;
+import org.talend.core.model.properties.Property;
 import org.talend.core.model.repository.AbstractRepositoryContentHandler;
 import org.talend.core.model.repository.ERepositoryObjectType;
 import org.talend.core.model.repository.IRepositoryViewObject;
@@ -46,12 +50,14 @@ import org.talend.repository.ProjectManager;
 import org.talend.repository.model.IRepositoryNode.ENodeType;
 import org.talend.repository.model.IRepositoryNode.EProperties;
 import org.talend.repository.model.RepositoryNode;
+import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.node.TaCoKitConfigurationRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationWizard;
 import org.talend.sdk.component.studio.util.ETaCoKitImage;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
+import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
 import orgomg.cwm.foundation.businessinformation.BusinessinformationPackage;
 
@@ -64,8 +70,14 @@ public class TaCoKitRepositoryContentHandler extends AbstractRepositoryContentHa
             throws PersistenceException {
         Resource itemResource = null;
         if (item.eClass() == PropertiesPackage.Literals.CONNECTION_ITEM) {
-            ERepositoryObjectType type = TaCoKitConst.METADATA_TACOKIT;
-            itemResource = create(project, (ConnectionItem) item, path, type);
+            try {
+                TaCoKitConfigurationItemModel itemModel = new TaCoKitConfigurationItemModel((ConnectionItem) item);
+                ERepositoryObjectType type = TaCoKitUtil
+                        .getOrCreateERepositoryObjectType(itemModel.getConfigurationModel().getConfigTypeNode());
+                itemResource = create(project, (ConnectionItem) item, path, type);
+            } catch (Exception e) {
+                throw new PersistenceException(e);
+            }
         }
 
         return itemResource;
@@ -115,7 +127,8 @@ public class TaCoKitRepositoryContentHandler extends AbstractRepositoryContentHa
     @Override
     public Item createNewItem(final ERepositoryObjectType type) {
         Item item = null;
-        if (type == TaCoKitConst.METADATA_TACOKIT) {
+
+        if (TaCoKitUtil.isTaCoKitType(type)) {
             item = PropertiesFactory.eINSTANCE.createConnectionItem();
         }
 
@@ -124,22 +137,32 @@ public class TaCoKitRepositoryContentHandler extends AbstractRepositoryContentHa
 
     @Override
     public boolean isRepObjType(final ERepositoryObjectType type) {
-        return type == TaCoKitConst.METADATA_TACOKIT;
+        return TaCoKitUtil.isTaCoKitType(type);
+    }
+
+    @Override
+    public boolean isProcess(final Item item) {
+        return TaCoKitUtil.isTaCoKitType(getRepositoryObjectType(item));
     }
 
     @Override
     public ERepositoryObjectType getRepositoryObjectType(final Item item) {
         ERepositoryObjectType type = null;
         if (item.eClass() == PropertiesPackage.Literals.CONNECTION_ITEM) {
-            type = TaCoKitConst.METADATA_TACOKIT;
+            try {
+                TaCoKitConfigurationItemModel itemModel = new TaCoKitConfigurationItemModel((ConnectionItem) item);
+                type = TaCoKitUtil
+                        .getOrCreateERepositoryObjectType(itemModel.getConfigurationModel().getConfigTypeNode());
+            } catch (Exception e) {
+                ExceptionHandler.process(e);
+            }
         }
-
         return type;
     }
 
     @Override
     public IImage getIcon(final ERepositoryObjectType type) {
-        if (TaCoKitConst.METADATA_TACOKIT == type) {
+        if (TaCoKitUtil.isTaCoKitType(type)) {
             return ETaCoKitImage.TACOKIT_REPOSITORY_ICON;
         }
         return null;
@@ -153,13 +176,12 @@ public class TaCoKitRepositoryContentHandler extends AbstractRepositoryContentHa
     @Override
     public void addNode(final ERepositoryObjectType type, final RepositoryNode parentNode,
             final IRepositoryViewObject repositoryObject, final RepositoryNode node) {
-        if (type == TaCoKitConst.METADATA_TACOKIT) {
+        if (TaCoKitUtil.isTaCoKitType(type)) {
             String configId = repositoryObject.getProperty().getId();
             Project project = new Project(ProjectManager.getInstance().getProject(node.getObject().getProperty()));
             List<ConnectionItem> items = new ArrayList<ConnectionItem>();
             try {
-                List<IRepositoryViewObject> repObjs =
-                        ProxyRepositoryFactory.getInstance().getAll(project, TaCoKitConst.METADATA_TACOKIT);
+                List<IRepositoryViewObject> repObjs = ProxyRepositoryFactory.getInstance().getAll(project, type);
                 for (IRepositoryViewObject repObj : repObjs) {
                     if (repObj != null && repObj.getProperty() != null) {
                         ConnectionItem item = (ConnectionItem) repObj.getProperty().getItem();
@@ -182,9 +204,73 @@ public class TaCoKitRepositoryContentHandler extends AbstractRepositoryContentHa
                 RepositoryNode childNode = new RepositoryNode(viewObject, node, ENodeType.REPOSITORY_ELEMENT);
                 viewObject.setRepositoryNode(childNode);
                 childNode.setProperties(EProperties.LABEL, viewObject.getLabel());
-                childNode.setProperties(EProperties.CONTENT_TYPE, TaCoKitConst.METADATA_TACOKIT);
+                ERepositoryObjectType repObjType = TaCoKitConst.METADATA_TACOKIT;
+                try {
+                    TaCoKitConfigurationItemModel itemModel = new TaCoKitConfigurationItemModel(item);
+                    repObjType = TaCoKitUtil
+                            .getOrCreateERepositoryObjectType(itemModel.getConfigurationModel().getConfigTypeNode());
+                } catch (Exception e) {
+                    ExceptionHandler.process(e);
+                }
+                childNode.setProperties(EProperties.CONTENT_TYPE, repObjType);
                 node.getChildren().add(childNode);
             }
+        }
+    }
+
+    @Override
+    protected void deleteNode(final Item item) throws Exception {
+        TaCoKitConfigurationItemModel itemModel = new TaCoKitConfigurationItemModel((ConnectionItem) item);
+        ERepositoryObjectType repObjType =
+                TaCoKitUtil.getOrCreateERepositoryObjectType(itemModel.getConfigurationModel().getConfigTypeNode());
+        RootContainer<String, IRepositoryViewObject> metadata =
+                ProxyRepositoryFactory.getInstance().getMetadata(repObjType);
+        Map<String, IRepositoryViewObject> idMap = new HashMap<>();
+        buildIdMap(metadata, idMap);
+
+        deleteNode((ConnectionItem) item, idMap);
+    }
+
+    private void deleteNode(final ConnectionItem item, final Map<String, IRepositoryViewObject> idMap)
+            throws Exception {
+        if (item == null) {
+            return;
+        }
+        String itemId = item.getProperty().getId();
+        if (!idMap.isEmpty()) {
+            idMap.values().forEach(repoViewObj -> {
+                try {
+                    Property property = repoViewObj.getProperty();
+                    ConnectionItem connItem = (ConnectionItem) property.getItem();
+                    TaCoKitConfigurationItemModel connItemModel = new TaCoKitConfigurationItemModel(connItem);
+                    if (TaCoKitUtil.equals(itemId, connItemModel.getConfigurationModel().getParentItemId())) {
+                        deleteNode(connItem, idMap);
+                    }
+                } catch (Exception e) {
+                    ExceptionHandler.process(e);
+                }
+            });
+        }
+        ProxyRepositoryFactory factory = ProxyRepositoryFactory.getInstance();
+        IRepositoryViewObject repoViewObj = idMap.get(itemId);
+        if (!repoViewObj.isDeleted()) {
+            factory.deleteObjectLogical(repoViewObj);
+        }
+        factory.deleteObjectPhysical(repoViewObj);
+    }
+
+    private void buildIdMap(final Container<String, IRepositoryViewObject> metadata,
+            final Map<String, IRepositoryViewObject> idMap) {
+        if (metadata == null) {
+            return;
+        }
+        List<IRepositoryViewObject> members = metadata.getMembers();
+        if (members != null) {
+            members.forEach(repViewObj -> idMap.put(repViewObj.getId(), repViewObj));
+        }
+        List<Container<String, IRepositoryViewObject>> subContainers = metadata.getSubContainer();
+        if (subContainers != null) {
+            subContainers.forEach(subContainer -> buildIdMap(subContainer, idMap));
         }
     }
 

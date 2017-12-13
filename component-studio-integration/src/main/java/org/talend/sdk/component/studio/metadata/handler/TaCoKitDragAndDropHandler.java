@@ -160,8 +160,9 @@ public class TaCoKitDragAndDropHandler extends AbstractDragAndDropServiceHandler
 
     @Override
     public ERepositoryObjectType getType(final String repositoryType) {
-        if (TaCoKitConst.METADATA_TACOKIT.name().equals(repositoryType)) {
-            return TaCoKitConst.METADATA_TACOKIT;
+        ERepositoryObjectType repObjType = ERepositoryObjectType.valueOf(repositoryType);
+        if (repObjType != null && TaCoKitUtil.isTaCoKitType(repObjType)) {
+            return repObjType;
         }
         return null;
     }

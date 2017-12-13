@@ -18,7 +18,7 @@ import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.repository.model.IRepositoryNode;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
-import org.talend.sdk.component.studio.util.TaCoKitConst;
+import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
 /**
  * DOC cmeng class global comment. Detailled comment
@@ -34,12 +34,13 @@ public abstract class AbsTaCoKitRepositoryNode extends RepositoryNode implements
     private Image image;
 
     public AbsTaCoKitRepositoryNode(final IRepositoryViewObject repViewObject, final RepositoryNode parent,
-            final ITaCoKitRepositoryNode parentTaCoKitNode, final String label, final ConfigTypeNode configTypeNode) {
+            final ITaCoKitRepositoryNode parentTaCoKitNode, final String label, final ConfigTypeNode configTypeNode)
+            throws Exception {
         super(repViewObject, parent, IRepositoryNode.ENodeType.SYSTEM_FOLDER);
         this.parentTaCoKitNode = parentTaCoKitNode;
         this.configTypeNode = configTypeNode;
         this.setProperties(EProperties.LABEL, label);
-        this.setProperties(EProperties.CONTENT_TYPE, TaCoKitConst.METADATA_TACOKIT);
+        this.setProperties(EProperties.CONTENT_TYPE, TaCoKitUtil.getOrCreateERepositoryObjectType(configTypeNode));
     }
 
     @Override

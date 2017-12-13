@@ -18,11 +18,13 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.talend.core.model.general.Project;
 import org.talend.core.model.properties.ConnectionItem;
+import org.talend.core.model.repository.ERepositoryObjectType;
 import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.repository.ProjectManager;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.Lookups;
+import org.talend.sdk.component.studio.metadata.WizardRegistry;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 
@@ -104,6 +106,54 @@ public class TaCoKitUtil {
             return itemModel.getConfigurationModel();
         }
         return null;
+    }
+
+    public static ERepositoryObjectType getOrCreateERepositoryObjectType(final ConfigTypeNode configTypeNode)
+            throws Exception {
+        if (configTypeNode == null) {
+            return null;
+        }
+        IPath tacokitPath = new Path(TaCoKitConst.METADATA_TACOKIT.getFolder());
+        IPath baseFolder = getTaCoKitBaseFolder(configTypeNode);
+        IPath path = tacokitPath.append(baseFolder);
+        String portableStr = path.toPortableString();
+
+        String type = portableStr.replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$
+        String alias = portableStr.replaceAll("/", "_"); //$NON-NLS-1$//$NON-NLS-2$
+
+        ERepositoryObjectType eType = ERepositoryObjectType.valueOf(type);
+        if (eType == null) {
+            eType = new WizardRegistry().createRepositoryObjectType(type, baseFolder.toPortableString(), alias,
+                    portableStr, 1, // $NON-NLS-1$
+                    new String[] { ERepositoryObjectType.PROD_DI });
+            ConfigTypeNode parentTypeNode =
+                    Lookups.taCoKitCache().getConfigTypeNodeMap().get(configTypeNode.getParentId());
+            if (parentTypeNode == null) {
+                eType.setAParent(TaCoKitConst.METADATA_TACOKIT);
+            } else {
+                eType.setAParent(getOrCreateERepositoryObjectType(parentTypeNode));
+            }
+        }
+        return eType;
+    }
+
+    public static boolean isTaCoKitType(final ERepositoryObjectType repObjType) {
+        if (repObjType == null) {
+            return false;
+        }
+        if (TaCoKitConst.METADATA_TACOKIT.equals(repObjType)) {
+            return true;
+        }
+        ERepositoryObjectType[] parentTypesArray = repObjType.getParentTypesArray();
+        if (parentTypesArray == null || parentTypesArray.length <= 0) {
+            return false;
+        }
+        for (ERepositoryObjectType parentType : parentTypesArray) {
+            if (isTaCoKitType(parentType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean equals(final String str1, final String str2) {

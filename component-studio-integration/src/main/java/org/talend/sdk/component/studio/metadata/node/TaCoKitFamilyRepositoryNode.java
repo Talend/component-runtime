@@ -19,7 +19,9 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.talend.commons.exception.ExceptionHandler;
+import org.talend.commons.ui.runtime.image.ECoreImage;
 import org.talend.commons.ui.runtime.image.IImage;
+import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.commons.ui.runtime.image.ImageUtils;
 import org.talend.commons.ui.runtime.image.ImageUtils.ICON_SIZE;
 import org.talend.repository.model.RepositoryNode;
@@ -27,6 +29,7 @@ import org.talend.repository.model.StableRepositoryNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
+import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
 /**
  * DOC cmeng class global comment. Detailled comment
@@ -40,11 +43,11 @@ public class TaCoKitFamilyRepositoryNode extends StableRepositoryNode implements
     private Image image;
 
     public TaCoKitFamilyRepositoryNode(final RepositoryNode parent, final String label, final IImage icon,
-            final ConfigTypeNode configTypeNode) {
+            final ConfigTypeNode configTypeNode) throws Exception {
         super(parent, label, icon);
         this.configTypeNode = configTypeNode;
         this.image = getTaCoKitImage(configTypeNode);
-        this.setChildrenObjectType(TaCoKitConst.METADATA_TACOKIT);
+        this.setChildrenObjectType(TaCoKitUtil.getOrCreateERepositoryObjectType(configTypeNode));
     }
 
     @Override
@@ -80,10 +83,11 @@ public class TaCoKitFamilyRepositoryNode extends StableRepositoryNode implements
                     image = getFamilyImage(id);
                     imageToDispose = image;
                     image = ImageUtils.scale(image, ICON_SIZE.ICON_16);
-                    imageRegistry.put(imageKey, image);
                 } catch (Exception e) {
                     ExceptionHandler.process(e);
+                    image = ImageProvider.getImage(ECoreImage.FOLDER_CLOSE_ICON);
                 }
+                imageRegistry.put(imageKey, image);
             }
             if (image != null) {
                 return image;
