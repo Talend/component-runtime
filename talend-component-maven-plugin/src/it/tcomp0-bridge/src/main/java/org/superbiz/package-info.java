@@ -17,3 +17,5 @@
 @Icon(Icon.IconType.DEFAULT)
 package org.superbiz;
 
+import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.Icon;
