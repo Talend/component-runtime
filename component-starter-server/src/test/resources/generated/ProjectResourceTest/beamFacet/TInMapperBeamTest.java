@@ -1,5 +1,7 @@
 package com.foo.source;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.Serializable;
 
 import org.apache.beam.sdk.PipelineResult;

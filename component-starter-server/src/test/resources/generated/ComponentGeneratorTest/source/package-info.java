@@ -4,3 +4,5 @@
 @Icon(value = Icon.IconType.CUSTOM, custom = "superfamily")
 package com.foo;
 
+import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.Icon;

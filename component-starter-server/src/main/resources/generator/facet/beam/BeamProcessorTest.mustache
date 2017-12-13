@@ -63,8 +63,8 @@ public class {{testClassName}} {
 
         // Convert it to a beam "source"
         final PCollection<Map<String, List<Serializable>>> inputs = pipeline.apply(
-                Create.of(joinInputFactory.asInputRecords())
-                    .withCoder(MapCoder.of(StringUtf8Coder.of(), ListCoder.of(TalendCoder.of()))));
+            Create.of(joinInputFactory.asInputRecords())
+                .withCoder(MapCoder.of(StringUtf8Coder.of(), ListCoder.of(TalendCoder.of()))));
 
         // add our processor right after to see each data as configured previously
         {{^isOutput}}final PCollection<Map<String, List<Serializable>>> result = {{/isOutput}}inputs.apply(TalendFn.asFn(processor));

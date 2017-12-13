@@ -1,6 +1,7 @@
 package foo.bar.source;
 
 import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 

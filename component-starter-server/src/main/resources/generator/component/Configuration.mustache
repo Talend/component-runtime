@@ -4,12 +4,12 @@ import java.io.Serializable;
 
 {{#structure.size}}
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 {{#hasCredential}}
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 {{/hasCredential}}
 {{/structure.size}}
+import org.talend.sdk.component.api.meta.Documentation;
 
 @GridLayout({
     // the generated layout put one configuration entry per line,

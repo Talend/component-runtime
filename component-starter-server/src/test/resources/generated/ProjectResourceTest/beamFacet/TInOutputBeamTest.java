@@ -1,6 +1,7 @@
 package com.foo.output;
 
 import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.talend.sdk.component.api.processor.data.ObjectMap;
 import org.talend.sdk.component.junit.JoinInputFactory;
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.runtime.beam.TalendCoder;
@@ -48,8 +50,8 @@ public class TInOutputBeamTest {
 
         // Convert it to a beam "source"
         final PCollection<Map<String, List<Serializable>>> inputs = pipeline.apply(
-                Create.of(joinInputFactory.asInputRecords())
-                    .withCoder(MapCoder.of(StringUtf8Coder.of(), ListCoder.of(TalendCoder.of()))));
+            Create.of(joinInputFactory.asInputRecords())
+                .withCoder(MapCoder.of(StringUtf8Coder.of(), ListCoder.of(TalendCoder.of()))));
 
         // add our processor right after to see each data as configured previously
         inputs.apply(TalendFn.asFn(processor));
