@@ -65,6 +65,13 @@ public class WizardRegistry {
                 .collect(toList());
     }
 
+    public ERepositoryObjectType createRepositoryObjectType(final String type, final String label, final String alias,
+            final String folder, final int ordinal, final String[] products) throws Exception {
+        ERepositoryObjectType repositoryType =
+                eRepositoryObjectTypeConstructor.newInstance(type, label, alias, folder, ordinal, products);
+        return repositoryType;
+    }
+
     private RepositoryNode createNode(final RepositoryNode curParentNode, final ComponentDetail detail,
             final ComponentIndex index) {
         final String name = detail.getId().getName();

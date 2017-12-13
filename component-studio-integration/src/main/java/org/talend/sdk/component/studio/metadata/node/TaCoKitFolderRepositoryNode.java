@@ -23,7 +23,8 @@ import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 public class TaCoKitFolderRepositoryNode extends AbsTaCoKitRepositoryNode implements ITaCoKitRepositoryNode {
 
     public TaCoKitFolderRepositoryNode(final IRepositoryViewObject repViewObject, final RepositoryNode parent,
-            final ITaCoKitRepositoryNode parentTaCoKitNode, final String label, final ConfigTypeNode configTypeNode) {
+            final ITaCoKitRepositoryNode parentTaCoKitNode, final String label, final ConfigTypeNode configTypeNode)
+            throws Exception {
         super(repViewObject, parent, parentTaCoKitNode, label, configTypeNode);
         this.setType(ENodeType.SIMPLE_FOLDER);
     }

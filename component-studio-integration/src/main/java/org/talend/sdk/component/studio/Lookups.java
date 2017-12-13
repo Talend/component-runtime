@@ -35,7 +35,6 @@ import org.talend.core.model.process.INode;
 import org.talend.core.runtime.services.IGenericWizardService;
 import org.talend.designer.core.ui.views.properties.composites.MissingSettingsMultiThreadDynamicComposite;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
-import org.talend.sdk.component.studio.metadata.WizardRegistry;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
@@ -94,7 +93,7 @@ public class Lookups {
                 if (wizardService == null) {
                     synchronized (this) {
                         if (wizardService == null) {
-                            final WizardRegistry customService = new WizardRegistry();
+                            // final WizardRegistry customService = new WizardRegistry();
                             wizardService = IGenericWizardService.class
                                     .cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
                                             service.getClass().getInterfaces(), (proxy, method, args) -> {

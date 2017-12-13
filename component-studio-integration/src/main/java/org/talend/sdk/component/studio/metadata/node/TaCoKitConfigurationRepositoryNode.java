@@ -25,7 +25,8 @@ public class TaCoKitConfigurationRepositoryNode extends AbsTaCoKitRepositoryNode
     private String label;
 
     public TaCoKitConfigurationRepositoryNode(final IRepositoryViewObject repViewObject, final RepositoryNode parent,
-            final ITaCoKitRepositoryNode parentTaCoKitNode, final String label, final ConfigTypeNode configTypeNode) {
+            final ITaCoKitRepositoryNode parentTaCoKitNode, final String label, final ConfigTypeNode configTypeNode)
+            throws Exception {
         super(repViewObject, parent, parentTaCoKitNode, label, configTypeNode);
         this.label = label;
         setIcon(ETaCoKitImage.TACOKIT_CONFIGURATION_ICON);

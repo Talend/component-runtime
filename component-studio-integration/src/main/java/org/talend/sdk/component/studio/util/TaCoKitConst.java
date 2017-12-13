@@ -19,12 +19,12 @@ public class TaCoKitConst {
 
     public static final String BUNDLE_ID = GAV.ARTIFACT_ID;
 
-    public static final String METADATA_TACOKIT_PATH = "/metadata/tacokit"; //$NON-NLS-1$
+    public static final ERepositoryObjectType METADATA_TACOKIT = ERepositoryObjectType.valueOf("TACOKIT"); //$NON-NLS-1$
+
+    public static final String METADATA_TACOKIT_PATH = METADATA_TACOKIT.getFolder();
 
     public static final String IMAGE_TACOKIT_REPOSITORY_PATH = "/icon/connection.png"; //$NON-NLS-1$
 
     public static final String IMAGE_TACOKIT_CONFIGURATION_PATH = "/icon/configuration_16x16.png"; //$NON-NLS-1$
-
-    public static final ERepositoryObjectType METADATA_TACOKIT = ERepositoryObjectType.valueOf("TACOKIT"); //$NON-NLS-1$
 
 }
