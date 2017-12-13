@@ -20,8 +20,6 @@ import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Stream.empty;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,6 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Stream;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -53,6 +52,8 @@ import org.talend.sdk.component.server.configuration.ComponentServerConfiguratio
 import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
@@ -145,17 +146,24 @@ public class ComponentManagerService {
         String pluginID = instance.addWithLocationPlugin(pluginGAV, new File(mvnRepo, pluginPath).getAbsolutePath());
         final Container plugin = instance.findPlugin(pluginID).get();
 
-        plugin.get(ContainerComponentRegistry.class).getComponents().values().stream()
+        plugin
+                .get(ContainerComponentRegistry.class)
+                .getComponents()
+                .values()
+                .stream()
                 .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
                         c.getProcessors().values().stream()))
                 .forEach(meta -> componentDao.createOrUpdate(meta));
 
-        plugin.get(ContainerComponentRegistry.class).getServices().stream()
+        plugin
+                .get(ContainerComponentRegistry.class)
+                .getServices()
+                .stream()
                 .flatMap(c -> c.getActions().stream())
                 .forEach(e -> actionDao.createOrUpdate(e));
 
-        plugin.get(ContainerComponentRegistry.class).getComponents().values()
-                .forEach(meta -> componentFamilyDao.createOrUpdate(meta));
+        plugin.get(ContainerComponentRegistry.class).getComponents().values().forEach(
+                meta -> componentFamilyDao.createOrUpdate(meta));
 
         return pluginID;
     }
@@ -167,23 +175,27 @@ public class ComponentManagerService {
 
         String pluginID = instance
                 .find(c -> pluginGAV.equals(c.get(ComponentManager.OriginalId.class).getValue()) ? Stream.of(c.getId())
-                        : empty()).findFirst()
+                        : empty())
+                .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No plugin found using maven GAV: " + pluginGAV));
 
-        final Container plugin = instance.findPlugin(pluginID)
-                .orElseThrow(() -> new IllegalArgumentException("No plugin found using maven GAV: " + pluginGAV));
+        final Container plugin = instance.findPlugin(pluginID).orElseThrow(
+                () -> new IllegalArgumentException("No plugin found using maven GAV: " + pluginGAV));
 
         final ContainerComponentRegistry containerComponentRegistry = plugin.get(ContainerComponentRegistry.class);
-        containerComponentRegistry.getComponents().values().stream()
+        containerComponentRegistry
+                .getComponents()
+                .values()
+                .stream()
                 .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
                         c.getProcessors().values().stream()))
                 .forEach(meta -> componentDao.removeById(meta.getId()));
 
-        containerComponentRegistry.getServices().stream().flatMap(c -> c.getActions().stream())
-                .forEach(e -> actionDao.remove(e));
+        containerComponentRegistry.getServices().stream().flatMap(c -> c.getActions().stream()).forEach(
+                e -> actionDao.remove(e));
 
-        containerComponentRegistry.getComponents().values()
-                .forEach(meta -> componentFamilyDao.removeById(IdGenerator.get(meta.getName())));
+        containerComponentRegistry.getComponents().values().forEach(
+                meta -> componentFamilyDao.removeById(IdGenerator.get(meta.getName())));
 
         instance.removePlugin(pluginID);
     }

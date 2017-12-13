@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.dao;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.enterprise.context.ApplicationScoped;
 
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
@@ -27,11 +28,11 @@ public class ComponentDao {
     // for now we ignore reloading but we should add it if it starts to be used (through a listener)
     private Map<String, ComponentFamilyMeta.BaseMeta<?>> data = new HashMap<>();
 
-    public void createOrUpdate(ComponentFamilyMeta.BaseMeta<?> meta) {
+    public void createOrUpdate(final ComponentFamilyMeta.BaseMeta<?> meta) {
         data.put(meta.getId(), meta);
     }
 
-    public <T> ComponentFamilyMeta.BaseMeta<T> findById(String id) {
+    public <T> ComponentFamilyMeta.BaseMeta<T> findById(final String id) {
         return (ComponentFamilyMeta.BaseMeta<T>) data.get(id);
     }
 

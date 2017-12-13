@@ -19,10 +19,6 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,6 +39,10 @@ import org.talend.sdk.component.dependencies.Resolver;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.lifecycle.Lifecycle;
 import org.talend.sdk.component.lifecycle.LifecycleSupport;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ContainerManager implements Lifecycle {

@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.dao;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.enterprise.context.ApplicationScoped;
 
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
@@ -27,11 +28,11 @@ public class ComponentFamilyDao {
 
     private Map<String, ComponentFamilyMeta> data = new HashMap<>();
 
-    public void createOrUpdate(ComponentFamilyMeta meta) {
+    public void createOrUpdate(final ComponentFamilyMeta meta) {
         data.put(IdGenerator.get(meta.getName()), meta);
     }
 
-    public ComponentFamilyMeta findFamilyMetaById(final String id) {
+    public ComponentFamilyMeta findById(final String id) {
         return data.get(id);
     }
 

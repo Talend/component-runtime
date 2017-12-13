@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+
 import javax.inject.Inject;
 
 import org.apache.meecrowave.junit.MonoMeecrowave;
@@ -69,27 +70,40 @@ public class ComponentManagerServiceTest {
 
     @Test // undeploy => deploy
     public void reloadExistingPlugin() {
-        //check that the plugin is deployed
+        // check that the plugin is deployed
         String gav = "org.talend.test1:the-test-component:jar:1.2.6:compile";
         String pluginID = getPluginId(gav);
         assertNotNull(pluginID);
         Optional<Container> plugin = componentManagerService.manager().findPlugin(pluginID);
         assertTrue(plugin.isPresent());
-        final Set<String> componentIds = plugin.get().get(ContainerComponentRegistry.class).getComponents()
-                .values().stream().flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
-                        c.getProcessors().values().stream())).map(ComponentFamilyMeta.BaseMeta::getId).collect(toSet());
-        final Set<String> familiesIds = plugin.get().get(ContainerComponentRegistry.class).getComponents().values()
-                .stream().map(f -> IdGenerator.get(f.getName())).collect(toSet());
+        final Set<String> componentIds = plugin
+                .get()
+                .get(ContainerComponentRegistry.class)
+                .getComponents()
+                .values()
+                .stream()
+                .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
+                        c.getProcessors().values().stream()))
+                .map(ComponentFamilyMeta.BaseMeta::getId)
+                .collect(toSet());
+        final Set<String> familiesIds = plugin
+                .get()
+                .get(ContainerComponentRegistry.class)
+                .getComponents()
+                .values()
+                .stream()
+                .map(f -> IdGenerator.get(f.getName()))
+                .collect(toSet());
 
         componentIds.forEach(id -> assertNotNull(componentDao.findById(id)));
-        familiesIds.forEach(id -> assertNotNull(componentFamilyDao.findFamilyMetaById(id)));
+        familiesIds.forEach(id -> assertNotNull(componentFamilyDao.findById(id)));
 
         // undeploy the existing plugin
         componentManagerService.undeploy("org.talend.test1:the-test-component:jar:1.2.6:compile");
         plugin = componentManagerService.manager().findPlugin(pluginID);
         assertFalse(plugin.isPresent());
         componentIds.forEach(id -> assertNull(componentDao.findById(id)));
-        familiesIds.forEach(id -> assertNull(componentFamilyDao.findFamilyMetaById(id)));
+        familiesIds.forEach(id -> assertNull(componentFamilyDao.findById(id)));
 
         // deploy
         componentManagerService.deploy(gav);
@@ -98,7 +112,7 @@ public class ComponentManagerServiceTest {
         plugin = componentManagerService.manager().findPlugin(pluginID);
         assertTrue(plugin.isPresent());
         componentIds.forEach(id -> assertNotNull(componentDao.findById(id)));
-        familiesIds.forEach(id -> assertNotNull(componentFamilyDao.findFamilyMetaById(id)));
+        familiesIds.forEach(id -> assertNotNull(componentFamilyDao.findById(id)));
     }
 
     @Test

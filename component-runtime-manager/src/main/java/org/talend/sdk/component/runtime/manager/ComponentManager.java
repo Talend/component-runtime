@@ -25,12 +25,6 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +61,7 @@ import java.util.function.Supplier;
 import java.util.jar.JarInputStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.xml.parsers.DocumentBuilder;
@@ -128,6 +123,12 @@ import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import org.talend.sdk.component.spi.component.ComponentExtension;
 import org.w3c.dom.Document;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ComponentManager implements AutoCloseable {

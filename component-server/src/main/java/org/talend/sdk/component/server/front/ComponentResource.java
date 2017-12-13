@@ -27,8 +27,6 @@ import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPON
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,6 +42,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -88,6 +87,8 @@ import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.component.server.service.IconResolver;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Path("component")
@@ -227,7 +228,7 @@ public class ComponentResource {
     @Documentation("Returns a particular family icon in raw bytes.")
     public Response familyIcon(@PathParam("id") final String id) {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
-        final ComponentFamilyMeta meta = componentFamilyDao.findFamilyMetaById(id);
+        final ComponentFamilyMeta meta = componentFamilyDao.findById(id);
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -312,46 +313,44 @@ public class ComponentResource {
         }
 
         final Map<String, ErrorPayload> errors = new HashMap<>();
-        List<ComponentDetail> details =
-                Stream.of(ids).map(id -> ofNullable(componentDao.findById(id)).orElseGet(() -> {
-                    errors.put(id, new ErrorPayload(COMPONENT_MISSING, "No component '" + id + "'"));
-                    return null;
-                })).filter(Objects::nonNull).map(meta -> {
-                    final Optional<Container> plugin = manager.findPlugin(meta.getParent().getPlugin());
-                    if (!plugin.isPresent()) {
-                        errors.put(meta.getId(),
-                                new ErrorPayload(PLUGIN_MISSING, "No plugin '" + meta.getParent().getPlugin() + "'"));
-                        return null;
-                    }
+        List<ComponentDetail> details = Stream.of(ids).map(id -> ofNullable(componentDao.findById(id)).orElseGet(() -> {
+            errors.put(id, new ErrorPayload(COMPONENT_MISSING, "No component '" + id + "'"));
+            return null;
+        })).filter(Objects::nonNull).map(meta -> {
+            final Optional<Container> plugin = manager.findPlugin(meta.getParent().getPlugin());
+            if (!plugin.isPresent()) {
+                errors.put(meta.getId(),
+                        new ErrorPayload(PLUGIN_MISSING, "No plugin '" + meta.getParent().getPlugin() + "'"));
+                return null;
+            }
 
-                    final Container container = plugin.get();
+            final Container container = plugin.get();
 
-                    final Optional<DesignModel> model = ofNullable(meta.get(DesignModel.class));
-                    if (!model.isPresent()) {
-                        errors.put(meta.getId(),
-                                new ErrorPayload(DESIGN_MODEL_MISSING, "No design model '" + meta.getId() + "'"));
-                        return null;
-                    }
-                    ComponentDetail componentDetail = new ComponentDetail();
-                    componentDetail.setLinks(emptyList() /* todo ? */);
-                    componentDetail.setId(createMetaId(container, meta));
-                    componentDetail.setVersion(meta.getVersion());
-                    componentDetail.setIcon(meta.getIcon());
-                    componentDetail.setInputFlows(model.get().getInputFlows());
-                    componentDetail.setOutputFlows(model.get().getOutputFlows());
-                    componentDetail
-                            .setType(ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor" : "input");
-                    final Locale locale = localeMapper.mapLocale(language);
-                    componentDetail.setDisplayName(
-                            meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()));
-                    componentDetail.setProperties(propertiesService
-                            .buildProperties(meta.getParameterMetas(), container.getLoader(), locale, null)
-                            .collect(toList()));
-                    componentDetail.setActions(
-                            findActions(meta.getParent().getName(), getActionReference(meta), container, locale));
+            final Optional<DesignModel> model = ofNullable(meta.get(DesignModel.class));
+            if (!model.isPresent()) {
+                errors.put(meta.getId(),
+                        new ErrorPayload(DESIGN_MODEL_MISSING, "No design model '" + meta.getId() + "'"));
+                return null;
+            }
+            ComponentDetail componentDetail = new ComponentDetail();
+            componentDetail.setLinks(emptyList() /* todo ? */);
+            componentDetail.setId(createMetaId(container, meta));
+            componentDetail.setVersion(meta.getVersion());
+            componentDetail.setIcon(meta.getIcon());
+            componentDetail.setInputFlows(model.get().getInputFlows());
+            componentDetail.setOutputFlows(model.get().getOutputFlows());
+            componentDetail.setType(ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor" : "input");
+            final Locale locale = localeMapper.mapLocale(language);
+            componentDetail.setDisplayName(
+                    meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()));
+            componentDetail.setProperties(propertiesService
+                    .buildProperties(meta.getParameterMetas(), container.getLoader(), locale, null)
+                    .collect(toList()));
+            componentDetail
+                    .setActions(findActions(meta.getParent().getName(), getActionReference(meta), container, locale));
 
-                    return componentDetail;
-                }).filter(Objects::nonNull).collect(toList());
+            return componentDetail;
+        }).filter(Objects::nonNull).collect(toList());
 
         if (!errors.isEmpty()) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(errors).build());
@@ -418,6 +417,6 @@ public class ComponentResource {
                 new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
                         iconFamilyContent == null ? null : iconFamilyContent.getBytes()),
                 meta.getVersion(), meta.getParent().getCategories(), singletonList(new Link("Detail",
-                "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
+                        "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
     }
 }

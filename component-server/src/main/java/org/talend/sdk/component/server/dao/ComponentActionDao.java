@@ -18,6 +18,7 @@ package org.talend.sdk.component.server.dao;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
 import javax.enterprise.context.ApplicationScoped;
 
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
@@ -27,7 +28,7 @@ public class ComponentActionDao {
 
     private Map<ActionKey, ServiceMeta.ActionMeta> data = new HashMap<>();
 
-    public void createOrUpdate(ServiceMeta.ActionMeta meta) {
+    public void createOrUpdate(final ServiceMeta.ActionMeta meta) {
         data.put(new ActionKey(meta.getFamily(), meta.getType(), meta.getAction()), meta);
     }
 
