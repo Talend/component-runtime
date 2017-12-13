@@ -15,14 +15,17 @@
  */
 package org.talend.sdk.component.server.service;
 
-import lombok.Data;
+import static java.util.Collections.emptySet;
+import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.stream.Stream.empty;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -39,22 +42,17 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
+import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
-import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
-import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 import org.talend.sdk.component.runtime.output.data.AccessorCache;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
-
-import static java.util.Collections.emptySet;
-import static java.util.Optional.ofNullable;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Stream.empty;
+import org.talend.sdk.component.server.dao.ComponentActionDao;
+import org.talend.sdk.component.server.dao.ComponentDao;
+import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 
 @Slf4j
 @ApplicationScoped
@@ -63,13 +61,24 @@ public class ComponentManagerService {
     @Inject
     private ComponentServerConfiguration configuration;
 
-    private ComponentsCache componentsCache;
+    @Inject
+    private ComponentDao componentDao;
+
+    @Inject
+    private ComponentFamilyDao componentFamilyDao;
+
+    @Inject
+    private ComponentActionDao actionDao;
 
     private ComponentManager instance;
 
     private String mvnRepo;
 
     private MvnCoordinateToFileConverter mvnCoordinateToFileConverter;
+
+    private ScheduledExecutorService cacheEvictorPool;
+
+    private ScheduledFuture<?> evictor;
 
     void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         // we just want it to be touched
@@ -81,16 +90,7 @@ public class ComponentManagerService {
         System.setProperty("talend.component.manager.m2.repository", mvnRepo);// we will use the default instance
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         instance = ComponentManager.instance();
-        componentsCache = new ComponentsCache(manager());
-        loadComponents();
-    }
 
-    @PreDestroy
-    private void close() {
-        componentsCache.destroy();
-    }
-
-    private void loadComponents() {
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
@@ -109,7 +109,31 @@ public class ComponentManagerService {
                     properties.stringPropertyNames().stream().map(properties::getProperty).forEach(this::deploy);
                 });
 
-        componentsCache.update();
+        // trivial mecanism for now, just reset all accessor caches
+        cacheEvictorPool = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+
+            @Override
+            public Thread newThread(final Runnable r) {
+                final Thread thread = new Thread(r);
+                thread.setName(getClass().getName() + "-evictor");
+                thread.setDaemon(true);
+                return thread;
+            }
+        });
+
+        evictor = cacheEvictorPool.schedule(() -> instance
+                .find(c -> Stream.of(c.get(ComponentManager.AllServices.class).getServices()))
+                .filter(Objects::nonNull)
+                .map(s -> AccessorCache.class.cast(s.get(AccessorCache.class)))
+                .filter(Objects::nonNull)
+                .peek(AccessorCache::reset)
+                .count(), 1, MINUTES);
+    }
+
+    @PreDestroy
+    private void close() {
+        evictor.cancel(true);
+        cacheEvictorPool.shutdownNow();
     }
 
     public String deploy(final String pluginGAV) {
@@ -118,7 +142,22 @@ public class ComponentManagerService {
                 .map(Artifact::toPath)
                 .orElseThrow(() -> new IllegalArgumentException("Plugin GAV can't be empty"));
 
-        return instance.addWithLocationPlugin(pluginGAV, new File(mvnRepo, pluginPath).getAbsolutePath());
+        String pluginID = instance.addWithLocationPlugin(pluginGAV, new File(mvnRepo, pluginPath).getAbsolutePath());
+        final Container plugin = instance.findPlugin(pluginID).get();
+
+        plugin.get(ContainerComponentRegistry.class).getComponents().values().stream()
+                .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
+                        c.getProcessors().values().stream()))
+                .forEach(meta -> componentDao.createOrUpdate(meta));
+
+        plugin.get(ContainerComponentRegistry.class).getServices().stream()
+                .flatMap(c -> c.getActions().stream())
+                .forEach(e -> actionDao.createOrUpdate(e));
+
+        plugin.get(ContainerComponentRegistry.class).getComponents().values()
+                .forEach(meta -> componentFamilyDao.createOrUpdate(meta));
+
+        return pluginID;
     }
 
     public void undeploy(final String pluginGAV) {
@@ -128,127 +167,30 @@ public class ComponentManagerService {
 
         String pluginID = instance
                 .find(c -> pluginGAV.equals(c.get(ComponentManager.OriginalId.class).getValue()) ? Stream.of(c.getId())
-                        : empty())
-                .findFirst()
+                        : empty()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No plugin found using maven GAV: " + pluginGAV));
 
+        final Container plugin = instance.findPlugin(pluginID)
+                .orElseThrow(() -> new IllegalArgumentException("No plugin found using maven GAV: " + pluginGAV));
+
+        final ContainerComponentRegistry containerComponentRegistry = plugin.get(ContainerComponentRegistry.class);
+        containerComponentRegistry.getComponents().values().stream()
+                .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
+                        c.getProcessors().values().stream()))
+                .forEach(meta -> componentDao.removeById(meta.getId()));
+
+        containerComponentRegistry.getServices().stream().flatMap(c -> c.getActions().stream())
+                .forEach(e -> actionDao.remove(e));
+
+        containerComponentRegistry.getComponents().values()
+                .forEach(meta -> componentFamilyDao.removeById(IdGenerator.get(meta.getName())));
+
         instance.removePlugin(pluginID);
-        componentsCache.update();
-    }
-
-    public ServiceMeta.ActionMeta findActionById(final String component, final String type, final String action) {
-        return componentsCache.actionIndex.get(new ActionKey(component, type, action));
-    }
-
-    public <T> ComponentFamilyMeta.BaseMeta<T> findMetaById(final String id) {
-        return (ComponentFamilyMeta.BaseMeta<T>) componentsCache.idMapping.get(id);
-    }
-
-    public ComponentFamilyMeta findFamilyMetaById(final String id) {
-        return componentsCache.familyIdMapping.get(id);
     }
 
     @Produces
     public ComponentManager manager() {
         return instance;
-    }
-
-    @Data
-    private static class ComponentsCache {
-
-        // for now we ignore reloading but we should add it if it starts to be used (through a listener)
-        private Map<String, ComponentFamilyMeta.BaseMeta<?>> idMapping;
-
-        private Map<String, ComponentFamilyMeta> familyIdMapping;
-
-        private Map<ActionKey, ServiceMeta.ActionMeta> actionIndex;
-
-        private ScheduledExecutorService cacheEvictorPool;
-
-        private ScheduledFuture<?> evictor;
-
-        private ComponentManager componentManager;
-
-        private ComponentsCache(final ComponentManager manager) {
-            this.componentManager = manager;
-            cacheEvictorPool = Executors.newScheduledThreadPool(1, new ThreadFactory() {
-
-                @Override
-                public Thread newThread(final Runnable r) {
-                    final Thread thread = new Thread(r);
-                    thread.setName(getClass().getName() + "-evictor");
-                    thread.setDaemon(true);
-                    return thread;
-                }
-            });
-        }
-
-        public void update() {
-            // trivial mecanism for now, just reset all accessor caches
-            evictor = cacheEvictorPool.schedule(() -> componentManager
-                    .find(c -> Stream.of(c.get(ComponentManager.AllServices.class).getServices()))
-                    .filter(Objects::nonNull)
-                    .map(s -> AccessorCache.class.cast(s.get(AccessorCache.class)))
-                    .filter(Objects::nonNull)
-                    .peek(AccessorCache::reset)
-                    .count(), 1, MINUTES);
-
-            idMapping = componentManager
-                    .find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
-                    .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
-                            c.getProcessors().values().stream()))
-                    .collect(toMap(ComponentFamilyMeta.BaseMeta::getId, identity()));
-            actionIndex = componentManager
-                    .find(c -> c.get(ContainerComponentRegistry.class).getServices().stream())
-                    .flatMap(c -> c.getActions().stream())
-                    .collect(toMap(e -> new ActionKey(e.getFamily(), e.getType(), e.getAction()), identity()));
-
-            familyIdMapping =
-                    componentManager.find(
-                            c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
-                            .collect(toMap(f -> IdGenerator.get(f.getName()), identity()));
-        }
-
-        public void destroy() {
-            evictor.cancel(true);
-            cacheEvictorPool.shutdownNow();
-        }
-    }
-
-    public static final class ActionKey {
-
-        private final String component;
-
-        private final String type;
-
-        private final String name;
-
-        private final int hash;
-
-        public ActionKey(final String component, final String type, final String name) {
-            this.component = component;
-            this.name = name;
-            this.type = type;
-            this.hash = Objects.hash(component, type, name);
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            final ActionKey other = ActionKey.class.cast(o);
-            return Objects.equals(component, other.component) && Objects.equals(type, other.type)
-                    && Objects.equals(name, other.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return hash;
-        }
     }
 
 }

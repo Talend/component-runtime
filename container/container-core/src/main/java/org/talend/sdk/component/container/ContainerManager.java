@@ -107,6 +107,20 @@ public class ContainerManager implements Lifecycle {
         }
     }
 
+    /**
+     * @param task
+     * @return false if no error occurred during invocation of the task, true otherwise
+     */
+    private static boolean safeInvoke(final Runnable task) {
+        try {
+            task.run();
+            return false;
+        } catch (final RuntimeException re) {
+            log.error(re.getMessage(), re);
+            return true;
+        }
+    }
+
     public Set<String> getDefinedNestedPlugin() {
         return nestedContainerMapping.keySet();
     }
@@ -268,20 +282,6 @@ public class ContainerManager implements Lifecycle {
     @Override
     public boolean isClosed() {
         return lifecycle.isClosed();
-    }
-
-    /**
-     * @param task
-     * @return false if no error occurred during invocation of the task, true otherwise
-     */
-    private static boolean safeInvoke(final Runnable task) {
-        try {
-            task.run();
-            return false;
-        } catch (final RuntimeException re) {
-            log.error(re.getMessage(), re);
-            return true;
-        }
     }
 
     @Getter

@@ -15,6 +15,18 @@
  */
 package org.talend.sdk.component.server.front;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
+import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
+import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedInputStream;
@@ -57,6 +69,8 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ActionParameterEnricher;
+import org.talend.sdk.component.server.dao.ComponentDao;
+import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 import org.talend.sdk.component.server.front.base.internal.RequestKey;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
@@ -75,18 +89,6 @@ import org.talend.sdk.component.server.service.IconResolver;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
-import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
-import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
-
 @Slf4j
 @Path("component")
 @ApplicationScoped
@@ -101,6 +103,12 @@ public class ComponentResource {
 
     @Inject
     private ComponentManagerService componentManagerService;
+
+    @Inject
+    private ComponentDao componentDao;
+
+    @Inject
+    private ComponentFamilyDao componentFamilyDao;
 
     @Inject
     private LocaleMapper localeMapper;
@@ -131,7 +139,7 @@ public class ComponentResource {
         }
         return new Dependencies(Stream
                 .of(ids)
-                .map(id -> componentManagerService.findMetaById(id))
+                .map(id -> componentDao.findById(id))
                 .collect(toMap(ComponentFamilyMeta.BaseMeta::getId,
                         meta -> componentManagerService
                                 .manager()
@@ -147,7 +155,7 @@ public class ComponentResource {
     @Documentation("Return a binary of the dependency represented by `id`."
             + " It can be maven coordinates for dependencies or a component id.")
     public StreamingOutput getDependency(@PathParam("id") final String id) {
-        final ComponentFamilyMeta.BaseMeta<?> component = componentManagerService.findMetaById(id);
+        final ComponentFamilyMeta.BaseMeta<?> component = componentDao.findById(id);
         final File file;
         if (component != null) { // local dep
             file = componentManagerService
@@ -219,7 +227,7 @@ public class ComponentResource {
     @Documentation("Returns a particular family icon in raw bytes.")
     public Response familyIcon(@PathParam("id") final String id) {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
-        final ComponentFamilyMeta meta = componentManagerService.findFamilyMetaById(id);
+        final ComponentFamilyMeta meta = componentFamilyDao.findFamilyMetaById(id);
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -254,7 +262,7 @@ public class ComponentResource {
     @Documentation("Returns a particular component icon in raw bytes.")
     public Response icon(@PathParam("id") final String id) {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
-        final ComponentFamilyMeta.BaseMeta<Object> meta = componentManagerService.findMetaById(id);
+        final ComponentFamilyMeta.BaseMeta<Object> meta = componentDao.findById(id);
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -290,7 +298,7 @@ public class ComponentResource {
     @Documentation("Allows to migrate a component configuration without calling any component execution.")
     public Map<String, String> migrate(@PathParam("id") final String id,
             @PathParam("configurationVersion") final int version, final Map<String, String> config) {
-        return componentManagerService.findMetaById(id).getMigrationHandler().migrate(version, config);
+        return componentDao.findById(id).getMigrationHandler().migrate(version, config);
     }
 
     @GET // TODO: max ids.length
@@ -305,7 +313,7 @@ public class ComponentResource {
 
         final Map<String, ErrorPayload> errors = new HashMap<>();
         List<ComponentDetail> details =
-                Stream.of(ids).map(id -> ofNullable(componentManagerService.findMetaById(id)).orElseGet(() -> {
+                Stream.of(ids).map(id -> ofNullable(componentDao.findById(id)).orElseGet(() -> {
                     errors.put(id, new ErrorPayload(COMPONENT_MISSING, "No component '" + id + "'"));
                     return null;
                 })).filter(Objects::nonNull).map(meta -> {
@@ -410,6 +418,6 @@ public class ComponentResource {
                 new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
                         iconFamilyContent == null ? null : iconFamilyContent.getBytes()),
                 meta.getVersion(), meta.getParent().getCategories(), singletonList(new Link("Detail",
-                        "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
+                "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
     }
 }

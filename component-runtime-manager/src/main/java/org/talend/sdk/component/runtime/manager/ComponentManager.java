@@ -25,6 +25,12 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,7 +67,6 @@ import java.util.function.Supplier;
 import java.util.jar.JarInputStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.xml.parsers.DocumentBuilder;
@@ -124,18 +129,12 @@ import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 import org.talend.sdk.component.spi.component.ComponentExtension;
 import org.w3c.dom.Document;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 public class ComponentManager implements AutoCloseable {
 
-    private static final MigrationHandler NO_MIGRATION = (incomingVersion, incomingData) -> incomingData;
-
     protected static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
+
+    private static final MigrationHandler NO_MIGRATION = (incomingVersion, incomingData) -> incomingData;
 
     private static final Components DEFAULT_COMPONENT = new Components() {
 
@@ -185,12 +184,9 @@ public class ComponentManager implements AutoCloseable {
     private final Collection<ComponentExtension> extensions;
 
     /**
-     * @param m2
-     * the maven repository location if on the file system.
-     * @param dependenciesResource
-     * the resource path containing dependencies.
-     * @param jmxNamePattern
-     * a pattern to register the plugins (containers) in JMX, null
+     * @param m2 the maven repository location if on the file system.
+     * @param dependenciesResource the resource path containing dependencies.
+     * @param jmxNamePattern a pattern to register the plugins (containers) in JMX, null
      * otherwise.
      */
     public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
@@ -655,7 +651,7 @@ public class ComponentManager implements AutoCloseable {
 
                             final int endPreviousPackage = currentPackage.lastIndexOf('.');
                             if (endPreviousPackage < 0) { // we don't accept default package since it is not specific
-                                                          // enough
+                                // enough
                                 break;
                             }
 
@@ -733,6 +729,12 @@ public class ComponentManager implements AutoCloseable {
     public static class AllServices {
 
         private final Map<Class<?>, Object> services;
+    }
+
+    @Data
+    public static class OriginalId {
+
+        private final String value;
     }
 
     private class Updater implements ContainerListener {
@@ -968,7 +970,7 @@ public class ComponentManager implements AutoCloseable {
                 } catch (final IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 } catch (final InvocationTargetException e) { // do we want
-                                                              // to unwrap
+                    // to unwrap
                     // it?
                     throw new IllegalStateException(e.getTargetException());
                 }
@@ -1214,11 +1216,5 @@ public class ComponentManager implements AutoCloseable {
                 }
             });
         }
-    }
-
-    @Data
-    public static class OriginalId {
-
-        private final String value;
     }
 }

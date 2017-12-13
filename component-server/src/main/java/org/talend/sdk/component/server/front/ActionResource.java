@@ -21,12 +21,13 @@ import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Predicate;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -43,15 +44,13 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
+import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.front.model.ActionItem;
 import org.talend.sdk.component.server.front.model.ActionList;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
-import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Path("action")
@@ -64,7 +63,7 @@ public class ActionResource {
     private ComponentManager manager;
 
     @Inject
-    private ComponentManagerService service;
+    private ComponentActionDao actionDao;
 
     @Inject
     private PropertiesService propertiesService;
@@ -85,7 +84,7 @@ public class ActionResource {
                     .entity(new ErrorPayload(ErrorDictionary.ACTION_MISSING, "Action can't be null"))
                     .build());
         }
-        final ServiceMeta.ActionMeta actionMeta = service.findActionById(component, type, action);
+        final ServiceMeta.ActionMeta actionMeta = actionDao.findBy(component, type, action);
         if (actionMeta == null) {
             throw new WebApplicationException(Response
                     .status(Response.Status.NOT_FOUND)
@@ -107,8 +106,9 @@ public class ActionResource {
 
     @GET
     @Path("index") // add an index if needed or too slow
-    @Documentation("This endpoint returns the list of available actions for a certain falimy and potentially filters the "
-            + "output limiting it to some falimies and types of actions.")
+    @Documentation(
+            "This endpoint returns the list of available actions for a certain falimy and potentially filters the "
+                    + "output limiting it to some falimies and types of actions.")
     public ActionList getIndex(@QueryParam("type") final String[] types,
             @QueryParam("family") final String[] components,
             @QueryParam("language") @DefaultValue("en") final String language) {
