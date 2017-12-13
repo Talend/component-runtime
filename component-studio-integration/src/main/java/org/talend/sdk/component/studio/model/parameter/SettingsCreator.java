@@ -142,6 +142,8 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setListItemsNotReadOnlyIf(new String[possibleValues.size()]);
         parameter.setListItemsShowIf(new String[possibleValues.size()]);
         parameter.setListItemsNotShowIf(new String[possibleValues.size()]);
+        parameter.setDefaultClosedListValue(node.getProperty().getDefaultValue());
+        parameter.setDefaultValue(node.getProperty().getDefaultValue());
         return parameter;
     }
 
