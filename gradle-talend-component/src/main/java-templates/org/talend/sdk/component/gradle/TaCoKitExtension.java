@@ -15,10 +15,10 @@
  */
 package org.talend.sdk.component.gradle;
 
-import lombok.Data;
-
 import java.io.File;
 import java.util.Map;
+
+import lombok.Data;
 
 @Data
 public class TaCoKitExtension {

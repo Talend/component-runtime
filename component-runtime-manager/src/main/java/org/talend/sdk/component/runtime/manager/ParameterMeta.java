@@ -15,8 +15,9 @@
  */
 package org.talend.sdk.component.runtime.manager;
 
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,9 +31,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
-import static java.util.Optional.ofNullable;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j

@@ -1,7 +1,6 @@
 package com.foo.output;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,7 +17,6 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 import org.talend.sdk.component.junit.JoinInputFactory;
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.runtime.beam.TalendCoder;

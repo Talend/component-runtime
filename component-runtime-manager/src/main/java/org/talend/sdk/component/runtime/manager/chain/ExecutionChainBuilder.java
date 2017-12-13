@@ -34,10 +34,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.talend.sdk.component.runtime.manager.ComponentManager;
-import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
-import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.Processor;
 

@@ -17,5 +17,3 @@
 @Icon(Icon.IconType.DEFAULT)
 package org.talend.test;
 
-import org.talend.sdk.component.api.component.Icon;
-import org.talend.sdk.component.api.component.Components;

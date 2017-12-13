@@ -17,14 +17,14 @@ package org.talend.sdk.component.form.model;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 @Data
 public class Ui {

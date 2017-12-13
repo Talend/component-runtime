@@ -15,9 +15,9 @@
  */
 package org.talend.sdk.component.runtime.beam.impl;
 
-import lombok.Data;
-
 import org.talend.sdk.component.runtime.output.InputFactory;
+
+import lombok.Data;
 
 @Data
 class SingleInputFactory implements InputFactory {

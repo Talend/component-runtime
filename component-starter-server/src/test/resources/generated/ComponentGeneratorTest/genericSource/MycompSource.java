@@ -1,6 +1,7 @@
 package com.foo.source;
 
 import java.io.Serializable;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 

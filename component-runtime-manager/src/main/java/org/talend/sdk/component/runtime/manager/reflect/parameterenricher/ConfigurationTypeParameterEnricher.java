@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
+import static java.util.Collections.emptyMap;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -23,8 +25,6 @@ import java.util.Map;
 
 import org.talend.sdk.component.api.configuration.type.meta.ConfigurationType;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
-
-import static java.util.Collections.emptyMap;
 
 public class ConfigurationTypeParameterEnricher implements ParameterExtensionEnricher {
 

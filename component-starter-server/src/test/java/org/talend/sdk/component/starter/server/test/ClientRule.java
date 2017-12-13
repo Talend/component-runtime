@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.starter.server.test;
 
-import lombok.experimental.Delegate;
-
 import javax.enterprise.inject.spi.CDI;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -24,6 +22,8 @@ import javax.ws.rs.client.WebTarget;
 
 import org.apache.meecrowave.Meecrowave;
 import org.junit.rules.ExternalResource;
+
+import lombok.experimental.Delegate;
 
 public class ClientRule extends ExternalResource {
 

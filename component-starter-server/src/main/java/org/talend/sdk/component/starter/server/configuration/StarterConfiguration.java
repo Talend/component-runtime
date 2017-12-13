@@ -16,6 +16,7 @@
 package org.talend.sdk.component.starter.server.configuration;
 
 import java.util.Set;
+
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.deltaspike.core.api.config.ConfigProperty;

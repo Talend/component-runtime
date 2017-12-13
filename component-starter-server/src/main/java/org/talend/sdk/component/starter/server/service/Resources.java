@@ -16,14 +16,14 @@
 
 package org.talend.sdk.component.starter.server.service;
 
-import lombok.NoArgsConstructor;
+import static java.util.Objects.requireNonNull;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static java.util.Objects.requireNonNull;
-import static lombok.AccessLevel.PRIVATE;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
 public class Resources {

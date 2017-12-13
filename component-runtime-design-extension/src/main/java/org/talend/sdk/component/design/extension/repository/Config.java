@@ -15,14 +15,15 @@
  */
 package org.talend.sdk.component.design.extension.repository;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.talend.sdk.component.runtime.manager.ParameterMeta;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.talend.sdk.component.runtime.manager.ParameterMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @AllArgsConstructor

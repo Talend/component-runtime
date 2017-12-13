@@ -23,11 +23,11 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
-import org.talend.sdk.component.api.input.Producer;
 
 import lombok.AllArgsConstructor;
 

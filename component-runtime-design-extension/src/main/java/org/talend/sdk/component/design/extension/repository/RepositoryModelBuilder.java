@@ -1,17 +1,17 @@
 package org.talend.sdk.component.design.extension.repository;
 
-import org.talend.sdk.component.design.extension.RepositoryModel;
-import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
-import org.talend.sdk.component.runtime.manager.ParameterMeta;
-import org.talend.sdk.component.runtime.manager.util.IdGenerator;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
+import org.talend.sdk.component.design.extension.RepositoryModel;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
+import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 
 /**
  * Copyright (C) 2006-2017 Talend Inc. - www.talend.com

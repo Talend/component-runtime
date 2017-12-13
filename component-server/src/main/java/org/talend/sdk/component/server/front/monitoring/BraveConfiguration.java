@@ -34,6 +34,7 @@ import brave.Tracing;
 import brave.http.HttpRuleSampler;
 import brave.http.HttpTracing;
 import brave.sampler.CountingSampler;
+
 import zipkin2.Span;
 import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;

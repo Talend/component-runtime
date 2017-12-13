@@ -16,10 +16,6 @@
 
 package org.talend.sdk.component.studio;
 
-import lombok.AllArgsConstructor;
-import org.eclipse.core.runtime.FileLocator;
-import org.osgi.framework.FrameworkUtil;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,6 +24,11 @@ import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.osgi.framework.FrameworkUtil;
+
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class TemplatesExtractor {

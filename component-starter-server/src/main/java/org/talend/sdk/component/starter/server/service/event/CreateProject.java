@@ -15,8 +15,9 @@
  */
 package org.talend.sdk.component.starter.server.service.event;
 
-import lombok.Data;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
+
+import lombok.Data;
 
 @Data
 public class CreateProject {

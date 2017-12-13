@@ -28,13 +28,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import org.talend.sdk.component.api.input.Assessor;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.Split;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
-import org.talend.sdk.component.api.input.Assessor;
-import org.talend.sdk.component.api.input.Emitter;
-import org.talend.sdk.component.api.input.Split;
 
 import lombok.AllArgsConstructor;
 

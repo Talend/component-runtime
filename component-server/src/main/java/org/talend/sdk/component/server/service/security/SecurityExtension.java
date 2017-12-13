@@ -17,8 +17,6 @@ package org.talend.sdk.component.server.service.security;
 
 import static java.util.Optional.ofNullable;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +35,8 @@ import javax.inject.Named;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.service.security.event.OnCommand;
 import org.talend.sdk.component.server.service.security.event.OnConnection;
+
+import lombok.extern.slf4j.Slf4j;
 
 // this extension will:
 // - capture all OnConnection/OnCommand observers

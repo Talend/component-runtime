@@ -15,11 +15,8 @@
  */
 package org.talend.sdk.component.runtime.manager;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -43,8 +40,11 @@ import org.talend.sdk.component.runtime.internationalization.FamilyBundle;
 import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 import org.talend.sdk.component.runtime.output.Processor;
 
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j

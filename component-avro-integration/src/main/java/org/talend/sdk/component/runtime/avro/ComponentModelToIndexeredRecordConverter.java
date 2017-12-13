@@ -48,10 +48,10 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.reflect.Stringable;
 import org.apache.avro.specific.SpecificData;
+import org.talend.sdk.component.api.processor.data.ObjectMap;
 import org.talend.sdk.component.runtime.avro.objectmap.IndexedRecordObjectMap;
 import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.processor.SubclassesCache;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 import lombok.Data;
 

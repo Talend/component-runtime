@@ -15,15 +15,15 @@
  */
 package org.talend.sdk.component.design.extension;
 
+import java.util.Collection;
+import java.util.stream.Stream;
+
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.flows.FlowsFactory;
 import org.talend.sdk.component.design.extension.repository.RepositoryModelBuilder;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
-
-import java.util.Collection;
-import java.util.stream.Stream;
 
 /**
  * Service provider for {@link ContainerListenerExtension} service

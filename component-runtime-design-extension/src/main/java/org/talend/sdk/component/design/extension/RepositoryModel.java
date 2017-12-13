@@ -15,12 +15,12 @@
  */
 package org.talend.sdk.component.design.extension;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.util.List;
 
 import org.talend.sdk.component.design.extension.repository.Family;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /**
  * This class contain the repository tree for the components

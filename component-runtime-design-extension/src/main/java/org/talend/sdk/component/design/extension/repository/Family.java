@@ -15,12 +15,12 @@
  */
 package org.talend.sdk.component.design.extension.repository;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
+
+import lombok.Data;
 
 /**
  * Family is a group of multiple components

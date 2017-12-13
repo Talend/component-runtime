@@ -15,10 +15,10 @@
  */
 package org.talend.sdk.component.runtime.internationalization;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.Optional;
 import java.util.ResourceBundle;
+
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 abstract class InternalBundle {

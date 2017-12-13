@@ -15,9 +15,9 @@
  */
 package org.talend.sdk.component.starter.server.model;
 
-import lombok.Data;
-
 import java.util.Collection;
+
+import lombok.Data;
 
 @Data
 public class ProjectModel {

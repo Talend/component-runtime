@@ -4,8 +4,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.input.Producer;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 import com.foo.service.TestService;
 

@@ -15,12 +15,12 @@
  */
 package org.talend.sdk.component.starter.server.service.domain;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor

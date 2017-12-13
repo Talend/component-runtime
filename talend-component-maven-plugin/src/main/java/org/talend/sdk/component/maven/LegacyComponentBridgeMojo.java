@@ -85,7 +85,6 @@ import org.talend.sdk.component.maven.legacy.model.PARAMETERS;
 import org.talend.sdk.component.maven.legacy.model.RETURN;
 import org.talend.sdk.component.maven.legacy.model.RETURNS;
 import org.talend.sdk.component.maven.legacy.model.TABLE;
-
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;

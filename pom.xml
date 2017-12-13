@@ -430,6 +430,13 @@
                   <property name="severity" value="warning"/>
                 </module>
                 <module name="UpperEll"/>
+                <module name="ImportOrder">
+                  <property name="groups" value="*,java,javax,com,org,orgomg,brave,freemarker,zipkin2,lombok"/>
+                  <property name="ordered" value="true"/>
+                  <property name="separated" value="true"/>
+                  <property name="option" value="top"/>
+                  <property name="sortStaticImportsAlphabetically" value="true"/>
+                </module>
               </module>
             </module>
           </checkstyleRules>

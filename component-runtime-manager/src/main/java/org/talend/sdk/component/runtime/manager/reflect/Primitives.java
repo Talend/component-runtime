@@ -17,10 +17,10 @@ package org.talend.sdk.component.runtime.manager.reflect;
 
 import static lombok.AccessLevel.PRIVATE;
 
-import lombok.NoArgsConstructor;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class Primitives {

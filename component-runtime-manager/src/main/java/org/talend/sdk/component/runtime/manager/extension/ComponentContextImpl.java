@@ -17,11 +17,11 @@ package org.talend.sdk.component.runtime.manager.extension;
 
 import static lombok.AccessLevel.NONE;
 
+import org.talend.sdk.component.spi.component.ComponentExtension;
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
-import org.talend.sdk.component.spi.component.ComponentExtension;
 
 @Data
 public class ComponentContextImpl implements ComponentExtension.ComponentContext {

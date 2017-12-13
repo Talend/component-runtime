@@ -2,7 +2,6 @@ package com.foo.source;
 
 import java.io.Serializable;
 
-import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 
 @GridLayout({

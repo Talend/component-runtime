@@ -15,18 +15,19 @@
  */
 package org.talend.sdk.component.starter.server.service.facet.codenvy;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.stream.Stream;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.stream.Stream;
 
 @ApplicationScoped
 public class CodenvyFacet implements FacetGenerator {

@@ -15,28 +15,6 @@
  */
 package org.talend.sdk.component.starter.server.front;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.talend.sdk.component.starter.server.model.FactoryConfiguration;
-import org.talend.sdk.component.starter.server.model.ProjectModel;
-import org.talend.sdk.component.starter.server.test.ClientRule;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -48,6 +26,29 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.talend.sdk.component.starter.server.Versions.CXF;
 import static org.talend.sdk.component.starter.server.service.Resources.resourceFileToString;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.meecrowave.junit.MonoMeecrowave;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.talend.sdk.component.starter.server.model.FactoryConfiguration;
+import org.talend.sdk.component.starter.server.model.ProjectModel;
+import org.talend.sdk.component.starter.server.test.ClientRule;
 
 @RunWith(MonoMeecrowave.Runner.class)
 public class ProjectResourceTest {

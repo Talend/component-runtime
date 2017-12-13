@@ -16,17 +16,18 @@
 
 package org.talend.sdk.component.starter.server.configuration;
 
-import lombok.NoArgsConstructor;
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toSet;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.util.Set;
 import java.util.stream.Stream;
+
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
-import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.toSet;
-import static lombok.AccessLevel.PRIVATE;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
 public class ConfigurationConverters {

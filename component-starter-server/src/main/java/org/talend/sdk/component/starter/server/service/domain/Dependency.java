@@ -15,11 +15,11 @@
  */
 package org.talend.sdk.component.starter.server.service.domain;
 
+import static org.talend.sdk.component.starter.server.Versions.API_KIT;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import static org.talend.sdk.component.starter.server.Versions.API_KIT;
 
 @Getter
 @RequiredArgsConstructor

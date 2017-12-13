@@ -15,13 +15,16 @@
  */
 package org.talend.sdk.component.starter.server.service.build;
 
-import lombok.Data;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static org.talend.sdk.component.starter.server.Versions.CXF;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -36,9 +39,7 @@ import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-import static org.talend.sdk.component.starter.server.Versions.CXF;
+import lombok.Data;
 
 @ApplicationScoped
 public class GradleBuildGenerator implements BuildGenerator {
