@@ -309,7 +309,8 @@ public class ComponentValidator extends BaseTask {
             errors.addAll(finder
                     .findAnnotatedFields(Option.class)
                     .stream()
-                    .filter(field -> !field.isAnnotationPresent(Documentation.class))
+                    .filter(field -> !field.isAnnotationPresent(Documentation.class)
+                            && !field.getType().isAnnotationPresent(Documentation.class))
                     .map(field -> "No @Documentation on '" + field + "'")
                     .sorted()
                     .collect(toSet()));

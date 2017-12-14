@@ -120,16 +120,20 @@ public class ParameterModelService {
         return Stream
                 .concat(Stream.of(annotations), Class.class.isInstance(genericType) // if a class concat its
                                                                                     // annotations
-                        ? Stream.of(Class.class.cast(genericType).getAnnotations())
+                        ? Stream.of(Class.class.cast(genericType).getAnnotations()).filter(
+                                a -> Stream.of(annotations).noneMatch(o -> o.annotationType() == a.annotationType()))
                         : (ParameterizedType.class.isInstance(genericType) // if a list concat the item type annotations
                                 && ParameterizedType.class.cast(genericType).getActualTypeArguments().length == 1
                                 && Class.class.isInstance(
                                         ParameterizedType.class.cast(genericType).getActualTypeArguments()[0])
-                                                ? Stream.of(Class.class
-                                                        .cast(ParameterizedType.class
-                                                                .cast(genericType)
-                                                                .getActualTypeArguments()[0])
-                                                        .getAnnotations())
+                                                ? Stream
+                                                        .of(Class.class
+                                                                .cast(ParameterizedType.class
+                                                                        .cast(genericType)
+                                                                        .getActualTypeArguments()[0])
+                                                                .getAnnotations())
+                                                        .filter(a -> Stream.of(annotations).noneMatch(
+                                                                o -> o.annotationType() == a.annotationType()))
                                                 : Stream.empty()))
                 .distinct()
                 .flatMap(a -> enrichers.stream().map(e -> e.onParameterAnnotation(name, genericType, a)))
