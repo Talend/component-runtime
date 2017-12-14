@@ -65,23 +65,14 @@ public class MavenBuildGenerator implements BuildGenerator {
                 "src/test/resources", "src/main/webapp", "pom.xml",
                 renderer.render("generator/maven/pom.xml",
                         new Pom(buildConfiguration, dependencies,
-                                createPlugins(facets, packageBase, plugins.get(buildConfiguration.getPackaging())))),
+                                createPlugins(facets, packageBase, plugins.get(buildConfiguration.getPackaging())),
+                                Versions.KIT)),
                 "target", generateWrapperFiles());
     }
 
     private Collection<Plugin> createPlugins(final Collection<String> facets, final String packageBase,
             final Collection<Plugin> plugins) {
         final Collection<Plugin> buildPlugins = new ArrayList<>(plugins);
-
-        buildPlugins.add(new Plugin("org.talend.sdk.component", "talend-component-maven-plugin", Versions.KIT,
-                new ArrayList<Execution>() {
-
-                    {
-                        add(new Execution("dependencies", "process-classes", "dependencies"));
-                        add(new Execution("validate", "prepare-package", "validate"));
-                        add(new Execution("documentation", "prepare-package", "asciidoc"));
-                    }
-                }, null));
 
         buildPlugins.add(new Plugin("org.apache.maven.plugins", "maven-surefire-plugin", Versions.SUREFIRE, emptySet(),
                 new LinkedHashMap<String, String>() {
@@ -131,6 +122,8 @@ public class MavenBuildGenerator implements BuildGenerator {
         private final Collection<Dependency> dependencies;
 
         private final Collection<Plugin> plugins;
+
+        private final String pluginVersion;
     }
 
     @Data

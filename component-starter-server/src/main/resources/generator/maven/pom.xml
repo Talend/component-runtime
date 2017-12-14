@@ -30,6 +30,14 @@
   </dependencies>
 
   <build>
+    <extensions>
+      <extension>
+        <groupId>org.talend.sdk.component</groupId>
+        <artifactId>talend-component-maven-plugin</artifactId>
+        <version>{{pluginVersion}}</version>
+      </extension>
+    </extensions>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

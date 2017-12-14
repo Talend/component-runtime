@@ -28,6 +28,14 @@
   </dependencies>
 
   <build>
+    <extensions>
+      <extension>
+        <groupId>org.talend.sdk.component</groupId>
+        <artifactId>talend-component-maven-plugin</artifactId>
+        <version>@runtime.version@</version>
+      </extension>
+    </extensions>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -37,34 +45,6 @@
           <source>1.8</source>
           <target>1.8</target>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.talend.sdk.component</groupId>
-        <artifactId>talend-component-maven-plugin</artifactId>
-        <version>@runtime.version@</version>
-        <executions>
-          <execution>
-            <id>dependencies</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>dependencies</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>validate</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>validate</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>documentation</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>asciidoc</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
