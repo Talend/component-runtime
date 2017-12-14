@@ -22,7 +22,7 @@
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-api</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>@api.version@</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -39,27 +39,17 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.0.2</version>
-        <executions>
-          <execution>
-            <id>create-TALEND-INF/dependencies.txt</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>list</goal>
-            </goals>
-            <configuration>
-              <outputFile>${project.build.outputDirectory}/TALEND-INF/dependencies.txt</outputFile>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.talend.sdk.component</groupId>
         <artifactId>talend-component-maven-plugin</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>@runtime.version@</version>
         <executions>
+          <execution>
+            <id>dependencies</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>dependencies</goal>
+            </goals>
+          </execution>
           <execution>
             <id>validate</id>
             <phase>prepare-package</phase>

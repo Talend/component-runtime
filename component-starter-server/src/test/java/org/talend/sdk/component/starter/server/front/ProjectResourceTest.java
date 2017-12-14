@@ -46,6 +46,7 @@ import org.apache.meecrowave.junit.MonoMeecrowave;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.model.FactoryConfiguration;
 import org.talend.sdk.component.starter.server.model.ProjectModel;
 import org.talend.sdk.component.starter.server.test.ClientRule;
@@ -95,8 +96,9 @@ public class ProjectResourceTest {
         Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>").forEach(
                 token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
         assertEquals("= A Talend generated Component Starter Project\n", files.get("application/README.adoc"));
-        assertEquals(resourceFileToString("generated/ProjectResourceTest/emptyProject/pom.xml"),
-                files.get("application/pom.xml"));
+        assertEquals(resourceFileToString("generated/ProjectResourceTest/emptyProject/pom.xml")
+                .replace("@runtime.version@", Versions.KIT)
+                .replace("@api.version@", Versions.API_KIT), files.get("application/pom.xml"));
     }
 
     @Test

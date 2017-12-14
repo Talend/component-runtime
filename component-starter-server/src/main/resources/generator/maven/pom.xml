@@ -39,23 +39,6 @@
           <source>{{build.javaVersion}}</source>
           <target>{{build.javaVersion}}</target>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.0.2</version>
-        <executions>
-          <execution>
-            <id>create-TALEND-INF/dependencies.txt</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>list</goal>
-            </goals>
-            <configuration>
-              <outputFile>${project.build.outputDirectory}/TALEND-INF/dependencies.txt</outputFile>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>{{#plugins}}
       <plugin>
         <groupId>{{groupId}}</groupId>

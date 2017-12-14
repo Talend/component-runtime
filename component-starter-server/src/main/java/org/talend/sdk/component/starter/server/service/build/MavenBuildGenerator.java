@@ -77,6 +77,7 @@ public class MavenBuildGenerator implements BuildGenerator {
                 new ArrayList<Execution>() {
 
                     {
+                        add(new Execution("dependencies", "process-classes", "dependencies"));
                         add(new Execution("validate", "prepare-package", "validate"));
                         add(new Execution("documentation", "prepare-package", "asciidoc"));
                     }

@@ -639,6 +639,8 @@ Then each plugins will be loaded in their own classloader with their dependencie
 
 === Packaging a plugin
 
+NOTE: this part explains the overall way to handle dependecnies but the Talend Maven plugin provides a shortcut for that.
+
 A plugin is just a jar which was enriched with the list of its dependencies. By default Talend Component runtime is able to
 read the output of `maven-dependency-plugin` in `TALEND-INF/dependencies.txt` location so you just need to ensure your component defines the following plugin:
 
@@ -1394,9 +1396,31 @@ Here is how to use it:
 </plugin>
 ----
 
+=== Dependencies
+
+The first goal is a shortcut for the `maven-dependency-plugin`, it will create the `TALEND-INF/dependencies.txt` file
+with the `compile` and `runtime` dependencies to let the component use it at runtime:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${component.version}</version>
+  <executions>
+    <execution>
+      <id>talend-dependencies</id>
+      <goals>
+        <goal>dependencies</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+----
+
 === Validate
 
-The first goal is here to help you to validate the common programming model of the component. Here is the execution definition to activate it:
+The most important goal is here to help you to validate the common programming model of the component. Here is the execution definition to activate it:
 
 [source,xml]
 ----

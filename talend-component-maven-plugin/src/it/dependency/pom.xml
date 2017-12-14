@@ -24,7 +24,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>sample</artifactId>
-  <name>Component Runtime :: Maven Plugin :: IT :: Generator</name>
+  <name>Component Runtime :: Maven Plugin :: IT :: Dependencies</name>
 
   <dependencies>
     <dependency>
@@ -33,10 +33,29 @@
       <version>@component-api.version@</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-catalina</artifactId>
+      <version>@tomcat.version@</version>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>@junit.version@</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomee</groupId>
+      <artifactId>ziplock</artifactId>
+      <version>@ziplock.version@</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -51,26 +70,7 @@
             <id>generate-input</id>
             <phase>generate-sources</phase>
             <goals>
-              <goal>generate</goal>
-            </goals>
-            <configuration>
-              <type>input</type>
-            </configuration>
-          </execution>
-          <execution>
-            <id>generate-output</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <configuration>
-              <type>output</type>
-            </configuration>
-          </execution>
-          <execution> <!-- ensure generated components are valid -->
-            <id>talend@validate</id>
-            <goals>
-              <goal>validate</goal>
+              <goal>dependencies</goal>
             </goals>
           </execution>
         </executions>
