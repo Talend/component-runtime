@@ -23,6 +23,8 @@ import org.talend.commons.ui.gmf.util.DisplayUtils;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.Element;
 import org.talend.designer.core.model.FakeElement;
+import org.talend.designer.core.model.components.EParameterName;
+import org.talend.designer.core.ui.editor.nodes.Node;
 import org.talend.designer.core.ui.views.properties.composites.MissingSettingsMultiThreadDynamicComposite;
 import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 
@@ -48,6 +50,10 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
     /**
      * For each {@link TaCoKitElementParameter} registers PropertyChangeListener, which calls
      * {@link this#refresh()} on each {@link TaCoKitElementParameter} value change event
+     * 
+     * Note, component has special parameter UPDATE_COMPONENTS, which is checked to know whether it is required to
+     * refresh layout.
+     * So, it should be true to force refresh
      */
     private void init() {
         elem
@@ -55,7 +61,11 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
                 .stream()
                 .filter(p -> p instanceof TaCoKitElementParameter)
                 .map(p -> (TaCoKitElementParameter) p)
-                .forEach(p -> p.addPropertyChangeListener(EVENT_PROPERTY_VALUE_CHANGED, event -> refresh()));
+                .forEach(p -> p.addPropertyChangeListener(EVENT_PROPERTY_VALUE_CHANGED, event -> {
+                    Node node = (Node) elem;
+                    node.getElementParameter(EParameterName.UPDATE_COMPONENTS.getName()).setValue(Boolean.TRUE);
+                    refresh();
+                }));
     }
 
     // TODO is it required?
@@ -72,6 +82,21 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         } else { // async exec
             super.refresh();
         }
+    }
+
+    /**
+     * Specifies minimal height of current UI element
+     * 
+     * @return minimal height
+     */
+    @Override
+    public int getMinHeight() {
+        if (minHeight < 200) {
+            return 200;
+        } else if (minHeight > 700) {
+            return 700;
+        }
+        return minHeight;
     }
 
 }
