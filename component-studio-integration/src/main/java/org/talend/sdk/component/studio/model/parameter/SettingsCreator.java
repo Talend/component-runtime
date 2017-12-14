@@ -89,7 +89,15 @@ public class SettingsCreator implements PropertyVisitor {
 
         activators.forEach((path, activator) -> {
             TaCoKitElementParameter targetParameter = settings.get(path);
-            targetParameter.addPropertyChangeListener(EVENT_PROPERTY_VALUE_CHANGED, activator);
+            targetParameter.registerListener(EVENT_PROPERTY_VALUE_CHANGED, activator);
+            // TODO Make it more clear. This is needed to set initial show/hidden value of dependent parameter according
+            // value of this param
+            targetParameter.setValue(targetParameter.getValue());
+            // TODO Fix it/Make it more clear
+            // It denotes that when this parameter is changed, view should be redrawn. Composite class registers
+            // additional listener for such
+            // parameter
+            targetParameter.setForceRefresh(true);
         });
 
         return Collections.unmodifiableList(new ArrayList<>(settings.values()));
