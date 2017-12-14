@@ -46,6 +46,10 @@ public class TaCoKitElementParameter extends ElementParameter {
         this.pcs.addPropertyChangeListener(listener);
     }
 
+    public void addPropertyChangeListener(final String propertyName, final PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(propertyName, listener);
+    }
+
     public void removePropertyChangeListener(final PropertyChangeListener listener) {
         this.pcs.removePropertyChangeListener(listener);
     }

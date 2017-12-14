@@ -15,11 +15,14 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.CONDITION_IF_TARGET;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.CONDITION_IF_VALUE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.MAIN_FORM;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.ORDER_SEPARATOR;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_GRIDLAYOUT_PREFIX;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_GRIDLAYOUT_SUFFIX;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_OPTIONS_ORDER;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.VALUE_SEPARATOR;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -272,6 +275,36 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
             }
         }
         return false;
+    }
+
+    /**
+     * Checks whether it has condition::if metadata
+     * 
+     * @return true, it it has condition::if metadata; false otherwise
+     */
+    boolean hasCondition() {
+        return delegate.getMetadata().containsKey(CONDITION_IF_VALUE)
+                && delegate.getMetadata().containsKey(CONDITION_IF_TARGET);
+    }
+
+    /**
+     * Returns condition::if::value metadata values
+     * 
+     * @return condition::if::value metadata values
+     */
+    String[] getConditionValues() {
+        if (!hasCondition()) {
+            throw new IllegalStateException("Property has no condition");
+        }
+        String conditionValue = delegate.getMetadata().get(CONDITION_IF_VALUE);
+        return conditionValue.split(VALUE_SEPARATOR);
+    }
+
+    String getConditionTarget() {
+        if (!hasCondition()) {
+            throw new IllegalStateException("Property has no condition");
+        }
+        return delegate.getMetadata().get(CONDITION_IF_TARGET);
     }
 
     @Override

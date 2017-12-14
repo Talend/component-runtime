@@ -47,10 +47,19 @@ public final class Metadatas {
      */
     public static final String UI_GRIDLAYOUT_SUFFIX = "::value";
 
+    public static final String CONDITION_IF_VALUE = "condition::if::value";
+
+    public static final String CONDITION_IF_TARGET = "condition::if::target";
+
     /**
      * Value separator for {@link #UI_OPTIONS_ORDER}
      */
     public static final String ORDER_SEPARATOR = ",";
+
+    /**
+     * Value separator for {@link #CONDITION_IF_VALUE}
+     */
+    public static final String VALUE_SEPARATOR = ",";
 
     public static final String MAIN_FORM = "Main";
 
