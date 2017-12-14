@@ -34,7 +34,8 @@ import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel.ValueModel;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
-public class TaCoKitWizardComposite extends MissingSettingsMultiThreadDynamicComposite implements PropertyChangeListener {
+public class TaCoKitWizardComposite extends MissingSettingsMultiThreadDynamicComposite
+        implements PropertyChangeListener {
 
     private List<PropertyChangeListener> propertyChangeListeners;
 
