@@ -18,6 +18,7 @@ package org.talend.sdk.component.junit;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -26,6 +27,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,11 +51,11 @@ public class SimpleFactory {
         }
         final ParameterMeta params = new SimpleParameterModelService().build(prefix, prefix, instance.getClass(),
                 new Annotation[0], instance.getClass().getPackage().getName());
-        return computeConfiguration(params.getNestedParameters(), instance);
+        return computeConfiguration(params.getNestedParameters(), instance, new HashMap<>());
     }
 
     private static Map<String, String> computeConfiguration(final List<ParameterMeta> nestedParameters,
-            final Object instance) {
+            final Object instance, final Map<Integer, Integer> indexes) {
         if (nestedParameters == null) {
             return emptyMap();
         }
@@ -65,21 +67,30 @@ public class SimpleFactory {
 
             switch (param.getType()) {
             case OBJECT:
-                return computeConfiguration(param.getNestedParameters(), value);
+                return computeConfiguration(param.getNestedParameters(), value, indexes);
             case ARRAY:
                 final Collection<Object> values = Collection.class.isInstance(value) ? Collection.class.cast(value)
                         : /* array */asList(Object[].class.cast(value));
-                final AtomicInteger index = new AtomicInteger(0);
-                return values.stream().map(item -> {
-                    final int idx = index.getAndIncrement();
-                    if (param.getNestedParameters().size() == 1
-                            && isPrimitive(param.getNestedParameters().iterator().next())) {
-                        return singletonMap(param.getPath() + "[" + idx + "]", item.toString());
-                    }
-                    return computeConfiguration(param.getNestedParameters(), item);
+                final int arrayIndex = indexes.keySet().size();
+                final AtomicInteger valuesIndex = new AtomicInteger(0);
+                final Map<String, String> config = values.stream().map((Object item) -> {
+                    indexes.put(arrayIndex, valuesIndex.getAndIncrement());
+                    final Map<String, String> res =
+                            param.getNestedParameters().stream().filter(SimpleFactory::isPrimitive).collect(
+                                    toMap(p -> evaluateIndexes(p.getPath(), indexes),
+                                            p -> getValue(item, p.getName()).toString()));
+
+                    res.putAll(computeConfiguration(
+                            param.getNestedParameters().stream().filter(p -> !isPrimitive(p)).collect(toList()), item,
+                            indexes));
+                    return res;
                 }).flatMap(m -> m.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+                indexes.clear();// clear index after the end of array handling
+                return config;
+
             default: // primitives
-                return singletonMap(param.getPath(), value.toString());
+                return singletonMap(evaluateIndexes(param.getPath(), indexes), value.toString());
             }
         }).flatMap(m -> m.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
@@ -119,11 +130,26 @@ public class SimpleFactory {
         }
     }
 
+    private static String evaluateIndexes(final String path, final Map<Integer, Integer> indexes) {
+        if (indexes == null || indexes.isEmpty()) {
+            return path;
+        }
+        String placeholder = "${index}";
+        String p = path;
+        StringBuilder evaluatedPath = new StringBuilder();
+        for (Map.Entry<Integer, Integer> index : indexes.entrySet()) {
+            int i = p.indexOf(placeholder);
+            evaluatedPath.append(p.substring(0, i)).append(index.getValue()).append("]");
+            p = p.substring(i + placeholder.length() + 1);
+        }
+        return evaluatedPath.append(p).toString();
+    }
+
     private static class SimpleParameterModelService extends ParameterModelService {
 
         private ParameterMeta build(final String name, final String prefix, final Type genericType,
                 final Annotation[] annotations, final String i18nPackage) {
             return super.buildParameter(name, prefix, genericType, annotations, i18nPackage);
         }
-    };
+    }
 }
