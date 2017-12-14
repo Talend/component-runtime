@@ -15,9 +15,12 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +30,7 @@ import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
+import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivator;
 
 /**
  * Creates properties from leafs
@@ -34,7 +38,7 @@ import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 public class SettingsCreator implements PropertyVisitor {
 
     /**
-     * {@link ElementParameter} has numRow field which stores widget relative position (row number on which it
+     * {@link TaCoKitElementParameter} has numRow field which stores widget relative position (row number on which it
      * appears)
      * If numRow = 10, this does not necessarily mean that widget will be shown on 10th line,
      * but when 1 parameter has numRow = 8, and 2 has numRow = 10, then 2 will shown under 1
@@ -42,12 +46,12 @@ public class SettingsCreator implements PropertyVisitor {
     private int lastRowNumber = 2;
 
     /**
-     * Element(Node) for which parameters are created. It is required to set {@link ElementParameter} constructor
+     * Element(Node) for which parameters are created. It is required to set {@link TaCoKitElementParameter} constructor
      */
     private final IElement iNode;
 
     /**
-     * Defines {@link EComponentCategory} to be set in created {@link ElementParameter}
+     * Defines {@link EComponentCategory} to be set in created {@link TaCoKitElementParameter}
      * It may be {@link EComponentCategory#BASIC} or {@link EComponentCategory#ADVANCED}
      * for Basic and Advanced view correspondingly
      */
@@ -59,9 +63,16 @@ public class SettingsCreator implements PropertyVisitor {
     private final String formName;
 
     /**
-     * Stores created component parameters
+     * Stores created component parameters.
+     * Key is parameter name (which is also its path)
      */
-    private List<ElementParameter> settings = new ArrayList<>();
+    private final Map<String, TaCoKitElementParameter> settings = new HashMap<>();
+
+    /**
+     * Stores created {@link ParameterActivator} for further registering them into corresponding
+     * {@link ElementParameter}
+     */
+    private final Map<String, ParameterActivator> activators = new HashMap<>();
 
     public SettingsCreator(final IElement iNode, final EComponentCategory category) {
         this.iNode = iNode;
@@ -69,8 +80,27 @@ public class SettingsCreator implements PropertyVisitor {
         formName = (category == EComponentCategory.ADVANCED) ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
     }
 
+    /**
+     * Registers created Listeners in {@link TaCoKitElementParameter} and returns list of created parameters
+     * 
+     * @return created parameters
+     */
     public List<ElementParameter> getSettings() {
-        return Collections.unmodifiableList(settings);
+
+        activators.forEach((path, activator) -> {
+            TaCoKitElementParameter targetParameter = settings.get(path);
+            targetParameter.registerListener(EVENT_PROPERTY_VALUE_CHANGED, activator);
+            // TODO Make it more clear. This is needed to set initial show/hidden value of dependent parameter according
+            // value of this param
+            targetParameter.setValue(targetParameter.getValue());
+            // TODO Fix it/Make it more clear
+            // It denotes that when this parameter is changed, view should be redrawn. Composite class registers
+            // additional listener for such
+            // parameter
+            targetParameter.setForceRefresh(true);
+        });
+
+        return Collections.unmodifiableList(new ArrayList<>(settings.values()));
     }
 
     /**
@@ -80,7 +110,7 @@ public class SettingsCreator implements PropertyVisitor {
     @Override
     public void visit(final PropertyNode node) {
         if (node.isLeaf()) {
-            ElementParameter parameter = null;
+            TaCoKitElementParameter parameter = null;
             switch (node.getFieldType()) {
             case CHECK:
                 parameter = visitCheck(node);
@@ -94,7 +124,7 @@ public class SettingsCreator implements PropertyVisitor {
             default:
                 parameter = createParameter(node);
             }
-            settings.add(parameter);
+            settings.put(parameter.getName(), parameter);
         }
     }
 
@@ -102,16 +132,16 @@ public class SettingsCreator implements PropertyVisitor {
         return this.iNode;
     }
 
-    void addSetting(final ElementParameter setting) {
-        settings.add(setting);
+    void addSetting(final TaCoKitElementParameter setting) {
+        settings.put(setting.getName(), setting);
     }
 
     /**
-     * Creates {@link ElementParameter} for Check field type
+     * Creates {@link TaCoKitElementParameter} for Check field type
      * Converts default value from String to Boolean and sets it
      */
-    private ElementParameter visitCheck(final PropertyNode node) {
-        ElementParameter parameter = createParameter(node);
+    private TaCoKitElementParameter visitCheck(final PropertyNode node) {
+        TaCoKitElementParameter parameter = createParameter(node);
         String defaultValue = node.getProperty().getDefaultValue();
         if (defaultValue == null) {
             parameter.setValue(false);
@@ -122,11 +152,11 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     /**
-     * Creates {@link ElementParameter} for Closed List field type
+     * Creates {@link TaCoKitElementParameter} for Closed List field type
      * Sets Closed List possible values and sets 1st element as default
      */
-    private ElementParameter visitClosedList(final PropertyNode node) {
-        ElementParameter parameter = createParameter(node);
+    private TaCoKitElementParameter visitClosedList(final PropertyNode node) {
+        TaCoKitElementParameter parameter = createParameter(node);
         PropertyValidation validation = node.getProperty().getValidation();
         if (validation == null) {
             throw new IllegalArgumentException("validation should not be null");
@@ -148,12 +178,12 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     /**
-     * Creates {@link ElementParameter} for Table field type
+     * Creates {@link TaCoKitElementParameter} for Table field type
      * Sets special fields specific for Table parameter
      * Based on schema field controls whether table toolbox (buttons under table) is shown
      */
-    private ElementParameter visitTable(final TablePropertyNode tableNode) {
-        ElementParameter parameter = createParameter(tableNode);
+    private TaCoKitElementParameter visitTable(final TablePropertyNode tableNode) {
+        TaCoKitElementParameter parameter = createParameter(tableNode);
 
         List<ElementParameter> tableParameters = createTableParameters(tableNode);
         List<String> codeNames = new ArrayList<>(tableParameters.size());
@@ -175,10 +205,10 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     /**
-     * Creates {@link ElementParameter} and sets common state for different types of parameters
+     * Creates {@link TaCoKitElementParameter} and sets common state for different types of parameters
      */
-    private ElementParameter createParameter(final PropertyNode node) {
-        ElementParameter parameter = new TaCoKitElementParameter(iNode);
+    private TaCoKitElementParameter createParameter(final PropertyNode node) {
+        TaCoKitElementParameter parameter = new TaCoKitElementParameter(iNode);
         parameter.setCategory(category);
         parameter.setDisplayName(node.getProperty().getDisplayName());
         parameter.setFieldType(node.getFieldType());
@@ -190,6 +220,9 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setNumRow(lastRowNumber);
         parameter.setShow(true);
         parameter.setValue(node.getProperty().getDefaultValue());
+        if (node.getProperty().hasCondition()) {
+            createParameterActivator(node, parameter);
+        }
         return parameter;
     }
 
@@ -204,5 +237,20 @@ public class SettingsCreator implements PropertyVisitor {
         SettingsCreator creator = new SettingsCreator(new FakeElement("table"), category);
         columns.forEach(column -> creator.visit(column));
         return creator.getSettings();
+    }
+
+    private void createParameterActivator(final PropertyNode node, final ElementParameter parameter) {
+        String[] conditionValues = node.getProperty().getConditionValues();
+        ParameterActivator activator = new ParameterActivator(conditionValues, parameter);
+        activators.put(computeTargetPath(node), activator);
+    }
+
+    /**
+     * Computes target path of {@link TaCoKitElementParameter}, which should be listened by Listener
+     * 
+     * @return target path
+     */
+    private String computeTargetPath(final PropertyNode node) {
+        return node.getParentId() + "." + node.getProperty().getConditionTarget();
     }
 }

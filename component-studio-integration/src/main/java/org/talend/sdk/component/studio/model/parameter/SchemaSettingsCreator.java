@@ -20,7 +20,6 @@ import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.components.EParameterName;
-import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 
 /**
@@ -45,7 +44,7 @@ public class SchemaSettingsCreator extends SettingsCreator {
      * FIXME
      */
     private void addSchemaProperty() {
-        ElementParameter schema = new TaCoKitElementParameter(getNode());
+        TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
         schema.setName("SCHEMA");
         schema.setDisplayName("!!!SCHEMA.NAME!!!");
         schema.setCategory(EComponentCategory.BASIC);
@@ -58,7 +57,7 @@ public class SchemaSettingsCreator extends SettingsCreator {
 
         // add child parameters
         // defines whether schema is built-in or repository
-        ElementParameter childParameter1 = new TaCoKitElementParameter(getNode());
+        TaCoKitElementParameter childParameter1 = new TaCoKitElementParameter(getNode());
         childParameter1.setCategory(EComponentCategory.BASIC);
         childParameter1.setContext(EConnectionType.FLOW_MAIN.getName());
         childParameter1.setDisplayName("Schema");
@@ -74,7 +73,7 @@ public class SchemaSettingsCreator extends SettingsCreator {
         childParameter1.setValue("BUILT_IN");
         schema.getChildParameters().put(EParameterName.SCHEMA_TYPE.getName(), childParameter1);
 
-        ElementParameter childParameter2 = new TaCoKitElementParameter(getNode());
+        TaCoKitElementParameter childParameter2 = new TaCoKitElementParameter(getNode());
         childParameter2.setCategory(EComponentCategory.BASIC);
         childParameter2.setContext(EConnectionType.FLOW_MAIN.getName());
         childParameter2.setDisplayName("Repository");

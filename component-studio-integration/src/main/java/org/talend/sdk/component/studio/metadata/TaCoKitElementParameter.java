@@ -20,6 +20,9 @@ import java.util.List;
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.components.ElementParameter;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * DOC cmeng class global comment. Detailled comment
  */
@@ -28,6 +31,10 @@ public class TaCoKitElementParameter extends ElementParameter {
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     private final List<IValueChangedListener> valueChangeListeners = new ArrayList<>();
+
+    @Setter
+    @Getter
+    private boolean isForceRefresh = false;
 
     public TaCoKitElementParameter(final IElement element) {
         super(element);
@@ -46,8 +53,16 @@ public class TaCoKitElementParameter extends ElementParameter {
         this.pcs.addPropertyChangeListener(listener);
     }
 
+    public void registerListener(final String propertyName, final PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(propertyName, listener);
+    }
+
     public void removePropertyChangeListener(final PropertyChangeListener listener) {
         this.pcs.removePropertyChangeListener(listener);
+    }
+
+    public void unregisterListener(final String propertyName, final PropertyChangeListener listener) {
+        pcs.removePropertyChangeListener(propertyName, listener);
     }
 
     private boolean hasPropertyChangeListener() {

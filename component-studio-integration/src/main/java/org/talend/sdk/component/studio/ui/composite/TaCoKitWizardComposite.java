@@ -34,7 +34,8 @@ import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel.ValueModel;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
-public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite implements PropertyChangeListener {
+public class TaCoKitWizardComposite extends MissingSettingsMultiThreadDynamicComposite
+        implements PropertyChangeListener {
 
     private List<PropertyChangeListener> propertyChangeListeners;
 
@@ -46,7 +47,7 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
 
     private TaCoKitConfigurationModel configurationModel;
 
-    public TaCoKitComposite(final Composite parentComposite, final int styles, final EComponentCategory section,
+    public TaCoKitWizardComposite(final Composite parentComposite, final int styles, final EComponentCategory section,
             final Element element, final TaCoKitConfigurationModel model, final boolean isCompactView,
             final Color backgroundColor) {
         super(parentComposite, styles, section, element, isCompactView, backgroundColor);
