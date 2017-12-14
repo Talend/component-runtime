@@ -33,9 +33,9 @@ import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.Element;
 import org.talend.core.model.process.INode;
 import org.talend.core.runtime.services.IGenericWizardService;
-import org.talend.designer.core.ui.views.properties.composites.MissingSettingsMultiThreadDynamicComposite;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.service.ComponentService;
+import org.talend.sdk.component.studio.view.TaCoKitComposite;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 import lombok.RequiredArgsConstructor;
@@ -143,8 +143,8 @@ public class Lookups {
         private Composite creatComposite(final Composite parent, final Element element,
                 final EComponentCategory category, final boolean isCompactView) {
 
-            return new MissingSettingsMultiThreadDynamicComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS,
-                    category, element, isCompactView);
+            return new TaCoKitComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS, category, element,
+                    isCompactView, null);
         }
     }
 

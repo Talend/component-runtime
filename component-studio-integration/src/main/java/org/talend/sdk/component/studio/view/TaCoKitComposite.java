@@ -34,6 +34,12 @@ import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite {
 
     public TaCoKitComposite(final Composite parentComposite, final int styles, final EComponentCategory section,
+            final Element element, final boolean isCompactView) {
+        super(parentComposite, styles, section, element, isCompactView);
+        init();
+    }
+
+    public TaCoKitComposite(final Composite parentComposite, final int styles, final EComponentCategory section,
             final Element element, final boolean isCompactView, final Color backgroundColor) {
         super(parentComposite, styles, section, element, isCompactView, backgroundColor);
         init();
