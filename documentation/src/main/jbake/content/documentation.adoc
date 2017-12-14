@@ -1396,6 +1396,19 @@ Here is how to use it:
 </plugin>
 ----
 
+Note that this plugin is also an extension so you can declare it in your `build/extensions` block as:
+
+[source,xml]
+----
+<extension>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${component.version}</version>
+</extension>
+----
+
+Used as an extension, `dependencies`, `validate` and `documentation` goals will be set up.
+
 === Dependencies
 
 The first goal is a shortcut for the `maven-dependency-plugin`, it will create the `TALEND-INF/dependencies.txt` file
