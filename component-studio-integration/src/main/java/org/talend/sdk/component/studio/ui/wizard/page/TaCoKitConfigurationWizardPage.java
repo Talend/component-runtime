@@ -40,7 +40,7 @@ import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.model.parameter.PropertyNode;
 import org.talend.sdk.component.studio.model.parameter.PropertyNodeUtils;
 import org.talend.sdk.component.studio.model.parameter.SettingsCreator;
-import org.talend.sdk.component.studio.ui.composite.TaCoKitComposite;
+import org.talend.sdk.component.studio.ui.composite.TaCoKitWizardComposite;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
 
 /**
@@ -50,7 +50,7 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage impleme
 
     private Element element;
 
-    private TaCoKitComposite tacokitComposite;
+    private TaCoKitWizardComposite tacokitComposite;
 
     private TaCoKitConfigurationModel configurationModel;
 
@@ -89,7 +89,7 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage impleme
         element.setReadOnly(runtimeData.isReadonly());
         element.setElementParameters(parameters);
 
-        tacokitComposite = new TaCoKitComposite(container, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS,
+        tacokitComposite = new TaCoKitWizardComposite(container, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS,
                 EComponentCategory.BASIC, element, configurationModel, true, container.getBackground());
         tacokitComposite.setLayoutData(createMainFormData(addContextFields));
         tacokitComposite.addPropertyChangeListener(this);
