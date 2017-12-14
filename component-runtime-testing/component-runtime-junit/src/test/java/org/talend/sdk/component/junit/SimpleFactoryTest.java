@@ -25,6 +25,9 @@ import java.util.List;
 import org.junit.Test;
 import org.talend.sdk.component.api.configuration.Option;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
 public class SimpleFactoryTest {
 
     @Test
@@ -83,6 +86,82 @@ public class SimpleFactoryTest {
         }, configurationByExample(root));
     }
 
+    @Test
+    public void listOfObject() {
+        final ListOfObjects root = new ListOfObjects();
+        root.list = new ArrayList<>();
+        root.list.add(new Flat("a", 1));
+        root.list.add(new Flat("b", 2));
+
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("configuration.list[0].name", "a");
+                put("configuration.list[0].age", "1");
+
+                put("configuration.list[1].name", "b");
+                put("configuration.list[1].age", "2");
+            }
+        }, configurationByExample(root));
+    }
+
+    @Test
+    public void listOfObjectWithNested() {
+        final ListOfObjectWithNested root = new ListOfObjectWithNested();
+        root.list = new ArrayList<>();
+        root.list.add(new WithNested(new Flat("a", 1)));
+        root.list.add(new WithNested(new Flat("b", 2)));
+
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("configuration.list[0].flat.name", "a");
+                put("configuration.list[0].flat.age", "1");
+
+                put("configuration.list[1].flat.name", "b");
+                put("configuration.list[1].flat.age", "2");
+            }
+        }, configurationByExample(root));
+    }
+
+    @Test
+    public void listOfListObjectWithNested() {
+        final ListOfListWithNested root = new ListOfListWithNested();
+
+        final ListOfObjectWithNested child1 = new ListOfObjectWithNested();
+        child1.list = new ArrayList<>();
+        child1.list.add(new WithNested(new Flat("a", 1)));
+        child1.list.add(new WithNested(new Flat("b", 2)));
+
+        final ListOfObjectWithNested child2 = new ListOfObjectWithNested();
+        child2.list = new ArrayList<>();
+        child2.list.add(new WithNested(new Flat("c", 3)));
+        child2.list.add(new WithNested(new Flat("d", 4)));
+
+        root.list = new ArrayList<>();
+        root.list.add(child1);
+        root.list.add(child2);
+
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("configuration.list[0].list[0].flat.name", "a");
+                put("configuration.list[0].list[0].flat.age", "1");
+
+                put("configuration.list[0].list[1].flat.name", "b");
+                put("configuration.list[0].list[1].flat.age", "2");
+
+                put("configuration.list[1].list[0].flat.name", "c");
+                put("configuration.list[1].list[0].flat.age", "3");
+
+                put("configuration.list[1].list[1].flat.name", "d");
+                put("configuration.list[1].list[1].flat.age", "4");
+            }
+        }, configurationByExample(root));
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Flat {
 
         @Option
@@ -92,6 +171,8 @@ public class SimpleFactoryTest {
         private int age;
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class WithNested {
 
         @Option("nested")
@@ -102,5 +183,23 @@ public class SimpleFactoryTest {
 
         @Option("array")
         private List<String> list;
+    }
+
+    public static class ListOfObjects {
+
+        @Option("array")
+        private List<Flat> list;
+    }
+
+    public static class ListOfObjectWithNested {
+
+        @Option("array")
+        private List<WithNested> list;
+    }
+
+    public static class ListOfListWithNested {
+
+        @Option("array")
+        List<ListOfObjectWithNested> list;
     }
 }
