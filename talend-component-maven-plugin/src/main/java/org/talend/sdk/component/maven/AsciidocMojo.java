@@ -20,6 +20,7 @@ import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSE
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -84,6 +85,12 @@ public class AsciidocMojo extends ClasspathMojoBase {
     private String title;
 
     /**
+     * Render html and PDF outputs flag.
+     */
+    @Parameter(property = "talend.documentation.htmlAndPdf", defaultValue = "false")
+    private boolean htmlAndPdf;
+
+    /**
      * The title of the documentation if rendered as pdf or html (see formats).
      */
     @Parameter(property = "talend.documentation.attach", defaultValue = "true")
@@ -101,13 +108,23 @@ public class AsciidocMojo extends ClasspathMojoBase {
 
     @Override
     public void doExecute() {
+        final Map<String, String> formats = htmlAndPdf ? new HashMap<String, String>() {
+
+            {
+                put("html",
+                        new File(output.getParentFile(), output.getName().replace(".adoc", ".html")).getAbsolutePath());
+                put("pdf",
+                        new File(output.getParentFile(), output.getName().replace(".adoc", ".pdf")).getAbsolutePath());
+            }
+        } : this.formats;
         new AsciidocDocumentationGenerator(new File[] { classes }, output,
                 title == null ? ofNullable(project.getName()).orElse(project.getArtifactId()) : title, level, formats,
                 attributes, templateDir, templateEngine, getLog(), workDir, version).run();
         if (attachDocumentations) {
             Stream
                     .concat(Stream.of(output),
-                            ofNullable(formats).map(m -> m.values().stream().map(File::new)).orElseGet(Stream::empty))
+                            ofNullable(this.formats).map(m -> m.values().stream().map(File::new)).orElseGet(
+                                    Stream::empty))
                     .filter(File::exists)
                     .forEach(artifact -> {
                         final String artifactName = artifact.getName();

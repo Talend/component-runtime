@@ -1523,6 +1523,9 @@ a|`${classes}/TALEND-INF/documentation.adoc`
 | true
 |===
 
+TIP: if you use the extension you can add the property `talend.documentation.htmlAndPdf` and set it to `true` in your project
+to automatically get a html and PDF rendering of the documentation.
+
 ==== Render your documentation
 
 ===== HTML
