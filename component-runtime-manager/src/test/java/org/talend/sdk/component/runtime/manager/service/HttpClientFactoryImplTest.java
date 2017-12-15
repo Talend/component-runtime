@@ -29,6 +29,10 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpServer;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.talend.sdk.component.api.service.http.Codec;
 import org.talend.sdk.component.api.service.http.Decoder;
@@ -38,9 +42,6 @@ import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.Path;
 import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
-
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpServer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -74,33 +75,13 @@ public class HttpClientFactoryImplTest {
     @Test
     public void methodKo() {
         assertEquals(singletonList("No @Request on public abstract java.lang.String "
-                + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$MethodKo.main(java.lang.String)"),
+                        + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$MethodKo.main(java.lang.String)"),
                 HttpClientFactoryImpl.createErrors(MethodKo.class));
     }
 
     @Test
     public void request() throws IOException {
-        final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
-        server.createContext("/").setHandler(httpExchange -> {
-            final Headers headers = httpExchange.getRequestHeaders();
-            final byte[] bytes;
-            try (final BufferedReader in =
-                    new BufferedReader(new InputStreamReader(httpExchange.getRequestBody(), StandardCharsets.UTF_8))) {
-                bytes = (httpExchange.getRequestMethod() + "@"
-                        + headers
-                                .keySet()
-                                .stream()
-                                .sorted()
-                                .filter(k -> !asList("Accept", "Host", "User-agent").contains(k))
-                                .map(k -> k + "=" + headers.getFirst(k))
-                                .collect(joining("/"))
-                        + "@" + httpExchange.getRequestURI().toASCIIString() + "@" + in.lines().collect(joining("\n")))
-                                .getBytes(StandardCharsets.UTF_8);
-            }
-            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
-            httpExchange.getResponseBody().write(bytes);
-            httpExchange.close();
-        });
+        final HttpServer server = createTestServer();
         try {
             server.start();
             final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
@@ -114,6 +95,51 @@ public class HttpClientFactoryImplTest {
         } finally {
             server.stop(0);
         }
+    }
+
+    @Test
+    @Ignore("no private access for invokespecial") //todo
+    public void requestDefault() throws IOException {
+        final HttpServer server = createTestServer();
+        try {
+            server.start();
+            final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
+            HttpClient.class.cast(ok).base("http://localhost:" + server.getAddress().getPort() + "/api");
+
+            final String result = ok.defaultMain1(new Payload("test"), "search yes").value;
+            assertEquals(
+                    "POST@" + "Authorization=token/" + "Connection=keep-alive/" + "Content-length=4/"
+                            + "Content-type=application/x-www-form-urlencoded@" + "/api/?q=search+yes@" + "test",
+                    result);
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    public HttpServer createTestServer() throws IOException {
+        final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/").setHandler(httpExchange -> {
+            final Headers headers = httpExchange.getRequestHeaders();
+            final byte[] bytes;
+            try (final BufferedReader in =
+                    new BufferedReader(new InputStreamReader(httpExchange.getRequestBody(), StandardCharsets.UTF_8))) {
+                bytes = (httpExchange.getRequestMethod() + "@"
+                        + headers
+                        .keySet()
+                        .stream()
+                        .sorted()
+                        .filter(k -> !asList("Accept", "Host", "User-agent").contains(k))
+                        .map(k -> k + "=" + headers.getFirst(k))
+                        .collect(joining("/"))
+                        + "@" + httpExchange.getRequestURI().toASCIIString() + "@" + in.lines().collect(joining("\n")))
+                        .getBytes(StandardCharsets.UTF_8);
+            }
+            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
+            httpExchange.getResponseBody().write(bytes);
+            httpExchange.close();
+        });
+
+        return server;
     }
 
     public interface ComplexOk extends HttpClient {
@@ -132,6 +158,10 @@ public class HttpClientFactoryImplTest {
         @Request
         @Codec(decoder = PayloadCodec.class, encoder = PayloadCodec.class)
         Payload main4(Payload ok, @Header("Authorization") String auth, @Path("id") int id, @Query("q") String q);
+
+        default Payload defaultMain1(Payload ok, String q) {
+            return main4(ok, "token", 1, q);
+        }
     }
 
     public interface DecoderKo {
