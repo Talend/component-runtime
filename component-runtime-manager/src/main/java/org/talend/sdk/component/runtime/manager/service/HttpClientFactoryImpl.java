@@ -99,7 +99,8 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
     public static <T> Collection<String> createErrors(final Class<T> api) {
         final Collection<String> errors = new ArrayList<>();
         final Collection<Method> methods =
-                Stream.of(api.getMethods()).filter(m -> m.getDeclaringClass() == api).collect(toList());
+                Stream.of(api.getMethods()).filter(m -> m.getDeclaringClass() == api && !m.isDefault()).collect(
+                        toList());
         errors.addAll(methods
                 .stream()
                 .filter(m -> !m.isAnnotationPresent(Request.class))
