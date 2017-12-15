@@ -118,6 +118,9 @@ public class SettingsCreator implements PropertyVisitor {
             case CLOSED_LIST:
                 parameter = visitClosedList(node);
                 break;
+            case PASSWORD:
+                parameter = visitPassword(node);
+                break;
             case TABLE:
                 parameter = visitTable((TablePropertyNode) node);
                 break;
@@ -178,6 +181,14 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     /**
+     * Creates {@link TaCoKitElementParameter} for Password field type
+     * Does nothing. It is intended to be overridden to quick fix password display issue
+     */
+    protected TaCoKitElementParameter visitPassword(final PropertyNode node) {
+        return createParameter(node);
+    }
+
+    /**
      * Creates {@link TaCoKitElementParameter} for Table field type
      * Sets special fields specific for Table parameter
      * Based on schema field controls whether table toolbox (buttons under table) is shown
@@ -207,7 +218,7 @@ public class SettingsCreator implements PropertyVisitor {
     /**
      * Creates {@link TaCoKitElementParameter} and sets common state for different types of parameters
      */
-    private TaCoKitElementParameter createParameter(final PropertyNode node) {
+    protected TaCoKitElementParameter createParameter(final PropertyNode node) {
         TaCoKitElementParameter parameter = new TaCoKitElementParameter(iNode);
         parameter.setCategory(category);
         parameter.setDisplayName(node.getProperty().getDisplayName());
