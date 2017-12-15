@@ -125,7 +125,7 @@ public class ConfluenceUpdater implements Runnable {
             master = null;
         }
 
-        final MvnServerExtractor extractor = new MvnServerExtractor(master);
+        final MvnServerExtractor extractor = new MvnServerExtractor(master, settingsServerId);
         try (final InputStream is = new FileInputStream(file)) {
             parser.parse(is, extractor);
         } catch (final IOException | SAXException e) {
@@ -163,35 +163,47 @@ public class ConfluenceUpdater implements Runnable {
 
         private final String passphrase;
 
+        private final String serverId;
+
         private Server server;
+
+        private boolean done;
 
         private StringBuilder current;
 
-        private MvnServerExtractor(final String passphrase) {
+        private MvnServerExtractor(final String passphrase, final String serverId) {
             this.passphrase = doDecrypt(passphrase, "settings.security");
+            this.serverId = serverId;
         }
 
         @Override
         public void startElement(final String uri, final String localName, final String qName,
-                final Attributes attributes) throws SAXException {
+                final Attributes attributes) {
             if ("server".equalsIgnoreCase(qName)) {
-                server = new Server();
+                if (!done) {
+                    server = new Server();
+                }
             } else if (server != null) {
                 current = new StringBuilder();
             }
         }
 
         @Override
-        public void characters(final char[] ch, final int start, final int length) throws SAXException {
+        public void characters(final char[] ch, final int start, final int length) {
             if (current != null) {
                 current.append(new String(ch, start, length));
             }
         }
 
         @Override
-        public void endElement(final String uri, final String localName, final String qName) throws SAXException {
+        public void endElement(final String uri, final String localName, final String qName) {
+            if (done) {
+                return;
+            }
             if ("server".equalsIgnoreCase(qName)) {
-                if (!server.id.equals("talend-confluence")) {
+                if (server.id.equals(serverId)) {
+                    done = true;
+                } else if (!done) {
                     server = null;
                 }
             } else if (server != null && current != null) {
@@ -280,14 +292,14 @@ public class ConfluenceUpdater implements Runnable {
 
         @Override
         public void startElement(final String uri, final String localName, final String qName,
-                final Attributes attributes) throws SAXException {
+                final Attributes attributes) {
             if ("master".equalsIgnoreCase(qName)) {
                 current = new StringBuilder();
             }
         }
 
         @Override
-        public void characters(final char[] ch, final int start, final int length) throws SAXException {
+        public void characters(final char[] ch, final int start, final int length) {
             if (current != null) {
                 current.append(new String(ch, start, length));
             }

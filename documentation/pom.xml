@@ -36,64 +36,77 @@
     <revealjs.version>3.5.0</revealjs.version>
     <asciidoctor-revealjs.version>1.0.2</asciidoctor-revealjs.version>
     <jbake.site.rootpath></jbake.site.rootpath>
+    <args4j.version>2.33</args4j.version>
+    <cxf-rt-frontend-jaxrs.version>3.2.1</cxf-rt-frontend-jaxrs.version>
+    <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-api</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server</artifactId>
       <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>talend-component-maven-plugin</artifactId>
       <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-junit</artifactId>
       <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.tomee</groupId>
       <artifactId>ziplock</artifactId>
       <version>${ziplock.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-finder-shaded</artifactId>
       <version>${xbean.version}</version>
+      <scope>provided</scope>
     </dependency>
-
 
     <dependency>
       <groupId>org.eclipse.jgit</groupId>
       <artifactId>org.eclipse.jgit</artifactId>
       <version>${jgit.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>args4j</groupId>
       <artifactId>args4j</artifactId>
-      <version>2.33</version>
+      <version>${args4j.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-      <version>3.1.12</version>
+      <version>${cxf-rt-frontend-jaxrs.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
       <version>${johnzon.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sonatype.plexus</groupId>
       <artifactId>plexus-sec-dispatcher</artifactId>
-      <version>1.4</version>
+      <version>${plexus-sec-dispatcher.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
@@ -147,7 +160,7 @@
             </goals>
             <configuration>
               <mainClass>org.talend.runtime.documentation.Generator</mainClass>
-              <includeProjectDependencies>true</includeProjectDependencies>
+              <includePluginDependencies>true</includePluginDependencies>
               <arguments>
                 <argument>${project.build.directory}</argument>
                 <argument>${talend.jira.username}</argument>
@@ -158,6 +171,63 @@
             </configuration>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.talend.sdk.component</groupId>
+            <artifactId>component-api</artifactId>
+            <version>${component-api.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.talend.sdk.component</groupId>
+            <artifactId>component-server</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.talend.sdk.component</groupId>
+            <artifactId>talend-component-maven-plugin</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.talend.sdk.component</groupId>
+            <artifactId>component-runtime-junit</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.tomee</groupId>
+            <artifactId>ziplock</artifactId>
+            <version>${ziplock.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-finder-shaded</artifactId>
+            <version>${xbean.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${jgit.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+            <version>${args4j.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <version>${cxf-rt-frontend-jaxrs.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-jsonb</artifactId>
+            <version>${johnzon.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sonatype.plexus</groupId>
+            <artifactId>plexus-sec-dispatcher</artifactId>
+            <version>${plexus-sec-dispatcher.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.jbake</groupId>

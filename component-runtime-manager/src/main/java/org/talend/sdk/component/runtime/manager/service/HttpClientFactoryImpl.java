@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -129,7 +130,17 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         private volatile ConcurrentMap<Method, Function<Object[], Object>> invokers;
 
         @Override
-        public Object invoke(final Object proxy, final Method method, final Object[] args) {
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            if (method.isDefault()) {
+                final Class<?> declaringClass = method.getDeclaringClass();
+                return MethodHandles
+                        .lookup()
+                        .in(declaringClass)
+                        .unreflectSpecial(method, declaringClass)
+                        .bindTo(proxy)
+                        .invokeWithArguments(args);
+            }
+
             final String methodName = method.getName();
             if (Object.class == method.getDeclaringClass()) {
                 switch (methodName) {

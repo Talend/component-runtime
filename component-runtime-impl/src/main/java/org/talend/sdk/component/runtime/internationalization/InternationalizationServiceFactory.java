@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.internationalization;
 
 import static java.util.function.Function.identity;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -70,6 +71,16 @@ public class InternationalizationServiceFactory {
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            if (method.isDefault()) {
+                final Class<?> declaringClass = method.getDeclaringClass();
+                return MethodHandles
+                        .lookup()
+                        .in(declaringClass)
+                        .unreflectSpecial(method, declaringClass)
+                        .bindTo(proxy)
+                        .invokeWithArguments(args);
+            }
+
             if (Object.class == method.getDeclaringClass()) {
                 switch (method.getName()) {
                 case "equals":
