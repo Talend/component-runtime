@@ -27,7 +27,7 @@
     <!--
     if you want to deploy into the studio you can use the related goal:
 
-    mvn talend-component:deploy-in-studio -Dtalend.component.studioHome=/path/to/studio
+    mvn package talend-component:deploy-in-studio -Dtalend.component.studioHome=/path/to/studio
 
     TIP: it is recommanded to set this property into your settings.xml in an active by default profile.
     -->
