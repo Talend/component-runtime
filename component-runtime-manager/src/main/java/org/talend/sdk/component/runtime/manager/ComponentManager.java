@@ -827,9 +827,9 @@ public class ComponentManager implements AutoCloseable {
                 registry.getServices().add(new ServiceMeta(instance, emptyList()));
             });
             finder
-                    .findAnnotatedClasses(Request.class)
+                    .findAnnotatedMethods(Request.class)
                     .stream()
-                    .map(Class::getDeclaringClass)
+                    .map(Method::getDeclaringClass)
                     .distinct()
                     .filter(HttpClient.class::isAssignableFrom) // others are created manually
                     .forEach(proxy -> {

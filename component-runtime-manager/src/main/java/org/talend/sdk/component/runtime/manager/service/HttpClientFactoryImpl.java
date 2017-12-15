@@ -192,7 +192,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     final int index = i;
                     if (parameters[i].isAnnotationPresent(Path.class)) {
                         final Path annotation = parameters[i].getAnnotation(Path.class);
-                        final String placeholder = "${" + annotation.value() + '}';
+                        final String placeholder = "{" + annotation.value() + '}';
                         final boolean encode = annotation.encode();
                         pathReplacements.add((p, params) -> {
                             String out = p;
