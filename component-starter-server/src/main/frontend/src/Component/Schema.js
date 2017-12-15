@@ -131,7 +131,8 @@ class Node extends React.Component {
                 <p>You can click on the <Icon name="talend-plus-circle" /> to add an object field, on the <Icon name="talend-trash" /> to delete one and on any field to edit its name and type.</p>
                 <p>To add a nested object just add a field, click on it, customize its name and select the type object into the select box then valid your updates.</p>
                 <p>
-                  <Icon name="talend-info-circle"/> The field names must be a valid java name (no space, special characters, ...).
+                  <Icon name="talend-info-circle"/> The field names must be a valid java name (no space, special characters, ...). If the field name contains
+                  some specific keywords it will be considered as a credential and marked as such (for instance <code>password</code>, <code>token</code>, ...);
                 </p>
               </span>
             } />
