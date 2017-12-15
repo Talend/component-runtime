@@ -206,6 +206,9 @@
         <configuration>
           <blackduckUrl>https://blackduck.talend.com</blackduckUrl>
           <blackduckName>Talend Component (TCOMP)</blackduckName>
+          <systemVariables>
+            <detect.maven.scope>runtime</detect.maven.scope>
+          </systemVariables>
         </configuration>
       </plugin>
       <plugin>
