@@ -36,7 +36,6 @@ import java.io.FileWriter;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
@@ -86,6 +85,7 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.Condit
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
+import org.talend.sdk.component.runtime.reflect.Defaults;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
@@ -530,9 +530,8 @@ public class Generator {
                         return type;
                     }
                     if (method.isDefault()) {
-                        return MethodHandles
-                                .lookup()
-                                .in(method.getDeclaringClass())
+                        return Defaults
+                                .of(method.getDeclaringClass())
                                 .unreflectSpecial(method, method.getDeclaringClass())
                                 .bindTo(proxy)
                                 .invokeWithArguments(args);

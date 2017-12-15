@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -62,6 +61,7 @@ import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.api.service.http.UseConfigurer;
+import org.talend.sdk.component.runtime.reflect.Defaults;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.AllArgsConstructor;
@@ -134,9 +134,8 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             if (method.isDefault()) {
                 final Class<?> declaringClass = method.getDeclaringClass();
-                return MethodHandles
-                        .lookup()
-                        .in(declaringClass)
+                return Defaults
+                        .of(declaringClass)
                         .unreflectSpecial(method, declaringClass)
                         .bindTo(proxy)
                         .invokeWithArguments(args);

@@ -224,6 +224,14 @@
           <blackduckName>Talend Component (TCOMP)</blackduckName>
           <systemVariables>
             <detect.maven.scope>runtime</detect.maven.scope>
+            <!-- for tests -->
+            <!--
+            <blackduck.hub.offline.mode>true</blackduck.hub.offline.mode>
+            <detect.risk.report.pdf>true</detect.risk.report.pdf>
+            <detect.risk.report.pdf.path>${project.build.directory}/blackhub.pdf</detect.risk.report.pdf.path>
+            <detect.notices.report.pdf>true</detect.notices.report.pdf>
+            <detect.notices.report.pdf.path>${project.build.directory}/blackhub.pdf</detect.notices.report.pdf.path>
+            -->
             <!--
             exclude volatiles or well known or not deliveries folders
             to avoid false positives

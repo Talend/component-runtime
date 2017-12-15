@@ -75,7 +75,7 @@ public class HttpClientFactoryImplTest {
     @Test
     public void methodKo() {
         assertEquals(singletonList("No @Request on public abstract java.lang.String "
-                        + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$MethodKo.main(java.lang.String)"),
+                + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$MethodKo.main(java.lang.String)"),
                 HttpClientFactoryImpl.createErrors(MethodKo.class));
     }
 
@@ -98,7 +98,6 @@ public class HttpClientFactoryImplTest {
     }
 
     @Test
-    @Ignore("no private access for invokespecial") //todo
     public void requestDefault() throws IOException {
         final HttpServer server = createTestServer();
         try {
@@ -125,14 +124,14 @@ public class HttpClientFactoryImplTest {
                     new BufferedReader(new InputStreamReader(httpExchange.getRequestBody(), StandardCharsets.UTF_8))) {
                 bytes = (httpExchange.getRequestMethod() + "@"
                         + headers
-                        .keySet()
-                        .stream()
-                        .sorted()
-                        .filter(k -> !asList("Accept", "Host", "User-agent").contains(k))
-                        .map(k -> k + "=" + headers.getFirst(k))
-                        .collect(joining("/"))
+                                .keySet()
+                                .stream()
+                                .sorted()
+                                .filter(k -> !asList("Accept", "Host", "User-agent").contains(k))
+                                .map(k -> k + "=" + headers.getFirst(k))
+                                .collect(joining("/"))
                         + "@" + httpExchange.getRequestURI().toASCIIString() + "@" + in.lines().collect(joining("\n")))
-                        .getBytes(StandardCharsets.UTF_8);
+                                .getBytes(StandardCharsets.UTF_8);
             }
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
             httpExchange.getResponseBody().write(bytes);
