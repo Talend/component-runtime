@@ -128,6 +128,13 @@
     <talend-icon.version>0.127.0</talend-icon.version>
     <component-api.version>1.0.0-SNAPSHOT</component-api.version>
 
+    <!-- for the starter -->
+    <gradle.version>4.4</gradle.version>
+    <mvn.version>3.5.2</mvn.version>
+
+    <!-- for doc -->
+    <revealjs.version>3.5.0</revealjs.version>
+
     <groovy.version>3.0.0-alpha-1</groovy.version>
     <gmavenplus.version>1.6</gmavenplus.version>
     <dependency-plugin.version>3.0.2</dependency-plugin.version>
@@ -202,12 +209,34 @@
               <goal>hub-detect</goal>
             </goals>
           </execution>
+          <!-- when 1.0.2 is released
+          <execution>
+            <id>blackduck-validate</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>validate</goal>
+            </goals>
+          </execution>
+          -->
         </executions>
         <configuration>
           <blackduckUrl>https://blackduck.talend.com</blackduckUrl>
           <blackduckName>Talend Component (TCOMP)</blackduckName>
           <systemVariables>
             <detect.maven.scope>runtime</detect.maven.scope>
+            <!--
+            exclude volatiles or well known or not deliveries folders
+            to avoid false positives
+            -->
+            <detect.hub.signature.scanner.relative.paths.to.exclude>
+              target/local-repo,
+              target/it,
+              target/gradle-${gradle.version},
+              target/gradle-fake-project-wrapper,
+              target/maven-fake-project-wrapper,
+              target/reveal.js-${revealjs.version},
+              target/documentation-${project.version},
+            </detect.hub.signature.scanner.relative.paths.to.exclude>
           </systemVariables>
         </configuration>
       </plugin>

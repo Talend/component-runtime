@@ -29,7 +29,6 @@
   <description>Provides Talend Component Kit Tools wrapped as Maven Mojos.</description>
 
   <properties>
-    <maven.version>3.5.0</maven.version>
     <components.version>0.19.7</components.version>
 
     <invoker.streamLogs>true</invoker.streamLogs>
@@ -58,12 +57,12 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-      <version>${maven.version}</version>
+      <version>${mvn.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
-      <version>${maven.version}</version>
+      <version>${mvn.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
