@@ -38,7 +38,8 @@ import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite {
 
     /**
-     * Reference to refresher listener. It is stored to be removed from parameters, when this composite is disposed
+     * Refresher {@link PropertyChangeListener}. It is created and registered during {@link this#init()}.
+     * It is unregistered during {@link this#dispose()}
      */
     private PropertyChangeListener refresher;
 
@@ -63,12 +64,19 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
      * So, it should be true to force refresh
      */
     private void init() {
+        createRefresherListener();
+        registerRefresherListener();
+    }
+
+    private void createRefresherListener() {
         refresher = event -> {
             Node node = (Node) elem;
             node.getElementParameter(EParameterName.UPDATE_COMPONENTS.getName()).setValue(Boolean.TRUE);
             refresh();
         };
+    }
 
+    private void registerRefresherListener() {
         elem
                 .getElementParameters()
                 .stream()
@@ -109,6 +117,10 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         return minHeight;
     }
 
+    /**
+     * Unregisters Refresher {@link PropertyChangeListener} from every {@link TaCoKitElementParameter}, where it was
+     * registered
+     */
     @Override
     public synchronized void dispose() {
         elem
