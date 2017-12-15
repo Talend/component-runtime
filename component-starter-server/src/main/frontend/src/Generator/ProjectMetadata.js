@@ -106,7 +106,7 @@ export default class ProjectMetadata extends React.Component {
 
         <div className={theme.main}>
           <div className={theme['form-row']}>
-            <p className={theme.title}>Create a Talend Component Kit Project</p>
+            <p className={theme.title}>Create a Talend Component Family Project</p>
             <div>
               <Actions actions={this.state.buildToolActions} />
               <Help title="Build Tool" content={
