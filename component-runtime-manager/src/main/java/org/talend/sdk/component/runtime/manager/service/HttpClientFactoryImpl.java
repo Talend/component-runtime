@@ -282,11 +282,10 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         }
                         return new ResponseImpl(urlConnection, decoder, responseType, responseBuffer.toByteArray());
                     } catch (final IOException e) {
-                        throw new IllegalArgumentException(e);
-                    } finally {
-                        if (urlConnection != null) {
+                        if (urlConnection != null) { // it fails, release the resources, otherwise we want to be pooled
                             urlConnection.disconnect();
                         }
+                        throw new IllegalArgumentException(e);
                     }
                 };
             }).orElseGet(() -> params -> delegate(method, args))).apply(args);
