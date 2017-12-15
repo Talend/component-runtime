@@ -43,8 +43,8 @@ public class JmxManager implements ContainerListener {
     public void onCreate(final Container container) {
         try {
             final ObjectName name = new ObjectName(String.format(namePattern, container.getId()));
-            container.set(JmxData.class, new JmxData(name));
             server.registerMBean(new ContainerMBean(container), name);
+            container.set(JmxData.class, new JmxData(name));
         } catch (final InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException
                 | MalformedObjectNameException e) {
             log.warn(e.getMessage(), e);

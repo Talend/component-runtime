@@ -17,6 +17,7 @@ package org.talend.sdk.component.container;
 
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
@@ -171,12 +172,16 @@ public class ContainerManager implements Lifecycle {
             }
         };
 
-        if (listeners.stream().noneMatch(l -> safeInvoke(() -> l.onCreate(container)))) {
+        final Collection<ContainerListener> calledListeners =
+                listeners.stream().filter(l -> !safeInvoke(() -> l.onCreate(container))).collect(toList());
+        if (calledListeners.size() == listeners.size()) {
             if (containers.putIfAbsent(id, container) != null) {
+                calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
                 throw new IllegalArgumentException("Container '" + id + "' already exists");
             }
         } else {
             log.info("Failed creating container " + id);
+            calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
             throw new IllegalArgumentException(id);
         }
 
