@@ -91,6 +91,9 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.dependency.Resolver;
+import org.talend.sdk.component.api.service.http.HttpClient;
+import org.talend.sdk.component.api.service.http.HttpClientFactory;
+import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
@@ -110,6 +113,7 @@ import org.talend.sdk.component.runtime.manager.processor.SubclassesCache;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
+import org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
@@ -589,6 +593,7 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
+        services.put(HttpClientFactory.class, new HttpClientFactoryImpl(container.getId()));
         services.put(LocalCache.class, new LocalCacheService(container.getId()));
         services.put(LocalConfiguration.class,
                 new LocalConfigurationService(createRawLocalConfigurations(), container.getId()));
@@ -821,6 +826,18 @@ public class ComponentManager implements AutoCloseable {
                 services.put(proxy, instance);
                 registry.getServices().add(new ServiceMeta(instance, emptyList()));
             });
+            finder
+                    .findAnnotatedClasses(Request.class)
+                    .stream()
+                    .map(Class::getDeclaringClass)
+                    .distinct()
+                    .filter(HttpClient.class::isAssignableFrom) // others are created manually
+                    .forEach(proxy -> {
+                        final Object instance =
+                                HttpClientFactory.class.cast(services.get(HttpClientFactory.class)).create(proxy, null);
+                        services.put(proxy, instance);
+                        registry.getServices().add(new ServiceMeta(instance, emptyList()));
+                    });
             finder.findAnnotatedClasses(Service.class).stream().filter(s -> !services.keySet().contains(s)).forEach(
                     service -> {
                         try {

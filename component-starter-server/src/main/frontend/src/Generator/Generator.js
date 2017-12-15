@@ -31,7 +31,7 @@ export default class Generator extends React.Component {
       version: '0.0.1-SNAPSHOT',
       group: 'com.company',
       artifact: 'company-component',
-      name: 'A Component',
+      name: 'A Component Family',
       description: 'A generated component project',
       packageBase: 'com.company.talend.components',
       family: 'CompanyFamily',

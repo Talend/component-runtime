@@ -224,7 +224,7 @@ export default class ProjectMetadata extends React.Component {
                            aggregate={this.state.project} accessor="version"/>
                   </div>,
                   <div className="field">
-                    <label forHtml="projectName">Name</label>
+                    <label forHtml="projectName">Project Name</label>
                     <Help title="Project Name" content={
                       <span>
                         <p>Giving a human readable name to the project is more friendly in an IDE or continuous integration platform.</p>
@@ -234,7 +234,7 @@ export default class ProjectMetadata extends React.Component {
                            aggregate={this.state.project} accessor="name"/>
                   </div>,
                   <div className="field">
-                    <label forHtml="projectDescription">Description</label>
+                    <label forHtml="projectDescription">Project Description</label>
                     <Help title="Project Description" content={
                       <span>
                         <p>Giving a human readable description to the project allows to share some goals of the project with other developers in a standard fashion.</p>
