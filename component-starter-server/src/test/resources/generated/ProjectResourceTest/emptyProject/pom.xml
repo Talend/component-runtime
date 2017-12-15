@@ -16,6 +16,22 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!--
+    Set it to true if you want the documentation to be rendered as HTML and PDF
+
+    You can also use it on the command line: -Dtalend.documentation.htmlAndPdf=true
+    -->
+    <talend.documentation.htmlAndPdf>false</talend.documentation.htmlAndPdf>
+
+    <!--
+    if you want to deploy into the studio you can use the related goal:
+
+    mvn package talend-component:deploy-in-studio -Dtalend.component.studioHome=/path/to/studio
+
+    TIP: it is recommanded to set this property into your settings.xml in an active by default profile.
+    -->
+    <talend.component.studioHome />
   </properties>
 
   <dependencies>
