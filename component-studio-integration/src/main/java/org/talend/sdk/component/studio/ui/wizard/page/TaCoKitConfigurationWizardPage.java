@@ -30,8 +30,6 @@ import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.process.DataNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.i18n.Messages;
-import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
-import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter.IValueChangedListener;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.model.parameter.PropertyNode;
@@ -89,14 +87,6 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
         tacokitComposite = new TaCoKitWizardComposite(container, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS,
                 EComponentCategory.BASIC, element, configurationModel, true, container.getBackground());
         tacokitComposite.setLayoutData(createMainFormData(addContextFields));
-        tacokitComposite.addValueChangedListener(new IValueChangedListener() {
-
-            @Override
-            public void onValueChanged(final TaCoKitElementParameter elementParameter, final Object oldValue,
-                    final Object newValue) {
-                configurationModel.setValue(elementParameter.getName(), newValue);
-            }
-        });
 
         if (addContextFields) {
             // Composite contextParentComp = new Composite(container, SWT.NONE);
