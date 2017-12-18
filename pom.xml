@@ -117,8 +117,9 @@
     <junit.version>4.12</junit.version>
     <ziplock.version>7.0.3</ziplock.version>
     <johnzon.version>1.1.5</johnzon.version>
-    <meecrowave.version>1.1.0</meecrowave.version>
+    <meecrowave.version>1.2.0-SNAPSHOT</meecrowave.version>
     <tomcat.version>9.0.1</tomcat.version>
+    <cxf.version>3.2.1</cxf.version>
     <log4j2.version>2.10.0</log4j2.version>
     <batik.version>1.9</batik.version>
     <beam.version>2.2.0</beam.version>
@@ -172,6 +173,42 @@
         <version>${component-api.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-core</artifactId>
+        <version>${mvn.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jaspic-api</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-catalina</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-integration-cdi</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-client</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
@@ -200,7 +237,7 @@
       <plugin>
         <groupId>org.talend.tools</groupId>
         <artifactId>talend-tools-maven-plugin</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2-SNAPSHOT</version>
         <executions>
           <execution>
             <id>hub-detect</id>
@@ -209,7 +246,7 @@
               <goal>hub-detect</goal>
             </goals>
           </execution>
-          <!-- when 1.0.2 is released
+          <!-- when 1.0.2 is released -->
           <execution>
             <id>blackduck-validate</id>
             <phase>verify</phase>
@@ -217,35 +254,32 @@
               <goal>validate</goal>
             </goals>
           </execution>
-          -->
         </executions>
         <configuration>
           <blackduckUrl>https://blackduck.talend.com</blackduckUrl>
           <blackduckName>Talend Component (TCOMP)</blackduckName>
           <systemVariables>
-            <detect.maven.scope>runtime</detect.maven.scope>
-            <!-- for tests -->
-            <!--
-            <blackduck.hub.offline.mode>true</blackduck.hub.offline.mode>
-            <detect.risk.report.pdf>true</detect.risk.report.pdf>
-            <detect.risk.report.pdf.path>${project.build.directory}/blackhub.pdf</detect.risk.report.pdf.path>
-            <detect.notices.report.pdf>true</detect.notices.report.pdf>
-            <detect.notices.report.pdf.path>${project.build.directory}/blackhub.pdf</detect.notices.report.pdf.path>
-            -->
-            <!--
+            <detect.output.path>$rootProject/.blackduck</detect.output.path>
+          </systemVariables>
+          <!--
             exclude volatiles or well known or not deliveries folders
             to avoid false positives
             -->
-            <detect.hub.signature.scanner.relative.paths.to.exclude>
-              target/local-repo,
-              target/it,
-              target/gradle-${gradle.version},
-              target/gradle-fake-project-wrapper,
-              target/maven-fake-project-wrapper,
-              target/reveal.js-${revealjs.version},
-              target/documentation-${project.version},
-            </detect.hub.signature.scanner.relative.paths.to.exclude>
-          </systemVariables>
+          <exclusions>
+            /local-repo/,
+            /it/,
+            /test-dependencies/,
+            /gradle-*/,
+            /maven-*/,
+            /reveal.js-*/,
+            /asciidoctor-reveal.js-*/,
+            /documentation-*/,
+            /documentation/,
+            /${project.version}/,
+            /antrun/,
+            /.blackduck/,
+            /blackduck/
+          </exclusions>
         </configuration>
       </plugin>
       <plugin>
@@ -325,6 +359,7 @@
             <exclude>.settings/**/*</exclude>
             <exclude>.project</exclude>
             <exclude>.idea/**/*</exclude>
+            <exclude>.blackduck/**/*</exclude>
             <exclude>**/*.iml</exclude>
             <exclude>**/*.ipr</exclude>
             <exclude>**/*.iws</exclude>

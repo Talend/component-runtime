@@ -36,7 +36,6 @@
     <asciidoctor-revealjs.version>1.0.2</asciidoctor-revealjs.version>
     <jbake.site.rootpath></jbake.site.rootpath>
     <args4j.version>2.33</args4j.version>
-    <cxf-rt-frontend-jaxrs.version>3.2.1</cxf-rt-frontend-jaxrs.version>
     <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
   </properties>
 
@@ -92,7 +91,7 @@
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-      <version>${cxf-rt-frontend-jaxrs.version}</version>
+      <version>${cxf.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -214,7 +213,7 @@
           <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-            <version>${cxf-rt-frontend-jaxrs.version}</version>
+            <version>${cxf.version}</version>
           </dependency>
           <dependency>
             <groupId>org.apache.johnzon</groupId>
