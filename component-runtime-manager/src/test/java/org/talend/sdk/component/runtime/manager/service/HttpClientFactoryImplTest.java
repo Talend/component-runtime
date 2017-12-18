@@ -32,13 +32,13 @@ import java.nio.charset.StandardCharsets;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.talend.sdk.component.api.service.http.Codec;
 import org.talend.sdk.component.api.service.http.Decoder;
 import org.talend.sdk.component.api.service.http.Encoder;
 import org.talend.sdk.component.api.service.http.Header;
 import org.talend.sdk.component.api.service.http.HttpClient;
+import org.talend.sdk.component.api.service.http.HttpException;
 import org.talend.sdk.component.api.service.http.Path;
 import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
@@ -81,7 +81,7 @@ public class HttpClientFactoryImplTest {
 
     @Test
     public void request() throws IOException {
-        final HttpServer server = createTestServer();
+        final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
             final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
@@ -99,7 +99,7 @@ public class HttpClientFactoryImplTest {
 
     @Test
     public void requestDefault() throws IOException {
-        final HttpServer server = createTestServer();
+        final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
             final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
@@ -115,7 +115,25 @@ public class HttpClientFactoryImplTest {
         }
     }
 
-    public HttpServer createTestServer() throws IOException {
+    @Test
+    public void handleHttpError() throws IOException {
+        final HttpServer server = createTestServer(HttpURLConnection.HTTP_FORBIDDEN);
+        try {
+            server.start();
+            final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
+            HttpClient.class.cast(ok).base("http://localhost:" + server.getAddress().getPort() + "/api");
+            ok.main1("search yes");
+        } catch (HttpException e) {
+            assertEquals(HttpURLConnection.HTTP_FORBIDDEN, e.getResponse().status());
+            assertEquals(
+                    "POST@Connection=keep-alive/Content-length=10/Content-type=application/x-www-form-urlencoded@/api/@search yes",
+                    e.getResponse().error(String.class));
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    public HttpServer createTestServer(int responseStatus) throws IOException {
         final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
         server.createContext("/").setHandler(httpExchange -> {
             final Headers headers = httpExchange.getRequestHeaders();
@@ -133,7 +151,7 @@ public class HttpClientFactoryImplTest {
                         + "@" + httpExchange.getRequestURI().toASCIIString() + "@" + in.lines().collect(joining("\n")))
                                 .getBytes(StandardCharsets.UTF_8);
             }
-            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
+            httpExchange.sendResponseHeaders(responseStatus, bytes.length);
             httpExchange.getResponseBody().write(bytes);
             httpExchange.close();
         });
@@ -150,7 +168,7 @@ public class HttpClientFactoryImplTest {
         @Codec(decoder = PayloadCodec.class)
         Payload main2(String ok);
 
-        @Request
+        @Request(method = "POST")
         @Codec(decoder = PayloadCodec.class, encoder = PayloadCodec.class)
         Payload main3(Payload ok);
 
