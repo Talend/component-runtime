@@ -17,11 +17,14 @@ import org.talend.repository.model.RepositoryNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.util.ETaCoKitImage;
 
+import lombok.Getter;
+
 /**
  * DOC cmeng class global comment. Detailled comment
  */
 public class TaCoKitConfigurationRepositoryNode extends AbsTaCoKitRepositoryNode {
 
+    @Getter
     private String label;
 
     public TaCoKitConfigurationRepositoryNode(final IRepositoryViewObject repViewObject, final RepositoryNode parent,
@@ -40,11 +43,6 @@ public class TaCoKitConfigurationRepositoryNode extends AbsTaCoKitRepositoryNode
     @Override
     public boolean isConfigNode() {
         return true;
-    }
-
-    @Override
-    public String getLabel() {
-        return label;
     }
 
 }

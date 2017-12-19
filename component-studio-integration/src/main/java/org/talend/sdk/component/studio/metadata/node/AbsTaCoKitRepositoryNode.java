@@ -20,12 +20,17 @@ import org.talend.repository.model.RepositoryNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * DOC cmeng class global comment. Detailled comment
  */
+@Getter
+@Setter
+@EqualsAndHashCode(of = "configTypeNode", callSuper = true)
 public abstract class AbsTaCoKitRepositoryNode extends RepositoryNode implements ITaCoKitRepositoryNode {
-
-    private static final int PRIME = 31;
 
     private ITaCoKitRepositoryNode parentTaCoKitNode;
 
@@ -41,33 +46,6 @@ public abstract class AbsTaCoKitRepositoryNode extends RepositoryNode implements
         this.configTypeNode = configTypeNode;
         this.setProperties(EProperties.LABEL, label);
         this.setProperties(EProperties.CONTENT_TYPE, TaCoKitUtil.getOrCreateERepositoryObjectType(configTypeNode));
-    }
-
-    @Override
-    public ConfigTypeNode getConfigTypeNode() {
-        return this.configTypeNode;
-    }
-
-    public void setConfigTypeNode(final ConfigTypeNode configTypeNode) {
-        this.configTypeNode = configTypeNode;
-    }
-
-    @Override
-    public ITaCoKitRepositoryNode getParentTaCoKitNode() {
-        return this.parentTaCoKitNode;
-    }
-
-    public void setParentTaCoKitNode(final ITaCoKitRepositoryNode parentTaCoKitNode) {
-        this.parentTaCoKitNode = parentTaCoKitNode;
-    }
-
-    @Override
-    public Image getImage() {
-        return image;
-    }
-
-    public void setImage(final Image image) {
-        this.image = image;
     }
 
     public void setContentType(final ERepositoryObjectType contentType) {
@@ -92,12 +70,6 @@ public abstract class AbsTaCoKitRepositoryNode extends RepositoryNode implements
     @Override
     public boolean isConfigNode() {
         return false;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        return result = PRIME * result + ((this.configTypeNode == null) ? 0 : this.configTypeNode.hashCode());
     }
 
 }
