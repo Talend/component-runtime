@@ -81,6 +81,10 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         final Collection<Method> methods =
                 Stream.of(api.getMethods()).filter(m -> m.getDeclaringClass() == api && !m.isDefault()).collect(
                         toList());
+
+        if (!HttpClient.class.isAssignableFrom(api)) {
+            errors.add(api.getCanonicalName() + " should extends HttpClient");
+        }
         errors.addAll(methods
                 .stream()
                 .filter(m -> !m.isAnnotationPresent(Request.class))

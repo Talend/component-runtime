@@ -80,12 +80,19 @@ public class HttpClientFactoryImplTest {
     }
 
     @Test
+    public void clientKo() {
+        assertEquals(singletonList(
+                "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest.ClientKo should extends HttpClient"),
+                HttpClientFactoryImpl.createErrors(ClientKo.class));
+    }
+
+    @Test
     public void request() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
             final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
-            HttpClient.class.cast(ok).base("http://localhost:" + server.getAddress().getPort() + "/api");
+            ok.base("http://localhost:" + server.getAddress().getPort() + "/api");
 
             final String result = ok.main4(new Payload("test"), "token", 1, "search yes").value;
             assertEquals(
@@ -103,7 +110,7 @@ public class HttpClientFactoryImplTest {
         try {
             server.start();
             final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
-            HttpClient.class.cast(ok).base("http://localhost:" + server.getAddress().getPort() + "/api");
+            ok.base("http://localhost:" + server.getAddress().getPort() + "/api");
 
             final String result = ok.defaultMain1(new Payload("test"), "search yes").value;
             assertEquals(
@@ -121,7 +128,7 @@ public class HttpClientFactoryImplTest {
         try {
             server.start();
             final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
-            HttpClient.class.cast(ok).base("http://localhost:" + server.getAddress().getPort() + "/api");
+            ok.base("http://localhost:" + server.getAddress().getPort() + "/api");
             ok.main1("search yes");
         } catch (HttpException e) {
             assertEquals(HttpURLConnection.HTTP_FORBIDDEN, e.getResponse().status());
@@ -181,21 +188,27 @@ public class HttpClientFactoryImplTest {
         }
     }
 
-    public interface DecoderKo {
+    public interface DecoderKo extends HttpClient {
 
         @Request
         Payload main(String ok);
     }
 
-    public interface EncoderKo {
+    public interface EncoderKo extends HttpClient {
 
         @Request
         String main(Payload payload);
     }
 
-    public interface MethodKo {
+    public interface MethodKo extends HttpClient {
 
         String main(String payload);
+    }
+
+    public interface ClientKo {
+
+        @Request
+        String main();
     }
 
     @Data
