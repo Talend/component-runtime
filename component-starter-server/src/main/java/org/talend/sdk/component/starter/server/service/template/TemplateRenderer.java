@@ -68,6 +68,6 @@ public class TemplateRenderer {
     public String render(final String template, final Object model) {
         final StringWriter writer = new StringWriter();
         templates.computeIfAbsent(template, t -> mustacheFactory.compile(template)).execute(writer, model);
-        return writer.toString();
+        return writer.toString().replace("\r", "");
     }
 }
