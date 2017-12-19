@@ -1173,8 +1173,65 @@ a| `org.talend.sdk.component.api.service.configuration.LocalConfiguration` a| Re
 WARNING: it is not recommanded to use it for the runtime since the local configuration is generally different and the instances are distincts.
 
 TIP: you can also use the local cache as an interceptor with `@Cached`
+a| Every interface that extends `HttpClient` and that contains methods annotated with `@Request` a| This let you define an http client in a declarative manner using an annotated interface.
+
+TIP: See the <<_httpclient_usage>> for details.
 
 |===
+
+=== HttpClient usage
+Let assume that we have a REST API defined like below, and that it requires a basic authentication header.
+
+GET     `/api/records/{id}`
+
+POST    `/api/records`      => with a json playload to be created `{"id":"some id", "data":"some data"}`
+
+To create an http client able to consume this REST API, we will define an interface that extends `HttpClient`,
+
+The `HttpClient` interface lets you set the `base` for the http address that our client will hit.
+
+The `base` is the part of the address that we will need to add to the request path to hit the api.
+
+Every method annotated with `@Request` of our interface will define an http request.
+Also every request can have `@Codec` that let us encode and decode the request playloads.
+
+[source,java]
+----
+public interface APIClient extends HttpClient {
+    @Request(path = "api/records/{id}", method = "GET")
+    @Codec(decoder = RecordDecoder.class) //decoder =  decode return data to Record class
+    Record getRecord(@Header("Authorization") String basicAuth, @Path("id") int id);
+
+    @Request(path = "api/records", method = "POST")
+    @Codec(encoder = RecordEncoder.class, decoder = RecordDecoder.class) //encoder = encode record to fit request format (json n this example)
+    Record createRecord(@Header("Authorization") String basicAuth, Record record);
+}
+----
+IMPORTANT: The interface should extends `HttpClient`.
+
+This interface can be injected into our Components classes or Services to consume the defined api.
+[source,java]
+----
+@Service
+public class MyService {
+
+    private APIClient client;
+
+    public MyService(...,APIClient client){
+        //...
+        this.client = client;
+        client.base("http://localhost:8080");// init the base of the api, ofen in a PostConstruct or init method
+    }
+
+    //...
+    // Our get request
+    Record rec =  client.getRecord("Basic MLFKG?VKFJ", 100);
+
+    //...
+    // Our post request
+    Record newRecord = client.createRecord("Basic MLFKG?VKFJ", new Record());
+}
+----
 
 == Services and interceptors
 
