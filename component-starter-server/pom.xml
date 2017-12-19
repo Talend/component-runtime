@@ -72,9 +72,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.samskivert</groupId>
-      <artifactId>jmustache</artifactId>
-      <version>1.13</version>
+      <groupId>com.github.spullara.mustache.java</groupId>
+      <artifactId>compiler</artifactId>
+      <version>0.9.5</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jgit</groupId>

@@ -291,7 +291,7 @@
       <plugin>
         <groupId>org.talend.tools</groupId>
         <artifactId>talend-tools-maven-plugin</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.2</version>
         <executions>
           <execution>
             <id>hub-detect</id>
@@ -300,7 +300,7 @@
               <goal>hub-detect</goal>
             </goals>
           </execution>
-          <!-- when 1.0.2 is released -->
+          <!-- not yet
           <execution>
             <id>blackduck-validate</id>
             <phase>verify</phase>
@@ -308,6 +308,7 @@
               <goal>validate</goal>
             </goals>
           </execution>
+          -->
         </executions>
         <configuration>
           <blackduckUrl>https://blackduck.talend.com</blackduckUrl>

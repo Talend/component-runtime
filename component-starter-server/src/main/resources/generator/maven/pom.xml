@@ -34,15 +34,23 @@
     <talend.component.studioHome />
   </properties>
 
-  <dependencies>{{#dependencies}}
+  <dependencies>
+    {{#dependencies}}
     <dependency>
-      <groupId>{{group}}</groupId>
-      <artifactId>{{artifact}}</artifactId>
-      <version>{{version}}</version>{{#classifier}}
-      <classifier>{{classifier}}</classifier>{{/classifier}}{{#scope}}
-      <scope>{{scope}}</scope>{{/scope}}{{#type}}
-      <type>{{type}}</type>{{/type}}
-    </dependency>{{/dependencies}}
+      <groupId>{{value.group}}</groupId>
+      <artifactId>{{value.artifact}}</artifactId>
+      <version>{{value.version}}</version>
+      {{#value.classifier}}
+      <classifier>{{value.classifier}}</classifier>
+      {{/value.classifier}}
+      {{#value.scope}}
+      <scope>{{value.scope}}</scope>
+      {{/value.scope}}
+      {{#value.type}}
+      <type>{{value.type}}</type>
+      {{/value.type}}
+    </dependency>
+    {{/dependencies}}
   </dependencies>
 
   <build>
@@ -63,24 +71,38 @@
           <source>{{build.javaVersion}}</source>
           <target>{{build.javaVersion}}</target>
         </configuration>
-      </plugin>{{#plugins}}
+      </plugin>
+      {{#plugins}}
       <plugin>
-        <groupId>{{groupId}}</groupId>
-        <artifactId>{{artifactId}}</artifactId>
-        <version>{{version}}</version>{{#executions}}{{#-first}}
-        <executions>{{/-first}}
+        <groupId>{{value.groupId}}</groupId>
+        <artifactId>{{value.artifactId}}</artifactId>
+        <version>{{value.version}}</version>
+        {{#value.executions}}
+        {{#first}}
+        <executions>
+        {{/first}}
           <execution>
-            <id>{{id}}</id>
-            <phase>{{phase}}</phase>
+            <id>{{value.id}}</id>
+            <phase>{{value.phase}}</phase>
             <goals>
-              <goal>{{goal}}</goal>
+              <goal>{{value.goal}}</goal>
             </goals>
-          </execution>{{#-last}}
-        </executions>{{/-last}}{{/executions}}{{#configuration}}{{#-first}}
-        <configuration>{{/-first}}
-          <{{key}}>{{value}}</{{key}}>{{#-last}}
-        </configuration>{{/-last}}{{/configuration}}
-      </plugin>{{/plugins}}
+          </execution>
+          {{#last}}
+        </executions>
+        {{/last}}
+        {{/value.executions}}
+        {{#value.configuration}}
+        {{#first}}
+        <configuration>
+        {{/first}}
+          <{{value.key}}>{{value.value}}</{{value.key}}>
+        {{#last}}
+        </configuration>
+        {{/last}}
+        {{/value.configuration}}
+      </plugin>
+      {{/plugins}}
     </plugins>
   </build>
 </project>

@@ -32,7 +32,7 @@ public class {{testClassName}} {
         // Setup your component configuration for the test here
         final {{configurationClassName}} configuration =  new {{configurationClassName}}(){{^hasConfig}};{{/hasConfig}}
                                                                             {{#configFields}}
-                                                                                {{#-first}}/* {{/-first}}{{^-first}}   {{/-first}}.set{{.}}(){{#-last}} */;{{/-last}}
+                                                                                {{#first}}/* {{/first}}{{^first}}   {{/first}}.set{{value}}(){{#last}} */;{{/last}}
                                                                             {{/configFields}}
 
         // We create the component processor instance using the configuration filled above
@@ -43,7 +43,7 @@ public class {{testClassName}} {
         // You can also remove the branches that you don't need from the factory below
         final JoinInputFactory joinInputFactory =  new JoinInputFactory()
                                                         {{#inputBranches}}
-                                                            .withInput("{{key}}", asList(/* TODO - list of your input data for this branch. Instances of {{value}}.class */)){{#-last}};{{/-last}}
+                                                            .withInput("{{value.key}}", asList(/* TODO - list of your input data for this branch. Instances of {{value.value}}.class */)){{#last}};{{/last}}
                                                         {{/inputBranches}}
 
 
@@ -57,8 +57,8 @@ public class {{testClassName}} {
         // Here you have all your processor output branches
         // You can fill in the expected data for every branch to test them
      {{#outputBranches}}
-        final List<{{value}}> value_{{key}} = outputs.get({{value}}.class, "{{key}}");
-        assertEquals(asList(/* TODO - give a list of your expected values here. Instances of {{value}}.class */), value_{{key}});
+        final List<{{value.value}}> value_{{value.key}} = outputs.get({{value.value}}.class, "{{value.key}}");
+        assertEquals(asList(/* TODO - give a list of your expected values here. Instances of {{value.value}}.class */), value_{{value.key}});
 
      {{/outputBranches}}
     {{/isOutput}}

@@ -34,17 +34,15 @@ public class {{className}} implements {{#generic}}ObjectMap{{/generic}}{{^generi
     @Override
     public synchronized Set<String> keys() {
         return emptySet();
-    }
-{{/generic}}
-{{^generic}}{{#structure}}
-    private {{type}} {{name}};
+    }{{/generic}}{{^generic}}{{#structure}}
+    private {{value.type}} {{value.name}};
 
-    public {{type}} get{{methodName}}() {
-        return {{name}};
+    public {{value.type}} get{{value.methodName}}() {
+        return {{value.name}};
     }
 
-    public void set{{methodName}}(final {{type}} {{name}}) {
-        this.{{name}} = {{name}};
+    public void set{{value.methodName}}(final {{value.type}} {{value.name}}) {
+        this.{{value.name}} = {{value.name}};
     }
 {{/structure}}{{/generic}}
 }

@@ -24,7 +24,7 @@ public class {{testClassName}} {
         // Setup your component configuration for the test here
         final {{configurationClassName}} configuration =  new {{configurationClassName}}(){{^hasConfig}};{{/hasConfig}}
                                                                         {{#configFields}}
-                                                                            {{#-first}}/* {{/-first}}{{^-first}}   {{/-first}}.set{{.}}(){{#-last}} */;{{/-last}}
+                                                                            {{#first}}/* {{/first}}{{^first}}   {{/first}}.set{{value}}(){{#last}} */;{{/last}}
                                                                         {{/configFields}}
 
         // We create the component mapper instance using the configuration filled above
