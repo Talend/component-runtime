@@ -47,7 +47,7 @@ public class {{testClassName}} {
         // Setup your component configuration for the test here
         final {{configurationClassName}} configuration =  new {{configurationClassName}}(){{^hasConfig}};{{/hasConfig}}
             {{#configFields}}
-                {{#-first}}/*{{/-first}}  .set{{.}}(){{#-last}} */;{{/-last}}
+                {{#first}}/*{{/first}}  .set{{value}}(){{#last}} */;{{/last}}
             {{/configFields}}
 
         // We create the component processor instance using the configuration filled above
@@ -58,7 +58,7 @@ public class {{testClassName}} {
         // You can also remove the branches that you don't need from the factory below
         final JoinInputFactory joinInputFactory =  new JoinInputFactory()
             {{#inputBranches}}
-                .withInput("{{key}}", asList(/* TODO - list of your input data for this branch. Instances of {{value}}.class */)){{#-last}};{{/-last}}
+                .withInput("{{value.key}}", asList(/* TODO - list of your input data for this branch. Instances of {{value.value}}.class */)){{#last}};{{/last}}
             {{/inputBranches}}
 
         // Convert it to a beam "source"
@@ -73,10 +73,11 @@ public class {{testClassName}} {
         PAssert.that(result)
             .satisfies(new RecordAsserts()
                 {{#outputBranches}}
-                .withAsserts("{{key}}", dataList -> {
-                    // assert resulting data of the branch "{{key}}", for instance:
+                .withAsserts("{{value.key}}", dataList -> {
+                    // assert resulting data of the branch "{{value.key}}", for instance:
                     // assertEquals(10, dataList.size());
-                }){{/outputBranches}}
+                })
+                {{/outputBranches}}
                 ::apply);
         {{/isOutput}}
 

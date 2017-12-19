@@ -29,7 +29,7 @@ public class {{testClassName}} implements Serializable {
         // Setup your component configuration for the test here
         final {{configurationClassName}} configuration =  new {{configurationClassName}}(){{^hasConfig}};{{/hasConfig}}
             {{#configFields}}
-                {{#-first}}/*{{/-first}}  .set{{.}}(){{#-last}} */;{{/-last}}
+                {{#first}}/*{{/first}}  .set{{value}}(){{#last}} */;{{/last}}
             {{/configFields}}
 
         // We create the component mapper instance using the configuration filled above

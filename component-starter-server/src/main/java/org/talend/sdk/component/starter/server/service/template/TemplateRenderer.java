@@ -15,33 +15,59 @@
  */
 package org.talend.sdk.component.starter.server.service.template;
 
-import static java.util.stream.Collectors.joining;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import com.samskivert.mustache.Mustache;
-import com.samskivert.mustache.Template;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.reflect.ReflectionObjectHandler;
+import com.github.mustachejava.util.DecoratedCollection;
+import com.github.mustachejava.util.Wrapper;
 
 @ApplicationScoped
 public class TemplateRenderer {
 
-    private final ConcurrentMap<String, Template> templates = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Mustache> templates = new ConcurrentHashMap<>();
+
+    private final DefaultMustacheFactory mustacheFactory = new DefaultMustacheFactory() {
+
+        {
+            setObjectHandler(new ReflectionObjectHandler() {
+
+                @Override
+                public Wrapper find(final String name, final List<Object> scopes) {
+                    final Wrapper wrapper = super.find(name, scopes);
+                    return s -> {
+                        final Object call = wrapper.call(s);
+                        if (Collection.class.isInstance(call) && !DecoratedCollection.class.isInstance(call)) {
+                            return new DecoratedCollection<>(Collection.class.cast(call));
+                        }
+                        return call;
+                    };
+                }
+            });
+        }
+
+        @Override
+        public void encode(final String value, final Writer writer) {
+            try {
+                writer.write(value);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+    };
 
     public String render(final String template, final Object model) {
-        return templates.computeIfAbsent(template, t -> {
-            try (final BufferedReader is = new BufferedReader(new InputStreamReader(
-                    Thread.currentThread().getContextClassLoader().getResourceAsStream(template)))) {
-                final String content = is.lines().collect(joining("\n"));
-                return Mustache.compiler().escapeHTML(false).compile(content);
-            } catch (final IOException e) {
-                throw new IllegalArgumentException(e);
-            }
-        }).execute(model);
+        final StringWriter writer = new StringWriter();
+        templates.computeIfAbsent(template, t -> mustacheFactory.compile(template)).execute(writer, model);
+        return writer.toString();
     }
 }

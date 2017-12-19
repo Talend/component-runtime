@@ -72,14 +72,20 @@
     </dependency>
 
     <dependency>
-      <groupId>com.samskivert</groupId>
-      <artifactId>jmustache</artifactId>
-      <version>1.13</version>
+      <groupId>com.github.spullara.mustache.java</groupId>
+      <artifactId>compiler</artifactId>
+      <version>0.9.5</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jgit</groupId>
       <artifactId>org.eclipse.jgit</artifactId>
-      <version>4.9.0.201710071750-r</version>
+      <version>${jgit.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-jdk14</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -112,6 +118,9 @@
       <resource>
         <directory>${project.basedir}/../documentation/target/documentation-${project.version}</directory>
         <targetPath>META-INF/resources/documentation</targetPath>
+        <excludes>
+          <exclude>**/test/**</exclude>
+        </excludes>
       </resource>
     </resources>
 
@@ -321,6 +330,12 @@
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
             <version>${jgit.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
         </dependencies>
       </plugin>

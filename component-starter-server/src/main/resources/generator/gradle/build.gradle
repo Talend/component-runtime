@@ -10,12 +10,12 @@ buildscript {
     classpath "com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3"
     classpath "org.talend.sdk.component:gradle-talend-component:{{tckVersion}}"
     {{#buildDependencies}}
-    classpath "{{this}}"
+    classpath "{{value}}"
     {{/buildDependencies}}
   }
 }
 {{#imports}}
-import {{.}}
+import {{value}}
 {{/imports}}
 
 apply plugin: 'nebula.provided-base'
@@ -33,10 +33,10 @@ repositories {
 
 group = '{{build.group}}'
 description = '{{build.description}}'
-{{#configurations}}{{#-first}}
-configurations { {{/-first}}
-    {{this}}{{#-last}}
-} {{/-last}}{{/configurations}}
+{{#configurations}}{{#first}}
+configurations { {{/first}}
+    {{this}}{{#last}}
+} {{/last}}{{/configurations}}
 
 {{build.packaging}} {
   baseName = '{{build.artifact}}'
@@ -47,7 +47,7 @@ test {
   testLogging.showStandardStreams = true
 }
 {{#tasks}}
-{{.}}
+{{value}}
 {{/tasks}}
 {{#javaMainSourceSets.size}}
 
@@ -55,7 +55,7 @@ sourceSets {
   main {
     java {
       {{#javaMainSourceSets}}
-      {{.}}
+      {{value}}
       {{/javaMainSourceSets}}
     }
   }

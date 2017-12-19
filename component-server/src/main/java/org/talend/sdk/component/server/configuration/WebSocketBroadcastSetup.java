@@ -1515,5 +1515,10 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         public void setObject(final Object o) {
             object = o;
         }
+
+        @Override
+        public boolean isReadyForWrite() {
+            return true;
+        }
     }
 }

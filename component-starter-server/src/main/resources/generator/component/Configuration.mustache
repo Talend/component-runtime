@@ -15,31 +15,31 @@ import org.talend.sdk.component.api.meta.Documentation;
     // the generated layout put one configuration entry per line,
     // customize it as much as needed
  {{#structure}}
-    @GridLayout.Row({ "{{name}}" }){{^-last}},{{/-last}}
+    @GridLayout.Row({ "{{value.name}}" }){{^last}},{{/last}}
  {{/structure}}
 })
 @Documentation("TODO fill the documentation for this configuration")
 public class {{className}} implements Serializable {
 {{#structure}}
-{{#isCredential}}
+{{#value.isCredential}}
     @Credential
-{{/isCredential}}
+{{/value.isCredential}}
     @Option
     @Documentation("TODO fill the documentation for this parameter")
-    private {{type}} {{name}};
+    private {{value.type}} {{value.name}};
 
 {{/structure}}
 {{#structure}}
-    public {{type}} get{{methodName}}() {
-        return {{name}};
+    public {{value.type}} get{{value.methodName}}() {
+        return {{value.name}};
     }
 
-    public {{className}} set{{methodName}}({{type}} {{name}}) {
-        this.{{name}} = {{name}};
+    public {{className}} set{{value.methodName}}({{value.type}} {{value.name}}) {
+        this.{{value.name}} = {{value.name}};
         return this;
     }
-{{^-last}}
+{{^last}}
 
-{{/-last}}
+{{/last}}
 {{/structure}}
 }
