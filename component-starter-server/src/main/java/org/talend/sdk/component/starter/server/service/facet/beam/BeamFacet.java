@@ -56,6 +56,7 @@ public class BeamFacet implements FacetGenerator, Versions {
         init.registerFacetType(this);
         dependencies = asList(Dependency.junit(),
                 new Dependency("org.talend.sdk.component", "component-runtime-beam", KIT, "test"),
+                new Dependency("org.talend.sdk.component", "component-runtime-standalone", KIT, "test"),
                 new Dependency("org.talend.sdk.component", "component-runtime-junit", KIT, "test"),
                 new Dependency("org.hamcrest", "hamcrest-all", "1.3", "test"),
                 new Dependency("org.apache.beam", "beam-runners-direct-java", BEAM, "test"));
