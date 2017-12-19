@@ -86,6 +86,10 @@ public class ReflectionService {
                     if (Class.class.isInstance(parameterizedType)) {
                         final Object value = precomputed.get(parameterizedType);
                         if (value != null) {
+                            if (Copiable.class.isInstance(value)) {
+                                final Copiable copiable = Copiable.class.cast(value);
+                                return (Function<Map<String, String>, Object>) config -> copiable.copy(value);
+                            }
                             return (Function<Map<String, String>, Object>) config -> value;
                         }
                         final BiFunction<String, Map<String, Object>, Object> objectFactory =

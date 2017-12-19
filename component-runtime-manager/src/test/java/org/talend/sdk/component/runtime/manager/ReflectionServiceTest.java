@@ -22,10 +22,13 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,8 +39,11 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.service.http.HttpClient;
+import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
+import org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
 
 import lombok.Data;
@@ -45,6 +51,23 @@ import lombok.Data;
 public class ReflectionServiceTest {
 
     private final ReflectionService reflectionService = new ReflectionService(new ParameterModelService());
+
+    @Test
+    public void copiable() throws NoSuchMethodException {
+        final HashMap<Class<?>, Object> precomputed = new HashMap<>();
+        precomputed.put(UserHttpClient.class,
+                new HttpClientFactoryImpl("test").create(UserHttpClient.class, "http://foo"));
+        final Method httpMtd = TableOwner.class.getMethod("http", UserHttpClient.class);
+        final HttpClient client1 =
+                HttpClient.class.cast(reflectionService.parameterFactory(httpMtd, precomputed).apply(emptyMap())[0]);
+        final HttpClient client2 =
+                HttpClient.class.cast(reflectionService.parameterFactory(httpMtd, precomputed).apply(emptyMap())[0]);
+        assertNotSame(client1, client2);
+        final InvocationHandler handler1 = Proxy.getInvocationHandler(client1);
+        final InvocationHandler handler2 = Proxy.getInvocationHandler(client2);
+        assertNotSame(handler1, handler2);
+        assertEquals(handler1.toString(), handler2.toString());
+    }
 
     @Test
     public void primitive() throws NoSuchMethodException {
@@ -270,6 +293,10 @@ public class ReflectionServiceTest {
         public static void factory(@Option("root") final TableOwner owner) {
             // no-op
         }
+
+        public static UserHttpClient http(final UserHttpClient client) {
+            return client;
+        }
     }
 
     @Data
@@ -283,5 +310,11 @@ public class ReflectionServiceTest {
 
         @Option
         private List<Column> nestedList;
+    }
+
+    public interface UserHttpClient extends HttpClient {
+
+        @Request
+        String get();
     }
 }

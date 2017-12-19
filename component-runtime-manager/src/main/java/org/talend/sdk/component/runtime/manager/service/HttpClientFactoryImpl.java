@@ -62,10 +62,12 @@ import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.api.service.http.UseConfigurer;
+import org.talend.sdk.component.runtime.manager.reflect.Copiable;
 import org.talend.sdk.component.runtime.reflect.Defaults;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.AllArgsConstructor;
+import lombok.ToString;
 
 @AllArgsConstructor
 public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
@@ -172,7 +174,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         validate(api);
         final HttpHandler handler = new HttpHandler();
         final T instance = api.cast(Proxy.newProxyInstance(api.getClassLoader(),
-                new Class<?>[] { api, HttpClient.class, Serializable.class }, handler));
+                new Class<?>[] { api, HttpClient.class, Serializable.class, Copiable.class }, handler));
         HttpClient.class.cast(instance).base(base);
         return instance;
     }
@@ -189,6 +191,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         return new SerializableService(plugin, LocalCache.class.getName());
     }
 
+    @ToString
     private static class HttpHandler implements InvocationHandler, Serializable {
 
         private String base;
@@ -197,6 +200,12 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            if (Copiable.class == method.getDeclaringClass()) {
+                final HttpHandler httpHandler = new HttpHandler();
+                httpHandler.base = base;
+                return Proxy.newProxyInstance(proxy.getClass().getClassLoader(), proxy.getClass().getInterfaces(),
+                        httpHandler);
+            }
             if (method.isDefault()) {
                 final Class<?> declaringClass = method.getDeclaringClass();
                 return Defaults
