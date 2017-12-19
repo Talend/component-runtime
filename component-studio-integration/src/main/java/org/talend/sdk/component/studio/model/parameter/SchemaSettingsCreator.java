@@ -64,4 +64,5 @@ public class SchemaSettingsCreator extends SettingsCreator {
     private void addSchemaProperty() {
         addSetting(createSchemaParameter(EConnectionType.FLOW_MAIN.getName(), "SCHEMA"));
     }
+
 }

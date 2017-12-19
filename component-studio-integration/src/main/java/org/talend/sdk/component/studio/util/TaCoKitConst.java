@@ -27,4 +27,18 @@ public class TaCoKitConst {
 
     public static final String IMAGE_TACOKIT_CONFIGURATION_PATH = "/icon/configuration_16x16.png"; //$NON-NLS-1$
 
+    public static final String GUESS_SCHEMA_COMPONENT_NAME = "tTaCoKitGuessSchema"; //$NON-NLS-1$
+
+    /**
+     * DON'T modify the value, otherwise please also modify it in tTaCoKitGuessSchema_begin.javajet
+     */
+    public static final String GUESS_SCHEMA_PARAMETER_TEMP_FILE_KEY =
+            "___TACOKIT_GUESS_SCHEMA_PARAMETER_TEMP_FILE_KEY___"; //$NON-NLS-1$
+
+    /**
+     * DON'T modify the value, otherwise please also modify it in tTaCoKitGuessSchema_begin.javajet
+     */
+    public static final String GUESS_SCHEMA_PARAMETER_ENCODING_KEY =
+            "___TACOKIT_GUESS_SCHEMA_PARAMETER_ENCODING_KEY___"; //$NON-NLS-1$
+
 }

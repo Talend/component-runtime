@@ -17,15 +17,12 @@
 package org.talend.sdk.component.studio;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.util.Enumeration;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.net.URL;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
 import lombok.AllArgsConstructor;
@@ -38,42 +35,12 @@ public class TemplatesExtractor {
     private final String destinationFolder;
 
     public void extract() throws IOException, URISyntaxException {
-        final File jarFile = FileLocator.getBundleFile(FrameworkUtil.getBundle(this.getClass()));
-        final File destDir = new File(destinationFolder, "tacokit");
-
-        if (jarFile.isFile()) { // Run with JAR file
-            try (JarFile jar = new JarFile(jarFile)) {
-                final Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
-                while (entries.hasMoreElements()) {
-                    JarEntry file = (JarEntry) entries.nextElement();
-                    if (!file.getName().startsWith(templatesPath)) {
-                        continue;
-                    }
-                    File dst = new File(destDir, file.getName());
-                    if (file.isDirectory()) { // if its a directory, create it
-                        createDirectory(dst);
-                    } else {
-                        extractFile(jar, file, dst);
-                    }
-                }
-            }
-        }
-    }
-
-    private void createDirectory(final File dir) {
-        if (dir.exists() && !dir.isDirectory()) {
-            throw new IllegalArgumentException(dir.getAbsolutePath() + " should not exist or should be a directory.");
-        } else if (!dir.exists()) {
-            dir.mkdirs();
-        }
-    }
-
-    private void extractFile(final JarFile jar, final JarEntry src, final File dest) throws IOException {
-        try (InputStream fis = jar.getInputStream(src); FileOutputStream fos = new FileOutputStream(dest)) {
-            while (fis.available() > 0) {
-                fos.write(fis.read());
-            }
-        }
+        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+        final URL templateEntry = bundle.getEntry(templatesPath);
+        final File destDir = new File(destinationFolder, "tacokit/jet_stub");
+        String templateFolderPath = FileLocator.toFileURL(templateEntry).getPath();
+        File templateFolder = new File(templateFolderPath);
+        org.talend.utils.io.FilesUtils.copyDirectory(templateFolder, destDir);
     }
 
 }

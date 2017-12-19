@@ -31,6 +31,7 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.studio.lang.Pair;
 import org.talend.sdk.component.studio.service.ComponentService;
+import org.talend.sdk.component.studio.util.TaCoKitConst;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 // note: for now we load the component on the server but
@@ -58,7 +59,15 @@ public class TaCoKitGenericProvider implements IGenericProvider {
         final IComponentsFactory factory = ComponentsFactoryProvider.getInstance();
         final Set<IComponent> components = factory.getComponents();
         synchronized (components) {
-            components.removeIf(ComponentModel.class::isInstance);
+            components.removeIf(component -> {
+                if (TaCoKitConst.GUESS_SCHEMA_COMPONENT_NAME.equals(component.getName())) {
+                    Lookups.taCoKitCache().setTaCoKitGuessSchemaComponent(component);
+                }
+                if (component instanceof ComponentModel) {
+                    return true;
+                }
+                return false;
+            });
             details.forEach(pair -> {
                 ComponentIndex index = pair.getFirst();
                 ComponentDetail detail = pair.getSecond();

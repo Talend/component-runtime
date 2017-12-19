@@ -75,7 +75,7 @@ public class TaCoKitDragAndDropHandler extends AbstractDragAndDropServiceHandler
             if (valueModel != null) {
                 Object result = valueModel.getValue();
                 if (result == null) {
-                    return ""; //$NON-NLS-1$
+                    return null;
                 } else {
                     return valueModel.getValue();
                 }

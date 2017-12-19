@@ -53,7 +53,9 @@ def dependencies = [
         'org.eclipse.ui.views.properties.tabbed',
         'org.apache.commons.collections',
         'org.talend.components.api',
-        'org.talend.cwm.mip'
+        'org.talend.cwm.mip',
+        'org.talend.utils',
+        'org.apache.log4j'
 ]
 
 def useReleaseVersion = false
