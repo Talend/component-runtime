@@ -123,6 +123,10 @@
     <log4j2.version>2.10.0</log4j2.version>
     <batik.version>1.9</batik.version>
     <beam.version>2.2.0</beam.version>
+    <commons-codec.version>1.11</commons-codec.version>
+    <commons-compress.version>1.15</commons-compress.version>
+    <commons-logging.version>1.2</commons-logging.version>
+    <geronimo-jaxrs.version>1.0-alpha-1</geronimo-jaxrs.version>
     <asciidoctorj.version>1.6.0-alpha.6</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.5.0-alpha.16</asciidoctorj-pdf.version>
 
@@ -142,7 +146,7 @@
     <javadoc-plugin.version>3.0.0</javadoc-plugin.version>
     <download-plugin.version>1.2.1</download-plugin.version>
     <git-commit-id-plugin.version>2.2.4</git-commit-id-plugin.version>
-    <jgit.version>4.9.0.201710071750-r</jgit.version>
+    <jgit.version>4.9.2.201712150930-r</jgit.version>
 
     <node.version>v8.4.0</node.version>
     <yarn.version>v1.3.2</yarn.version>
@@ -173,10 +177,44 @@
         <version>${component-api.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.beam</groupId>
+        <artifactId>beam-sdks-java-core</artifactId>
+        <version>${beam.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons-codec.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>${commons-codec.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>${commons-logging.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-core</artifactId>
         <version>${mvn.version}</version>
         <exclusions>
+          <exclusion>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
@@ -184,8 +222,24 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-plugin-api</artifactId>
+        <version>${mvn.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-jaspic-api</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jni</artifactId>
         <version>${tomcat.version}</version>
       </dependency>
       <dependency>
@@ -278,7 +332,9 @@
             /${project.version}/,
             /antrun/,
             /.blackduck/,
-            /blackduck/
+            /blackduck/,
+            /jacoco*/,
+            /site/
           </exclusions>
         </configuration>
       </plugin>

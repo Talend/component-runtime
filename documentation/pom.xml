@@ -204,6 +204,12 @@
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
             <version>${jgit.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
           <dependency>
             <groupId>args4j</groupId>
@@ -224,6 +230,11 @@
             <groupId>org.sonatype.plexus</groupId>
             <artifactId>plexus-sec-dispatcher</artifactId>
             <version>${plexus-sec-dispatcher.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxrs_2.0_spec</artifactId>
+            <version>${geronimo-jaxrs.version}</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -327,20 +338,28 @@
               <target>
                 <copy todir="${project.build.directory}/${project.build.finalName}/presentations/overview/reveal.js">
                   <fileset dir="${project.basedir}/src/main/presentation/reveal.js"/>
-                  <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}"/>
+                  <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}">
+                    <exclude name="**/test/**"/>
+                  </fileset>
                 </copy>
                 <copy
                     todir="${project.build.directory}/${project.build.finalName}/presentations/programming-model/reveal.js">
                   <fileset dir="${project.basedir}/src/main/presentation/reveal.js"/>
-                  <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}"/>
+                  <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}">
+                    <exclude name="**/test/**"/>
+                  </fileset>
                 </copy>
                 <copy todir="${project.build.directory}/${project.build.finalName}/presentations/packaging/reveal.js">
                   <fileset dir="${project.basedir}/src/main/presentation/reveal.js"/>
-                  <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}"/>
+                  <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}">
+                    <exclude name="**/test/**"/>
+                  </fileset>
                 </copy>
                 <copy todir="${project.build.directory}/${project.build.finalName}/presentations/testing/reveal.js">
                   <fileset dir="${project.basedir}/src/main/presentation/reveal.js"/>
-                  <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}"/>
+                  <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}">
+                    <exclude name="**/test/**"/>
+                  </fileset>
                 </copy>
               </target>
             </configuration>
