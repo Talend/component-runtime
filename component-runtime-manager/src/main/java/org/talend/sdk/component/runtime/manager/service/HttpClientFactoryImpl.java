@@ -56,6 +56,7 @@ import org.talend.sdk.component.api.service.http.Encoder;
 import org.talend.sdk.component.api.service.http.Header;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.HttpClientFactory;
+import org.talend.sdk.component.api.service.http.HttpException;
 import org.talend.sdk.component.api.service.http.Path;
 import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
@@ -74,27 +75,6 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
     private static final String QUERY_RESERVED_CHARACTERS = "?/,";
 
     private final String plugin;
-
-    @Override
-    public <T> T create(final Class<T> api, final String base) {
-        if (!api.isInterface()) {
-            throw new IllegalArgumentException(api + " is not an interface");
-        }
-        validate(api);
-        final HttpHandler handler = new HttpHandler();
-        final T instance = api.cast(Proxy.newProxyInstance(api.getClassLoader(),
-                new Class<?>[] { api, HttpClient.class, Serializable.class }, handler));
-        HttpClient.class.cast(instance).base(base);
-        return instance;
-    }
-
-    private <T> void validate(final Class<T> api) {
-        final Collection<String> errors = createErrors(api);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Invalid Http Proxy specification:\n" + errors.stream().collect(joining("\n- ", "- ", "\n")));
-        }
-    }
 
     public static <T> Collection<String> createErrors(final Class<T> api) {
         final Collection<String> errors = new ArrayList<>();
@@ -118,6 +98,87 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             return (codec == null || codec.decoder() == Decoder.class) && String.class != m.getReturnType();
         }).map(m -> m + " defines a payload without an adapted coder").collect(toList()));
         return errors;
+    }
+
+    private static byte[] slurp(final InputStream responseStream) {
+        final byte[] buffer = new byte[8192];
+        final ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream(buffer.length);
+        try (final InputStream inputStream = responseStream) {
+            int count;
+            while ((count = inputStream.read(buffer)) >= 0) {
+                responseBuffer.write(buffer, 0, count);
+            }
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return responseBuffer.toByteArray();
+    }
+
+    private static String queryEncode(final String value) {
+        return componentEncode(QUERY_RESERVED_CHARACTERS, value);
+    }
+
+    private static String pathEncode(final String value) {
+        String result = componentEncode(PATH_RESERVED_CHARACTERS, value);
+        // URLEncoder will encode '+' to %2B but will turn ' ' into '+'
+        // We need to retain '+' and encode ' ' as %20
+        if (result.indexOf('+') != -1) {
+            result = result.replace("+", "%20");
+        }
+        if (result.contains("%2B")) {
+            result = result.replace("%2B", "+");
+        }
+        return result;
+    }
+
+    private static String componentEncode(final String reservedChars, final String value) {
+        final StringBuilder buffer = new StringBuilder();
+        final StringBuilder bufferToEncode = new StringBuilder();
+        for (int i = 0; i < value.length(); i++) {
+            final char currentChar = value.charAt(i);
+            if (reservedChars.indexOf(currentChar) != -1) {
+                if (bufferToEncode.length() > 0) {
+                    buffer.append(urlEncode(bufferToEncode.toString()));
+                    bufferToEncode.setLength(0);
+                }
+                buffer.append(currentChar);
+            } else {
+                bufferToEncode.append(currentChar);
+            }
+        }
+        if (bufferToEncode.length() > 0) {
+            buffer.append(urlEncode(bufferToEncode.toString()));
+        }
+        return buffer.toString();
+    }
+
+    private static String urlEncode(final String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
+        } catch (final UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public <T> T create(final Class<T> api, final String base) {
+        if (!api.isInterface()) {
+            throw new IllegalArgumentException(api + " is not an interface");
+        }
+        validate(api);
+        final HttpHandler handler = new HttpHandler();
+        final T instance = api.cast(Proxy.newProxyInstance(api.getClassLoader(),
+                new Class<?>[] { api, HttpClient.class, Serializable.class }, handler));
+        HttpClient.class.cast(instance).base(base);
+        return instance;
+    }
+
+    private <T> void validate(final Class<T> api) {
+        final Collection<String> errors = createErrors(api);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Invalid Http Proxy specification:\n" + errors.stream().collect(joining("\n- ", "- ", "\n")));
+        }
     }
 
     Object writeReplace() throws ObjectStreamException {
@@ -279,24 +340,33 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                             }
                         }
 
-                        final byte[] buffer = new byte[8192];
-                        final ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream(buffer.length);
-                        try (final InputStream inputStream = urlConnection.getInputStream()) {
-                            int count;
-                            while ((count = inputStream.read(buffer)) >= 0) {
-                                responseBuffer.write(buffer, 0, count);
+                        final int responseCode = urlConnection.getResponseCode();
+                        byte[] error = null;
+                        byte[] response = null;
+                        try {
+                            response = slurp(urlConnection.getInputStream());
+                            if (!isResponse) {
+                                return decoder.decode(response, responseType);
                             }
+                            return new ResponseImpl(responseCode, decoder, responseType,
+                                    urlConnection.getHeaderFields(), response, null);
+                        } catch (final IOException e) {
+                            error = slurp(urlConnection.getErrorStream());
+                            final Response<Object> errorResponse = new ResponseImpl(responseCode, decoder, responseType,
+                                    urlConnection.getHeaderFields(), null, error);
+
+                            if (isResponse) {
+                                return errorResponse;
+                            }
+
+                            throw new HttpException(errorResponse);
                         }
 
-                        if (!isResponse) {
-                            return decoder.decode(responseBuffer.toByteArray(), responseType);
-                        }
-                        return new ResponseImpl(urlConnection, decoder, responseType, responseBuffer.toByteArray());
                     } catch (final IOException e) {
                         if (urlConnection != null) { // it fails, release the resources, otherwise we want to be pooled
                             urlConnection.disconnect();
                         }
-                        throw new IllegalArgumentException(e);
+                        throw new IllegalStateException(e);
                     }
                 };
             }).orElseGet(() -> params -> delegate(method, args))).apply(args);
@@ -346,77 +416,47 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
     @AllArgsConstructor
     private static class ResponseImpl<T> implements Response<T> {
 
-        private final HttpURLConnection urlConnection;
+        private final int status;
 
         private final Decoder decoder;
 
         private final Type responseType;
 
-        private final byte[] buffer;
+        private Map<String, List<String>> headers;
+
+        private byte[] responseBody;
+
+        private byte[] error;
 
         @Override
         public int status() {
-            try {
-                return urlConnection.getResponseCode();
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            }
+            return status;
         }
 
         @Override
         public Map<String, List<String>> headers() {
-            return urlConnection.getHeaderFields();
+            return headers;
         }
 
         @Override
         public T body() {
-            return (T) decoder.decode(buffer, responseType);
-        }
-    }
-
-    private static String queryEncode(final String value) {
-        return componentEncode(QUERY_RESERVED_CHARACTERS, value);
-    }
-
-    private static String pathEncode(final String value) {
-        String result = componentEncode(PATH_RESERVED_CHARACTERS, value);
-        // URLEncoder will encode '+' to %2B but will turn ' ' into '+'
-        // We need to retain '+' and encode ' ' as %20
-        if (result.indexOf('+') != -1) {
-            result = result.replace("+", "%20");
-        }
-        if (result.contains("%2B")) {
-            result = result.replace("%2B", "+");
-        }
-        return result;
-    }
-
-    private static String componentEncode(final String reservedChars, final String value) {
-        final StringBuilder buffer = new StringBuilder();
-        final StringBuilder bufferToEncode = new StringBuilder();
-        for (int i = 0; i < value.length(); i++) {
-            final char currentChar = value.charAt(i);
-            if (reservedChars.indexOf(currentChar) != -1) {
-                if (bufferToEncode.length() > 0) {
-                    buffer.append(urlEncode(bufferToEncode.toString()));
-                    bufferToEncode.setLength(0);
-                }
-                buffer.append(currentChar);
-            } else {
-                bufferToEncode.append(currentChar);
+            if (responseBody == null) {
+                return null;
             }
-        }
-        if (bufferToEncode.length() > 0) {
-            buffer.append(urlEncode(bufferToEncode.toString()));
-        }
-        return buffer.toString();
-    }
 
-    private static String urlEncode(final String value) {
-        try {
-            return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
-        } catch (final UnsupportedEncodingException ex) {
-            throw new RuntimeException(ex);
+            return (T) decoder.decode(responseBody, responseType);
+        }
+
+        @Override
+        public <E> E error(final Class<E> type) {
+            if (error == null) {
+                return null;
+            }
+            if (String.class == type) {
+                return type.cast(new String(error));
+            }
+
+            return type.cast(decoder.decode(error, type));
         }
     }
 }
