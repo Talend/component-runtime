@@ -82,6 +82,8 @@
       <url>http://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
   </repositories>
+
+
   <pluginRepositories>
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
@@ -106,6 +108,10 @@
       <releases>
         <enabled>false</enabled>
       </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>asf-snapshot</id>
+      <url>http://repository.apache.org/snapshots</url>
     </pluginRepository>
   </pluginRepositories>
 

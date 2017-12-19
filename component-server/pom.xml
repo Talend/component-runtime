@@ -27,19 +27,7 @@
   <name>Component Runtime :: Server</name>
   <description>The Web server of the framework. Mainly provides UI interaction hooks.</description>
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>sonatype_snapshot</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-    </pluginRepository>
-  </pluginRepositories>
-  
-  <repositories>
-    <repository>
-      <id>apache_snapshots</id>
-      <url>http://repository.apache.org/snapshots/</url>
-    </repository>
-  </repositories>
+
 
   <properties>
     <talend.icon.output>${project.build.outputDirectory}</talend.icon.output>
