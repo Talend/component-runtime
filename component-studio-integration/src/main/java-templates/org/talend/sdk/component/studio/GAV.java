@@ -23,4 +23,6 @@ public interface GAV {
 
     String VERSION = "${project.version}";
 
+    String CLI_VERSION = "${commons-cli.version}";
+
 }

@@ -30,7 +30,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
@@ -257,7 +256,7 @@ public class ProcessManager implements AutoCloseable {
     }
 
     private Collection<String> createClasspath() throws IOException {
-        final File serverJar = resolve(groupId + ":component-server:jar:" + findVersion());
+        final File serverJar = resolve(groupId + ":component-server:jar:" + GAV.VERSION);
         if (!serverJar.exists()) {
             throw new IllegalArgumentException(serverJar + " doesn't exist");
         }
@@ -275,7 +274,8 @@ public class ProcessManager implements AutoCloseable {
                 }
             }
         }
-        paths.add(resolve("commons-cli:commons-cli:jar:1.4").getAbsolutePath()); // we use the Cli as main so we need it
+        // we use the Cli as main so we need it
+        paths.add(resolve("commons-cli:commons-cli:jar:" + GAV.CLI_VERSION).getAbsolutePath());
         paths.add(serverJar.getAbsolutePath());
         return paths;
     }
@@ -348,19 +348,5 @@ public class ProcessManager implements AutoCloseable {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Didn't find java executable, maybe set component.java.exe to point to your java binary in config.ini"));
         return java.getAbsolutePath();
-    }
-
-    private String findVersion() {
-        try (final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                "META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties")) {
-            if (stream == null) {
-                throw new IllegalStateException("Can't find artifact " + groupId + ':' + artifactId);
-            }
-            final Properties properties = new Properties();
-            properties.load(stream);
-            return properties.getProperty("version");
-        } catch (final IOException e) {
-            throw new IllegalArgumentException(e);
-        }
     }
 }
