@@ -14,30 +14,26 @@ package org.talend.sdk.component.studio.metadata.model;
 
 import org.talend.core.model.properties.ConnectionItem;
 
+import lombok.Getter;
+
 /**
  * DOC cmeng class global comment. Detailled comment
  */
 public class TaCoKitConfigurationItemModel {
 
-    private ConnectionItem item;
+    @Getter
+    private ConnectionItem connectionItem;
 
-    private TaCoKitConfigurationModel configuraitonModel;
+    @Getter
+    private TaCoKitConfigurationModel configurationModel;
 
     public TaCoKitConfigurationItemModel(final ConnectionItem item) {
-        this.item = item;
-        configuraitonModel = new TaCoKitConfigurationModel(item.getConnection());
-    }
-
-    public ConnectionItem getConnectionItem() {
-        return this.item;
-    }
-
-    public TaCoKitConfigurationModel getConfigurationModel() {
-        return configuraitonModel;
+        this.connectionItem = item;
+        configurationModel = new TaCoKitConfigurationModel(item.getConnection());
     }
 
     public String getDisplayLabel() {
-        return item.getProperty().getDisplayName();
+        return connectionItem.getProperty().getDisplayName();
     }
 
 }

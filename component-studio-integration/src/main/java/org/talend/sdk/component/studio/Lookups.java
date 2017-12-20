@@ -35,7 +35,7 @@ import org.talend.core.model.process.INode;
 import org.talend.core.runtime.services.IGenericWizardService;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.service.ComponentService;
-import org.talend.sdk.component.studio.view.TaCoKitComposite;
+import org.talend.sdk.component.studio.ui.composite.TaCoKitComposite;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 import lombok.RequiredArgsConstructor;

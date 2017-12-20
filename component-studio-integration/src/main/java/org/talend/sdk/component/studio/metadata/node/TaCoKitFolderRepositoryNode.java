@@ -34,6 +34,7 @@ public class TaCoKitFolderRepositoryNode extends AbsTaCoKitRepositoryNode implem
         return null;
     }
 
+    // TODO remove it as it has the same impl as the parent
     @Override
     public boolean isLeafNode() {
         return false;

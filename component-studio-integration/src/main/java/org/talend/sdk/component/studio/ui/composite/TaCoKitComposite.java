@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.studio.view;
+package org.talend.sdk.component.studio.ui.composite;
 
 import static org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED;
 
 import java.beans.PropertyChangeListener;
-import java.util.List;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.talend.commons.ui.gmf.util.DisplayUtils;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.Element;
-import org.talend.core.model.process.IElementParameter;
 import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.ui.editor.nodes.Node;
@@ -40,14 +38,10 @@ import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite {
 
     /**
-     * Reference to refresher listener. It is stored to be removed from parameters, when this composite is disposed
+     * Refresher {@link PropertyChangeListener}. It is created and registered during {@link this#init()}.
+     * It is unregistered during {@link this#dispose()}
      */
     private PropertyChangeListener refresher;
-
-    /**
-     * Also stored for disposal only
-     */
-    private List<? extends IElementParameter> parameters;
 
     public TaCoKitComposite(final Composite parentComposite, final int styles, final EComponentCategory section,
             final Element element, final boolean isCompactView) {
@@ -70,13 +64,19 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
      * So, it should be true to force refresh
      */
     private void init() {
-        parameters = elem.getElementParameters();
+        createRefresherListener();
+        registerRefresherListener();
+    }
+
+    private void createRefresherListener() {
         refresher = event -> {
             Node node = (Node) elem;
             node.getElementParameter(EParameterName.UPDATE_COMPONENTS.getName()).setValue(Boolean.TRUE);
             refresh();
         };
+    }
 
+    private void registerRefresherListener() {
         elem
                 .getElementParameters()
                 .stream()
@@ -117,15 +117,20 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         return minHeight;
     }
 
+    /**
+     * Unregisters Refresher {@link PropertyChangeListener} from every {@link TaCoKitElementParameter}, where it was
+     * registered
+     */
     @Override
     public synchronized void dispose() {
-        super.dispose();
-        parameters
+        elem
+                .getElementParameters()
                 .stream()
                 .filter(p -> p instanceof TaCoKitElementParameter)
                 .map(p -> (TaCoKitElementParameter) p)
                 .filter(TaCoKitElementParameter::isForceRefresh)
                 .forEach(p -> p.unregisterListener(EVENT_PROPERTY_VALUE_CHANGED, refresher));
+        super.dispose();
     }
 
 }

@@ -16,9 +16,12 @@ import org.talend.core.model.properties.ConnectionItem;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 
+import lombok.Data;
+
+@Data
 public class TaCoKitConfigurationRuntimeData {
 
-    private ITaCoKitRepositoryNode tacokitRepositoryNode;
+    private ITaCoKitRepositoryNode taCoKitRepositoryNode;
 
     private ConnectionItem connectionItem;
 
@@ -31,61 +34,5 @@ public class TaCoKitConfigurationRuntimeData {
     private boolean isAddContextFields = false;
 
     private String[] existingNames;
-
-    public ITaCoKitRepositoryNode getTaCoKitRepositoryNode() {
-        return this.tacokitRepositoryNode;
-    }
-
-    public void setTaCoKitRepositoryNode(final ITaCoKitRepositoryNode tacokitRepositoryNode) {
-        this.tacokitRepositoryNode = tacokitRepositoryNode;
-    }
-
-    public boolean isCreation() {
-        return this.isCreation;
-    }
-
-    public void setCreation(final boolean isCreation) {
-        this.isCreation = isCreation;
-    }
-
-    public boolean isReadonly() {
-        return this.isReadonly;
-    }
-
-    public void setReadonly(final boolean isReadonly) {
-        this.isReadonly = isReadonly;
-    }
-
-    public boolean isAddContextFields() {
-        return this.isAddContextFields;
-    }
-
-    public void setAddContextFields(final boolean isAddContextFields) {
-        this.isAddContextFields = isAddContextFields;
-    }
-
-    public String[] getExistingNames() {
-        return this.existingNames;
-    }
-
-    public void setExistingNames(final String[] existingNames) {
-        this.existingNames = existingNames;
-    }
-
-    public ConnectionItem getConnectionItem() {
-        return this.connectionItem;
-    }
-
-    public void setConnectionItem(final ConnectionItem connectionItem) {
-        this.connectionItem = connectionItem;
-    }
-
-    public ConfigTypeNode getConfigTypeNode() {
-        return this.configTypeNode;
-    }
-
-    public void setConfigTypeNode(final ConfigTypeNode configTypeNode) {
-        this.configTypeNode = configTypeNode;
-    }
 
 }

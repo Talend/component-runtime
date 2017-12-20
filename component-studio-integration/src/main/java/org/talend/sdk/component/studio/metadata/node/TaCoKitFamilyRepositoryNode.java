@@ -31,12 +31,16 @@ import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
 /**
  * DOC cmeng class global comment. Detailled comment
  */
+// TODO it is very similar to AbsTaCoKitRepositoryNode but reuse it
+@Getter
+@EqualsAndHashCode(callSuper = true, of = "configTypeNode")
 public class TaCoKitFamilyRepositoryNode extends StableRepositoryNode implements ITaCoKitRepositoryNode {
-
-    private static final int PRIME = 31;
 
     private ConfigTypeNode configTypeNode;
 
@@ -51,22 +55,8 @@ public class TaCoKitFamilyRepositoryNode extends StableRepositoryNode implements
     }
 
     @Override
-    public ConfigTypeNode getConfigTypeNode() {
-        return configTypeNode;
-    }
-
-    @Override
     public ITaCoKitRepositoryNode getParentTaCoKitNode() {
         return null;
-    }
-
-    @Override
-    public Image getImage() {
-        return image;
-    }
-
-    public void setImage(final Image image) {
-        this.image = image;
     }
 
     public static Image getTaCoKitImage(final ConfigTypeNode configTypeNode) {
@@ -140,12 +130,6 @@ public class TaCoKitFamilyRepositoryNode extends StableRepositoryNode implements
     @Override
     public boolean isConfigNode() {
         return false;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        return result = PRIME * result + ((this.configTypeNode == null) ? 0 : this.configTypeNode.hashCode());
     }
 
 }

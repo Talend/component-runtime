@@ -12,8 +12,6 @@
  */
 package org.talend.sdk.component.studio.ui.wizard.page;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,15 +24,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.Element;
-import org.talend.designer.core.generic.constants.IElementParameterEventProperties;
 import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.DummyComponent;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.process.DataNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.i18n.Messages;
-import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
-import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter.IValueChangedListener;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.model.parameter.PropertyNode;
@@ -46,7 +41,7 @@ import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData
 /**
  * DOC cmeng class global comment. Detailled comment
  */
-public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage implements PropertyChangeListener {
+public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
 
     private Element element;
 
@@ -92,15 +87,6 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage impleme
         tacokitComposite = new TaCoKitWizardComposite(container, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS,
                 EComponentCategory.BASIC, element, configurationModel, true, container.getBackground());
         tacokitComposite.setLayoutData(createMainFormData(addContextFields));
-        tacokitComposite.addPropertyChangeListener(this);
-        tacokitComposite.addValueChangedListener(new IValueChangedListener() {
-
-            @Override
-            public void onValueChanged(final TaCoKitElementParameter elementParameter, final Object oldValue,
-                    final Object newValue) {
-                configurationModel.setValue(elementParameter.getName(), newValue);
-            }
-        });
 
         if (addContextFields) {
             // Composite contextParentComp = new Composite(container, SWT.NONE);
@@ -128,19 +114,6 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage impleme
     @Override
     protected IStatus[] getStatuses() {
         return Arrays.asList(super.getStatuses(), tocokitConfigStatus).toArray(new IStatus[0]);
-    }
-
-    @Override
-    public void propertyChange(final PropertyChangeEvent evt) {
-        String propertyName = evt.getPropertyName();
-        if (IElementParameterEventProperties.EVENT_PROPERTY_NAME_CHANGED.equals(propertyName)) {
-            String newPropertyName = String.valueOf(evt.getNewValue());
-            updateProperty(newPropertyName);
-        }
-    }
-
-    private void updateProperty(final String newPropertyName) {
-        // TODO
     }
 
 }

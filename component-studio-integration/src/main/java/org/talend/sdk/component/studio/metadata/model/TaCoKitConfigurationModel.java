@@ -21,6 +21,9 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 /**
  * DOC cmeng class global comment. Detailled comment
  */
@@ -159,32 +162,13 @@ public class TaCoKitConfigurationModel {
         return parentConfigurationModelCache;
     }
 
+    @Data
+    @AllArgsConstructor
     public static class ValueModel {
 
         private TaCoKitConfigurationModel configurationModel;
 
         private Object value;
-
-        public ValueModel(final TaCoKitConfigurationModel model, final Object value) {
-            this.configurationModel = model;
-            this.value = value;
-        }
-
-        public TaCoKitConfigurationModel getConfigurationModel() {
-            return this.configurationModel;
-        }
-
-        public void setConfigurationModel(final TaCoKitConfigurationModel configurationModel) {
-            this.configurationModel = configurationModel;
-        }
-
-        public Object getValue() {
-            return this.value;
-        }
-
-        public void setValue(final Object value) {
-            this.value = value;
-        }
 
     }
 
