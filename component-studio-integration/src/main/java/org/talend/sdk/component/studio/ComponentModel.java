@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.talend.core.model.components.ComponentCategory;
 import org.talend.core.model.components.EComponentType;
 import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.metadata.types.JavaTypesManager;
@@ -81,7 +82,7 @@ public class ComponentModel extends AbstractBasicComponent {
     private volatile List<ModuleNeeded> modulesNeeded;
 
     public ComponentModel(final ComponentIndex component, final ComponentDetail detail, final ImageDescriptor image32) {
-        setPaletteType("DI");
+        setPaletteType(ComponentCategory.CATEGORY_4_DI.getName());
         this.index = component;
         this.detail = detail;
         this.familyName = computeFamilyName();
