@@ -342,7 +342,8 @@
             /.blackduck/,
             /blackduck/,
             /jacoco*/,
-            /site/
+            /site/,
+            /apidocs/
           </exclusions>
         </configuration>
       </plugin>
