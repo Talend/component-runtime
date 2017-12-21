@@ -17,6 +17,7 @@ package org.talend.sdk.component.studio.model.parameter;
 
 import static org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -88,7 +89,8 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     /**
-     * Registers created Listeners in {@link TaCoKitElementParameter} and returns list of created parameters
+     * Registers created Listeners in {@link TaCoKitElementParameter} and returns list of created parameters.
+     * Also setup initial visibility according initial value of target parameters
      * 
      * @return created parameters
      */
@@ -98,12 +100,20 @@ public class SettingsCreator implements PropertyVisitor {
             TaCoKitElementParameter targetParameter = settings.get(path);
             targetParameter.registerListener(EVENT_PROPERTY_VALUE_CHANGED, activator);
             targetParameter.setRedrawParameter(redrawParameter);
-            // TODO Make it more clear. This is needed to set initial show/hidden value of dependent parameter according
-            // value of this param
-            targetParameter.setValue(targetParameter.getValue());
+            initVisibility(targetParameter, activator);
         });
 
         return Collections.unmodifiableList(new ArrayList<>(settings.values()));
+    }
+
+    /**
+     * Sends initial event to listener to set initial visibility
+     */
+    private void initVisibility(final ElementParameter targetParameter, final ParameterActivator listener) {
+        Object initialValue = targetParameter.getValue();
+        PropertyChangeEvent event =
+                new PropertyChangeEvent(targetParameter, EVENT_PROPERTY_VALUE_CHANGED, initialValue, initialValue);
+        listener.propertyChange(event);
     }
 
     /**
