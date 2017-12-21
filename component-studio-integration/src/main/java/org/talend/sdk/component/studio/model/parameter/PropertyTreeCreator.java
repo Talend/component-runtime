@@ -23,13 +23,18 @@ import java.util.Map;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 /**
  * Provides methods for handling {@link PropertyNode} tree
  */
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public final class PropertyNodeUtils {
+@AllArgsConstructor
+public class PropertyTreeCreator {
+
+    /**
+     * Maps widget types to Parameter field type
+     */
+    private final WidgetTypeMapper typeMapper;
 
     /**
      * Creates tree representation of {@link PropertyDefinitionDecorator}.
@@ -54,7 +59,7 @@ public final class PropertyNodeUtils {
      * @param properties a collections of {@link PropertyDefinitionDecorator} retrieved from ComponentModel
      * @return root node of created tree
      */
-    public static PropertyNode createPropertyTree(final Collection<? extends PropertyDefinitionDecorator> properties) {
+    public PropertyNode createPropertyTree(final Collection<? extends PropertyDefinitionDecorator> properties) {
         if (properties == null) {
             throw new NullPointerException("properties should not be null");
         }
@@ -77,7 +82,7 @@ public final class PropertyNodeUtils {
      * @param configTypeNode configuration type node: {@link ConfigTypeNode}
      * @return root node of created tree: {@link PropertyNode}
      */
-    public static PropertyNode createPropertyTree(final ConfigTypeNode configTypeNode) {
+    public PropertyNode createPropertyTree(final ConfigTypeNode configTypeNode) {
         Collection<PropertyDefinitionDecorator> properties =
                 PropertyDefinitionDecorator.wrap(configTypeNode.getProperties());
         return createPropertyTree(properties);
@@ -89,7 +94,7 @@ public final class PropertyNodeUtils {
      * @param properties all {@link PropertyDefinitionDecorator}
      * @param nodes stores all created {@link PropertyNode}
      */
-    static void createRemainingNodes(final Collection<? extends PropertyDefinitionDecorator> properties,
+    void createRemainingNodes(final Collection<? extends PropertyDefinitionDecorator> properties,
             final Map<String, PropertyNode> nodes) {
         properties.forEach(property -> nodes.putIfAbsent(property.getPath(), createNode(property, false)));
     }
@@ -100,7 +105,7 @@ public final class PropertyNodeUtils {
      * @param properties all {@link PropertyDefinitionDecorator}
      * @param nodes all {@link PropertyNode}
      */
-    static void linkNodes(final Collection<? extends PropertyDefinitionDecorator> properties,
+    void linkNodes(final Collection<? extends PropertyDefinitionDecorator> properties,
             final Map<String, PropertyNode> nodes) {
         properties.stream().map(property -> property.getPath()).forEach(id -> {
             PropertyNode current = nodes.get(id);
@@ -119,8 +124,8 @@ public final class PropertyNodeUtils {
      * @param isRoot specifies whether this Node is root Node
      * @return {@link PropertyNode} implementation
      */
-    static PropertyNode createNode(final PropertyDefinitionDecorator property, final boolean isRoot) {
-        EParameterFieldType fieldType = new WidgetTypeMapper(property).getFieldType();
+    PropertyNode createNode(final PropertyDefinitionDecorator property, final boolean isRoot) {
+        EParameterFieldType fieldType = typeMapper.getFieldType(property);
         PropertyNode node = null;
         switch (fieldType) {
         case TABLE:
@@ -138,7 +143,7 @@ public final class PropertyNodeUtils {
      * @param properties all {@link PropertyDefinitionDecorator}
      * @return root PropertyNode
      */
-    static PropertyNode createRootNode(final Collection<? extends PropertyDefinitionDecorator> properties) {
+    PropertyNode createRootNode(final Collection<? extends PropertyDefinitionDecorator> properties) {
         return createNode(findRootProperty(properties), true);
     }
 
@@ -157,8 +162,7 @@ public final class PropertyNodeUtils {
      * @param properties Collection of {@link PropertyDefinitionDecorator}
      * @return root {@link PropertyDefinitionDecorator}
      */
-    static PropertyDefinitionDecorator
-            findRootProperty(final Collection<? extends PropertyDefinitionDecorator> properties) {
+    PropertyDefinitionDecorator findRootProperty(final Collection<? extends PropertyDefinitionDecorator> properties) {
         PropertyDefinitionDecorator rootProperty = Collections.min(properties, (p1, p2) -> {
             String path1 = p1.getPath();
             String path2 = p2.getPath();

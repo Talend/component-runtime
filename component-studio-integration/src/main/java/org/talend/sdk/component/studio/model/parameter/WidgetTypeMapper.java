@@ -36,15 +36,12 @@ import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.STRI
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-import lombok.AllArgsConstructor;
-
 /**
  * Maps metadata retrieved from {@link SimplePropertyDefinition} to {@link EParameterFieldType}
  */
-@AllArgsConstructor
 public class WidgetTypeMapper {
 
-    private final SimplePropertyDefinition property;
+    private SimplePropertyDefinition property;
 
     /**
      * Recognizes {@link EParameterFieldType} for given {@link SimplePropertyDefinition}
@@ -52,29 +49,34 @@ public class WidgetTypeMapper {
      * All checks are implemented in separate methods
      * Only one checker method returns {@code true} for particular Property Definition
      * 
+     * @param property Property, which field type should be defined
      * @return widget type
      */
-    public EParameterFieldType getFieldType() {
-        if (isText()) {
-            return TEXT;
-        } else if (isPassword()) {
-            return PASSWORD;
-        } else if (isTextArea()) {
-            return TEXT_AREA;
-        } else if (isCheck()) {
-            return CHECK;
-        } else if (isClosedList()) {
-            return CLOSED_LIST;
-        } else if (isOpenedList()) {
-            return OPENED_LIST;
-        } else if (isFile()) {
-            return FILE;
-        } else if (isTable()) {
-            return TABLE;
-        } else if (isMemoJava()) {
-            return MEMO_JAVA;
+    public EParameterFieldType getFieldType(final SimplePropertyDefinition property) {
+        if (property == null) {
+            throw new IllegalArgumentException("property should not be null");
         }
-        return TEXT;
+        this.property = property;
+        if (isText()) {
+            return getTextType();
+        } else if (isCredential()) {
+            return getCredentialType();
+        } else if (isTextArea()) {
+            return getTextAreaType();
+        } else if (isCheck()) {
+            return getCheckType();
+        } else if (isClosedList()) {
+            return getClosedListType();
+        } else if (isOpenedList()) {
+            return getOpenedListType();
+        } else if (isFile()) {
+            return getFileType();
+        } else if (isTable()) {
+            return getTableType();
+        } else if (isMemoJava()) {
+            return getMemoJavaType();
+        }
+        return getTextType();
     }
 
     /**
@@ -84,6 +86,10 @@ public class WidgetTypeMapper {
         return STRING.equals(property.getType()) && property.getMetadata().isEmpty();
     }
 
+    protected EParameterFieldType getTextType() {
+        return TEXT;
+    }
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#TEXT_AREA}
      */
@@ -91,11 +97,19 @@ public class WidgetTypeMapper {
         return property.getMetadata().containsKey(UI_TEXTAREA);
     }
 
+    protected EParameterFieldType getTextAreaType() {
+        return TEXT_AREA;
+    }
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#PASSWORD}
      */
-    private boolean isPassword() {
+    private boolean isCredential() {
         return property.getMetadata().containsKey(UI_CREDENTIAL);
+    }
+
+    protected EParameterFieldType getCredentialType() {
+        return PASSWORD;
     }
 
     /**
@@ -105,11 +119,19 @@ public class WidgetTypeMapper {
         return BOOLEAN.equals(property.getType());
     }
 
+    protected EParameterFieldType getCheckType() {
+        return CHECK;
+    }
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#CLOSED_LIST}
      */
     private boolean isClosedList() {
         return ENUM.equals(property.getType());
+    }
+
+    protected EParameterFieldType getClosedListType() {
+        return CLOSED_LIST;
     }
 
     /**
@@ -120,12 +142,20 @@ public class WidgetTypeMapper {
         return false;
     }
 
+    protected EParameterFieldType getOpenedListType() {
+        return OPENED_LIST;
+    }
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#FILE}
      * TODO decide and implement it
      */
     private boolean isFile() {
         return false;
+    }
+
+    protected EParameterFieldType getFileType() {
+        return FILE;
     }
 
     /**
@@ -138,10 +168,18 @@ public class WidgetTypeMapper {
         return JAVA.equals(property.getMetadata().get(UI_CODE));
     }
 
+    protected EParameterFieldType getMemoJavaType() {
+        return MEMO_JAVA;
+    }
+
     /**
      * Checks whether widget type is {@link EParameterFieldType#TABLE}
      */
     private boolean isTable() {
         return ARRAY.equals(property.getType());
+    }
+
+    protected EParameterFieldType getTableType() {
+        return TABLE;
     }
 }

@@ -77,7 +77,7 @@ public class ElementParameterCreator {
         if (!detail.getProperties().isEmpty()) {
             Collection<PropertyDefinitionDecorator> properties =
                     PropertyDefinitionDecorator.wrap(detail.getProperties());
-            PropertyNode root = PropertyNodeUtils.createPropertyTree(properties);
+            PropertyNode root = new PropertyTreeCreator(new WidgetTypeMapper()).createPropertyTree(properties);
             // add main parameters
             SettingsCreator mainCreator =
                     new SchemaSettingsCreator(node, EComponentCategory.BASIC, updateComponentsParameter);
