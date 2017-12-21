@@ -50,6 +50,18 @@
 
   <repositories>
     <repository>
+      <id>meecrowave-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1037/</url>
+    </repository>
+    <repository>
+      <id>owb-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1034/</url>
+    </repository>
+    <repository>
+      <id>geronimo-jaxrs-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1046</url>
+    </repository>
+    <repository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
@@ -86,6 +98,18 @@
 
   <pluginRepositories>
     <pluginRepository>
+      <id>meecrowave-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1037/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>owb-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1034/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>geronimo-jaxrs-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1046</url>
+    </pluginRepository>
+    <pluginRepository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </pluginRepository>
@@ -121,10 +145,10 @@
     <xbean.version>4.6</xbean.version>
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
-    <ziplock.version>7.0.3</ziplock.version>
+    <ziplock.version>7.0.4</ziplock.version>
     <johnzon.version>1.1.5</johnzon.version>
     <meecrowave.version>1.2.0-SNAPSHOT</meecrowave.version>
-    <tomcat.version>9.0.1</tomcat.version>
+    <tomcat.version>9.0.2</tomcat.version>
     <cxf.version>3.2.1</cxf.version>
     <log4j2.version>2.10.0</log4j2.version>
     <batik.version>1.9</batik.version>

@@ -100,7 +100,7 @@ public class ComponentResourceTest {
         final DependencyDefinition definition = dependencies.getDependencies().get(compId);
         assertNotNull(definition);
         assertEquals(1, definition.getDependencies().size());
-        assertEquals("org.apache.tomee:ziplock:jar:7.0.3", definition.getDependencies().iterator().next());
+        assertEquals("org.apache.tomee:ziplock:jar:7.0.4", definition.getDependencies().iterator().next());
     }
 
     @Test
@@ -129,7 +129,7 @@ public class ComponentResourceTest {
             }
         };
 
-        final File zipLock = download.apply("org.apache.tomee:ziplock:jar:7.0.3");
+        final File zipLock = download.apply("org.apache.tomee:ziplock:jar:7.0.4");
         jarValidator.accept(zipLock);
 
         final File component = download.apply(getJdbcId());

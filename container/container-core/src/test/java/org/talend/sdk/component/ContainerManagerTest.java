@@ -127,7 +127,7 @@ public class ContainerManagerTest {
     }
 
     private File createZiplockJar() {
-        return jars.create("org.apache.tomee:ziplock:jar:7.0.3");
+        return jars.create("org.apache.tomee:ziplock:jar:7.0.4");
     }
 
     private ContainerManager createDefaultManager() {

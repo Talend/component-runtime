@@ -55,7 +55,7 @@ public class ConfigurableClassLoaderTest {
             final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
             try (final ConfigurableClassLoader loader = new ConfigurableClassLoader(
                     new URL[] { new File(Constants.DEPENDENCIES_LOCATION,
-                            "org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar").toURI().toURL() },
+                            "org/apache/tomee/ziplock/7.0.4/ziplock-7.0.4.jar").toURI().toURL() },
                     parent, name -> true, name -> parentFirst, null)) {
                 try {
                     loader.loadClass("org.apache.ziplock.JarLocation");
@@ -97,11 +97,11 @@ public class ConfigurableClassLoaderTest {
 
     @Test
     public void nestedJars() throws IOException {
-        final File nestedJar = createNestedJar("org.apache.tomee:ziplock:jar:7.0.3");
+        final File nestedJar = createNestedJar("org.apache.tomee:ziplock:jar:7.0.4");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent, name -> true,
-                        name -> true, new String[] { "org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar" })) {
+                        name -> true, new String[] { "org/apache/tomee/ziplock/7.0.4/ziplock-7.0.4.jar" })) {
             try { // classes
                 final Class<?> aClass = loader.loadClass("org.apache.ziplock.JarLocation");
                 final Object jarLocation =
@@ -120,7 +120,7 @@ public class ConfigurableClassLoaderTest {
                 assertNotNull(url);
                 assertEquals("nested", url.getProtocol());
                 assertEquals(
-                        "MAVEN-INF/repository/org/apache/tomee/ziplock/7.0.3/ziplock-7.0.3.jar!/org/apache/ziplock/JarLocation.class",
+                        "MAVEN-INF/repository/org/apache/tomee/ziplock/7.0.4/ziplock-7.0.4.jar!/org/apache/ziplock/JarLocation.class",
                         url.getFile());
                 final byte[] bytes = slurp(url.openStream());
                 assertEquals(4394, bytes.length, mavenJarSizeMargin);

@@ -43,15 +43,15 @@ public class ContainerTest {
     @Rule
     public final TestRule containerManager = new ContainerProviderRule(this);
 
-    @ContainerProviderRule.Instance("org.apache.tomee:ziplock:jar:7.0.3:compile")
+    @ContainerProviderRule.Instance("org.apache.tomee:ziplock:jar:7.0.4:compile")
     private Container ziplock;
 
-    @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.5:runtime")
+    @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.6:runtime")
     private Container xbeanFinder;
 
     @Test
     public void findDependencies() {
-        assertEquals(singletonList("org.apache.xbean:xbean-finder:jar:4.5"),
+        assertEquals(singletonList("org.apache.xbean:xbean-finder:jar:4.6"),
                 xbeanFinder.findDependencies().map(Artifact::toCoordinate).collect(toList()));
     }
 

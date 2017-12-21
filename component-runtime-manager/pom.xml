@@ -90,24 +90,24 @@
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>
                   <artifactId>openejb-itests-beans</artifactId>
-                  <version>7.0.3</version>
+                  <version>${ziplock.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>
-                    ${project.build.directory}/test-dependencies/org/apache/tomee/openejb-itests-beans/7.0.3
+                    ${project.build.directory}/test-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.version}
                   </outputDirectory>
-                  <destFileName>openejb-itests-beans-7.0.3.jar</destFileName>
+                  <destFileName>openejb-itests-beans-${ziplock.version}.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>
                   <artifactId>arquillian-tomee-codi-tests</artifactId>
-                  <version>7.0.3</version>
+                  <version>${ziplock.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>
-                    ${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/7.0.3
+                    ${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/${ziplock.version}
                   </outputDirectory>
-                  <destFileName>arquillian-tomee-codi-tests-7.0.3.jar</destFileName>
+                  <destFileName>arquillian-tomee-codi-tests-${ziplock.version}.jar</destFileName>
                 </artifactItem>
               </artifactItems>
             </configuration>

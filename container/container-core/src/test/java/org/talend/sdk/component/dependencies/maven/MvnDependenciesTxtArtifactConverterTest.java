@@ -29,38 +29,38 @@ public class MvnDependenciesTxtArtifactConverterTest {
     public void mvnDependencyOutput() {
         final Artifact[] artifacts = converter
                 .withContent(
-                        " \n The following files have been resolved:\norg.apache.tomee:ziplock:jar:7.0.3:runtime\n")
+                        " \n The following files have been resolved:\norg.apache.tomee:ziplock:jar:7.0.4:runtime\n")
                 .build();
         assertEquals(1, artifacts.length);
-        assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.3", "jar", "runtime", null);
+        assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.4", "jar", "runtime", null);
     }
 
     @Test
     public void simpleList() {
-        final Artifact[] artifacts = converter.withContent("org.apache.tomee:ziplock:jar:7.0.3:runtime").build();
+        final Artifact[] artifacts = converter.withContent("org.apache.tomee:ziplock:jar:7.0.4:runtime").build();
         assertEquals(1, artifacts.length);
-        assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.3", "jar", "runtime", null);
+        assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.4", "jar", "runtime", null);
     }
 
     @Test
     public void shortArtifact() {
-        final Artifact[] artifacts = converter.withContent("org.apache.tomee:ziplock:7.0.3").build();
+        final Artifact[] artifacts = converter.withContent("org.apache.tomee:ziplock:7.0.4").build();
         assertEquals(1, artifacts.length);
-        assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.3", "jar", "compile", null);
+        assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.4", "jar", "compile", null);
     }
 
     @Test
     public void noScopeArtifact() {
-        final Artifact[] artifacts = converter.withContent("org.apache.tomee:ziplock:jar:7.0.3").build();
+        final Artifact[] artifacts = converter.withContent("org.apache.tomee:ziplock:jar:7.0.4").build();
         assertEquals(1, artifacts.length);
-        assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.3", "jar", "compile", null);
+        assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.4", "jar", "compile", null);
     }
 
     @Test
     public void tree() {
-        final Artifact[] artifacts = converter.withContent("└─ org.apache.tomee:ziplock:7.0.3").build();
+        final Artifact[] artifacts = converter.withContent("└─ org.apache.tomee:ziplock:7.0.4").build();
         assertEquals(1, artifacts.length);
-        assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.3", "jar", "compile", null);
+        assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.4", "jar", "compile", null);
     }
 
     private void assertArtifact(final Artifact art, final String group, final String artifact, final String version,

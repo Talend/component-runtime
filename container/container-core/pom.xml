@@ -68,35 +68,35 @@
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>
                   <artifactId>ziplock</artifactId>
-                  <version>7.0.3</version>
+                  <version>${ziplock.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>
-                    ${project.build.directory}/test-container-dependencies/org/apache/tomee/ziplock/7.0.3
+                    ${project.build.directory}/test-container-dependencies/org/apache/tomee/ziplock/${ziplock.version}
                   </outputDirectory>
-                  <destFileName>ziplock-7.0.3.jar</destFileName>
+                  <destFileName>ziplock-${ziplock.version}.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>
                   <artifactId>openejb-itests-beans</artifactId>
-                  <version>7.0.3</version>
+                  <version>${ziplock.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>
-                    ${project.build.directory}/test-container-dependencies/org/apache/tomee/openejb-itests-beans/7.0.3
+                    ${project.build.directory}/test-container-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.version}
                   </outputDirectory>
-                  <destFileName>openejb-itests-beans-7.0.3.jar</destFileName>
+                  <destFileName>openejb-itests-beans-${ziplock.version}.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.xbean</groupId>
                   <artifactId>xbean-finder</artifactId>
-                  <version>4.5</version>
+                  <version>${xbean.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>
-                    ${project.build.directory}/test-container-dependencies/org/apache/xbean/xbean-finder/4.5
+                    ${project.build.directory}/test-container-dependencies/org/apache/xbean/xbean-finder/${xbean.version}
                   </outputDirectory>
-                  <destFileName>xbean-finder-4.5.jar</destFileName>
+                  <destFileName>xbean-finder-${xbean.version}.jar</destFileName>
                 </artifactItem>
               </artifactItems>
             </configuration>
