@@ -35,7 +35,7 @@ new MvnDependencyListLocalRepositoryResolver.MvnDependenciesTxtArtifactConverter
         .build()
         .each {
             def relativePath = it.toPath()
-            def target = new File(workDir, "configuration/.m2/${relativePath}")
+            def target = new File(workDir, "configuration/.m2/repository/${relativePath}")
             def source = new File(localRepository, relativePath)
 
             target.parentFile.mkdirs()
