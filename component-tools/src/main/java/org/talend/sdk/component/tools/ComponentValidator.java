@@ -25,8 +25,10 @@ import static java.util.stream.Collectors.toSet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,6 +47,7 @@ import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
@@ -113,7 +116,7 @@ public class ComponentValidator extends BaseTask {
         }
 
         if (configuration.isValidateModel()) {
-            validateModel(components, errors);
+            validateModel(finder, components, errors);
         }
 
         if (configuration.isValidateMetadata()) {
@@ -130,7 +133,6 @@ public class ComponentValidator extends BaseTask {
 
         if (configuration.isValidateActions()) {
             validateActions(finder, errors);
-
         }
 
         if (configuration.isValidateDocumentation()) {
@@ -203,7 +205,8 @@ public class ComponentValidator extends BaseTask {
                 .collect(toList()));
     }
 
-    private void validateModel(final List<Class<?>> components, final Set<String> errors) {
+    private void validateModel(final AnnotationFinder finder, final List<Class<?>> components,
+            final Set<String> errors) {
         errors.addAll(components
                 .stream()
                 .filter(c -> componentMarkers().filter(c::isAnnotationPresent).count() > 1)
@@ -222,6 +225,28 @@ public class ComponentValidator extends BaseTask {
                 return re.getMessage();
             }
         }).filter(Objects::nonNull).collect(toList()));
+
+        // limited config types
+        errors.addAll(finder
+                .findAnnotatedFields(Structure.class)
+                .stream()
+                .filter(f -> !ParameterizedType.class.isInstance(f.getGenericType())
+                        || (!isListString(f) && !isMapString(f)))
+                .map(f -> f.getDeclaringClass() + "#" + f.getName()
+                        + " uses @Structure but is not a List<String> nor a Map<String, String>")
+                .collect(toList()));
+    }
+
+    private boolean isMapString(final Field f) {
+        final ParameterizedType pt = ParameterizedType.class.cast(f.getGenericType());
+        return (Map.class == pt.getRawType()) && pt.getActualTypeArguments().length == 2
+                && pt.getActualTypeArguments()[0] == String.class && pt.getActualTypeArguments()[1] == String.class;
+    }
+
+    private boolean isListString(final Field f) {
+        final ParameterizedType pt = ParameterizedType.class.cast(f.getGenericType());
+        return ((List.class == pt.getRawType()) || (Collection.class == pt.getRawType()))
+                && pt.getActualTypeArguments().length == 1 && pt.getActualTypeArguments()[0] == String.class;
     }
 
     private void validateMetadata(final List<Class<?>> components, final Set<String> errors) {

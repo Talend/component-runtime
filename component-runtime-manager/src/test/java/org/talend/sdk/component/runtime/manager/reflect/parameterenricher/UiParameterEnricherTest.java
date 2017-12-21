@@ -28,6 +28,7 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayouts;
 import org.talend.sdk.component.api.configuration.ui.layout.HorizontalLayout;
 import org.talend.sdk.component.api.configuration.ui.widget.Code;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
+import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 
 public class UiParameterEnricherTest {
 
@@ -162,6 +163,33 @@ public class UiParameterEnricherTest {
                         return GridLayout.class;
                     }
                 }));
+    }
+
+    @Test
+    public void selector() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::ui::structure::value", "__default__");
+                put("tcomp::ui::structure::type", "IN");
+            }
+        }, enricher.onParameterAnnotation("testParam", String.class, new Structure() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Structure.class;
+            }
+
+            @Override
+            public String value() {
+                return "__default__";
+            }
+
+            @Override
+            public Type type() {
+                return Type.IN;
+            }
+        }));
     }
 
     @Test
