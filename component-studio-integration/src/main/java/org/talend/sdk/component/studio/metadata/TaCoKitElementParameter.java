@@ -20,7 +20,6 @@ import java.util.List;
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.components.ElementParameter;
 
-import lombok.Getter;
 import lombok.Setter;
 
 /**
@@ -32,10 +31,19 @@ public class TaCoKitElementParameter extends ElementParameter {
 
     private final List<IValueChangedListener> valueChangeListeners = new ArrayList<>();
 
+    /**
+     * UPDATE_COMPONENTS {@link ElementParameter}
+     * If it is set, this {@link TaCoKitElementParameter} sets it to {@code true}.
+     * It will redraw UI after value is changed
+     */
     @Setter
-    @Getter
-    private boolean isForceRefresh = false;
+    private ElementParameter redrawParameter;
 
+    /**
+     * Sets tagged value "org.talend.sdk.component.source", which is used in code generation to recognize component type
+     * 
+     * @param element {@link IElement} to which this parameter belongs to
+     */
     public TaCoKitElementParameter(final IElement element) {
         super(element);
         setTaggedValue("org.talend.sdk.component.source", "tacokit");
@@ -45,34 +53,20 @@ public class TaCoKitElementParameter extends ElementParameter {
     public void setValue(final Object newValue) {
         Object oldValue = super.getValue();
         super.setValue(newValue);
-        firePropertyChange(ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED, oldValue, newValue);
+        if (isRedrawable()) {
+            redrawParameter.setValue(true);
+        }
+        pcs.firePropertyChange(ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED, oldValue,
+                newValue);
         fireValueChange(oldValue, newValue);
-    }
-
-    public void addPropertyChangeListener(final PropertyChangeListener listener) {
-        this.pcs.addPropertyChangeListener(listener);
     }
 
     public void registerListener(final String propertyName, final PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(propertyName, listener);
     }
 
-    public void removePropertyChangeListener(final PropertyChangeListener listener) {
-        this.pcs.removePropertyChangeListener(listener);
-    }
-
     public void unregisterListener(final String propertyName, final PropertyChangeListener listener) {
         pcs.removePropertyChangeListener(propertyName, listener);
-    }
-
-    private boolean hasPropertyChangeListener() {
-        return pcs.getPropertyChangeListeners().length != 0;
-    }
-
-    public void firePropertyChange(final String propertyName, final Object oldValue, final Object newValue) {
-        if (hasPropertyChangeListener()) {
-            pcs.firePropertyChange(propertyName, oldValue, newValue);
-        }
     }
 
     public void addValueChangeListener(final IValueChangedListener listener) {
@@ -105,6 +99,16 @@ public class TaCoKitElementParameter extends ElementParameter {
             return 0;
         }
         return index;
+    }
+
+    /**
+     * Checks whether this {@link TaCoKitElementParameter} forces redraw after each value change
+     * It forces redraw if {@link this#redrawParameter} was set
+     * 
+     * @return true, if it forces redraw; false - otherwise
+     */
+    public boolean isRedrawable() {
+        return redrawParameter != null;
     }
 
     public interface IValueChangedListener {

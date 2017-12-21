@@ -63,6 +63,11 @@ public class SettingsCreator implements PropertyVisitor {
     private final String formName;
 
     /**
+     * {@link ElementParameter} which defines whether UI should be redrawn
+     */
+    private final ElementParameter redrawParameter;
+
+    /**
      * Stores created component parameters.
      * Key is parameter name (which is also its path)
      */
@@ -74,9 +79,11 @@ public class SettingsCreator implements PropertyVisitor {
      */
     private final Map<String, ParameterActivator> activators = new HashMap<>();
 
-    public SettingsCreator(final IElement iNode, final EComponentCategory category) {
+    public SettingsCreator(final IElement iNode, final EComponentCategory category,
+            final ElementParameter redrawParameter) {
         this.iNode = iNode;
         this.category = category;
+        this.redrawParameter = redrawParameter;
         formName = (category == EComponentCategory.ADVANCED) ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
     }
 
@@ -90,14 +97,10 @@ public class SettingsCreator implements PropertyVisitor {
         activators.forEach((path, activator) -> {
             TaCoKitElementParameter targetParameter = settings.get(path);
             targetParameter.registerListener(EVENT_PROPERTY_VALUE_CHANGED, activator);
+            targetParameter.setRedrawParameter(redrawParameter);
             // TODO Make it more clear. This is needed to set initial show/hidden value of dependent parameter according
             // value of this param
             targetParameter.setValue(targetParameter.getValue());
-            // TODO Fix it/Make it more clear
-            // It denotes that when this parameter is changed, view should be redrawn. Composite class registers
-            // additional listener for such
-            // parameter
-            targetParameter.setForceRefresh(true);
         });
 
         return Collections.unmodifiableList(new ArrayList<>(settings.values()));
@@ -245,7 +248,7 @@ public class SettingsCreator implements PropertyVisitor {
      */
     private List<ElementParameter> createTableParameters(final TablePropertyNode tableNode) {
         List<PropertyNode> columns = tableNode.getColumns();
-        SettingsCreator creator = new SettingsCreator(new FakeElement("table"), category);
+        SettingsCreator creator = new SettingsCreator(new FakeElement("table"), category, redrawParameter);
         columns.forEach(column -> creator.visit(column));
         return creator.getSettings();
     }

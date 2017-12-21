@@ -54,6 +54,13 @@ public class ElementParameterCreator {
 
     private final List<ElementParameter> parameters = new ArrayList<>();
 
+    /**
+     * This parameter is checked during refresh to decide whether UI should be redrawn
+     * If UI should be redrawn, when some Parameter is changed, such Parameter should set this
+     * Parameter to {@code true}
+     */
+    private ElementParameter updateComponentsParameter;
+
     public ElementParameterCreator(final ComponentModel component, final ComponentDetail detail, final INode node) {
         this.component = component;
         this.detail = detail;
@@ -72,11 +79,13 @@ public class ElementParameterCreator {
                     PropertyDefinitionDecorator.wrap(detail.getProperties());
             PropertyNode root = PropertyNodeUtils.createPropertyTree(properties);
             // add main parameters
-            SettingsCreator mainCreator = new SchemaSettingsCreator(node, EComponentCategory.BASIC);
+            SettingsCreator mainCreator =
+                    new SchemaSettingsCreator(node, EComponentCategory.BASIC, updateComponentsParameter);
             root.accept(mainCreator, Metadatas.MAIN_FORM);
             parameters.addAll(mainCreator.getSettings());
             // add advanced parameters
-            SettingsCreator advancedCreator = new SettingsCreator(node, EComponentCategory.ADVANCED);
+            SettingsCreator advancedCreator =
+                    new SettingsCreator(node, EComponentCategory.ADVANCED, updateComponentsParameter);
             root.accept(advancedCreator, Metadatas.ADVANCED_FORM);
             parameters.addAll(advancedCreator.getSettings());
         }
@@ -251,6 +260,7 @@ public class ElementParameterCreator {
         parameter.setRequired(false);
         parameter.setShow(false);
         parameters.add(parameter);
+        updateComponentsParameter = parameter;
     }
 
     /**

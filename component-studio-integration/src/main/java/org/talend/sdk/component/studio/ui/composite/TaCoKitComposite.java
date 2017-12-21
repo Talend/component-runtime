@@ -25,8 +25,6 @@ import org.talend.commons.ui.gmf.util.DisplayUtils;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.Element;
 import org.talend.designer.core.model.FakeElement;
-import org.talend.designer.core.model.components.EParameterName;
-import org.talend.designer.core.ui.editor.nodes.Node;
 import org.talend.designer.core.ui.views.properties.composites.MissingSettingsMultiThreadDynamicComposite;
 import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 
@@ -68,12 +66,12 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         registerRefresherListener();
     }
 
+    /**
+     * Creates {@link PropertyChangeListener}, which refreshes Composite each time {@link TaCoKitElementParameter} is
+     * changed
+     */
     private void createRefresherListener() {
-        refresher = event -> {
-            Node node = (Node) elem;
-            node.getElementParameter(EParameterName.UPDATE_COMPONENTS.getName()).setValue(Boolean.TRUE);
-            refresh();
-        };
+        refresher = event -> refresh();
     }
 
     private void registerRefresherListener() {
@@ -82,7 +80,7 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
                 .stream()
                 .filter(p -> p instanceof TaCoKitElementParameter)
                 .map(p -> (TaCoKitElementParameter) p)
-                .filter(TaCoKitElementParameter::isForceRefresh)
+                .filter(TaCoKitElementParameter::isRedrawable)
                 .forEach(p -> p.registerListener(EVENT_PROPERTY_VALUE_CHANGED, refresher));
     }
 
@@ -128,7 +126,7 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
                 .stream()
                 .filter(p -> p instanceof TaCoKitElementParameter)
                 .map(p -> (TaCoKitElementParameter) p)
-                .filter(TaCoKitElementParameter::isForceRefresh)
+                .filter(TaCoKitElementParameter::isRedrawable)
                 .forEach(p -> p.unregisterListener(EVENT_PROPERTY_VALUE_CHANGED, refresher));
         super.dispose();
     }

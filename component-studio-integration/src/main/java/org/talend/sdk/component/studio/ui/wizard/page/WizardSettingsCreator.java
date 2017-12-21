@@ -18,6 +18,7 @@ package org.talend.sdk.component.studio.ui.wizard.page;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElement;
+import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 import org.talend.sdk.component.studio.model.parameter.PropertyNode;
 import org.talend.sdk.component.studio.model.parameter.SettingsCreator;
@@ -27,8 +28,9 @@ import org.talend.sdk.component.studio.model.parameter.SettingsCreator;
  */
 public class WizardSettingsCreator extends SettingsCreator {
 
-    public WizardSettingsCreator(final IElement iNode, final EComponentCategory category) {
-        super(iNode, category);
+    public WizardSettingsCreator(final IElement iNode, final EComponentCategory category,
+            final ElementParameter redrawParameter) {
+        super(iNode, category, redrawParameter);
     }
 
     /**

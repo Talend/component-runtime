@@ -76,7 +76,7 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
         DummyComponent component = new DummyComponent(configTypeNode.getDisplayName());
         final DataNode node = new DataNode(component, component.getName());
         PropertyNode root = PropertyNodeUtils.createPropertyTree(configTypeNode);
-        SettingsCreator settingsCreator = new WizardSettingsCreator(node, EComponentCategory.BASIC);
+        SettingsCreator settingsCreator = new WizardSettingsCreator(node, EComponentCategory.BASIC, null);
         root.accept(settingsCreator);
         List<ElementParameter> parameters = settingsCreator.getSettings();
 
