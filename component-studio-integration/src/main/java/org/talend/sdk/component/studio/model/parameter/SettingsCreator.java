@@ -82,7 +82,7 @@ public class SettingsCreator implements PropertyVisitor {
      * Stores created {@link ParameterActivator} for further registering them into corresponding
      * {@link ElementParameter}
      */
-    private final Map<String, ParameterActivator> activators = new HashMap<>();
+    private final Map<String, List<ParameterActivator>> activators = new HashMap<>();
 
     public SettingsCreator(final IElement iNode, final EComponentCategory category,
             final ElementParameter redrawParameter) {
@@ -100,11 +100,13 @@ public class SettingsCreator implements PropertyVisitor {
      */
     public List<ElementParameter> getSettings() {
 
-        activators.forEach((path, activator) -> {
+        activators.forEach((path, activators) -> {
             TaCoKitElementParameter targetParameter = settings.get(path);
-            targetParameter.registerListener(EVENT_PROPERTY_VALUE_CHANGED, activator);
             targetParameter.setRedrawParameter(redrawParameter);
-            initVisibility(targetParameter, activator);
+            activators.forEach(activator -> {
+                targetParameter.registerListener(EVENT_PROPERTY_VALUE_CHANGED, activator);
+                initVisibility(targetParameter, activator);
+            });
         });
 
         return Collections.unmodifiableList(new ArrayList<>(settings.values()));
@@ -270,7 +272,11 @@ public class SettingsCreator implements PropertyVisitor {
     private void createParameterActivator(final PropertyNode node, final ElementParameter parameter) {
         String[] conditionValues = node.getProperty().getConditionValues();
         ParameterActivator activator = new ParameterActivator(conditionValues, parameter);
-        activators.put(computeTargetPath(node), activator);
+        String targetPath = computeTargetPath(node);
+        if (!activators.containsKey(targetPath)) {
+            activators.put(targetPath, new ArrayList<ParameterActivator>());
+        }
+        activators.get(targetPath).add(activator);
     }
 
     /**
