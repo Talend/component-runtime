@@ -16,14 +16,18 @@
 package org.talend.sdk.component.studio.model.parameter;
 
 import static org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.PATH_SEPARATOR;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.IElement;
@@ -275,6 +279,17 @@ public class SettingsCreator implements PropertyVisitor {
      * @return target path
      */
     private String computeTargetPath(final PropertyNode node) {
-        return node.getParentId() + "." + node.getProperty().getConditionTarget();
+        String currentPath = node.getParentId();
+        LinkedList<String> path = new LinkedList<>();
+        path.addAll(Arrays.asList(currentPath.split("\\.")));
+        List<String> relativePath = Arrays.asList(node.getProperty().getConditionTarget().split(PATH_SEPARATOR));
+        for (String s : relativePath) {
+            if ("..".equals(s)) {
+                path.removeLast();
+            } else {
+                path.addLast(s);
+            }
+        }
+        return path.stream().collect(Collectors.joining("."));
     }
 }

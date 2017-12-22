@@ -61,6 +61,11 @@ public final class Metadatas {
      */
     public static final String VALUE_SEPARATOR = ",";
 
+    /**
+     * Path separator which is used in target property
+     */
+    public static final String PATH_SEPARATOR = "/";
+
     public static final String MAIN_FORM = "Main";
 
     public static final String ADVANCED_FORM = "Advanced";
