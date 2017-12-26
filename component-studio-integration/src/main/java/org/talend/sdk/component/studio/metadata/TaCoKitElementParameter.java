@@ -103,7 +103,7 @@ public class TaCoKitElementParameter extends ElementParameter {
 
     /**
      * Checks whether this {@link TaCoKitElementParameter} forces redraw after each value change
-     * It forces redraw if {@link this#redrawParameter} was set
+     * It forces redraw if {@link #redrawParameter} was set
      * 
      * @return true, if it forces redraw; false - otherwise
      */
