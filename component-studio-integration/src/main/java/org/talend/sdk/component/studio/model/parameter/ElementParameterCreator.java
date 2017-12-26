@@ -22,6 +22,7 @@ import java.util.List;
 import org.talend.core.CorePlugin;
 import org.talend.core.PluginChecker;
 import org.talend.core.model.components.ComponentCategory;
+import org.talend.core.model.components.IComponent;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElementParameter;
@@ -53,6 +54,13 @@ public class ElementParameterCreator {
 
     private final List<ElementParameter> parameters = new ArrayList<>();
 
+    /**
+     * This parameter is checked during refresh to decide whether UI should be redrawn
+     * If UI should be redrawn, when some Parameter is changed, such Parameter should set this
+     * Parameter to {@code true}
+     */
+    private ElementParameter updateComponentsParameter;
+
     public ElementParameterCreator(final ComponentModel component, final ComponentDetail detail, final INode node) {
         this.component = component;
         this.detail = detail;
@@ -60,7 +68,7 @@ public class ElementParameterCreator {
     }
 
     public List<? extends IElementParameter> createParameters() {
-        addMainParameters();
+        addCommonParameters();
         addComponentParameters();
         return parameters;
     }
@@ -69,16 +77,359 @@ public class ElementParameterCreator {
         if (!detail.getProperties().isEmpty()) {
             Collection<PropertyDefinitionDecorator> properties =
                     PropertyDefinitionDecorator.wrap(detail.getProperties());
-            PropertyNode root = PropertyNodeUtils.createPropertyTree(properties);
+            PropertyNode root = new PropertyTreeCreator(new WidgetTypeMapper()).createPropertyTree(properties);
             // add main parameters
-            SettingsCreator mainCreator = new SchemaSettingsCreator(node, EComponentCategory.BASIC);
+            SettingsCreator mainCreator =
+                    new SchemaSettingsCreator(node, EComponentCategory.BASIC, updateComponentsParameter);
             root.accept(mainCreator, Metadatas.MAIN_FORM);
             parameters.addAll(mainCreator.getSettings());
             // add advanced parameters
-            SettingsCreator advancedCreator = new SettingsCreator(node, EComponentCategory.ADVANCED);
+            SettingsCreator advancedCreator =
+                    new SettingsCreator(node, EComponentCategory.ADVANCED, updateComponentsParameter);
             root.accept(advancedCreator, Metadatas.ADVANCED_FORM);
             parameters.addAll(advancedCreator.getSettings());
         }
+    }
+
+    /**
+     * Creates and adds {@link ElementParameter} common for all components
+     */
+    private void addCommonParameters() {
+        addUniqueNameParameter();
+        addComponentNameParameter();
+        addVersionParameter();
+        addFamilyParameter();
+        addStartParameter();
+        addStartableParameter();
+        addSubtreeStartParameter();
+        addEndOfFlowParameter();
+        addActivateParameter();
+        addHelpParameter();
+        addUpdateComponentsParameter();
+        addIReportPathParameter();
+        addPropertyParameter();
+        addStatCatcherParameter();
+        // following parameters are added only in TIS
+        addParallelizeParameter();
+        addParallelizeNumberParameter();
+        addParallelizeKeepEmptyParameter();
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#FAMILY} parameter
+     * This parameter is used during code generation to know which component runtime to use
+     */
+    private void addFamilyParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.FAMILY.getName());
+        parameter.setValue(detail.getId().getFamily());
+        parameter.setDisplayName(EParameterName.FAMILY.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.TEXT);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setNumRow(3);
+        parameter.setReadOnly(true);
+        parameter.setRequired(false);
+        parameter.setShow(false);
+        parameters.add(parameter);
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#START} parameter
+     * See TUP-4142
+     */
+    private void addStartParameter() {
+        if (CAN_START) {
+            ElementParameter parameter = new ElementParameter(node);
+            parameter.setName(EParameterName.START.getName());
+            parameter.setValue(false);
+            parameter.setDisplayName(EParameterName.START.getDisplayName());
+            parameter.setFieldType(EParameterFieldType.CHECK);
+            parameter.setCategory(EComponentCategory.TECHNICAL);
+            parameter.setNumRow(5);
+            parameter.setReadOnly(true);
+            parameter.setRequired(false);
+            parameter.setShow(false);
+            parameters.add(parameter);
+        }
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#STARTABLE} parameter
+     * See TUP-4142
+     */
+    private void addStartableParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.STARTABLE.getName());
+        parameter.setValue(CAN_START);
+        parameter.setDisplayName(EParameterName.STARTABLE.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.CHECK);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setNumRow(5);
+        parameter.setReadOnly(true);
+        parameter.setRequired(false);
+        parameter.setShow(false);
+        parameters.add(parameter);
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#SUBTREE_START} parameter
+     * See TUP-4142
+     */
+    private void addSubtreeStartParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.SUBTREE_START.getName());
+        parameter.setValue(CAN_START);
+        parameter.setDisplayName(EParameterName.SUBTREE_START.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.CHECK);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setNumRow(5);
+        parameter.setReadOnly(true);
+        parameter.setRequired(false);
+        parameter.setShow(false);
+        parameters.add(parameter);
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#END_OF_FLOW} parameter
+     * See TUP-4142
+     */
+    private void addEndOfFlowParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.END_OF_FLOW.getName());
+        parameter.setValue(CAN_START);
+        parameter.setDisplayName(EParameterName.END_OF_FLOW.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.CHECK);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setNumRow(5);
+        parameter.setReadOnly(true);
+        parameter.setRequired(false);
+        parameter.setShow(false);
+        parameters.add(parameter);
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#ACTIVATE} parameter
+     * See TUP-4142
+     */
+    private void addActivateParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.ACTIVATE.getName());
+        parameter.setValue(true);
+        parameter.setDisplayName(EParameterName.ACTIVATE.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.CHECK);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setNumRow(5);
+        parameter.setReadOnly(false);
+        parameter.setRequired(false);
+        parameter.setDefaultValue(parameter.getValue());
+        parameter.setShow(true);
+        parameters.add(parameter);
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#HELP} parameter
+     * See TUP-4143
+     */
+    private void addHelpParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.HELP.getName());
+        parameter.setValue(IComponent.PROP_HELP);
+        parameter.setDisplayName(EParameterName.HELP.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.TEXT);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setNumRow(6);
+        parameter.setReadOnly(true);
+        parameter.setRequired(false);
+        parameter.setShow(false);
+        parameters.add(parameter);
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#UPDATE_COMPONENTS} parameter
+     * This parameter is used to decide whether UI should be redrawn during Composite refresh
+     */
+    private void addUpdateComponentsParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.UPDATE_COMPONENTS.getName());
+        parameter.setValue(false);
+        parameter.setDisplayName(EParameterName.UPDATE_COMPONENTS.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.CHECK);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setNumRow(5);
+        parameter.setReadOnly(true);
+        parameter.setRequired(false);
+        parameter.setShow(false);
+        parameters.add(parameter);
+        updateComponentsParameter = parameter;
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#IREPORT_PATH} parameter
+     */
+    private void addIReportPathParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(EParameterName.IREPORT_PATH.getName());
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setFieldType(EParameterFieldType.DIRECTORY);
+        parameter.setDisplayName(EParameterName.IREPORT_PATH.getDisplayName());
+        parameter.setNumRow(99);
+        parameter.setShow(false);
+        parameter.setValue(
+                CorePlugin.getDefault().getPluginPreferences().getString(ITalendCorePrefConstants.IREPORT_PATH));
+        parameter.setReadOnly(true);
+        parameters.add(parameter);
+    }
+
+    /**
+     * Creates and adds "PROPERTY" parameter
+     * Looks like this is a property switch between repository properties and this component properties
+     * TODO move it to Component parameters
+     */
+    private void addPropertyParameter() {
+        ElementParameter parameter = new ElementParameter(node);
+        parameter.setName("PROPERTY");
+        parameter.setCategory(EComponentCategory.BASIC);
+        parameter.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.PROPERTY_TYPE);
+        // TODO
+        // if (wizardDefinition != null) {
+        // param.setRepositoryValue(wizardDefinition.getName());
+        // }
+        parameter.setValue("");
+        parameter.setNumRow(1);
+        // TODO
+        // param.setShow(wizardDefinition != null);
+        parameter.setShow(false);
+        // param.setTaggedValue(IGenericConstants.IS_PROPERTY_SHOW, wizardDefinition !=
+        // null);
+        parameter.setTaggedValue("IS_PROPERTY_SHOW", false);
+
+        ElementParameter child1 = new ElementParameter(node);
+        child1.setCategory(EComponentCategory.BASIC);
+        child1.setName(EParameterName.PROPERTY_TYPE.getName());
+        child1.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
+        child1.setListItemsDisplayName(
+                new String[] { AbstractBasicComponent.TEXT_BUILTIN, AbstractBasicComponent.TEXT_REPOSITORY });
+        child1.setListItemsDisplayCodeName(
+                new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
+        child1.setListItemsValue(new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
+        child1.setValue(AbstractBasicComponent.BUILTIN);
+        child1.setNumRow(parameter.getNumRow());
+        child1.setFieldType(EParameterFieldType.TECHNICAL);
+        child1.setShow(false);
+        child1.setShowIf(parameter.getName() + " =='" + AbstractBasicComponent.REPOSITORY + "'");
+        child1.setReadOnly(parameter.isReadOnly());
+        child1.setNotShowIf(parameter.getNotShowIf());
+        child1.setContext("FLOW");
+        child1.setSerialized(true);
+        child1.setParentParameter(parameter);
+
+        ElementParameter child2 = new ElementParameter(node);
+        child2.setCategory(EComponentCategory.BASIC);
+        child2.setName(EParameterName.REPOSITORY_PROPERTY_TYPE.getName());
+        child2.setDisplayName(EParameterName.REPOSITORY_PROPERTY_TYPE.getDisplayName());
+        child2.setListItemsDisplayName(new String[] {});
+        child2.setListItemsValue(new String[] {});
+        child2.setNumRow(parameter.getNumRow());
+        child2.setFieldType(EParameterFieldType.TECHNICAL);
+        child2.setValue("");
+        child2.setShow(false);
+        child2.setRequired(true);
+        child2.setReadOnly(parameter.isReadOnly());
+        child2.setShowIf(parameter.getName() + " =='" + AbstractBasicComponent.REPOSITORY + "'");
+        child2.setNotShowIf(parameter.getNotShowIf());
+        child2.setContext("FLOW");
+        child2.setSerialized(true);
+        child2.setParentParameter(parameter);
+
+        parameters.add(parameter);
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#TSTATCATCHER_STATS} parameter
+     */
+    private void addStatCatcherParameter() {
+        if (ComponentCategory.CATEGORY_4_DI.getName().equals(component.getPaletteType())) {
+            boolean isCatcherAvailable = ComponentsFactoryProvider.getInstance().get(EmfComponent.TSTATCATCHER_NAME,
+                    ComponentCategory.CATEGORY_4_DI.getName()) != null;
+            ElementParameter parameter = new ElementParameter(node);
+            parameter.setName(EParameterName.TSTATCATCHER_STATS.getName());
+            parameter.setValue(Boolean.FALSE);
+            parameter.setDisplayName(EParameterName.TSTATCATCHER_STATS.getDisplayName());
+            parameter.setFieldType(EParameterFieldType.CHECK);
+            parameter.setCategory(EComponentCategory.ADVANCED);
+            parameter.setNumRow(199);
+            parameter.setReadOnly(false);
+            parameter.setRequired(false);
+            parameter.setDefaultValue(parameter.getValue());
+            parameter.setShow(isCatcherAvailable);
+            parameters.add(parameter);
+        }
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#PARALLELIZE} parameter
+     * See TESB-4279
+     */
+    private void addParallelizeParameter() {
+        if (isCamelCategory()) {
+            ElementParameter parameter = new ElementParameter(node);
+            parameter.setReadOnly(true);
+            parameter.setName(EParameterName.PARALLELIZE.getName());
+            parameter.setValue(Boolean.FALSE);
+            parameter.setDisplayName(EParameterName.PARALLELIZE.getDisplayName());
+            parameter.setFieldType(EParameterFieldType.CHECK);
+            parameter.setCategory(EComponentCategory.ADVANCED);
+            parameter.setNumRow(200);
+            parameter.setShow(true);
+            parameter.setDefaultValue(parameter.getValue());
+            parameters.add(parameter);
+        }
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#PARALLELIZE_NUMBER} parameter
+     * See TESB-4279
+     */
+    private void addParallelizeNumberParameter() {
+        if (isCamelCategory()) {
+            ElementParameter parameter = new ElementParameter(node);
+            parameter.setReadOnly(true);
+            parameter.setName(EParameterName.PARALLELIZE_NUMBER.getName());
+            parameter.setValue(2);
+            parameter.setDisplayName(EParameterName.PARALLELIZE_NUMBER.getDisplayName());
+            parameter.setFieldType(EParameterFieldType.TEXT);
+            parameter.setCategory(EComponentCategory.ADVANCED);
+            parameter.setNumRow(200);
+            parameter.setShowIf(EParameterName.PARALLELIZE.getName() + " == 'true'");
+            parameter.setDefaultValue(parameter.getValue());
+            parameters.add(parameter);
+        }
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#PARALLELIZE_KEEP_EMPTY} parameter
+     * See TESB-4279
+     */
+    private void addParallelizeKeepEmptyParameter() {
+        if (isCamelCategory()) {
+            ElementParameter parameter = new ElementParameter(node);
+            parameter.setReadOnly(true);
+            parameter.setName(EParameterName.PARALLELIZE_KEEP_EMPTY.getName());
+            parameter.setValue(Boolean.FALSE);
+            parameter.setDisplayName(EParameterName.PARALLELIZE_KEEP_EMPTY.getDisplayName());
+            parameter.setFieldType(EParameterFieldType.CHECK);
+            parameter.setCategory(EComponentCategory.ADVANCED);
+            parameter.setNumRow(200);
+            parameter.setShow(false);
+            parameter.setDefaultValue(parameter.getValue());
+            parameters.add(parameter);
+        }
+    }
+
+    private boolean isCamelCategory() {
+        return PluginChecker.isTeamEdition()
+                && !ComponentCategory.CATEGORY_4_CAMEL.getName().equals(component.getPaletteType());
     }
 
     /**
@@ -94,7 +445,6 @@ public class ElementParameterCreator {
         parameter.setValue("");
         parameter.setDisplayName(EParameterName.UNIQUE_NAME.getDisplayName());
         parameter.setFieldType(EParameterFieldType.TEXT);
-        // TODO maybe change category to TECHICAL?
         parameter.setCategory(EComponentCategory.ADVANCED);
         parameter.setNumRow(1);
         parameter.setReadOnly(true);
@@ -104,7 +454,7 @@ public class ElementParameterCreator {
 
     /**
      * Creates and adds {@link EParameterName#COMPONENT_NAME} parameter
-     * TODO it is not clear where it is used for the moment
+     * It is used in code generation to know which component to load for runtime
      */
     private void addComponentNameParameter() {
         ElementParameter parameter = new ElementParameter(node);
@@ -125,7 +475,6 @@ public class ElementParameterCreator {
      * It is used for migration to check whether serialized configuration
      * has the same version as component in Studio. If version is smaller than component in Studio,
      * migration is launched.
-     * TODO Probably it is not required, so it should be removed
      */
     private void addVersionParameter() {
         ElementParameter parameter = new ElementParameter(node);
@@ -138,236 +487,6 @@ public class ElementParameterCreator {
         parameter.setReadOnly(true);
         parameter.setShow(false);
         parameters.add(parameter);
-    }
-
-    private void addMainParameters() {
-
-        addUniqueNameParameter();
-        addComponentNameParameter();
-        addVersionParameter();
-
-        // TODO create separate methods for other properties for better readability
-        ElementParameter param;
-        param = new ElementParameter(node);
-        param.setName(EParameterName.FAMILY.getName());
-        param.setValue(detail.getId().getFamily());
-        param.setDisplayName(EParameterName.FAMILY.getDisplayName());
-        param.setFieldType(EParameterFieldType.TEXT);
-        param.setCategory(EComponentCategory.TECHNICAL);
-        param.setNumRow(3);
-        param.setReadOnly(true);
-        param.setRequired(false);
-        param.setShow(false);
-        parameters.add(param);
-        // TUP-4142
-        if (CAN_START) {
-            param = new ElementParameter(node);
-            param.setName(EParameterName.START.getName());
-            param.setValue(false);
-            param.setDisplayName(EParameterName.START.getDisplayName());
-            param.setFieldType(EParameterFieldType.CHECK);
-            param.setCategory(EComponentCategory.TECHNICAL);
-            param.setNumRow(5);
-            param.setReadOnly(true);
-            param.setRequired(false);
-            param.setShow(false);
-            parameters.add(param);
-        }
-        // TUP-4142
-        param = new ElementParameter(node);
-        param.setName(EParameterName.STARTABLE.getName());
-        param.setValue(CAN_START);
-        param.setDisplayName(EParameterName.STARTABLE.getDisplayName());
-        param.setFieldType(EParameterFieldType.CHECK);
-        param.setCategory(EComponentCategory.TECHNICAL);
-        param.setNumRow(5);
-        param.setReadOnly(true);
-        param.setRequired(false);
-        param.setShow(false);
-        parameters.add(param);
-        // TUP-4142
-        param = new ElementParameter(node);
-        param.setName(EParameterName.SUBTREE_START.getName());
-        param.setValue(CAN_START);
-        param.setDisplayName(EParameterName.SUBTREE_START.getDisplayName());
-        param.setFieldType(EParameterFieldType.CHECK);
-        param.setCategory(EComponentCategory.TECHNICAL);
-        param.setNumRow(5);
-        param.setReadOnly(true);
-        param.setRequired(false);
-        param.setShow(false);
-        parameters.add(param);
-        // TUP-4142
-        param = new ElementParameter(node);
-        param.setName(EParameterName.END_OF_FLOW.getName());
-        param.setValue(CAN_START);
-        param.setDisplayName(EParameterName.END_OF_FLOW.getDisplayName());
-        param.setFieldType(EParameterFieldType.CHECK);
-        param.setCategory(EComponentCategory.TECHNICAL);
-        param.setNumRow(5);
-        param.setReadOnly(true);
-        param.setRequired(false);
-        param.setShow(false);
-        parameters.add(param);
-        param = new ElementParameter(node);
-        param.setName(EParameterName.ACTIVATE.getName());
-        param.setValue(true);
-        param.setDisplayName(EParameterName.ACTIVATE.getDisplayName());
-        param.setFieldType(EParameterFieldType.CHECK);
-        param.setCategory(EComponentCategory.TECHNICAL);
-        param.setNumRow(5);
-        param.setReadOnly(false);
-        param.setRequired(false);
-        param.setDefaultValue(param.getValue());
-        param.setShow(true);
-        parameters.add(param);
-        // TUP-4143
-        param = new ElementParameter(node);
-        param.setName(EParameterName.HELP.getName());
-        param.setValue(component.PROP_HELP);
-        param.setDisplayName(EParameterName.HELP.getDisplayName());
-        param.setFieldType(EParameterFieldType.TEXT);
-        param.setCategory(EComponentCategory.TECHNICAL);
-        param.setNumRow(6);
-        param.setReadOnly(true);
-        param.setRequired(false);
-        param.setShow(false);
-        parameters.add(param);
-        param = new ElementParameter(node);
-        param.setName(EParameterName.UPDATE_COMPONENTS.getName());
-        param.setValue(false);
-        param.setDisplayName(EParameterName.UPDATE_COMPONENTS.getDisplayName());
-        param.setFieldType(EParameterFieldType.CHECK);
-        param.setCategory(EComponentCategory.TECHNICAL);
-        param.setNumRow(5);
-        param.setReadOnly(true);
-        param.setRequired(false);
-        param.setShow(false);
-        parameters.add(param);
-        param = new ElementParameter(node);
-        param.setName(EParameterName.IREPORT_PATH.getName());
-        param.setCategory(EComponentCategory.TECHNICAL);
-        param.setFieldType(EParameterFieldType.DIRECTORY);
-        param.setDisplayName(EParameterName.IREPORT_PATH.getDisplayName());
-        param.setNumRow(99);
-        param.setShow(false);
-        param.setValue(CorePlugin.getDefault().getPluginPreferences().getString(ITalendCorePrefConstants.IREPORT_PATH));
-        param.setReadOnly(true);
-        parameters.add(param);
-        param = new ElementParameter(node);
-        param.setName("PROPERTY");//$NON-NLS-1$
-        param.setCategory(EComponentCategory.BASIC);
-        param.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
-        param.setFieldType(EParameterFieldType.PROPERTY_TYPE);
-        // TODO
-        // if (wizardDefinition != null) {
-        // param.setRepositoryValue(wizardDefinition.getName());
-        // }
-        param.setValue("");//$NON-NLS-1$
-        param.setNumRow(1);
-        // TODO
-        // param.setShow(wizardDefinition != null);
-        param.setShow(false);
-        // param.setTaggedValue(IGenericConstants.IS_PROPERTY_SHOW, wizardDefinition !=
-        // null);
-        param.setTaggedValue("IS_PROPERTY_SHOW", false);
-
-        ElementParameter newParam = new ElementParameter(node);
-        newParam.setCategory(EComponentCategory.BASIC);
-        newParam.setName(EParameterName.PROPERTY_TYPE.getName());
-        newParam.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
-        newParam.setListItemsDisplayName(
-                new String[] { AbstractBasicComponent.TEXT_BUILTIN, AbstractBasicComponent.TEXT_REPOSITORY });
-        newParam.setListItemsDisplayCodeName(
-                new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
-        newParam.setListItemsValue(new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
-        newParam.setValue(AbstractBasicComponent.BUILTIN);
-        newParam.setNumRow(param.getNumRow());
-        newParam.setFieldType(EParameterFieldType.TECHNICAL);
-        newParam.setShow(false);
-        newParam.setShowIf(param.getName() + " =='" + AbstractBasicComponent.REPOSITORY + "'"); //$NON-NLS-1$ //$NON-NLS-2$
-        newParam.setReadOnly(param.isReadOnly());
-        newParam.setNotShowIf(param.getNotShowIf());
-        newParam.setContext("FLOW");
-        newParam.setSerialized(true);
-        newParam.setParentParameter(param);
-
-        newParam = new ElementParameter(node);
-        newParam.setCategory(EComponentCategory.BASIC);
-        newParam.setName(EParameterName.REPOSITORY_PROPERTY_TYPE.getName());
-        newParam.setDisplayName(EParameterName.REPOSITORY_PROPERTY_TYPE.getDisplayName());
-        newParam.setListItemsDisplayName(new String[] {});
-        newParam.setListItemsValue(new String[] {});
-        newParam.setNumRow(param.getNumRow());
-        newParam.setFieldType(EParameterFieldType.TECHNICAL);
-        newParam.setValue(""); //$NON-NLS-1$
-        newParam.setShow(false);
-        newParam.setRequired(true);
-        newParam.setReadOnly(param.isReadOnly());
-        newParam.setShowIf(param.getName() + " =='" + AbstractBasicComponent.REPOSITORY + "'"); //$NON-NLS-1$//$NON-NLS-2$
-        newParam.setNotShowIf(param.getNotShowIf());
-        newParam.setContext("FLOW");
-        newParam.setSerialized(true);
-        newParam.setParentParameter(param);
-        parameters.add(param);
-
-        if (ComponentCategory.CATEGORY_4_DI.getName().equals(component.getPaletteType())) {
-            boolean tStatCatcherAvailable = ComponentsFactoryProvider.getInstance().get(EmfComponent.TSTATCATCHER_NAME,
-                    ComponentCategory.CATEGORY_4_DI.getName()) != null;
-            param = new ElementParameter(node);
-            param.setName(EParameterName.TSTATCATCHER_STATS.getName());
-            param.setValue(Boolean.FALSE);
-            param.setDisplayName(EParameterName.TSTATCATCHER_STATS.getDisplayName());
-            param.setFieldType(EParameterFieldType.CHECK);
-            param.setCategory(EComponentCategory.ADVANCED);
-            param.setNumRow(199);
-            param.setReadOnly(false);
-            param.setRequired(false);
-            param.setDefaultValue(param.getValue());
-            param.setShow(tStatCatcherAvailable);
-            parameters.add(param);
-        }
-
-        // These parameters is only work when TIS is loaded
-        // GLiu Added for Task http://jira.talendforge.org/browse/TESB-4279
-        if (PluginChecker.isTeamEdition()
-                && !ComponentCategory.CATEGORY_4_CAMEL.getName().equals(component.getPaletteType())) {
-            param = new ElementParameter(node);
-            param.setReadOnly(true);
-            param.setName(EParameterName.PARALLELIZE.getName());
-            param.setValue(Boolean.FALSE);
-            param.setDisplayName(EParameterName.PARALLELIZE.getDisplayName());
-            param.setFieldType(EParameterFieldType.CHECK);
-            param.setCategory(EComponentCategory.ADVANCED);
-            param.setNumRow(200);
-            param.setShow(true);
-            param.setDefaultValue(param.getValue());
-            parameters.add(param);
-
-            param = new ElementParameter(node);
-            param.setReadOnly(true);
-            param.setName(EParameterName.PARALLELIZE_NUMBER.getName());
-            param.setValue(2);
-            param.setDisplayName(EParameterName.PARALLELIZE_NUMBER.getDisplayName());
-            param.setFieldType(EParameterFieldType.TEXT);
-            param.setCategory(EComponentCategory.ADVANCED);
-            param.setNumRow(200);
-            param.setShowIf(EParameterName.PARALLELIZE.getName() + " == 'true'"); //$NON-NLS-1$
-            param.setDefaultValue(param.getValue());
-            parameters.add(param);
-
-            param = new ElementParameter(node);
-            param.setReadOnly(true);
-            param.setName(EParameterName.PARALLELIZE_KEEP_EMPTY.getName());
-            param.setValue(Boolean.FALSE);
-            param.setDisplayName(EParameterName.PARALLELIZE_KEEP_EMPTY.getDisplayName());
-            param.setFieldType(EParameterFieldType.CHECK);
-            param.setCategory(EComponentCategory.ADVANCED);
-            param.setNumRow(200);
-            param.setShow(false);
-            param.setDefaultValue(param.getValue());
-            parameters.add(param);
-        }
     }
 
 }

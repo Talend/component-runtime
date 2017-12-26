@@ -1083,6 +1083,10 @@ It can be needed to define a binding between properties, a set of annotations al
 
 include::{generated_adoc}/conditions.adoc[]
 
+Target element location is specified as a relative path to current location using Unix path characters.
+Configuration class delimiter is `/`. Parent configuration class is specified by `..`.
+Thus `../targetProperty` denotes a property, which is located in parent configuration class and has name `targetProperty`.
+
 IMPORTANT: using the programmatic API the metadata are prefixed by `tcomp::` but this prefix is stripped in the web for convenience,
 the previous table uses the web keys.
 

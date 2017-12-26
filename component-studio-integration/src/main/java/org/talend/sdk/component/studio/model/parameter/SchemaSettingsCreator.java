@@ -20,6 +20,7 @@ import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.components.EParameterName;
+import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 
 /**
@@ -30,11 +31,13 @@ public class SchemaSettingsCreator extends SettingsCreator {
     /**
      * Creates instance and adds schema property
      * 
-     * @param iNode
-     * @param category
+     * @param iNode Node for which parameters are created
+     * @param category Parameter category
+     * @param redrawParameter Parameter which defines whether UI should be redrawn
      */
-    public SchemaSettingsCreator(final IElement iNode, final EComponentCategory category) {
-        super(iNode, category);
+    public SchemaSettingsCreator(final IElement iNode, final EComponentCategory category,
+            final ElementParameter redrawParameter) {
+        super(iNode, category, redrawParameter);
         if (category == EComponentCategory.BASIC) {
             addSchemaProperty();
         }

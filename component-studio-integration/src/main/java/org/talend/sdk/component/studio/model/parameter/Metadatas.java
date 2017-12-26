@@ -61,6 +61,21 @@ public final class Metadatas {
      */
     public static final String VALUE_SEPARATOR = ",";
 
+    /**
+     * Path separator which is used in target property
+     */
+    public static final String PATH_SEPARATOR = "/";
+
+    /**
+     * Path separator which is used in Property tree
+     */
+    public static final String DOT_PATH_SEPARATOR = ".";
+
+    /**
+     * Path character which denotes parent node
+     */
+    public static final String PARENT_NODE = "..";
+
     public static final String MAIN_FORM = "Main";
 
     public static final String ADVANCED_FORM = "Advanced";

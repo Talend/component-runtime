@@ -16,13 +16,21 @@
 package org.talend.sdk.component.studio.model.parameter;
 
 import static org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.DOT_PATH_SEPARATOR;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.PARENT_NODE;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.PATH_SEPARATOR;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.IElement;
@@ -63,44 +71,58 @@ public class SettingsCreator implements PropertyVisitor {
     private final String formName;
 
     /**
+     * {@link ElementParameter} which defines whether UI should be redrawn
+     */
+    private final ElementParameter redrawParameter;
+
+    /**
      * Stores created component parameters.
      * Key is parameter name (which is also its path)
      */
-    private final Map<String, TaCoKitElementParameter> settings = new HashMap<>();
+    private final Map<String, TaCoKitElementParameter> settings = new LinkedHashMap<>();
 
     /**
      * Stores created {@link ParameterActivator} for further registering them into corresponding
      * {@link ElementParameter}
      */
-    private final Map<String, ParameterActivator> activators = new HashMap<>();
+    private final Map<String, List<ParameterActivator>> activators = new HashMap<>();
 
-    public SettingsCreator(final IElement iNode, final EComponentCategory category) {
+    public SettingsCreator(final IElement iNode, final EComponentCategory category,
+            final ElementParameter redrawParameter) {
         this.iNode = iNode;
         this.category = category;
+        this.redrawParameter = redrawParameter;
         formName = (category == EComponentCategory.ADVANCED) ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
     }
 
     /**
-     * Registers created Listeners in {@link TaCoKitElementParameter} and returns list of created parameters
+     * Registers created Listeners in {@link TaCoKitElementParameter} and returns list of created parameters.
+     * Also setup initial visibility according initial value of target parameters
      * 
      * @return created parameters
      */
     public List<ElementParameter> getSettings() {
 
-        activators.forEach((path, activator) -> {
+        activators.forEach((path, activators) -> {
             TaCoKitElementParameter targetParameter = settings.get(path);
-            targetParameter.registerListener(EVENT_PROPERTY_VALUE_CHANGED, activator);
-            // TODO Make it more clear. This is needed to set initial show/hidden value of dependent parameter according
-            // value of this param
-            targetParameter.setValue(targetParameter.getValue());
-            // TODO Fix it/Make it more clear
-            // It denotes that when this parameter is changed, view should be redrawn. Composite class registers
-            // additional listener for such
-            // parameter
-            targetParameter.setForceRefresh(true);
+            targetParameter.setRedrawParameter(redrawParameter);
+            activators.forEach(activator -> {
+                targetParameter.registerListener(EVENT_PROPERTY_VALUE_CHANGED, activator);
+                initVisibility(targetParameter, activator);
+            });
         });
 
         return Collections.unmodifiableList(new ArrayList<>(settings.values()));
+    }
+
+    /**
+     * Sends initial event to listener to set initial visibility
+     */
+    private void initVisibility(final ElementParameter targetParameter, final ParameterActivator listener) {
+        Object initialValue = targetParameter.getValue();
+        PropertyChangeEvent event =
+                new PropertyChangeEvent(targetParameter, EVENT_PROPERTY_VALUE_CHANGED, initialValue, initialValue);
+        listener.propertyChange(event);
     }
 
     /**
@@ -117,9 +139,6 @@ public class SettingsCreator implements PropertyVisitor {
                 break;
             case CLOSED_LIST:
                 parameter = visitClosedList(node);
-                break;
-            case PASSWORD:
-                parameter = visitPassword(node);
                 break;
             case TABLE:
                 parameter = visitTable((TablePropertyNode) node);
@@ -181,14 +200,6 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     /**
-     * Creates {@link TaCoKitElementParameter} for Password field type
-     * Does nothing. It is intended to be overridden to quick fix password display issue
-     */
-    protected TaCoKitElementParameter visitPassword(final PropertyNode node) {
-        return createParameter(node);
-    }
-
-    /**
      * Creates {@link TaCoKitElementParameter} for Table field type
      * Sets special fields specific for Table parameter
      * Based on schema field controls whether table toolbox (buttons under table) is shown
@@ -217,6 +228,9 @@ public class SettingsCreator implements PropertyVisitor {
 
     /**
      * Creates {@link TaCoKitElementParameter} and sets common state for different types of parameters
+     * 
+     * @param node Property tree node
+     * @return created {@link TaCoKitElementParameter}
      */
     protected TaCoKitElementParameter createParameter(final PropertyNode node) {
         TaCoKitElementParameter parameter = new TaCoKitElementParameter(iNode);
@@ -245,7 +259,7 @@ public class SettingsCreator implements PropertyVisitor {
      */
     private List<ElementParameter> createTableParameters(final TablePropertyNode tableNode) {
         List<PropertyNode> columns = tableNode.getColumns();
-        SettingsCreator creator = new SettingsCreator(new FakeElement("table"), category);
+        SettingsCreator creator = new SettingsCreator(new FakeElement("table"), category, redrawParameter);
         columns.forEach(column -> creator.visit(column));
         return creator.getSettings();
     }
@@ -253,7 +267,11 @@ public class SettingsCreator implements PropertyVisitor {
     private void createParameterActivator(final PropertyNode node, final ElementParameter parameter) {
         String[] conditionValues = node.getProperty().getConditionValues();
         ParameterActivator activator = new ParameterActivator(conditionValues, parameter);
-        activators.put(computeTargetPath(node), activator);
+        String targetPath = computeTargetPath(node);
+        if (!activators.containsKey(targetPath)) {
+            activators.put(targetPath, new ArrayList<ParameterActivator>());
+        }
+        activators.get(targetPath).add(activator);
     }
 
     /**
@@ -262,6 +280,17 @@ public class SettingsCreator implements PropertyVisitor {
      * @return target path
      */
     private String computeTargetPath(final PropertyNode node) {
-        return node.getParentId() + "." + node.getProperty().getConditionTarget();
+        String currentPath = node.getParentId();
+        LinkedList<String> path = new LinkedList<>();
+        path.addAll(Arrays.asList(currentPath.split("\\" + DOT_PATH_SEPARATOR)));
+        List<String> relativePath = Arrays.asList(node.getProperty().getConditionTarget().split(PATH_SEPARATOR));
+        for (String s : relativePath) {
+            if (PARENT_NODE.equals(s)) {
+                path.removeLast();
+            } else {
+                path.addLast(s);
+            }
+        }
+        return path.stream().collect(Collectors.joining(DOT_PATH_SEPARATOR));
     }
 }

@@ -80,7 +80,7 @@ public class PropertyNode {
         }
         PropertyDefinitionDecorator parentProperty = getParent().getProperty();
         if (!parentProperty.hasGridLayout(form)) {
-            return false;
+            return getParent().isColumn(form);
         }
         return parentProperty.isColumn(property.getName(), form);
     }

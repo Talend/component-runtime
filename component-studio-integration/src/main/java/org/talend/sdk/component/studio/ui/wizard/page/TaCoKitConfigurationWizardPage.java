@@ -33,7 +33,7 @@ import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.model.parameter.PropertyNode;
-import org.talend.sdk.component.studio.model.parameter.PropertyNodeUtils;
+import org.talend.sdk.component.studio.model.parameter.PropertyTreeCreator;
 import org.talend.sdk.component.studio.model.parameter.SettingsCreator;
 import org.talend.sdk.component.studio.ui.composite.TaCoKitWizardComposite;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
@@ -75,8 +75,8 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
         ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
         DummyComponent component = new DummyComponent(configTypeNode.getDisplayName());
         final DataNode node = new DataNode(component, component.getName());
-        PropertyNode root = PropertyNodeUtils.createPropertyTree(configTypeNode);
-        SettingsCreator settingsCreator = new WizardSettingsCreator(node, EComponentCategory.BASIC);
+        PropertyNode root = new PropertyTreeCreator(new WizardTypeMapper()).createPropertyTree(configTypeNode);
+        SettingsCreator settingsCreator = new SettingsCreator(node, EComponentCategory.BASIC, null);
         root.accept(settingsCreator);
         List<ElementParameter> parameters = settingsCreator.getSettings();
 
