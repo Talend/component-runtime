@@ -16,6 +16,8 @@
 package org.talend.sdk.component.studio.model.parameter;
 
 import static org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.DOT_PATH_SEPARATOR;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.PARENT_NODE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.PATH_SEPARATOR;
 
 import java.beans.PropertyChangeEvent;
@@ -288,15 +290,15 @@ public class SettingsCreator implements PropertyVisitor {
     private String computeTargetPath(final PropertyNode node) {
         String currentPath = node.getParentId();
         LinkedList<String> path = new LinkedList<>();
-        path.addAll(Arrays.asList(currentPath.split("\\.")));
+        path.addAll(Arrays.asList(currentPath.split("\\" + DOT_PATH_SEPARATOR)));
         List<String> relativePath = Arrays.asList(node.getProperty().getConditionTarget().split(PATH_SEPARATOR));
         for (String s : relativePath) {
-            if ("..".equals(s)) {
+            if (PARENT_NODE.equals(s)) {
                 path.removeLast();
             } else {
                 path.addLast(s);
             }
         }
-        return path.stream().collect(Collectors.joining("."));
+        return path.stream().collect(Collectors.joining(DOT_PATH_SEPARATOR));
     }
 }
