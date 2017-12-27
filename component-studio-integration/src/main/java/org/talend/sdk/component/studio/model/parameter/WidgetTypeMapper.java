@@ -21,12 +21,15 @@ import static org.talend.core.model.process.EParameterFieldType.FILE;
 import static org.talend.core.model.process.EParameterFieldType.MEMO_JAVA;
 import static org.talend.core.model.process.EParameterFieldType.OPENED_LIST;
 import static org.talend.core.model.process.EParameterFieldType.PASSWORD;
+import static org.talend.core.model.process.EParameterFieldType.SCHEMA_TYPE;
 import static org.talend.core.model.process.EParameterFieldType.TABLE;
 import static org.talend.core.model.process.EParameterFieldType.TEXT;
 import static org.talend.core.model.process.EParameterFieldType.TEXT_AREA;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.JAVA;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CODE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CREDENTIAL;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_TYPE;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_VALUE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_TEXTAREA;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.ARRAY;
 import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.BOOLEAN;
@@ -57,7 +60,9 @@ public class WidgetTypeMapper {
             throw new IllegalArgumentException("property should not be null");
         }
         this.property = property;
-        if (isText()) {
+        if (isSchema()) {
+            return getSchemaType();
+        } else if (isText()) {
             return getTextType();
         } else if (isCredential()) {
             return getCredentialType();
@@ -77,6 +82,15 @@ public class WidgetTypeMapper {
             return getMemoJavaType();
         }
         return getTextType();
+    }
+
+    private boolean isSchema() {
+        return property.getMetadata().containsKey(UI_STRUCTURE_TYPE)
+                || property.getMetadata().containsKey(UI_STRUCTURE_VALUE);
+    }
+
+    protected EParameterFieldType getSchemaType() {
+        return SCHEMA_TYPE;
     }
 
     /**

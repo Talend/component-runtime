@@ -19,6 +19,8 @@ import static org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterE
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.DOT_PATH_SEPARATOR;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.PARENT_NODE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.PATH_SEPARATOR;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_TYPE;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_VALUE;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
@@ -33,8 +35,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.talend.core.model.process.EComponentCategory;
+import org.talend.core.model.process.EConnectionType;
+import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.FakeElement;
+import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
@@ -79,7 +84,7 @@ public class SettingsCreator implements PropertyVisitor {
      * Stores created component parameters.
      * Key is parameter name (which is also its path)
      */
-    private final Map<String, TaCoKitElementParameter> settings = new LinkedHashMap<>();
+    protected final Map<String, TaCoKitElementParameter> settings = new LinkedHashMap<>();
 
     /**
      * Stores created {@link ParameterActivator} for further registering them into corresponding
@@ -142,6 +147,9 @@ public class SettingsCreator implements PropertyVisitor {
                 break;
             case TABLE:
                 parameter = visitTable((TablePropertyNode) node);
+                break;
+            case SCHEMA_TYPE:
+                parameter = visitSchema(node);
                 break;
             default:
                 parameter = createParameter(node);
@@ -224,6 +232,62 @@ public class SettingsCreator implements PropertyVisitor {
         // TODO change to real value
         parameter.setBasedOnSchema(false);
         return parameter;
+    }
+
+    private TaCoKitElementParameter visitSchema(final PropertyNode node) {
+        TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
+        String connectionType = node.getProperty().getMetadata().get(UI_STRUCTURE_TYPE);
+        String connectionName = node.getProperty().getMetadata().get(UI_STRUCTURE_VALUE);
+        connectionName = connectionName.equals("__default__") ? EConnectionType.FLOW_MAIN.getName() : connectionName;
+        String schemaName = connectionType + "$$" + node.getId();
+        return createSchemaParameter(connectionName, schemaName);
+    }
+
+    protected TaCoKitElementParameter createSchemaParameter(final String connectionName, final String schemaName) {
+        TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
+        schema.setName(schemaName);
+        schema.setDisplayName("!!!SCHEMA.NAME!!!");
+        schema.setCategory(EComponentCategory.BASIC);
+        schema.setFieldType(EParameterFieldType.SCHEMA_TYPE);
+        schema.setNumRow(1);
+        schema.setShow(true);
+        schema.setReadOnly(false);
+        schema.setRequired(true);
+        schema.setContext(connectionName);
+
+        // add child parameters
+        // defines whether schema is built-in or repository
+        TaCoKitElementParameter childParameter1 = new TaCoKitElementParameter(getNode());
+        childParameter1.setCategory(EComponentCategory.BASIC);
+        childParameter1.setContext(connectionName);
+        childParameter1.setDisplayName("Schema");
+        childParameter1.setFieldType(EParameterFieldType.TECHNICAL);
+        childParameter1.setListItemsDisplayCodeName(new String[] { "BUILT_IN", "REPOSITORY" });
+        childParameter1.setListItemsDisplayName(new String[] { "Built-In", "Repository" });
+        childParameter1.setListItemsValue(new String[] { "BUILT_IN", "REPOSITORY" });
+        childParameter1.setName(EParameterName.SCHEMA_TYPE.getName());
+        childParameter1.setNumRow(1);
+        childParameter1.setParentParameter(schema);
+        childParameter1.setShow(true);
+        childParameter1.setShowIf("SCHEMA =='REPOSITORY'");
+        childParameter1.setValue("BUILT_IN");
+        schema.getChildParameters().put(EParameterName.SCHEMA_TYPE.getName(), childParameter1);
+
+        TaCoKitElementParameter childParameter2 = new TaCoKitElementParameter(getNode());
+        childParameter2.setCategory(EComponentCategory.BASIC);
+        childParameter2.setContext(connectionName);
+        childParameter2.setDisplayName("Repository");
+        childParameter2.setFieldType(EParameterFieldType.TECHNICAL);
+        childParameter2.setListItemsDisplayName(new String[0]);
+        childParameter2.setListItemsValue(new String[0]);
+        childParameter2.setName(EParameterName.REPOSITORY_SCHEMA_TYPE.getName());
+        childParameter2.setParentParameter(schema);
+        childParameter2.setRequired(true);
+        childParameter2.setShow(false);
+        childParameter2.setValue("");
+        schema.getChildParameters().put(EParameterName.REPOSITORY_SCHEMA_TYPE.getName(), childParameter2);
+
+        return schema;
     }
 
     /**
