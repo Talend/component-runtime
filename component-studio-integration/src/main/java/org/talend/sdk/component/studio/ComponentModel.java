@@ -104,6 +104,11 @@ public class ComponentModel extends AbstractBasicComponent {
         createCodePartList();
     }
 
+    @Override // this is our binding of slf4j
+    public boolean isLog4JEnabled() {
+        return true;
+    }
+
     /**
      * TODO change to StringBuilder impl? Seems, here StringBuilder instance is
      * created per category
