@@ -67,6 +67,12 @@
       <version>2.2.2</version>
     </dependency>
 
+    <dependency>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+      <version>${commons-cli.version}</version>
+    </dependency>
+
     <dependency> <!-- override until we upgrade meecrowave -->
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
