@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 
 public class DeployInStudioTask extends TaCoKitTask {
 
@@ -60,10 +61,13 @@ public class DeployInStudioTask extends TaCoKitTask {
                         a.getName(), ofNullable(a.getType()).orElse("jar"),
                         a.getClassifier() == null || a.getClassifier().isEmpty() ? "" : (":" + a.getClassifier()),
                         a.getModuleVersion().getId().getVersion(), "compile"), ResolvedArtifact::getFile));
-        final Runnable runnable = Runnable.class
-                .cast(impl.getConstructor(String.class, File.class, Map.class, Object.class).newInstance(String
-                        .format("%s:%s:%s", getProject().getGroup(), getProject().getName(), getProject().getVersion()),
-                        extension.getStudioHome(), artifacts, getLogger()));
+        final String mainGav =
+                String.format("%s:%s:%s", getProject().getGroup(), getProject().getName(), getProject().getVersion());
+        artifacts.putIfAbsent(mainGav,
+                AbstractArchiveTask.class.cast(getProject().getTasks().getAt("jar")).getArchivePath());
+        final Runnable runnable =
+                Runnable.class.cast(impl.getConstructor(String.class, File.class, Map.class, Object.class).newInstance(
+                        mainGav, extension.getStudioHome(), artifacts, getLogger()));
         runnable.run();
     }
 }

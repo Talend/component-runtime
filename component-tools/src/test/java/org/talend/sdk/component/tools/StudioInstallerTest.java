@@ -108,5 +108,8 @@ public class StudioInstallerTest {
                 singleton("component.java.registry="
                         + registration.getAbsolutePath().replace("\\", "\\\\").replace(":", "\\:")),
                 Files.readAllLines(configIni.toPath()).stream().filter(l -> !l.startsWith("#")).collect(toSet()));
+
+        assertTrue(new File(studioHome, "configuration/.m2/repository/gtest/atest/1.0-SNAPSHOT/atest-1.0-SNAPSHOT.jar")
+                .exists());
     }
 }

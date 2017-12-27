@@ -24,8 +24,6 @@ import java.util.Map;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -42,7 +40,7 @@ public class DeployStudioMojo extends AbstractMojo {
     private File studioHome;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() {
         if (studioHome == null) {
             getLog().warn("No studioHome defined, skipping");
             return;
@@ -59,8 +57,11 @@ public class DeployStudioMojo extends AbstractMojo {
                         ofNullable(a.getType()).orElse("jar"),
                         a.getClassifier() == null || a.getClassifier().isEmpty() ? "" : (":" + a.getClassifier()),
                         a.getVersion(), ofNullable(a.getScope()).orElse("compile")), Artifact::getFile));
+        final String mainGav =
+                String.format("%s:%s:%s", project.getGroupId(), project.getArtifactId(), project.getVersion());
+        artifacts.putIfAbsent(mainGav, new File(project.getBuild().getDirectory(), project.getBuild().getFinalName()
+                + "." + ("bundle".equals(project.getPackaging()) ? "jar" : project.getPackaging())));
         new StudioInstaller(// group:artifact:type[:classifier]:version:scope
-                String.format("%s:%s:%s", project.getGroupId(), project.getArtifactId(), project.getVersion()),
-                studioHome, artifacts, getLog()).run();
+                mainGav, studioHome, artifacts, getLog()).run();
     }
 }
