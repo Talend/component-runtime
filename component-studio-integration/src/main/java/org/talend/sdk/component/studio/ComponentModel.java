@@ -334,9 +334,10 @@ public class ComponentModel extends AbstractBasicComponent {
                     }
                     modulesNeeded.add(new ModuleNeeded(getName(), "", true,
                             "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.VERSION));
-                    modulesNeeded.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/1.7.12"));
-                    modulesNeeded.add(new ModuleNeeded(getName(), "", true,
-                            "mvn:org.talend.libraries/slf4j-log4j12-1.7.2/6.0.0"));
+                    modulesNeeded
+                            .add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.SLF4J_VERSION));
+                    modulesNeeded.add(
+                            new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-log4j12/" + GAV.SLF4J_VERSION));
                     // We're assuming that pluginLocation has format of groupId:artifactId:version
                     final String location = index.getId().getPluginLocation().trim();
                     modulesNeeded.add(new ModuleNeeded(getName(), "", true, locationToMvn(location)));

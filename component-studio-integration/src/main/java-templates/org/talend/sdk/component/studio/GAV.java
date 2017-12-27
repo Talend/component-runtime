@@ -25,4 +25,6 @@ public interface GAV {
 
     String CLI_VERSION = "${commons-cli.version}";
 
+    String SLF4J_VERSION = "${slf4j.version}";
+
 }
