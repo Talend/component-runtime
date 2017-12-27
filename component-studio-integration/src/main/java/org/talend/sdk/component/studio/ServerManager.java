@@ -49,6 +49,9 @@ public class ServerManager extends AbstractUIPlugin {
     @Override
     public void start(final BundleContext context) throws Exception {
         super.start(context);
+        if (Boolean.getBoolean("component.kit.skip")) {
+            return;
+        }
 
         TemplatesExtractor extractor = new TemplatesExtractor("jet_stub/generic",
                 Platform
