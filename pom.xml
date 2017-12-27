@@ -297,7 +297,7 @@
       <plugin>
         <groupId>org.talend.tools</groupId>
         <artifactId>talend-tools-maven-plugin</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
         <executions>
           <execution>
             <id>hub-detect</id>
@@ -327,7 +327,8 @@
             to avoid false positives
             -->
           <exclusions>
-            /*-javadoc.jar/,
+            /gpg/,
+            /javadoc/,
             /antrun/,
             /apidocs/,
             /asciidoctor-reveal.js-*/,
@@ -673,6 +674,8 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${javadoc-plugin.version}</version>
           <configuration>
+            <jarOutputDirectory>${project.build.directory}/javadoc/binary</jarOutputDirectory>
+            <outputDirectory>${project.build.directory}/javadoc/apidocs</outputDirectory>
             <splitindex>true</splitindex>
             <linksource>true</linksource>
             <windowtitle>${project.name}</windowtitle>
