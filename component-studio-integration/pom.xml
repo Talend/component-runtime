@@ -248,6 +248,7 @@
               <goal>execute</goal>
             </goals>
             <configuration>
+              <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script>${project.basedir}/src/build/StudioDependencies.groovy</script>
               </scripts>
@@ -260,6 +261,7 @@
               <goal>execute</goal>
             </goals>
             <configuration>
+              <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script>${project.basedir}/src/build/TaCoKitDependencies.groovy</script>
               </scripts>
@@ -272,6 +274,7 @@
               <goal>execute</goal>
             </goals>
             <configuration>
+              <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script>${project.basedir}/src/build/PackageDistribution.groovy</script>
               </scripts>

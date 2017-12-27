@@ -275,6 +275,7 @@
               <goal>execute</goal>
             </goals>
             <configuration>
+              <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script>
                   <![CDATA[

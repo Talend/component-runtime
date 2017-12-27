@@ -132,6 +132,7 @@
           </execution>
         </executions>
         <configuration>
+          <allowSystemExits>true</allowSystemExits>
           <scripts>
             <script>${project.basedir}/src/build/DecryptJiraCredentials.groovy</script>
             <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
@@ -554,6 +555,7 @@
               </execution>
             </executions>
             <configuration>
+              <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script>${project.basedir}/src/build/DecryptJiraCredentials.groovy</script>
                 <script>${project.basedir}/src/build/GithubPages.groovy</script>

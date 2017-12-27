@@ -124,6 +124,7 @@
           </execution>
         </executions>
         <configuration>
+          <allowSystemExits>true</allowSystemExits>
           <scripts>
             <script>${project.basedir}/src/build/PrepareResources.groovy</script>
           </scripts>

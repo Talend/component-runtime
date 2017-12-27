@@ -199,6 +199,7 @@
               <goal>execute</goal>
             </goals>
             <configuration>
+              <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script>
                   project.properties.setProperty('osgiVersion', project.version.replace('-', '.'))
@@ -217,6 +218,7 @@
               <goal>execute</goal>
             </goals>
             <configuration>
+              <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script>
                   def swaggerJson = new File(project.build.outputDirectory, 'META-INF/resources/documentation/swagger.json')
@@ -233,6 +235,7 @@
               <goal>execute</goal>
             </goals>
             <configuration>
+              <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script><![CDATA[
                   import javax.ws.rs.GET

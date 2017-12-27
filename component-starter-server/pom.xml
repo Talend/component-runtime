@@ -317,6 +317,7 @@
           </execution>
         </executions>
         <configuration>
+          <allowSystemExits>true</allowSystemExits>
           <scripts>
             <script>${project.basedir}/src/build/GrabGradleWrapper.groovy</script>
             <script>${project.basedir}/src/build/GrabMavenWrapper.groovy</script>

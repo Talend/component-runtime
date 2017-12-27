@@ -378,6 +378,9 @@
             </configuration>
           </execution>
         </executions>
+        <configuration>
+          <allowSystemExits>true</allowSystemExits>
+        </configuration>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
