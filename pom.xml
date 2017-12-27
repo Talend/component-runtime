@@ -328,22 +328,23 @@
             to avoid false positives
             -->
           <exclusions>
-            /local-repo/,
-            /it/,
-            /test-dependencies/,
-            /gradle-*/,
-            /maven-*/,
-            /reveal.js-*/,
-            /asciidoctor-reveal.js-*/,
-            /documentation-*/,
-            /documentation/,
-            /${project.version}/,
             /antrun/,
+            /apidocs/,
+            /asciidoctor-reveal.js-*/,
             /.blackduck/,
             /blackduck/,
+            /documentation-*/,
+            /documentation/,
+            /gradle-*/,
+            /index-files/,
+            /it/,
             /jacoco*/,
+            /local-repo/,
+            /maven-*/,
+            /${project.version}/,
+            /reveal.js-*/,
             /site/,
-            /apidocs/
+            /test-dependencies/
           </exclusions>
         </configuration>
       </plugin>
