@@ -51,6 +51,10 @@ public final class Metadatas {
 
     public static final String CONDITION_IF_TARGET = "condition::if::target";
 
+    public static final String UI_STRUCTURE_TYPE = "ui::structure::type";
+
+    public static final String UI_STRUCTURE_VALUE = "ui::structure::value";
+
     /**
      * Value separator for {@link #UI_OPTIONS_ORDER}
      */

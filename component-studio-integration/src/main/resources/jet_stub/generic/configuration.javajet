@@ -38,6 +38,35 @@ final java.util.Map<String, String> configuration_<%=cid%> = new java.util.HashM
                         <%
                     }
                 }
+            } else if(p.getFieldType() == EParameterFieldType.SCHEMA_TYPE) {
+                final String schemaName = p.getName();
+                if(schemaName == null || !schemaName.contains("$$")) {
+                    continue;
+                }
+                final String[] splitName = schemaName.split("\\\$\\\$");
+                if(splitName.length < 2) {
+                    continue;
+                }
+                final String parameterName = splitName[1];
+                EConnectionType type = EConnectionType.getTypeFromName(p.getContext());
+                final List<? extends IConnection> connections;
+                if("in".equalsIgnoreCase(splitName[0])) {
+                    connections = node.getIncomingConnections(type);
+                } else {
+                    connections = node.getOutgoingConnections(type);
+                }
+                if(connections != null && !connections.isEmpty()) {
+                    IConnection connection = connections.get(0);
+                    IMetadataTable metaTable = connection.getMetadataTable();
+                    List<IMetadataColumn> columns = metaTable.getListColumns();
+                    for(int i = 0; i < columns.size(); i++) {
+                        IMetadataColumn column = columns.get(i);
+                    %>
+                        configuration_<%=cid%>.put("<%=parameterName%>[<%=i%>]",
+                                "<%=column.getLabel()%>");
+                    <%
+                    }
+                }
             } else {
 %>
             configuration_<%=cid%>.put(
