@@ -56,6 +56,17 @@
       <version>${talend-icon.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>io.zipkin.brave</groupId>
+      <artifactId>brave-instrumentation-jaxrs2</artifactId>
+      <version>4.13.1</version>
+    </dependency>
+    <dependency>
+      <groupId>io.zipkin.reporter2</groupId>
+      <artifactId>zipkin-sender-kafka11</artifactId>
+      <version>2.2.2</version>
+    </dependency>
+
     <dependency> <!-- override until we upgrade meecrowave -->
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
@@ -107,12 +118,6 @@
       <groupId>org.webjars</groupId>
       <artifactId>swagger-ui</artifactId>
       <version>3.2.2</version>
-    </dependency>
-
-    <dependency>
-      <groupId>io.zipkin.brave</groupId>
-      <artifactId>brave-instrumentation-jaxrs2</artifactId>
-      <version>4.9.1</version>
     </dependency>
 
     <dependency>
