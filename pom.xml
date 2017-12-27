@@ -123,7 +123,7 @@
     <junit.version>4.12</junit.version>
     <ziplock.version>7.0.4</ziplock.version>
     <johnzon.version>1.1.5</johnzon.version>
-    <meecrowave.version>1.2.0-SNAPSHOT</meecrowave.version>
+    <meecrowave.version>1.2.0</meecrowave.version>
     <tomcat.version>9.0.2</tomcat.version>
     <cxf.version>3.2.1</cxf.version>
     <log4j2.version>2.10.0</log4j2.version>
