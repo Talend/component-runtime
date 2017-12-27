@@ -114,13 +114,7 @@ public class StudioInstaller implements Runnable {
             this.artifacts.forEach((gav, file) -> {
                 final Artifact artifact = converter.toArtifact(gav);
                 try {
-                    final File target = new File(studioHome,
-                            "configuration/.m2/repository/" + artifact.getGroup() + '/' + artifact.getArtifact() + '/'
-                                    + artifact.getVersion() + '/' + artifact.getArtifact() + '-' + artifact.getVersion()
-                                    + (artifact.getClassifier() != null && !artifact.getClassifier().isEmpty()
-                                            ? '-' + artifact.getClassifier()
-                                            : "")
-                                    + "." + (artifact.getType() != null ? artifact.getType() : "jar"));
+                    final File target = new File(studioHome, "configuration/.m2/repository/" + artifact.toPath());
                     if (target.exists() && !artifact.getVersion().endsWith("-SNAPSHOT")) {
                         log.info(gav + " already exists, skipping");
                         return;
