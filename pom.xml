@@ -328,6 +328,7 @@
             to avoid false positives
             -->
           <exclusions>
+            /*-javadoc.jar/,
             /antrun/,
             /apidocs/,
             /asciidoctor-reveal.js-*/,
