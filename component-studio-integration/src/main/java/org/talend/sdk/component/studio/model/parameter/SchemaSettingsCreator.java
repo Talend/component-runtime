@@ -21,7 +21,6 @@ import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElement;
-import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 
@@ -42,6 +41,7 @@ public class SchemaSettingsCreator extends SettingsCreator {
         super(iNode, category, redrawParameter);
     }
 
+    @Override
     public List<ElementParameter> getSettings() {
         boolean hasSchema = false;
 
@@ -62,49 +62,6 @@ public class SchemaSettingsCreator extends SettingsCreator {
      * FIXME
      */
     private void addSchemaProperty() {
-        TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
-        schema.setName("SCHEMA");
-        schema.setDisplayName("!!!SCHEMA.NAME!!!");
-        schema.setCategory(EComponentCategory.BASIC);
-        schema.setFieldType(EParameterFieldType.SCHEMA_TYPE);
-        schema.setNumRow(1);
-        schema.setShow(true);
-        schema.setReadOnly(false);
-        schema.setRequired(true);
-        schema.setContext(EConnectionType.FLOW_MAIN.getName());
-
-        // add child parameters
-        // defines whether schema is built-in or repository
-        TaCoKitElementParameter childParameter1 = new TaCoKitElementParameter(getNode());
-        childParameter1.setCategory(EComponentCategory.BASIC);
-        childParameter1.setContext(EConnectionType.FLOW_MAIN.getName());
-        childParameter1.setDisplayName("Schema");
-        childParameter1.setFieldType(EParameterFieldType.TECHNICAL);
-        childParameter1.setListItemsDisplayCodeName(new String[] { "BUILT_IN", "REPOSITORY" });
-        childParameter1.setListItemsDisplayName(new String[] { "Built-In", "Repository" });
-        childParameter1.setListItemsValue(new String[] { "BUILT_IN", "REPOSITORY" });
-        childParameter1.setName(EParameterName.SCHEMA_TYPE.getName());
-        childParameter1.setNumRow(1);
-        childParameter1.setParentParameter(schema);
-        childParameter1.setShow(true);
-        childParameter1.setShowIf("SCHEMA =='REPOSITORY'");
-        childParameter1.setValue("BUILT_IN");
-        schema.getChildParameters().put(EParameterName.SCHEMA_TYPE.getName(), childParameter1);
-
-        TaCoKitElementParameter childParameter2 = new TaCoKitElementParameter(getNode());
-        childParameter2.setCategory(EComponentCategory.BASIC);
-        childParameter2.setContext(EConnectionType.FLOW_MAIN.getName());
-        childParameter2.setDisplayName("Repository");
-        childParameter2.setFieldType(EParameterFieldType.TECHNICAL);
-        childParameter2.setListItemsDisplayName(new String[0]);
-        childParameter2.setListItemsValue(new String[0]);
-        childParameter2.setName(EParameterName.REPOSITORY_SCHEMA_TYPE.getName());
-        childParameter2.setParentParameter(schema);
-        childParameter2.setRequired(true);
-        childParameter2.setShow(false);
-        childParameter2.setValue("");
-        schema.getChildParameters().put(EParameterName.REPOSITORY_SCHEMA_TYPE.getName(), childParameter2);
-
-        addSetting(schema);
+        addSetting(createSchemaParameter(EConnectionType.FLOW_MAIN.getName(), "SCHEMA"));
     }
 }

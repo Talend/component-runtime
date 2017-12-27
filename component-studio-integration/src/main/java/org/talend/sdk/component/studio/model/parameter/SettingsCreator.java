@@ -239,7 +239,13 @@ public class SettingsCreator implements PropertyVisitor {
         String connectionType = node.getProperty().getMetadata().get(UI_STRUCTURE_TYPE);
         String connectionName = node.getProperty().getMetadata().get(UI_STRUCTURE_VALUE);
         connectionName = connectionName.equals("__default__") ? EConnectionType.FLOW_MAIN.getName() : connectionName;
-        schema.setName(connectionType + "$$" + node.getId());
+        String schemaName = connectionType + "$$" + node.getId();
+        return createSchemaParameter(connectionName, schemaName);
+    }
+
+    protected TaCoKitElementParameter createSchemaParameter(final String connectionName, final String schemaName) {
+        TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
+        schema.setName(schemaName);
         schema.setDisplayName("!!!SCHEMA.NAME!!!");
         schema.setCategory(EComponentCategory.BASIC);
         schema.setFieldType(EParameterFieldType.SCHEMA_TYPE);
