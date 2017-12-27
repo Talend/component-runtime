@@ -79,6 +79,18 @@ public class ProcessManager implements AutoCloseable {
                     return;
                 }
                 if (i > 0 && i % 12 == 0) {
+                    final Process process = this.process;
+                    if (process != null) {
+                        try {
+                            final int exitValue = process.exitValue();
+                            System.err.println("Component server didn't start properly (exit code=" + exitValue
+                                    + "), please check the log before");
+                            Lookups.configuration().disable();
+                            break;
+                        } catch (final IllegalThreadStateException itse) {
+                            // expected
+                        }
+                    }
                     System.out.println("Component server not yet ready, will wait again"); // no logger!
                 }
                 sleep(steps);

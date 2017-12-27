@@ -15,10 +15,16 @@
  */
 package org.talend.sdk.component.studio.service;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class Configuration {
 
-    private final boolean active;
+    private volatile boolean active;
+
+    public void disable() {
+        active = false;
+    }
 }
