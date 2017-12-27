@@ -71,8 +71,13 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
     private final ConcurrentMap<String, ConfigAction> actions = new ConcurrentHashMap<>();
 
     public NodeActionProvider() {
-        client = Lookups.client().v1().component();
-        service = Lookups.service();
+        if (Lookups.configuration().isActive()) {
+            client = Lookups.client().v1().component();
+            service = Lookups.service();
+        } else {
+            client = null;
+            service = null;
+        }
     }
 
     @Override

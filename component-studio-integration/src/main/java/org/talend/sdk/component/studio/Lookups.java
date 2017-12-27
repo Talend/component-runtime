@@ -35,6 +35,7 @@ import org.talend.core.model.process.INode;
 import org.talend.core.runtime.services.IGenericWizardService;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.service.ComponentService;
+import org.talend.sdk.component.studio.service.Configuration;
 import org.talend.sdk.component.studio.ui.composite.TaCoKitComposite;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
@@ -61,6 +62,10 @@ public class Lookups {
         } catch (final Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public static Configuration configuration() {
+        return lookup(Configuration.class);
     }
 
     public static WebSocketClient client() {

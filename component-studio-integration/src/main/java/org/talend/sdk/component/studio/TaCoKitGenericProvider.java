@@ -40,7 +40,7 @@ public class TaCoKitGenericProvider implements IGenericProvider {
 
     @Override
     public void loadComponentsFromExtensionPoint() {
-        if (ProjectManager.getInstance().getCurrentProject() == null) {
+        if (ProjectManager.getInstance().getCurrentProject() == null || !Lookups.configuration().isActive()) {
             return;
         }
 

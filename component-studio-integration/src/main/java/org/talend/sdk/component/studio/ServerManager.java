@@ -34,6 +34,7 @@ import org.talend.osgi.hook.URIUtil;
 import org.talend.osgi.hook.maven.MavenResolver;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.service.ComponentService;
+import org.talend.sdk.component.studio.service.Configuration;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 public class ServerManager extends AbstractUIPlugin {
@@ -49,7 +50,11 @@ public class ServerManager extends AbstractUIPlugin {
     @Override
     public void start(final BundleContext context) throws Exception {
         super.start(context);
-        if (Boolean.getBoolean("component.kit.skip")) {
+
+        final BundleContext ctx = getBundle().getBundleContext();
+        final Configuration configuration = new Configuration(!Boolean.getBoolean("component.kit.skip"));
+        services.add(ctx.registerService(Configuration.class.getName(), configuration, new Hashtable<>()));
+        if (!configuration.isActive()) {
             return;
         }
 
@@ -68,7 +73,6 @@ public class ServerManager extends AbstractUIPlugin {
                 Long.getLong("talend.component.websocket.client.timeout", Constants.IO_TIMEOUT_MS_DEFAULT));
         client.setSynch(() -> manager.waitForServer(() -> client.v1().healthCheck()));
 
-        final BundleContext ctx = getBundle().getBundleContext();
         services.add(ctx.registerService(ProcessManager.class.getName(), manager, new Hashtable<>()));
         services.add(ctx.registerService(WebSocketClient.class.getName(), client, new Hashtable<>()));
         services.add(ctx.registerService(ComponentService.class.getName(), new ComponentService(), new Hashtable<>()));
