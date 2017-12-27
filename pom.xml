@@ -50,18 +50,6 @@
 
   <repositories>
     <repository>
-      <id>meecrowave-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1037/</url>
-    </repository>
-    <repository>
-      <id>owb-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1034/</url>
-    </repository>
-    <repository>
-      <id>geronimo-jaxrs-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1046</url>
-    </repository>
-    <repository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
@@ -97,18 +85,6 @@
 
 
   <pluginRepositories>
-    <pluginRepository>
-      <id>meecrowave-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1037/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>owb-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1034/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>geronimo-jaxrs-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1046</url>
-    </pluginRepository>
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
