@@ -121,6 +121,10 @@ public class StudioInstaller implements Runnable {
                                             ? '-' + artifact.getClassifier()
                                             : "")
                                     + "." + (artifact.getType() != null ? artifact.getType() : "jar"));
+                    if (target.exists() && !artifact.getVersion().endsWith("-SNAPSHOT")) {
+                        log.info(gav + " already exists, skipping");
+                        return;
+                    }
                     mkdirP(target.getParentFile());
                     Files.copy(file.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     log.info("Installed " + gav + " at " + target.getAbsolutePath());
