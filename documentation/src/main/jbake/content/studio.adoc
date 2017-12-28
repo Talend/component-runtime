@@ -37,6 +37,7 @@ The configuration goes into `$STUDIO_HOME/configuration/config.ini`.
 | component.java.m2 | The maven repository the server uses to resolve components | default to global Studio configuration
 | component.java.coordinates | A list of comma separated GAV (groupId:artifactId:version) of components to register | -
 | component.java.registry | A properties file with values matching component GAV (groupId:artifactId:version) which are registered at startup | -
+| component.java.port | Set a port to use for the server | random
 | component.java.debug | Active the remote debugging for the server process | false
 | component.java.debug.port | If `component.java.debug` is true, the remote debugging port | 5005
 |===
