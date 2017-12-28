@@ -28,13 +28,11 @@ import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.properties.PropertiesFactory;
 import org.talend.core.model.properties.Property;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
-import org.talend.core.repository.ui.actions.metadata.AbstractCreateAction;
 import org.talend.repository.ProjectManager;
 import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.ui.views.IRepositoryView;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
-import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
@@ -42,15 +40,7 @@ import org.talend.sdk.component.studio.metadata.node.TaCoKitFamilyRepositoryNode
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationWizard;
 
-public class CreateTaCoKitConfigurationAction extends AbstractCreateAction {
-
-    private static final int DEFAULT_WIZARD_WIDTH = 700;
-
-    private static final int DEFAULT_WIZARD_HEIGHT = 400;
-
-    private ITaCoKitRepositoryNode repositoryNode;
-
-    private ConfigTypeNode configTypeNode;
+public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualAction {
 
     public CreateTaCoKitConfigurationAction(final ConfigTypeNode configTypeNode) {
         super();
@@ -140,42 +130,6 @@ public class CreateTaCoKitConfigurationAction extends AbstractCreateAction {
         }
 
         return connectionItem;
-    }
-
-    protected int getWizardWidth() {
-        return DEFAULT_WIZARD_WIDTH;
-    }
-
-    protected int getWizardHeight() {
-        return DEFAULT_WIZARD_HEIGHT;
-    }
-
-    protected String getCreateLabel() {
-        return Messages.getString("TaCoKitConfiguration.action.createLabel", configTypeNode.getConfigurationType(), //$NON-NLS-1$
-                configTypeNode.getDisplayName());
-    }
-
-    protected String getEditLabel() {
-        return Messages.getString("TaCoKitConfiguration.action.editLabel", configTypeNode.getConfigurationType(), //$NON-NLS-1$
-                configTypeNode.getDisplayName());
-    }
-
-    protected String getOpenLabel() {
-        return Messages.getString("TaCoKitConfiguration.action.openLabel", configTypeNode.getConfigurationType(), //$NON-NLS-1$
-                configTypeNode.getDisplayName());
-    }
-
-    protected String getNodeLabel() {
-        return repositoryNode.getDisplayText();
-    }
-
-    protected Image getNodeImage() {
-        return null;
-    }
-
-    @Override
-    public Class getClassForDoubleClick() {
-        return ConnectionItem.class;
     }
 
 }
