@@ -12,21 +12,14 @@
  */
 package org.talend.sdk.component.studio.metadata.action;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.wizard.IWizard;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.PlatformUI;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
-import org.talend.repository.ProjectManager;
 import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.RepositoryNode;
-import org.talend.repository.ui.views.IRepositoryView;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
-import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationWizard;
 
 /**
  * DOC cmeng class global comment. Detailled comment
@@ -35,32 +28,6 @@ public class EditTaCoKitConfigurationAction extends TaCoKitMetadataContextualAct
 
     public EditTaCoKitConfigurationAction() {
         super();
-    }
-
-    @Override
-    protected void doRun() {
-        TaCoKitConfigurationRuntimeData runtimeData = new TaCoKitConfigurationRuntimeData();
-        runtimeData.setTaCoKitRepositoryNode(repositoryNode);
-        runtimeData.setConfigTypeNode(repositoryNode.getConfigTypeNode());
-        runtimeData.setConnectionItem((ConnectionItem) repositoryNode.getObject().getProperty().getItem());
-        runtimeData.setCreation(false);
-        runtimeData.setReadonly(false);
-
-        IWizard wizard = new TaCoKitConfigurationWizard(PlatformUI.getWorkbench(), runtimeData);
-        WizardDialog wizardDialog =
-                new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
-        if (Platform.getOS().equals(Platform.OS_LINUX)) {
-            wizardDialog.setPageSize(getWizardWidth(), getWizardHeight() + 80);
-        }
-        wizardDialog.create();
-        int result = wizardDialog.open();
-        if (result == WizardDialog.OK) {
-            IRepositoryView viewPart = getViewPart();
-            if (viewPart != null) {
-                viewPart.setFocus();
-                refresh(repositoryNode);
-            }
-        }
     }
 
     @Override
@@ -73,10 +40,9 @@ public class EditTaCoKitConfigurationAction extends TaCoKitMetadataContextualAct
             setEnabled(false);
             return;
         }
-        this.repositoryNode = (ITaCoKitRepositoryNode) node;
-        this.configTypeNode = repositoryNode.getConfigTypeNode();
-        this.setText(getCreateLabel());
-        this.setToolTipText(getEditLabel());
+        setRepositoryNode((ITaCoKitRepositoryNode) node);
+        setConfigTypeNode(repositoryNode.getConfigTypeNode());
+        setToolTipText(getEditLabel());
         Image nodeImage = getNodeImage();
         if (nodeImage != null) {
             this.setImageDescriptor(ImageDescriptor.createFromImage(nodeImage));
@@ -85,17 +51,13 @@ public class EditTaCoKitConfigurationAction extends TaCoKitMetadataContextualAct
         switch (node.getType()) {
         case SIMPLE_FOLDER:
         case SYSTEM_FOLDER:
-            if (factory.isUserReadOnlyOnCurrentProject()
-                    || !ProjectManager.getInstance().isInCurrentMainProject(node)) {
-                setEnabled(false);
-                return;
-            }
-            if (node.getObject() != null && node.getObject().getProperty().getItem().getState().isDeleted()) {
+            if (isUserReadOnly() || belongsToCurrentProject(node) || isDeleted(node)) {
                 setEnabled(false);
                 return;
             }
             this.setText(getCreateLabel());
             collectChildNames(node);
+            setEnabled(true);
             break;
         case REPOSITORY_ELEMENT:
             if (factory.isPotentiallyEditable(node.getObject()) && isLastVersion(node)) {
@@ -104,11 +66,22 @@ public class EditTaCoKitConfigurationAction extends TaCoKitMetadataContextualAct
             } else {
                 this.setText(getOpenLabel());
             }
+            setEnabled(true);
             break;
         default:
             return;
         }
-        setEnabled(true);
+    }
+
+    @Override
+    protected TaCoKitConfigurationRuntimeData createRuntimeData() {
+        TaCoKitConfigurationRuntimeData runtimeData = new TaCoKitConfigurationRuntimeData();
+        runtimeData.setTaCoKitRepositoryNode(repositoryNode);
+        runtimeData.setConfigTypeNode(repositoryNode.getConfigTypeNode());
+        runtimeData.setConnectionItem((ConnectionItem) repositoryNode.getObject().getProperty().getItem());
+        runtimeData.setCreation(false);
+        runtimeData.setReadonly(false);
+        return runtimeData;
     }
 
 }

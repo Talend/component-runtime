@@ -15,12 +15,24 @@
  */
 package org.talend.sdk.component.studio.metadata.action;
 
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.wizard.IWizard;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PlatformUI;
 import org.talend.core.model.properties.ConnectionItem;
+import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.core.repository.ui.actions.metadata.AbstractCreateAction;
+import org.talend.repository.ProjectManager;
+import org.talend.repository.model.RepositoryNode;
+import org.talend.repository.ui.views.IRepositoryView;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
+import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
+import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationWizard;
+
+import lombok.Setter;
 
 /**
  * Base class for TaCoKit Metadata contextual actions.
@@ -32,6 +44,7 @@ import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
  * Component family potentially may have several different types of Datasets. E.g. Azure family has blob, queue and
  * table Datasets.
  */
+@Setter
 public abstract class TaCoKitMetadataContextualAction extends AbstractCreateAction {
 
     private static final int DEFAULT_WIZARD_WIDTH = 700;
@@ -41,6 +54,37 @@ public abstract class TaCoKitMetadataContextualAction extends AbstractCreateActi
     protected ITaCoKitRepositoryNode repositoryNode;
 
     protected ConfigTypeNode configTypeNode;
+
+    /**
+     * Creates {@link WizardDialog}, opens it and refreshes repository node if result is ok
+     */
+    @Override
+    protected void doRun() {
+        WizardDialog wizardDialog = createWizardDialog();
+        openWizardDialog(wizardDialog);
+    }
+
+    private WizardDialog createWizardDialog() {
+        IWizard wizard = new TaCoKitConfigurationWizard(PlatformUI.getWorkbench(), createRuntimeData());
+        return new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+    }
+
+    private void openWizardDialog(final WizardDialog wizardDialog) {
+        if (Platform.getOS().equals(Platform.OS_LINUX)) {
+            wizardDialog.setPageSize(getWizardWidth(), getWizardHeight() + 80);
+        }
+        wizardDialog.create();
+        int result = wizardDialog.open();
+        if (result == WizardDialog.OK) {
+            IRepositoryView viewPart = getViewPart();
+            if (viewPart != null) {
+                viewPart.setFocus();
+                refresh(repositoryNode);
+            }
+        }
+    }
+
+    protected abstract TaCoKitConfigurationRuntimeData createRuntimeData();
 
     protected int getWizardWidth() {
         return DEFAULT_WIZARD_WIDTH;
@@ -84,4 +128,33 @@ public abstract class TaCoKitMetadataContextualAction extends AbstractCreateActi
         return null;
     }
 
+    /**
+     * Checks whether user has only read permission. If it is true, user can't create or edit repository node,
+     * so action should be disabled for him
+     * 
+     * @return true, is user has ReadOnly rights
+     */
+    protected boolean isUserReadOnly() {
+        return ProxyRepositoryFactory.getInstance().isUserReadOnlyOnCurrentProject();
+    }
+
+    /**
+     * Checks whether repository node belongs to current project. If it doesn't, then action should be disabled
+     * 
+     * @param node repository node
+     * @return true, it node belongs to current project
+     */
+    protected boolean belongsToCurrentProject(final RepositoryNode node) {
+        return ProjectManager.getInstance().isInCurrentMainProject(node);
+    }
+
+    /**
+     * Checks whether node is deleted. If node is deleted create action should be disabled
+     * 
+     * @param node repository node
+     * @return true, if it is deleted
+     */
+    protected boolean isDeleted(final RepositoryNode node) {
+        return node.getObject() != null && node.getObject().getProperty().getItem().getState().isDeleted();
+    }
 }

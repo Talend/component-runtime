@@ -12,12 +12,8 @@
  */
 package org.talend.sdk.component.studio.metadata.action;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.wizard.IWizard;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.PlatformUI;
 import org.talend.commons.utils.VersionUtils;
 import org.talend.core.CorePlugin;
 import org.talend.core.context.Context;
@@ -27,18 +23,13 @@ import org.talend.core.model.metadata.builder.connection.ConnectionFactory;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.properties.PropertiesFactory;
 import org.talend.core.model.properties.Property;
-import org.talend.core.repository.model.ProxyRepositoryFactory;
-import org.talend.repository.ProjectManager;
-import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.RepositoryNode;
-import org.talend.repository.ui.views.IRepositoryView;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.metadata.node.TaCoKitFamilyRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
-import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationWizard;
 
 public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualAction {
 
@@ -48,69 +39,48 @@ public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualA
     }
 
     @Override
-    protected void doRun() {
+    protected void init(final RepositoryNode node) {
+        if (node instanceof TaCoKitFamilyRepositoryNode) {
+            setEnabled(false);
+            return;
+        }
+        setRepositoryNode((ITaCoKitRepositoryNode) node);
+        setText(getCreateLabel());
+        setToolTipText(getEditLabel());
+        Image nodeImage = getNodeImage();
+        if (nodeImage != null) {
+            this.setImageDescriptor(ImageDescriptor.createFromImage(nodeImage));
+        }
+        switch (node.getType()) {
+        case SIMPLE_FOLDER:
+        case SYSTEM_FOLDER:
+        case REPOSITORY_ELEMENT:
+            if (isUserReadOnly() || !belongsToCurrentProject(node) || isDeleted(node)) {
+                setEnabled(false);
+                return;
+            }
+            collectChildNames(node);
+            setEnabled(true);
+            break;
+        default:
+            return;
+        }
+    }
+
+    @Override
+    protected TaCoKitConfigurationRuntimeData createRuntimeData() {
         TaCoKitConfigurationRuntimeData runtimeData = new TaCoKitConfigurationRuntimeData();
         runtimeData.setTaCoKitRepositoryNode(repositoryNode);
         runtimeData.setConfigTypeNode(configTypeNode);
         runtimeData.setCreation(true);
         runtimeData.setReadonly(false);
         runtimeData.setConnectionItem(createConnectionItem());
-
-        IWizard wizard = new TaCoKitConfigurationWizard(PlatformUI.getWorkbench(), runtimeData);
-        WizardDialog wizardDialog =
-                new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
-        if (Platform.getOS().equals(Platform.OS_LINUX)) {
-            wizardDialog.setPageSize(getWizardWidth(), getWizardHeight() + 80);
-        }
-        wizardDialog.create();
-        int result = wizardDialog.open();
-        if (result == WizardDialog.OK) {
-            IRepositoryView viewPart = getViewPart();
-            if (viewPart != null) {
-                viewPart.setFocus();
-                refresh(repositoryNode);
-            }
-        }
-    }
-
-    @Override
-    protected void init(final RepositoryNode node) {
-        if (node instanceof TaCoKitFamilyRepositoryNode) {
-            setEnabled(false);
-            return;
-        }
-        this.repositoryNode = (ITaCoKitRepositoryNode) node;
-        this.setText(getCreateLabel());
-        this.setToolTipText(getEditLabel());
-        Image nodeImage = getNodeImage();
-        if (nodeImage != null) {
-            this.setImageDescriptor(ImageDescriptor.createFromImage(nodeImage));
-        }
-        IProxyRepositoryFactory factory = ProxyRepositoryFactory.getInstance();
-        switch (node.getType()) {
-        case SIMPLE_FOLDER:
-        case SYSTEM_FOLDER:
-        case REPOSITORY_ELEMENT:
-            if (factory.isUserReadOnlyOnCurrentProject()
-                    || !ProjectManager.getInstance().isInCurrentMainProject(node)) {
-                setEnabled(false);
-                return;
-            }
-            if (node.getObject() != null && node.getObject().getProperty().getItem().getState().isDeleted()) {
-                setEnabled(false);
-                return;
-            }
-            this.setText(getCreateLabel());
-            collectChildNames(node);
-            break;
-        default:
-            return;
-        }
-        setEnabled(true);
+        return runtimeData;
     }
 
     private ConnectionItem createConnectionItem() {
         Connection connection = ConnectionFactory.eINSTANCE.createConnection();
+
         Property property = PropertiesFactory.eINSTANCE.createProperty();
         property.setAuthor(
                 ((RepositoryContext) CorePlugin.getContext().getProperty(Context.REPOSITORY_CONTEXT_KEY)).getUser());
