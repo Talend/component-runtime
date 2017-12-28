@@ -23,7 +23,7 @@ final java.util.Map<String, String> configuration_<%=cid%> = new java.util.HashM
             }
             //TODO: modify this part for Maps and nested lists.
             if (p.getFieldType() == EParameterFieldType.TABLE) {
-                java.util.List<java.util.Map<String, Object>> tableValues = (java.util.List<java.util.Map<String, Object>>) p.getValue();
+                java.util.List<java.util.Map<String, Object>> tableValues = (java.util.List<java.util.Map<String, Object>>) ElementParameterParser.getObjectValue(node, p.getName());
                 String[] items = p.getListItemsDisplayCodeName();
                 String tableName = p.getName().replace('$', '.');
                 String tableNamePrefix = tableName + "[].";
