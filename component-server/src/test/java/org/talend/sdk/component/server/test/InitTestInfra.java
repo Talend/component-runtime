@@ -165,6 +165,10 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                     out.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
                     out.write("org.apache.tomee:ziplock:jar:7.0.4:runtime".getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
+
+                    out.putNextEntry(new JarEntry("TALEND-INF/documentation.adoc"));
+                    out.write("= Test".getBytes(StandardCharsets.UTF_8));
+                    out.closeEntry();
                 } catch (final IOException e) {
                     fail(e.getMessage());
                 }

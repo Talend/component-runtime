@@ -257,6 +257,7 @@
                     org.talend.sdk.component.server.front.ActionResource.class,
                     org.talend.sdk.component.server.front.ComponentResource.class,
                     org.talend.sdk.component.server.front.ConfigurationTypeResource.class,
+                    org.talend.sdk.component.server.front.DocumentationResource.class,
                     org.talend.sdk.component.server.front.ExecutionResource.class
                   ].each { clazz ->
                     clazz.methods.findAll { mtd ->

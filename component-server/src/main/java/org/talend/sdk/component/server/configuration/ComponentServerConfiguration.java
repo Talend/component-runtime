@@ -77,6 +77,10 @@ public interface ComponentServerConfiguration {
     @ConfigProperty(name = "monitoring.brave.sampling.component.rate", defaultValue = "-1")
     float samplerComponentRate();
 
+    @Documentation("The accuracy rate of the sampling for documentation endpoint.")
+    @ConfigProperty(name = "monitoring.brave.sampling.documentation.rate", defaultValue = "-1")
+    float samplerDocumentationRate();
+
     @Documentation("The accuracy rate of the sampling for action endpoints.")
     @ConfigProperty(name = "monitoring.brave.sampling.action.rate", defaultValue = "-1")
     float samplerActionRate();

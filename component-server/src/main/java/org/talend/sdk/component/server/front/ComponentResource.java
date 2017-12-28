@@ -125,7 +125,7 @@ public class ComponentResource {
         log.info("Initializing " + getClass());
 
         // preload some highly used data
-        getIndex("en");
+        getIndex("en", false);
     }
 
     @GET
@@ -202,25 +202,26 @@ public class ComponentResource {
     @GET
     @Path("index")
     @Documentation("Returns the list of available components.")
-    public ComponentIndices getIndex(@QueryParam("language") @DefaultValue("en") final String language) {
+    public ComponentIndices getIndex(@QueryParam("language") @DefaultValue("en") final String language,
+            @QueryParam("includeIconContent") @DefaultValue("true") final boolean includeIconContent) {
         final Locale locale = localeMapper.mapLocale(language);
-        return indicesPerRequest.computeIfAbsent(new RequestKey(locale), k -> new ComponentIndices(manager
-                .find(c -> c
-                        .execute(() -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
-                        .flatMap(component -> Stream.concat(
-                                component
-                                        .getPartitionMappers()
-                                        .values()
-                                        .stream()
-                                        .map(mapper -> toComponentIndex(c.getLoader(), locale, c.getId(), mapper,
-                                                c.get(ComponentManager.OriginalId.class))),
-                                component
-                                        .getProcessors()
-                                        .values()
-                                        .stream()
-                                        .map(proc -> toComponentIndex(c.getLoader(), locale, c.getId(), proc,
-                                                c.get(ComponentManager.OriginalId.class))))))
-                .collect(toList())));
+        return indicesPerRequest.computeIfAbsent(new RequestKey(locale, includeIconContent),
+                k -> new ComponentIndices(manager
+                        .find(c -> c
+                                .execute(
+                                        () -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
+                                .flatMap(component -> Stream.concat(
+                                        component.getPartitionMappers().values().stream().map(
+                                                mapper -> toComponentIndex(c.getLoader(), locale, c.getId(), mapper,
+                                                        c.get(ComponentManager.OriginalId.class), includeIconContent)),
+                                        component
+                                                .getProcessors()
+                                                .values()
+                                                .stream()
+                                                .map(proc -> toComponentIndex(c.getLoader(), locale, c.getId(), proc,
+                                                        c.get(ComponentManager.OriginalId.class),
+                                                        includeIconContent)))))
+                        .collect(toList())));
     }
 
     @GET
@@ -402,7 +403,8 @@ public class ComponentResource {
     }
 
     private ComponentIndex toComponentIndex(final ClassLoader loader, final Locale locale, final String plugin,
-            final ComponentFamilyMeta.BaseMeta meta, final ComponentManager.OriginalId originalId) {
+            final ComponentFamilyMeta.BaseMeta meta, final ComponentManager.OriginalId originalId,
+            final boolean includeIcon) {
         final String icon = meta.getIcon();
         final String familyIcon = meta.getParent().getIcon();
         final IconResolver.Icon iconContent = iconResolver.resolve(loader, icon);
@@ -413,9 +415,9 @@ public class ComponentResource {
                         meta.getParent().getName(), meta.getName()),
                 meta.findBundle(loader, locale).displayName().orElse(meta.getName()),
                 new Icon(icon, iconContent == null ? null : iconContent.getType(),
-                        iconContent == null ? null : iconContent.getBytes()),
+                        !includeIcon ? null : (iconContent == null ? null : iconContent.getBytes())),
                 new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
-                        iconFamilyContent == null ? null : iconFamilyContent.getBytes()),
+                        !includeIcon ? null : (iconFamilyContent == null ? null : iconFamilyContent.getBytes())),
                 meta.getVersion(), meta.getParent().getCategories(), singletonList(new Link("Detail",
                         "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
     }

@@ -79,6 +79,7 @@ public class BraveConfiguration {
                         .addRule("POST", "/api/v1/execution", configuration.samplerExecutionRate())
                         .addRule("GET", "/api/v1/action", toActualRate(configuration.samplerActionRate()))
                         .addRule("POST", "/api/v1/action", toActualRate(configuration.samplerActionRate()))
+                        .addRule("GET", "/api/v1/documentation", toActualRate(configuration.samplerDocumentationRate()))
                         .build())
                 .clientSampler(HttpRuleSampler.newBuilder().build())
                 .build();

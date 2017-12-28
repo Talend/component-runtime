@@ -68,6 +68,7 @@ import org.talend.sdk.component.server.front.model.DependencyDefinition;
 import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+import org.talend.sdk.component.server.test.ComponentClient;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
 @RunWith(MonoMeecrowave.Runner.class)
@@ -78,6 +79,9 @@ public class ComponentResourceTest {
 
     @Inject
     private WebTarget base;
+
+    @Inject
+    private ComponentClient client;
 
     @Inject
     private WebsocketClient ws;
@@ -92,7 +96,7 @@ public class ComponentResourceTest {
 
     @Test
     public void getDependencies() {
-        final String compId = getJdbcId();
+        final String compId = client.getJdbcId();
         final Dependencies dependencies =
                 base.path("component/dependencies").queryParam("identifier", compId).request(APPLICATION_JSON_TYPE).get(
                         Dependencies.class);
@@ -132,20 +136,20 @@ public class ComponentResourceTest {
         final File zipLock = download.apply("org.apache.tomee:ziplock:jar:7.0.4");
         jarValidator.accept(zipLock);
 
-        final File component = download.apply(getJdbcId());
+        final File component = download.apply(client.getJdbcId());
         jarValidator.accept(component);
     }
 
     @Test
     public void getIndex() {
-        assertIndex(fetchIndex());
+        assertIndex(client.fetchIndex());
     }
 
     @Test
     public void migrate() {
         final Map<String, String> migrated = base
                 .path("component/migrate/{id}/{version}")
-                .resolveTemplate("id", getJdbcId())
+                .resolveTemplate("id", client.getJdbcId())
                 .resolveTemplate("version", 1)
                 .request(APPLICATION_JSON_TYPE)
                 .post(entity(new HashMap<String, String>() {
@@ -162,7 +166,8 @@ public class ComponentResourceTest {
     public void getDetails() {
         final ComponentDetailList details = base
                 .path("component/details")
-                .queryParam("identifiers", fetchIndex()
+                .queryParam("identifiers", client
+                        .fetchIndex()
                         .getComponents()
                         .stream()
                         .filter(c -> c.getId().getFamily().equals("chain") && c.getId().getName().equals("list"))
@@ -208,7 +213,7 @@ public class ComponentResourceTest {
     public void getDetailsMeta() {
         final ComponentDetailList details = base
                 .path("component/details")
-                .queryParam("identifiers", getJdbcId())
+                .queryParam("identifiers", client.getJdbcId())
                 .request(APPLICATION_JSON_TYPE)
                 .get(ComponentDetailList.class);
         assertEquals(1, details.getDetails().size());
@@ -240,17 +245,6 @@ public class ComponentResourceTest {
                 .getDefaultValue());
     }
 
-    private String getJdbcId() {
-        return fetchIndex()
-                .getComponents()
-                .stream()
-                .filter(c -> c.getId().getFamily().equals("jdbc") && c.getId().getName().equals("input"))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("no jdbc#input component"))
-                .getId()
-                .getId();
-    }
-
     private void assertValidation(final String path, final ComponentDetail aggregate,
             final Predicate<PropertyValidation> validator) {
         assertTrue(path, validator.test(findProperty(path, aggregate).getValidation()));
@@ -259,10 +253,6 @@ public class ComponentResourceTest {
     private SimplePropertyDefinition findProperty(final String path, final ComponentDetail aggregate) {
         return aggregate.getProperties().stream().filter(p -> p.getPath().equals(path)).findFirst().orElseThrow(
                 () -> new IllegalArgumentException("No path " + path));
-    }
-
-    private ComponentIndices fetchIndex() {
-        return base.path("component/index").request(APPLICATION_JSON_TYPE).get(ComponentIndices.class);
     }
 
     private void assertComponent(final String plugin, final String family, final String name, final String displayName,

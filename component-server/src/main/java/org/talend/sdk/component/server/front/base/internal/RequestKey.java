@@ -22,11 +22,14 @@ public class RequestKey {
 
     private final Locale locale;
 
+    private final boolean includeIconContent;
+
     private final int cacheHash;
 
-    public RequestKey(final Locale locale) {
+    public RequestKey(final Locale locale, final boolean includeIconContent) {
         this.locale = locale;
-        this.cacheHash = Objects.hash(locale);
+        this.includeIconContent = includeIconContent;
+        this.cacheHash = Objects.hash(locale, includeIconContent);
     }
 
     @Override
@@ -41,7 +44,7 @@ public class RequestKey {
             return false;
         }
         final RequestKey that = RequestKey.class.cast(o);
-        return Objects.equals(locale, that.locale);
+        return Objects.equals(locale, that.locale) && Objects.equals(includeIconContent, that.includeIconContent);
     }
 
     @Override
