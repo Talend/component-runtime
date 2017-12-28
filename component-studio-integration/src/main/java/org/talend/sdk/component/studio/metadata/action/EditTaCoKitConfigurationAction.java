@@ -30,7 +30,6 @@ import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationWizard;
-import org.talend.sdk.component.studio.ui.wizard.dialog.TaCoKitConfigurationWizardDialog;
 
 /**
  * DOC cmeng class global comment. Detailled comment
@@ -59,8 +58,8 @@ public class EditTaCoKitConfigurationAction extends AbstractCreateAction {
         runtimeData.setReadonly(false);
 
         IWizard wizard = new TaCoKitConfigurationWizard(PlatformUI.getWorkbench(), runtimeData);
-        WizardDialog wizardDialog = new TaCoKitConfigurationWizardDialog(
-                PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+        WizardDialog wizardDialog =
+                new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
         if (Platform.getOS().equals(Platform.OS_LINUX)) {
             wizardDialog.setPageSize(getWizardWidth(), getWizardHeight() + 80);
         }
