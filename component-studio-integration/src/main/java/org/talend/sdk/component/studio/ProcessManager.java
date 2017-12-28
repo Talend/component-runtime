@@ -16,7 +16,6 @@
 package org.talend.sdk.component.studio;
 
 import static java.lang.Thread.sleep;
-import static java.util.Arrays.asList;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,6 +39,7 @@ import java.util.zip.ZipEntry;
 import org.eclipse.m2e.core.MavenPlugin;
 import org.talend.core.runtime.maven.MavenConstants;
 import org.talend.osgi.hook.maven.MavenResolver;
+import org.talend.sdk.component.studio.service.StringPropertiesTokenizer;
 
 import lombok.Getter;
 
@@ -147,16 +147,10 @@ public class ProcessManager implements AutoCloseable {
 
         final String java = findJava();
         port = newPort();
-        final String[] jvmOptions = Stream
-                .of(System.getProperty("component.java.options", "-Xmx256m").split(" "))
-                .map(String::trim)
-                .filter(o -> !o.isEmpty())
-                .toArray(String[]::new);
-        final String[] arguments = Stream
-                .of(System.getProperty("component.java.arguments", "").split(" "))
-                .map(String::trim)
-                .filter(o -> !o.isEmpty())
-                .toArray(String[]::new);
+        final Collection<String> jvmOptions =
+                new StringPropertiesTokenizer(System.getProperty("component.java.options", "-Xmx256m")).tokens();
+        final Collection<String> arguments =
+                new StringPropertiesTokenizer(System.getProperty("component.java.arguments", "")).tokens();
 
         final File log4j2Config = Stream
                 .of(new File(studioConfigDir, "log4j2-components.xml"), new File(studioConfigDir, "log4j2.xml"))
@@ -174,7 +168,7 @@ public class ProcessManager implements AutoCloseable {
 
         final List<String> command = new ArrayList<>();
         command.add(java);
-        command.addAll(asList(jvmOptions));
+        command.addAll(jvmOptions);
 
         if (log4j2Config != null) {
             command.add("-Dlog4j.configurationFile=" + log4j2Config.getAbsolutePath());
@@ -208,9 +202,11 @@ public class ProcessManager implements AutoCloseable {
         command.add("-classpath");
         command.add(paths.stream().collect(Collectors.joining(File.pathSeparator)));
         command.add("org.apache.meecrowave.runner.Cli");
-        command.add("--http");
-        command.add(Integer.toString(port));
-        command.addAll(asList(arguments));
+        if (!arguments.contains("--http")) {
+            command.add("--http");
+            command.add(Integer.toString(port));
+        }
+        command.addAll(arguments);
 
         ready = new CountDownLatch(1);
 
