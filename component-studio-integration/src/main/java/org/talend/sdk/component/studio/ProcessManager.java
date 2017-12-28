@@ -16,6 +16,7 @@
 package org.talend.sdk.component.studio;
 
 import static java.lang.Thread.sleep;
+import static java.util.Optional.ofNullable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,7 +41,8 @@ import java.util.zip.ZipEntry;
 import org.eclipse.m2e.core.MavenPlugin;
 import org.talend.core.runtime.maven.MavenConstants;
 import org.talend.osgi.hook.maven.MavenResolver;
-import org.talend.sdk.component.studio.service.StringPropertiesTokenizer;
+import org.talend.sdk.component.studio.lang.LocalLock;
+import org.talend.sdk.component.studio.lang.StringPropertiesTokenizer;
 
 import lombok.Getter;
 
@@ -146,7 +149,6 @@ public class ProcessManager implements AutoCloseable {
         }
 
         final String java = findJava();
-        port = newPort();
         final Collection<String> jvmOptions =
                 new StringPropertiesTokenizer(System.getProperty("component.java.options", "-Xmx256m")).tokens();
         final Collection<String> arguments =
@@ -202,6 +204,14 @@ public class ProcessManager implements AutoCloseable {
         command.add("-classpath");
         command.add(paths.stream().collect(Collectors.joining(File.pathSeparator)));
         command.add("org.apache.meecrowave.runner.Cli");
+
+        final Lock lock = new LocalLock(
+                ofNullable(System.getProperty("component.lock.location")).map(File::new).orElseGet(
+                        () -> new File(System.getProperty("user.home"), ".talend/locks/" + GAV.ARTIFACT_ID + ".lock")),
+                null);
+        lock.lock();
+        port = newPort();
+
         if (!arguments.contains("--http")) {
             command.add("--http");
             command.add(Integer.toString(port));
@@ -215,6 +225,7 @@ public class ProcessManager implements AutoCloseable {
         try {
             process = pb.start();
         } catch (final IOException e) {
+            lock.unlock();
             throw new IllegalArgumentException(e);
         }
 
@@ -226,11 +237,12 @@ public class ProcessManager implements AutoCloseable {
 
             @Override
             public void run() {
+                lock.unlock();
                 close();
             }
         };
         new Thread() { // just a healthcheck to be able to ensure the server is up when starting to use
-                       // it (ou client)
+            // it (ou client)
 
             {
                 setName(getClass().getName() + "-readiness-checker");
@@ -241,11 +253,13 @@ public class ProcessManager implements AutoCloseable {
                 final long end = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(15);
                 while (end - System.currentTimeMillis() >= 0) {
                     if (!process.isAlive()) {
+                        lock.unlock();
                         throw new IllegalStateException("Component server process failed: " + process.exitValue());
                     }
 
                     try (final Socket s = new Socket("localhost", port)) {
                         new URL("http://localhost:" + port + "/api/v1/environment").openStream().close();
+                        lock.unlock();
                         ready.countDown();
                         return; // opened :)
                     } catch (final IOException e) {
@@ -256,6 +270,8 @@ public class ProcessManager implements AutoCloseable {
                             break;
                         }
                     }
+
+                    lock.unlock();
                 }
                 throw new IllegalStateException("Process " + command + " didnt start in 15mn!");
             }

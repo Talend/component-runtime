@@ -46,3 +46,14 @@ If you want to customize the server logs you can create a `$STUDIO_HOME/configu
 containing a link:https://logging.apache.org/log4j/2.x/[Log4j2] configuration.
 
 IMPORTANT: to activate the plugin and be able to deploy your component, don't forget to set `component.kit.skip` to `true`.
+
+=== Random port when running concurrent studio instances
+
+If you run multiple Studio instance automatically in parallel you can have some issues with the random port computation
+(can happen on a CI platform). For that purpose you can create the file `$HOME/.talend/locks/org.talend.sdk.component.studio-integration.lock`.
+
+When a server will start it will acquire a lock on that file and prevent another one to get a port until it is started. It ensures
+you can't get two concurrent processes getting the same allocated port.
+
+IMPORTANT: it is highly unlikely it happens on a desktop and forcing a different value through `component.java.port` in your `config.ini` is likely a better
+solution for local installations.

@@ -435,8 +435,7 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
 
         @Override
         protected Set<RepositoryNode> getTopNodes() {
-            Set<RepositoryNode> nodes = getTopLevelNodes();
-            return nodes;
+            return getTopLevelNodes();
         }
 
         @Override
