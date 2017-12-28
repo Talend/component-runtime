@@ -24,6 +24,11 @@
       <username>${env.TLND_BLACKDUCK_USER}</username>
       <password>${env.TLND_BLACKDUCK_PASS}</password>
     </server>
+    <server>
+      <id>npm</id>
+      <username>${env.NPM_USER}</username>
+      <password>${env.NPM_PASS}</password>
+    </server>
   </servers>
 
   <profiles>
