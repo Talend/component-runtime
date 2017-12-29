@@ -31,6 +31,13 @@ import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.metadata.node.TaCoKitFamilyRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
 
+/**
+ * Metadata contextual action which creates WizardDialog used to create Component configuration
+ * Some Repository nodes may have several create actions. E.g. Existing Datastore node may have 1 create action for
+ * Dataset it may create.
+ * Thus, this action is registered programmatically in NodeActionProvider class. Extension point creates only 1 action
+ * for each registered extension class
+ */
 public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualAction {
 
     public CreateTaCoKitConfigurationAction(final ConfigTypeNode configTypeNode) {

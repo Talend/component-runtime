@@ -22,7 +22,9 @@ import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
 
 /**
- * DOC cmeng class global comment. Detailled comment
+ * Metadata contextual action which creates WizardDialog used to edit Component configuration.
+ * Repository node may have only 1 edit action. This action is registered as extension point.
+ * Thus, it supports double click out of the box
  */
 public class EditTaCoKitConfigurationAction extends TaCoKitMetadataContextualAction {
 
