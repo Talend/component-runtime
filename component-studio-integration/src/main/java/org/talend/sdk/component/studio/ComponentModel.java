@@ -341,8 +341,13 @@ public class ComponentModel extends AbstractBasicComponent {
                             "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.VERSION));
                     modulesNeeded
                             .add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.SLF4J_VERSION));
-                    modulesNeeded.add(
-                            new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-log4j12/" + GAV.SLF4J_VERSION));
+                    if (isTos()) {
+                        modulesNeeded.add(new ModuleNeeded(getName(), "", true,
+                                "mvn:org.slf4j/slf4j-simple/" + GAV.SLF4J_VERSION));
+                    } else {
+                        modulesNeeded.add(new ModuleNeeded(getName(), "", true,
+                                "mvn:org.slf4j/slf4j-log4j12/" + GAV.SLF4J_VERSION));
+                    }
                     // We're assuming that pluginLocation has format of groupId:artifactId:version
                     final String location = index.getId().getPluginLocation().trim();
                     modulesNeeded.add(new ModuleNeeded(getName(), "", true, locationToMvn(location)));
@@ -350,6 +355,10 @@ public class ComponentModel extends AbstractBasicComponent {
             }
         }
         return modulesNeeded;
+    }
+
+    private boolean isTos() {
+        return "org.talend.rcp.branding.tos.product".equalsIgnoreCase(System.getProperty("eclipse.product"));
     }
 
     private String locationToMvn(final String location) {
