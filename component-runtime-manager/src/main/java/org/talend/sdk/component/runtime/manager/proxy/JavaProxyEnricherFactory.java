@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.manager.proxy;
 
-import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
-
 import java.io.Externalizable;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -70,14 +68,14 @@ public class JavaProxyEnricherFactory {
                 case "equals":
                     return args != null && args.length == 1 && method.getDeclaringClass().isInstance(args[0])
                             && Proxy.isProxyClass(args[0].getClass()) && (this == Proxy.getInvocationHandler(args[0])
-                                    || delegate == Proxy.getInvocationHandler(args[0]));
+                            || delegate == Proxy.getInvocationHandler(args[0]));
                 default:
                 }
             }
             try {
                 return method.invoke(delegate, args);
             } catch (final InvocationTargetException ite) {
-                throw toRuntimeException(ite);
+                throw ite.getTargetException();
             }
         }
 

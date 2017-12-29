@@ -36,11 +36,7 @@ public class DelegateHandler implements InvocationHandler {
         try {
             return doInvoke(method, args);
         } catch (final InvocationTargetException ite) {
-            final Throwable targetException = ite.getTargetException();
-            if (RuntimeException.class.isInstance(targetException)) {
-                throw RuntimeException.class.cast(targetException);
-            }
-            throw new IllegalStateException(targetException);
+            throw ite.getTargetException();
         }
     }
 

@@ -69,7 +69,7 @@ public class StreamDecorator implements InvocationHandler {
             }
             return result;
         } catch (final InvocationTargetException ite) {
-            throw toRuntimeException(ite);
+            throw ite.getTargetException();
         }
     }
 

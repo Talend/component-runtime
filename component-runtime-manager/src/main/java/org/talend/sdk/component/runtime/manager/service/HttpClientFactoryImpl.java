@@ -384,7 +384,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                             return new ResponseImpl(responseCode, decoder, responseType, headers(urlConnection),
                                     response, null);
                         } catch (final IOException e) {
-                            error = slurp(urlConnection.getErrorStream());
+                            error = ofNullable(urlConnection.getErrorStream()).map(HttpClientFactoryImpl::slurp).orElseGet(() -> ofNullable(e.getMessage()).map(s -> s.getBytes(StandardCharsets.UTF_8)).orElse(null));
                             final Response<Object> errorResponse = new ResponseImpl(responseCode, decoder, responseType,
                                     headers(urlConnection), null, error);
 
