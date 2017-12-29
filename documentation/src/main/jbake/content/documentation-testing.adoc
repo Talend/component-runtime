@@ -90,6 +90,7 @@ To import it add to your project the following dependency:
 </dependency>
 ----
 
+==== JUnit 4
 
 Then you can define a standard JUnit test and use the `SimpleComponentRule` rule:
 
@@ -119,6 +120,44 @@ public class MyComponentTest {
 <1> the rule will create a component manager and provide two mock components: an emitter and a collector. Don't forget to set the root package of your component to enable it.
 <2> you define any chain you want to test, it generally uses the mock as source or collector
 <3> you validate your component behavior, for a source you can assert the right records were emitted in the mock collect
+
+==== JUnit 5
+
+The JUnit 5 integration is mainly the same as for JUnit 4 except it uses the new JUnit 5 extension mecanism.
+
+The entry point is the `@WithComponents` annotation you put on your test class which takes the
+component package you want to test and you can use `@Injected` to inject in a test class field an instance of `ComponentsHandler`
+which exposes the same utilities than the JUnit 4 rule:
+
+[source,java]
+----
+@WithComponents("org.talend.sdk.component.junit.component") <1>
+public class ComponentExtensionTest {
+    @Injected <2>
+    private ComponentsHandler handler;
+
+    @Test
+    public void manualMapper() {
+        final Mapper mapper = handler.createMapper(Source.class, new Source.Config() {
+
+            {
+                values = asList("a", "b");
+            }
+        });
+        assertFalse(mapper.isStream());
+        final Input input = mapper.create();
+        assertEquals("a", input.next());
+        assertEquals("b", input.next());
+        assertNull(input.next());
+    }
+}
+----
+
+<1> The annotation defines which components to register in the test context.
+<2> The field allows to get the handler to be able to orchestrate the tests.
+
+NOTE: if it is the first time you use JUnit 5, don't forget the imports changed and you must use `org.junit.jupiter.api.Test` instead of `org.junit.Test`.
+Some IDE versions and `surefire` versions can also need you to install either a plugin or a specific configuration.
 
 ==== Mocking the output
 

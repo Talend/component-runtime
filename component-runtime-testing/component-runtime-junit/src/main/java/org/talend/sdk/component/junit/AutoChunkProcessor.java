@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
  * Processor wrapper allowing to "auto" manage the chunking/grouping.
  */
 @RequiredArgsConstructor
-class AutoChunkProcessor implements Lifecycle {
+public class AutoChunkProcessor implements Lifecycle {
 
     private static final OutputFactory FAILING_OUTPUT_FACTORY = name -> {
         throw new IllegalArgumentException("Output from @AfterGroup is not supported here");
