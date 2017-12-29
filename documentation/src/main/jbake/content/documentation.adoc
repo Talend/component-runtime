@@ -1197,7 +1197,9 @@ The `HttpClient` interface lets you set the `base` for the http address that our
 The `base` is the part of the address that we will need to add to the request path to hit the api.
 
 Every method annotated with `@Request` of our interface will define an http request.
-Also every request can have `@Codec` that let us encode and decode the request playloads.
+Also every request can have `@Codec` that let us encode/decode the request/response playloads.
+
+TIP: if your payload(s) is(are) `String` or `Void` you can ignore the coder/decoder.
 
 [source,java]
 ----

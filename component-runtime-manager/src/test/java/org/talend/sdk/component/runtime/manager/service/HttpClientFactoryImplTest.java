@@ -28,6 +28,7 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
@@ -42,6 +43,7 @@ import org.talend.sdk.component.api.service.http.HttpException;
 import org.talend.sdk.component.api.service.http.Path;
 import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
+import org.talend.sdk.component.api.service.http.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -51,7 +53,9 @@ public class HttpClientFactoryImplTest {
 
     @Test
     public void ok() {
-        assertTrue(HttpClientFactoryImpl.createErrors(ComplexOk.class).isEmpty());
+        assertNoError(HttpClientFactoryImpl.createErrors(ComplexOk.class));
+        assertNoError(HttpClientFactoryImpl.createErrors(ResponseString.class));
+        assertNoError(HttpClientFactoryImpl.createErrors(ResponseVoid.class));
     }
 
     @Test
@@ -60,7 +64,7 @@ public class HttpClientFactoryImplTest {
                 singletonList("public abstract java.lang.String "
                         + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$EncoderKo.main("
                         + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$Payload) "
-                        + "defines a payload without an adapted coder"),
+                        + "defines a request payload without an adapted coder"),
                 HttpClientFactoryImpl.createErrors(EncoderKo.class));
     }
 
@@ -69,7 +73,8 @@ public class HttpClientFactoryImplTest {
         assertEquals(singletonList("public abstract "
                 + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$Payload "
                 + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$DecoderKo.main(java.lang.String) "
-                + "defines a payload without an adapted coder"), HttpClientFactoryImpl.createErrors(DecoderKo.class));
+                + "defines a response payload without an adapted coder"),
+                HttpClientFactoryImpl.createErrors(DecoderKo.class));
     }
 
     @Test
@@ -117,6 +122,14 @@ public class HttpClientFactoryImplTest {
                     "POST@" + "Authorization=token/" + "Connection=keep-alive/" + "Content-length=4/"
                             + "Content-type=application/x-www-form-urlencoded@" + "/api/?q=search+yes@" + "test",
                     result);
+
+            final Response<Payload> response = ok.main4Response(new Payload("test"), "token", 1, "search yes");
+            assertEquals(
+                    "POST@" + "Authorization=token/" + "Connection=keep-alive/" + "Content-length=4/"
+                            + "Content-type=application/x-www-form-urlencoded@" + "/api/?q=search+yes@" + "test",
+                    response.body().value);
+            assertEquals(HttpURLConnection.HTTP_OK, response.status());
+            assertEquals("134", response.headers().get("content-length").iterator().next());
         } finally {
             server.stop(0);
         }
@@ -130,7 +143,7 @@ public class HttpClientFactoryImplTest {
             final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
             ok.base("http://localhost:" + server.getAddress().getPort() + "/api");
             ok.main1("search yes");
-        } catch (HttpException e) {
+        } catch (final HttpException e) {
             assertEquals(HttpURLConnection.HTTP_FORBIDDEN, e.getResponse().status());
             assertEquals(
                     "POST@Connection=keep-alive/Content-length=10/Content-type=application/x-www-form-urlencoded@/api/@search yes",
@@ -140,7 +153,11 @@ public class HttpClientFactoryImplTest {
         }
     }
 
-    public HttpServer createTestServer(int responseStatus) throws IOException {
+    private void assertNoError(final Collection<String> errors) {
+        assertTrue(errors.toString(), errors.isEmpty());
+    }
+
+    private HttpServer createTestServer(int responseStatus) throws IOException {
         final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
         server.createContext("/").setHandler(httpExchange -> {
             final Headers headers = httpExchange.getRequestHeaders();
@@ -183,6 +200,11 @@ public class HttpClientFactoryImplTest {
         @Codec(decoder = PayloadCodec.class, encoder = PayloadCodec.class)
         Payload main4(Payload ok, @Header("Authorization") String auth, @Path("id") int id, @Query("q") String q);
 
+        @Request
+        @Codec(decoder = PayloadCodec.class, encoder = PayloadCodec.class)
+        Response<Payload> main4Response(Payload ok, @Header("Authorization") String auth, @Path("id") int id,
+                @Query("q") String q);
+
         default Payload defaultMain1(Payload ok, String q) {
             return main4(ok, "token", 1, q);
         }
@@ -209,6 +231,18 @@ public class HttpClientFactoryImplTest {
 
         @Request
         String main();
+    }
+
+    public interface ResponseString extends HttpClient {
+
+        @Request
+        Response<String> main();
+    }
+
+    public interface ResponseVoid extends HttpClient {
+
+        @Request
+        Response<Void> main();
     }
 
     @Data

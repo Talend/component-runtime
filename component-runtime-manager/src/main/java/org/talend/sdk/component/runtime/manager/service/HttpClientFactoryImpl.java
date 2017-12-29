@@ -16,8 +16,10 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -41,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
@@ -97,13 +101,28 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             return (codec == null || codec.encoder() == Encoder.class) && Stream
                     .of(m.getParameters())
                     .filter(p -> Stream.of(Path.class, Query.class, Header.class).noneMatch(p::isAnnotationPresent))
-                    .anyMatch(p -> p.getType() != String.class);
-        }).map(m -> m + " defines a payload without an adapted coder").collect(toList()));
+                    .anyMatch(p -> isNotSupportedByDefaultCodec(p.getParameterizedType()));
+        }).map(m -> m + " defines a request payload without an adapted coder").collect(toList()));
         errors.addAll(methods.stream().filter(m -> {
             final Codec codec = m.getAnnotation(Codec.class);
-            return (codec == null || codec.decoder() == Decoder.class) && String.class != m.getReturnType();
-        }).map(m -> m + " defines a payload without an adapted coder").collect(toList()));
+            return (codec == null || codec.decoder() == Decoder.class)
+                    && isNotSupportedByDefaultCodec(m.getGenericReturnType());
+        }).map(m -> m + " defines a response payload without an adapted coder").collect(toList()));
         return errors;
+    }
+
+    private static boolean isNotSupportedByDefaultCodec(final Type type) {
+        Class<?> cType = null;
+        if (Class.class.isInstance(type)) {
+            cType = Class.class.cast(type);
+        } else if (ParameterizedType.class.isInstance(type)) {
+            final ParameterizedType pt = ParameterizedType.class.cast(type);
+            if (pt.getRawType() == Response.class && pt.getActualTypeArguments().length == 1
+                    && Class.class.isInstance(pt.getActualTypeArguments()[0])) {
+                cType = Class.class.cast(pt.getActualTypeArguments()[0]);
+            }
+        }
+        return cType != String.class && cType != Void.class;
     }
 
     private static byte[] slurp(final InputStream responseStream) {
@@ -354,19 +373,19 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         }
 
                         final int responseCode = urlConnection.getResponseCode();
-                        byte[] error = null;
-                        byte[] response = null;
+                        final byte[] error;
+                        final byte[] response;
                         try {
                             response = slurp(urlConnection.getInputStream());
                             if (!isResponse) {
                                 return decoder.decode(response, responseType);
                             }
-                            return new ResponseImpl(responseCode, decoder, responseType,
-                                    urlConnection.getHeaderFields(), response, null);
+                            return new ResponseImpl(responseCode, decoder, responseType, headers(urlConnection),
+                                    response, null);
                         } catch (final IOException e) {
                             error = slurp(urlConnection.getErrorStream());
                             final Response<Object> errorResponse = new ResponseImpl(responseCode, decoder, responseType,
-                                    urlConnection.getHeaderFields(), null, error);
+                                    headers(urlConnection), null, error);
 
                             if (isResponse) {
                                 return errorResponse;
@@ -383,6 +402,13 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     }
                 };
             }).orElseGet(() -> params -> delegate(method, args))).apply(args);
+        }
+
+        private Map<String, List<String>> headers(final HttpURLConnection urlConnection) {
+            return urlConnection.getHeaderFields().keySet().stream().filter(Objects::nonNull).collect(
+                    toMap(identity(), urlConnection.getHeaderFields()::get, (k, v) -> {
+                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                    }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
         }
 
         private Object delegate(final Method method, final Object[] args) {
@@ -422,7 +448,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     throw new IllegalArgumentException(e.getTargetException());
                 }
             }
-            return (value, expectedType) -> new String(value);
+            return (value, expectedType) -> value == null ? null : new String(value);
         }
     }
 
