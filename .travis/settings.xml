@@ -38,6 +38,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
+        <talend.component.kit.build.studio.m2.forceupdate>true</talend.component.kit.build.studio.m2.forceupdate>
         <additionalparam>-Xdoclint:none</additionalparam>
         <gpg.executable>gpg</gpg.executable>
         <gpg.defaultKeyring>false</gpg.defaultKeyring>
