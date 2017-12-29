@@ -12,7 +12,6 @@
  */
 package org.talend.sdk.component.studio.metadata.action;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -20,59 +19,21 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
-import org.talend.core.repository.ui.actions.metadata.AbstractCreateAction;
-import org.talend.repository.ProjectManager;
 import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.RepositoryNode;
-import org.talend.repository.ui.views.IRepositoryView;
-import org.talend.sdk.component.server.front.model.ConfigTypeNode;
-import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
-import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationWizard;
-import org.talend.sdk.component.studio.ui.wizard.dialog.TaCoKitConfigurationWizardDialog;
+import org.talend.sdk.component.studio.ui.wizard.TaCoKitEditWizard;
 
 /**
- * DOC cmeng class global comment. Detailled comment
+ * Metadata contextual action which creates WizardDialog used to edit Component configuration.
+ * Repository node may have only 1 edit action. This action is registered as extension point.
+ * Thus, it supports double click out of the box
  */
-public class EditTaCoKitConfigurationAction extends AbstractCreateAction {
-
-    private static final int DEFAULT_WIZARD_WIDTH = 700;
-
-    private static final int DEFAULT_WIZARD_HEIGHT = 400;
-
-    private ITaCoKitRepositoryNode repositoryNode;
-
-    private ConfigTypeNode configTypeNode;
+public class EditTaCoKitConfigurationAction extends TaCoKitMetadataContextualAction {
 
     public EditTaCoKitConfigurationAction() {
         super();
-    }
-
-    @Override
-    protected void doRun() {
-        TaCoKitConfigurationRuntimeData runtimeData = new TaCoKitConfigurationRuntimeData();
-        runtimeData.setTaCoKitRepositoryNode(repositoryNode);
-        runtimeData.setConfigTypeNode(repositoryNode.getConfigTypeNode());
-        runtimeData.setConnectionItem((ConnectionItem) repositoryNode.getObject().getProperty().getItem());
-        runtimeData.setCreation(false);
-        runtimeData.setReadonly(false);
-
-        IWizard wizard = new TaCoKitConfigurationWizard(PlatformUI.getWorkbench(), runtimeData);
-        WizardDialog wizardDialog = new TaCoKitConfigurationWizardDialog(
-                PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
-        if (Platform.getOS().equals(Platform.OS_LINUX)) {
-            wizardDialog.setPageSize(getWizardWidth(), getWizardHeight() + 80);
-        }
-        wizardDialog.create();
-        int result = wizardDialog.open();
-        if (result == WizardDialog.OK) {
-            IRepositoryView viewPart = getViewPart();
-            if (viewPart != null) {
-                viewPart.setFocus();
-                refresh(repositoryNode);
-            }
-        }
     }
 
     @Override
@@ -85,10 +46,9 @@ public class EditTaCoKitConfigurationAction extends AbstractCreateAction {
             setEnabled(false);
             return;
         }
-        this.repositoryNode = (ITaCoKitRepositoryNode) node;
-        this.configTypeNode = repositoryNode.getConfigTypeNode();
-        this.setText(getCreateLabel());
-        this.setToolTipText(getEditLabel());
+        setRepositoryNode((ITaCoKitRepositoryNode) node);
+        setConfigTypeNode(repositoryNode.getConfigTypeNode());
+        setToolTipText(getEditLabel());
         Image nodeImage = getNodeImage();
         if (nodeImage != null) {
             this.setImageDescriptor(ImageDescriptor.createFromImage(nodeImage));
@@ -97,17 +57,13 @@ public class EditTaCoKitConfigurationAction extends AbstractCreateAction {
         switch (node.getType()) {
         case SIMPLE_FOLDER:
         case SYSTEM_FOLDER:
-            if (factory.isUserReadOnlyOnCurrentProject()
-                    || !ProjectManager.getInstance().isInCurrentMainProject(node)) {
-                setEnabled(false);
-                return;
-            }
-            if (node.getObject() != null && node.getObject().getProperty().getItem().getState().isDeleted()) {
+            if (isUserReadOnly() || belongsToCurrentProject(node) || isDeleted(node)) {
                 setEnabled(false);
                 return;
             }
             this.setText(getCreateLabel());
             collectChildNames(node);
+            setEnabled(true);
             break;
         case REPOSITORY_ELEMENT:
             if (factory.isPotentiallyEditable(node.getObject()) && isLastVersion(node)) {
@@ -116,47 +72,27 @@ public class EditTaCoKitConfigurationAction extends AbstractCreateAction {
             } else {
                 this.setText(getOpenLabel());
             }
+            setEnabled(true);
             break;
         default:
             return;
         }
-        setEnabled(true);
-    }
-
-    protected int getWizardWidth() {
-        return DEFAULT_WIZARD_WIDTH;
-    }
-
-    protected int getWizardHeight() {
-        return DEFAULT_WIZARD_HEIGHT;
-    }
-
-    protected String getCreateLabel() {
-        return Messages.getString("TaCoKitConfiguration.action.createLabel", configTypeNode.getConfigurationType(), //$NON-NLS-1$
-                configTypeNode.getDisplayName());
-    }
-
-    protected String getEditLabel() {
-        return Messages.getString("TaCoKitConfiguration.action.editLabel", configTypeNode.getConfigurationType(), //$NON-NLS-1$
-                configTypeNode.getDisplayName());
-    }
-
-    protected String getOpenLabel() {
-        return Messages.getString("TaCoKitConfiguration.action.openLabel", configTypeNode.getConfigurationType(), //$NON-NLS-1$
-                configTypeNode.getDisplayName());
-    }
-
-    protected String getNodeLabel() {
-        return repositoryNode.getDisplayText();
-    }
-
-    protected Image getNodeImage() {
-        return null;
     }
 
     @Override
-    public Class getClassForDoubleClick() {
-        return ConnectionItem.class;
+    protected WizardDialog createWizardDialog() {
+        IWizard wizard = new TaCoKitEditWizard(PlatformUI.getWorkbench(), createRuntimeData());
+        return new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+    }
+
+    private TaCoKitConfigurationRuntimeData createRuntimeData() {
+        TaCoKitConfigurationRuntimeData runtimeData = new TaCoKitConfigurationRuntimeData();
+        runtimeData.setTaCoKitRepositoryNode(repositoryNode);
+        runtimeData.setConfigTypeNode(repositoryNode.getConfigTypeNode());
+        runtimeData.setConnectionItem((ConnectionItem) repositoryNode.getObject().getProperty().getItem());
+        runtimeData.setCreation(false);
+        runtimeData.setReadonly(false);
+        return runtimeData;
     }
 
 }

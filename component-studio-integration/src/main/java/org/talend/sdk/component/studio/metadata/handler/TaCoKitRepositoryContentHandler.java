@@ -54,7 +54,7 @@ import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemMo
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.node.TaCoKitConfigurationRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
-import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationWizard;
+import org.talend.sdk.component.studio.ui.wizard.TaCoKitCreateWizard;
 import org.talend.sdk.component.studio.util.ETaCoKitImage;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
@@ -285,17 +285,13 @@ public class TaCoKitRepositoryContentHandler extends AbstractRepositoryContentHa
         if (!(node instanceof TaCoKitConfigurationRepositoryNode)) {
             return null;
         }
-        IWorkbench wb = workbench;
-        if (wb == null) {
-            wb = PlatformUI.getWorkbench();
-        }
-
+        IWorkbench wb = workbench != null ? workbench : PlatformUI.getWorkbench();
         TaCoKitConfigurationRuntimeData runtimeData = new TaCoKitConfigurationRuntimeData();
         runtimeData.setTaCoKitRepositoryNode((TaCoKitConfigurationRepositoryNode) node);
         runtimeData.setCreation(true);
         runtimeData.setReadonly(false);
 
-        return new TaCoKitConfigurationWizard(wb, runtimeData);
+        return new TaCoKitCreateWizard(wb, runtimeData);
     }
 
 }
