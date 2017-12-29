@@ -122,7 +122,8 @@ def doIndex= { base ->
 def addDependency = { base, localRepo, gav, index ->
     def gavSplit = gav.split(':')
     def localPathJar = new File(localRepo, "${gavSplit[0].replace('.', '/')}/${gavSplit[1]}/${gavSplit[2]}/${gavSplit[1]}-${gavSplit[2]}.jar")
-    if (!localPathJar.exists() || (!useReleaseVersion && Boolean.parseBoolean(project.properties['talend.component.kit.build.studio.m2.forceupdate'])) {
+    if (!localPathJar.exists() ||
+            (!useReleaseVersion && Boolean.parseBoolean(System.getProperty('talend.component.kit.build.studio.m2.forceupdate', project.properties['talend.component.kit.build.studio.m2.forceupdate'])))) {
         if (index.isEmpty()) { // not needed after first download
             index.putAll(doIndex(studioRepo))
         }
