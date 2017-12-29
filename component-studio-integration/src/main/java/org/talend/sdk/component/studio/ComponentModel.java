@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.talend.core.PluginChecker;
 import org.talend.core.model.components.ComponentCategory;
 import org.talend.core.model.components.EComponentType;
 import org.talend.core.model.general.ModuleNeeded;
@@ -341,7 +342,7 @@ public class ComponentModel extends AbstractBasicComponent {
                             "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.VERSION));
                     modulesNeeded
                             .add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.SLF4J_VERSION));
-                    if (isTos()) {
+                    if (!PluginChecker.isTIS()) {
                         modulesNeeded.add(new ModuleNeeded(getName(), "", true,
                                 "mvn:org.slf4j/slf4j-simple/" + GAV.SLF4J_VERSION));
                     } else {
@@ -355,10 +356,6 @@ public class ComponentModel extends AbstractBasicComponent {
             }
         }
         return modulesNeeded;
-    }
-
-    private boolean isTos() {
-        return "org.talend.rcp.branding.tos.product".equalsIgnoreCase(System.getProperty("eclipse.product"));
     }
 
     private String locationToMvn(final String location) {
