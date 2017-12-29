@@ -30,6 +30,7 @@ import org.talend.commons.ui.runtime.exception.ExceptionMessageDialog;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.repository.RepositoryManager;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
+import org.talend.metadata.managment.ui.wizard.CheckLastVersionRepositoryWizard;
 import org.talend.metadata.managment.ui.wizard.metadata.connection.Step0WizardPage;
 import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.IRepositoryNode.ENodeType;
@@ -45,20 +46,25 @@ import org.talend.sdk.component.studio.util.TaCoKitConst;
 /**
  * DOC cmeng class global comment. Detailled comment
  */
-public class TaCoKitConfigurationWizard extends AbsTaCoKitWizard {
+public class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard {
 
-    private Step0WizardPage propertiesWizardPage;
+    private final TaCoKitConfigurationRuntimeData runtimeData;
 
-    private TaCoKitConfigurationWizardPage wizardPage;
+    private Step0WizardPage wizardPropertiesPage;
+
+    private TaCoKitConfigurationWizardPage configurationPage;
 
     public TaCoKitConfigurationWizard(final IWorkbench workbench, final TaCoKitConfigurationRuntimeData runtimeData) {
-        super(workbench, runtimeData);
+        super(workbench, runtimeData.isCreation(), runtimeData.isReadonly());
+        this.runtimeData = runtimeData;
+        init();
     }
 
-    @Override
-    protected void init() {
-        super.init();
-        TaCoKitConfigurationRuntimeData runtimeData = getTaCoKitConfigurationRuntimeData();
+    /**
+     * Part of constructor
+     */
+    private void init() {
+        this.existingNames = runtimeData.getExistingNames();
 
         creation = runtimeData.isCreation();
         connectionItem = runtimeData.getConnectionItem();
@@ -102,23 +108,22 @@ public class TaCoKitConfigurationWizard extends AbsTaCoKitWizard {
 
     @Override
     public void addPages() {
-        TaCoKitConfigurationRuntimeData runtimeData = getTaCoKitConfigurationRuntimeData();
-        propertiesWizardPage = new Step0WizardPage(runtimeData.getConnectionItem().getProperty(), pathToSave,
+        wizardPropertiesPage = new Step0WizardPage(runtimeData.getConnectionItem().getProperty(), pathToSave,
                 TaCoKitConst.METADATA_TACOKIT, runtimeData.isReadonly(), creation);
         ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
-        propertiesWizardPage.setTitle(Messages.getString("TaCoKitConfiguration.wizard.title", //$NON-NLS-1$
+        wizardPropertiesPage.setTitle(Messages.getString("TaCoKitConfiguration.wizard.title", //$NON-NLS-1$
                 configTypeNode.getConfigurationType(), configTypeNode.getDisplayName()));
-        propertiesWizardPage.setDescription(""); //$NON-NLS-1$
-        addPage(propertiesWizardPage);
+        wizardPropertiesPage.setDescription(""); //$NON-NLS-1$
+        addPage(wizardPropertiesPage);
 
-        wizardPage = new TaCoKitConfigurationWizardPage(runtimeData);
-        addPage(wizardPage);
+        configurationPage = new TaCoKitConfigurationWizardPage(runtimeData);
+        addPage(configurationPage);
 
     }
 
     @Override
     public boolean performFinish() {
-        if (wizardPage.isPageComplete()) {
+        if (configurationPage.isPageComplete()) {
             try {
 
                 IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -168,7 +173,6 @@ public class TaCoKitConfigurationWizard extends AbsTaCoKitWizard {
         IProxyRepositoryFactory factory = ProxyRepositoryFactory.getInstance();
         if (creation) {
             String nextId = factory.getNextId();
-            TaCoKitConfigurationRuntimeData runtimeData = getTaCoKitConfigurationRuntimeData();
             ITaCoKitRepositoryNode taCoKitRepositoryNode = runtimeData.getTaCoKitRepositoryNode();
             ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
             String id = configTypeNode.getId();
@@ -184,14 +188,14 @@ public class TaCoKitConfigurationWizard extends AbsTaCoKitWizard {
                 model.setParentItemId(taCoKitRepositoryNode.getObject().getId());
             }
 
-            factory.create(connectionItem, propertiesWizardPage.getDestinationPath());
+            factory.create(connectionItem, wizardPropertiesPage.getDestinationPath());
 
             RepositoryManager.refreshCreatedNode(TaCoKitConst.METADATA_TACOKIT);
             // RepositoryUpdateManager.updateFileConnection(connectionItem);
 
         } else {
             updateConnectionItem();
-            refreshInFinish(propertiesWizardPage.isNameModifiedByUser());
+            refreshInFinish(wizardPropertiesPage.isNameModifiedByUser());
         }
     }
 
