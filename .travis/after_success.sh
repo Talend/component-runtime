@@ -10,17 +10,14 @@ fi
 
 OPTS="--batch-mode --settings $PWD/.travis/settings.xml"
 
-mvn clean deploy -Dhub-detect.skip=true -DskipTests -Dinvoker.skip=true -Possrh -Prelease $OPTS
-deployStatus=$(echo $?)
-
-mvn clean verify -Dhub-detect.skip=false -DskipTests -Dinvoker.skip=true -Dskip.yarn=true -Possrh -Prelease $OPTS
-hubDetectStatus=$(echo $?)
+function _run() {
+    echo $(date +%X)
+    eval $@ && echo "Status: $?"
+    echo $(date +%X)
+}
+_run mvn clean deploy -Dhub-detect.skip=true -DskipTests -Dinvoker.skip=true -Possrh -Prelease $OPTS
+_run mvn clean verify -Dhub-detect.skip=false -DskipTests -Dinvoker.skip=true -Dskip.yarn=true -Possrh -Prelease $OPTS
 
 cd documentation
-    mvn clean verify -Pgh-pages -Dgithub.site.profile=latest $OPTS
-    docStatus=$(echo $?)
+    _run mvn clean verify -Pgh-pages -Dgithub.site.profile=latest $OPTS
 cd -
-
-echo "Deploy        : ${deployStatus}"
-echo "Blackduck     : ${hubDetectStatus}"
-echo "Documentation : ${docStatus}"
