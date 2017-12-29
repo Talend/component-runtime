@@ -16,10 +16,8 @@
 package org.talend.sdk.component.studio.metadata.action;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.PlatformUI;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.core.repository.ui.actions.metadata.AbstractCreateAction;
@@ -29,8 +27,6 @@ import org.talend.repository.ui.views.IRepositoryView;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
-import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
-import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationWizard;
 
 import lombok.Setter;
 
@@ -64,10 +60,7 @@ public abstract class TaCoKitMetadataContextualAction extends AbstractCreateActi
         openWizardDialog(wizardDialog);
     }
 
-    private WizardDialog createWizardDialog() {
-        IWizard wizard = new TaCoKitConfigurationWizard(PlatformUI.getWorkbench(), createRuntimeData());
-        return new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
-    }
+    protected abstract WizardDialog createWizardDialog();
 
     private void openWizardDialog(final WizardDialog wizardDialog) {
         if (Platform.getOS().equals(Platform.OS_LINUX)) {
@@ -83,8 +76,6 @@ public abstract class TaCoKitMetadataContextualAction extends AbstractCreateActi
             }
         }
     }
-
-    protected abstract TaCoKitConfigurationRuntimeData createRuntimeData();
 
     protected int getWizardWidth() {
         return DEFAULT_WIZARD_WIDTH;

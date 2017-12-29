@@ -13,7 +13,10 @@
 package org.talend.sdk.component.studio.metadata.action;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.wizard.IWizard;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PlatformUI;
 import org.talend.commons.utils.VersionUtils;
 import org.talend.core.CorePlugin;
 import org.talend.core.context.Context;
@@ -30,6 +33,7 @@ import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.metadata.node.TaCoKitFamilyRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
+import org.talend.sdk.component.studio.ui.wizard.TaCoKitCreateWizard;
 
 /**
  * Metadata contextual action which creates WizardDialog used to create Component configuration
@@ -75,7 +79,12 @@ public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualA
     }
 
     @Override
-    protected TaCoKitConfigurationRuntimeData createRuntimeData() {
+    protected WizardDialog createWizardDialog() {
+        IWizard wizard = new TaCoKitCreateWizard(PlatformUI.getWorkbench(), createRuntimeData());
+        return new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+    }
+
+    private TaCoKitConfigurationRuntimeData createRuntimeData() {
         TaCoKitConfigurationRuntimeData runtimeData = new TaCoKitConfigurationRuntimeData();
         runtimeData.setTaCoKitRepositoryNode(repositoryNode);
         runtimeData.setConfigTypeNode(configTypeNode);

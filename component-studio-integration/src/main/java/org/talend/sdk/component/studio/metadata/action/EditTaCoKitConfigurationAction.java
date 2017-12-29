@@ -13,13 +13,17 @@
 package org.talend.sdk.component.studio.metadata.action;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.wizard.IWizard;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PlatformUI;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
+import org.talend.sdk.component.studio.ui.wizard.TaCoKitEditWizard;
 
 /**
  * Metadata contextual action which creates WizardDialog used to edit Component configuration.
@@ -76,7 +80,12 @@ public class EditTaCoKitConfigurationAction extends TaCoKitMetadataContextualAct
     }
 
     @Override
-    protected TaCoKitConfigurationRuntimeData createRuntimeData() {
+    protected WizardDialog createWizardDialog() {
+        IWizard wizard = new TaCoKitEditWizard(PlatformUI.getWorkbench(), createRuntimeData());
+        return new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+    }
+
+    private TaCoKitConfigurationRuntimeData createRuntimeData() {
         TaCoKitConfigurationRuntimeData runtimeData = new TaCoKitConfigurationRuntimeData();
         runtimeData.setTaCoKitRepositoryNode(repositoryNode);
         runtimeData.setConfigTypeNode(repositoryNode.getConfigTypeNode());

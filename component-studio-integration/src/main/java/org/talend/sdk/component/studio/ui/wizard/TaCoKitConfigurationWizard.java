@@ -16,37 +16,30 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.IWorkbench;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.ui.runtime.exception.ExceptionMessageDialog;
-import org.talend.core.model.properties.ConnectionItem;
-import org.talend.core.model.repository.RepositoryManager;
-import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.metadata.managment.ui.wizard.CheckLastVersionRepositoryWizard;
 import org.talend.metadata.managment.ui.wizard.metadata.connection.Step0WizardPage;
-import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.IRepositoryNode.ENodeType;
 import org.talend.repository.model.RepositoryNodeUtilities;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.i18n.Messages;
-import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
-import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.page.TaCoKitConfigurationWizardPage;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
 
+import lombok.Getter;
+
 /**
- * DOC cmeng class global comment. Detailled comment
+ * Base class for Repository Metadata wizards
  */
-public class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard {
+@Getter(lombok.AccessLevel.PROTECTED)
+public abstract class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard {
 
     private final TaCoKitConfigurationRuntimeData runtimeData;
 
@@ -114,20 +107,9 @@ public class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard
     }
 
     /**
-     * Part of constructor
-     * Sets window title depending on whether it is {@code creation} wizard or editing
+     * Part of constructor, sets window title
      */
-    private void setWindowTitle() {
-        ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
-        if (creation) {
-            setWindowTitle(Messages.getString("TaCoKitConfiguration.wizard.title.create", //$NON-NLS-1$
-                    configTypeNode.getConfigurationType(), configTypeNode.getDisplayName()));
-        } else {
-            setWindowTitle(
-                    Messages.getString("TaCoKitConfiguration.wizard.title.edit", configTypeNode.getConfigurationType(), //$NON-NLS-1$
-                            configTypeNode.getDisplayName()));
-        }
-    }
+    protected abstract void setWindowTitle();
 
     @Override
     public void addPages() {
@@ -173,60 +155,7 @@ public class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard
      * 
      * @return operation to perform on finish
      */
-    private IWorkspaceRunnable createFinishOperation() {
-        if (creation) {
-            return new IWorkspaceRunnable() {
-
-                @Override
-                public void run(final IProgressMonitor monitor) throws CoreException {
-                    try {
-                        createConfigurationItem();
-                    } catch (Exception e) {
-                        throw new CoreException(new Status(IStatus.ERROR, TaCoKitConst.BUNDLE_ID, e.getMessage(), e));
-                    }
-                }
-            };
-        } else {
-            return new IWorkspaceRunnable() {
-
-                @Override
-                public void run(final IProgressMonitor monitor) throws CoreException {
-                    try {
-                        updateConfigurationItem();
-                    } catch (Exception e) {
-                        throw new CoreException(new Status(IStatus.ERROR, TaCoKitConst.BUNDLE_ID, e.getMessage(), e));
-                    }
-                }
-            };
-        }
-    }
-
-    private void createConfigurationItem() throws Exception {
-        IProxyRepositoryFactory factory = ProxyRepositoryFactory.getInstance();
-        String nextId = factory.getNextId();
-        ITaCoKitRepositoryNode taCoKitRepositoryNode = runtimeData.getTaCoKitRepositoryNode();
-        ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
-        String id = configTypeNode.getId();
-        String parentId = configTypeNode.getParentId();
-        ConnectionItem connectionItem = runtimeData.getConnectionItem();
-
-        connectionItem.getProperty().setId(nextId);
-        TaCoKitConfigurationItemModel itemModel = new TaCoKitConfigurationItemModel(connectionItem);
-        TaCoKitConfigurationModel model = itemModel.getConfigurationModel();
-        model.setConfigurationId(id);
-        model.setParentConfigurationId(parentId);
-        if (taCoKitRepositoryNode.isLeafNode()) {
-            model.setParentItemId(taCoKitRepositoryNode.getObject().getId());
-        }
-        factory.create(connectionItem, wizardPropertiesPage.getDestinationPath());
-        RepositoryManager.refreshCreatedNode(TaCoKitConst.METADATA_TACOKIT);
-        // RepositoryUpdateManager.updateFileConnection(connectionItem);
-    }
-
-    private void updateConfigurationItem() throws Exception {
-        updateConnectionItem();
-        refreshInFinish(wizardPropertiesPage.isNameModifiedByUser());
-    }
+    protected abstract IWorkspaceRunnable createFinishOperation();
 
     @Override
     public boolean canFinish() {
