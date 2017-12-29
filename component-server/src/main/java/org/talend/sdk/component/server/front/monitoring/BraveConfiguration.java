@@ -16,6 +16,7 @@
 package org.talend.sdk.component.server.front.monitoring;
 
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -151,7 +152,7 @@ public class BraveConfiguration {
             builder = builderSet(builder, "encoding", configuration, Encoding.class);
             return Sender.class.cast(builder.getClass().getMethod("build").invoke(builder));
         } catch (final InvocationTargetException e) {
-            throw new IllegalArgumentException(e.getTargetException());
+            throw toRuntimeException(e);
         } catch (final IllegalAccessException | NoSuchMethodException e) {
             throw new IllegalArgumentException(
                     "You surely have a not compatible zipkin-sender-urlconnection dependency");
@@ -180,7 +181,7 @@ public class BraveConfiguration {
             builder = builderSet(builder, "overrides", configuration, Map.class);
             return Sender.class.cast(builder.getClass().getMethod("build").invoke(builder));
         } catch (final InvocationTargetException e) {
-            throw new IllegalArgumentException(e.getTargetException());
+            throw toRuntimeException(e);
         } catch (final IllegalAccessException | NoSuchMethodException e) {
             throw new IllegalArgumentException("You surely have a not compatible zipkin-sender-kafka11 dependency");
         } catch (final ClassNotFoundException e) {
@@ -224,7 +225,7 @@ public class BraveConfiguration {
         } catch (final NoSuchMethodException | IllegalAccessException e) {
             throw new IllegalArgumentException(e);
         } catch (final InvocationTargetException e) {
-            throw new IllegalArgumentException(e.getTargetException());
+            throw toRuntimeException(e);
         }
     }
 

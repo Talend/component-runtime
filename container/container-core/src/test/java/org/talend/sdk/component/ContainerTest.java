@@ -89,7 +89,11 @@ public class ContainerTest {
                     | ClassNotFoundException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {
-                throw new IllegalStateException(e.getTargetException());
+                final Throwable targetException = e.getTargetException();
+                if (RuntimeException.class.isInstance(targetException)) {
+                    throw RuntimeException.class.cast(targetException);
+                }
+                throw new IllegalStateException(targetException);
             }
         }, Filter.class);
         final Filter filter = supplier.get();

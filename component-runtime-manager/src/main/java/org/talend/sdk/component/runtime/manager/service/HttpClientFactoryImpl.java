@@ -20,6 +20,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -276,7 +277,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                     throw new IllegalArgumentException(e);
                 } catch (final InvocationTargetException e) {
-                    throw new IllegalArgumentException(e.getTargetException());
+                    throw toRuntimeException(e);
                 }
                 final Encoder encoder = createEncoder(codec);
                 final Decoder decoder = createDecoder(codec);
@@ -383,7 +384,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                             return new ResponseImpl(responseCode, decoder, responseType, headers(urlConnection),
                                     response, null);
                         } catch (final IOException e) {
-                            error = slurp(urlConnection.getErrorStream());
+                            error = ofNullable(urlConnection.getErrorStream()).map(HttpClientFactoryImpl::slurp).orElseGet(() -> ofNullable(e.getMessage()).map(s -> s.getBytes(StandardCharsets.UTF_8)).orElse(null));
                             final Response<Object> errorResponse = new ResponseImpl(responseCode, decoder, responseType,
                                     headers(urlConnection), null, error);
 
@@ -415,11 +416,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             try {
                 return method.invoke(this, args);
             } catch (final InvocationTargetException ite) {
-                final Throwable targetException = ite.getTargetException();
-                if (RuntimeException.class.isInstance(targetException)) {
-                    throw RuntimeException.class.cast(targetException);
-                }
-                throw new IllegalStateException(targetException);
+                throw toRuntimeException(ite);
             } catch (IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
@@ -432,7 +429,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                     throw new IllegalArgumentException(e);
                 } catch (final InvocationTargetException e) {
-                    throw new IllegalArgumentException(e.getTargetException());
+                    throw toRuntimeException(e);
                 }
             }
             return value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8);
@@ -445,7 +442,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                     throw new IllegalArgumentException(e);
                 } catch (final InvocationTargetException e) {
-                    throw new IllegalArgumentException(e.getTargetException());
+                    throw toRuntimeException(e);
                 }
             }
             return (value, expectedType) -> value == null ? null : new String(value);

@@ -23,6 +23,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
 import java.io.File;
@@ -855,7 +856,7 @@ public class ComponentManager implements AutoCloseable {
                             } catch (final InstantiationException | IllegalAccessException e) {
                                 throw new IllegalArgumentException(e);
                             } catch (final InvocationTargetException e) {
-                                throw new IllegalArgumentException(e.getTargetException());
+                                throw toRuntimeException(e);
                             } finally {
                                 thread.setContextClassLoader(old);
                             }
@@ -964,7 +965,7 @@ public class ComponentManager implements AutoCloseable {
             } catch (final NoSuchMethodException | IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {
-                throw new IllegalStateException(e.getTargetException());
+                throw toRuntimeException(e);
             }
             final String name = Stream.of("name", "value").map(mName -> {
                 try {
@@ -972,7 +973,7 @@ public class ComponentManager implements AutoCloseable {
                 } catch (final IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 } catch (final InvocationTargetException e) {
-                    throw new IllegalStateException(e.getTargetException());
+                    throw toRuntimeException(e);
                 } catch (final NoSuchMethodException e) {
                     return null;
                 }
@@ -987,10 +988,8 @@ public class ComponentManager implements AutoCloseable {
                     return serviceMethod.invoke(actionInstance, args);
                 } catch (final IllegalAccessException e) {
                     throw new IllegalStateException(e);
-                } catch (final InvocationTargetException e) { // do we want
-                    // to unwrap
-                    // it?
-                    throw new IllegalStateException(e.getTargetException());
+                } catch (final InvocationTargetException e) {
+                    throw toRuntimeException(e);
                 }
             });
 
@@ -1067,7 +1066,7 @@ public class ComponentManager implements AutoCloseable {
                             } catch (final IllegalAccessException e) {
                                 throw new IllegalStateException(e);
                             } catch (final InvocationTargetException e) {
-                                throw new IllegalStateException(e.getTargetException());
+                                throw toRuntimeException(e);
                             }
                         });
                 return null;
@@ -1182,7 +1181,7 @@ public class ComponentManager implements AutoCloseable {
                         } catch (final InstantiationException | IllegalAccessException e) {
                             throw new IllegalArgumentException(e);
                         } catch (final InvocationTargetException e) {
-                            throw new IllegalArgumentException(e.getTargetException());
+                            throw toRuntimeException(e);
                         }
                     })
                     .map(MigrationHandler.class::cast)
@@ -1228,7 +1227,7 @@ public class ComponentManager implements AutoCloseable {
                 } catch (final ClassCastException e) {
                     throw new IllegalArgumentException(constructor + " should return a Serializable", e);
                 } catch (final InvocationTargetException e) {
-                    throw new IllegalArgumentException(e.getTargetException());
+                    throw toRuntimeException(e);
                 } catch (final InstantiationException e) {
                     throw new IllegalArgumentException(e);
                 }

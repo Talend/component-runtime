@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.tools;
 
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -51,7 +53,7 @@ class ReflectiveLog implements Log {
         } catch (final IllegalAccessException e) {
             throw new IllegalStateException(e);
         } catch (final InvocationTargetException e) {
-            throw new IllegalStateException(e.getTargetException());
+            throw toRuntimeException(e);
         }
     }
 
@@ -62,7 +64,7 @@ class ReflectiveLog implements Log {
         } catch (final IllegalAccessException e) {
             throw new IllegalStateException(e);
         } catch (final InvocationTargetException e) {
-            throw new IllegalStateException(e.getTargetException());
+            throw toRuntimeException(e);
         }
     }
 
@@ -73,7 +75,7 @@ class ReflectiveLog implements Log {
         } catch (final IllegalAccessException e) {
             throw new IllegalStateException(e);
         } catch (final InvocationTargetException e) {
-            throw new IllegalStateException(e.getTargetException());
+            throw toRuntimeException(e);
         }
     }
 }

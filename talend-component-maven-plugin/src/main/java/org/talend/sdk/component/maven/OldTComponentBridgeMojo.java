@@ -31,6 +31,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PACKAGE;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 import static org.apache.maven.shared.utils.StringUtils.capitalise;
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -1446,7 +1447,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
         } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException e) {
             throw new IllegalArgumentException(enclosingClass + " is not instantiable", e);
         } catch (final InvocationTargetException e) {
-            throw new IllegalArgumentException(e.getTargetException());
+            throw toRuntimeException(e);
         }
     }
 

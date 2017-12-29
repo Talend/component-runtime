@@ -141,9 +141,9 @@ public class BeamIOWrappingTest implements Serializable {
         assertNull(input.next());
         try {
             input.stop();
-        } catch (final IllegalStateException iae) {
+        } catch (final IllegalArgumentException iae) {
             // for now we ignore this error which is issuing an output in an after bundle
-            assertEquals("chunk outputs are not yet supported", iae.getCause().getMessage());
+            assertEquals("chunk outputs are not yet supported", iae.getMessage());
         }
 
         mapper.stop();

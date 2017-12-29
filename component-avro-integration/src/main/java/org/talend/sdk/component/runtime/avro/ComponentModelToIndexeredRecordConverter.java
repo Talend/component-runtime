@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.avro;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -82,7 +83,7 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
         } catch (final InstantiationException | IllegalAccessException e) {
             throw new IllegalStateException(e);
         } catch (final InvocationTargetException e) {
-            throw new IllegalStateException(e.getTargetException());
+            throw toRuntimeException(e);
         }
     }
 
@@ -173,7 +174,7 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
                 }
 
                 if (fm.any) { // here we are safe since we already updated the schema to support it so just
-                              // assume schema is ready
+                    // assume schema is ready
                     final Map<String, ?> values = Map.class.cast(value);
                     if (values == null) {
                         continue;
@@ -266,7 +267,7 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
 
             final Map<?, ?> asMap = Map.class.cast(input);
             if (map != null) { // todo: check org.apache.avro.reflect.ReflectData.createSchema() out to support
-                               // more cases
+                // more cases
                 final ParameterizedType pt = ParameterizedType.class.cast(map);
                 if (pt.getActualTypeArguments().length == 2 && Class.class.isInstance(pt.getActualTypeArguments()[0])
                         && Class.class.isInstance(pt.getActualTypeArguments()[1])) {
@@ -348,7 +349,7 @@ public class ComponentModelToIndexeredRecordConverter { // todo: support avro.re
         if (meta == null) {
             meta = computeMeta(type, new HashMap<>(), null, null);
             metas.putIfAbsent(type, meta); // not important if for a few iterations/threads we use different meta
-                                           // instances
+            // instances
         }
         return meta;
     }

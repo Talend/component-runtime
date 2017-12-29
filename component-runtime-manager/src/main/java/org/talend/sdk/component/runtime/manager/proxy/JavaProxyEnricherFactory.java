@@ -68,7 +68,7 @@ public class JavaProxyEnricherFactory {
                 case "equals":
                     return args != null && args.length == 1 && method.getDeclaringClass().isInstance(args[0])
                             && Proxy.isProxyClass(args[0].getClass()) && (this == Proxy.getInvocationHandler(args[0])
-                                    || delegate == Proxy.getInvocationHandler(args[0]));
+                            || delegate == Proxy.getInvocationHandler(args[0]));
                 default:
                 }
             }

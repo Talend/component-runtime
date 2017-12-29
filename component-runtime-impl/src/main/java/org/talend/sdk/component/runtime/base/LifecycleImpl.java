@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.base;
 
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -64,7 +66,7 @@ public class LifecycleImpl extends Named implements Lifecycle {
         } catch (final IllegalAccessException e) {
             throw new IllegalStateException(e);
         } catch (final InvocationTargetException e) {
-            throw new IllegalStateException(e.getTargetException());
+            throw toRuntimeException(e);
         } finally {
             thread.setContextClassLoader(oldLoader);
         }

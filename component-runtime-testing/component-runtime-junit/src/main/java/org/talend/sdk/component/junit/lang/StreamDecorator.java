@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.junit.lang;
 
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -48,7 +50,7 @@ public class StreamDecorator implements InvocationHandler {
                 } catch (final IllegalAccessException e) {
                     throw new IllegalArgumentException(e);
                 } catch (final InvocationTargetException e) {
-                    throw new IllegalArgumentException(e.getTargetException());
+                    throw toRuntimeException(e);
                 }
             });
             if (stream) {
