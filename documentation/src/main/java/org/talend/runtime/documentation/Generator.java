@@ -121,6 +121,8 @@ public class Generator {
         try (final Jsonb jsonb = JsonbBuilder.create(); final Writer writer = new FileWriter(file)) {
             jsonb.toJson(contributors, writer);
         }
+        System.out.println(
+                "Contributors: " + contributors.stream().map(Gravatars.Contributor::getName).collect(joining(", ")));
     }
 
     private static void generatedJira(final File generatedDir, final String username, final String password,

@@ -171,6 +171,11 @@
           </execution>
         </executions>
         <dependencies>
+          <dependency> <!-- to reuse maven one -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.6</version>
+          </dependency>
           <dependency>
             <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-api</artifactId>
@@ -180,6 +185,12 @@
             <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-server</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
           <dependency>
             <groupId>org.talend.sdk.component</groupId>
