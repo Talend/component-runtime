@@ -69,7 +69,7 @@ public class DocumentationResource {
     @Path("component/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Documentation("Returns an asciidoctor version of the documentation for the component represented by its identifier `id`.")
-    public DocumentationContent getDependency(@PathParam("id") final String id,
+    public DocumentationContent getDocumentation(@PathParam("id") final String id,
             @QueryParam("language") @DefaultValue("en") final String language) {
         final Locale locale = localeMapper.mapLocale(language);
         final String content = ofNullable(componentDao.findById(id))
