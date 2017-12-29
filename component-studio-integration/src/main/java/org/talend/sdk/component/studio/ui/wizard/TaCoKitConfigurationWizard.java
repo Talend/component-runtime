@@ -57,6 +57,10 @@ public class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard
     public TaCoKitConfigurationWizard(final IWorkbench workbench, final TaCoKitConfigurationRuntimeData runtimeData) {
         super(workbench, runtimeData.isCreation(), runtimeData.isReadonly());
         this.runtimeData = runtimeData;
+        this.existingNames = runtimeData.getExistingNames();
+        creation = runtimeData.isCreation();
+        connectionItem = runtimeData.getConnectionItem();
+        this.runtimeData.setReadonly(runtimeData.isReadonly() || !isRepositoryObjectEditable());
         init();
     }
 
@@ -64,13 +68,24 @@ public class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard
      * Part of constructor
      */
     private void init() {
-        this.existingNames = runtimeData.getExistingNames();
+        setPathToSave();
+        lockNode();
+        setWindowTitle();
+        setHelpAvailable(false);
+        // setRepositoryLocation(wizard, location, connectionItem.getProperty().getId());
+    }
 
-        creation = runtimeData.isCreation();
-        connectionItem = runtimeData.getConnectionItem();
-        runtimeData.setReadonly(runtimeData.isReadonly() || !isRepositoryObjectEditable());
+    /**
+     * Part of constructor
+     * Sets {@code pathToSave} if repository node has one of following types:
+     * <ul>
+     * <li>SIMPLE_FOLDER</li>
+     * <li>SYSTEM_FOLDER</li>
+     * <li>REPOSITORY_ELEMENT</li>
+     * </ul>
+     */
+    private void setPathToSave() {
         ITaCoKitRepositoryNode repositoryNode = runtimeData.getTaCoKitRepositoryNode();
-
         ENodeType nodeType = repositoryNode.getType();
         switch (nodeType) {
         case SIMPLE_FOLDER:
@@ -83,16 +98,26 @@ public class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard
         default:
             // nothing todo
         }
-        switch (nodeType) {
-        case SIMPLE_FOLDER:
-        case SYSTEM_FOLDER:
-            break;
-        case REPOSITORY_ELEMENT:
+    }
+
+    /**
+     * Part of constructor
+     * Initializes lock strategy if repository node type is REPOSITORY_ELEMENT
+     * If needed, locks the repository node
+     */
+    private void lockNode() {
+        ITaCoKitRepositoryNode repositoryNode = runtimeData.getTaCoKitRepositoryNode();
+        ENodeType nodeType = repositoryNode.getType();
+        if (ENodeType.REPOSITORY_ELEMENT.equals(nodeType)) {
             initLockStrategy();
-            break;
-        default:
-            // nothing to do
         }
+    }
+
+    /**
+     * Part of constructor
+     * Sets window title depending on whether it is {@code creation} wizard or editing
+     */
+    private void setWindowTitle() {
         ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
         if (creation) {
             setWindowTitle(Messages.getString("TaCoKitConfiguration.wizard.title.create", //$NON-NLS-1$
@@ -102,8 +127,6 @@ public class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard
                     Messages.getString("TaCoKitConfiguration.wizard.title.edit", configTypeNode.getConfigurationType(), //$NON-NLS-1$
                             configTypeNode.getDisplayName()));
         }
-        setHelpAvailable(false);
-        // setRepositoryLocation(wizard, location, connectionItem.getProperty().getId());
     }
 
     @Override
@@ -125,23 +148,10 @@ public class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard
     public boolean performFinish() {
         if (configurationPage.isPageComplete()) {
             try {
-
                 IWorkspace workspace = ResourcesPlugin.getWorkspace();
-                IWorkspaceRunnable operation = new IWorkspaceRunnable() {
-
-                    @Override
-                    public void run(final IProgressMonitor monitor) throws CoreException {
-                        try {
-                            createOrUpdateConfigurationItem();
-                        } catch (Exception e) {
-                            throw new CoreException(
-                                    new Status(IStatus.ERROR, TaCoKitConst.BUNDLE_ID, e.getMessage(), e));
-                        }
-                    }
-                };
+                IWorkspaceRunnable operation = createFinishOperation();
                 ISchedulingRule schedulingRule = workspace.getRoot();
                 workspace.run(operation, schedulingRule, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
-
                 return true;
             } catch (Exception e) {
                 ExceptionHandler.process(e);
@@ -157,6 +167,67 @@ public class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard
         return false;
     }
 
+    /**
+     * Creates operation, which is performed, when Finish button is pushed.
+     * Creates different operations depending on whether it is Create or Edit wizard
+     * 
+     * @return operation to perform on finish
+     */
+    private IWorkspaceRunnable createFinishOperation() {
+        if (creation) {
+            return new IWorkspaceRunnable() {
+
+                @Override
+                public void run(final IProgressMonitor monitor) throws CoreException {
+                    try {
+                        createConfigurationItem();
+                    } catch (Exception e) {
+                        throw new CoreException(new Status(IStatus.ERROR, TaCoKitConst.BUNDLE_ID, e.getMessage(), e));
+                    }
+                }
+            };
+        } else {
+            return new IWorkspaceRunnable() {
+
+                @Override
+                public void run(final IProgressMonitor monitor) throws CoreException {
+                    try {
+                        updateConfigurationItem();
+                    } catch (Exception e) {
+                        throw new CoreException(new Status(IStatus.ERROR, TaCoKitConst.BUNDLE_ID, e.getMessage(), e));
+                    }
+                }
+            };
+        }
+    }
+
+    private void createConfigurationItem() throws Exception {
+        IProxyRepositoryFactory factory = ProxyRepositoryFactory.getInstance();
+        String nextId = factory.getNextId();
+        ITaCoKitRepositoryNode taCoKitRepositoryNode = runtimeData.getTaCoKitRepositoryNode();
+        ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
+        String id = configTypeNode.getId();
+        String parentId = configTypeNode.getParentId();
+        ConnectionItem connectionItem = runtimeData.getConnectionItem();
+
+        connectionItem.getProperty().setId(nextId);
+        TaCoKitConfigurationItemModel itemModel = new TaCoKitConfigurationItemModel(connectionItem);
+        TaCoKitConfigurationModel model = itemModel.getConfigurationModel();
+        model.setConfigurationId(id);
+        model.setParentConfigurationId(parentId);
+        if (taCoKitRepositoryNode.isLeafNode()) {
+            model.setParentItemId(taCoKitRepositoryNode.getObject().getId());
+        }
+        factory.create(connectionItem, wizardPropertiesPage.getDestinationPath());
+        RepositoryManager.refreshCreatedNode(TaCoKitConst.METADATA_TACOKIT);
+        // RepositoryUpdateManager.updateFileConnection(connectionItem);
+    }
+
+    private void updateConfigurationItem() throws Exception {
+        updateConnectionItem();
+        refreshInFinish(wizardPropertiesPage.isNameModifiedByUser());
+    }
+
     @Override
     public boolean canFinish() {
         IWizardPage currentPage = this.getContainer().getCurrentPage();
@@ -167,36 +238,6 @@ public class TaCoKitConfigurationWizard extends CheckLastVersionRepositoryWizard
             return true;
         }
         return false;
-    }
-
-    private void createOrUpdateConfigurationItem() throws Exception {
-        IProxyRepositoryFactory factory = ProxyRepositoryFactory.getInstance();
-        if (creation) {
-            String nextId = factory.getNextId();
-            ITaCoKitRepositoryNode taCoKitRepositoryNode = runtimeData.getTaCoKitRepositoryNode();
-            ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
-            String id = configTypeNode.getId();
-            String parentId = configTypeNode.getParentId();
-            ConnectionItem connectionItem = runtimeData.getConnectionItem();
-
-            connectionItem.getProperty().setId(nextId);
-            TaCoKitConfigurationItemModel itemModel = new TaCoKitConfigurationItemModel(connectionItem);
-            TaCoKitConfigurationModel model = itemModel.getConfigurationModel();
-            model.setConfigurationId(id);
-            model.setParentConfigurationId(parentId);
-            if (taCoKitRepositoryNode.isLeafNode()) {
-                model.setParentItemId(taCoKitRepositoryNode.getObject().getId());
-            }
-
-            factory.create(connectionItem, wizardPropertiesPage.getDestinationPath());
-
-            RepositoryManager.refreshCreatedNode(TaCoKitConst.METADATA_TACOKIT);
-            // RepositoryUpdateManager.updateFileConnection(connectionItem);
-
-        } else {
-            updateConnectionItem();
-            refreshInFinish(wizardPropertiesPage.isNameModifiedByUser());
-        }
     }
 
 }
