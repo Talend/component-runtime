@@ -141,6 +141,7 @@
               <goal>yarn</goal>
             </goals>
             <configuration>
+              <skip>${component.front.build.skip}</skip>
               <arguments>run build</arguments>
             </configuration>
           </execution>

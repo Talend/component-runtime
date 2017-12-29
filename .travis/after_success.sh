@@ -1,6 +1,5 @@
 #! /usr/bin/env bash
 
-
 echo TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST
 echo TRAVIS_TAG=$TRAVIS_TAG
 
