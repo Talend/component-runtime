@@ -105,6 +105,7 @@ public class Gravatars {
         } catch (final GitAPIException e) {
             throw new IllegalStateException(e);
         }
+        System.out.println("Contributor mails: " + mails);
 
         // merge the multiple names for committers - if committed with multiple mails
         final Set<String> keys = new HashSet<>(mails.keySet());
@@ -143,10 +144,11 @@ public class Gravatars {
             });
             mails.put(toAggregate.get(0), count);
         });
+        System.out.println("Unified contributors mails: " + mails);
 
         // then get all their images
         final WebTarget target = ClientBuilder.newClient().register(new JohnzonProvider<>()).target(GRAVATAR_BASE);
-        final ForkJoinPool pool = new ForkJoinPool(16);
+        final ForkJoinPool pool = new ForkJoinPool(Math.min(16, mails.size()));
         try {
             final List<Contributor> contributors = pool.submit(() -> mails.entrySet().stream().parallel().map(mail -> {
                 try {
@@ -159,17 +161,9 @@ public class Gravatars {
                 } catch (final IOException e) {
                     return createDefault(mail);
                 }
-            })
-                    .sorted(Comparator.comparing(Contributor::getCommits).reversed().thenComparing(
-                            comparing(Contributor::getName)))
-                    .collect(toList())).get(15, MINUTES);
-            contributors.sort((c1, c2) -> {
-                final int compare = c2.getCommits() - c1.getCommits();
-                if (compare != 0) {
-                    return compare;
-                }
-                return c1.getName().compareTo(c2.getName());
-            });
+            }).collect(toList())).get(15, MINUTES);
+            contributors.sort(Comparator.comparing(Contributor::getCommits).reversed().thenComparing(
+                    comparing(Contributor::getName)));
             return contributors;
         } catch (final InterruptedException e) {
             Thread.interrupted();
