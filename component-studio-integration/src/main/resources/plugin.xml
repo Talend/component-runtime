@@ -15,6 +15,14 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
+   <extension
+         point="org.talend.core.components_provider">
+      <ComponentsProvider
+            class="org.talend.sdk.component.studio.provider.TaCoKitComponentsProvider"
+            folderName="components"
+            id="org.talend.sdk.component.studio-integration.TaCoKitComponentsProvider">
+      </ComponentsProvider>
+   </extension>
   <extension
         point="org.talend.core.repository.repository_node_provider">
      <repositoryNode
@@ -53,6 +61,14 @@
            level="1"
            name="Edit TaCoKit">
      </Action>
+  </extension>
+  <extension
+        point="org.talend.designer.core.generators">
+     <generator
+           class="org.talend.sdk.component.studio.ui.composite.generator.TaCoKitGuessSchemaGenerator"
+           mapping="TACOKIT_GUESS_SCHEMA"
+           name="TaCoKit Generator">
+     </generator>
   </extension>
   <extension
         point="org.talend.designer.core.process_provider">

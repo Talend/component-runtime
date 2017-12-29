@@ -14,6 +14,7 @@ package org.talend.sdk.component.studio.metadata;
 
 import java.util.Map;
 
+import org.talend.core.model.components.IComponent;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.studio.Lookups;
@@ -22,6 +23,8 @@ import org.talend.sdk.component.studio.Lookups;
  * DOC cmeng class global comment. Detailled comment
  */
 public class TaCoKitCache {
+
+    private IComponent tacokitGuessSchemaComponent;
 
     private ConfigTypeNodes configTypeNodesCache;
 
@@ -54,6 +57,14 @@ public class TaCoKitCache {
             configTypeNodeMapCache = getConfigTypeNodes().getNodes();
         }
         return configTypeNodeMapCache;
+    }
+
+    public IComponent getTaCoKitGuessSchemaComponent() {
+        return this.tacokitGuessSchemaComponent;
+    }
+
+    public void setTaCoKitGuessSchemaComponent(final IComponent guessSchemaComponent) {
+        this.tacokitGuessSchemaComponent = guessSchemaComponent;
     }
 
     public void clearCache() {

@@ -37,10 +37,13 @@ import java.util.stream.Collectors;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.EParameterFieldType;
+import org.talend.core.model.process.IConnectionCategory;
 import org.talend.core.model.process.IElement;
+import org.talend.core.model.process.INodeConnector;
 import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
+import org.talend.designer.core.ui.editor.nodes.Node;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivator;
@@ -287,6 +290,25 @@ public class SettingsCreator implements PropertyVisitor {
         childParameter2.setValue("");
         schema.getChildParameters().put(EParameterName.REPOSITORY_SCHEMA_TYPE.getName(), childParameter2);
 
+        if (canAddGuessSchema()) {
+            String tacokitGuessSchema = "Guess Schema";
+            TaCoKitElementParameter guessSchemaParameter = new TaCoKitElementParameter(getNode());
+            guessSchemaParameter.setCategory(EComponentCategory.BASIC);
+            guessSchemaParameter.setContext(EConnectionType.FLOW_MAIN.getName());
+            guessSchemaParameter.setDisplayName(tacokitGuessSchema);
+            guessSchemaParameter.setFieldType(EParameterFieldType.TACOKIT_GUESS_SCHEMA);
+            guessSchemaParameter.setListItemsDisplayName(new String[0]);
+            guessSchemaParameter.setListItemsValue(new String[0]);
+            guessSchemaParameter.setName(tacokitGuessSchema);
+            guessSchemaParameter.setNumRow(1);
+            guessSchemaParameter.setParentParameter(schema);
+            guessSchemaParameter.setReadOnly(false);
+            guessSchemaParameter.setRequired(false);
+            guessSchemaParameter.setShow(true);
+            guessSchemaParameter.setValue("");
+            guessSchemaParameter.getChildParameters().put(tacokitGuessSchema, guessSchemaParameter);
+        }
+
         return schema;
     }
 
@@ -356,5 +378,26 @@ public class SettingsCreator implements PropertyVisitor {
             }
         }
         return path.stream().collect(Collectors.joining(DOT_PATH_SEPARATOR));
+    }
+
+    private boolean canAddGuessSchema() {
+        boolean canAddGuessSchema = false;
+        IElement node = getNode();
+        if (node instanceof Node) {
+            boolean hasIncommingConnection = false;
+            List<? extends INodeConnector> listConnector = ((Node) node).getListConnector();
+            if (listConnector != null) {
+                for (INodeConnector connector : listConnector) {
+                    EConnectionType connectionType = connector.getDefaultConnectionType();
+                    if (connectionType != null && connectionType.hasConnectionCategory(IConnectionCategory.FLOW)
+                            && 0 < connector.getMaxLinkInput()) {
+                        hasIncommingConnection = true;
+                        break;
+                    }
+                }
+            }
+            canAddGuessSchema = !hasIncommingConnection;
+        }
+        return canAddGuessSchema;
     }
 }

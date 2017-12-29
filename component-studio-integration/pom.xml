@@ -221,7 +221,9 @@
               org.talend.repository.view.di,
               org.apache.commons.collections,
               org.talend.components.api,
-              org.talend.cwm.mip
+              org.talend.cwm.mip,
+              org.talend.utils,
+              org.apache.log4j
             </Require-Bundle>
             <Include-Resource>{maven-resources},
               {TALEND-INF/tacokit.dependencies=${project.build.outputDirectory}/TALEND-INF/tacokit.dependencies}
