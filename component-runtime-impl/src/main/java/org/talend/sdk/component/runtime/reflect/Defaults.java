@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.reflect;
 
 import static lombok.AccessLevel.PRIVATE;
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
@@ -27,6 +28,7 @@ import lombok.NoArgsConstructor;
 public class Defaults {
 
     private static final Constructor<MethodHandles.Lookup> LOOKUP;
+
     static {
         try {
             LOOKUP = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Integer.TYPE);
@@ -44,7 +46,7 @@ public class Defaults {
         } catch (final IllegalAccessException | InstantiationException e) {
             throw new IllegalArgumentException(e);
         } catch (final InvocationTargetException e) {
-            throw new IllegalArgumentException(e.getTargetException());
+            throw toRuntimeException(e);
         }
     }
 }

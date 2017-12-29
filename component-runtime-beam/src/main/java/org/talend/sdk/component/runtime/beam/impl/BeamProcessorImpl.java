@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.beam.impl;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -195,7 +196,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                 } catch (final IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 } catch (final InvocationTargetException e) {
-                    throw new IllegalStateException(e.getTargetException());
+                    throw toRuntimeException(e);
                 }
             }
         });
@@ -210,7 +211,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                 } catch (final IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 } catch (final InvocationTargetException e) {
-                    throw new IllegalStateException(e.getTargetException());
+                    throw toRuntimeException(e);
                 }
             }
         });
@@ -226,7 +227,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {
-                throw new IllegalStateException(e.getTargetException());
+                throw toRuntimeException(e);
             } finally {
                 argumentProvider.setInputs(null);
                 argumentProvider.setOutputs(null);
@@ -244,7 +245,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                 } catch (final IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 } catch (final InvocationTargetException e) {
-                    throw new IllegalStateException(e.getTargetException());
+                    throw toRuntimeException(e);
                 } finally {
                     argumentProvider.setOutputs(null);
                 }
@@ -261,7 +262,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                 } catch (final IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 } catch (final InvocationTargetException e) {
-                    throw new IllegalStateException(e.getTargetException());
+                    throw toRuntimeException(e);
                 }
             }
         });

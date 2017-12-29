@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.internationalization;
 
 import static java.util.function.Function.identity;
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -91,7 +92,7 @@ public class InternationalizationServiceFactory {
                     try {
                         return method.invoke(this, args);
                     } catch (final InvocationTargetException ite) {
-                        throw ite.getTargetException();
+                        throw toRuntimeException(ite);
                     }
                 }
             }

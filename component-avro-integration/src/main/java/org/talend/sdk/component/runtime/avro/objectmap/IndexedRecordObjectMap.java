@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.avro.objectmap;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -122,7 +123,7 @@ public class IndexedRecordObjectMap implements ObjectMap {
                 } catch (final InstantiationException | IllegalAccessException e) {
                     throw new IllegalArgumentException(e);
                 } catch (final InvocationTargetException e) {
-                    throw new IllegalArgumentException(e.getTargetException());
+                    throw toRuntimeException(e);
                 }
             }
         }

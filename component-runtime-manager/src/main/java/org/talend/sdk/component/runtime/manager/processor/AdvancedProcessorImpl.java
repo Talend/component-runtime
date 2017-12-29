@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.processor;
 
 import static java.util.Optional.ofNullable;
+import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -58,7 +59,7 @@ public class AdvancedProcessorImpl extends ProcessorImpl {
         } catch (final IllegalAccessException | InstantiationException e) {
             throw new IllegalStateException(e);
         } catch (final InvocationTargetException e) {
-            throw new IllegalStateException(e.getTargetException());
+            throw toRuntimeException(e);
         }
     }
 
