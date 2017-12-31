@@ -9,9 +9,9 @@ fi
 
 OPTS="--batch-mode --settings $PWD/.travis/settings.xml"
 
-mvn clean deploy -Dhub-detect.skip=true -DskipTests -Dinvoker.skip=true -Possrh -Prelease $OPTS
-mvn clean verify -Dhub-detect.skip=false -DskipTests -Dinvoker.skip=true -Dskip.yarn=true -Possrh -Prelease $OPTS
+travis_wait 60 mvn clean deploy -Dhub-detect.skip=true -DskipTests -Dinvoker.skip=true -Possrh -Prelease $OPTS
+travis_wait 60 mvn clean verify -Dhub-detect.skip=false -DskipTests -Dinvoker.skip=true -Dskip.yarn=true -Possrh -Prelease $OPTS
 
 cd documentation
-    mvn clean verify -Pgh-pages -Dgithub.site.profile=latest $OPTS
+    travis_wait 60 mvn clean verify -Pgh-pages -Dgithub.site.profile=latest $OPTS
 cd -
