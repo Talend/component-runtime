@@ -542,6 +542,15 @@
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/junit</outputDirectory>
                 </artifactItem>
+                <artifactItem>
+                  <groupId>org.talend.sdk.component</groupId>
+                  <artifactId>component-runtime-http-junit</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <classifier>javadoc</classifier>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/junit-http</outputDirectory>
+                </artifactItem>
               </artifactItems>
             </configuration>
           </execution>

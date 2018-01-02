@@ -138,6 +138,8 @@
     <geronimo-jaxrs.version>1.0-alpha-1</geronimo-jaxrs.version>
     <asciidoctorj.version>1.6.0-alpha.6</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.5.0-alpha.16</asciidoctorj-pdf.version>
+    <jsonb-api.version>1.0</jsonb-api.version>
+    <jsonp-api.version>1.0</jsonp-api.version>
 
     <talend-icon.version>0.127.0</talend-icon.version>
     <component-api.version>1.0.0-SNAPSHOT</component-api.version>
@@ -579,7 +581,7 @@
                 </module>
                 <module name="UpperEll"/>
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javax,com,org,orgomg,brave,freemarker,zipkin2,lombok"/>
+                  <property name="groups" value="*,java,javax,com,org,orgomg,brave,freemarker,io,zipkin2,lombok"/>
                   <property name="ordered" value="true"/>
                   <property name="separated" value="true"/>
                   <property name="option" value="top"/>

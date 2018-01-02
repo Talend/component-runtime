@@ -105,7 +105,6 @@ public class Gravatars {
         } catch (final GitAPIException e) {
             throw new IllegalStateException(e);
         }
-        System.out.println("Contributor mails: " + mails);
 
         // merge the multiple names for committers - if committed with multiple mails
         final Set<String> keys = new HashSet<>(mails.keySet());
@@ -144,7 +143,6 @@ public class Gravatars {
             });
             mails.put(toAggregate.get(0), count);
         });
-        System.out.println("Unified contributors mails: " + mails);
 
         // then get all their images
         final WebTarget target = ClientBuilder.newClient().register(new JohnzonProvider<>()).target(GRAVATAR_BASE);

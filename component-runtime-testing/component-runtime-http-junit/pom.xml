@@ -23,15 +23,51 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>component-runtime-junit</artifactId>
-  <name>Component Runtime :: Testing :: JUnit</name>
-  <description>JUnit (4) integration of the framework.</description>
+  <artifactId>component-runtime-http-junit</artifactId>
+  <name>Component Runtime :: Testing :: HTTP</name>
+  <description>JUnit integration to simplify the HTTP API testing/mocking.</description>
+
+  <properties>
+    <netty.version>4.1.19.Final</netty.version>
+  </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jsonb_1.0_spec</artifactId>
+      <version>${jsonb-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-json_1.1_spec</artifactId>
+      <version>${jsonb-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.johnzon</groupId>
+      <artifactId>johnzon-jsonb</artifactId>
+      <version>${johnzon.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-codec-http</artifactId>
+      <version>${netty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-handler</artifactId>
+      <version>${netty.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -40,30 +76,6 @@
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-runtime-manager</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tomee</groupId>
-      <artifactId>ziplock</artifactId>
-      <version>${ziplock.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.tomee</groupId>
-          <artifactId>javaee-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.tomee</groupId>
-          <artifactId>openejb-jee</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.shrinkwrap</groupId>
-          <artifactId>shrinkwrap-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
@@ -80,6 +92,12 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
       <version>${log4j2.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomee</groupId>
+      <artifactId>ziplock</artifactId>
+      <version>${ziplock.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

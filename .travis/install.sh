@@ -13,7 +13,7 @@ done
 
 # studio (p2)
 cd component-studio-integration
-    mvn gplus:execute@setup-deps
+    MAVEN_OPTS="-Dtalend.component.kit.build.studio.m2.forceupdate=true $MAVEN_OPTS" mvn gplus:execute@setup-deps
 cd -
 
 # documentation - we got some issues on travis so this is a sanity check

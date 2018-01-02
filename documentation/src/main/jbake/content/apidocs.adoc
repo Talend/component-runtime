@@ -11,3 +11,4 @@
 
 * link:apidocs/api/index.html[API Documentation^]
 * link:apidocs/junit/index.html[JUnit API Documentation^]
+* link:apidocs/junit-http/index.html[HTTP JUnit API Documentation^]

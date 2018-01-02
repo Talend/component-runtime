@@ -28,9 +28,16 @@
   <packaging>pom</packaging>
   <description>Umbrella parent for testing utilities.</description>
 
+  <properties>
+    <junit5.version>5.0.2</junit5.version>
+    <junit-vintage-engine.version>4.12.1</junit-vintage-engine.version>
+    <junit-platform-surefire-provider.version>1.0.1</junit-platform-surefire-provider.version>
+  </properties>
+
   <modules>
     <module>component-runtime-testing-spark</module>
     <module>component-runtime-junit</module>
+    <module>component-runtime-http-junit</module>
   </modules>
 
   <dependencyManagement>

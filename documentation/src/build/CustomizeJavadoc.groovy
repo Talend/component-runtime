@@ -21,7 +21,7 @@ if (!out.exists()) {
 
 // replace all stylesheets
 def talendStyleSheet = new File(project.basedir, 'src/build/javadoc/stylesheet.css').text
-['api', 'junit'].each {
+['api', 'junit', 'junit-http'].each {
     def original = new File(out, "${it}/stylesheet.css")
     log.info("Replacing ${original.absolutePath} by Talend javadoc stylesheet")
 
