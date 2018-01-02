@@ -67,7 +67,14 @@ class TaCoKitGuessSchema {
         class2JavaTypeMap = new java.util.HashMap<>();
         JavaType javaTypes[] = javaTypesManager.getJavaTypes();
         for (JavaType javaType : javaTypes) {
-            class2JavaTypeMap.put(javaType.getNullableClass(), javaType);
+            Class nullableClass = javaType.getNullableClass();
+            if (nullableClass != null) {                
+                class2JavaTypeMap.put(nullableClass, javaType);
+            }
+            Class primitiveClass = javaType.getPrimitiveClass();
+            if (primitiveClass != null) {
+                class2JavaTypeMap.put(primitiveClass, javaType);
+            }
         }
     }
 
@@ -110,7 +117,7 @@ class TaCoKitGuessSchema {
             }
         }
         if (!succeed) {
-            throw new Exception("guess schema failed");
+            throw new Exception("There is no available schema found.");
         }
     }
 
@@ -141,6 +148,9 @@ class TaCoKitGuessSchema {
                 // maybe just ignore it and continue to use the generic way
                 log.error("Meet problem when calling built-in guess schema action.", e);
             }
+        }
+        if (noSchemaAction.get()) {
+            return false;
         }
         if (schemaResult instanceof org.talend.sdk.component.api.service.schema.Schema) {
             org.talend.sdk.component.api.service.schema.Schema compSchema =
@@ -247,6 +257,9 @@ class TaCoKitGuessSchema {
                 }
                 String name = method.getName();
                 name = name.replaceFirst("(([Gg][Ee][Tt])|([Ii][Ss])|([Tt][Oo]))", "");
+                if (name.isEmpty()) {
+                    name = method.getName();
+                }
                 String typeName = getTalendType(returnType);
                 String key = name.toLowerCase();
                 java.util.Set<String> mapTypes = nameTypeMap.get(key);

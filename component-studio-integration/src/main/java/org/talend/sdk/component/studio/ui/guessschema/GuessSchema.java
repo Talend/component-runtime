@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.talend.commons.exception.ExceptionHandler;
+import org.talend.commons.ui.runtime.exception.ExceptionMessageDialog;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.ITDQRuleService;
 import org.talend.core.model.metadata.IMetadataColumn;
@@ -44,7 +45,6 @@ import org.talend.designer.core.ui.editor.cmd.ChangeMetadataCommand;
 import org.talend.designer.core.ui.editor.nodes.Node;
 import org.talend.designer.core.ui.editor.properties.controllers.AbstractGuessSchemaProcess;
 import org.talend.designer.core.ui.editor.properties.controllers.uidialog.OpenContextChooseComboDialog;
-import org.talend.designer.runprocess.ProcessorException;
 import org.talend.sdk.component.studio.i18n.Messages;
 
 /**
@@ -107,13 +107,7 @@ public class GuessSchema {
                     @Override
                     public void run(final IProgressMonitor monitor)
                             throws InvocationTargetException, InterruptedException {
-                        Display.getDefault().asyncExec(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                runShadowProcess(property, inputNode, context, switchParam);
-                            }
-                        });
+                        runShadowProcess(property, inputNode, context, switchParam);
                     }
 
                 });
@@ -128,9 +122,31 @@ public class GuessSchema {
         TaCoKitGuessSchemaProcess gsp = new TaCoKitGuessSchemaProcess(property, inputNode, selectContext);
         try {
             CsvArray csvArray = gsp.run();
-            createSchema(csvArray, inputNode);
-        } catch (ProcessorException e) {
-            ExceptionHandler.process(e);
+            final Throwable ex[] = new Throwable[1];
+            Display.getDefault().syncExec(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        createSchema(csvArray, inputNode);
+                    } catch (Throwable e) {
+                        ex[0] = e;
+                    }
+                }
+            });
+            if (ex[0] != null) {
+                throw ex[0];
+            }
+        } catch (Throwable e) {
+            Display.getDefault().asyncExec(new Runnable() {
+
+                @Override
+                public void run() {
+                    ExceptionMessageDialog.openError(composite.getShell(),
+                            Messages.getString("guessSchema.dialog.error.title"), //$NON-NLS-1$
+                            Messages.getString("guessSchema.dialog.error.msg.default"), e); //$NON-NLS-1$
+                }
+            });
         }
     }
 
