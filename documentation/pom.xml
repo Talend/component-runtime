@@ -506,7 +506,7 @@
         <version>${dependency-plugin.version}</version>
         <executions>
           <execution>
-            <id>unpack-javadoc</id>
+            <id>unpack-api-javadoc</id>
             <phase>generate-resources</phase>
             <goals>
               <goal>unpack</goal>
@@ -522,6 +522,17 @@
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/api</outputDirectory>
                 </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-junit-javadoc</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
                 <artifactItem>
                   <groupId>org.talend.sdk.component</groupId>
                   <artifactId>component-runtime-junit</artifactId>

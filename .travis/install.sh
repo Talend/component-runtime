@@ -15,3 +15,8 @@ cd component-studio-integration
     mvn gplus:execute@setup-deps
 cd -
 
+# documentation - we got some issues on travis so this is a sanity check
+cd documentation
+    mvn dependency:unpack@unpack-api-javadoc
+cd -
+
