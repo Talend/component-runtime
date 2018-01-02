@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # maven
-MAVEN_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=warn" mvn dependency:resolve dependency:resolve-plugins
+echo "Resolving maven dependencies and plugins"
+MAVEN_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=warn $MAVEN_OPTS" mvn dependency:resolve dependency:resolve-plugins
 
 # front
 for i in component-form/component-form-demo component-starter-server component-tools; do
