@@ -26,6 +26,7 @@ import lombok.Data;
 
 /**
  * DOC cmeng class global comment. Detailled comment
+ * Provides convenient API for updating {@link Connection} properties
  */
 public class TaCoKitConfigurationModel {
 
@@ -35,7 +36,7 @@ public class TaCoKitConfigurationModel {
 
     private static final String TACOKIT_PARENT_ITEM_ID = "__TACOKIT_PARENT_ITEM_ID"; //$NON-NLS-1$
 
-    private Connection connection;
+    private final Connection connection;
 
     private ConfigTypeNode configTypeNodeCache;
 
@@ -45,35 +46,35 @@ public class TaCoKitConfigurationModel {
 
     private String parentConfigurationModelItemIdCache;
 
-    private Map attrMap;
-
     public TaCoKitConfigurationModel(final Connection connection) {
         this.connection = connection;
-        attrMap = connection.getProperties();
     }
 
     public String getConfigurationId() {
-        return (String) attrMap.get(TACOKIT_CONFIG_ID);
+        return (String) getProperties().get(TACOKIT_CONFIG_ID);
     }
 
+    @SuppressWarnings("unchecked")
     public void setConfigurationId(final String id) {
-        attrMap.put(TACOKIT_CONFIG_ID, id);
+        getProperties().put(TACOKIT_CONFIG_ID, id);
     }
 
     public String getParentConfigurationId() {
-        return (String) attrMap.get(TACOKIT_CONFIG_PARENT_ID);
+        return (String) getProperties().get(TACOKIT_CONFIG_PARENT_ID);
     }
 
+    @SuppressWarnings("unchecked")
     public void setParentConfigurationId(final String parentId) {
-        attrMap.put(TACOKIT_CONFIG_PARENT_ID, parentId);
+        getProperties().put(TACOKIT_CONFIG_PARENT_ID, parentId);
     }
 
     public String getParentItemId() {
-        return (String) attrMap.get(TACOKIT_PARENT_ITEM_ID);
+        return (String) getProperties().get(TACOKIT_PARENT_ITEM_ID);
     }
 
+    @SuppressWarnings("unchecked")
     public void setParentItemId(final String parentItemId) {
-        attrMap.put(TACOKIT_PARENT_ITEM_ID, parentItemId);
+        getProperties().put(TACOKIT_PARENT_ITEM_ID, parentItemId);
     }
 
     public ValueModel getValue(final String key) throws Exception {
@@ -123,19 +124,13 @@ public class TaCoKitConfigurationModel {
     }
 
     public Object getValueOfSelf(final String key) {
-        return attrMap.get(key);
+        return getProperties().get(key);
     }
 
+    @SuppressWarnings("unchecked")
     public void setValue(final String key, final Object value) {
-        attrMap.put(key, value);
-    }
-
-    public Map getAttrMap() {
-        return attrMap;
-    }
-
-    public Connection getConnection() {
-        return connection;
+        // here we need conversion to string for each value
+        getProperties().put(key, value);
     }
 
     public ConfigTypeNode getConfigTypeNode() throws Exception {
@@ -160,6 +155,16 @@ public class TaCoKitConfigurationModel {
             }
         }
         return parentConfigurationModelCache;
+    }
+
+    /**
+     * Retrieves {@link Connection} properties holder.
+     * Properties should contain only String values as they values are not converted further during serialization
+     * 
+     * @return map of connection properties
+     */
+    private Map getProperties() {
+        return connection.getProperties();
     }
 
     @Data
