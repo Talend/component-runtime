@@ -73,8 +73,6 @@ public class ComponentManagerService {
 
     private ComponentManager instance;
 
-    private String mvnRepo;
-
     private MvnCoordinateToFileConverter mvnCoordinateToFileConverter;
 
     private ScheduledExecutorService cacheEvictorPool;
@@ -87,8 +85,7 @@ public class ComponentManagerService {
 
     @PostConstruct
     private void init() {
-        mvnRepo = StrSubstitutor.replaceSystemProperties(configuration.mavenRepository());
-        System.setProperty("talend.component.manager.m2.repository", mvnRepo);// we will use the default instance
+        System.setProperty("talend.component.manager.m2.repository", configuration.mavenRepository());
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         instance = ComponentManager.instance();
 
@@ -143,7 +140,8 @@ public class ComponentManagerService {
                 .map(Artifact::toPath)
                 .orElseThrow(() -> new IllegalArgumentException("Plugin GAV can't be empty"));
 
-        String pluginID = instance.addWithLocationPlugin(pluginGAV, new File(mvnRepo, pluginPath).getAbsolutePath());
+        final String pluginID = instance.addWithLocationPlugin(pluginGAV,
+                new File(configuration.mavenRepository(), pluginPath).getAbsolutePath());
         final Container plugin = instance.findPlugin(pluginID).get();
 
         plugin
