@@ -10,7 +10,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.talend.sdk.component.studio.metadata;
+package org.talend.sdk.component.studio.model.parameter;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.components.ElementParameter;
+import org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterEventProperties;
 
 import lombok.Setter;
 

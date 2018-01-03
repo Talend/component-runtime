@@ -45,7 +45,6 @@ import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.ui.editor.nodes.Node;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
-import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivator;
 
 /**

@@ -22,7 +22,6 @@ import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.components.ElementParameter;
-import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
 
 /**
  * Adds schema property on Basic view in the 1st row by default

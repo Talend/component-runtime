@@ -26,7 +26,7 @@ import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.Element;
 import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.ui.views.properties.composites.MissingSettingsMultiThreadDynamicComposite;
-import org.talend.sdk.component.studio.metadata.TaCoKitElementParameter;
+import org.talend.sdk.component.studio.model.parameter.TaCoKitElementParameter;
 
 /**
  * Registers PropertyChangeListener for each IElementParameter during instantiation
