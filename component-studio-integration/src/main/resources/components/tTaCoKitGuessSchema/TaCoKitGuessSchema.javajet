@@ -222,8 +222,8 @@ class TaCoKitGuessSchema {
             } else if (rowObject instanceof org.talend.sdk.component.api.processor.data.ObjectMap) {
                 return guessSchemaThroughResultMap(strBuff, input,
                         (org.talend.sdk.component.api.processor.data.ObjectMap) rowObject);
-            } else if (rowObject instanceof java.util.Collections) {
-                throw new Exception("Can't guess schema from a list");
+            } else if (rowObject instanceof java.util.Collection) {
+                throw new Exception("Can't guess schema from a Collection");
             } else {
                 return guessSchemaThroughResultClass(strBuff, rowObject);
             }
@@ -247,69 +247,16 @@ class TaCoKitGuessSchema {
 
     private boolean guessSchemaThroughResultClass(final StringBuffer strBuff, final Object rowObject) throws Exception {
         Class<? extends Object> rowClass = rowObject.getClass();
-        java.util.Map<String, java.util.Set<String>> nameTypeMap = new java.util.HashMap<>();
-        int i = 0;
         final int originalSize = strBuff.length();
-        java.lang.reflect.Method[] methods = rowClass.getMethods();
-        if (methods != null && 0 < methods.length) {
-            for (java.lang.reflect.Method method : methods) {
-                int modifiers = method.getModifiers();
-                if (!java.lang.reflect.Modifier.isPublic(modifiers)) {
-                    continue;
-                }
-                Class<?> returnType = method.getReturnType();
-                if (returnType == void.class) {
-                    continue;
-                }
-                String name = method.getName();
-                name = name.replaceFirst("(([Gg][Ee][Tt])|([Ii][Ss])|([Tt][Oo]))", "");
-                if (name.isEmpty()) {
-                    name = method.getName();
-                }
-                String typeName = getTalendType(returnType);
-                String key = name.toLowerCase();
-                java.util.Set<String> mapTypes = nameTypeMap.get(key);
-                if (mapTypes == null) {
-                    mapTypes = new java.util.HashSet<>();
-                    mapTypes.add(typeName);
-                    nameTypeMap.put(key, mapTypes);
-                } else {
-                    if (mapTypes.contains(typeName)) {
-                        continue;
-                    } else {
-                        mapTypes.add(typeName);
-                        name = name + "_" + i++;
-                    }
-                }
-                ColumnInfo ci = new ColumnInfo();
-                ci.setName(name);
-                ci.setType(typeName);
-                write(strBuff, ci);
-            }
-        }
-        java.lang.reflect.Field[] fields = rowClass.getFields();
+        java.lang.reflect.Field[] fields = rowClass.getDeclaredFields();
         if (fields != null && 0 < fields.length) {
             for (java.lang.reflect.Field field : fields) {
                 int modifiers = field.getModifiers();
-                if (!java.lang.reflect.Modifier.isPublic(modifiers)) {
+                if (java.lang.reflect.Modifier.isStatic(modifiers)) {
                     continue;
                 }
                 String name = field.getName();
                 String typeName = getTalendType(field.getType());
-                String key = name.toLowerCase();
-                java.util.Set<String> mapTypes = nameTypeMap.get(key);
-                if (mapTypes == null) {
-                    mapTypes = new java.util.HashSet<>();
-                    mapTypes.add(typeName);
-                    nameTypeMap.put(key, mapTypes);
-                } else {
-                    if (mapTypes.contains(typeName)) {
-                        continue;
-                    } else {
-                        mapTypes.add(typeName);
-                        name = name + "_" + i++;
-                    }
-                }
                 ColumnInfo ci = new ColumnInfo();
                 ci.setName(name);
                 ci.setType(typeName);
@@ -352,59 +299,31 @@ class TaCoKitGuessSchema {
 
     private boolean guessSchemaThroughResultMap(final StringBuffer strBuff,
             final org.talend.sdk.component.runtime.input.Input input, final java.util.Map rowObject) throws Exception {
-        java.util.Map<String, ColumnInfo> columnMap = new java.util.HashMap<>();
-        java.util.Map<Object, Object> rowMap = rowObject;
-        JavaType objectJavaType = javaTypesManager.OBJECT;
-        for (int i = 0; i < lineLimit; ++i) {
-            boolean allConfirmed = true;
-            for (java.util.Map.Entry entry : rowMap.entrySet()) {
-                Object key = entry.getKey();
-                Object value = entry.getValue();
-                if (key == null) {
-                    continue;
-                }
-                String name = key.toString();
-                ColumnInfo storedCi = columnMap.get(name);
-                if (storedCi != null) {
-                    if (objectJavaType.getId().equals(storedCi.getName())) {
-                        continue;
-                    }
-                } else {
-                    storedCi = new ColumnInfo();
-                    storedCi.setName(name);
-                    columnMap.put(name, storedCi);
-                }
-                if (value == null) {
-                    allConfirmed = false;
-                    storedCi.setNullable(true);
-                    continue;
-                }
-                final Class curValueType = value.getClass();
-                String curType = getTalendType(curValueType);
-                if (objectJavaType.getId().equals(curType)) {
-                    storedCi.setType(curType);
-                    continue;
-                }
-                String storedType = storedCi.getType();
-                String commonType = javaDataTypeHelper.getCommonType(curType, storedType);
-                storedCi.setType(commonType);
-            }
-            if (allConfirmed) {
-                break;
-            }
-            rowMap = (java.util.Map<Object, Object>) input.next();
-            if (rowMap == null) {
-                break;
-            }
-        }
-        if (columnMap.isEmpty()) {
-            log.info("No column found from result map.");
+        java.util.Set<String> keys = rowObject.keySet();
+        if (keys == null || keys.isEmpty()) {
             return false;
         }
-        for (ColumnInfo ci : columnMap.values()) {
-            write(strBuff, ci);
+        final int originalSize = strBuff.length();
+        java.util.Set<String> keysNoTypeYet = new java.util.HashSet<>();
+        keysNoTypeYet.addAll(keys);
+        java.util.Map row = rowObject;
+        for (int line = 0; !keysNoTypeYet.isEmpty() && line < lineLimit; line++, row = (java.util.Map) input.next()) {
+            java.util.Iterator<String> iter = keysNoTypeYet.iterator();
+            while (iter.hasNext()) {
+                String key = iter.next();
+                Object result = row.get(key);
+                if (result == null) {
+                    continue;
+                }
+                String type = getTalendType(result.getClass());
+                ColumnInfo ci = new ColumnInfo();
+                ci.setName(key);
+                ci.setType(type);
+                write(strBuff, ci);
+                iter.remove();
+            }
         }
-        return true;
+        return originalSize != strBuff.length();
     }
 
     private void write(final StringBuffer strBuff, final ColumnInfo ci) {
