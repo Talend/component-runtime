@@ -508,6 +508,25 @@ If you want to ensure your component works in Beam the minimum to do is to try w
 
 Check https://beam.apache.org/contribute/testing/ out for more details.
 
+== Secrets/Passwords and Maven
+
+If you desire you can reuse your Maven `settings.xml` servers - including the encrypted ones.
+`org.talend.sdk.component.maven.MavenDecrypter` will give you the ability to find a server `username`/`password` from
+a server identifier:
+
+[source,java]
+----
+final MavenDecrypter decrypter = new MavenDecrypter();
+final Server decrypted = decrypter.find("my-test-server");
+// decrypted.getUsername();
+// decrypted.getPassword();
+----
+
+It is very useful to not store secrets and test on real systems on a continuous integration platform.
+
+TIP: even if you don't use maven on the platform you can generate the `settings.xml` and `settings-security.xml` files
+to use that feature. See https://maven.apache.org/guides/mini/guide-encryption.html for more details.
+
 == Generating data?
 
 Several data generator exists if you want to populate objects with a semantic a bit more evolved than a plain random string
