@@ -44,11 +44,11 @@ public class TableElementParameter extends TaCoKitElementParameter {
     public void setValue(final Object newValue) {
         if (newValue == null || "".equals(newValue)) {
             super.setValue(new ArrayList<Map<String, Object>>());
-        }
-        if (!(newValue instanceof List)) {
+        } else if (!(newValue instanceof List)) {
             throw new IllegalArgumentException("newValue should be of List<Map<String, Object>> type");
+        } else {
+            super.setValue(newValue);
         }
-        super.setValue(newValue);
     }
 
 }
