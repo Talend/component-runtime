@@ -26,8 +26,6 @@ public class KnownJarsFilter implements Predicate<String> {
     private final Collection<String> excludes = new HashSet<String>() {
 
         {
-            add("tools.jar");
-            add("bootstrap.jar");
             add("brave-");
             add("ApacheJMeter");
             add("XmlSchema-");
@@ -40,6 +38,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("ant-");
             add("antlr-");
             add("aopalliance-");
+            add("app-");
             add("args4j-");
             add("arquillian-core.jar");
             add("arquillian-testng.jar");
@@ -81,6 +80,8 @@ public class KnownJarsFilter implements Predicate<String> {
             add("cglib-");
             add("charsets.jar");
             add("cldrdata");
+            add("commands-");
+            add("common-");
             add("commons-");
             add("components-api");
             add("component-api");
@@ -91,12 +92,14 @@ public class KnownJarsFilter implements Predicate<String> {
             add("compress-lzf");
             add("config");
             add("container-core");
+            add("contenttype");
             add("coverage-agent");
             add("cryptacular-");
             add("cssparser-");
             add("curator-");
             add("cxf-");
             add("cdi-");
+            add("databinding");
             add("deploy.jar");
             add("deltaspike-");
             add("derby-");
@@ -104,24 +107,25 @@ public class KnownJarsFilter implements Predicate<String> {
             add("derbynet-");
             add("dnsns");
             add("dom4j");
+            add("draw2d");
             add("ecj-");
             add("eclipselink-");
             add("el-api");
             add("ehcache-");
             add("error_prone_annotations");
+            add("expressions");
             add("FastInfoset");
             add("freemarker-");
             add("j2objc-annotations");
-            add("jackson-");
-            add("jaxb-");
             add("jce.jar");
             add("jets3t");
+            add("jface");
             add("jfr.jar");
             add("jfxrt.jar");
             add("jmustache");
             add("jna-");
             add("jnr-");
-            add("johnzon-");
+            add("jobs-");
             add("jolokia-core-");
             add("jolokia-jvm-");
             add("jolokia-serv");
@@ -129,6 +133,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("json4s-");
             add("jsr250-");
             add("fusemq-leveldb-");
+            add("gef-");
             add("geronimo-");
             add("google-");
             add("gpars-");
@@ -146,6 +151,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("hawtdispatch-");
             add("hawtio-");
             add("hawtjni-runtime");
+            add("help-");
             add("hibernate-");
             add("howl-");
             add("hsqldb-");
@@ -208,6 +214,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("junit5-");
             add("gmbal");
             add("kahadb-");
+            add("kafka-clients");
             add("kotlin-runtime");
             add("kryo");
             add("leveldb");
@@ -249,18 +256,23 @@ public class KnownJarsFilter implements Predicate<String> {
             add("org.junit.");
             add("org.apache.aries.blueprint.noosgi");
             add("org.apache.aries.blueprint.web");
+            add("org.apache.commons");
+            add("org.apache.log4j");
+            add("org.talend");
             add("org.osgi.core-");
             add("org.osgi.enterprise");
             add("orient-commons-");
             add("orientdb-core-");
             add("orientdb-nativeos-");
             add("oro-");
+            add("osgi");
             add("paranamer");
             add("pax-url");
             add("PDFBox");
             add("plexus-");
             add("plugin.jar");
             add("poi-");
+            add("preferences-");
             add("protobuf-");
             add("py4j-");
             add("pyrolite-");
@@ -268,9 +280,11 @@ public class KnownJarsFilter implements Predicate<String> {
             add("qdox-");
             add("quartz-openejb-");
             add("reflectasm-");
+            add("registry-");
             add("resources.jar");
             add("rmock-");
             add("RoaringBitmap-");
+            add("runtime-");
             add("rt.jar");
             add("routines");
             add("saaj-");
@@ -300,6 +314,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("sunjce_provider");
             add("sunpkcs11");
             add("surefire-");
+            add("system-rules");
             add("swagger-");
             add("swizzle-");
             add("sxc-");
@@ -338,6 +353,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("webbeans-spi");
             add("websocket-api");
             add("woodstox-core-asl-");
+            add("workbench");
             add("ws-commons-util-");
             add("wsdl4j-");
             add("wss4j-");

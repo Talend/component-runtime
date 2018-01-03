@@ -138,6 +138,13 @@
     </dependency>
 
     <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>com.github.stefanbirkner</groupId>
       <artifactId>system-rules</artifactId>
       <version>1.16.0</version>
@@ -327,6 +334,7 @@
           <systemPropertyVariables>
             <test.m2.repository>${settings.localRepository}</test.m2.repository>
             <test.version>${project.version}</test.version>
+            <java.version>${java.version}</java.version>
           </systemPropertyVariables>
         </configuration>
       </plugin>

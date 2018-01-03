@@ -68,6 +68,9 @@ import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ServerManagerTest {
 
     @ClassRule
@@ -94,7 +97,7 @@ public class ServerManagerTest {
 
     @Test
     public void startServer() throws Exception {
-        int port = -1;
+        int port;
         final Thread thread = Thread.currentThread();
         final ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
         try (final URLClassLoader buildLoader = new URLClassLoader(new URL[0], oldLoader) {
@@ -107,32 +110,26 @@ public class ServerManagerTest {
                 }
                 return super.getResourceAsStream(name);
             }
-        };
-                final ProcessManager mgr = new ProcessManager(org.talend.sdk.component.studio.GAV.GROUP_ID,
-                        org.talend.sdk.component.studio.GAV.ARTIFACT_ID, gav -> {
-                            final String[] segments = gav.substring(gav.lastIndexOf('!') + 1).split("/");
-                            if (segments[1].startsWith("component-")) { // try in the project
-                                final File[] root = jarLocation(ServerManagerTest.class)
-                                        .getParentFile()
-                                        .getParentFile()
-                                        .getParentFile()
-                                        .listFiles((dir, name) -> name.equals(segments[1]));
-                                if (root != null && root.length == 1) {
-                                    final File[] jar = new File(root[0], "target").listFiles(
-                                            (dir, name) -> name.startsWith(segments[1]) && name.endsWith(".jar")
-                                                    && !name.contains("-source") && !name.contains("-model")
-                                                    && !name.contains("-fat") && !name.contains("-javadoc"));
-                                    if (jar != null && jar.length == 1) {
-                                        return jar[0];
-                                    }
-                                }
-                            }
-                            return new File(
-                                    System.getProperty("test.m2.repository",
-                                            System.getProperty("user.home") + "/.m2/repository"),
-                                    segments[0].replace('.', '/') + '/' + segments[1] + '/' + segments[2] + '/'
-                                            + segments[1] + '-' + segments[2] + ".jar");
-                        }, new File("target/conf_missing"))) {
+        }; final ProcessManager mgr = new ProcessManager(org.talend.sdk.component.studio.GAV.GROUP_ID, gav -> {
+            final String[] segments = gav.substring(gav.lastIndexOf('!') + 1).split("/");
+            if (segments[1].startsWith("component-")) { // try in the project
+                final File[] root =
+                        jarLocation(ServerManagerTest.class).getParentFile().getParentFile().getParentFile().listFiles(
+                                (dir, name) -> name.equals(segments[1]));
+                if (root != null && root.length == 1) {
+                    final File[] jar = new File(root[0], "target").listFiles((dir, name) -> name.startsWith(segments[1])
+                            && name.endsWith(".jar") && !name.contains("-source") && !name.contains("-model")
+                            && !name.contains("-fat") && !name.contains("-javadoc"));
+                    if (jar != null && jar.length == 1) {
+                        return jar[0];
+                    }
+                }
+            }
+            return new File(
+                    System.getProperty("test.m2.repository", System.getProperty("user.home") + "/.m2/repository"),
+                    segments[0].replace('.', '/') + '/' + segments[1] + '/' + segments[2] + '/' + segments[1] + '-'
+                            + segments[2] + ".jar");
+        })) {
             thread.setContextClassLoader(buildLoader);
             mgr.start();
             mgr.waitForServer(() -> {

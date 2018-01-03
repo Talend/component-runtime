@@ -18,7 +18,6 @@ package org.talend.sdk.component.studio;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -34,12 +33,12 @@ public class TemplatesExtractor {
 
     private final String destinationFolder;
 
-    public void extract() throws IOException, URISyntaxException {
-        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+    public void extract() throws IOException {
+        final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         final URL templateEntry = bundle.getEntry(templatesPath);
         final File destDir = new File(destinationFolder, "tacokit/jet_stub");
-        String templateFolderPath = FileLocator.toFileURL(templateEntry).getPath();
-        File templateFolder = new File(templateFolderPath);
+        final String templateFolderPath = FileLocator.toFileURL(templateEntry).getPath();
+        final File templateFolder = new File(templateFolderPath);
         org.talend.utils.io.FilesUtils.copyDirectory(templateFolder, destDir);
     }
 

@@ -60,13 +60,11 @@ public class TaCoKitGenericProvider implements IGenericProvider {
         final Set<IComponent> components = factory.getComponents();
         synchronized (components) {
             components.removeIf(component -> {
-                if (TaCoKitConst.GUESS_SCHEMA_COMPONENT_NAME.equals(component.getName())) {
+                if (TaCoKitConst.GUESS_SCHEMA_COMPONENT_NAME.equals(component.getName())) { // this should likely
+                                                                                            // move...
                     Lookups.taCoKitCache().setTaCoKitGuessSchemaComponent(component);
                 }
-                if (component instanceof ComponentModel) {
-                    return true;
-                }
-                return false;
+                return ComponentModel.class.isInstance(component);
             });
             details.forEach(pair -> {
                 ComponentIndex index = pair.getFirst();

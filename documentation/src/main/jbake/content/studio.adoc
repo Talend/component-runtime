@@ -32,18 +32,12 @@ The configuration goes into `$STUDIO_HOME/configuration/config.ini`.
 |===
 | Name | Description | Default
 | component.kit.skip | If `true` the plugin is not active. Useful if you don't have any component develop with the framework. | false
-| component.java.options | JVM options to pass to the component server | -Xmx256m
 | component.java.arguments | Component server additional options | -
 | component.java.m2 | The maven repository the server uses to resolve components | default to global Studio configuration
 | component.java.coordinates | A list of comma separated GAV (groupId:artifactId:version) of components to register | -
 | component.java.registry | A properties file with values matching component GAV (groupId:artifactId:version) which are registered at startup | -
 | component.java.port | Set a port to use for the server | random
-| component.java.debug | Active the remote debugging for the server process | false
-| component.java.debug.port | If `component.java.debug` is true, the remote debugging port | 5005
 |===
-
-If you want to customize the server logs you can create a `$STUDIO_HOME/configuration/log4j2-components.xml` file
-containing a link:https://logging.apache.org/log4j/2.x/[Log4j2] configuration.
 
 IMPORTANT: to activate the plugin and be able to deploy your component, don't forget to set `component.kit.skip` to `true`.
 

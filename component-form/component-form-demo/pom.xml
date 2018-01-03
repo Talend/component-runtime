@@ -27,11 +27,6 @@
   <name>Component Runtime :: Form :: Demo</name>
   <description>Sample of the form-core usage.</description>
 
-  <properties>
-    <meecrowave.version>1.0.0</meecrowave.version>
-    <log4j2.version>2.8.2</log4j2.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
@@ -68,6 +63,30 @@
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <version>1.4.196</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-web</artifactId>
+      <version>${log4j2.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>${log4j2.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${log4j2.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-jul</artifactId>
+      <version>${log4j2.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 

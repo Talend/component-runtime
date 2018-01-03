@@ -27,8 +27,6 @@
   <name>Component Runtime :: Server</name>
   <description>The Web server of the framework. Mainly provides UI interaction hooks.</description>
 
-
-
   <properties>
     <talend.icon.output>${project.build.outputDirectory}</talend.icon.output>
   </properties>

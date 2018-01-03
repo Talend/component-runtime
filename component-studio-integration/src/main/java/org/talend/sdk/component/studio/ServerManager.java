@@ -15,11 +15,8 @@
  */
 package org.talend.sdk.component.studio;
 
-import static org.talend.sdk.component.studio.GAV.ARTIFACT_ID;
 import static org.talend.sdk.component.studio.GAV.GROUP_ID;
 
-import java.io.File;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -30,7 +27,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.talend.osgi.hook.URIUtil;
 import org.talend.osgi.hook.maven.MavenResolver;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.service.ComponentService;
@@ -66,7 +62,7 @@ public class ServerManager extends AbstractUIPlugin {
 
         reset = Lookups.init();
 
-        manager = new ProcessManager(GROUP_ID, ARTIFACT_ID, findMavenResolver(), findConfigDir());
+        manager = new ProcessManager(GROUP_ID, findMavenResolver());
         manager.start();
 
         client = new WebSocketClient("ws://localhost:" + manager.getPort() + "/websocket/v1",
@@ -115,14 +111,6 @@ public class ServerManager extends AbstractUIPlugin {
             }
         } finally {
             super.stop(context);
-        }
-    }
-
-    private File findConfigDir() {
-        try {
-            return URIUtil.toFile(Platform.getConfigurationLocation().getURL().toURI());
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("bad configuration configuration", e);
         }
     }
 

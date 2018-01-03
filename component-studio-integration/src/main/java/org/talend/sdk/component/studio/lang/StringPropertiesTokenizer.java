@@ -16,7 +16,7 @@
 package org.talend.sdk.component.studio.lang;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 public class StringPropertiesTokenizer {
@@ -34,8 +34,8 @@ public class StringPropertiesTokenizer {
         delim = ", \t\r\n\f".toCharArray();
     }
 
-    public Collection<String> tokens() {
-        final Collection<String> out = new ArrayList<>();
+    public List<String> tokens() {
+        final List<String> out = new ArrayList<>();
         while (hasMoreTokens()) {
             out.add(nextToken());
         }
