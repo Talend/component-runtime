@@ -277,7 +277,7 @@ class TaCoKitGuessSchema {
         java.util.Set<String> keysNoTypeYet = new java.util.HashSet<>();
         keysNoTypeYet.addAll(keys);
         org.talend.sdk.component.api.processor.data.ObjectMap row = rowObject;
-        for (int line = 0; !keysNoTypeYet.isEmpty()
+        for (int line = 0; row != null && !keysNoTypeYet.isEmpty()
                 && line < lineLimit; line++, row = (org.talend.sdk.component.api.processor.data.ObjectMap) input.next()) {
             java.util.Iterator<String> iter = keysNoTypeYet.iterator();
             while (iter.hasNext()) {
@@ -294,6 +294,14 @@ class TaCoKitGuessSchema {
                 iter.remove();
             }
         }
+        if (!keysNoTypeYet.isEmpty()) {
+            for (String key : keysNoTypeYet) {
+                ColumnInfo ci = new ColumnInfo();
+                ci.setName(key);
+                ci.setType(getTalendType(Object.class));
+                write(strBuff, ci);
+            }
+        }
         return originalSize != strBuff.length();
     }
 
@@ -307,7 +315,8 @@ class TaCoKitGuessSchema {
         java.util.Set<String> keysNoTypeYet = new java.util.HashSet<>();
         keysNoTypeYet.addAll(keys);
         java.util.Map row = rowObject;
-        for (int line = 0; !keysNoTypeYet.isEmpty() && line < lineLimit; line++, row = (java.util.Map) input.next()) {
+        for (int line = 0; row != null && !keysNoTypeYet.isEmpty()
+                && line < lineLimit; line++, row = (java.util.Map) input.next()) {
             java.util.Iterator<String> iter = keysNoTypeYet.iterator();
             while (iter.hasNext()) {
                 String key = iter.next();
@@ -321,6 +330,14 @@ class TaCoKitGuessSchema {
                 ci.setType(type);
                 write(strBuff, ci);
                 iter.remove();
+            }
+        }
+        if (!keysNoTypeYet.isEmpty()) {
+            for (String key : keysNoTypeYet) {
+                ColumnInfo ci = new ColumnInfo();
+                ci.setName(key);
+                ci.setType(getTalendType(Object.class));
+                write(strBuff, ci);
             }
         }
         return originalSize != strBuff.length();
