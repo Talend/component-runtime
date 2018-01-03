@@ -15,185 +15,50 @@
  */
 package org.talend.sdk.component.junit.http.internal.impl;
 
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
-import static org.talend.sdk.component.junit.http.internal.impl.Handlers.BASE;
-import static org.talend.sdk.component.junit.http.internal.impl.Handlers.closeOnFlush;
-import static org.talend.sdk.component.junit.http.internal.impl.Handlers.sendError;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.Proxy;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLEngine;
 
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 import org.talend.sdk.component.junit.http.api.Response;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.ssl.SslHandler;
-import io.netty.util.Attribute;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@AllArgsConstructor
-public class DefaultResponseLocatorCapturingHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class DefaultResponseLocatorCapturingHandler extends PassthroughHandler {
 
-    private final HttpApiHandler api;
-
-    @Override
-    protected void channelRead0(final ChannelHandlerContext ctx, final FullHttpRequest request) {
-        if (HttpMethod.CONNECT.name().equalsIgnoreCase(request.method().name())) {
-            final FullHttpResponse response =
-                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.EMPTY_BUFFER);
-            if (api.getSslContext() != null) {
-                final SSLEngine sslEngine = api.getSslContext().createSSLEngine();
-                sslEngine.setUseClientMode(false);
-                ctx.channel().pipeline().addFirst("ssl", new SslHandler(sslEngine, true));
-
-                final String uri = request.uri();
-                final String[] parts = uri.split(":");
-                ctx.channel().attr(BASE).set(
-                        "https://" + parts[0] + (parts.length > 1 && !"443".equals(parts[1]) ? ":" + parts[1] : ""));
-            }
-            ctx.writeAndFlush(response);
-            return;
-        }
-
-        api.getExecutor().execute(() -> {
-            final Attribute<String> baseAttr = ctx.channel().attr(Handlers.BASE);
-
-            final DefaultResponseLocator.RequestModel requestModel = new DefaultResponseLocator.RequestModel();
-            requestModel.setMethod(request.method().name());
-            requestModel.setUri((baseAttr == null || baseAttr.get() == null ? "" : baseAttr.get()) + request.uri());
-            requestModel.setHeaders(StreamSupport
-                    .stream(Spliterators.spliteratorUnknownSize(request.headers().iteratorAsString(),
-                            Spliterator.IMMUTABLE), false)
-                    .filter(h -> !api.getHeaderFilter().test(h.getKey()))
-                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
-            final DefaultResponseLocator.Model model = new DefaultResponseLocator.Model();
-            model.setRequest(requestModel);
-
-            // do the remote request with all the incoming data and save it
-            // note: this request must be synchronous for now
-            final Response resp;
-            try {
-                final URL url = new URL(requestModel.getUri());
-                final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection(Proxy.NO_PROXY));
-                connection.setConnectTimeout(30000);
-                connection.setReadTimeout(20000);
-                if (HttpsURLConnection.class.isInstance(connection)) {
-                    final HttpsURLConnection httpsURLConnection = HttpsURLConnection.class.cast(connection);
-                    httpsURLConnection.setHostnameVerifier((h, s) -> true);
-                    httpsURLConnection.setSSLSocketFactory(api.getSslContext().getSocketFactory());
-                }
-                if (request.method() != null) {
-                    final String requestMethod = request.method().name();
-                    connection.setRequestMethod(requestMethod);
-
-                    if (!"HEAD".equalsIgnoreCase(requestMethod) && request.content().readableBytes() > 0) {
-                        connection.setDoOutput(true);
-                        request.content().readBytes(connection.getOutputStream(), request.content().readableBytes());
-                    }
-                }
-
-                final int responseCode = connection.getResponseCode();
-                final int defaultLength =
-                        ofNullable(connection.getHeaderField("content-length")).map(Integer::parseInt).orElse(8192);
-                resp = new ResponseImpl(
-                        connection
-                                .getHeaderFields()
-                                .entrySet()
-                                .stream()
-                                .filter(e -> e.getKey() != null)
-                                .filter(h -> !api.getHeaderFilter().test(h.getKey()))
-                                .collect(toMap(Map.Entry::getKey,
-                                        e -> e.getValue().stream().collect(Collectors.joining(",")))),
-
-                        responseCode, responseCode <= 399 ? slurp(connection.getInputStream(), defaultLength)
-                                : slurp(connection.getErrorStream(), defaultLength));
-            } catch (final Exception e) {
-                log.error(e.getMessage(), e);
-                sendError(ctx, HttpResponseStatus.BAD_REQUEST);
-                return;
-            }
-
-            final DefaultResponseLocator.ResponseModel responseModel = new DefaultResponseLocator.ResponseModel();
-            responseModel.setStatus(resp.status());
-            responseModel.setHeaders(resp.headers());
-            // todo: support as byte[] for not text responses
-            responseModel.setPayload(new String(resp.payload(), StandardCharsets.UTF_8));
-            model.setResponse(responseModel);
-
-            if (DefaultResponseLocator.class.isInstance(api.getResponseLocator())) {
-                DefaultResponseLocator.class.cast(api.getResponseLocator()).getCapturingBuffer().add(model);
-            }
-
-            final ByteBuf bytes = ofNullable(resp.payload()).map(Unpooled::copiedBuffer).orElse(Unpooled.EMPTY_BUFFER);
-            final HttpResponse response =
-                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(resp.status()), bytes);
-            HttpUtil.setContentLength(response, bytes.array().length);
-
-            ofNullable(resp.headers()).ifPresent(h -> h.forEach((k, v) -> response.headers().set(k, v)));
-            ctx.writeAndFlush(response);
-        });
-    }
-
-    private byte[] slurp(final InputStream inputStream, final int defaultLen) throws IOException {
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(defaultLen);
-        final byte[] bytes = new byte[defaultLen];
-        int read;
-        while ((read = inputStream.read(bytes)) >= 0) {
-            byteArrayOutputStream.write(bytes, 0, read);
-        }
-        return byteArrayOutputStream.toByteArray();
+    public DefaultResponseLocatorCapturingHandler(final HttpApiHandler api) {
+        super(api);
     }
 
     @Override
-    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
-        log.error(cause.getMessage(), cause);
-        closeOnFlush(ctx.channel());
-    }
+    protected void beforeResponse(final String requestUri, final FullHttpRequest request, final Response resp) {
+        final DefaultResponseLocator.RequestModel requestModel = new DefaultResponseLocator.RequestModel();
+        requestModel.setMethod(request.method().name());
+        requestModel.setUri(requestUri);
+        requestModel.setHeaders(StreamSupport
+                .stream(Spliterators.spliteratorUnknownSize(request.headers().iteratorAsString(),
+                        Spliterator.IMMUTABLE), false)
+                .filter(h -> !api.getHeaderFilter().test(h.getKey()))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        final DefaultResponseLocator.Model model = new DefaultResponseLocator.Model();
+        model.setRequest(requestModel);
 
-    public static boolean isActive() {
-        return getBaseCapture() != null;
-    }
+        final DefaultResponseLocator.ResponseModel responseModel = new DefaultResponseLocator.ResponseModel();
+        responseModel.setStatus(resp.status());
+        responseModel.setHeaders(resp.headers());
+        // todo: support as byte[] for not text responses
+        responseModel.setPayload(new String(resp.payload(), StandardCharsets.UTF_8));
+        model.setResponse(responseModel);
 
-    // yes, it could be in the API but to avoid to keep it and pass tests in capture mode
-    // we hide it this way for now
-    public static String getBaseCapture() {
-        return ofNullable(System.getProperty("talend.junit.http.capture")).map(value -> {
-            if ("true".equalsIgnoreCase(value)) { // try to guess
-                final File file = new File("src/test/resources");
-                if (file.isDirectory()) {
-                    return file.getAbsolutePath();
-                }
-            }
-            return value;
-        }).orElse(null);
+        if (DefaultResponseLocator.class.isInstance(api.getResponseLocator())) {
+            DefaultResponseLocator.class.cast(api.getResponseLocator()).getCapturingBuffer().add(model);
+        }
     }
 }

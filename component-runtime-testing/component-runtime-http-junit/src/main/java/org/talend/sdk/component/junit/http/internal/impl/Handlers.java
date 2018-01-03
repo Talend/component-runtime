@@ -15,7 +15,10 @@
  */
 package org.talend.sdk.component.junit.http.internal.impl;
 
+import static java.util.Optional.ofNullable;
 import static lombok.AccessLevel.PRIVATE;
+
+import java.io.File;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -31,7 +34,7 @@ import io.netty.util.CharsetUtil;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
-class Handlers {
+public class Handlers {
 
     static final AttributeKey<String> BASE = AttributeKey.newInstance(Handlers.class.getName() + "#BASE");
 
@@ -47,5 +50,24 @@ class Handlers {
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
         response.headers().set("X-Talend-Proxy-JUnit", "default-response");
         ctx.writeAndFlush(response);
+    }
+
+    public static boolean isActive(final String handler) {
+        return "capture".equals(handler) ? getBaseCapture() != null
+                : Boolean.parseBoolean(System.getProperty("talend.junit.http." + handler));
+    }
+
+    // yes, it could be in the API but to avoid to keep it and pass tests in capture mode
+    // we hide it this way for now
+    public static String getBaseCapture() {
+        return ofNullable(System.getProperty("talend.junit.http.capture")).map(value -> {
+            if ("true".equalsIgnoreCase(value)) { // try to guess
+                final File file = new File("src/test/resources");
+                if (file.isDirectory()) {
+                    return file.getAbsolutePath();
+                }
+            }
+            return value;
+        }).orElse(null);
     }
 }

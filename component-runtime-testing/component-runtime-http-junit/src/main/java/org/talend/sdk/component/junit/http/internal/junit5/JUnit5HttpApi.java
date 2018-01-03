@@ -32,8 +32,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 import org.talend.sdk.component.junit.http.api.ResponseLocator;
 import org.talend.sdk.component.junit.http.internal.impl.DefaultResponseLocator;
-import org.talend.sdk.component.junit.http.internal.impl.DefaultResponseLocatorCapturingHandler;
 import org.talend.sdk.component.junit.http.internal.impl.HandlerImpl;
+import org.talend.sdk.component.junit.http.internal.impl.Handlers;
 import org.talend.sdk.component.junit.http.junit5.HttpApi;
 import org.talend.sdk.component.junit.http.junit5.HttpApiInject;
 
@@ -104,12 +104,12 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
 
     @Override
     public void afterEach(final ExtensionContext extensionContext) {
-        if (DefaultResponseLocatorCapturingHandler.isActive()) {
+        if (Handlers.isActive("capture")) {
             Optional
                     .of(getResponseLocator())
                     .filter(DefaultResponseLocator.class::isInstance)
                     .map(DefaultResponseLocator.class::cast)
-                    .ifPresent(r -> r.flush(DefaultResponseLocatorCapturingHandler.getBaseCapture()));
+                    .ifPresent(r -> r.flush(Handlers.getBaseCapture()));
         }
     }
 

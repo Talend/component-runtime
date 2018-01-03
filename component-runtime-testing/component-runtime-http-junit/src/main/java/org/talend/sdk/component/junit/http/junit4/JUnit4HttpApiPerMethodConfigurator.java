@@ -20,7 +20,7 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.talend.sdk.component.junit.http.api.ResponseLocator;
 import org.talend.sdk.component.junit.http.internal.impl.DefaultResponseLocator;
-import org.talend.sdk.component.junit.http.internal.impl.DefaultResponseLocatorCapturingHandler;
+import org.talend.sdk.component.junit.http.internal.impl.Handlers;
 
 import lombok.AllArgsConstructor;
 
@@ -45,10 +45,10 @@ public class JUnit4HttpApiPerMethodConfigurator implements TestRule {
                     base.evaluate();
                 } finally {
                     if (DefaultResponseLocator.class.isInstance(responseLocator)) {
-                        if (DefaultResponseLocatorCapturingHandler.isActive()) {
+                        if (Handlers.isActive("capture")) {
                             final DefaultResponseLocator defaultResponseLocator =
                                     DefaultResponseLocator.class.cast(responseLocator);
-                            defaultResponseLocator.flush(DefaultResponseLocatorCapturingHandler.getBaseCapture());
+                            defaultResponseLocator.flush(Handlers.getBaseCapture());
                         }
                     }
                 }

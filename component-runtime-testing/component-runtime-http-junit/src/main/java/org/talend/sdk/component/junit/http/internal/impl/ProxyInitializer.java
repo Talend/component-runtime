@@ -17,6 +17,7 @@ package org.talend.sdk.component.junit.http.internal.impl;
 
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -45,8 +46,16 @@ public class ProxyInitializer extends ChannelInitializer<SocketChannel> {
                 .addLast("aggregator", new HttpObjectAggregator(Integer.MAX_VALUE))
                 .addLast("http-encoder", new HttpResponseEncoder())
                 .addLast("chunked-writer", new ChunkedWriteHandler())
-                .addLast("talend-junit-api-server",
-                        !DefaultResponseLocatorCapturingHandler.isActive() ? new ServingProxyHandler(api)
-                                : new DefaultResponseLocatorCapturingHandler(api));
+                .addLast("talend-junit-api-server", newHandler());
+    }
+
+    private ChannelHandler newHandler() {
+        if (Handlers.isActive("capture")) {
+            return new DefaultResponseLocatorCapturingHandler(api);
+        }
+        if (Handlers.isActive("passthrough")) {
+            return new PassthroughHandler(api);
+        }
+        return new ServingProxyHandler(api);
     }
 }

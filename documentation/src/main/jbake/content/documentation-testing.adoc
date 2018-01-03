@@ -358,6 +358,9 @@ The HTTP JUnit module allows you to mock REST API very easily. Here are its coor
 </dependency>
 ----
 
+TIP: this module uses Apache Johnzon and Netty, if you have any conflict (in particular with netty) you can add the classifier `shaded`
+to the dependency and the two dependencies are shaded avoiding the conflicts with your component.
+
 It supports JUnit 4 and JUnit 5 as well but the overall concept is the exact same one: the extension/rule
 is able to serve precomputed responses saved in the classpath.
 
@@ -493,6 +496,11 @@ Once you ran the tests with this system property, the testing framework will hav
 remove the system property. The test will still pass, using `google.com`...even if you disconnect your machine from the internet.
 
 The rule (extension) is doing all the work for you :).
+
+==== Passthrough mode
+
+Setting `talend.junit.http.passthrough` system property to `true`, the server will just be a proxy and will execute each request
+to the actual server - like in capturing mode.
 
 == Beam testing
 
