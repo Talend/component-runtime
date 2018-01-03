@@ -19,13 +19,13 @@ import static lombok.AccessLevel.PRIVATE;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 
 import lombok.NoArgsConstructor;
@@ -33,9 +33,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 class Handlers {
 
+    static final AttributeKey<String> BASE = AttributeKey.newInstance(Handlers.class.getName() + "#BASE");
+
     static void closeOnFlush(final Channel ch) {
         if (ch.isActive()) {
-            ch.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+            ch.writeAndFlush(Unpooled.EMPTY_BUFFER);
         }
     }
 
@@ -44,6 +46,6 @@ class Handlers {
                 Unpooled.copiedBuffer("Failure: " + status.toString() + "\r\n", CharsetUtil.UTF_8));
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
         response.headers().set("X-Talend-Proxy-JUnit", "default-response");
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+        ctx.writeAndFlush(response);
     }
 }

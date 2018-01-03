@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.junit.http.internal.impl;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.closeOnFlush;
@@ -26,6 +28,8 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
+import javax.net.ssl.SSLEngine;
+
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 import org.talend.sdk.component.junit.http.api.Response;
 
@@ -36,10 +40,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.util.Attribute;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,11 +70,29 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
                     .stream(Spliterators.spliteratorUnknownSize(request.headers().iteratorAsString(),
                             Spliterator.IMMUTABLE), false)
                     .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-            final Optional<Response> matching = api.getResponseLocator().findMatching(
-                    new RequestImpl(request.uri(), request.method().name(), headers), api.getHeaderFilter());
+            final Attribute<String> baseAttr = ctx.channel().attr(Handlers.BASE);
+            Optional<Response> matching = api.getResponseLocator().findMatching(
+                    new RequestImpl((baseAttr == null || baseAttr.get() == null ? "" : baseAttr.get()) + request.uri(),
+                            request.method().name(), headers),
+                    api.getHeaderFilter());
             if (!matching.isPresent()) {
-                sendError(ctx, HttpResponseStatus.BAD_REQUEST);
-                return;
+                if (HttpMethod.CONNECT.name().equalsIgnoreCase(request.method().name())) {
+                    matching = of(
+                            new ResponseImpl(emptyMap(), HttpResponseStatus.OK.code(), Unpooled.EMPTY_BUFFER.array()));
+                    if (api.getSslContext() != null) {
+                        final SSLEngine sslEngine = api.getSslContext().createSSLEngine();
+                        sslEngine.setUseClientMode(false);
+                        ctx.channel().pipeline().addFirst("ssl", new SslHandler(sslEngine, true));
+
+                        final String uri = request.uri();
+                        final String[] parts = uri.split(":");
+                        ctx.channel().attr(Handlers.BASE).set("https://" + parts[0]
+                                + (parts.length > 1 && !"443".equals(parts[1]) ? ":" + parts[1] : ""));
+                    }
+                } else {
+                    sendError(ctx, HttpResponseStatus.BAD_REQUEST);
+                    return;
+                }
             }
 
             final Response resp = matching.get();
@@ -76,8 +101,9 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
                     new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(resp.status()), bytes);
             HttpUtil.setContentLength(response, bytes.array().length);
 
-            // todo: config for it
-            response.headers().set("X-Talend-Proxy-JUnit", "true");
+            if (!api.isSkipProxyHeaders()) {
+                response.headers().set("X-Talend-Proxy-JUnit", "true");
+            }
 
             ofNullable(resp.headers()).ifPresent(h -> h.forEach((k, v) -> response.headers().set(k, v)));
             ctx.writeAndFlush(response);

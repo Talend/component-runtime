@@ -26,7 +26,6 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpServerKeepAliveHandler;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
 import lombok.AllArgsConstructor;
@@ -39,11 +38,8 @@ public class ProxyInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(final SocketChannel channel) {
         final ChannelPipeline pipeline = channel.pipeline();
-        if (api.getSslContext() != null) {
-            pipeline.addLast("ssl", new SslHandler(api.getSslContext().createSSLEngine()));
-        }
         pipeline
-                .addLast(new LoggingHandler(LogLevel.valueOf(api.getLogLevel())))
+                .addLast("logging", new LoggingHandler(LogLevel.valueOf(api.getLogLevel())))
                 .addLast("http-decoder", new HttpRequestDecoder())
                 .addLast("http-keepalive", new HttpServerKeepAliveHandler())
                 .addLast("aggregator", new HttpObjectAggregator(Integer.MAX_VALUE))

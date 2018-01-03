@@ -67,4 +67,14 @@ public @interface HttpApi {
      * @return the SSLContext supplier to use.
      */
     Class<? extends Supplier> sslContext() default Supplier.class;
+
+    /**
+     * @return true if a default sslContext should be created for the test.
+     */
+    boolean useSsl() default false;
+
+    /**
+     * @return true if the proxy shouldn't add meta headers (X-Talend) at all.
+     */
+    boolean skipProxyHeaders() default false;
 }

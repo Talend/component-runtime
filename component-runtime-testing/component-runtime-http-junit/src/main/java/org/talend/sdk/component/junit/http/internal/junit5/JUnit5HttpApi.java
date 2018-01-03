@@ -33,6 +33,7 @@ import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 import org.talend.sdk.component.junit.http.api.ResponseLocator;
 import org.talend.sdk.component.junit.http.internal.impl.DefaultResponseLocator;
 import org.talend.sdk.component.junit.http.internal.impl.DefaultResponseLocatorCapturingHandler;
+import org.talend.sdk.component.junit.http.internal.impl.HandlerImpl;
 import org.talend.sdk.component.junit.http.junit5.HttpApi;
 import org.talend.sdk.component.junit.http.junit5.HttpApiInject;
 
@@ -54,14 +55,20 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
             newInstance(config.executor(), Executor.class).ifPresent(this::setExecutor);
             newInstance(config.sslContext(), Supplier.class).map(s -> SSLContext.class.cast(s.get())).ifPresent(
                     this::setSslContext);
+            setSkipProxyHeaders(config.skipProxyHeaders());
+            if (config.useSsl()) {
+                activeSsl();
+            }
         }
         extensionContext.getStore(NAMESPACE).put(HttpApiHandler.class.getName(), this);
-        start();
+        final HandlerImpl<JUnit5HttpApi> handler = new HandlerImpl<>(this, null, null);
+        extensionContext.getStore(NAMESPACE).put(HandlerImpl.class.getName(), handler);
+        handler.start();
     }
 
     @Override
     public void afterAll(final ExtensionContext extensionContext) {
-        close();
+        HandlerImpl.class.cast(extensionContext.getStore(NAMESPACE).get(HandlerImpl.class.getName())).close();
     }
 
     @Override

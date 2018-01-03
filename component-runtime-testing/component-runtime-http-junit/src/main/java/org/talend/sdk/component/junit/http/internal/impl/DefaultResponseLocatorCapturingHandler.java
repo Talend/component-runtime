@@ -17,6 +17,7 @@ package org.talend.sdk.component.junit.http.internal.impl;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.junit.http.internal.impl.Handlers.BASE;
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.closeOnFlush;
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.sendError;
 
@@ -34,6 +35,9 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLEngine;
+
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 import org.talend.sdk.component.junit.http.api.Response;
 
@@ -43,10 +47,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.util.Attribute;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,10 +67,29 @@ public class DefaultResponseLocatorCapturingHandler extends SimpleChannelInbound
 
     @Override
     protected void channelRead0(final ChannelHandlerContext ctx, final FullHttpRequest request) {
+        if (HttpMethod.CONNECT.name().equalsIgnoreCase(request.method().name())) {
+            final FullHttpResponse response =
+                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.EMPTY_BUFFER);
+            if (api.getSslContext() != null) {
+                final SSLEngine sslEngine = api.getSslContext().createSSLEngine();
+                sslEngine.setUseClientMode(false);
+                ctx.channel().pipeline().addFirst("ssl", new SslHandler(sslEngine, true));
+
+                final String uri = request.uri();
+                final String[] parts = uri.split(":");
+                ctx.channel().attr(BASE).set(
+                        "https://" + parts[0] + (parts.length > 1 && !"443".equals(parts[1]) ? ":" + parts[1] : ""));
+            }
+            ctx.writeAndFlush(response);
+            return;
+        }
+
         api.getExecutor().execute(() -> {
+            final Attribute<String> baseAttr = ctx.channel().attr(Handlers.BASE);
+
             final DefaultResponseLocator.RequestModel requestModel = new DefaultResponseLocator.RequestModel();
             requestModel.setMethod(request.method().name());
-            requestModel.setUri(request.uri());
+            requestModel.setUri((baseAttr == null || baseAttr.get() == null ? "" : baseAttr.get()) + request.uri());
             requestModel.setHeaders(StreamSupport
                     .stream(Spliterators.spliteratorUnknownSize(request.headers().iteratorAsString(),
                             Spliterator.IMMUTABLE), false)
@@ -75,10 +102,15 @@ public class DefaultResponseLocatorCapturingHandler extends SimpleChannelInbound
             // note: this request must be synchronous for now
             final Response resp;
             try {
-                final URL url = new URL(request.uri());
+                final URL url = new URL(requestModel.getUri());
                 final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection(Proxy.NO_PROXY));
                 connection.setConnectTimeout(30000);
                 connection.setReadTimeout(20000);
+                if (HttpsURLConnection.class.isInstance(connection)) {
+                    final HttpsURLConnection httpsURLConnection = HttpsURLConnection.class.cast(connection);
+                    httpsURLConnection.setHostnameVerifier((h, s) -> true);
+                    httpsURLConnection.setSSLSocketFactory(api.getSslContext().getSocketFactory());
+                }
                 if (request.method() != null) {
                     final String requestMethod = request.method().name();
                     connection.setRequestMethod(requestMethod);

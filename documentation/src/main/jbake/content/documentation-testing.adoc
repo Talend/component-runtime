@@ -390,6 +390,26 @@ public class MyRESTApiTest {
 }
 ----
 
+===== SSL
+
+For tests using SSL based services, you will need to use `activeSsl()` on the `JUnit4HttpApi` rule.
+
+If you need to access the server ssl socket factory you can do it from the `HttpApiHandler` (the rule):
+
+[source,java]
+[subs=+quotes]
+----
+@ClassRule
+public static final JUnit4HttpApi API = new JUnit4HttpApi()*.activeSsl()*;
+
+@Test
+public void test() throws Exception {
+    final HttpsURLConnection connection = getHttpsConnection();
+    connection.setSSLSocketFactory(API.getSslContext().getSocketFactory());
+    // ....
+}
+----
+
 ==== JUnit 5
 
 JUnit 5 uses a JUnit 5 extension based on the `HttpApi` annotation you can put on your test class. You can inject
@@ -410,6 +430,29 @@ class JUnit5HttpApiTest {
 ----
 
 NOTE: the injection is optional and the `@HttpApi` allows you to configure several behaviors of the test.
+
+===== SSL
+
+For tests using SSL based services, you will need to use `@HttpApi(useSsl = true)`.
+
+You can access the client SSL socket factory through the api handler:
+
+[source,java]
+[subs=+quotes]
+----
+@HttpApi*(useSsl = true)*
+class MyHttpsApiTest {
+    @HttpApiInject
+    private HttpApiHandler<?> handler;
+
+    @Test
+    void test() throws Exception {
+        final HttpsURLConnection connection = getHttpsConnection();
+        connection.setSSLSocketFactory(handler.getSslContext().getSocketFactory());
+        // ....
+    }
+}
+----
 
 ==== Capturing mode
 

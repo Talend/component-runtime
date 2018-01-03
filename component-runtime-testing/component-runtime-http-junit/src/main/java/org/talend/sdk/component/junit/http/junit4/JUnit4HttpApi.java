@@ -19,6 +19,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
+import org.talend.sdk.component.junit.http.internal.impl.HandlerImpl;
 
 public class JUnit4HttpApi extends HttpApiHandler<JUnit4HttpApi> implements TestRule {
 
@@ -28,7 +29,7 @@ public class JUnit4HttpApi extends HttpApiHandler<JUnit4HttpApi> implements Test
 
             @Override
             public void evaluate() throws Throwable {
-                try (final HttpApiHandler api = start()) {
+                try (final HandlerImpl<?> impl = new HandlerImpl<>(JUnit4HttpApi.this, null, null).start()) {
                     base.evaluate();
                 }
             }

@@ -1,0 +1,17 @@
+[
+  {
+    "request": {
+      "uri": "https://foo.bar.not.existing.talend.com/component/test?api=true",
+      "headers": {
+      }
+    },
+    "response": {
+      "status": 200,
+      "payload": "worked as expected",
+      "headers": {
+        "mocked": "true",
+        "content-type": "text/plain"
+      }
+    }
+  }
+]

@@ -31,6 +31,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -40,11 +42,19 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsServer;
 
-public class CaptureJUnit4HttpApiTest {
+import io.netty.handler.ssl.JdkSslContext;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
 
-    private static final JUnit4HttpApi API = new JUnit4HttpApi();
+public class CaptureJUnit4HttpsApiTest {
+
+    private static final JUnit4HttpApi API = new JUnit4HttpApi().activeSsl();
 
     private static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
 
@@ -64,7 +74,16 @@ public class CaptureJUnit4HttpApiTest {
 
     @Test
     public void doCapture() throws Throwable {
-        final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        final SelfSignedCertificate certificate = new SelfSignedCertificate();
+        final SslContext nettyContext = SslContextBuilder
+                .forServer(certificate.certificate(), certificate.privateKey())
+                .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                .sslProvider(SslProvider.JDK)
+                .build();
+
+        final HttpsServer server = HttpsServer.create(new InetSocketAddress(0), 0);
+        server.setHttpsConfigurator(new HttpsConfigurator(JdkSslContext.class.cast(nettyContext).context()));
+
         server.createContext("/").setHandler(httpExchange -> {
             final Headers headers = httpExchange.getRequestHeaders();
             final byte[] bytes;
@@ -95,11 +114,13 @@ public class CaptureJUnit4HttpApiTest {
 
                 @Override
                 public void evaluate() throws Throwable {
-                    final URL url = new URL("http://localhost:" + server.getAddress().getPort() + "/supertest");
-                    final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection(
+                    final URL url = new URL("https://localhost:" + server.getAddress().getPort() + "/supertest");
+                    final HttpsURLConnection connection = HttpsURLConnection.class.cast(url.openConnection(
                             new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", API.getPort()))));
                     connection.setConnectTimeout(30000);
                     connection.setReadTimeout(20000);
+                    connection.setHostnameVerifier((h, s) -> true);
+                    connection.setSSLSocketFactory(server.getHttpsConfigurator().getSSLContext().getSocketFactory());
                     assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
                     connection.disconnect();
                 }
@@ -108,7 +129,7 @@ public class CaptureJUnit4HttpApiTest {
             assertTrue(output.toFile().exists());
             final String lines = Files.readAllLines(output).stream().collect(joining("\n"));
             assertEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n" + "\n" + "      },\n"
-                    + "      \"method\":\"GET\",\n" + "      \"uri\":\"http://localhost:"
+                    + "      \"method\":\"GET\",\n" + "      \"uri\":\"https://localhost:"
                     + server.getAddress().getPort() + "/supertest\"\n" + "    },\n" + "    \"response\":{\n"
                     + "      \"headers\":{\n" + "\n" + "      },\n"
                     + "      \"payload\":\"GET@Connection=keep-alive@/supertest@\",\n" + "      \"status\":200\n"
