@@ -50,5 +50,8 @@ final String tacokitEncoding = (String)node.getElementParameter("___TACOKIT_GUES
 
 StringBuffer strBuff = new StringBuffer();
 TaCoKitGuessSchema tacokitGuessSchema = new TaCoKitGuessSchema(configuration_<%=cid%>, "<%=family%>", "<%=family%>", "<%=originalName%>", "default", "schema", "<%=tacokitTempFilePath%>", "<%=tacokitEncoding%>");
-tacokitGuessSchema.guessSchema(strBuff);
-tacokitGuessSchema.close();
+try {
+    tacokitGuessSchema.guessSchema(strBuff);
+} finally {
+    tacokitGuessSchema.close();
+}
