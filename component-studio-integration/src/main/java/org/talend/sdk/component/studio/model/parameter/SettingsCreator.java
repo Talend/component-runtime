@@ -215,7 +215,7 @@ public class SettingsCreator implements PropertyVisitor {
      * Based on schema field controls whether table toolbox (buttons under table) is shown
      */
     private TaCoKitElementParameter visitTable(final TablePropertyNode tableNode) {
-        TaCoKitElementParameter parameter = createParameter(tableNode);
+        TaCoKitElementParameter parameter = createTableParameter(tableNode);
 
         List<ElementParameter> tableParameters = createTableParameters(tableNode);
         List<String> codeNames = new ArrayList<>(tableParameters.size());
@@ -237,7 +237,6 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     private TaCoKitElementParameter visitSchema(final PropertyNode node) {
-        TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
         String connectionType = node.getProperty().getMetadata().get(UI_STRUCTURE_TYPE);
         String connectionName = node.getProperty().getMetadata().get(UI_STRUCTURE_VALUE);
         connectionName = connectionName.equals("__default__") ? EConnectionType.FLOW_MAIN.getName() : connectionName;
@@ -319,6 +318,29 @@ public class SettingsCreator implements PropertyVisitor {
      */
     protected TaCoKitElementParameter createParameter(final PropertyNode node) {
         TaCoKitElementParameter parameter = new TaCoKitElementParameter(iNode);
+        commonSetup(parameter, node);
+        return parameter;
+    }
+
+    /**
+     * Creates {@link TableElementParameter} and sets common state
+     * 
+     * @param node Property tree node
+     * @return created {@link TableElementParameter}
+     */
+    private TableElementParameter createTableParameter(final PropertyNode node) {
+        TableElementParameter parameter = new TableElementParameter(iNode);
+        commonSetup(parameter, node);
+        return parameter;
+    }
+
+    /**
+     * Setup common for all {@link TaCoKitElementParameter} fields
+     * 
+     * @param parameter parameter to setup
+     * @param node property tree node
+     */
+    private void commonSetup(final TaCoKitElementParameter parameter, final PropertyNode node) {
         parameter.setCategory(category);
         parameter.setDisplayName(node.getProperty().getDisplayName());
         parameter.setFieldType(node.getFieldType());
@@ -333,7 +355,6 @@ public class SettingsCreator implements PropertyVisitor {
         if (node.getProperty().hasCondition()) {
             createParameterActivator(node, parameter);
         }
-        return parameter;
     }
 
     /**

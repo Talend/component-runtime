@@ -25,14 +25,15 @@ import org.talend.core.model.process.IElement;
  * Represents Table parameter. Table parameter is ElementParameter, which EParameterFieldType is TABLE
  * Value of Table parameter should have List<Map<String, Object>> type. Its value is a list of table records.
  * Each table record is represented by Map.
- * This class ensures Table parameter integrity. When user sets null or "" value to this parameter, empty list is set instead
+ * This class ensures Table parameter integrity. When user sets null or "" value to this parameter, empty list is set
+ * instead
  */
 public class TableElementParameter extends TaCoKitElementParameter {
 
-    public TableElementParameter(IElement element) {
+    public TableElementParameter(final IElement element) {
         super(element);
     }
-    
+
     /**
      * Sets value of this Table parameter. Expected type of value is List<Map<String, Object>>.
      * null and "" are also accepted. In this case empty list will be set as value
@@ -50,5 +51,4 @@ public class TableElementParameter extends TaCoKitElementParameter {
         super.setValue(newValue);
     }
 
-    
 }
