@@ -43,7 +43,7 @@ final java.util.Map<String, String> configuration_<%=cid%> = new java.util.HashM
                 if(schemaName == null || !schemaName.contains("$$")) {
                     continue;
                 }
-                final String[] splitName = schemaName.split("\\$\\$");
+                final String[] splitName = schemaName.split(java.util.regex.Pattern.quote("$$"));
                 if(splitName.length < 2) {
                     continue;
                 }
