@@ -20,6 +20,8 @@ class TaCoKitGuessSchema {
 
     private java.util.Map<Class, JavaType> class2JavaTypeMap;
 
+    private int lineLimit;
+
     private String plugin;
 
     private String family;
@@ -49,6 +51,7 @@ class TaCoKitGuessSchema {
     public TaCoKitGuessSchema(final java.util.Map<String, String> configuration, final String plugin,
             final String family, final String componentName, final String action, final String type,
             final String tempFilePath, final String encoding) {
+        this.lineLimit = 50;
         this.componentManager = org.talend.sdk.component.runtime.manager.ComponentManager.instance();
         this.configuration = configuration;
         this.plugin = plugin;
@@ -68,7 +71,7 @@ class TaCoKitGuessSchema {
         JavaType javaTypes[] = javaTypesManager.getJavaTypes();
         for (JavaType javaType : javaTypes) {
             Class nullableClass = javaType.getNullableClass();
-            if (nullableClass != null) {                
+            if (nullableClass != null) {
                 class2JavaTypeMap.put(nullableClass, javaType);
             }
             Class primitiveClass = javaType.getPrimitiveClass();
@@ -216,6 +219,9 @@ class TaCoKitGuessSchema {
             }
             if (rowObject instanceof java.util.Map) {
                 return guessSchemaThroughResultMap(strBuff, input, (java.util.Map) rowObject);
+            } else if (rowObject instanceof org.talend.sdk.component.api.processor.data.ObjectMap) {
+                return guessSchemaThroughResultMap(strBuff, input,
+                        (org.talend.sdk.component.api.processor.data.ObjectMap) rowObject);
             } else if (rowObject instanceof java.util.Collections) {
                 throw new Exception("Can't guess schema from a list");
             } else {
@@ -314,12 +320,42 @@ class TaCoKitGuessSchema {
     }
 
     private boolean guessSchemaThroughResultMap(final StringBuffer strBuff,
+            final org.talend.sdk.component.runtime.input.Input input,
+            final org.talend.sdk.component.api.processor.data.ObjectMap rowObject) throws Exception {
+        java.util.Set<String> keys = rowObject.keys();
+        if (keys == null || keys.isEmpty()) {
+            return false;
+        }
+        final int originalSize = strBuff.length();
+        java.util.Set<String> keysNoTypeYet = new java.util.HashSet<>();
+        keysNoTypeYet.addAll(keys);
+        org.talend.sdk.component.api.processor.data.ObjectMap row = rowObject;
+        for (int line = 0; !keysNoTypeYet.isEmpty()
+                && line < lineLimit; line++, row = (org.talend.sdk.component.api.processor.data.ObjectMap) input.next()) {
+            java.util.Iterator<String> iter = keysNoTypeYet.iterator();
+            while (iter.hasNext()) {
+                String key = iter.next();
+                Object result = row.get(key);
+                if (result == null) {
+                    continue;
+                }
+                String type = getTalendType(result.getClass());
+                ColumnInfo ci = new ColumnInfo();
+                ci.setName(key);
+                ci.setType(type);
+                write(strBuff, ci);
+                iter.remove();
+            }
+        }
+        return originalSize != strBuff.length();
+    }
+
+    private boolean guessSchemaThroughResultMap(final StringBuffer strBuff,
             final org.talend.sdk.component.runtime.input.Input input, final java.util.Map rowObject) throws Exception {
         java.util.Map<String, ColumnInfo> columnMap = new java.util.HashMap<>();
         java.util.Map<Object, Object> rowMap = rowObject;
         JavaType objectJavaType = javaTypesManager.OBJECT;
-        final int limit = 50;
-        for (int i = 0; i < limit; ++i) {
+        for (int i = 0; i < lineLimit; ++i) {
             boolean allConfirmed = true;
             for (java.util.Map.Entry entry : rowMap.entrySet()) {
                 Object key = entry.getKey();
