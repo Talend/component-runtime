@@ -140,6 +140,7 @@
     <asciidoctorj-pdf.version>1.5.0-alpha.16</asciidoctorj-pdf.version>
     <jsonb-api.version>1.0</jsonb-api.version>
     <jsonp-api.version>1.0</jsonp-api.version>
+    <deltaspike.version>1.8.1</deltaspike.version>
 
     <talend-icon.version>0.127.0</talend-icon.version>
     <component-api.version>1.0.0-SNAPSHOT</component-api.version>
