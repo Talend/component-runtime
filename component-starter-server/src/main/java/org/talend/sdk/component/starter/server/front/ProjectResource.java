@@ -128,7 +128,7 @@ public class ProjectResource {
     @Path("github")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Result createZip(final GithubProject project) {
+    public Result createOnGithub(final GithubProject project) {
         // create an in-memory zip of the project
         final ByteArrayOutputStream zip = new ByteArrayOutputStream();
         generator.generate(toRequest(project.getModel()), zip);
@@ -285,8 +285,11 @@ public class ProjectResource {
     @Path("zip")
     @Produces("application/zip")
     @Consumes(MediaType.APPLICATION_JSON)
-    public StreamingOutput createOnGithub(final ProjectModel model) {
-        return out -> generator.generate(toRequest(model), out);
+    public StreamingOutput createZip(final ProjectModel model) {
+        return out -> {
+            generator.generate(toRequest(model), out);
+            out.flush();
+        };
     }
 
     private ProjectRequest toRequest(final ProjectModel model) {
