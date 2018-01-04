@@ -1239,6 +1239,39 @@ public class MyService {
 }
 ----
 
+==== Advanced HTTP client request customization
+
+For advanced cases you can customize the `HttpUrlConnection` directly using `@UseConfigurer` on the method.
+It will call your custom instance of `Configurer`. Note that you can use some `@ConfigurerOption` in the method
+signature to pass some configurer configuration.
+
+For instance if you have this configurer:
+
+[source,java]
+----
+public class BasicConfigurer implements Configurer {
+    @Override
+    public void configure(final HttpURLConnection connection, final ConfigurerConfiguration configuration) {
+        final String user = configuration.get("username", String.class);
+        final String pwd = configuration.get("password", String.class);
+        connection.setRequestProperty(
+            "Authorization",
+            Base64.getEncoder().encodeToString((username + ':' + password).getBytes(StandardCharsets.UTF_8)));
+    }
+}
+----
+
+You can then set it on a method to automatically add the basic header with this kind of API usage:
+
+[source,java]
+----
+public interface APIClient extends HttpClient {
+    @Request(path = "...")
+    @UseConfigurer(BasicConfigurer.class)
+    Record findRecord(@ConfigurerOption("username") String user, @ConfigurerOption("password") String pwd);
+}
+----
+
 == Services and interceptors
 
 For common concerns like caching, auditing etc, it can be fancy to use interceptor like API. It is enabled by the framework
