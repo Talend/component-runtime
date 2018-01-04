@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.junit.http.internal.impl;
 
+import static io.netty.handler.codec.http.HttpUtil.setContentLength;
+import static io.netty.handler.codec.http.HttpUtil.setKeepAlive;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.BASE;
@@ -65,6 +67,8 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
         if (HttpMethod.CONNECT.name().equalsIgnoreCase(request.method().name())) {
             final FullHttpResponse response =
                     new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.EMPTY_BUFFER);
+            setKeepAlive(response, true);
+            setContentLength(response, 0);
             if (api.getSslContext() != null) {
                 final SSLEngine sslEngine = api.getSslContext().createSSLEngine();
                 sslEngine.setUseClientMode(false);

@@ -15,13 +15,13 @@
  */
 package org.talend.sdk.component.junit.http.internal.impl;
 
-import static java.util.Collections.emptyMap;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.closeOnFlush;
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.sendError;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -40,6 +40,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -77,8 +79,11 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
                     api.getHeaderFilter());
             if (!matching.isPresent()) {
                 if (HttpMethod.CONNECT.name().equalsIgnoreCase(request.method().name())) {
-                    matching = of(
-                            new ResponseImpl(emptyMap(), HttpResponseStatus.OK.code(), Unpooled.EMPTY_BUFFER.array()));
+                    final Map<String, String> responseHeaders = new HashMap<>();
+                    responseHeaders.put(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
+                    responseHeaders.put(HttpHeaderNames.CONTENT_LENGTH.toString(), "0");
+                    matching = of(new ResponseImpl(responseHeaders, HttpResponseStatus.OK.code(),
+                            Unpooled.EMPTY_BUFFER.array()));
                     if (api.getSslContext() != null) {
                         final SSLEngine sslEngine = api.getSslContext().createSSLEngine();
                         sslEngine.setUseClientMode(false);

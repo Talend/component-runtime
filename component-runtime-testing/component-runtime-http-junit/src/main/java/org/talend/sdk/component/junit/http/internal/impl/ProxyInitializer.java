@@ -42,9 +42,9 @@ public class ProxyInitializer extends ChannelInitializer<SocketChannel> {
         pipeline
                 .addLast("logging", new LoggingHandler(LogLevel.valueOf(api.getLogLevel())))
                 .addLast("http-decoder", new HttpRequestDecoder())
+                .addLast("http-encoder", new HttpResponseEncoder())
                 .addLast("http-keepalive", new HttpServerKeepAliveHandler())
                 .addLast("aggregator", new HttpObjectAggregator(Integer.MAX_VALUE))
-                .addLast("http-encoder", new HttpResponseEncoder())
                 .addLast("chunked-writer", new ChunkedWriteHandler())
                 .addLast("talend-junit-api-server", newHandler());
     }
