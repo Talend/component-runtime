@@ -111,8 +111,8 @@ public class CaptureJUnit4HttpApiTest {
                     + "      \"method\":\"GET\",\n" + "      \"uri\":\"http://localhost:"
                     + server.getAddress().getPort() + "/supertest\"\n" + "    },\n" + "    \"response\":{\n"
                     + "      \"headers\":{\n" + "\n" + "      },\n"
-                    + "      \"payload\":\"GET@Connection=keep-alive@/supertest@\",\n" + "      \"status\":200\n"
-                    + "    }\n" + "  }\n" + "]", lines);
+                    + "      \"payload\":\"GET@Connection=keep-alive/Proxy-connection=keep-alive@/supertest@\",\n"
+                    + "      \"status\":200\n" + "    }\n" + "  }\n" + "]", lines);
         } finally {
             server.stop(0);
         }

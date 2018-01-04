@@ -19,8 +19,6 @@ import static java.util.stream.Collectors.toMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
@@ -43,8 +41,7 @@ public class DefaultResponseLocatorCapturingHandler extends PassthroughHandler {
         requestModel.setMethod(request.method().name());
         requestModel.setUri(requestUri);
         requestModel.setHeaders(StreamSupport
-                .stream(Spliterators.spliteratorUnknownSize(request.headers().iteratorAsString(),
-                        Spliterator.IMMUTABLE), false)
+                .stream(request.headers().spliterator(), false)
                 .filter(h -> !api.getHeaderFilter().test(h.getKey()))
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
         final DefaultResponseLocator.Model model = new DefaultResponseLocator.Model();

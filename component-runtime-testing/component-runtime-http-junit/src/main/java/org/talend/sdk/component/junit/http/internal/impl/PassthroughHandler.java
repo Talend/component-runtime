@@ -96,7 +96,7 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection(Proxy.NO_PROXY));
                 connection.setConnectTimeout(30000);
                 connection.setReadTimeout(20000);
-                if (HttpsURLConnection.class.isInstance(connection)) {
+                if (HttpsURLConnection.class.isInstance(connection) && api.getSslContext() != null) {
                     final HttpsURLConnection httpsURLConnection = HttpsURLConnection.class.cast(connection);
                     httpsURLConnection.setHostnameVerifier((h, s) -> true);
                     httpsURLConnection.setSSLSocketFactory(api.getSslContext().getSocketFactory());
@@ -110,6 +110,7 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
                         request.content().readBytes(connection.getOutputStream(), request.content().readableBytes());
                     }
                 }
+                request.headers().forEach(e -> connection.setRequestProperty(e.getKey(), e.getValue()));
 
                 final int responseCode = connection.getResponseCode();
                 final int defaultLength =
