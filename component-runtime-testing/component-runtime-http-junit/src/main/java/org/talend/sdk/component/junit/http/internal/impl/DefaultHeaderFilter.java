@@ -23,11 +23,9 @@ public class DefaultHeaderFilter implements Predicate<String> {
 
     @Override
     public boolean test(final String header) {
-        return !isIgnored(header);
-    }
-
-    private boolean isIgnored(final String header) {
         return "Authorization".equalsIgnoreCase(header) || header.toLowerCase(ROOT).contains("token")
-                || header.toLowerCase(ROOT).contains("secret") || header.toLowerCase(ROOT).contains("password");
+                || header.toLowerCase(ROOT).contains("secret") || header.toLowerCase(ROOT).contains("password")
+                || "User-Agent".equalsIgnoreCase(header) || "Host".equalsIgnoreCase(header)
+                || "Date".equalsIgnoreCase(header);
     }
 }

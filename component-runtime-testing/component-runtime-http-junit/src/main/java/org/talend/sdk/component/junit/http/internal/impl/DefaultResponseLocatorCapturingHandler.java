@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.junit.http.internal.impl;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toMap;
 
 import java.nio.charset.StandardCharsets;
@@ -40,16 +41,13 @@ public class DefaultResponseLocatorCapturingHandler extends PassthroughHandler {
         final DefaultResponseLocator.RequestModel requestModel = new DefaultResponseLocator.RequestModel();
         requestModel.setMethod(request.method().name());
         requestModel.setUri(requestUri);
-        requestModel.setHeaders(StreamSupport
-                .stream(request.headers().spliterator(), false)
-                .filter(h -> !api.getHeaderFilter().test(h.getKey()))
-                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        requestModel.setHeaders(filterHeaders(request.headers()));
         final DefaultResponseLocator.Model model = new DefaultResponseLocator.Model();
         model.setRequest(requestModel);
 
         final DefaultResponseLocator.ResponseModel responseModel = new DefaultResponseLocator.ResponseModel();
         responseModel.setStatus(resp.status());
-        responseModel.setHeaders(resp.headers());
+        responseModel.setHeaders(filterHeaders(resp.headers().entrySet()));
         // todo: support as byte[] for not text responses
         responseModel.setPayload(new String(resp.payload(), StandardCharsets.UTF_8));
         model.setResponse(responseModel);
@@ -57,5 +55,13 @@ public class DefaultResponseLocatorCapturingHandler extends PassthroughHandler {
         if (DefaultResponseLocator.class.isInstance(api.getResponseLocator())) {
             DefaultResponseLocator.class.cast(api.getResponseLocator()).getCapturingBuffer().add(model);
         }
+    }
+
+    private Map<String, String> filterHeaders(final Iterable<Map.Entry<String, String>> headers) {
+        return StreamSupport
+                .stream(headers.spliterator(), false)
+                .filter(h -> !api.getHeaderFilter().test(h.getKey()))
+                .sorted(comparing(Map.Entry::getKey))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

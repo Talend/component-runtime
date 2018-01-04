@@ -128,10 +128,13 @@ public class CaptureJUnit4HttpsApiTest {
 
             assertTrue(output.toFile().exists());
             final String lines = Files.readAllLines(output).stream().collect(joining("\n"));
-            assertEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n" + "\n" + "      },\n"
-                    + "      \"method\":\"GET\",\n" + "      \"uri\":\"https://localhost:"
-                    + server.getAddress().getPort() + "/supertest\"\n" + "    },\n" + "    \"response\":{\n"
-                    + "      \"headers\":{\n" + "\n" + "      },\n"
+            assertEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n"
+                    + "        \"content-length\":\"0\",\n"
+                    + "        \"Accept\":\"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\",\n"
+                    + "        \"Connection\":\"keep-alive\"\n" + "      },\n" + "      \"method\":\"GET\",\n"
+                    + "      \"uri\":\"https://localhost:" + server.getAddress().getPort() + "/supertest\"\n"
+                    + "    },\n" + "    \"response\":{\n" + "      \"headers\":{\n"
+                    + "        \"Content-length\":\"37\"\n" + "      },\n"
                     + "      \"payload\":\"GET@Connection=keep-alive@/supertest@\",\n" + "      \"status\":200\n"
                     + "    }\n" + "  }\n" + "]", lines);
         } finally {

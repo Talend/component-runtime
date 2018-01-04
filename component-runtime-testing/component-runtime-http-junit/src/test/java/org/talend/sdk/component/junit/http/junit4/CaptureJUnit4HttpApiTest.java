@@ -100,6 +100,8 @@ public class CaptureJUnit4HttpApiTest {
                             new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", API.getPort()))));
                     connection.setConnectTimeout(30000);
                     connection.setReadTimeout(20000);
+                    connection.setRequestProperty("Authorization", "should be filtered");
+                    connection.setRequestProperty("ok", "yes");
                     assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
                     connection.disconnect();
                 }
@@ -107,11 +109,14 @@ public class CaptureJUnit4HttpApiTest {
 
             assertTrue(output.toFile().exists());
             final String lines = Files.readAllLines(output).stream().collect(joining("\n"));
-            assertEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n" + "\n" + "      },\n"
+            assertEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n"
+                    + "        \"content-length\":\"0\",\n"
+                    + "        \"Accept\":\"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\",\n"
+                    + "        \"ok\":\"yes\",\n" + "        \"Proxy-Connection\":\"keep-alive\"\n" + "      },\n"
                     + "      \"method\":\"GET\",\n" + "      \"uri\":\"http://localhost:"
                     + server.getAddress().getPort() + "/supertest\"\n" + "    },\n" + "    \"response\":{\n"
-                    + "      \"headers\":{\n" + "\n" + "      },\n"
-                    + "      \"payload\":\"GET@Connection=keep-alive/Proxy-connection=keep-alive@/supertest@\",\n"
+                    + "      \"headers\":{\n" + "        \"Content-length\":\"105\"\n" + "      },\n"
+                    + "      \"payload\":\"GET@Authorization=should be filtered/Connection=keep-alive/Ok=yes/Proxy-connection=keep-alive@/supertest@\",\n"
                     + "      \"status\":200\n" + "    }\n" + "  }\n" + "]", lines);
         } finally {
             server.stop(0);
