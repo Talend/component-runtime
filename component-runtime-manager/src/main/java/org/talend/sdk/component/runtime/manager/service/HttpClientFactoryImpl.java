@@ -42,6 +42,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -56,6 +57,7 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.http.Codec;
 import org.talend.sdk.component.api.service.http.Configurer;
+import org.talend.sdk.component.api.service.http.ConfigurerOption;
 import org.talend.sdk.component.api.service.http.Decoder;
 import org.talend.sdk.component.api.service.http.Encoder;
 import org.talend.sdk.component.api.service.http.Header;
@@ -214,6 +216,22 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
     @ToString
     private static class HttpHandler implements InvocationHandler, Serializable {
 
+        private static final Object[] EMPTY_ARRAY = new Object[0];
+
+        private static final Configurer.ConfigurerConfiguration EMPTY_CONFIGURER_OPTIONS =
+                new Configurer.ConfigurerConfiguration() {
+
+                    @Override
+                    public Object[] configuration() {
+                        return EMPTY_ARRAY;
+                    }
+
+                    @Override
+                    public <T> T get(final String name, final Class<T> type) {
+                        return null;
+                    }
+                };
+
         private String base;
 
         private volatile ConcurrentMap<Method, Function<Object[], Object>> invokers;
@@ -272,8 +290,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         .orElseGet(() -> m.getDeclaringClass().getAnnotation(UseConfigurer.class));
                 final Configurer configurerInstance;
                 try {
-                    configurerInstance = configurer == null ? c -> {
-                    } : configurer.value().getConstructor().newInstance();
+                    configurerInstance = configurer == null ? null : configurer.value().getConstructor().newInstance();
                 } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                     throw new IllegalArgumentException(e);
                 } catch (final InvocationTargetException e) {
@@ -291,6 +308,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 final Collection<BiFunction<String, Object[], String>> pathReplacements = new ArrayList<>();
                 final Collection<Function<Object[], String>> queryBuilder = new ArrayList<>();
                 final Collection<BiConsumer<Object[], HttpURLConnection>> headerProvider = new ArrayList<>();
+                final Map<String, Function<Object[], Object>> configurerOptions = new HashMap<>();
                 Function<Object[], byte[]> payloadProvider = null;
                 final Parameter[] parameters = m.getParameters();
                 for (int i = 0; i < parameters.length; i++) {
@@ -330,6 +348,9 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         headerProvider
                                 .add((params, connection) -> ofNullable(params[index]).map(String::valueOf).ifPresent(
                                         v -> connection.setRequestProperty(headerName, v)));
+                    } else if (parameters[i].isAnnotationPresent(ConfigurerOption.class)) {
+                        final String name = parameters[i].getAnnotation(ConfigurerOption.class).value();
+                        configurerOptions.putIfAbsent(name, params -> params[index]);
                     } else { // payload
                         if (payloadProvider != null) {
                             throw new IllegalArgumentException(m + " has two payload parameters");
@@ -362,7 +383,24 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         for (final BiConsumer<Object[], HttpURLConnection> provider : headerProvider) {
                             provider.accept(params, urlConnection);
                         }
-                        configurerInstance.configure(urlConnection);
+                        if (configurerInstance != null) {
+                            final Map<String, Object> options = configurerOptions.entrySet().stream().collect(
+                                    toMap(Map.Entry::getKey, e -> e.getValue().apply(params)));
+                            configurerInstance.configure(urlConnection,
+                                    configurerOptions.isEmpty() ? EMPTY_CONFIGURER_OPTIONS
+                                            : new Configurer.ConfigurerConfiguration() {
+
+                                                @Override
+                                                public Object[] configuration() {
+                                                    return options.values().toArray(new Object[options.size()]);
+                                                }
+
+                                                @Override
+                                                public <T> T get(final String name, final Class<T> type) {
+                                                    return type.cast(options.get(name));
+                                                }
+                                            });
+                        }
 
                         if (payloadProviderRef != null) {
                             urlConnection.setDoOutput(true);
