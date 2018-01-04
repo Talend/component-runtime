@@ -32,6 +32,8 @@
   <properties>
     <!-- old but the API didnt change and it is available for maven without tricks -->
     <gradle.version>3.0</gradle.version>
+
+    <talend.build.name>${talend.build.name.base}.gradle</talend.build.name>
   </properties>
 
   <dependencies>

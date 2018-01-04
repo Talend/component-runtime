@@ -27,6 +27,10 @@
   <name>Component Runtime :: Form :: Model</name>
   <description>This module owns the UISpec model classes. It doesn't have any logic which MUST be in other modules.</description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.form.model</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>

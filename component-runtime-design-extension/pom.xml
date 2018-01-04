@@ -28,6 +28,10 @@
   <name>Component Runtime :: Design Extension</name>
   <description>This module provides design extensions for Component Runtime Manager</description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.design</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>

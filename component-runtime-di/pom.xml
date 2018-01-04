@@ -30,6 +30,10 @@
     or the opposite. It just defines a stable dependency for the studio.
   </description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.di</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>

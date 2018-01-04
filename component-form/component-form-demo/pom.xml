@@ -27,6 +27,10 @@
   <name>Component Runtime :: Form :: Demo</name>
   <description>Sample of the form-core usage.</description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.form.demo</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>

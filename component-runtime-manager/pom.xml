@@ -28,6 +28,10 @@
   <name>Component Runtime :: Manager</name>
   <description>Core of the framework, the manager allows to access components and instantiate them.</description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.manager</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>

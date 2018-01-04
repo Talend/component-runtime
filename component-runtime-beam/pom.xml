@@ -28,7 +28,7 @@
   <description>Component bridge to BEAM runtime, TBD: should tcomp own it?</description>
 
   <properties>
-
+    <talend.build.name>${talend.build.name.base}.beam</talend.build.name>
   </properties>
 
   <dependencies>

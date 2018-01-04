@@ -27,6 +27,10 @@
   <name>Component Runtime :: Standalone</name>
   <description>Locator for standalone run, it allows to lookup services and components after serialization.</description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.standalone</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>

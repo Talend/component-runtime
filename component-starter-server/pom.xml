@@ -29,6 +29,10 @@
     development.
   </description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.starter</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency> <!-- override until we upgrade meecrowave -->
       <groupId>org.apache.johnzon</groupId>

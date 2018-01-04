@@ -30,6 +30,7 @@
 
   <properties>
     <studio.version>7.0.1-SNAPSHOT</studio.version>
+    <talend.build.name>${talend.build.name.base}.studio</talend.build.name>
   </properties>
 
   <dependencies>

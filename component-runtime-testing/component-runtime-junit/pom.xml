@@ -27,6 +27,10 @@
   <name>Component Runtime :: Testing :: JUnit</name>
   <description>JUnit (4) integration of the framework.</description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.junit</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>

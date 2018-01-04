@@ -31,6 +31,10 @@
     This MUST be considered as an internal of the stack.
   </description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.impl</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>

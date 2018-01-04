@@ -27,6 +27,10 @@
   <name>Component Runtime :: Container :: Nested Maven Repository Maven Plugin</name>
   <description>A maven shade extension to include dependencies in a nested (in jar) maven repository.</description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.container.maven</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>

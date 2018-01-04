@@ -29,6 +29,10 @@
   <name>Component Runtime :: Tools</name>
   <description>A shared module by Maven and Gradle integration for common tasks.</description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.tools</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>

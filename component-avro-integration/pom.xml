@@ -27,6 +27,10 @@
   <name>Component Runtime :: Avro</name>
   <description>This is a complementary module for di one while avro is mandatory</description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.avro</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.avro</groupId>

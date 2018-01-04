@@ -29,6 +29,7 @@
 
   <properties>
     <talend.icon.output>${project.build.outputDirectory}</talend.icon.output>
+    <talend.build.name>${talend.build.name.base}.server</talend.build.name>
   </properties>
 
   <dependencies>

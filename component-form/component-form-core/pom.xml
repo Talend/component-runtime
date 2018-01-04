@@ -27,6 +27,10 @@
   <name>Component Runtime :: Form :: Core</name>
   <description>This module is reponsible to convert TaCoKit model to UISpec one.</description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.form.core</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>

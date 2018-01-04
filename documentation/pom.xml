@@ -37,6 +37,8 @@
     <jbake.site.rootpath></jbake.site.rootpath>
     <args4j.version>2.33</args4j.version>
     <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
+
+    <talend.build.name>${talend.build.name.base}.documentation</talend.build.name>
   </properties>
 
   <dependencies>

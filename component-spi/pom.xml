@@ -28,7 +28,7 @@
   <description>The runtime SPI to support components with an external programming model.</description>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <talend.build.name>${talend.build.name.base}.spi</talend.build.name>
   </properties>
 
   <build>

@@ -27,6 +27,10 @@
   <name>Component Runtime :: Sample</name>
   <description>A sample component. IMPORTANT: it is used by some tests.</description>
 
+  <properties>
+    <talend.build.name>${talend.build.name.base}.sample</talend.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
