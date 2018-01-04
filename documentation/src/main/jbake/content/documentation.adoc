@@ -1256,7 +1256,7 @@ public class BasicConfigurer implements Configurer {
         final String pwd = configuration.get("password", String.class);
         connection.setRequestProperty(
             "Authorization",
-            Base64.getEncoder().encodeToString((username + ':' + password).getBytes(StandardCharsets.UTF_8)));
+            Base64.getEncoder().encodeToString((user + ':' + pwd).getBytes(StandardCharsets.UTF_8)));
     }
 }
 ----
