@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -24,12 +24,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ResolverImplTest {
+class ResolverImplTest {
 
     @Test
-    public void resolvefromDescriptor() throws IOException {
+    void resolvefromDescriptor() throws IOException {
         try (final InputStream stream =
                 new ByteArrayInputStream("The following files have been resolved:\njunit:junit:jar:4.12:compile"
                         .getBytes(StandardCharsets.UTF_8))) {

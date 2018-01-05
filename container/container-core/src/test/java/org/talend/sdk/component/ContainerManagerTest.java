@@ -17,17 +17,18 @@ package org.talend.sdk.component;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.container.ContainerManager;
@@ -35,21 +36,19 @@ import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalReposit
 import org.talend.sdk.component.test.Constants;
 import org.talend.sdk.component.test.rule.TempJars;
 
-public class ContainerManagerTest {
-
-    @Rule
-    public final TempJars jars = new TempJars();
+@ExtendWith(TempJars.class)
+class ContainerManagerTest {
 
     // note: in this method we could keep a ref of list or finds but
     // we abuse intentionally of the manager methods
     // to ensure they are reentrant
     @Test
-    public void manage() {
+    void manage(final TempJars jars) {
         final ContainerManager ref;
         final Collection<Container> containers;
         try (final ContainerManager manager = createDefaultManager()) {
             ref = manager;
-            final Container container = manager.create("foo", createZiplockJar().getAbsolutePath());
+            final Container container = manager.create("foo", createZiplockJar(jars).getAbsolutePath());
             assertNotNull(container);
             // container is not tested here but in ContainerTest. Here we just take care
             // of the manager.
@@ -60,7 +59,7 @@ public class ContainerManagerTest {
             assertTrue(manager.find("foo").isPresent());
             assertEquals(container, manager.find("foo").get());
 
-            final Container xbean = manager.create("bar", createZiplockJar().getAbsolutePath());
+            final Container xbean = manager.create("bar", createZiplockJar(jars).getAbsolutePath());
             assertEquals(2, manager.findAll().size());
             Stream.of(container, xbean).forEach(c -> assertTrue(manager.findAll().contains(c)));
 
@@ -73,12 +72,12 @@ public class ContainerManagerTest {
     }
 
     @Test
-    public void autoContainerId() {
+    void autoContainerId(final TempJars jars) {
         Stream
                 .of("ziplock-7.00.3.jar", "ziplock-7.3.jar", "ziplock-7.3-SNAPSHOT.jar", "ziplock-7.3.0-SNAPSHOT.jar")
                 .forEach(jarName -> {
                     try (final ContainerManager manager = createDefaultManager()) {
-                        final File module = createZiplockJar();
+                        final File module = createZiplockJar(jars);
                         final File jar = new File(module.getParentFile(), jarName);
                         assertTrue(module.renameTo(jar));
                         final Container container = manager.create(jar.getAbsolutePath());
@@ -88,7 +87,7 @@ public class ContainerManagerTest {
     }
 
     @Test
-    public void listeners() {
+    void listeners(final TempJars jars) {
         final Collection<String> states = new ArrayList<>();
         final ContainerListener listener = new ContainerListener() {
 
@@ -105,13 +104,13 @@ public class ContainerManagerTest {
         try (final ContainerManager manager = createDefaultManager().registerListener(listener)) {
             assertEquals(emptyList(), states);
 
-            try (final Container container = manager.create(createZiplockJar().getAbsolutePath())) {
+            try (final Container container = manager.create(createZiplockJar(jars).getAbsolutePath())) {
                 assertEquals(1, states.size());
             }
             assertEquals(2, states.size());
 
             manager.unregisterListener(listener);
-            try (final Container container = manager.create(createZiplockJar().getAbsolutePath())) {
+            try (final Container container = manager.create(createZiplockJar(jars).getAbsolutePath())) {
                 assertEquals(2, states.size());
             }
             assertEquals(2, states.size());
@@ -119,14 +118,16 @@ public class ContainerManagerTest {
         assertEquals(2, states.size());
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void close() {
-        final ContainerManager manager = createDefaultManager();
-        manager.close();
-        manager.create("foo", createZiplockJar().getAbsolutePath());
+    @Test
+    void close(final TempJars jars) {
+        assertThrows(IllegalStateException.class, () -> {
+            final ContainerManager manager = createDefaultManager();
+            manager.close();
+            manager.create("foo", createZiplockJar(jars).getAbsolutePath());
+        });
     }
 
-    private File createZiplockJar() {
+    private File createZiplockJar(final TempJars jars) {
         return jars.create("org.apache.tomee:ziplock:jar:7.0.4");
     }
 

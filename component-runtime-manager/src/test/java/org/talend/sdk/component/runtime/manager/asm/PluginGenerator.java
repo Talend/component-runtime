@@ -29,7 +29,7 @@ import static org.apache.xbean.asm6.Opcodes.NEW;
 import static org.apache.xbean.asm6.Opcodes.RETURN;
 import static org.apache.xbean.asm6.Opcodes.V1_8;
 import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.FileInputStream;

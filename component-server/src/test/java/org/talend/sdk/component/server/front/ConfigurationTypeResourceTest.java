@@ -16,31 +16,27 @@
 package org.talend.sdk.component.server.front;
 
 import static java.util.Collections.singleton;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.inject.Inject;
-import javax.websocket.DeploymentException;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
-@RunWith(MonoMeecrowave.Runner.class)
-public class ConfigurationTypeResourceTest {
+@MonoMeecrowaveConfig
+class ConfigurationTypeResourceTest {
 
     @Inject
     private WebsocketClient ws;
 
     @Test
-    public void webSocketGetIndex() throws IOException, DeploymentException {
+    void webSocketGetIndex() {
         final ConfigTypeNodes index = ws.read(ConfigTypeNodes.class, "get", "/configurationtype/index", "");
         assertIndex(index);
         validateJdbcHierarchy(index);
@@ -48,7 +44,7 @@ public class ConfigurationTypeResourceTest {
 
     private void assertIndex(final ConfigTypeNodes index) {
         assertEquals(5, index.getNodes().size());
-        index.getNodes().keySet().forEach(Assert::assertNotNull); // assert no null ids
+        index.getNodes().keySet().forEach(Assertions::assertNotNull); // assert no null ids
         // assert there is at least one parent node
         assertTrue(index.getNodes().values().stream().anyMatch(n -> n.getParentId() == null));
         // assert all edges nodes are in the index

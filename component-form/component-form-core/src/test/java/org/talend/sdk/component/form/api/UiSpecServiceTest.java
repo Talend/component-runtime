@@ -19,11 +19,11 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -41,8 +41,8 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
@@ -50,7 +50,7 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 
-public class UiSpecServiceTest {
+class UiSpecServiceTest {
 
     private final UiSpecService service = new UiSpecService(new Client() {
 
@@ -84,7 +84,7 @@ public class UiSpecServiceTest {
     });
 
     @Test
-    public void triggerRelativeParameters() throws Exception {
+    void triggerRelativeParameters() throws Exception {
         final Ui payload = service.convert(load("relative-params.json"));
         final Collection<UiSchema> schema = payload.getUiSchema();
         final UiSchema.Trigger driverTrigger = schema
@@ -105,7 +105,7 @@ public class UiSpecServiceTest {
 
         // here is what the test validates: the parameters are flattened and translated
         // for the ui
-        assertEquals(driverTrigger.toString(), 3, driverTrigger.getParameters().size());
+        assertEquals(3, driverTrigger.getParameters().size(), driverTrigger.toString());
 
         final Iterator<UiSchema.Parameter> params = driverTrigger.getParameters().iterator();
         assertTrue(params.hasNext());
@@ -115,7 +115,7 @@ public class UiSpecServiceTest {
     }
 
     @Test
-    public void jsonSchema() throws Exception {
+    void jsonSchema() throws Exception {
         final Ui payload = service.convert(load("jdbc.json"));
         final JsonSchema jsonSchema = payload.getJsonSchema();
         assertNotNull(jsonSchema);
@@ -154,7 +154,7 @@ public class UiSpecServiceTest {
     }
 
     @Test
-    public void properties() throws Exception {
+    void properties() throws Exception {
         final Ui payload = service.convert(load("jdbc.json"));
         final Map<String, Object> properties = Map.class.cast(payload.getProperties());
         assertEquals(1, properties.size());
@@ -170,7 +170,7 @@ public class UiSpecServiceTest {
     }
 
     @Test
-    public void uiSchema() throws Exception {
+    void uiSchema() throws Exception {
         final Ui payload = service.convert(load("jdbc.json"));
         final Collection<UiSchema> uiSchema = payload.getUiSchema();
         assertNotNull(uiSchema);
@@ -253,15 +253,15 @@ public class UiSpecServiceTest {
      * just to log the output
      */
     @Test
-    @Ignore("debug test to log the produced model")
-    public void out() throws Exception {
+    @Disabled("debug test to log the produced model")
+    void out() throws Exception {
         final Ui payload = service.convert(load("jdbc.json"));
         System.out.println(JsonbBuilder.create(new JsonbConfig().withFormatting(true)).toJson(payload));
     }
 
     private void assertUiSchema(final UiSchema schema, final String widget, final String title, final String key,
             final int nestedSize, final Consumer<UiSchema> customValidator) {
-        assertEquals(schema.toString(), widget, schema.getWidget());
+        assertEquals(widget, schema.getWidget(), schema.toString());
         assertEquals(title, schema.getTitle());
         assertEquals(key, schema.getKey());
         if (schema.getItems() == null) {

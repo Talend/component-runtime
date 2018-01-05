@@ -16,9 +16,9 @@
 package org.talend.sdk.component.runtime.input;
 
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.serialization.Serializer;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
@@ -37,7 +37,7 @@ import org.talend.sdk.component.api.input.Split;
 public class PartitionMapperImplTest {
 
     @Test
-    public void split() {
+    void split() {
         final Mapper mapper = new PartitionMapperImpl("Root", "Test", null, "Plugin", false, new SampleMapper());
         assertEquals(10, mapper.assess());
 
@@ -51,12 +51,12 @@ public class PartitionMapperImplTest {
     }
 
     @Test
-    public void create() {
+    void create() {
         assertInput(new PartitionMapperImpl("Root", "Test", null, "Plugin", false, new SampleMapper()));
     }
 
     @Test
-    public void serialization() throws IOException, ClassNotFoundException {
+    void serialization() throws IOException, ClassNotFoundException {
         final Mapper mapper = new PartitionMapperImpl("Root", "Test", null, "Plugin", false, new SampleMapper());
         final Mapper copy = Serializer.roundTrip(mapper);
         assertNotSame(copy, mapper);

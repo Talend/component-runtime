@@ -16,8 +16,8 @@
 package org.talend.sdk.component.runtime.manager.chain;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,31 +26,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 
-public class ExecutionChainBuilderTest {
-
-    @ClassRule
-    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
-
-    @Rule
-    public final TestName testName = new TestName();
+@WithTemporaryFolder
+class ExecutionChainBuilderTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
     @Test
-    public void chain() throws IOException {
-        final String plugin = testName.getMethodName() + ".jar";
-        final File jar = pluginGenerator.createChainPlugin(TEMPORARY_FOLDER.getRoot(), plugin);
+    void chain(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
+        final String testName = info.getTestMethod().get().getName();
+        final String plugin = testName + ".jar";
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
 
         final Collection<String> tracker = new ArrayList<>();
-        final File output = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName() + "-out.txt");
+        final File output = new File(temporaryFolder.getRoot(), testName + "-out.txt");
 
         // simulate a fatjar classloader for test context
         try (final ComponentManager manager =
@@ -59,7 +54,7 @@ public class ExecutionChainBuilderTest {
 
             ExecutionChainBuilder
                     .start()
-                    .withConfiguration(testName.getMethodName(), false)
+                    .withConfiguration(testName, false)
                     .fromInput("chain", "list", 1, new HashMap<String, String>() {
 
                         {
@@ -92,13 +87,14 @@ public class ExecutionChainBuilderTest {
     }
 
     @Test
-    public void multipleOutputs() throws IOException {
-        final String plugin = testName.getMethodName() + ".jar";
-        final File jar = pluginGenerator.createChainPlugin(TEMPORARY_FOLDER.getRoot(), plugin);
+    void multipleOutputs(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
+        final String testName = info.getTestMethod().get().getName();
+        final String plugin = info.getTestMethod().get().getName() + ".jar";
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
 
         final Collection<String> tracker = new ArrayList<>();
-        final File output = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName() + "-out.txt");
-        final File rejectOutput = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName() + "-out_reject.txt");
+        final File output = new File(temporaryFolder.getRoot(), testName + "-out.txt");
+        final File rejectOutput = new File(temporaryFolder.getRoot(), testName + "-out_reject.txt");
 
         // simulate a fatjar classloader for test context
         try (final ComponentManager manager =

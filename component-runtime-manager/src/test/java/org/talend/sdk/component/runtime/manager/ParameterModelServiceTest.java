@@ -15,24 +15,24 @@
  */
 package org.talend.sdk.component.runtime.manager;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-public class ParameterModelServiceTest {
+class ParameterModelServiceTest {
 
     private final ParameterModelService service = new ParameterModelService();
 
     @Test
-    public void primitive() throws NoSuchMethodException {
+    void primitive() throws NoSuchMethodException {
         final List<ParameterMeta> params = service.buildParameterMetas(
                 MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class), "def");
         assertEquals(3, params.size());
@@ -63,7 +63,7 @@ public class ParameterModelServiceTest {
     }
 
     @Test
-    public void collection() throws NoSuchMethodException {
+    void collection() throws NoSuchMethodException {
         final List<ParameterMeta> params = service.buildParameterMetas(
                 MethodsHolder.class.getMethod("collections", List.class, List.class, Map.class), "def");
         assertEquals(3, params.size());
@@ -129,7 +129,7 @@ public class ParameterModelServiceTest {
     }
 
     @Test
-    public void array() throws NoSuchMethodException {
+    void array() throws NoSuchMethodException {
         final List<ParameterMeta> params =
                 service.buildParameterMetas(MethodsHolder.class.getMethod("array", MethodsHolder.Array.class), "def");
         assertEquals(1, params.size());
@@ -163,7 +163,7 @@ public class ParameterModelServiceTest {
     }
 
     @Test
-    public void object() throws NoSuchMethodException {
+    void object() throws NoSuchMethodException {
         HashMap<String, String> expectedDataSet = new HashMap<String, String>() {
 
             {
@@ -186,7 +186,7 @@ public class ParameterModelServiceTest {
     }
 
     @Test
-    public void nestedObject() throws NoSuchMethodException {
+    void nestedObject() throws NoSuchMethodException {
         final List<ParameterMeta> params = service.buildParameterMetas(
                 MethodsHolder.class.getMethod("nested", MethodsHolder.ConfigOfConfig.class), "def");
         assertEquals(1, params.size());
@@ -252,7 +252,7 @@ public class ParameterModelServiceTest {
         assertEquals(prefix, param.getName().substring(prefix.lastIndexOf('.') + 1));
         assertEquals(prefix, param.getPath());
         assertEquals(ParameterMeta.Type.OBJECT, param.getType());
-        assertEquals(param.getNestedParameters().toString(), 2, param.getNestedParameters().size());
+        assertEquals(2, param.getNestedParameters().size(), param.getNestedParameters().toString());
         assertTrue(param.getProposals().isEmpty());
 
         assertConfigFieldsModel(prefix, param.getNestedParameters().get(0), param.getNestedParameters().get(1));

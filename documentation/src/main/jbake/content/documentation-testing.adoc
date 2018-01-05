@@ -21,6 +21,8 @@ This is a great solution to repeat the same test multiple times. Overall idea
 is to define a test scenario (`I test function F`) and to make the input/output data
 dynamic.
 
+==== JUnit 4
+
 Here is an example. Let's assume we have this test which validates the connection URI using `ConnectionService`:
 
 [source,java]
@@ -70,6 +72,40 @@ public class MyConnectionURITest {
 <5> the `@Test` method will be executed using the contextual data, in this sample we'll get executed twice with the 2 specified urls
 
 TIP: you don't have to define a single `@Test` method, if you define multiple, each of them will be executed with all the data (ie if we add a test in previous example you will get 4 tests execution - 2 per data, ie 2x2)
+
+==== JUnit 5
+
+JUnit 5 reworked this feature to make it way easier to use. The full documentation is available at http://junit.org/junit5/docs/current/user-guide/#writing-tests-parameterized-tests.
+
+The main difference is you can also define inline on the test method that it is a parameterized test and which are the values:
+
+[source,java]
+----
+@ParameterizedTest
+@ValueSource(strings = { "racecar", "radar", "able was I ere I saw elba" })
+void mytest(String currentValue) {
+    // do test
+}
+----
+
+However you can still use the previous behavior using a method binding configuration:
+
+[source,java]
+----
+@ParameterizedTest
+@MethodSource("stringProvider")
+void mytest(String currentValue) {
+    // do test
+}
+
+static Stream<String> stringProvider() {
+    return Stream.of("foo", "bar");
+}
+----
+
+This last option allows you to inject any type of value - not only primitives - which is very common to define scenarii.
+
+IMPORTANT: don't forget to add `junit-jupiter-params` dependency to benefit from this feature.
 
 == component-runtime-testing
 
@@ -286,6 +322,8 @@ The folowing artifact will allow you to test against a spark cluster:
 </dependency>
 ----
 
+==== JUnit 4
+
 The usage relies on a JUnit `TestRule`. It is recommanded to use it as a `@ClassRule` to ensure
 a single instance of a spark cluster is built but you can also use it as a simple `@Rule` which means
 it will be created per method instead of per test class.
@@ -313,6 +351,37 @@ public class SparkClusterRuleTest {
 ----
 
 TIP: this is working with `@Parameterized` so you can submit a bunch of jobs with different args and even combine it with beam `TestPipeline` if you make it `transient`!
+
+==== JUnit 5
+
+The integration with JUnit 5 of that spark cluster logic uses `@WithSpark` marker for the extension
+and let you, optionally, inject through `@SparkInject`, the `BaseSpark<?>` handler to access te spark cluster
+meta information - like its host/port.
+
+Here is a basic test using it:
+
+[source,java]
+----
+@WithSpark
+class SparkExtensionTest {
+
+    @SparkInject
+    private BaseSpark<?> spark;
+
+    @Test
+    void classpathSubmit() throws IOException {
+        final File out = new File(jarLocation(SparkClusterRuleTest.class).getParentFile(), "classpathSubmitJunit5.out");
+        if (out.exists()) {
+            out.delete();
+        }
+        spark.submitClasspath(SparkClusterRuleTest.SubmittableMain.class, spark.getSparkMaster(), out.getAbsolutePath());
+
+        await().atMost(5, MINUTES).until(
+                () -> out.exists() ? Files.readAllLines(out.toPath()).stream().collect(joining("\n")).trim() : null,
+                equalTo("b -> 1\na -> 1"));
+    }
+}
+----
 
 ==== How to know the job is done
 

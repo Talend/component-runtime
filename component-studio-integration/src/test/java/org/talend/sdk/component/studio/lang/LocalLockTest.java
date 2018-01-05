@@ -16,8 +16,8 @@
 package org.talend.sdk.component.studio.lang;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,23 +25,17 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.IntStream;
 
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 
-public class LocalLockTest {
-
-    @ClassRule
-    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
-
-    @Rule
-    public final TestName testName = new TestName();
+@WithTemporaryFolder
+class LocalLockTest {
 
     @Test
-    public void run() throws IOException, InterruptedException {
-        final File lockFile = TEMPORARY_FOLDER.newFile(testName.getMethodName());
+    void run(final TestInfo info, final TemporaryFolder folder) throws InterruptedException, IOException {
+        final File lockFile = folder.newFile(info.getTestMethod().get().getName());
         { // ensure it works "empty"
             final Lock lock1 = new LocalLock(lockFile, null);
             lock1.lock();

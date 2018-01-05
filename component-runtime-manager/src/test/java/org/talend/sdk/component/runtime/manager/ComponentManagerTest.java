@@ -19,14 +19,12 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,28 +40,30 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 
-public class ComponentManagerTest {
+@WithTemporaryFolder
+class ComponentManagerTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
-    @ClassRule
-    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
-
     @Test
-    public void run() throws Exception {
-        final File pluginFolder = new File(TEMPORARY_FOLDER.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
+    void run(final TemporaryFolder temporaryFolder) throws Exception {
+        final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
 
         // just some jars with classes we can scan
@@ -106,7 +106,14 @@ public class ComponentManagerTest {
         final ObjectName name = new ObjectName("org.talend.test:value=plugin1,type=plugin");
         assertTrue(mBeanServer.isRegistered(name));
         assertFalse(Boolean.class.cast(mBeanServer.getAttribute(name, "closed")));
-        assertThat(mBeanServer.getAttribute(name, "created"), instanceOf(Date.class));
+        assertTrue(() -> {
+            try {
+                return Date.class.isInstance(mBeanServer.getAttribute(name, "created"));
+            } catch (final MBeanException | AttributeNotFoundException | ReflectionException
+                    | InstanceNotFoundException e) {
+                return false;
+            }
+        });
         // ensure date is stable until reloading
         assertEquals(mBeanServer.getAttribute(name, "created"), mBeanServer.getAttribute(name, "created"));
         return Date.class.cast(mBeanServer.getAttribute(name, "created"));

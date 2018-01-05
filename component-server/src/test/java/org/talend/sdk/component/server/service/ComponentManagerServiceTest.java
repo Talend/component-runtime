@@ -18,9 +18,9 @@ package org.talend.sdk.component.server.service;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.empty;
 import static org.apache.webbeans.util.Asserts.assertNotNull;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 import java.util.Set;
@@ -28,11 +28,8 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -42,11 +39,8 @@ import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 
-@RunWith(MonoMeecrowave.Runner.class)
-public class ComponentManagerServiceTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+@MonoMeecrowaveConfig
+class ComponentManagerServiceTest {
 
     @Inject
     private ComponentManagerService componentManagerService;
@@ -61,15 +55,16 @@ public class ComponentManagerServiceTest {
     private ComponentActionDao componentActionDao;
 
     @Test
-    public void deployExistingPlugin() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Container 'the-test-component' already exists");
-
-        componentManagerService.deploy("org.talend.test1:the-test-component:jar:1.2.6:compile");
+    void deployExistingPlugin() {
+        try {
+            componentManagerService.deploy("org.talend.test1:the-test-component:jar:1.2.6:compile");
+        } catch (final IllegalArgumentException iae) {
+            assertTrue(iae.getMessage().contains("Container 'the-test-component' already exists"));
+        }
     }
 
     @Test // undeploy => deploy
-    public void reloadExistingPlugin() {
+    void reloadExistingPlugin() {
         // check that the plugin is deployed
         String gav = "org.talend.test1:the-test-component:jar:1.2.6:compile";
         String pluginID = getPluginId(gav);
@@ -116,13 +111,13 @@ public class ComponentManagerServiceTest {
     }
 
     @Test
-    public void undeployNonExistingPlugin() {
-        String gav = "org.talend:non-existing-component:jar:0.0.0:compile";
-
-        expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("No plugin found using maven GAV: " + gav);
-
-        componentManagerService.undeploy(gav);
+    void undeployNonExistingPlugin() {
+        final String gav = "org.talend:non-existing-component:jar:0.0.0:compile";
+        try {
+            componentManagerService.undeploy(gav);
+        } catch (final RuntimeException re) {
+            assertTrue(re.getMessage().contains("No plugin found using maven GAV: " + gav));
+        }
     }
 
     private String getPluginId(final String gav) {

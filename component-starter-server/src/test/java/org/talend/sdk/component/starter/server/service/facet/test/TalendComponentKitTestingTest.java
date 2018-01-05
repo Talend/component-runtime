@@ -21,27 +21,23 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toMap;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.talend.sdk.component.starter.server.service.Resources.resourceFileToString;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
-import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.testing.TalendComponentKitTesting;
+import org.talend.sdk.component.starter.server.test.meecrowave.MonoMeecrowaveConfig;
 
-@RunWith(MonoMeecrowave.Runner.class)
-public class TalendComponentKitTestingTest {
+@MonoMeecrowaveConfig
+class TalendComponentKitTestingTest {
 
     @Inject
     private TalendComponentKitTesting generator;
@@ -50,7 +46,7 @@ public class TalendComponentKitTestingTest {
             "src/test/resources", "src/main/webapp", "pom.xml", "some pom", "target", emptyList());
 
     @Test
-    public void testSourceWithoutConf() {
+    void testSourceWithoutConf() {
         final Set<ProjectRequest.SourceConfiguration> sources =
                 singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false,
                         new ProjectRequest.DataStructure(emptySet()),
@@ -69,7 +65,7 @@ public class TalendComponentKitTestingTest {
     }
 
     @Test
-    public void testSourceWithConf() {
+    void testSourceWithConf() {
         final Set<ProjectRequest.SourceConfiguration> sources =
                 singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false, complexConfig(),
                         new ProjectRequest.StructureConfiguration(null, true)));
@@ -86,7 +82,7 @@ public class TalendComponentKitTestingTest {
     }
 
     @Test
-    public void testSourceWithNonGenericOutput() {
+    void testSourceWithNonGenericOutput() {
         final Set<ProjectRequest.SourceConfiguration> sources =
                 singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false, complexConfig(),
                         new ProjectRequest.StructureConfiguration(complexConfig(), false)));
@@ -104,7 +100,7 @@ public class TalendComponentKitTestingTest {
     }
 
     @Test
-    public void testProcessorWithoutConf() {
+    void testProcessorWithoutConf() {
         final Set<ProjectRequest.ProcessorConfiguration> processors = singleton(
                 new ProjectRequest.ProcessorConfiguration("mycomp", "", new ProjectRequest.DataStructure(emptySet()),
                         singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)),
@@ -124,14 +120,11 @@ public class TalendComponentKitTestingTest {
     }
 
     @Test
-    public void testProcessorWithConf() {
+    void testProcessorWithConf() {
         final Set<ProjectRequest.ProcessorConfiguration> processors =
                 singleton(new ProjectRequest.ProcessorConfiguration("mycomp", "", complexConfig(),
                         singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true)),
                         singletonMap("__default__", new ProjectRequest.StructureConfiguration(null, true))));
-
-        Map<String, String> files = generator.create("foo.bar", build, emptyList(), emptyList(), processors).collect(
-                toMap(FacetGenerator.InMemoryFile::getPath, i -> new String(i.getContent(), StandardCharsets.UTF_8)));
 
         String testFile = generator
                 .create("foo.bar", build, emptyList(), emptyList(), processors)
@@ -146,7 +139,7 @@ public class TalendComponentKitTestingTest {
     }
 
     @Test
-    public void testProcessorWithNonGenericOutput() {
+    void testProcessorWithNonGenericOutput() {
         final Set<ProjectRequest.ProcessorConfiguration> processors =
                 singleton(new ProjectRequest.ProcessorConfiguration("mycomp", "", complexConfig(),
                         new HashMap<String, ProjectRequest.StructureConfiguration>() {

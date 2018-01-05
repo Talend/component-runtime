@@ -19,11 +19,11 @@ import static java.util.Collections.singletonList;
 import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,14 +50,12 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
+import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
 import org.apache.ziplock.IO;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestName;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
@@ -71,11 +69,9 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.test.ComponentClient;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
-@RunWith(MonoMeecrowave.Runner.class)
-public class ComponentResourceTest {
-
-    @ClassRule
-    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
+@MonoMeecrowaveConfig
+@WithTemporaryFolder
+class ComponentResourceTest {
 
     @Inject
     private WebTarget base;
@@ -86,16 +82,13 @@ public class ComponentResourceTest {
     @Inject
     private WebsocketClient ws;
 
-    @Rule
-    public final TestName testName = new TestName();
-
     @Test
-    public void webSocketGetIndex() throws IOException, DeploymentException {
+    void webSocketGetIndex() throws IOException, DeploymentException {
         assertIndex(ws.read(ComponentIndices.class, "get", "/component/index", ""));
     }
 
     @Test
-    public void getDependencies() {
+    void getDependencies() {
         final String compId = client.getJdbcId();
         final Dependencies dependencies =
                 base.path("component/dependencies").queryParam("identifier", compId).request(APPLICATION_JSON_TYPE).get(
@@ -108,14 +101,14 @@ public class ComponentResourceTest {
     }
 
     @Test
-    public void getDependency() {
+    void getDependency(final TestInfo info, final TemporaryFolder folder) {
         final Function<String, File> download = id -> {
             final InputStream stream = base
                     .path("component/dependency/{id}")
                     .resolveTemplate("id", id)
                     .request(APPLICATION_OCTET_STREAM_TYPE)
                     .get(InputStream.class);
-            final File file = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName() + ".jar");
+            final File file = new File(folder.getRoot(), info.getTestMethod().get().getName() + ".jar");
             try (final OutputStream outputStream = new FileOutputStream(file)) {
                 IO.copy(stream, outputStream);
             } catch (final IOException e) {
@@ -141,12 +134,12 @@ public class ComponentResourceTest {
     }
 
     @Test
-    public void getIndex() {
+    void getIndex() {
         assertIndex(client.fetchIndex());
     }
 
     @Test
-    public void migrate() {
+    void migrate() {
         final Map<String, String> migrated = base
                 .path("component/migrate/{id}/{version}")
                 .resolveTemplate("id", client.getJdbcId())
@@ -163,7 +156,7 @@ public class ComponentResourceTest {
     }
 
     @Test
-    public void getDetails() {
+    void getDetails() {
         final ComponentDetailList details = base
                 .path("component/details")
                 .queryParam("identifiers", client
@@ -210,7 +203,7 @@ public class ComponentResourceTest {
     }
 
     @Test
-    public void getDetailsMeta() {
+    void getDetailsMeta() {
         final ComponentDetailList details = base
                 .path("component/details")
                 .queryParam("identifiers", client.getJdbcId())
@@ -247,7 +240,7 @@ public class ComponentResourceTest {
 
     private void assertValidation(final String path, final ComponentDetail aggregate,
             final Predicate<PropertyValidation> validator) {
-        assertTrue(path, validator.test(findProperty(path, aggregate).getValidation()));
+        assertTrue(validator.test(findProperty(path, aggregate).getValidation()), path);
     }
 
     private SimplePropertyDefinition findProperty(final String path, final ComponentDetail aggregate) {

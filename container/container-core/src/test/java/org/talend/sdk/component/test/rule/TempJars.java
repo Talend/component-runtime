@@ -18,6 +18,7 @@ package org.talend.sdk.component.test.rule;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,13 +26,15 @@ import java.util.UUID;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
 import org.talend.sdk.component.test.Constants;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class TempJars extends ExternalResource {
+public class TempJars implements JUnit5InjectionSupport, AfterAllCallback {
 
     private final Collection<File> toClean = new ArrayList<>();
 
@@ -52,11 +55,16 @@ public class TempJars extends ExternalResource {
     }
 
     @Override
-    protected void after() {
+    public void afterAll(final ExtensionContext context) {
         toClean.forEach(f -> {
             if (!f.delete()) { // on win it can fail
                 f.deleteOnExit();
             }
         });
+    }
+
+    @Override
+    public Class<? extends Annotation> injectionMarker() {
+        return Override.class;
     }
 }

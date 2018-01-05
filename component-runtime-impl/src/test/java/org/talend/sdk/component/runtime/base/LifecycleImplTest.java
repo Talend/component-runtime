@@ -15,25 +15,25 @@
  */
 package org.talend.sdk.component.runtime.base;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class LifecycleImplTest {
+class LifecycleImplTest {
 
     @Test
-    public void name() {
+    void name() {
         final Lifecycle impl = new LifecycleImpl(new NoLifecycle(), "Root", "Test", "Plugin");
         assertEquals("Test", impl.name());
     }
 
     @Test
-    public void ignoreIfNotUsed() {
+    void ignoreIfNotUsed() {
         final Lifecycle impl = new LifecycleImpl(new NoLifecycle(), "Root", "Test", "Plugin");
         impl.start();
         impl.stop();
@@ -41,7 +41,7 @@ public class LifecycleImplTest {
     }
 
     @Test
-    public void start() {
+    void start() {
         final StartOnly delegate = new StartOnly();
         final Lifecycle impl = new LifecycleImpl(delegate, "Root", "Test", "Plugin");
         assertEquals(0, delegate.counter);
@@ -52,7 +52,7 @@ public class LifecycleImplTest {
     }
 
     @Test
-    public void stop() {
+    void stop() {
         final StopOnly delegate = new StopOnly();
         final Lifecycle impl = new LifecycleImpl(delegate, "Root", "Test", "Plugin");
         assertEquals(0, delegate.counter);
@@ -63,7 +63,7 @@ public class LifecycleImplTest {
     }
 
     @Test
-    public void both() {
+    void both() {
         final StartStop delegate = new StartStop();
         final Lifecycle impl = new LifecycleImpl(delegate, "Root", "Test", "Plugin");
         assertEquals(0, delegate.counter);

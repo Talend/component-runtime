@@ -18,9 +18,9 @@ package org.talend.sdk.component.runtime.output.data;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -30,21 +30,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.processor.data.ObjectMap;
 import org.talend.sdk.component.runtime.serialization.Serializer;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 
-public class ObjectMapImplTest {
+class ObjectMapImplTest {
 
     private final ObjectMap map = new ObjectMapImpl(null,
             new Person(new Address("here"), singleton(new Address("other")), 30, "tester", asList("t1", "t2")),
             new AccessorCache("null"));
 
     @Test
-    public void any() {
+    void any() {
         final Sink sink = new Sink(singletonMap("def", "value"));
         final ObjectMapImpl objectMap = new ObjectMapImpl(null, sink, new AccessorCache(null));
         assertEquals("value", objectMap.get("def"));
@@ -53,37 +53,37 @@ public class ObjectMapImplTest {
     }
 
     @Test
-    public void serialization() throws IOException, ClassNotFoundException {
+    void serialization() throws IOException, ClassNotFoundException {
         final ObjectMap copy = Serializer.roundTrip(map);
         assertNotNull(copy);
     }
 
     @Test
-    public void keys() {
+    void keys() {
         assertEquals(new HashSet<>(asList("subAddresses", "address", "name", "age", "tags")), map.keys());
     }
 
     @Test
-    public void firstLevelField() {
+    void firstLevelField() {
         assertEquals(new Address("here"), map.get("address"));
-        assertEquals(30, (int) map.get("age"), 0);
+        assertEquals(30, (int) map.get("age"));
         assertEquals("tester", map.get("name"));
         assertEquals(singleton(new Address("other")), map.get("subAddresses"));
     }
 
     @Test
-    public void linearlyNested() {
+    void linearlyNested() {
         assertEquals("here", map.get("address.street"));
     }
 
     @Test
-    public void nestedMaps() {
+    void nestedMaps() {
         final ObjectMap nested = map.getMap("address");
         assertEquals("here", nested.get("street"));
     }
 
     @Test
-    public void map() {
+    void map() {
         final Map<String, Object> map = new HashMap<>();
         map.put("k1", "v1");
         map.put("k2", new Address("test"));

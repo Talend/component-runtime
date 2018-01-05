@@ -18,10 +18,10 @@ package org.talend.sdk.component.runtime.beam.spi;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.runtime.base.Serializer;
 import org.talend.sdk.component.runtime.beam.data.Sample;
@@ -44,7 +44,7 @@ import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 import org.talend.sdk.component.spi.component.ComponentExtension;
 
-public class BeamComponentExtensionTest {
+class BeamComponentExtensionTest {
 
     private final BeamComponentExtension extension = new BeamComponentExtension();
 
@@ -97,7 +97,7 @@ public class BeamComponentExtensionTest {
         }
     }
 
-    private void assertMapper(Mapper mapper) {
+    private void assertMapper(final Mapper mapper) {
         assertNotNull(mapper);
         mapper.start();
         final Input input = mapper.create();

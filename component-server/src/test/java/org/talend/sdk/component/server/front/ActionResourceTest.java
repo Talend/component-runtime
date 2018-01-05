@@ -15,35 +15,30 @@
  */
 package org.talend.sdk.component.server.front;
 
-import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.ActionItem;
 import org.talend.sdk.component.server.front.model.ActionList;
-import org.talend.sdk.component.server.test.jdbc.JdbcDataSet;
 
-@RunWith(MonoMeecrowave.Runner.class)
-public class ActionResourceTest {
+@MonoMeecrowaveConfig
+class ActionResourceTest {
 
     @Inject
     private WebTarget base;
 
     @Test
-    public void index() {
+    void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
         assertEquals(2, index.getItems().size());
 
@@ -56,7 +51,7 @@ public class ActionResourceTest {
     }
 
     @Test
-    public void indexFiltered() {
+    void indexFiltered() {
         final ActionList index = base
                 .path("action/index")
                 .queryParam("type", "healthcheck")

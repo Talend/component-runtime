@@ -16,22 +16,21 @@
 package org.talend.sdk.component.server.front;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.test.ComponentClient;
 
-@RunWith(MonoMeecrowave.Runner.class)
-public class DocumentationResourceTest {
+@MonoMeecrowaveConfig
+class DocumentationResourceTest {
 
     @Inject
     private WebTarget base;
@@ -40,7 +39,7 @@ public class DocumentationResourceTest {
     private ComponentClient client;
 
     @Test
-    public void getDoc() {
+    void getDoc() {
         final DocumentationContent content = base
                 .path("documentation/component/{id}")
                 .resolveTemplate("id", client.getJdbcId())
@@ -51,7 +50,7 @@ public class DocumentationResourceTest {
     }
 
     @Test
-    public void missingDoc() {
+    void missingDoc() {
         final String id = client.getComponentId("chain", "list");
         final Response response = base
                 .path("documentation/component/{id}")

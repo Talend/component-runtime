@@ -15,19 +15,19 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.action.Discoverable;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 
-public class ActionParameterEnricherTest {
+class ActionParameterEnricherTest {
 
     @Test
-    public void condition() {
+    void condition() {
         assertEquals(new HashMap<String, String>() {
 
             {
@@ -48,7 +48,7 @@ public class ActionParameterEnricherTest {
     }
 
     @Test
-    public void discoverable() {
+    void discoverable() {
         assertEquals(new HashMap<String, String>() {
 
             {

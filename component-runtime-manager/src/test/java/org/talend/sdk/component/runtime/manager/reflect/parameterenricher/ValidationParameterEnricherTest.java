@@ -16,24 +16,24 @@
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
 import static java.util.Collections.singletonMap;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.constraint.Max;
 import org.talend.sdk.component.api.configuration.constraint.Min;
 import org.talend.sdk.component.api.configuration.constraint.Pattern;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.constraint.Uniques;
 
-public class ValidationParameterEnricherTest {
+class ValidationParameterEnricherTest {
 
     private final ValidationParameterEnricher enricher = new ValidationParameterEnricher();
 
     @Test
-    public void minValue() {
+    void minValue() {
         assertEquals(singletonMap("tcomp::validation::min", "5.0"),
                 enricher.onParameterAnnotation("testParam", int.class, new Min() {
 
@@ -50,7 +50,7 @@ public class ValidationParameterEnricherTest {
     }
 
     @Test
-    public void maxValue() {
+    void maxValue() {
         assertEquals(singletonMap("tcomp::validation::max", "5.0"),
                 enricher.onParameterAnnotation("testParam", int.class, new Max() {
 
@@ -67,7 +67,7 @@ public class ValidationParameterEnricherTest {
     }
 
     @Test
-    public void minCollection() {
+    void minCollection() {
         assertEquals(singletonMap("tcomp::validation::minItems", "5.0"),
                 enricher.onParameterAnnotation("testParam", Collection.class, new Min() {
 
@@ -84,7 +84,7 @@ public class ValidationParameterEnricherTest {
     }
 
     @Test
-    public void maxCollection() {
+    void maxCollection() {
         assertEquals(singletonMap("tcomp::validation::maxItems", "5.0"),
                 enricher.onParameterAnnotation("testParam", Collection.class, new Max() {
 
@@ -101,7 +101,7 @@ public class ValidationParameterEnricherTest {
     }
 
     @Test
-    public void minlength() {
+    void minlength() {
         assertEquals(singletonMap("tcomp::validation::minLength", "5.0"),
                 enricher.onParameterAnnotation("testParam", String.class, new Min() {
 
@@ -118,7 +118,7 @@ public class ValidationParameterEnricherTest {
     }
 
     @Test
-    public void maxLength() {
+    void maxLength() {
         assertEquals(singletonMap("tcomp::validation::maxLength", "5.0"),
                 enricher.onParameterAnnotation("testParam", String.class, new Max() {
 
@@ -135,7 +135,7 @@ public class ValidationParameterEnricherTest {
     }
 
     @Test
-    public void pattern() {
+    void pattern() {
         assertEquals(singletonMap("tcomp::validation::pattern", "test"),
                 enricher.onParameterAnnotation("testParam", String.class, new Pattern() {
 
@@ -152,7 +152,7 @@ public class ValidationParameterEnricherTest {
     }
 
     @Test
-    public void required() {
+    void required() {
         assertEquals(singletonMap("tcomp::validation::required", "true"),
                 enricher.onParameterAnnotation("testParam", Collection.class, new Required() {
 
@@ -164,7 +164,7 @@ public class ValidationParameterEnricherTest {
     }
 
     @Test
-    public void unique() {
+    void unique() {
         assertEquals(singletonMap("tcomp::validation::uniqueItems", "true"),
                 enricher.onParameterAnnotation("testParam", Collection.class, new Uniques() {
 
@@ -176,7 +176,7 @@ public class ValidationParameterEnricherTest {
     }
 
     @Test
-    public void enumType() {
+    void enumType() {
         assertEquals(singletonMap("tcomp::validation::uniqueItems", "true"),
                 enricher.onParameterAnnotation("testParam", Collection.class, new Uniques() {
 

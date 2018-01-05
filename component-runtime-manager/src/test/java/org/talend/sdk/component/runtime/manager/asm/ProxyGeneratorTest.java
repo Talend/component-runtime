@@ -17,14 +17,12 @@ package org.talend.sdk.component.runtime.manager.asm;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,16 +33,16 @@ import java.lang.annotation.Retention;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.interceptor.InterceptorHandler;
 import org.talend.sdk.component.api.service.interceptor.Intercepts;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 
-public class ProxyGeneratorTest {
+class ProxyGeneratorTest {
 
     @Test
-    public void interceptors()
+    void interceptors()
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         final ProxyGenerator generator = new ProxyGenerator();
         final Class<?> proxyClass = generator.generateProxy(Thread.currentThread().getContextClassLoader(),
@@ -57,7 +55,7 @@ public class ProxyGeneratorTest {
     }
 
     @Test
-    public void serialization() throws Exception {
+    void serialization() throws Exception {
         try {
             assertFalse(Serializable.class.isInstance(new CatService())); // if this fails the whole test is pointless
 
@@ -88,7 +86,7 @@ public class ProxyGeneratorTest {
     }
 
     private void assertProxy(final Object proxy) throws Exception {
-        assertThat(proxy, instanceOf(CatService.class));
+        assertTrue(() -> CatService.class.isInstance(proxy));
         assertEquals("123[4]", CatService.class.cast(proxy).cat(1, "2", "3", singletonList("4")));
         assertEquals(CatService.class.getName() + "$$TalendServiceProxy", proxy.getClass().getName());
 

@@ -15,19 +15,13 @@
  */
 package org.talend.sdk.component.design.extension.repository;
 
-import org.apache.xbean.asm6.ClassReader;
-import org.apache.xbean.asm6.ClassWriter;
-import org.apache.xbean.asm6.commons.Remapper;
-import org.apache.xbean.asm6.commons.ClassRemapper;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestName;
-import org.talend.sdk.component.container.Container;
-import org.talend.sdk.component.design.extension.RepositoryModel;
-import org.talend.sdk.component.runtime.manager.ComponentManager;
-import org.talend.sdk.component.runtime.manager.util.IdGenerator;
+import static java.util.Optional.ofNullable;
+import static org.apache.xbean.asm6.ClassReader.EXPAND_FRAMES;
+import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
+import static org.apache.ziplock.JarLocation.jarLocation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,27 +32,27 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 
-import static java.util.Optional.ofNullable;
-import static org.apache.xbean.asm6.ClassReader.EXPAND_FRAMES;
-import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
-import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import org.apache.xbean.asm6.ClassReader;
+import org.apache.xbean.asm6.ClassWriter;
+import org.apache.xbean.asm6.commons.ClassRemapper;
+import org.apache.xbean.asm6.commons.Remapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.design.extension.RepositoryModel;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 
-public class RepositoryModelBuilderTest {
-
-    @ClassRule
-    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
-
-    @Rule
-    public final TestName testName = new TestName();
+@WithTemporaryFolder
+class RepositoryModelBuilderTest {
 
     @Test
-    public void test() throws Exception {
+    void test(final TemporaryFolder temporaryFolder, final TestInfo testInfo) throws Exception {
 
-        final String pluginName = testName.getMethodName() + ".jar";
-        final File pluginJar = createChainPlugin(TEMPORARY_FOLDER.getRoot(), pluginName);
+        final String pluginName = testInfo.getTestMethod().get().getName() + ".jar";
+        final File pluginJar = createChainPlugin(temporaryFolder.getRoot(), pluginName);
 
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null)) {

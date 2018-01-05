@@ -18,18 +18,16 @@ package org.talend.sdk.component.runtime.manager;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +35,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.Request;
@@ -48,12 +46,12 @@ import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
 
 import lombok.Data;
 
-public class ReflectionServiceTest {
+class ReflectionServiceTest {
 
     private final ReflectionService reflectionService = new ReflectionService(new ParameterModelService());
 
     @Test
-    public void copiable() throws NoSuchMethodException {
+    void copiable() throws NoSuchMethodException {
         final HashMap<Class<?>, Object> precomputed = new HashMap<>();
         precomputed.put(UserHttpClient.class,
                 new HttpClientFactoryImpl("test").create(UserHttpClient.class, "http://foo"));
@@ -70,7 +68,7 @@ public class ReflectionServiceTest {
     }
 
     @Test
-    public void primitive() throws NoSuchMethodException {
+    void primitive() throws NoSuchMethodException {
         { // from string
             final Object[] params = reflectionService
                     .parameterFactory(
@@ -119,7 +117,7 @@ public class ReflectionServiceTest {
     }
 
     @Test
-    public void collection() throws NoSuchMethodException {
+    void collection() throws NoSuchMethodException {
         final Object[] params = reflectionService
                 .parameterFactory(MethodsHolder.class.getMethod("collections", List.class, List.class, Map.class),
                         emptyMap())
@@ -148,7 +146,7 @@ public class ReflectionServiceTest {
     }
 
     @Test
-    public void array() throws NoSuchMethodException {
+    void array() throws NoSuchMethodException {
         final Object[] params = reflectionService
                 .parameterFactory(MethodsHolder.class.getMethod("array", MethodsHolder.Array.class), emptyMap())
                 .apply(new HashMap<String, String>() {
@@ -159,13 +157,13 @@ public class ReflectionServiceTest {
                     }
                 });
         assertEquals(1, params.length);
-        assertThat(params[0], instanceOf(MethodsHolder.Array.class));
+        assertTrue(MethodsHolder.Array.class.isInstance(params[0]));
         assertArrayEquals(new String[] { "http://foo", "https://bar" },
                 MethodsHolder.Array.class.cast(params[0]).getUrls());
     }
 
     @Test
-    public void object() throws NoSuchMethodException {
+    void object() throws NoSuchMethodException {
         final Object[] params =
                 reflectionService
                         .parameterFactory(MethodsHolder.class.getMethod("object", MethodsHolder.Config.class,
@@ -184,7 +182,7 @@ public class ReflectionServiceTest {
                                 put("arg0.mapping.value[1]", "val2");
                             }
                         });
-        Stream.of(params).forEach(p -> assertThat(p, instanceOf(MethodsHolder.Config.class)));
+        Stream.of(params).forEach(p -> assertTrue(MethodsHolder.Config.class.isInstance(p)));
         final MethodsHolder.Config[] configs =
                 Stream.of(params).map(MethodsHolder.Config.class::cast).toArray(MethodsHolder.Config[]::new);
         assertEquals(asList("http://foo", "https://bar"), configs[0].getUrls());
@@ -200,7 +198,7 @@ public class ReflectionServiceTest {
     }
 
     @Test
-    public void nestedObject() throws NoSuchMethodException {
+    void nestedObject() throws NoSuchMethodException {
         final Object[] params = reflectionService
                 .parameterFactory(MethodsHolder.class.getMethod("nested", MethodsHolder.ConfigOfConfig.class),
                         emptyMap())
@@ -222,7 +220,7 @@ public class ReflectionServiceTest {
                         put("arg0.passthrough", "ok");
                     }
                 });
-        assertThat(params[0], instanceOf(MethodsHolder.ConfigOfConfig.class));
+        assertTrue(MethodsHolder.ConfigOfConfig.class.isInstance(params[0]));
         final MethodsHolder.ConfigOfConfig value = MethodsHolder.ConfigOfConfig.class.cast(params[0]);
         assertEquals("ok", value.getPassthrough());
         assertNotNull(value.getDirect());
@@ -238,7 +236,7 @@ public class ReflectionServiceTest {
     }
 
     @Test
-    public void tables() throws NoSuchMethodException {
+    void tables() throws NoSuchMethodException {
         final Method factory = TableOwner.class.getMethod("factory", TableOwner.class);
         final Object[] tests =
                 new ReflectionService(new ParameterModelService()).parameterFactory(factory, emptyMap()).apply(
@@ -258,7 +256,7 @@ public class ReflectionServiceTest {
                             }
                         });
         assertEquals(1, tests.length);
-        assertThat(tests[0], instanceOf(TableOwner.class));
+        assertTrue(TableOwner.class.isInstance(tests[0]));
 
         final TableOwner tableOwner = TableOwner.class.cast(tests[0]);
         {

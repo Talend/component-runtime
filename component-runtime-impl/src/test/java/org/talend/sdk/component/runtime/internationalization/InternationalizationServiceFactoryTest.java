@@ -15,46 +15,46 @@
  */
 package org.talend.sdk.component.runtime.internationalization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.util.Locale;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.internationalization.Language;
 
-public class InternationalizationServiceFactoryTest {
+class InternationalizationServiceFactoryTest {
 
     private final Translate translate =
             new InternationalizationServiceFactory().create(Translate.class, Translate.class.getClassLoader());
 
     @Test
-    public void noConfiguredValue() {
+    void noConfiguredValue() {
 
         assertEquals("noConfiguredValue", translate.noConfiguredValue());
     }
 
     @Test
-    public void staticValue() {
+    void staticValue() {
 
         assertEquals("FIXED", translate.staticValue());
     }
 
     @Test
-    public void dynamic() {
+    void dynamic() {
 
         assertEquals("string<a> and integer<1>", translate.dynamicValue("a", 1));
     }
 
     @Test
-    public void customLocale() {
+    void customLocale() {
 
         assertEquals("valeur<france>", translate.customLocale(Locale.FRANCE, "france"));
     }
 
     @Test
-    public void objectMethods() {
+    void objectMethods() {
         assertEquals(translate, translate);
         assertEquals(translate.hashCode(), translate.hashCode());
         final Translate other =

@@ -38,14 +38,20 @@ export default class Finish extends React.Component {
         useOrganization: true
       }
     };
+    this.initDownloadLink(this.state);
 
-    ['closeModal', 'notifyProgressDone', 'createModel', 'onDownload', 'onGithub', 'showGithub'].forEach(i => this[i] = this[i].bind(this));
+    ['closeModal', 'notifyProgressDone', 'createModel', 'onGithub', 'showGithub'].forEach(i => this[i] = this[i].bind(this));
+  }
+
+  initDownloadLink(state) {
+    state.downloadState = btoa(JSON.stringify(state.project));
   }
 
   componentWillReceiveProps(nextProps) {
     this.setState(state => {
       state.project = this.createModel(nextProps);
-      state.github.repository = state.project.artifact
+      state.github.repository = state.project.artifact;
+      this.initDownloadLink(state);
     });
   }
 
@@ -84,10 +90,6 @@ export default class Finish extends React.Component {
 
   showGithub() {
     this.setState({current: 'github'});
-  }
-
-  onDownload() {
-    this.listenForDone(this.doDownload());
   }
 
   onGithub() {
@@ -132,30 +134,6 @@ export default class Finish extends React.Component {
       });
   }
 
-  doDownload(model) {
-    this.setState({progress: 'zip'});
-    return fetch(`${GENERATOR_ZIP_URL}`, {
-        method: 'POST',
-        body: JSON.stringify(this.state.project),
-        headers: new Headers({'Accept': 'application/zip', 'Content-Type': 'application/json'})
-      })
-      .then(response => response.blob())
-      .then(blob => {
-          let a = document.createElement("a");
-          const url = window.URL.createObjectURL(blob);
-          try {
-            document.body.appendChild(a);
-            a.style = "display: none";
-            a.href = url;
-            a.download = this.state.project.artifact + '.zip';
-            a.click();
-          } finally {
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-          }
-      });
-  }
-
   isEmpty(str) {
     return !str || str.trim().length === 0;
   }
@@ -163,16 +141,21 @@ export default class Finish extends React.Component {
   render() {
     const fieldClasses = ['field', theme.field].join(' ');
     return (
-      <form className={theme.Finish} novalidate submit={e => e.preventDefault()}>
+      <div className={theme.Finish}>
         <h2>Project Summary</h2>
         <Summary project={this.state.project} />
         <div className={theme.bigButton}>
-          <Action label="Download as ZIP" bsStyle="info" onClick={this.onDownload} icon="fa-file-archive-o"
-                  inProgress={this.state.progress === 'zip'} disabled={!!this.state.progress && this.state.progress !== 'zip'}
-                  className="btn btn-lg" />
-          <Action label="Create on Github" bsStyle="primary" onClick={this.showGithub} icon="fa-github"
-                  inProgress={this.state.progress === 'github'} disabled={!!this.state.progress && this.state.progress !== 'github'}
-                  className="btn btn-lg" />
+          <form novalidate action={GENERATOR_ZIP_URL} method="POST">
+            <input type="hidden" name="project" value={this.state.downloadState} />
+            <Action label="Download as ZIP" bsStyle="info" icon="fa-file-archive-o" type="submit"
+                    inProgress={this.state.progress === 'zip'} disabled={!!this.state.progress && this.state.progress !== 'zip'}
+                    className="btn btn-lg" />
+          </form>
+          <form novalidate submit={e => e.preventDefault()}>
+            <Action label="Create on Github" bsStyle="primary" onClick={this.showGithub} icon="fa-github"
+                    inProgress={this.state.progress === 'github'} disabled={!!this.state.progress && this.state.progress !== 'github'}
+                    className="btn btn-lg" />
+          </form>
         </div>
         {
           this.state.current === 'github' && (
@@ -249,7 +232,7 @@ export default class Finish extends React.Component {
             </Dialog>
           )
         }
-      </form>
+      </div>
     );
   }
 }

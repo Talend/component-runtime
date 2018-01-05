@@ -23,10 +23,10 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,14 +38,13 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+import org.talend.sdk.component.starter.server.test.meecrowave.MonoMeecrowaveConfig;
 
-@RunWith(MonoMeecrowave.Runner.class)
+@MonoMeecrowaveConfig
 public class ComponentGeneratorTest {
 
     @Inject
@@ -99,7 +98,7 @@ public class ComponentGeneratorTest {
     }
 
     @Test
-    public void sourceComplexConfiguration() {
+    void sourceComplexConfiguration() {
         final Map<String, String> files = generator
                 .create("com.foo", build, "superfamily", "supercategory",
                         singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false,
@@ -135,7 +134,7 @@ public class ComponentGeneratorTest {
     }
 
     @Test
-    public void genericSource() {
+    void genericSource() {
         final Map<String, String> files = generator
                 .create("com.foo", build, "superfamily", "supercategory",
                         singleton(new ProjectRequest.SourceConfiguration("mycomp", "", false, null, null)), emptyList())
@@ -147,7 +146,7 @@ public class ComponentGeneratorTest {
     }
 
     @Test
-    public void genericStreamMapper() {
+    void genericStreamMapper() {
         final Map<String, String> files = generator
                 .create("com.foo", build, "superfamily", "supercategory",
                         singleton(new ProjectRequest.SourceConfiguration("mycomp", "", true, null, null)), emptyList())
@@ -159,7 +158,7 @@ public class ComponentGeneratorTest {
     }
 
     @Test
-    public void isolatedProcessor() {
+    void isolatedProcessor() {
         final Map<String, String> files = generator
                 .create("com.foo", build, "superfamily", "supercategory", emptyList(),
                         singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, null, null)))
@@ -171,7 +170,7 @@ public class ComponentGeneratorTest {
     }
 
     @Test
-    public void processorOutput() {
+    void processorOutput() {
         final Map<String, String> files = generator
                 .create("com.foo", build, "superfamily", "supercategory", emptyList(),
                         singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, null,
@@ -197,7 +196,7 @@ public class ComponentGeneratorTest {
     }
 
     @Test
-    public void processorGenericOutput() {
+    void processorGenericOutput() {
         final Map<String, String> files =
                 generator
                         .create("com.foo", build, "superfamily", "supercategory", emptyList(),
@@ -214,7 +213,7 @@ public class ComponentGeneratorTest {
     }
 
     @Test
-    public void processorInput() {
+    void processorInput() {
         final Map<String, String> files = generator
                 .create("com.foo", build, "superfamily", "supercategory", emptyList(),
                         singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null, singletonMap(
@@ -233,7 +232,7 @@ public class ComponentGeneratorTest {
     }
 
     @Test
-    public void processorGenericInput() {
+    void processorGenericInput() {
         final Map<String, String> files =
                 generator
                         .create("com.foo", build, "superfamily", "supercategory", emptyList(),
@@ -249,7 +248,7 @@ public class ComponentGeneratorTest {
     }
 
     @Test
-    public void standardProcessor() {
+    void standardProcessor() {
         final Map<String, String> files = generator
                 .create("com.foo", build, "superfamily", "supercategory", emptyList(),
                         singletonList(new ProjectRequest.ProcessorConfiguration("tProc", "", null,
@@ -288,7 +287,7 @@ public class ComponentGeneratorTest {
     }
 
     @Test
-    public void configurationWithCredential() {
+    void configurationWithCredential() {
 
         ProjectRequest.DataStructure config = new ProjectRequest.DataStructure(asList(
                 new ProjectRequest.Entry("host", "string", null), new ProjectRequest.Entry("port", "string", null),

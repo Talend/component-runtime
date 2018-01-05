@@ -15,14 +15,14 @@
  */
 package org.talend.sdk.component.runtime.serialization;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class TCCLContainerFinderTest {
+class TCCLContainerFinderTest {
 
     @Test
-    public void tccl() {
+    void tccl() {
         assertEquals(Thread.currentThread().getContextClassLoader(),
                 new TCCLContainerFinder().find(null).classloader());
     }

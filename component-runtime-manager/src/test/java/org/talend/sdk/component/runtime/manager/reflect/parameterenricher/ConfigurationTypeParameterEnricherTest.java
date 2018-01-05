@@ -15,19 +15,19 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
+import static java.util.Collections.emptyMap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 
-import static java.util.Collections.emptyMap;
-import static org.junit.Assert.assertEquals;
-
-public class ConfigurationTypeParameterEnricherTest {
+class ConfigurationTypeParameterEnricherTest {
 
     @Test
-    public void readConfigTypes() {
+    void readConfigTypes() {
         final ConfigurationTypeParameterEnricher enricher = new ConfigurationTypeParameterEnricher();
         assertEquals(new HashMap<String, String>() {
 

@@ -17,11 +17,11 @@ package org.talend.sdk.component.runtime.avro;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.avro.pojo.Aggregate;
 import org.talend.sdk.component.runtime.avro.pojo.Complex;
 import org.talend.sdk.component.runtime.avro.pojo.FallbackModel;
@@ -44,12 +44,12 @@ import org.talend.sdk.component.runtime.avro.pojo.MySelfReferencingModel;
 import org.talend.sdk.component.runtime.avro.pojo.StringableModel;
 import org.talend.sdk.component.runtime.manager.processor.SubclassesCache;
 
-public class ComponentModelToIndexeredRecordConverterTest {
+class ComponentModelToIndexeredRecordConverterTest {
 
     private final ComponentModelToIndexeredRecordConverter converter = new ComponentModelToIndexeredRecordConverter();
 
     @Test
-    public void mapPrimitiveToIR() {
+    void mapPrimitiveToIR() {
         final Map<String, Integer> map = new HashMap<>();
         map.put("a", 1);
         map.put("b", 2);
@@ -63,7 +63,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
     }
 
     @Test
-    public void indexedRecordToPojoArray() {
+    void indexedRecordToPojoArray() {
         final GenericData.Record data = new GenericData.Record(SchemaBuilder
                 .record("ComponentModelToIndexeredRecordConverterTest.indexedRecordToPojoArray.array")
                 .fields()
@@ -83,7 +83,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
     }
 
     @Test
-    public void indexedRecordToPojoFlat() {
+    void indexedRecordToPojoFlat() {
         final GenericData.Record data = new GenericData.Record(SchemaBuilder
                 .record("ComponentModelToIndexeredRecordConverterTest.indexedRecordToPojoFlat.flat")
                 .fields()
@@ -109,14 +109,14 @@ public class ComponentModelToIndexeredRecordConverterTest {
         assertNotNull(pojo);
         assertEquals("test", pojo.getName());
         assertEquals(30, pojo.getAge());
-        assertEquals(300, pojo.getOptionalXp(), 0);
+        assertEquals(300, pojo.getOptionalXp().intValue());
 
         data.put(2, null);
         assertNull(converter.reverseMapping(new SubclassesCache(), data, MyModel.class).getOptionalXp());
     }
 
     @Test
-    public void indexedRecordToPojoNested() {
+    void indexedRecordToPojoNested() {
         final Schema aggregateSchema = SchemaBuilder
                 .record("ComponentModelToIndexeredRecordConverterTest.indexedRecordToPojoNested.root")
                 .fields()
@@ -157,7 +157,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
     }
 
     @Test
-    public void nested() {
+    void nested() {
         final Complex.Nested nested = new Complex.Nested();
         nested.setAge(30);
         nested.setName("next");
@@ -176,7 +176,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
     }
 
     @Test
-    public void flatPojo() {
+    void flatPojo() {
         final MyModel myModel = new MyModel();
         myModel.setAge(30);
         myModel.setOptionalXp(100);
@@ -190,7 +190,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
     }
 
     @Test
-    public void fallback() {
+    void fallback() {
         final FallbackModel myModel = new FallbackModel();
         myModel.setData(singletonMap("a", 1));
 
@@ -200,7 +200,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
     }
 
     @Test
-    public void stringable() {
+    void stringable() {
         final StringableModel myModel = new StringableModel();
         myModel.setValue(BigDecimal.valueOf(10));
 
@@ -220,7 +220,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
     }
 
     @Test
-    public void list() {
+    void list() {
         final ModelWithList root = new ModelWithList();
         root.setModels(new ArrayList<>());
         root.setStrings(asList("a1", "b2"));
@@ -245,7 +245,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
     }
 
     @Test
-    public void referenceLoops() {
+    void referenceLoops() {
         final MySelfReferencingModel.Nested nested = new MySelfReferencingModel.Nested();
         final MySelfReferencingModel myModel = new MySelfReferencingModel();
         nested.setParent(myModel);
@@ -262,7 +262,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
     }
 
     @Test
-    public void complexModel() {
+    void complexModel() {
         final Aggregate child = new Aggregate();
         child.setName("child");
 
@@ -288,7 +288,7 @@ public class ComponentModelToIndexeredRecordConverterTest {
     }
 
     @Test
-    public void nullHandling() {
+    void nullHandling() {
         final MyModel myModel = new MyModel();
         myModel.setAge(30);
 

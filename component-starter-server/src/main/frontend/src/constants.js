@@ -15,5 +15,5 @@
  */
 export const SERVER_URL = '/api';
 export const CONFIGURATION_URL = `${SERVER_URL}/project/configuration`;
-export const GENERATOR_ZIP_URL = `${SERVER_URL}/project/zip`;
+export const GENERATOR_ZIP_URL = `${SERVER_URL}/project/zip/form`;
 export const GENERATOR_GITHUB_URL = `${SERVER_URL}/project/github`;

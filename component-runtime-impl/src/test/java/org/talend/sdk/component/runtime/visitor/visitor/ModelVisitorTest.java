@@ -18,7 +18,8 @@ package org.talend.sdk.component.runtime.visitor.visitor;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -38,71 +39,71 @@ import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
 
-public class ModelVisitorTest {
+class ModelVisitorTest {
 
     @Test
-    public void valid() {
+    void valid() {
         assertEquals(asList("@Emitter(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$In)",
                 "@PartitionMapper(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Mapper)",
                 "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$Registrar$Out)"),
                 visit(Registrar.class));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void componentWithConflictingAnnotations() {
-        visit(InvalidComponent.class);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void producerNoProduce() {
-        visit(EmitterNoProduces.class);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void processorNoListener() {
-        visit(ProcessorNoListener.class);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void mapperNoAssessor() {
-        visit(MapperNoAssessor.class);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void mapperNoSplit() {
-        visit(MapperNoSplit.class);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void mapperNoEmitter() {
-        visit(MapperNoEmitter.class);
+    @Test
+    void componentWithConflictingAnnotations() {
+        assertThrows(IllegalArgumentException.class, () -> visit(InvalidComponent.class));
     }
 
     @Test
-    public void mapperWithSplitParameter() {
+    void producerNoProduce() {
+        assertThrows(IllegalArgumentException.class, () -> visit(EmitterNoProduces.class));
+    }
+
+    @Test
+    void processorNoListener() {
+        assertThrows(IllegalArgumentException.class, () -> visit(ProcessorNoListener.class));
+    }
+
+    @Test
+    void mapperNoAssessor() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperNoAssessor.class));
+    }
+
+    @Test
+    void mapperNoSplit() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperNoSplit.class));
+    }
+
+    @Test
+    void mapperNoEmitter() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperNoEmitter.class));
+    }
+
+    @Test
+    void mapperWithSplitParameter() {
         assertEquals(singletonList(
                 "@PartitionMapper(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$MapperSplitParameter$Mapper)"),
                 visit(MapperSplitParameter.class));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void mapperInvalidSplitParameter() {
-        visit(MapperInvalidSplitParameter.class);
+    @Test
+    void mapperInvalidSplitParameter() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperInvalidSplitParameter.class));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void mapperInvalidSplitReturnType() {
-        visit(MapperInvalidSplitReturnType.class);
+    @Test
+    void mapperInvalidSplitReturnType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperInvalidSplitReturnType.class));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void mapperInvalidAssessorParameter() {
-        visit(MapperInvalidAssessorParams.class);
+    @Test
+    void mapperInvalidAssessorParameter() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperInvalidAssessorParams.class));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void mapperInvalidAssessorReturnType() {
-        visit(MapperInvalidAssessorReturnType.class);
+    @Test
+    void mapperInvalidAssessorReturnType() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperInvalidAssessorReturnType.class));
     }
 
     private List<String> visit(final Class<?> type) {

@@ -16,22 +16,22 @@
 package org.talend.sdk.component.runtime.input;
 
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.serialization.Serializer;
 import org.talend.sdk.component.api.input.Producer;
 
 public class LocalPartitionMapperTest {
 
     @Test
-    public void split() {
+    void split() {
         final Mapper mapper = new LocalPartitionMapper("Root", "Test", "Plugin", null);
         assertEquals(1, mapper.assess());
         assertEquals(singletonList(mapper), mapper.split(1));
@@ -40,7 +40,7 @@ public class LocalPartitionMapperTest {
     }
 
     @Test
-    public void createReader() {
+    void createReader() {
         final Mapper mapper = new LocalPartitionMapper("Root", "Test", "Plugin", new Component());
         final Input input = mapper.create();
         assertTrue(Sample.class.isInstance(input.next()));
@@ -48,7 +48,7 @@ public class LocalPartitionMapperTest {
     }
 
     @Test
-    public void serialization() throws IOException, ClassNotFoundException {
+    void serialization() throws IOException, ClassNotFoundException {
         final LocalPartitionMapper mapper =
                 Serializer.roundTrip(new LocalPartitionMapper("Root", "Test", "Plugin", new Component()));
         assertEquals("Root", mapper.rootName());

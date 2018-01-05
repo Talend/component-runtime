@@ -20,10 +20,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.starter.server.Versions.CXF;
 import static org.talend.sdk.component.starter.server.service.Resources.resourceFileToString;
 
@@ -31,40 +30,46 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.inject.Inject;
+import javax.json.bind.Jsonb;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.model.FactoryConfiguration;
 import org.talend.sdk.component.starter.server.model.ProjectModel;
-import org.talend.sdk.component.starter.server.test.ClientRule;
+import org.talend.sdk.component.starter.server.test.Client;
+import org.talend.sdk.component.starter.server.test.meecrowave.MonoMeecrowaveConfig;
 
-@RunWith(MonoMeecrowave.Runner.class)
-public class ProjectResourceTest {
+@MonoMeecrowaveConfig
+@Client.Active
+class ProjectResourceTest {
 
-    @Rule
-    public final ClientRule client = new ClientRule();
+    @Inject
+    private Jsonb jsonb;
 
     @Test
-    public void configuration() {
+    void configuration(final WebTarget target) {
         final FactoryConfiguration config =
-                client.target().path("project/configuration").request(MediaType.APPLICATION_JSON_TYPE).get(
+                target.path("project/configuration").request(MediaType.APPLICATION_JSON_TYPE).get(
                         FactoryConfiguration.class);
         final String debug = config.toString();
-        assertEquals(debug, new HashSet<>(asList("Gradle", "Maven")), new HashSet<>(config.getBuildTypes()));
-        assertEquals(debug, new HashMap<String, List<FactoryConfiguration.Facet>>() {
+        assertEquals(new HashSet<>(asList("Gradle", "Maven")), new HashSet<>(config.getBuildTypes()), debug);
+        assertEquals(new HashMap<String, List<FactoryConfiguration.Facet>>() {
 
             {
                 put("Test", singletonList(new FactoryConfiguration.Facet("Talend Component Kit Testing",
@@ -79,13 +84,13 @@ public class ProjectResourceTest {
                                 new FactoryConfiguration.Facet("Travis CI",
                                         "Creates a .travis.yml pre-configured for a component build.")));
             }
-        }, new HashMap<>(config.getFacets()));
+        }, new HashMap<>(config.getFacets()), debug);
     }
 
     @Test
-    public void emptyMavenProject() throws IOException {
+    void emptyMavenProject(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
-        final Map<String, String> files = createZip(projectModel);
+        final Map<String, String> files = createZip(projectModel, target);
 
         assertEquals(Stream
                 .of("application/.mvn/wrapper/", "application/mvnw.cmd", "application/", "application/mvnw",
@@ -94,7 +99,7 @@ public class ProjectResourceTest {
                         "application/README.adoc")
                 .collect(toSet()), files.keySet());
         Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>").forEach(
-                token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
+                token -> assertTrue(files.get("application/pom.xml").contains(token), token));
         assertEquals("= A Talend generated Component Starter Project\n", files.get("application/README.adoc"));
         assertEquals(resourceFileToString("generated/ProjectResourceTest/emptyProject/pom.xml")
                 .replace("@runtime.version@", Versions.KIT)
@@ -102,10 +107,28 @@ public class ProjectResourceTest {
     }
 
     @Test
-    public void emptyGradleProject() throws IOException {
+    void formProject(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setBuildType("Gradle");
-        final Map<String, String> files = createZip(projectModel);
+        final Map<String, String> files = createZip(projectModel,
+                model -> target
+                        .path("project/zip/form")
+                        .queryParam("compressionType", "gzip")
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .accept("application/zip")
+                        .post(Entity.entity(
+                                new Form().param("project",
+                                        Base64.getEncoder().encodeToString(
+                                                jsonb.toJson(projectModel).getBytes(StandardCharsets.UTF_8))),
+                                APPLICATION_FORM_URLENCODED_TYPE), InputStream.class));
+        assertTrue(files.containsKey("application/build.gradle"));
+    }
+
+    @Test
+    void emptyGradleProject(final WebTarget target) throws IOException {
+        final ProjectModel projectModel = new ProjectModel();
+        projectModel.setBuildType("Gradle");
+        final Map<String, String> files = createZip(projectModel, target);
 
         assertEquals(Stream
                 .of("application/gradle/", "application/", "application/gradle/wrapper/gradle-wrapper.jar",
@@ -116,11 +139,11 @@ public class ProjectResourceTest {
     }
 
     @Test
-    public void testingProject() throws IOException {
+    void testingProject(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setFacets(singletonList("Talend Component Kit Testing"));
         // todo: add source/proc
-        final Map<String, String> files = createZip(projectModel);
+        final Map<String, String> files = createZip(projectModel, target);
         assertEquals(Stream
                 .of("application/.mvn/wrapper/", "application/mvnw.cmd", "application/", "application/mvnw",
                         "application/.mvn/", "application/.mvn/wrapper/maven-wrapper.jar",
@@ -128,7 +151,7 @@ public class ProjectResourceTest {
                         "application/README.adoc")
                 .collect(toSet()), files.keySet());
         Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>").forEach(
-                token -> assertTrue(token, files.get("application/pom.xml").contains(token)));
+                token -> assertTrue(files.get("application/pom.xml").contains(token), token));
         assertEquals("= A Talend generated Component Starter Project\n" + "\n" + "== Test\n" + "\n"
                 + "=== Talend Component Kit Testing\n" + "\n"
                 + "Talend Component Kit Testing skeleton generator. For each component selected it generates an associated test suffixed with `Test`.\n"
@@ -136,10 +159,20 @@ public class ProjectResourceTest {
     }
 
     @Test
-    public void wadlFacetMaven() throws IOException {
+    void gradleTestingProject(final WebTarget target) throws IOException {
+        final ProjectModel projectModel = new ProjectModel();
+        projectModel.setBuildType("Gradle");
+        projectModel.setFacets(singletonList("Talend Component Kit Testing"));
+        final String buildFile = createZip(projectModel, target).get("application/build.gradle");
+        assertTrue(buildFile.contains("group: 'org.talend.sdk.component', name: 'component-runtime-junit', version: '"
+                + Versions.API_KIT + "'"), buildFile);
+    }
+
+    @Test
+    void wadlFacetMaven(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setFacets(singletonList("WADL Client Generation"));
-        final Map<String, String> files = createZip(projectModel);
+        final Map<String, String> files = createZip(projectModel, target);
 
         assertWadl(files);
         Stream
@@ -158,26 +191,26 @@ public class ProjectResourceTest {
                                 + "              <packagename>com.application.client.wadl</packagename>\n"
                                 + "            </wadlOption>\n" + "          </wadlOptions>\n"
                                 + "        </configuration>\n" + "      </plugin>")
-                .forEach(string -> assertThat(files.get("application/pom.xml"), containsString(string)));
+                .forEach(string -> assertTrue(files.get("application/pom.xml").contains(string)));
     }
 
     @Test
-    public void travisFacet() throws IOException {
+    void travisFacet(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setFacets(singletonList("Travis CI"));
-        final Map<String, String> files = createZip(projectModel);
+        final Map<String, String> files = createZip(projectModel, target);
 
-        assertThat(files.get("application/README.adoc"), containsString("=== Travis CI\n"));
-        assertThat(files.get("application/.travis.yml"), containsString("language: java"));
+        assertTrue(files.get("application/README.adoc").contains("=== Travis CI\n"));
+        assertTrue(files.get("application/.travis.yml").contains("language: java"));
     }
 
     @Test
-    public void wadlFacetGradle() throws IOException {
+    void wadlFacetGradle(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setBuildType("Gradle");
         projectModel.setPackageBase("com.foo");
         projectModel.setFacets(singletonList("WADL Client Generation"));
-        final Map<String, String> files = createZip(projectModel);
+        final Map<String, String> files = createZip(projectModel, target);
 
         assertWadl(files);
         Stream
@@ -195,11 +228,11 @@ public class ProjectResourceTest {
                         "sourceSets {\n" + "  main {\n" + "    java {\n"
                                 + "      project.tasks.compileJava.dependsOn project.tasks.generateWadlClient\n"
                                 + "      srcDir wadlGeneratedFolder\n" + "    }\n" + "  }\n" + "}")
-                .forEach(string -> assertThat(files.get("application/build.gradle"), containsString(string)));
+                .forEach(string -> assertTrue(files.get("application/build.gradle").contains(string)));
     }
 
     @Test
-    public void beamFacet() throws IOException {
+    void beamFacet(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setPackageBase("com.foo");
         projectModel.setFacets(singletonList("Apache Beam"));
@@ -222,8 +255,8 @@ public class ProjectResourceTest {
             projectModel.setProcessors(singletonList(proc));
         }
 
-        final Map<String, String> files = createZip(projectModel);
-        assertTrue(files.toString(), files.get("application/README.adoc").contains("=== Apache Beam"));
+        final Map<String, String> files = createZip(projectModel, target);
+        assertTrue(files.get("application/README.adoc").contains("=== Apache Beam"), files.toString());
         assertEquals(resourceFileToString("generated/ProjectResourceTest/beamFacet/TInMapperBeamTest.java"),
                 files.get("application/src/test/java/com/foo/source/TInMapperBeamTest.java"));
         assertEquals(resourceFileToString("generated/ProjectResourceTest/beamFacet/TInOutputBeamTest.java"),
@@ -231,7 +264,7 @@ public class ProjectResourceTest {
     }
 
     @Test
-    public void beamFacetProcessorOutput() throws IOException {
+    void beamFacetProcessorOutput(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setPackageBase("com.foo");
         projectModel.setFacets(singletonList("Apache Beam"));
@@ -253,7 +286,7 @@ public class ProjectResourceTest {
             projectModel.setProcessors(singletonList(proc));
         }
 
-        final Map<String, String> files = createZip(projectModel);
+        final Map<String, String> files = createZip(projectModel, target);
         assertEquals(
                 resourceFileToString(
                         "generated/ProjectResourceTest/beamFacetProcessorOutput/TInProcessorBeamTest.java"),
@@ -261,12 +294,12 @@ public class ProjectResourceTest {
     }
 
     @Test
-    public void codenvyFacet() throws IOException {
+    void codenvyFacet(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setPackageBase("com.foo");
         projectModel.setFacets(singletonList("Codenvy"));
 
-        final Map<String, String> files = createZip(projectModel);
+        final Map<String, String> files = createZip(projectModel, target);
 
         assertEquals(resourceFileToString("generated/ProjectResourceTest/codenvy/README.adoc").trim(),
                 files.get("application/README.adoc").trim());
@@ -275,20 +308,25 @@ public class ProjectResourceTest {
     }
 
     private void assertWadl(final Map<String, String> files) {
-        assertThat(files.get("application/src/main/resources/wadl/client.xml"),
-                containsString("<application xmlns=\"http://wadl.dev.java.net/2009/02\""));
-        assertThat(files.get("application/README.adoc"), containsString(
+        assertTrue(files.get("application/src/main/resources/wadl/client.xml").contains(
+                "<application xmlns=\"http://wadl.dev.java.net/2009/02\""));
+        assertTrue(files.get("application/README.adoc").contains(
                 "Generates the needed classes to call HTTP endpoints defined by a WADL located at `src/main/resources/wadl/client.xml`.\n"));
     }
 
-    private Map<String, String> createZip(final ProjectModel projectModel) throws IOException {
+    private Map<String, String> createZip(final ProjectModel projectModel, final WebTarget target) throws IOException {
+        return createZip(projectModel,
+                model -> target
+                        .path("project/zip")
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .accept("application/zip")
+                        .post(Entity.entity(model, MediaType.APPLICATION_JSON_TYPE), InputStream.class));
+    }
+
+    private Map<String, String> createZip(final ProjectModel projectModel,
+            final Function<ProjectModel, InputStream> request) throws IOException {
         final Map<String, String> files = new HashMap<>();
-        try (final ZipInputStream stream = new ZipInputStream(client
-                .target()
-                .path("project/zip")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .accept("application/zip")
-                .post(Entity.entity(projectModel, MediaType.APPLICATION_JSON_TYPE), InputStream.class))) {
+        try (final ZipInputStream stream = new ZipInputStream(request.apply(projectModel))) {
             ZipEntry entry;
             while ((entry = stream.getNextEntry()) != null) {
                 files.put(entry.getName(),

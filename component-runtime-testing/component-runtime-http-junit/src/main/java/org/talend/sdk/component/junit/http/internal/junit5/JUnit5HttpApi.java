@@ -15,12 +15,12 @@
  */
 package org.talend.sdk.component.junit.http.internal.junit5;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import javax.net.ssl.SSLContext;
 
@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 import org.talend.sdk.component.junit.http.api.ResponseLocator;
 import org.talend.sdk.component.junit.http.internal.impl.DefaultResponseLocator;
@@ -38,7 +39,7 @@ import org.talend.sdk.component.junit.http.junit5.HttpApi;
 import org.talend.sdk.component.junit.http.junit5.HttpApiInject;
 
 public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
-        implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback {
+        implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport, AfterEachCallback, BeforeEachCallback {
 
     private static final ExtensionContext.Namespace NAMESPACE =
             ExtensionContext.Namespace.create(JUnit5HttpApi.class.getName());
@@ -72,26 +73,12 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
     }
 
     @Override
-    public void beforeEach(final ExtensionContext extensionContext) {
-        // injection
-        Class<?> testClass = extensionContext.getRequiredTestClass();
-        while (testClass != Object.class) {
-            Stream.of(testClass.getDeclaredFields()).filter(c -> c.isAnnotationPresent(HttpApiInject.class)).forEach(
-                    f -> {
-                        f.setAccessible(true);
-                        if (f.getType() != HttpApiHandler.class) {
-                            throw new IllegalArgumentException(
-                                    "@HttpApiInject not supported on " + f + ", type should be HttpApiHandler<?>");
-                        }
-                        try {
-                            f.set(extensionContext.getRequiredTestInstance(), JUnit5HttpApi.this);
-                        } catch (final IllegalAccessException e) {
-                            throw new IllegalStateException(e);
-                        }
-                    });
-            testClass = testClass.getSuperclass();
-        }
+    public Class<? extends Annotation> injectionMarker() {
+        return HttpApiInject.class;
+    }
 
+    @Override
+    public void beforeEach(final ExtensionContext extensionContext) {
         // test name
         final ResponseLocator responseLocator = getResponseLocator();
         if (!DefaultResponseLocator.class.isInstance(responseLocator)) {

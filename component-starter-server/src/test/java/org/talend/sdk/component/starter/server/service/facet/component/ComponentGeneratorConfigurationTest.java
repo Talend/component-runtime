@@ -20,38 +20,30 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.capitalize;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
+import org.talend.sdk.component.starter.server.test.meecrowave.MonoMeecrowaveConfig;
 
 import lombok.Data;
 
-@RunWith(Parameterized.class)
-public class ComponentGeneratorConfigurationTest {
-
-    @Rule
-    public final TestRule container = new MonoMeecrowave.Rule().inject(this);
-
-    @Parameterized.Parameter
-    public Scenario scenario;
+@MonoMeecrowaveConfig
+class ComponentGeneratorConfigurationTest {
 
     @Inject
     private TemplateRenderer renderer;
 
-    @Parameterized.Parameters(name = "{0}")
-    public static Iterable<Scenario> scenarii() {
-        return asList(
+    static Stream<Scenario> scenarii() {
+        return Stream.of(
                 // no field
                 new Scenario(new ProjectRequest.DataStructure(emptyList()),
                         "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
@@ -103,8 +95,9 @@ public class ComponentGeneratorConfigurationTest {
                                 + "        this.age = age;\n" + "        return this;\n" + "    }\n" + "}"));
     }
 
-    @Test
-    public void run() {
+    @ParameterizedTest
+    @MethodSource("scenarii")
+    void run(final Scenario scenario) {
         final String result =
                 renderer.render("generator/component/Configuration.mustache", new HashMap<String, Object>() {
 

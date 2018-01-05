@@ -15,22 +15,22 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ToleratingErrorHandlerTest {
+class ToleratingErrorHandlerTest {
 
     @Test
-    public void failAfterCount() {
+    void failAfterCount() {
         final ToleratingErrorHandler handler = new ToleratingErrorHandler(1);
         assertEquals(0, handler.getCurrent());
         handler.onError(new Object(), new RuntimeException());
         assertEquals(1, handler.getCurrent());
         try {
             handler.onError(new Object(), new RuntimeException());
-            fail();
+            fail("handler should have thrown an exception");
         } catch (final RuntimeException re) {
             assertEquals(2, handler.getCurrent());
         }

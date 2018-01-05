@@ -15,14 +15,14 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CountingSuccessListenerTest {
+class CountingSuccessListenerTest {
 
     @Test
-    public void counting() {
+    void counting() {
         final CountingSuccessListener listener = new CountingSuccessListener();
         assertEquals(0, listener.getCurrent());
         for (int i = 1; i < 10; i++) {

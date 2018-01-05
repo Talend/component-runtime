@@ -25,7 +25,7 @@
 
   <artifactId>component-runtime-junit</artifactId>
   <name>Component Runtime :: Testing :: JUnit</name>
-  <description>JUnit (4) integration of the framework.</description>
+  <description>JUnit integration of the framework.</description>
 
   <properties>
     <talend.build.name>${talend.build.name.base}.junit</talend.build.name>
@@ -42,6 +42,12 @@
       <artifactId>junit-jupiter-api</artifactId>
       <version>${junit5.version}</version>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-runtime-junit-base</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
@@ -102,27 +108,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-surefire-provider</artifactId>
-            <version>${junit-platform-surefire-provider.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit5.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>${junit-vintage-engine.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>

@@ -15,71 +15,67 @@
  */
 package org.talend.sdk.component.test.rule;
 
-import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.stream.Stream;
 
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
+import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
 import org.talend.sdk.component.test.Constants;
 import org.talend.sdk.component.test.dependencies.DependenciesTxtBuilder;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class ContainerProviderRule extends TempJars implements TestRule {
-
-    private final Object test;
+public class ContainerProviderRule extends TempJars implements BeforeAllCallback, JUnit5InjectionSupport {
 
     private final ThreadLocal<ContainerManager> manager = new ThreadLocal<>();
 
     @Override
-    public Statement apply(final Statement statement, final Description description) {
-        return new Statement() {
+    public boolean supports(final Class<?> type) {
+        return super.supports(type) || type == Container.class;
+    }
 
-            @Override
-            public void evaluate() throws Throwable {
-                try (final ContainerManager manager = newManager()) {
-                    ContainerProviderRule.this.manager.set(manager);
-                    Class<?> current = test.getClass();
-                    while (current != Object.class && current != null) {
-                        Stream
-                                .of(current.getDeclaredFields())
-                                .filter(f -> f.isAnnotationPresent(Instance.class))
-                                .forEach(f -> {
-                                    if (!f.isAccessible()) {
-                                        f.setAccessible(true);
-                                    }
-                                    final DependenciesTxtBuilder builder = new DependenciesTxtBuilder();
-                                    final String[] deps = f.getAnnotation(Instance.class).value();
-                                    Stream.of(deps).forEach(builder::withDependency);
-                                    try {
-                                        f.set(test,
-                                                manager.create(
-                                                        description.getClassName() + "." + description.getMethodName()
-                                                                + "#" + f.getName(),
-                                                        create(builder.build()).getAbsolutePath()));
-                                    } catch (final IllegalAccessException e) {
-                                        throw new IllegalArgumentException(e);
-                                    }
-                                });
-                        current = current.getSuperclass();
-                    }
+    @Override
+    public Class<? extends Annotation> injectionMarker() {
+        return Instance.class;
+    }
 
-                    statement.evaluate();
-                } finally {
-                    after();
-                    ContainerProviderRule.this.manager.remove();
-                }
-            }
-        };
+    @Override
+    public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext)
+            throws ParameterResolutionException {
+        if (super.supports(parameterContext.getParameter().getType())) {
+            return super.findInstance(extensionContext, parameterContext.getParameter().getType());
+        }
+        final DependenciesTxtBuilder builder = new DependenciesTxtBuilder();
+        final String[] deps = parameterContext.getParameter().getAnnotation(Instance.class).value();
+        Stream.of(deps).forEach(builder::withDependency);
+        return manager.get().create(
+                extensionContext.getRequiredTestClass().getName() + "."
+                        + extensionContext.getRequiredTestMethod().getName() + "#" + manager.get().findAll().size(),
+                create(builder.build()).getAbsolutePath());
+    }
+
+    @Override
+    public void beforeAll(final ExtensionContext context) {
+        this.manager.set(newManager());
+    }
+
+    @Override
+    public void afterAll(final ExtensionContext context) {
+        super.afterAll(context);
+        this.manager.remove();
     }
 
     public ContainerManager current() {
@@ -100,7 +96,7 @@ public class ContainerProviderRule extends TempJars implements TestRule {
                         .create());
     }
 
-    @Target(FIELD)
+    @Target(PARAMETER)
     @Retention(RUNTIME)
     public @interface Instance {
 

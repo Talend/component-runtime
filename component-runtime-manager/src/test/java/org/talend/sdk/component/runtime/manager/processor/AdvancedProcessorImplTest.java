@@ -15,18 +15,16 @@
  */
 package org.talend.sdk.component.runtime.manager.processor;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.runtime.manager.test.Serializer;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -34,10 +32,10 @@ import org.talend.sdk.component.runtime.output.Processor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-public class AdvancedProcessorImplTest {
+class AdvancedProcessorImplTest {
 
     @Test
-    public void serialization() throws IOException, ClassNotFoundException {
+    void serialization() throws IOException, ClassNotFoundException {
         final Processor processor = new AdvancedProcessorImpl("Root", "Test", "Plugin", new SampleOutput());
         final Processor copy = Serializer.roundTrip(processor);
         assertNotSame(copy, processor);
@@ -47,14 +45,14 @@ public class AdvancedProcessorImplTest {
     }
 
     @Test
-    public void subclassing() {
+    void subclassing() {
         final Processor processor = new AdvancedProcessorImpl("Root", "Test", "Plugin", new SampleOutput());
         final AtomicReference<Object> ref = new AtomicReference<>();
         processor.beforeGroup(); // just to enforce the init
         processor.onNext(name -> new Whatever(1), name -> value -> assertTrue(ref.compareAndSet(null, value)));
         final Object out = ref.get();
         assertNotNull(out);
-        assertThat(out, instanceOf(String.class));
+        assertTrue(() -> String.class.isInstance(out));
         assertEquals("1", out.toString());
     }
 

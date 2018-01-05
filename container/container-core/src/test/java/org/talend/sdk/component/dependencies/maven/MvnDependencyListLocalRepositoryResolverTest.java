@@ -18,7 +18,7 @@ package org.talend.sdk.component.dependencies.maven;
 import static java.lang.ClassLoader.getSystemClassLoader;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,19 +31,17 @@ import java.util.UUID;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.test.dependencies.DependenciesTxtBuilder;
 
-public class MvnDependencyListLocalRepositoryResolverTest {
-
-    @ClassRule
-    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
+@WithTemporaryFolder
+class MvnDependencyListLocalRepositoryResolverTest {
 
     @Test
-    public void nestedDependency() throws IOException {
-        final File file = TEMPORARY_FOLDER.newFile(UUID.randomUUID().toString() + ".jar");
+    void nestedDependency(final TemporaryFolder temporaryFolder) throws IOException {
+        final File file = temporaryFolder.newFile(UUID.randomUUID().toString() + ".jar");
         try (final JarOutputStream enclosing = new JarOutputStream(new FileOutputStream(file))) {
             enclosing.putNextEntry(new ZipEntry("MAVEN-INF/repository/foo/bar/dummy/1.0.0/dummy-1.0.0.jar"));
             try (final JarOutputStream nested = new JarOutputStream(enclosing)) {

@@ -16,14 +16,14 @@
 package org.talend.sdk.component.server.service.objectmap;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.json.Json;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.processor.data.ObjectMap;
 
-public class JsonObjectMapTest {
+class JsonObjectMapTest {
 
     private final ObjectMap map = new JsonObjectMap(Json
             .createObjectBuilder()
@@ -38,7 +38,7 @@ public class JsonObjectMapTest {
             .build());
 
     @Test
-    public void get() {
+    void get() {
         assertEquals("test", map.get("directString"));
         assertEquals(1L, map.get("directInt"));
         assertEquals("n", map.get("nested.value"));

@@ -15,10 +15,10 @@
  */
 package org.talend.sdk.component.runtime.input;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -27,17 +27,17 @@ import java.util.stream.IntStream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.serialization.Serializer;
 import org.talend.sdk.component.api.input.Producer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-public class InputImplTest {
+class InputImplTest {
 
     @Test
-    public void lifecycle() {
+    void lifecycle() {
         final Component delegate = new Component();
         final Input input = new InputImpl("Root", "Test", "Plugin", delegate);
         assertFalse(delegate.start);
@@ -63,7 +63,7 @@ public class InputImplTest {
     }
 
     @Test
-    public void serialization() throws IOException, ClassNotFoundException {
+    void serialization() throws IOException, ClassNotFoundException {
         final Component delegate = new Component();
         final Input input = new InputImpl("Root", "Test", "Plugin", delegate);
         final Input copy = Serializer.roundTrip(input);

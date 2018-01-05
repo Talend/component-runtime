@@ -18,9 +18,9 @@ package org.talend.sdk.component.tools;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,28 +30,24 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.stream.Stream;
 
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AsciidocDocumentationGeneratorTest {
-
-    @ClassRule
-    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
-
-    @Rule
-    public final TestName testName = new TestName();
+@WithTemporaryFolder
+class AsciidocDocumentationGeneratorTest {
 
     @Test
-    public void generateAdoc() throws IOException {
-        final File output = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName() + ".asciidoc");
-        new AsciidocDocumentationGenerator(new File[] { copyBinaries("org.talend.test.valid") }, output, null, 2, null,
-                null, null, null, log, findWorkDir(), "1.0").run();
+    void generateAdoc(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
+        final File output = new File(temporaryFolder.getRoot(), info.getTestMethod().get().getName() + ".asciidoc");
+        new AsciidocDocumentationGenerator(
+                new File[] { copyBinaries("org.talend.test.valid", temporaryFolder.getRoot(),
+                        info.getTestMethod().get().getName()) },
+                output, null, 2, null, null, null, null, log, findWorkDir(), "1.0").run();
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
             assertEquals(
@@ -64,12 +60,15 @@ public class AsciidocDocumentationGeneratorTest {
     }
 
     @Test
-    public void generateHtmlPdf() throws IOException {
-        final File output = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName() + ".asciidoc");
-        final File outputHtml = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName() + ".html");
-        final File outputPdf = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName() + ".pdf");
-        new AsciidocDocumentationGenerator(new File[] { copyBinaries("org.talend.test.valid") }, output, "SuperTitle",
-                2, new HashMap<String, String>() {
+    void generateHtmlPdf(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
+        final String testMethod = info.getTestMethod().get().getName();
+        final File output = new File(temporaryFolder.getRoot(), testMethod + ".asciidoc");
+        final File outputHtml = new File(temporaryFolder.getRoot(), testMethod + ".html");
+        final File outputPdf = new File(temporaryFolder.getRoot(), testMethod + ".pdf");
+        new AsciidocDocumentationGenerator(
+                new File[] { copyBinaries("org.talend.test.valid", temporaryFolder.getRoot(),
+                        info.getTestMethod().get().getName()) },
+                output, "SuperTitle", 2, new HashMap<String, String>() {
 
                     {
                         put("html", outputHtml.getAbsolutePath());
@@ -88,11 +87,10 @@ public class AsciidocDocumentationGeneratorTest {
                 getClass().getSimpleName() + "_workdir");
     }
 
-    private File copyBinaries(final String pck) {
+    private File copyBinaries(final String pck, final File tmp, final String name) {
         final String pckPath = pck.replace('.', '/');
         final File root = new File(jarLocation(getClass()), pckPath);
-        final File scannable =
-                new File(TEMPORARY_FOLDER.getRoot(), getClass().getName() + "_" + testName.getMethodName());
+        final File scannable = new File(tmp, getClass().getName() + "_" + name);
         final File classDir = new File(scannable, pckPath);
         classDir.mkdirs();
         ofNullable(root.listFiles())

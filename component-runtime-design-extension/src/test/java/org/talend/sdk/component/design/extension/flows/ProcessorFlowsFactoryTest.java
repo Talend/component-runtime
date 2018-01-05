@@ -15,10 +15,12 @@
  */
 package org.talend.sdk.component.design.extension.flows;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Collection;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
@@ -31,24 +33,24 @@ import lombok.Data;
 /**
  * Unit-tests for {@link ProcessorMeta}
  */
-public class ProcessorFlowsFactoryTest {
+class ProcessorFlowsFactoryTest {
 
     @Test
-    public void testGetInputFlows() {
-        ProcessorFlowsFactory factory = new ProcessorFlowsFactory(TestProcessor.class);
-        Collection<String> inputs = factory.getInputFlows();
-        Assert.assertEquals(2, inputs.size());
-        Assert.assertTrue(inputs.contains("__default__"));
-        Assert.assertTrue(inputs.contains("REJECT"));
+    void testGetInputFlows() {
+        final ProcessorFlowsFactory factory = new ProcessorFlowsFactory(TestProcessor.class);
+        final Collection<String> inputs = factory.getInputFlows();
+        assertEquals(2, inputs.size());
+        assertTrue(inputs.contains("__default__"));
+        assertTrue(inputs.contains("REJECT"));
     }
 
     @Test
-    public void testGetOutputFlows() {
-        ProcessorFlowsFactory factory = new ProcessorFlowsFactory(TestProcessor.class);
-        Collection<String> outputs = factory.getOutputFlows();
-        Assert.assertEquals(2, outputs.size());
-        Assert.assertTrue(outputs.contains("__default__"));
-        Assert.assertTrue(outputs.contains("OUTPUT"));
+    void testGetOutputFlows() {
+        final ProcessorFlowsFactory factory = new ProcessorFlowsFactory(TestProcessor.class);
+        final Collection<String> outputs = factory.getOutputFlows();
+        assertEquals(2, outputs.size());
+        assertTrue(outputs.contains("__default__"));
+        assertTrue(outputs.contains("OUTPUT"));
     }
 
     @Processor

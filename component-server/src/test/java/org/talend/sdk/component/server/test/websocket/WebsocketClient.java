@@ -16,9 +16,9 @@
 package org.talend.sdk.component.server.test.websocket;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.net.URI;
@@ -125,12 +125,12 @@ public class WebsocketClient {
         }
         try {
             final String index = indexHolder.get();
-            assertTrue(index, index.startsWith("MESSAGE\r\n"));
-            assertTrue(index, index.contains("Content-Type: " + type + "\r\n"));
+            assertTrue(index.startsWith("MESSAGE\r\n"), index);
+            assertTrue(index.contains("Content-Type: " + type + "\r\n"), index);
             final int startJson = index.indexOf('{');
             final int endJson = index.indexOf("^@");
-            assertTrue(index, startJson > 0);
-            assertTrue(index, endJson > startJson);
+            assertTrue(startJson > 0, index);
+            assertTrue(endJson > startJson, index);
             if (String.class == response) {
                 return response.cast(index.substring(startJson, endJson));
             }

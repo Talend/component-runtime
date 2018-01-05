@@ -15,15 +15,14 @@
  */
 package org.talend.sdk.component.studio;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.process.INodeConnector;
 import org.talend.core.model.process.INodeReturn;
@@ -35,10 +34,10 @@ import org.talend.sdk.component.server.front.model.ComponentIndex;
 /**
  * Unit-tests for {@link ComponentModel}
  */
-public class ComponentModelTest {
+class ComponentModelTest {
 
     @Test
-    public void getModuleNeeded() {
+    void getModuleNeeded() {
         final ComponentId id = new ComponentId("id", "plugin", "group:plugin:1", "XML", "XMLInput");
         final ComponentIndex idx =
                 new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
@@ -59,7 +58,7 @@ public class ComponentModelTest {
     }
 
     @Test
-    public void testGetOriginalFamilyName() {
+    void testGetOriginalFamilyName() {
         String expectedFamilyName = "Local/XML|File/XML";
 
         ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
@@ -68,11 +67,11 @@ public class ComponentModelTest {
                 new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
-        Assert.assertEquals(expectedFamilyName, componentModel.getOriginalFamilyName());
+        assertEquals(expectedFamilyName, componentModel.getOriginalFamilyName());
     }
 
     @Test
-    public void testGetLongName() {
+    void testGetLongName() {
         String expectedName = "XML Input";
 
         ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
@@ -81,12 +80,12 @@ public class ComponentModelTest {
                 new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
-        Assert.assertEquals(expectedName, componentModel.getLongName());
+        assertEquals(expectedName, componentModel.getLongName());
     }
 
-    @Ignore("Cannot be tested as CorePlugin is null")
+    @Disabled("Cannot be tested as CorePlugin is null")
     @Test
-    public void testCreateConnectors() {
+    void testCreateConnectors() {
 
         ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
@@ -95,11 +94,11 @@ public class ComponentModelTest {
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
         List<? extends INodeConnector> connectors = componentModel.createConnectors(null);
-        Assert.assertEquals(22, connectors.size());
+        assertEquals(22, connectors.size());
     }
 
     @Test
-    public void testCreateReturns() {
+    void testCreateReturns() {
 
         ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
@@ -108,19 +107,19 @@ public class ComponentModelTest {
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
         List<? extends INodeReturn> returnVariables = componentModel.createReturns(null);
-        Assert.assertEquals(2, returnVariables.size());
+        assertEquals(2, returnVariables.size());
         INodeReturn errorMessage = returnVariables.get(0);
-        Assert.assertEquals("Error Message", errorMessage.getDisplayName());
-        Assert.assertEquals("!!!NodeReturn.Availability.AFTER!!!", errorMessage.getAvailability());
-        Assert.assertEquals("String", errorMessage.getType());
+        assertEquals("Error Message", errorMessage.getDisplayName());
+        assertEquals("!!!NodeReturn.Availability.AFTER!!!", errorMessage.getAvailability());
+        assertEquals("String", errorMessage.getType());
         INodeReturn numberLines = returnVariables.get(1);
-        Assert.assertEquals("Number of line", numberLines.getDisplayName());
-        Assert.assertEquals("!!!NodeReturn.Availability.AFTER!!!", numberLines.getAvailability());
-        Assert.assertEquals("int | Integer", numberLines.getType());
+        assertEquals("Number of line", numberLines.getDisplayName());
+        assertEquals("!!!NodeReturn.Availability.AFTER!!!", numberLines.getAvailability());
+        assertEquals("int | Integer", numberLines.getType());
     }
 
     @Test
-    public void testGetAvailableProcessorCodeParts() {
+    void testGetAvailableProcessorCodeParts() {
 
         ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
@@ -129,14 +128,14 @@ public class ComponentModelTest {
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
         List<ECodePart> codeParts = componentModel.getAvailableCodeParts();
-        Assert.assertEquals(3, codeParts.size());
-        Assert.assertTrue(codeParts.contains(ECodePart.BEGIN));
-        Assert.assertTrue(codeParts.contains(ECodePart.MAIN));
-        Assert.assertTrue(codeParts.contains(ECodePart.FINALLY));
+        assertEquals(3, codeParts.size());
+        assertTrue(codeParts.contains(ECodePart.BEGIN));
+        assertTrue(codeParts.contains(ECodePart.MAIN));
+        assertTrue(codeParts.contains(ECodePart.FINALLY));
     }
 
     @Test
-    public void testGetAvailableInputCodeParts() {
+    void testGetAvailableInputCodeParts() {
 
         ComponentId id = new ComponentId("id", "plugin", "plugin", "XML", "XMLInput");
         ComponentIndex idx = new ComponentIndex(id, "XML Input", null, null, 1, Arrays.asList("Local", "File"), null);
@@ -144,9 +143,9 @@ public class ComponentModelTest {
         ComponentModel componentModel = new ComponentModel(idx, detail);
 
         List<ECodePart> codeParts = componentModel.getAvailableCodeParts();
-        Assert.assertEquals(3, codeParts.size());
-        Assert.assertTrue(codeParts.contains(ECodePart.BEGIN));
-        Assert.assertTrue(codeParts.contains(ECodePart.END));
-        Assert.assertTrue(codeParts.contains(ECodePart.FINALLY));
+        assertEquals(3, codeParts.size());
+        assertTrue(codeParts.contains(ECodePart.BEGIN));
+        assertTrue(codeParts.contains(ECodePart.END));
+        assertTrue(codeParts.contains(ECodePart.FINALLY));
     }
 }

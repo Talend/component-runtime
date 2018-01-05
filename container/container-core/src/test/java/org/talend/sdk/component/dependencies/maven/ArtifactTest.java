@@ -17,26 +17,21 @@
 package org.talend.sdk.component.dependencies.maven;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
-public class ArtifactTest {
+class ArtifactTest {
 
-    @Parameterized.Parameters(name = "{0}")
-    public static Iterable<Artifact> samples() {
+    static Iterable<Artifact> samples() {
         return asList(new Artifact("g", "a", "jar", null, "1", "compile"),
                 new Artifact("g", "a", "jar", "c", "1", "compile"));
     }
 
-    @Parameterized.Parameter
-    public Artifact artifact;
-
-    @Test
-    public void toCoordinateFrom() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("samples")
+    void toCoordinateFrom(final Artifact artifact) {
         assertEquals(artifact, Artifact.from(artifact.toCoordinate()));
     }
 }

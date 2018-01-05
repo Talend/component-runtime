@@ -15,13 +15,11 @@
  */
 package org.talend.sdk.component.classloader;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -38,19 +36,17 @@ import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.test.Constants;
 import org.talend.sdk.component.test.dependencies.DependenciesTxtBuilder;
 
-public class ConfigurableClassLoaderTest {
-
-    @ClassRule
-    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
+@WithTemporaryFolder
+class ConfigurableClassLoaderTest {
 
     @Test
-    public void childLoading() throws IOException {
+    void childLoading() {
         Stream.of(true, false).forEach(parentFirst -> {
             final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
             try (final ConfigurableClassLoader loader = new ConfigurableClassLoader(
@@ -75,7 +71,7 @@ public class ConfigurableClassLoaderTest {
     }
 
     @Test
-    public void parentFiltering() throws IOException {
+    void parentFiltering() {
         final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
         try (final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent,
                 name -> !ConfigurableClassLoaderTest.class.getName().equals(name), name -> true, null)) {
@@ -96,8 +92,8 @@ public class ConfigurableClassLoaderTest {
     }
 
     @Test
-    public void nestedJars() throws IOException {
-        final File nestedJar = createNestedJar("org.apache.tomee:ziplock:jar:7.0.4");
+    void nestedJars(final TemporaryFolder temporaryFolder) throws IOException {
+        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.4");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent, name -> true,
@@ -107,7 +103,7 @@ public class ConfigurableClassLoaderTest {
                 final Object jarLocation =
                         aClass.getMethod("jarLocation", Class.class).invoke(null, ConfigurableClassLoaderTest.class);
                 assertNotNull(jarLocation);
-                assertThat(jarLocation, instanceOf(File.class));
+                assertTrue(File.class.isInstance(jarLocation));
             } catch (final Exception e) {
                 fail("JarLocation should be loaded from the nested jar");
             }
@@ -145,7 +141,7 @@ public class ConfigurableClassLoaderTest {
     }
 
     @Test
-    public void noNestedJarsMissingResources() throws IOException {
+    void noNestedJarsMissingResources() throws IOException {
         try (final URLClassLoader parent =
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader =
@@ -171,8 +167,8 @@ public class ConfigurableClassLoaderTest {
     }
 
     // super light packaging of a nested jar, this is 100% for test purposes
-    private File createNestedJar(final String... deps) throws IOException {
-        final File tmp = new File(TEMPORARY_FOLDER.getRoot(), UUID.randomUUID().toString() + ".jar");
+    private File createNestedJar(final TemporaryFolder temporaryFolder, final String... deps) throws IOException {
+        final File tmp = new File(temporaryFolder.getRoot(), UUID.randomUUID().toString() + ".jar");
         try (final JarOutputStream out = new JarOutputStream(new FileOutputStream(tmp))) {
             {
                 out.putNextEntry(new ZipEntry(Constants.DEPENDENCIES_LIST_RESOURCE_PATH));

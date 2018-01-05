@@ -15,21 +15,21 @@
  */
 package org.talend.sdk.component.form.api;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("waiting for ui specs")
-public class ActionServiceTest {
+@Disabled("waiting for ui specs")
+class ActionServiceTest {
 
     private final ActionService service = new ActionService();
 
     @Test
-    public void mapException() {
+    void mapException() {
         // no-op for now, waiting for ui specs
     }
 
     @Test
-    public void mapData() {
+    void mapData() {
         // no-op for now, waiting for ui specs
     }
 }

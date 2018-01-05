@@ -15,23 +15,23 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 
-public class LocalCacheServiceTest {
+class LocalCacheServiceTest {
 
     @Test
-    public void serialize() throws IOException, ClassNotFoundException {
+    void serialize() throws IOException, ClassNotFoundException {
         DynamicContainerFinder.LOADERS.put("LocalCacheServiceTest", Thread.currentThread().getContextClassLoader());
         DynamicContainerFinder.SERVICES.put(LocalCache.class, new LocalCacheService("tmp"));
         try {
@@ -45,18 +45,18 @@ public class LocalCacheServiceTest {
     }
 
     @Test
-    public void getOrSet() {
+    void getOrSet() {
         final LocalCacheService cache = new LocalCacheService("tmp");
         final AtomicInteger counter = new AtomicInteger(0);
         final Supplier<Integer> cacheUsage = () -> cache.computeIfAbsent("foo", 500, counter::incrementAndGet);
         for (int i = 0; i < 3; i++) {
-            assertEquals(1, cacheUsage.get(), 0);
+            assertEquals(1, cacheUsage.get().intValue());
         }
         try {
             Thread.sleep(800);
         } catch (final InterruptedException e) {
             fail(e.getMessage());
         }
-        assertEquals(2, cacheUsage.get(), 0);
+        assertEquals(2, cacheUsage.get().intValue());
     }
 }

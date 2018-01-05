@@ -17,7 +17,7 @@ package org.talend.sdk.component.runtime.manager.interceptor;
 
 import static java.lang.Thread.sleep;
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip;
 
 import java.io.File;
@@ -26,24 +26,22 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
-public class InterceptorTest {
+@WithTemporaryFolder
+class InterceptorTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
-    @ClassRule
-    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
-
     @Test
-    public void run() throws Exception {
-        final File pluginFolder = new File(TEMPORARY_FOLDER.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
+    void run(final TemporaryFolder temporaryFolder) throws Exception {
+        final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
         pluginFolder.mkdirs();
         final File plugin = pluginGenerator.createChainPlugin(pluginFolder, "plugin.jar");
 

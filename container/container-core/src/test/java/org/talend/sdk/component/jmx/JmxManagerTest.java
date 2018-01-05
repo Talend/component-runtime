@@ -15,12 +15,10 @@
  */
 package org.talend.sdk.component.jmx;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -29,16 +27,16 @@ import java.util.Date;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.test.Constants;
 
-public class JmxManagerTest {
+class JmxManagerTest {
 
     @Test
-    public void jmx() throws Exception {
+    void jmx() throws Exception {
         final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
         final JmxManager manager = new JmxManager("org.talend.test:type=plugin,name=%s", mBeanServer);
         final Container container = new Container("foo.jar", new File("missing/normally").getName(), new Artifact[0],
@@ -53,7 +51,7 @@ public class JmxManagerTest {
             assertFalse(Boolean.class.cast(mBeanServer.getAttribute(name, "closed")));
 
             final Object created = mBeanServer.getAttribute(name, "created");
-            assertThat(created, instanceOf(Date.class));
+            assertTrue(Date.class.isInstance(created));
             // ensure date is stable until reloading
             assertEquals(created, created);
 

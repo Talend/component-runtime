@@ -15,18 +15,18 @@
  */
 package org.talend.sdk.component.runtime.di;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.output.data.AccessorCache;
 import org.talend.sdk.component.runtime.output.data.ObjectMapImpl;
 
 import lombok.Data;
 
-public class ModelMapperTest {
+class ModelMapperTest {
 
     @Test
-    public void mapPerfectMatch() {
+    void mapPerfectMatch() {
         final In in = new In();
         in.age = 23;
         in.name = "input";
@@ -38,7 +38,7 @@ public class ModelMapperTest {
     }
 
     @Test
-    public void mapWrapperMatch() {
+    void mapWrapperMatch() {
         final In in = new In();
         in.age = 23;
         in.name = "input";
@@ -50,7 +50,7 @@ public class ModelMapperTest {
     }
 
     @Test
-    public void mapWrapperToPrimitive() {
+    void mapWrapperToPrimitive() {
         final InWrapper in = new InWrapper();
         in.age = null;
         in.name = "input";

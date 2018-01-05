@@ -22,8 +22,8 @@ import static org.apache.xbean.asm6.Opcodes.ALOAD;
 import static org.apache.xbean.asm6.Opcodes.INVOKESPECIAL;
 import static org.apache.xbean.asm6.Opcodes.RETURN;
 import static org.apache.xbean.asm6.Opcodes.V1_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,35 +40,29 @@ import org.apache.xbean.asm6.ClassWriter;
 import org.apache.xbean.asm6.MethodVisitor;
 import org.apache.xbean.asm6.Type;
 import org.apache.xbean.finder.AnnotationFinder;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 
-public class NestedJarArchiveTest {
-
-    @ClassRule
-    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
-
-    @Rule
-    public final TestName testName = new TestName();
+@WithTemporaryFolder
+class NestedJarArchiveTest {
 
     @Test
-    public void xbeanNestedScanning() throws IOException {
-        final File jar = createPlugin(TEMPORARY_FOLDER.getRoot(), testName.getMethodName());
+    void xbeanNestedScanning(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
+        final File jar = createPlugin(temporaryFolder.getRoot(), info.getTestMethod().get().getName());
         final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader(new URL[0],
                 new URLClassLoader(new URL[] { jar.toURI().toURL() }, Thread.currentThread().getContextClassLoader()),
                 n -> true, n -> true, new String[] { "com/foo/bar/1.0/bar-1.0.jar" });
         try (final JarInputStream jis = new JarInputStream(
                 configurableClassLoader.getResourceAsStream("MAVEN-INF/repository/com/foo/bar/1.0/bar-1.0.jar"))) {
-            assertNotNull("test is wrongly setup, no nested jar, fix the createPlugin() method please", jis);
+            assertNotNull(jis, "test is wrongly setup, no nested jar, fix the createPlugin() method please");
             final AnnotationFinder finder = new AnnotationFinder(new NestedJarArchive(jis, configurableClassLoader));
             final List<Class<?>> annotatedClasses = finder.findAnnotatedClasses(Processor.class);
             assertEquals(1, annotatedClasses.size());
-            assertEquals("org.talend.test.generated." + testName.getMethodName() + ".Components",
+            assertEquals("org.talend.test.generated." + info.getTestMethod().get().getName() + ".Components",
                     annotatedClasses.iterator().next().getName());
         } finally {
             URLClassLoader.class.cast(configurableClassLoader.getParent()).close();

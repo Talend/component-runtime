@@ -18,8 +18,8 @@ package org.talend.sdk.component.tools;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,32 +30,27 @@ import java.nio.file.Files;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@WithTemporaryFolder
 public class StudioInstallerTest {
 
-    @ClassRule
-    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
-
-    @Rule
-    public final TestName testName = new TestName();
-
     @Test
-    public void run() throws IOException {
-        final File studioHome = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName());
+    void run(final TemporaryFolder temporaryFolder, final TestInfo info) throws IOException {
+        final String testName = info.getTestMethod().get().getName();
+        final File studioHome = new File(temporaryFolder.getRoot(), testName);
         final File configuration = org.apache.ziplock.Files.mkdir(new File(studioHome, "configuration"));
         try (final Writer configIni = new FileWriter(new File(configuration, "config.ini"))) {
             // no-op
         }
 
-        final File artifact = new File(TEMPORARY_FOLDER.getRoot(), testName.getMethodName() + ".jar");
+        final File artifact = new File(temporaryFolder.getRoot(), testName + ".jar");
         try (final JarOutputStream out = new JarOutputStream(new FileOutputStream(artifact))) {
             out.putNextEntry(new JarEntry("META-INF/MANIFEST.MF"));
             out.closeEntry();

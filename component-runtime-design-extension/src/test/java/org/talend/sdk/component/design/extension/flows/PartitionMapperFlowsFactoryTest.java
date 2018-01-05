@@ -17,26 +17,26 @@ package org.talend.sdk.component.design.extension.flows;
 
 import java.util.Collection;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit-test for {@link PartitionMapperFlowsFactory}
  */
-public class PartitionMapperFlowsFactoryTest {
+class PartitionMapperFlowsFactoryTest {
 
     @Test
-    public void testGetInputFlows() {
+    void testGetInputFlows() {
         PartitionMapperFlowsFactory factory = new PartitionMapperFlowsFactory();
-        Assert.assertTrue(factory.getInputFlows().isEmpty());
+        Assertions.assertTrue(factory.getInputFlows().isEmpty());
     }
 
     @Test
-    public void testGetOutputFlows() {
+    void testGetOutputFlows() {
         PartitionMapperFlowsFactory factory = new PartitionMapperFlowsFactory();
         Collection<String> outputs = factory.getOutputFlows();
-        Assert.assertEquals(1, outputs.size());
-        Assert.assertTrue(outputs.contains("__default__"));
+        Assertions.assertEquals(1, outputs.size());
+        Assertions.assertTrue(outputs.contains("__default__"));
     }
 
 }

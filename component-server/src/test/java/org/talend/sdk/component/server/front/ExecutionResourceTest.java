@@ -20,8 +20,8 @@ import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,19 +32,14 @@ import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.ws.rs.client.WebTarget;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
-import org.junit.runner.RunWith;
+import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.talend.sdk.component.server.front.model.execution.WriteStatistics;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
-@RunWith(MonoMeecrowave.Runner.class)
-public class ExecutionResourceTest {
-
-    @Rule
-    public final TestName testName = new TestName();
+@MonoMeecrowaveConfig
+class ExecutionResourceTest {
 
     @Inject
     private WebTarget base;
@@ -53,7 +48,7 @@ public class ExecutionResourceTest {
     private WebsocketClient ws;
 
     @Test
-    public void websocketRead() {
+    void websocketRead() {
         final String result = ws.read(String.class, "post", "/execution/read/chain/list",
                 Json.createObjectBuilder().add("values[0]", "v1").add("values[1]", "v2").build().toString(),
                 "talend/stream");
@@ -61,7 +56,7 @@ public class ExecutionResourceTest {
     }
 
     @Test
-    public void websocketBusRead() {
+    void websocketBusRead() {
         final String result = ws.read(String.class, "post", "/execution/read/chain/list",
                 Json.createObjectBuilder().add("values[0]", "v1").add("values[1]", "v2").build().toString(),
                 "talend/stream");
@@ -69,7 +64,7 @@ public class ExecutionResourceTest {
     }
 
     @Test
-    public void read() {
+    void read() {
         final String output = base
                 .path("execution/read/{family}/{component}")
                 .resolveTemplate("family", "chain")
@@ -81,9 +76,9 @@ public class ExecutionResourceTest {
     }
 
     @Test
-    public void write() throws IOException {
+    void write(final TestInfo info) throws IOException {
         final File outputFile = new File(jarLocation(ExecutionResourceTest.class).getParentFile(),
-                getClass().getSimpleName() + "_" + testName.getMethodName() + ".output");
+                getClass().getSimpleName() + "_" + info.getTestMethod().get().getName() + ".output");
         final JsonBuilderFactory objectFactory = Json.createBuilderFactory(emptyMap());
         final WriteStatistics stats = base
                 .path("execution/write/{family}/{component}")

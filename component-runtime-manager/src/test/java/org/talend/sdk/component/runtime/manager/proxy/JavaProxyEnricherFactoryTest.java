@@ -15,22 +15,22 @@
  */
 package org.talend.sdk.component.runtime.manager.proxy;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.internationalization.Internationalized;
+import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 import org.talend.sdk.component.runtime.manager.test.Serializer;
-import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
 
-public class JavaProxyEnricherFactoryTest {
+class JavaProxyEnricherFactoryTest {
 
     @Test
-    public void serialization() throws IOException, ClassNotFoundException {
+    void serialization() throws IOException, ClassNotFoundException {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         final JavaProxyEnricherFactory factory = new JavaProxyEnricherFactory();
         final Translator proxyBased = Translator.class.cast(factory.asSerializable(loader, getClass().getSimpleName(),

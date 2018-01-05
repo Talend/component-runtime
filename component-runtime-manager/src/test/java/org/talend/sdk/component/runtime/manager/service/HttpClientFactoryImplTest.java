@@ -18,8 +18,8 @@ package org.talend.sdk.component.runtime.manager.service;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,10 +30,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpServer;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.http.Codec;
 import org.talend.sdk.component.api.service.http.Decoder;
 import org.talend.sdk.component.api.service.http.Encoder;
@@ -45,6 +42,9 @@ import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
 
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpServer;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -52,14 +52,14 @@ import lombok.NoArgsConstructor;
 public class HttpClientFactoryImplTest {
 
     @Test
-    public void ok() {
+    void ok() {
         assertNoError(HttpClientFactoryImpl.createErrors(ComplexOk.class));
         assertNoError(HttpClientFactoryImpl.createErrors(ResponseString.class));
         assertNoError(HttpClientFactoryImpl.createErrors(ResponseVoid.class));
     }
 
     @Test
-    public void encoderKo() {
+    void encoderKo() {
         assertEquals(
                 singletonList("public abstract java.lang.String "
                         + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$EncoderKo.main("
@@ -69,7 +69,7 @@ public class HttpClientFactoryImplTest {
     }
 
     @Test
-    public void decoderKo() {
+    void decoderKo() {
         assertEquals(singletonList("public abstract "
                 + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$Payload "
                 + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$DecoderKo.main(java.lang.String) "
@@ -78,21 +78,21 @@ public class HttpClientFactoryImplTest {
     }
 
     @Test
-    public void methodKo() {
+    void methodKo() {
         assertEquals(singletonList("No @Request on public abstract java.lang.String "
                 + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$MethodKo.main(java.lang.String)"),
                 HttpClientFactoryImpl.createErrors(MethodKo.class));
     }
 
     @Test
-    public void clientKo() {
+    void clientKo() {
         assertEquals(singletonList(
                 "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest.ClientKo should extends HttpClient"),
                 HttpClientFactoryImpl.createErrors(ClientKo.class));
     }
 
     @Test
-    public void request() throws IOException {
+    void request() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
@@ -110,7 +110,7 @@ public class HttpClientFactoryImplTest {
     }
 
     @Test
-    public void requestDefault() throws IOException {
+    void requestDefault() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
@@ -136,7 +136,7 @@ public class HttpClientFactoryImplTest {
     }
 
     @Test
-    public void handleHttpError() throws IOException {
+    void handleHttpError() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_FORBIDDEN);
         try {
             server.start();
@@ -154,7 +154,7 @@ public class HttpClientFactoryImplTest {
     }
 
     private void assertNoError(final Collection<String> errors) {
-        assertTrue(errors.toString(), errors.isEmpty());
+        assertTrue(errors.isEmpty(), errors.toString());
     }
 
     private HttpServer createTestServer(int responseStatus) throws IOException {

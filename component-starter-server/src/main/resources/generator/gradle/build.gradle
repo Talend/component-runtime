@@ -22,7 +22,7 @@ apply plugin: 'nebula.provided-base'
 apply plugin: 'org.talend.sdk.component'
 apply plugin: 'java'
 {{#plugins}}
-apply plugin: '{{this}}'
+apply plugin: '{{value}}'
 {{/plugins}}
 
 
@@ -35,7 +35,7 @@ group = '{{build.group}}'
 description = '{{build.description}}'
 {{#configurations}}{{#first}}
 configurations { {{/first}}
-    {{this}}{{#last}}
+    {{value}}{{#last}}
 } {{/last}}{{/configurations}}
 
 {{build.packaging}} {
@@ -71,6 +71,6 @@ repositories {
 
 dependencies {
   {{#dependencies}}
-  {{scope}} group: '{{group}}', name: '{{artifact}}', version: '{{version}}'{{#type}}, ext: '{{type}}'{{/type}}{{#classifier}}, classifier: '{{classifier}}'{{/classifier}}
+  {{scope}} group: '{{value.group}}', name: '{{value.artifact}}', version: '{{value.version}}'{{#value.type}}, ext: '{{value.type}}'{{/value.type}}{{#value.classifier}}, classifier: '{{value.classifier}}'{{/value.classifier}}
   {{/dependencies}}
 }

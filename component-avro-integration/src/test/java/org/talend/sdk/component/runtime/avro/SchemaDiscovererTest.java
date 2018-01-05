@@ -17,8 +17,8 @@ package org.talend.sdk.component.runtime.avro;
 
 import static java.util.Arrays.asList;
 import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,28 +27,28 @@ import java.util.Iterator;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.Type;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
 
-public class SchemaDiscovererTest {
+class SchemaDiscovererTest {
 
-    @Before
-    public void init() {
+    @BeforeEach
+    void init() {
         ComponentManager.instance().addPlugin(jarLocation(SchemaDiscovererTest.class).getAbsolutePath());
     }
 
-    @After
-    public void destroy() {
+    @AfterEach
+    void destroy() {
         ComponentManager.instance().removePlugin(jarLocation(SchemaDiscovererTest.class).getAbsolutePath());
     }
 
     @Test
-    public void populateSchema() {
+    void populateSchema() {
         final Schema schema = new SchemaDiscoverer().populateSchema("test-classes", "avrotest", "default", "schema",
                 "testid", new HashMap<>());
         assertEquals("testid", schema.getName());

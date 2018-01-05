@@ -15,56 +15,58 @@
  */
 package org.talend.sdk.component.studio.model.connector;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.talend.core.model.process.EConnectionType;
 
 /**
  * Unit-tests for {@link AbstractConnectorCreator}
  */
-public class AbstractConnectorCreatorTest {
+class AbstractConnectorCreatorTest {
 
     private static final String DEFAULT = "__default__";
 
     @Test
-    public void testGetTypeDefault() {
+    void testGetTypeDefault() {
         EConnectionType expectedType = EConnectionType.FLOW_MAIN;
         EConnectionType actualType = AbstractConnectorCreator.getType(DEFAULT);
-        Assert.assertEquals(expectedType, actualType);
+        assertEquals(expectedType, actualType);
     }
 
     @Test
-    public void testGetTypeMain() {
+    void testGetTypeMain() {
         EConnectionType expectedType = EConnectionType.FLOW_MAIN;
         EConnectionType actualType = AbstractConnectorCreator.getType("Main");
-        Assert.assertEquals(expectedType, actualType);
+        assertEquals(expectedType, actualType);
     }
 
     @Test
-    public void testGetTypeReject() {
+    void testGetTypeReject() {
         EConnectionType expectedType = EConnectionType.REJECT;
         EConnectionType actualType = AbstractConnectorCreator.getType("reject");
-        Assert.assertEquals(expectedType, actualType);
+        assertEquals(expectedType, actualType);
     }
 
     @Test
-    public void testGetTypeRejectUpperCase() {
+    void testGetTypeRejectUpperCase() {
         EConnectionType expectedType = EConnectionType.REJECT;
         EConnectionType actualType = AbstractConnectorCreator.getType("REJECT");
-        Assert.assertEquals(expectedType, actualType);
+        assertEquals(expectedType, actualType);
     }
 
     @Test
-    public void testGetNameDefault() {
+    void testGetNameDefault() {
         String expectedName = "Main";
         String actualName = AbstractConnectorCreator.getName(DEFAULT);
-        Assert.assertEquals(expectedName, actualName);
+        assertEquals(expectedName, actualName);
     }
 
     @Test
-    public void testGetNameAny() {
+    void testGetNameAny() {
         String expectedName = "Any";
         String actualName = AbstractConnectorCreator.getName("Any");
-        Assert.assertEquals(expectedName, actualName);
+        assertEquals(expectedName, actualName);
     }
 }

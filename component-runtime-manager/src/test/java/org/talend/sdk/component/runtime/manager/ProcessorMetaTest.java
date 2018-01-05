@@ -15,13 +15,12 @@
  */
 package org.talend.sdk.component.runtime.manager;
 
-import lombok.Data;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
@@ -29,19 +28,22 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMeta;
 
+import lombok.Data;
+
 /**
  * Unit-tests for {@link ProcessorMeta}
  */
-public class ProcessorMetaTest {
+class ProcessorMetaTest {
 
     @Test
-    public void testGetListener() {
-        ComponentFamilyMeta parent = new ComponentFamilyMeta("plugin", Collections.emptyList(), "default", "name", "");
-        ProcessorMeta meta =
+    void testGetListener() {
+        final ComponentFamilyMeta parent =
+                new ComponentFamilyMeta("plugin", Collections.emptyList(), "default", "name", "");
+        final ProcessorMeta meta =
                 new ProcessorMeta(parent, "name", "default", 1, TestProcessor.class, null, null, null, true);
-        Method listener = meta.getListener();
-        Assert.assertEquals("map", listener.getName());
-        Assert.assertEquals(4, listener.getParameterCount());
+        final Method listener = meta.getListener();
+        assertEquals("map", listener.getName());
+        assertEquals(4, listener.getParameterCount());
     }
 
     @Processor

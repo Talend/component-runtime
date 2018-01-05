@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -55,6 +56,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -62,9 +64,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.Providers;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -88,6 +94,8 @@ import lombok.extern.slf4j.Slf4j;
 @Path("project")
 @ApplicationScoped
 public class ProjectResource {
+
+    private static final Annotation[] NO_ANNOTATION = new Annotation[0];
 
     @Inject
     private ProjectGenerator generator;
@@ -279,6 +287,32 @@ public class ProjectResource {
         }
 
         return new Result(true);
+    }
+
+    @POST
+    @Path("zip/form")
+    @Produces("application/zip")
+    public Response createZip(@FormParam("project") final String compressedModel, @Context final Providers providers) {
+        final MessageBodyReader<ProjectModel> jsonReader = providers.getMessageBodyReader(ProjectModel.class,
+                ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE);
+        final ProjectModel model;
+        try (final InputStream gzipInputStream =
+                new ByteArrayInputStream(Base64.getUrlDecoder().decode(compressedModel))) {
+            model = jsonReader.readFrom(ProjectModel.class, ProjectModel.class, NO_ANNOTATION, APPLICATION_JSON_TYPE,
+                    new MultivaluedHashMap<>(), gzipInputStream);
+        } catch (final IOException e) {
+            throw new WebApplicationException(Response
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ErrorMessage(e.getMessage()))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build());
+        }
+
+        final String filename = ofNullable(model.getArtifact()).orElse("zip") + ".zip";
+        return Response.ok().entity((StreamingOutput) out -> {
+            generator.generate(toRequest(model), out);
+            out.flush();
+        }).header("Content-Disposition", "inline; filename=" + filename).build();
     }
 
     @POST

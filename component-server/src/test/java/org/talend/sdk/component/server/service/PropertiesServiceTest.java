@@ -20,29 +20,29 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.Data;
 
-@RunWith(MonoMeecrowave.Runner.class)
-public class PropertiesServiceTest {
+@MonoMeecrowaveConfig
+class PropertiesServiceTest {
 
     @Inject
     private PropertiesService propertiesService;
 
     @Test
-    public void buildProperties() {
+    void buildProperties() {
 
         ParameterMeta host = new ParameterMeta(Config.class, ParameterMeta.Type.STRING, "configuration.host", "host",
                 null, emptyList(), null, emptyMap());
@@ -70,17 +70,19 @@ public class PropertiesServiceTest {
         assertEquals("User Name", props.get(4).getDisplayName());
     }
 
-    @Test(expected = IllegalArgumentException.class) // the class BasConfig don't contains attribute
-    public void validateProp() {
-        ParameterMeta attribute = new ParameterMeta(BadConfig.class, ParameterMeta.Type.STRING,
-                "configuration.attribute", "attribute", null, emptyList(), null, emptyMap());
+    @Test // the class BaseConfig don't contains attribute
+    void validateProp() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            ParameterMeta attribute = new ParameterMeta(BadConfig.class, ParameterMeta.Type.STRING,
+                    "configuration.attribute", "attribute", null, emptyList(), null, emptyMap());
 
-        ParameterMeta config = new ParameterMeta(Config.class, ParameterMeta.Type.OBJECT, "configuration",
-                "configuration", null, singletonList(attribute), null, emptyMap());
+            ParameterMeta config = new ParameterMeta(Config.class, ParameterMeta.Type.OBJECT, "configuration",
+                    "configuration", null, singletonList(attribute), null, emptyMap());
 
-        propertiesService
-                .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.getDefault(), null)
-                .collect(toList());
+            propertiesService
+                    .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.getDefault(), null)
+                    .collect(toList());
+        });
     }
 
     @Data

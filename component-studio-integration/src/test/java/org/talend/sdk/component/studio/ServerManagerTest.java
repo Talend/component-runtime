@@ -27,11 +27,10 @@ import static org.apache.xbean.asm6.Opcodes.NEW;
 import static org.apache.xbean.asm6.Opcodes.RETURN;
 import static org.apache.xbean.asm6.Opcodes.V1_8;
 import static org.apache.ziplock.JarLocation.jarLocation;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.ICON_MISSING;
 
 import java.io.ByteArrayInputStream;
@@ -54,15 +53,15 @@ import org.apache.xbean.asm6.AnnotationVisitor;
 import org.apache.xbean.asm6.ClassWriter;
 import org.apache.xbean.asm6.MethodVisitor;
 import org.apache.xbean.asm6.Type;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
@@ -71,32 +70,24 @@ import org.talend.sdk.component.studio.websocket.WebSocketClient;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ServerManagerTest {
+@WithTemporaryFolder
+class ServerManagerTest {
 
-    @ClassRule
-    public static final TestRule TEMPORARY_M2 = outerRule(new RestoreSystemProperties()).around(new TemporaryFolder() {
+    @BeforeEach
+    void before(final TemporaryFolder folder) {
+        createM2(folder.getRoot());
+        System.setProperty("component.java.m2", folder.getRoot().getAbsolutePath());
+        System.setProperty("talend.component.server.component.coordinates", "test:test-component:1.0");
+    }
 
-        @Override
-        protected void before() throws Throwable {
-            super.before();
-            createM2();
-            System.setProperty("component.java.m2", getRoot().getAbsolutePath());
-            System.setProperty("talend.component.server.component.coordinates", "test:test-component:1.0");
-        }
-
-        private void createM2() {
-            final File jar = new File(getRoot(), "test/test-component/1.0/test-component-1.0.jar");
-            jar.getParentFile().mkdirs();
-            try {
-                new PluginGenerator().createPlugin(jar, "my-component");
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-    });
+    @AfterEach
+    void reset() {
+        System.clearProperty("component.java.m2");
+        System.clearProperty("talend.component.server.component.coordinates");
+    }
 
     @Test
-    public void startServer() throws Exception {
+    void startServer() throws Exception {
         int port;
         final Thread thread = Thread.currentThread();
         final ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
@@ -142,6 +133,16 @@ public class ServerManagerTest {
             thread.setContextClassLoader(oldLoader);
         }
         assertFalse(isStarted(port));
+    }
+
+    private void createM2(final File root) {
+        final File jar = new File(root, "test/test-component/1.0/test-component-1.0.jar");
+        jar.getParentFile().mkdirs();
+        try {
+            new PluginGenerator().createPlugin(jar, "my-component");
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private void assertClient(final int port) {

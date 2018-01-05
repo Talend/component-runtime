@@ -18,8 +18,8 @@ package org.talend.sdk.component.runtime.output;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -29,7 +29,7 @@ import java.util.Collection;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.serialization.Serializer;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
@@ -38,24 +38,24 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-public class ProcessorImplTest {
+class ProcessorImplTest {
 
     private static final OutputFactory NO_OUTPUT = name -> value -> {
         // no-op
     };
 
     @Test
-    public void lifecycle() {
+    void lifecycle() {
         assertLifecycle(new SampleProcessor());
     }
 
     @Test
-    public void lifecycleVoid() {
+    void lifecycleVoid() {
         assertLifecycle(new SampleOutput());
     }
 
     @Test
-    public void serialization() throws IOException, ClassNotFoundException {
+    void serialization() throws IOException, ClassNotFoundException {
         final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", new SampleOutput());
         final Processor copy = Serializer.roundTrip(processor);
         assertNotSame(copy, processor);

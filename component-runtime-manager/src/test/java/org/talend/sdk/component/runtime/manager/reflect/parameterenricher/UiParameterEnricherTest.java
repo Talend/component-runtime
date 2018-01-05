@@ -16,12 +16,12 @@
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
 import static java.util.Collections.singletonMap;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayouts;
@@ -30,12 +30,12 @@ import org.talend.sdk.component.api.configuration.ui.widget.Code;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 
-public class UiParameterEnricherTest {
+class UiParameterEnricherTest {
 
     private final UiParameterEnricher enricher = new UiParameterEnricher();
 
     @Test
-    public void gridLayouts() {
+    void gridLayouts() {
         assertEquals(new HashMap<String, String>() {
 
             {
@@ -122,7 +122,7 @@ public class UiParameterEnricherTest {
     }
 
     @Test
-    public void gridLayout() {
+    void gridLayout() {
         assertEquals(singletonMap("tcomp::ui::gridlayout::MAIN::value", "first|second,third"),
                 enricher.onParameterAnnotation("testParam", String.class, new GridLayout() {
 
@@ -166,7 +166,7 @@ public class UiParameterEnricherTest {
     }
 
     @Test
-    public void selector() {
+    void selector() {
         assertEquals(new HashMap<String, String>() {
 
             {
@@ -193,7 +193,7 @@ public class UiParameterEnricherTest {
     }
 
     @Test
-    public void credential() {
+    void credential() {
         assertEquals(singletonMap("tcomp::ui::credential", "true"),
                 enricher.onParameterAnnotation("testParam", String.class, new Credential() {
 
@@ -205,7 +205,7 @@ public class UiParameterEnricherTest {
     }
 
     @Test
-    public void code() {
+    void code() {
         assertEquals(singletonMap("tcomp::ui::code::value", "groovy"),
                 enricher.onParameterAnnotation("testParam", Object.class, new Code() {
 
@@ -222,7 +222,7 @@ public class UiParameterEnricherTest {
     }
 
     @Test
-    public void layout() {
+    void layout() {
         assertEquals(singletonMap("tcomp::ui::horizontallayout", "true"),
                 enricher.onParameterAnnotation("testParam", Object.class, new HorizontalLayout() {
 
@@ -234,7 +234,7 @@ public class UiParameterEnricherTest {
     }
 
     @Test
-    public void order() {
+    void order() {
         assertEquals(singletonMap("tcomp::ui::optionsorder::value", "username,password"),
                 enricher.onParameterAnnotation("testParam", Object.class, new OptionsOrder() {
 

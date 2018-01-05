@@ -16,8 +16,8 @@
 package org.talend.sdk.component.form.model;
 
 import static javax.json.bind.config.PropertyOrderStrategy.LEXICOGRAPHICAL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.talend.sdk.component.form.model.Ui.ui;
 import static org.talend.sdk.component.form.model.jsonschema.JsonSchema.jsonSchema;
 import static org.talend.sdk.component.form.model.uischema.UiSchema.uiSchema;
@@ -26,24 +26,24 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 
 import lombok.Data;
 
-public class UiTest {
+class UiTest {
 
     private Jsonb jsonb;
 
-    @Before
-    public void init() {
+    @BeforeEach
+    void init() {
         jsonb = JsonbBuilder.create(new JsonbConfig().withPropertyOrderStrategy(LEXICOGRAPHICAL));
     }
 
-    @After
-    public void destroy() {
+    @AfterEach
+    void destroy() {
         try {
             jsonb.close();
         } catch (final Exception e) {
@@ -52,7 +52,7 @@ public class UiTest {
     }
 
     @Test
-    public void jsonSchemaTest() {
+    void jsonSchemaTest() {
         final Ui form1 = ui()
                 .withJsonSchema(jsonSchema()
                         .withType("object")
@@ -69,7 +69,7 @@ public class UiTest {
     }
 
     @Test
-    public void uiSchemaTest() {
+    void uiSchemaTest() {
         final Ui form1 = ui()
                 .withUiSchema(uiSchema()
                         .withKey("multiSelectTag")
@@ -86,7 +86,7 @@ public class UiTest {
     }
 
     @Test
-    public void propertiesTest() {
+    void propertiesTest() {
         final Ui form1 =
                 ui().withJsonSchema(JsonSchema.jsonSchemaFrom(Form1.class).build()).withProperties(new Form1()).build();
         final String json = jsonb.toJson(form1);

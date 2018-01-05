@@ -17,15 +17,15 @@ package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 
-public class LocalConfigurationServiceTest {
+class LocalConfigurationServiceTest {
 
     private final LocalConfiguration systemProperties = new LocalConfiguration() {
 
@@ -41,7 +41,7 @@ public class LocalConfigurationServiceTest {
     };
 
     @Test
-    public void read() {
+    void read() {
         System.setProperty("LocalConfigurationServiceTest.test.foo", "1");
         try {
             assertEquals("1",
@@ -53,7 +53,7 @@ public class LocalConfigurationServiceTest {
     }
 
     @Test
-    public void keys() {
+    void keys() {
         System.setProperty("LocalConfigurationServiceTest.test.foo", "1");
         System.setProperty("LocalConfigurationServiceTest.test.bar", "1");
         try {

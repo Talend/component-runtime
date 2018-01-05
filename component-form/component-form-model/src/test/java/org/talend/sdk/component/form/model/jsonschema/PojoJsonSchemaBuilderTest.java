@@ -15,26 +15,26 @@
  */
 package org.talend.sdk.component.form.model.jsonschema;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.form.model.jsonschema.JsonSchema.jsonSchemaFrom;
 
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PojoJsonSchemaBuilderTest {
+class PojoJsonSchemaBuilderTest {
 
     @Test
-    public void flat() {
+    void flat() {
         final JsonSchema schema = jsonSchemaFrom(Form1.class).build();
         final Map<String, JsonSchema> properties = schema.getProperties();
         assertForm1(properties);
     }
 
     @Test
-    public void nested() {
+    void nested() {
         final JsonSchema schema = jsonSchemaFrom(Form2.class).build();
         final Map<String, JsonSchema> properties = schema.getProperties();
         assertEquals(2, properties.size());

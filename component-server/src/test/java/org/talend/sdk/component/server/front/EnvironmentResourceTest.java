@@ -16,29 +16,29 @@
 package org.talend.sdk.component.server.front;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.stream.Stream;
+
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 
-import org.apache.meecrowave.junit.MonoMeecrowave;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.Environment;
 
-@RunWith(MonoMeecrowave.Runner.class)
-public class EnvironmentResourceTest {
+@MonoMeecrowaveConfig
+class EnvironmentResourceTest {
 
     @Inject
     private WebTarget base;
 
     @Test
-    public void environment() {
+    void environment() {
         final Environment environment = base.path("environment").request(APPLICATION_JSON_TYPE).get(Environment.class);
         assertEquals(1, environment.getLatestApiVersion());
         Stream.of(environment.getCommit(), environment.getTime(), environment.getVersion()).forEach(
-                Assert::assertNotNull);
+                Assertions::assertNotNull);
     }
 }
