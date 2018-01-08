@@ -81,7 +81,11 @@ module.exports = {
   // You can exclude the *.map files from the build during deployment.
   devtool: shouldUseSourceMap ? 'source-map' : false,
   // In production, we only want to load the polyfills and the app code.
-  entry: [require.resolve('./config/polyfills'), paths.appIndexJs],
+  entry: [
+    require.resolve('./config/polyfills'),
+    'font-awesome-sass-loader!./src/font-awesome-sass.config.js',
+    paths.appIndexJs
+  ],
   output: {
     // The build folder.
     path: paths.appBuild,
@@ -136,8 +140,6 @@ module.exports = {
       // We are waiting for https://github.com/facebookincubator/create-react-app/issues/2176.
       // { parser: { requireEnsure: false } },
 
-      // First, run the linter.
-      // It's important to do this before Babel processes the JS.
       {
         test: /\.(js|jsx)$/,
         enforce: 'pre',

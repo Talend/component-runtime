@@ -47,4 +47,7 @@ public interface StarterConfiguration {
 
     @ConfigProperty(name = "github.api.project.create.method", defaultValue = "POST")
     String githubCreateProjectMethod();
+
+    @ConfigProperty(name = "security.csp", defaultValue = "default-src 'self' data: ; frame-ancestors 'none'")
+    String csp();
 }

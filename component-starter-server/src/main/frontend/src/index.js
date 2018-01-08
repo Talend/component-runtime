@@ -18,7 +18,6 @@ import ReactDOM from 'react-dom';
 import 'whatwg-fetch'
 import App from './App';
 
-import 'font-awesome-sass-loader';
 import '@talend/bootstrap-theme/dist/bootstrap.css';
 import './index.scss';
 
