@@ -3,7 +3,7 @@ jdk:
 - oraclejdk8
 env:
   global:
-    - MAVEN_OPTS="-Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss -Dinvoker.streamLogs=false -Dhub-detect.skip=true"
+    - MAVEN_OPTS="-Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss -Dinvoker.streamLogs=false -Dhub-detect.skip=true -Dsurefire.useFile=false"
 before_cache:
   - rm -Rf $HOME/.m2/repository/org/talend/sdk/component
 cache:
@@ -27,6 +27,6 @@ notifications:
 before_install:
 - chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
 install: chmod +x ./.travis/install.sh && ./.travis/install.sh
-script: node .travis/heartbeat.js mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Dgpg.skip=true
+script: node .travis/heartbeat.js mvn clean install -e --batch-mode -q -ff --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Dgpg.skip=true
 after_success:
 - chmod +x ./.travis/after_success.sh && ./.travis/after_success.sh
