@@ -82,8 +82,12 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
             ctx.writeAndFlush(response);
             return;
         }
+        final FullHttpRequest req = request.copy(); // copy to use in a separated thread
+        api.getExecutor().execute(() -> doHttpRequest(req, ctx));
+    }
 
-        api.getExecutor().execute(() -> {
+    private void doHttpRequest(final FullHttpRequest request, final ChannelHandlerContext ctx) {
+        try {
             final Attribute<String> baseAttr = ctx.channel().attr(Handlers.BASE);
             final String requestUri =
                     (baseAttr == null || baseAttr.get() == null ? "" : baseAttr.get()) + request.uri();
@@ -101,6 +105,7 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
                     httpsURLConnection.setHostnameVerifier((h, s) -> true);
                     httpsURLConnection.setSSLSocketFactory(api.getSslContext().getSocketFactory());
                 }
+                request.headers().forEach(e -> connection.setRequestProperty(e.getKey(), e.getValue()));
                 if (request.method() != null) {
                     final String requestMethod = request.method().name();
                     connection.setRequestMethod(requestMethod);
@@ -110,7 +115,6 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
                         request.content().readBytes(connection.getOutputStream(), request.content().readableBytes());
                     }
                 }
-                request.headers().forEach(e -> connection.setRequestProperty(e.getKey(), e.getValue()));
 
                 final int responseCode = connection.getResponseCode();
                 final int defaultLength =
@@ -142,7 +146,10 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
             ofNullable(resp.headers()).ifPresent(h -> h.forEach((k, v) -> response.headers().set(k, v)));
             ctx.writeAndFlush(response);
-        });
+
+        } finally {
+            request.release();
+        }
     }
 
     protected void beforeResponse(final String requestUri, final FullHttpRequest request, final Response resp) {
