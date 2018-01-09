@@ -734,6 +734,26 @@
   </build>
 
   <profiles>
+
+    <profile>
+      <id>quick</id>
+      <properties>
+        <skipTests>true</skipTests>
+        <skipITs>true</skipITs>
+        <maven.test.skip>true</maven.test.skip>
+        <jacoco.skip>true</jacoco.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <maven.source.skip>true</maven.source.skip>
+        <checkstyle.skip>true</checkstyle.skip>
+        <findbugs.skip>true</findbugs.skip>
+        <maven.site.skip>true</maven.site.skip>
+        <invoker.skip>true</invoker.skip>
+        <enforcer.skip>true</enforcer.skip>
+        <hub-detect.skip>true</hub-detect.skip>
+        <skip.yarn>true</skip.yarn>
+      </properties>
+    </profile>
+
     <profile>
       <id>release</id>
       <build>

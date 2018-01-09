@@ -9,9 +9,9 @@ fi
 
 OPTS="--batch-mode --settings $PWD/.travis/settings.xml"
 
-node .travis/heartbeat.js mvn clean deploy -Dhub-detect.skip=true -DskipTests -Dinvoker.skip=true -Possrh -Prelease $OPTS
-node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false -DskipTests -Dinvoker.skip=true -Dskip.yarn=true -Possrh -Prelease $OPTS
+node .travis/heartbeat.js mvn clean deploy  -Pquick -Possrh -Prelease  -Dmaven.javadoc.skip=false $OPTS
+node .travis/heartbeat.js mvn clean verify  -Pquick -Possrh -Prelease  -Dhub-detect.skip=false $OPTS
 
 cd documentation
-    node ../.travis/heartbeat.js mvn clean verify -Pgh-pages -Dgithub.site.profile=latest -Dhub-detect.skip=true -Dinvoker.skip=true -Dskip.yarn=true $OPTS
+    node ../.travis/heartbeat.js mvn clean verify -Pquick -Pgh-pages  -Dgithub.site.profile=latest $OPTS
 cd -
