@@ -13,5 +13,5 @@ node .travis/heartbeat.js mvn clean deploy -Dhub-detect.skip=true -DskipTests -D
 node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false -DskipTests -Dinvoker.skip=true -Dskip.yarn=true -Possrh -Prelease $OPTS
 
 cd documentation
-    node ../.travis/heartbeat.js mvn clean verify -Pgh-pages -Dgithub.site.profile=latest $OPTS
+    node ../.travis/heartbeat.js mvn clean verify -Pgh-pages -Dgithub.site.profile=latest -Dhub-detect.skip=true -Dinvoker.skip=true -Dskip.yarn=true $OPTS
 cd -
