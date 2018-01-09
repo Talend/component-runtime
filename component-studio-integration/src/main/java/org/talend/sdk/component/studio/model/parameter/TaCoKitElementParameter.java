@@ -50,6 +50,23 @@ public class TaCoKitElementParameter extends ElementParameter {
         setTaggedValue("org.talend.sdk.component.source", "tacokit");
     }
 
+    /**
+     * Returns parameter value converted to String type.
+     * This method may be used to get value for serialization in repository.
+     * Default implementation returns value without conversion assuming it is already stored as String.
+     * Subclasses should override this method to provide correct conversion according parameter type.
+     * 
+     * @return this parameter value
+     */
+    public String getStringValue() {
+        return (String) getValue();
+    }
+
+    /**
+     * Sets parameter value and fires parameter change event, which is handled by registered listeners
+     * 
+     * @param newValue value to be set
+     */
     @Override
     public void setValue(final Object newValue) {
         Object oldValue = super.getValue();
@@ -60,6 +77,18 @@ public class TaCoKitElementParameter extends ElementParameter {
         pcs.firePropertyChange(ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED, oldValue,
                 newValue);
         fireValueChange(oldValue, newValue);
+    }
+
+    /**
+     * Converts incoming value from String to proper type and sets parameter value.
+     * This method may be used to set parameter value from value serialized in repository.
+     * Default implementation assumes String is a proper type, so sets value without conversion.
+     * Subclasses should override this method to provide correct conversion according parameter type.
+     * 
+     * @param newValue String typed value to be set
+     */
+    public void setStringValue(final String newValue) {
+        setValue(newValue);
     }
 
     public void registerListener(final String propertyName, final PropertyChangeListener listener) {
