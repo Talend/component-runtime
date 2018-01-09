@@ -578,15 +578,15 @@
             <groupId>org.codehaus.gmavenplus</groupId>
             <artifactId>gmavenplus-plugin</artifactId>
             <version>${gmavenplus.version}</version>
-            <executions>
-              <execution>
-                <id>deploy-site</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>execute</goal>
-                </goals>
-              </execution>
-            </executions>
+            <!--<executions>-->
+              <!--<execution>-->
+                <!--<id>deploy-site</id>-->
+                <!--<phase>verify</phase>-->
+                <!--<goals>-->
+                  <!--<goal>execute</goal>-->
+                <!--</goals>-->
+              <!--</execution>-->
+            <!--</executions>-->
             <configuration>
               <allowSystemExits>true</allowSystemExits>
               <scripts>
