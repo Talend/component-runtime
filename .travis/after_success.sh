@@ -7,11 +7,11 @@ if [ "$TRAVIS_PULL_REQUEST" = "true" ] || [ "x$encrypted_03e441b90173_key" = "x"
     exit 0
 fi
 
-OPTS="--batch-mode --settings $PWD/.travis/settings.xml"
+OPTS="-Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -Dskip.yarn=true --batch-mode --settings $PWD/.travis/settings.xml  -Possrh -Prelease"
 
-node .travis/heartbeat.js mvn clean deploy -Dhub-detect.skip=true -DskipTests -Dinvoker.skip=true -Possrh -Prelease $OPTS
-node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false -DskipTests -Dinvoker.skip=true -Dskip.yarn=true -Possrh -Prelease $OPTS
+node .travis/heartbeat.js mvn deploy -Dhub-detect.skip=true $OPTS
+node .travis/heartbeat.js mvn verify -Dhub-detect.skip=false $OPTS
 
 cd documentation
-    node ../.travis/heartbeat.js mvn clean verify -Pgh-pages -Dgithub.site.profile=latest $OPTS
+    node ../.travis/heartbeat.js mvn verify -Pgh-pages -Dgithub.site.profile=latest $OPTS
 cd -
