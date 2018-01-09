@@ -23,21 +23,6 @@ import static org.talend.sdk.component.junit.http.internal.impl.Handlers.BASE;
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.closeOnFlush;
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.sendError;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.ssl.SslHandler;
-import io.netty.util.Attribute;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +37,21 @@ import javax.net.ssl.SSLEngine;
 
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 import org.talend.sdk.component.junit.http.api.Response;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.util.Attribute;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,7 +82,7 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
             ctx.writeAndFlush(response);
             return;
         }
-        final FullHttpRequest req = request.copy(); //copy to use in a separated thread
+        final FullHttpRequest req = request.copy(); // copy to use in a separated thread
         api.getExecutor().execute(() -> doHttpRequest(req, ctx));
     }
 
@@ -97,8 +97,7 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
             final Response resp;
             try {
                 final URL url = new URL(requestUri);
-                final HttpURLConnection connection =
-                        HttpURLConnection.class.cast(url.openConnection(Proxy.NO_PROXY));
+                final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection(Proxy.NO_PROXY));
                 connection.setConnectTimeout(30000);
                 connection.setReadTimeout(20000);
                 if (HttpsURLConnection.class.isInstance(connection) && api.getSslContext() != null) {
@@ -113,8 +112,7 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
                     if (!"HEAD".equalsIgnoreCase(requestMethod) && request.content().readableBytes() > 0) {
                         connection.setDoOutput(true);
-                        request.content()
-                                .readBytes(connection.getOutputStream(), request.content().readableBytes());
+                        request.content().readBytes(connection.getOutputStream(), request.content().readableBytes());
                     }
                 }
 
@@ -132,7 +130,7 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
                                         e -> e.getValue().stream().collect(Collectors.joining(",")))),
 
                         responseCode, responseCode <= 399 ? slurp(connection.getInputStream(), defaultLength)
-                        : slurp(connection.getErrorStream(), defaultLength));
+                                : slurp(connection.getErrorStream(), defaultLength));
             } catch (final Exception e) {
                 log.error(e.getMessage(), e);
                 sendError(ctx, HttpResponseStatus.BAD_REQUEST);
@@ -141,11 +139,9 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
             beforeResponse(requestUri, request, resp);
 
-            final ByteBuf bytes =
-                    ofNullable(resp.payload()).map(Unpooled::copiedBuffer).orElse(Unpooled.EMPTY_BUFFER);
+            final ByteBuf bytes = ofNullable(resp.payload()).map(Unpooled::copiedBuffer).orElse(Unpooled.EMPTY_BUFFER);
             final HttpResponse response =
-                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(resp.status()),
-                            bytes);
+                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(resp.status()), bytes);
             HttpUtil.setContentLength(response, bytes.array().length);
 
             ofNullable(resp.headers()).ifPresent(h -> h.forEach((k, v) -> response.headers().set(k, v)));
