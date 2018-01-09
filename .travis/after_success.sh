@@ -9,9 +9,13 @@ fi
 
 OPTS="--batch-mode --settings $PWD/.travis/settings.xml"
 
-node .travis/heartbeat.js mvn clean deploy  -Pquick -Possrh -Prelease  -Dmaven.javadoc.skip=false $OPTS
-node .travis/heartbeat.js mvn clean verify  -Pquick -Possrh -Prelease  -Dhub-detect.skip=false $OPTS
+# deploy artifact
+node .travis/heartbeat.js mvn deploy:deploy -Possrh -Prelease $OPTS
 
+# launch blackdoc analysis
+node .travis/heartbeat.js mvn org.talend.tools:talend-tools-maven-plugin:hub-detect -Possrh -Prelease $OPTS
+
+# deploy documentation
 cd documentation
-    node ../.travis/heartbeat.js mvn clean verify -Pquick -Pgh-pages  -Dgithub.site.profile=latest $OPTS
+    node ../.travis/heartbeat.js mvn org.codehaus.gmavenplus:gmavenplus-plugin:execute -Pgh-pages -Dgithub.site.profile=latest $OPTS
 cd -

@@ -27,8 +27,6 @@ notifications:
 before_install:
 - chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
 install: chmod +x ./.travis/install.sh && ./.travis/install.sh
-script: node .travis/heartbeat.js mvn clean install -e --batch-mode -ff --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Dgpg.skip=true
+script: node .travis/heartbeat.js mvn clean install -e --batch-mode -q -ff --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Dgpg.skip=true
 after_success:
 - chmod +x ./.travis/after_success.sh && ./.travis/after_success.sh
-git:
-  depth: 10
