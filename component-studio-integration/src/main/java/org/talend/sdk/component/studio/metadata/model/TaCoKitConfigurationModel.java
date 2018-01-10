@@ -19,6 +19,7 @@ import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.Lookups;
+import org.talend.sdk.component.studio.model.parameter.TaCoKitElementParameter;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
 import lombok.AllArgsConstructor;
@@ -89,7 +90,7 @@ public class TaCoKitConfigurationModel {
                 return modelValue;
             }
         }
-        Object value = getValueOfSelf(key);
+        String value = getValueOfSelf(key);
         if (value != null || containsKey(key)) {
             return new ValueModel(this, value);
         }
@@ -123,14 +124,13 @@ public class TaCoKitConfigurationModel {
         return false;
     }
 
-    public Object getValueOfSelf(final String key) {
-        return getProperties().get(key);
+    public String getValueOfSelf(final String key) {
+        return (String) getProperties().get(key);
     }
 
     @SuppressWarnings("unchecked")
-    public void setValue(final String key, final Object value) {
-        // here we need conversion to string for each value
-        getProperties().put(key, value);
+    public void setValue(final TaCoKitElementParameter parameter) {
+        getProperties().put(parameter.getName(), parameter.getStringValue());
     }
 
     public ConfigTypeNode getConfigTypeNode() throws Exception {
@@ -163,6 +163,7 @@ public class TaCoKitConfigurationModel {
      * 
      * @return map of connection properties
      */
+    @SuppressWarnings({ "deprecation", "rawtypes" })
     private Map getProperties() {
         return connection.getProperties();
     }
@@ -173,7 +174,7 @@ public class TaCoKitConfigurationModel {
 
         private TaCoKitConfigurationModel configurationModel;
 
-        private Object value;
+        private String value;
 
     }
 

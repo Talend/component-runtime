@@ -56,7 +56,7 @@ public class TaCoKitWizardComposite extends TaCoKitComposite {
                             if (valueModel.getConfigurationModel() != configurationModel) {
                                 parameter.setReadOnly(true);
                             }
-                            parameter.setValue(valueModel.getValue());
+                            parameter.setStringValue(valueModel.getValue());
                         }
                     } catch (Exception e) {
                         ExceptionHandler.process(e);
@@ -90,7 +90,7 @@ public class TaCoKitWizardComposite extends TaCoKitComposite {
         @Override
         public void onValueChanged(final TaCoKitElementParameter elementParameter, final Object oldValue,
                 final Object newValue) {
-            configurationModel.setValue(elementParameter.getName(), newValue);
+            configurationModel.setValue(elementParameter);
         }
 
     }
