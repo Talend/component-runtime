@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +25,9 @@ import org.talend.core.model.process.IElement;
  * Value of Table parameter should have List<Map<String, Object>> type. Its value is a list of table records.
  * Each table record is represented by Map.
  * This class ensures Table parameter integrity. When user sets null or "" value to this parameter, empty list is set
- * instead
+ * instead. Also it implements convertion of stored value from and to String representation, which is used to serialize
+ * parameter
+ * in repository
  */
 public class TableElementParameter extends TaCoKitElementParameter {
 
@@ -35,20 +36,28 @@ public class TableElementParameter extends TaCoKitElementParameter {
     }
 
     /**
-     * Sets value of this Table parameter. Expected type of value is List<Map<String, Object>>.
-     * null and "" are also accepted. In this case empty list will be set as value
+     * Retrieves stored value and converts it to String using {@link List#toString()} method
      * 
-     * @param newValue new value to set
+     * @return string representation of stored value
+     */
+    public String getStringValue() {
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> tableValue = (List<Map<String, Object>>) super.getValue();
+        return tableValue.toString();
+    }
+
+    /**
+     * Converts value from string to List of Maps (Table) and delegates parent to set the value.
+     * Expected input string is as follows: "[{key1=value11, key2=value12}, {key1=value21, key2=value22}]"
+     * A Map instance in the List represents Table row. Rows are separated by ", " (comma with a whitespace).
+     * Entries in the Map are also should be separated by ", ".
+     * Generally, input string should be equal to the result of a call to List.toString().
+     * 
+     * @param newValue value to be set
      */
     @Override
-    public void setValue(final Object newValue) {
-        if (newValue == null || "".equals(newValue)) {
-            super.setValue(new ArrayList<Map<String, Object>>());
-        } else if (!(newValue instanceof List)) {
-            throw new IllegalArgumentException("newValue should be of List<Map<String, Object>> type");
-        } else {
-            super.setValue(newValue);
-        }
+    public void setStringValue(final String newValue) {
+        super.setValue(ValueConverter.toTable(newValue));
     }
 
 }
