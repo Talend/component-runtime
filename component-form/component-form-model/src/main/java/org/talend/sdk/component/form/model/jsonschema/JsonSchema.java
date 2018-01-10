@@ -18,7 +18,6 @@ package org.talend.sdk.component.form.model.jsonschema;
 import static java.util.Arrays.asList;
 import static lombok.AccessLevel.PRIVATE;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,7 +70,7 @@ public class JsonSchema {
 
     private Map<String, JsonSchema> properties;
 
-    private Collection<JsonSchema> items;
+    private JsonSchema items;
 
     @JsonbProperty("enum")
     private Collection<String> enumValues;
@@ -123,26 +122,15 @@ public class JsonSchema {
 
         private Collection<String> enumValues;
 
-        private Collection<JsonSchema> items;
+        private JsonSchema items;
 
         public Builder withId(final String id) {
             this.id = id;
             return this;
         }
 
-        public Builder withItems(final Collection<JsonSchema> schemas) {
-            if (items == null) {
-                items = new ArrayList<>();
-            }
-            this.items.addAll(schemas);
-            return this;
-        }
-
-        public Builder withItem(final JsonSchema schema) {
-            if (items == null) {
-                items = new ArrayList<>();
-            }
-            items.add(schema);
+        public Builder withItems(final JsonSchema schemas) {
+            this.items = schemas;
             return this;
         }
 

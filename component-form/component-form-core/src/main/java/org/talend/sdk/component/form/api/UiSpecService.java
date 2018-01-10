@@ -357,69 +357,97 @@ public class UiSpecService {
         if (properties == null) {
             return null;
         }
-        return filterPropertyLevel(prefix, properties).collect(toMap(SimplePropertyDefinition::getName, prop -> {
-            final JsonSchema property = new JsonSchema();
-            property.setTitle(prop.getDisplayName());
+        return filterPropertyLevel(prefix, properties)
+                .collect(toMap(SimplePropertyDefinition::getName, prop -> toSchema(properties, prop)));
+    }
 
-            switch (prop.getType().toUpperCase(ENGLISH)) { // tcomp meta model
-            case "ENUM": {
-                property.setType("string");
-                property.setEnumValues(prop.getValidation().getEnumValues());
-                break;
+    private JsonSchema toSchema(final Collection<SimplePropertyDefinition> properties,
+            final SimplePropertyDefinition prop) {
+        final JsonSchema property = new JsonSchema();
+        property.setTitle(prop.getDisplayName());
+
+        switch (prop.getType().toUpperCase(ENGLISH)) { // tcomp meta model
+        case "ENUM": {
+            property.setType("string");
+            property.setEnumValues(prop.getValidation().getEnumValues());
+            break;
+        }
+        default:
+            property.setType(prop.getType().toLowerCase(ENGLISH));
+            if ("array".equals(property.getType())) {
+                final String prefix = prop.getPath() + "[]";
+                final List<SimplePropertyDefinition> arrayProperties =
+                        properties.stream().filter(p -> p.getPath().startsWith(prefix)).collect(toList());
+
+                if (arrayProperties.stream().anyMatch(p -> p.getPath().startsWith(prefix + '.'))) {
+                    final JsonSchema jsonSchema = new JsonSchema();
+                    jsonSchema.setTitle(property.getTitle());
+                    jsonSchema.setType("object");
+                    jsonSchema.setProperties(createJsonSchemaPropertiesLevel(prefix, properties));
+                    jsonSchema.setRequired(arrayProperties
+                            .stream()
+                            .filter(this::isRequired)
+                            .map(SimplePropertyDefinition::getName)
+                            .collect(toSet()));
+                    property.setItems(jsonSchema);
+                } else if (!arrayProperties.isEmpty()) { // primitive
+                    final String type = arrayProperties.get(0).getType();
+                    final JsonSchema jsonSchema = new JsonSchema();
+                    jsonSchema.setTitle(property.getTitle());
+                    jsonSchema.setType("enum".equalsIgnoreCase(type) ? "string" : type.toLowerCase(ENGLISH));
+                    property.setItems(jsonSchema);
+                }
             }
-            default:
-                property.setType(prop.getType().toLowerCase(ENGLISH));
-            }
+        }
 
-            final Map<String, JsonSchema> nestedProperties =
-                    createJsonSchemaPropertiesLevel(prop.getPath() + '.', properties);
-            final String order = prop.getMetadata().get("ui::optionsorder::value");
-            if (order != null) {
-                property.setProperties(new TreeMap<String, JsonSchema>(new Comparator<String>() {
+        final Map<String, JsonSchema> nestedProperties =
+                createJsonSchemaPropertiesLevel(prop.getPath() + '.', properties);
+        final String order = prop.getMetadata().get("ui::optionsorder::value");
+        if (order != null) {
+            property.setProperties(new TreeMap<String, JsonSchema>(new Comparator<String>() {
 
-                    private final List<String> propertiesOrder = new ArrayList<>(asList(order.split(",")));
+                private final List<String> propertiesOrder = new ArrayList<>(asList(order.split(",")));
 
-                    @Override
-                    public int compare(final String o1, final String o2) {
-                        final int i = propertiesOrder.indexOf(o1) - propertiesOrder.indexOf(o2);
-                        return i == 0 ? o1.compareTo(o2) : i;
-                    }
-                }) {
+                @Override
+                public int compare(final String o1, final String o2) {
+                    final int i = propertiesOrder.indexOf(o1) - propertiesOrder.indexOf(o2);
+                    return i == 0 ? o1.compareTo(o2) : i;
+                }
+            }) {
 
-                    {
-                        putAll(nestedProperties);
-                    }
-                });
-            } else if (!nestedProperties.isEmpty()) {
-                property.setProperties(nestedProperties);
-            }
+                {
+                    putAll(nestedProperties);
+                }
+            });
+        } else if (!nestedProperties.isEmpty()) {
+            property.setProperties(nestedProperties);
+        }
 
-            if ("object".equalsIgnoreCase(prop.getType())) {
-                property.setRequired(properties
-                        .stream()
-                        .filter(p -> nestedProperties.keySet().contains(p.getName())
-                                && p.getPath().equals(prop.getPath() + '.' + p.getName()))
-                        .filter(this::isRequired)
-                        .map(SimplePropertyDefinition::getName)
-                        .collect(toSet()));
-            }
+        if ("object".equalsIgnoreCase(prop.getType())) {
+            property.setRequired(properties
+                    .stream()
+                    .filter(p -> nestedProperties.keySet().contains(p.getName())
+                            && p.getPath().equals(prop.getPath() + '.' + p.getName()))
+                    .filter(this::isRequired)
+                    .map(SimplePropertyDefinition::getName)
+                    .collect(toSet()));
+        }
 
-            ofNullable(prop.getMetadata().get("ui::defaultvalue::value")).ifPresent(property::setDefaultValue);
+        ofNullable(prop.getMetadata().get("ui::defaultvalue::value")).ifPresent(property::setDefaultValue);
 
-            final PropertyValidation validation = prop.getValidation();
-            if (validation != null) {
-                ofNullable(validation.getMin()).ifPresent(m -> property.setMinimum(m.doubleValue()));
-                ofNullable(validation.getMax()).ifPresent(m -> property.setMaximum(m.doubleValue()));
-                ofNullable(validation.getMinItems()).ifPresent(property::setMinItems);
-                ofNullable(validation.getMaxItems()).ifPresent(property::setMaxItems);
-                ofNullable(validation.getMinLength()).ifPresent(property::setMinLength);
-                ofNullable(validation.getMaxLength()).ifPresent(property::setMaxLength);
-                ofNullable(validation.getUniqueItems()).ifPresent(property::setUniqueItems);
-                ofNullable(validation.getPattern()).ifPresent(property::setPattern);
-            }
+        final PropertyValidation validation = prop.getValidation();
+        if (validation != null) {
+            ofNullable(validation.getMin()).ifPresent(m -> property.setMinimum(m.doubleValue()));
+            ofNullable(validation.getMax()).ifPresent(m -> property.setMaximum(m.doubleValue()));
+            ofNullable(validation.getMinItems()).ifPresent(property::setMinItems);
+            ofNullable(validation.getMaxItems()).ifPresent(property::setMaxItems);
+            ofNullable(validation.getMinLength()).ifPresent(property::setMinLength);
+            ofNullable(validation.getMaxLength()).ifPresent(property::setMaxLength);
+            ofNullable(validation.getUniqueItems()).ifPresent(property::setUniqueItems);
+            ofNullable(validation.getPattern()).ifPresent(property::setPattern);
+        }
 
-            return property;
-        }));
+        return property;
     }
 
     private Stream<SimplePropertyDefinition> filterPropertyLevel(final String prefix,

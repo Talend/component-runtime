@@ -94,7 +94,7 @@ class PojoJsonSchemaBuilder {
                 }
                 return jsonSchema()
                         .withType("array")
-                        .withItem(schemas.computeIfAbsent(Class.class.cast(itemType), k -> create(k).build()))
+                        .withItems(schemas.computeIfAbsent(Class.class.cast(itemType), k -> create(k).build()))
                         .build();
             } else if (Map.class.isAssignableFrom(rawClazz) && pt.getActualTypeArguments().length == 2) {
                 final Type keyType = pt.getActualTypeArguments()[0];
