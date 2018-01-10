@@ -14,11 +14,7 @@
  *  limitations under the License.
  */
 
-function dynamic_values(schema, body) {
-
-}
-
-function healthcheck({ schema, body }) {
+function validation({ schema, body }) {
 	if(body.rawData.status === 'KO') {
 		return {
 			errors: {
@@ -32,14 +28,14 @@ function schema(schema, body) {
 
 }
 
-function validation(schema, body) {
+function dynamic_values(schema, body) {
 
 }
 
 const registry = {
 	dynamic_values,
-	healthcheck,
 	schema,
+	healthcheck: validation,
 	validation
 };
 
