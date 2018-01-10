@@ -8,7 +8,8 @@
           "displayName": "datastore",
           "metadata": {
             "action::healthcheck": "default",
-            "datastore": "default",
+            "configurationtype::type": "datastore",
+            "configurationtype::name": "default",
             "ui::optionsorder::value": "driver,url,username,password"
           },
           "name": "datastore",
@@ -97,7 +98,8 @@
           "displayName": "connection",
           "metadata": {
             "action::healthcheck": "default",
-            "datastore": "default",
+            "configurationtype::type": "datastore",
+            "configurationtype::name": "default",
             "ui::optionsorder::value": "driver,url,username,password"
           },
           "name": "connection",
@@ -196,7 +198,8 @@
       "displayName": "JDBC Connection",
       "metadata": {
         "action::healthcheck": "default",
-        "datastore": "default",
+        "configurationtype::type": "datastore",
+        "configurationtype::name": "default",
         "ui::optionsorder::value": "driver,url,username,password"
       },
       "name": "connection",

@@ -140,7 +140,8 @@ public class UiSpecService {
                             detail
                                     .getProperties()
                                     .stream()
-                                    .filter(p -> ref.getName().equals(p.getMetadata().get("dataset")))
+                                    .filter(p -> ref.getName().equals(
+                                            p.getMetadata().get("tcomp::configurationtype::dataset")))
                                     .findFirst()
                                     .ifPresent(dataset -> {
                                         final UiSchema.Parameter parameter = new UiSchema.Parameter();
@@ -169,7 +170,8 @@ public class UiSpecService {
                             detail
                                     .getProperties()
                                     .stream()
-                                    .filter(p -> ref.getName().equals(p.getMetadata().get("datastore")))
+                                    .filter(p -> "datastore".equals(p.getMetadata().get("configurationtype::type"))
+                                            && ref.getName().equals(p.getMetadata().get("configurationtype::name")))
                                     .findFirst()
                                     .ifPresent(datastore -> trigger
                                             .setParameters(toParams(properties, datastore, ref, datastore.getPath())));
@@ -266,7 +268,7 @@ public class UiSpecService {
                     jsonSchema.setEnumValues(
                             namedValues.stream().map(UiSchema.NameValue::getName).sorted().collect(toList()));
                 } catch (final RuntimeException error) {
-                    log.error(error.getMessage(), error);
+                    log.debug(error.getMessage(), error);
                 }
             } else {
                 schema.setTitleMap(emptyList());
