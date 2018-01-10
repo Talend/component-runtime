@@ -29,18 +29,12 @@ jobs:
   include:
     # We prepare mvn & web dependencies for the following stages
     - stage: Resolve maven & web dependencies
-      install:
-      - mvn dependency:resolve dependency:resolve-plugins --batch-mode
-      script:
-      - cd component-form/component-form-demo && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
-      script:
-      - cd component-starter-server && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
-      script:
-      - cd component-tools && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
-      script:
-      - cd component-studio-integration && mvn gplus:execute@setup-deps -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
-      script:
-      - cd documentation && mvn dependency:unpack@unpack-api-javadoc -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
+      install: mvn dependency:resolve dependency:resolve-plugins --batch-mode
+      script: cd component-form/component-form-demo && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
+      - script: cd component-starter-server && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
+      - script: cd component-tools && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
+      - script: cd component-studio-integration && mvn gplus:execute@setup-deps -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
+      - script: cd documentation && mvn dependency:unpack@unpack-api-javadoc -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
 
     # Build stage
     - stage: Build
@@ -53,10 +47,11 @@ jobs:
       script:
       - chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
       - node .travis/heartbeat.js mvn clean deploy -Dhub-detect.skip=true $OPTS   # Deploy artefacts to sonatype
-      script: node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false $OPTS  # Launch BlackDuck analysis
-      script:
-      - cd documentaion && node ../.travis/heartbeat.js mvn verify -Pgh-pages -Dgithub.site.profile=latest $OPTS # Deploy the documentation
+      - script: node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false $OPTS  # Launch BlackDuck analysis
+      - script: cd documentaion && node ../.travis/heartbeat.js mvn verify -Pgh-pages -Dgithub.site.profile=latest $OPTS # Deploy the documentation
 
 stages:
+  - Resolve maven & web dependencies
+  - Build
   - name: Deployment, BlackDuck & Documentation
     if: branch = master
