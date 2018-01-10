@@ -27,31 +27,47 @@ notifications:
 
 jobs:
   include:
-    # We prepare mvn & web dependencies for the following stages
-    - stage: Resolve maven & web dependencies
-      install: mvn dependency:resolve dependency:resolve-plugins --batch-mode
+    - stage: Resolve maven dependencies
+      script: mvn dependency:resolve dependency:resolve-plugins --batch-mode
+
+    #Resolve web dependencies
+    - stage: Resolve web dependencies
       script: cd component-form/component-form-demo && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
-      - script: cd component-starter-server && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
-      - script: cd component-tools && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
-      - script: cd component-studio-integration && mvn gplus:execute@setup-deps -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
-      - script: cd documentation && mvn dependency:unpack@unpack-api-javadoc -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
+    - stage: Resolve web dependencies
+      script: cd component-starter-server && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
+    - stage: Resolve web dependencies
+      script: cd component-tools && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
+    - stage: Resolve web dependencies
+      script: cd component-studio-integration && mvn gplus:execute@setup-deps -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
+    - stage: Resolve web dependencies
+      script: cd documentation && mvn dependency:unpack@unpack-api-javadoc -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
 
     # Build stage
     - stage: Build
       script: node .travis/heartbeat.js mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true
 
-    # Deploy Artifacts to Sonatype, execute BlackDuck Analysis & deploy the documentation
+    # Deploy Artifacts to Sonatype,
+    # Execute BlackDuck Analysis
+    # Deploy the documentation
     - stage: Deployment, BlackDuck & Documentation
       env:
       - OPTS = "-Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -Dskip.yarn=true --batch-mode --settings $PWD/.travis/settings.xml  -Possrh -Prelease"
-      script:
-      - chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-      - node .travis/heartbeat.js mvn clean deploy -Dhub-detect.skip=true $OPTS   # Deploy artefacts to sonatype
-      - script: node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false $OPTS  # Launch BlackDuck analysis
-      - script: cd documentaion && node ../.travis/heartbeat.js mvn verify -Pgh-pages -Dgithub.site.profile=latest $OPTS # Deploy the documentation
+      install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
+      script: node .travis/heartbeat.js mvn clean deploy -Dhub-detect.skip=true $OPTS   # Deploy artefacts to sonatype
+
+    - stage: Deployment, BlackDuck & Documentation
+      env:
+      - OPTS = "-Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -Dskip.yarn=true --batch-mode --settings $PWD/.travis/settings.xml  -Possrh -Prelease"
+      script: node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false $OPTS  # Launch BlackDuck analysis
+
+    - stage: Deployment, BlackDuck & Documentation
+      env:
+      - OPTS = "-Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -Dskip.yarn=true --batch-mode --settings $PWD/.travis/settings.xml  -Possrh -Prelease"
+      script: cd documentaion && node ../.travis/heartbeat.js mvn verify -Pgh-pages -Dgithub.site.profile=latest $OPTS # Deploy the documentation
 
 stages:
-  - Resolve maven & web dependencies
+  - Resolve maven dependencies
+  - Resolve web dependencies
   - Build
   - name: Deployment, BlackDuck & Documentation
     if: branch = master
