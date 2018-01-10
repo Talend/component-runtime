@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
@@ -85,7 +86,6 @@ public class UiSpecService {
         if (properties == null) {
             return null;
         }
-        // todo: array
         return filterPropertyLevel(prefix, properties)
                 .filter(p -> "object".equalsIgnoreCase(p.getType())
                         || p.getMetadata().get("ui::defaultvalue::value") != null)
@@ -112,8 +112,10 @@ public class UiSpecService {
         if (properties == null) {
             return null;
         }
-        return filterPropertyLevel(prefix, properties).map(prop -> toUiSchema(detail, properties, prop)).collect(
-                toList());
+        return filterPropertyLevel(prefix, properties)
+                .map(prop -> toUiSchema(detail, properties, prop))
+                .filter(Objects::nonNull)
+                .collect(toList());
     }
 
     private UiSchema toUiSchema(final ComponentDetail detail, final Collection<SimplePropertyDefinition> properties,
@@ -140,8 +142,8 @@ public class UiSpecService {
                             detail
                                     .getProperties()
                                     .stream()
-                                    .filter(p -> ref.getName().equals(
-                                            p.getMetadata().get("tcomp::configurationtype::dataset")))
+                                    .filter(p -> ref.getName().equals(p.getMetadata().get("configurationtype::name"))
+                                            && "dataset".equals(p.getMetadata().get("configurationtype::type")))
                                     .findFirst()
                                     .ifPresent(dataset -> {
                                         final UiSchema.Parameter parameter = new UiSchema.Parameter();
@@ -186,7 +188,7 @@ public class UiSpecService {
                     });
 
             return schema;
-        } // array: todo
+        }
         return primitiveToUiSchema(properties, detail, prop);
     }
 
@@ -232,12 +234,9 @@ public class UiSpecService {
             schema.setWidget("text"); // todo: check it is ok, looks so but also not that common so can need some
                                       // revisit
         } else if (prop.getMetadata() != null && prop.getMetadata().containsKey("action::dynamic_values")) {
-            schema.setWidget("datalist");
+            schema.setWidget("multiSelectTag");
             schema.setRestricted(false);
-
-            final JsonSchema jsonSchema = new JsonSchema();
-            jsonSchema.setType("string");
-            schema.setSchema(jsonSchema);
+            schema.setTitleMap(emptyList());
 
             if (client != null) {
                 // todo: add caching here with a small eviction (each 5mn?)
@@ -247,11 +246,17 @@ public class UiSpecService {
 
                     final List<UiSchema.NameValue> namedValues =
                             ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance).map(c -> {
-                                final Collection<?> dynamicValues = Collection.class.cast(c);
+                                final Collection<?> dynamicValues = Collection.class.cast(
+
+                                        c);
                                 return dynamicValues
                                         .stream()
                                         .filter(Map.class::isInstance)// .map(m ->
-                                        // Map.class.cast(m).get("id"))
+                                        // Map
+                                        // .class
+                                        // .cast
+                                        // (m).get
+                                        // ("id"))
                                         .filter(m -> Map.class.cast(m).get("id") != null
                                                 && Map.class.cast(m).get("id") instanceof String)
                                         .map(Map.class::cast)
@@ -265,17 +270,16 @@ public class UiSpecService {
                                         .collect(toList());
                             }).orElse(emptyList());
                     schema.setTitleMap(namedValues);
-                    jsonSchema.setEnumValues(
-                            namedValues.stream().map(UiSchema.NameValue::getName).sorted().collect(toList()));
                 } catch (final RuntimeException error) {
                     log.debug(error.getMessage(), error);
                 }
             } else {
                 schema.setTitleMap(emptyList());
-                jsonSchema.setEnumValues(emptyList());
             }
+        } else if (prop.getPath().endsWith("[]")) {
+            return null;
         } else {
-            schema.setWidget("text");
+            schema.setWidget("text"); // todo: type == ARRAY
         }
         schema.setRequired(isRequired(prop));
         schema.setPlaceholder(prop.getName() + " ...");

@@ -205,7 +205,7 @@ class UiSpecServiceTest {
                                             .collect(toSet()),
                                     trigger.getParameters().stream().map(UiSchema.Parameter::getKey).collect(toSet()));
                         });
-                assertUiSchema(connectionIt.next(), "datalist", "driver", "configuration.connection.driver", 0,
+                assertUiSchema(connectionIt.next(), "multiSelectTag", "driver", "configuration.connection.driver", 0,
                         driver -> {
                             assertNotNull(driver.getTriggers());
                             assertEquals(1, driver.getTriggers().size());
