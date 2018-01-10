@@ -46,8 +46,6 @@ public class ActionService {
                 .flatMap(d -> Stream.of("description", "comment").map(d::get).filter(Objects::nonNull).findFirst())
                 .map(String::valueOf)
                 .orElse(exception.getMessage()));
-        // actionResult.setErrors(singletonMap("field", actionResult.getError()));
-        actionResult.setType(UiActionResult.UpdateType.TF_SET_PARTIAL_ERROR);
         return actionResult;
     }
 }
