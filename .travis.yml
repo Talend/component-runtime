@@ -24,9 +24,39 @@ notifications:
   slack:
     on_pull_requests: true
     secure: MS3jwqvACvjLAa2pT8OdmylmqK0N+zMg7URmatJYHa+HXTr3dTlKNVSCDTUGc5OIYUhzca15SYAtXjUMYcyJ5UQETE6bxS5995GBbTsErEOFDYIZU5coFz1/21+b0E72QDHKOVWntSPVujNB2ZA8aJVLgpmdSC0t83b85Nds9R0Skaag8ehkVGWw57MI7xy+Bo3CXkLS3A8Mjucy1Ht7hgtrlE+hzBMVZeJbLVWZkYD1p0QguXaSD7Ub3Uab7sDiINZv4DDZSGz7lkv0IUh8bQhsfrwFKbks2TtavcuQcbHIKXG00LZpTPLfXIgGXD6hGtD4WgCbfXacsri+yoiQbE8oVXriTWCOusXTjQd2RgtKbUPOOKSAQ4BW+yXHu8exb+tqx87onpGI9w339BY/zCUbnMJruKWVO3G0LISg1b1AkPC+s6PCi8T3PrXV0o7/53hSDM1xmS0ZO8BgqsvqorYDiun11+yTl+OZNGcm85dyLVKonzuG3o+2EiqI8nfrxK11S2c+37BLJSrgHRhmV0VESW1JF0VaSZOUCCO2KkWl7tNTIYkfG0nqdq6q1E+uo5Wz61Wc6oqcS9MCvh133bqDlK3ecQ4h7cBeD3iZdT1+wbRRnOJ/sGtCrB2pvzWC9rkwx5UcS8m7TR3EdXD9hllhfBtR9aCGtRx/p4YwJfo=
-before_install:
-- chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-install: chmod +x ./.travis/install.sh && ./.travis/install.sh
-script: node .travis/heartbeat.js mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true
-after_success:
-- chmod +x ./.travis/after_success.sh && ./.travis/after_success.sh
+
+jobs:
+  include:
+    # We prepare mvn & web dependencies for the following stages
+    - stage: Resolve maven & web dependencies
+      install:
+      - mvn dependency:resolve dependency:resolve-plugins --batch-mode
+      script:
+      - cd component-form/component-form-demo && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
+      script:
+      - cd component-starter-server && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
+      script:
+      - cd component-tools && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
+      script:
+      - cd component-studio-integration && mvn gplus:execute@setup-deps -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
+      script:
+      - cd documentation && mvn dependency:unpack@unpack-api-javadoc -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
+
+    # Build stage
+    - stage: Build
+      script: node .travis/heartbeat.js mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true
+
+    # Deploy Artifacts to Sonatype, execute BlackDuck Analysis & deploy the documentation
+    - stage: Deployment, BlackDuck & Documentation
+      env:
+      - OPTS = "-Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -Dskip.yarn=true --batch-mode --settings $PWD/.travis/settings.xml  -Possrh -Prelease"
+      script:
+      - chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
+      - node .travis/heartbeat.js mvn clean deploy -Dhub-detect.skip=true $OPTS   # Deploy artefacts to sonatype
+      script: node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false $OPTS  # Launch BlackDuck analysis
+      script:
+      - cd documentaion && node ../.travis/heartbeat.js mvn verify -Pgh-pages -Dgithub.site.profile=latest $OPTS # Deploy the documentation
+
+stages:
+  - name: Deployment, BlackDuck & Documentation
+    if: branch = master
