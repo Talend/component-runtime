@@ -32,23 +32,8 @@ script: true
 
 jobs:
   include:
-    - stage: Resolve maven dependencies
-      install: mvn dependency:resolve dependency:resolve-plugins --batch-mode -Dorg.slf4j.simpleLogger.defaultLogLevel=warn
-
-    # Resolve web dependencies
-    - stage: Resolve web dependencies
-      install: cd component-form/component-form-demo && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
-    - stage: Resolve web dependencies
-      install: cd component-starter-server && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
-    - stage: Resolve web dependencies
-      install: cd component-tools && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
-    - stage: Resolve web dependencies
-      install: cd component-studio-integration && mvn gplus:execute@setup-deps -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
-    - stage: Resolve web dependencies
-      install: cd documentation && mvn dependency:unpack@unpack-api-javadoc -Dtalend.component.kit.build.studio.m2.forceupdate=true --batch-mode
-
-    # Build stage
     - stage: Build
+      install: chmod +x ./.travis/install.sh && ./.travis/install.sh
       script: node .travis/heartbeat.js mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true
 
     # After build stage
@@ -64,8 +49,6 @@ jobs:
       script: cd documentaion && node ../.travis/heartbeat.js mvn clean verify -Pgh-pages -Pdoc-gen -Dgithub.site.profile=latest $DEPLOY_OPTS # Deploy the documentation
 
 stages:
-  - Resolve maven dependencies
-  - Resolve web dependencies
   - Build
   - name: Deployment, BlackDuck & Documentation
     if: branch = master AND type != pull_request
