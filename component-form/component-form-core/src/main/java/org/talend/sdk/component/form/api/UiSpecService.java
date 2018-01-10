@@ -43,7 +43,10 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
+import lombok.extern.slf4j.Slf4j;
+
 // todo: support @Group and all the elements of the API
+@Slf4j
 public class UiSpecService {
 
     private final Client client;
@@ -236,31 +239,35 @@ public class UiSpecService {
 
             if (client != null) {
                 // todo: add caching here with a small eviction (each 5mn?)
-                final Map<String, Object> values = client.action(detail.getId().getFamily(), "dynamic_values",
-                        prop.getMetadata().get("action::dynamic_values"), emptyMap());
+                try {
+                    final Map<String, Object> values = client.action(detail.getId().getFamily(), "dynamic_values",
+                            prop.getMetadata().get("action::dynamic_values"), emptyMap());
 
-                final List<UiSchema.NameValue> namedValues =
-                        ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance).map(c -> {
-                            final Collection<?> dynamicValues = Collection.class.cast(c);
-                            return dynamicValues
-                                    .stream()
-                                    .filter(Map.class::isInstance)// .map(m ->
-                                                                  // Map.class.cast(m).get("id"))
-                                    .filter(m -> Map.class.cast(m).get("id") != null
-                                            && Map.class.cast(m).get("id") instanceof String)
-                                    .map(Map.class::cast)
-                                    .map(entry -> {
-                                        final UiSchema.NameValue val = new UiSchema.NameValue();
-                                        val.setName((String) entry.get("id"));
-                                        val.setValue(entry.get("label") == null ? (String) entry.get("id")
-                                                : (String) entry.get("label"));
-                                        return val;
-                                    })
-                                    .collect(toList());
-                        }).orElse(emptyList());
-                schema.setTitleMap(namedValues);
-                jsonSchema.setEnumValues(
-                        namedValues.stream().map(UiSchema.NameValue::getName).sorted().collect(toList()));
+                    final List<UiSchema.NameValue> namedValues =
+                            ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance).map(c -> {
+                                final Collection<?> dynamicValues = Collection.class.cast(c);
+                                return dynamicValues
+                                        .stream()
+                                        .filter(Map.class::isInstance)// .map(m ->
+                                        // Map.class.cast(m).get("id"))
+                                        .filter(m -> Map.class.cast(m).get("id") != null
+                                                && Map.class.cast(m).get("id") instanceof String)
+                                        .map(Map.class::cast)
+                                        .map(entry -> {
+                                            final UiSchema.NameValue val = new UiSchema.NameValue();
+                                            val.setName((String) entry.get("id"));
+                                            val.setValue(entry.get("label") == null ? (String) entry.get("id")
+                                                    : (String) entry.get("label"));
+                                            return val;
+                                        })
+                                        .collect(toList());
+                            }).orElse(emptyList());
+                    schema.setTitleMap(namedValues);
+                    jsonSchema.setEnumValues(
+                            namedValues.stream().map(UiSchema.NameValue::getName).sorted().collect(toList()));
+                } catch (final RuntimeException error) {
+                    log.error(error.getMessage(), error);
+                }
             } else {
                 schema.setTitleMap(emptyList());
                 jsonSchema.setEnumValues(emptyList());

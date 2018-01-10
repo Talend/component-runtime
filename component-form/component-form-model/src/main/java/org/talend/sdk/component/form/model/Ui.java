@@ -20,7 +20,10 @@ import static lombok.AccessLevel.PRIVATE;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.json.bind.annotation.JsonbTypeSerializer;
+
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
+import org.talend.sdk.component.form.model.serializer.MapSerializer;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 
 import lombok.Data;
@@ -33,6 +36,7 @@ public class Ui {
 
     private Collection<UiSchema> uiSchema;
 
+    @JsonbTypeSerializer(MapSerializer.class)
     private Object properties;
 
     public static Builder ui() {

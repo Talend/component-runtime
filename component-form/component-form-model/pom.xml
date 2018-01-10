@@ -37,17 +37,16 @@
       <artifactId>geronimo-jsonb_1.0_spec</artifactId>
       <version>${jsonb-api.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-json_1.1_spec</artifactId>
+      <version>${jsonp-api.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
       <version>${johnzon.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-json_1.1_spec</artifactId>
-      <version>${jsonp-api.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

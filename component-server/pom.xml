@@ -448,16 +448,11 @@
         <configuration>
           <cdiConversation>false</cdiConversation>
           <webapp>${project.basedir}/src/dev/webapp</webapp>
-          <!-- in sandbox for now
           <properties>
             <talend.component.server.component.coordinates>
-              org.talend.sdk.component:component-jdbc:1.0.0-SNAPSHOT
+              org.talend.components:servicenow:0.0.1-SNAPSHOT
             </talend.component.server.component.coordinates>
-            <talend.jdbc.drivers>
-              ${project.basedir}/src/main/component/jdbc/drivers
-            </talend.jdbc.drivers>
           </properties>
-          -->
         </configuration>
         <dependencies>
           <dependency> <!-- ensure it is here -->
