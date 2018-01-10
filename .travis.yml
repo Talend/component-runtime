@@ -3,7 +3,7 @@ jdk:
 - oraclejdk8
 env:
    global:
-    - MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss -Dinvoker.streamLogs=false -Dhub-detect.skip=true"
+    - MAVEN_OPTS="-Dformatter.skip=true -Dsurefire.useFile=false -Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss -Dinvoker.streamLogs=false -Dhub-detect.skip=true"
     - DEPLOY_OPTS="-Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -Dskip.yarn=true --batch-mode --settings $PWD/.travis/settings.xml  -Possrh -Prelease"
 before_cache:
   - rm -Rf $HOME/.m2/repository/org/talend/sdk/component
@@ -26,6 +26,7 @@ notifications:
     on_pull_requests: true
     secure: MS3jwqvACvjLAa2pT8OdmylmqK0N+zMg7URmatJYHa+HXTr3dTlKNVSCDTUGc5OIYUhzca15SYAtXjUMYcyJ5UQETE6bxS5995GBbTsErEOFDYIZU5coFz1/21+b0E72QDHKOVWntSPVujNB2ZA8aJVLgpmdSC0t83b85Nds9R0Skaag8ehkVGWw57MI7xy+Bo3CXkLS3A8Mjucy1Ht7hgtrlE+hzBMVZeJbLVWZkYD1p0QguXaSD7Ub3Uab7sDiINZv4DDZSGz7lkv0IUh8bQhsfrwFKbks2TtavcuQcbHIKXG00LZpTPLfXIgGXD6hGtD4WgCbfXacsri+yoiQbE8oVXriTWCOusXTjQd2RgtKbUPOOKSAQ4BW+yXHu8exb+tqx87onpGI9w339BY/zCUbnMJruKWVO3G0LISg1b1AkPC+s6PCi8T3PrXV0o7/53hSDM1xmS0ZO8BgqsvqorYDiun11+yTl+OZNGcm85dyLVKonzuG3o+2EiqI8nfrxK11S2c+37BLJSrgHRhmV0VESW1JF0VaSZOUCCO2KkWl7tNTIYkfG0nqdq6q1E+uo5Wz61Wc6oqcS9MCvh133bqDlK3ecQ4h7cBeD3iZdT1+wbRRnOJ/sGtCrB2pvzWC9rkwx5UcS8m7TR3EdXD9hllhfBtR9aCGtRx/p4YwJfo=
 
+#Those two steps are redefined in the different stages below of the job pipeline
 install: true
 script: true
 
@@ -34,7 +35,7 @@ jobs:
     - stage: Resolve maven dependencies
       install: mvn dependency:resolve dependency:resolve-plugins --batch-mode -Dorg.slf4j.simpleLogger.defaultLogLevel=warn
 
-    #Resolve web dependencies
+    # Resolve web dependencies
     - stage: Resolve web dependencies
       install: cd component-form/component-form-demo && mvn frontend:install-node-and-yarn@install-node-and-yarn frontend:yarn@yarn-install --batch-mode
     - stage: Resolve web dependencies
@@ -50,9 +51,8 @@ jobs:
     - stage: Build
       script: node .travis/heartbeat.js mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true
 
-    # Deploy Artifacts to Sonatype,
-    # Execute BlackDuck Analysis
-    # Deploy the documentation
+    # After build stage
+    # Deploy Artifacts to Sonatype | Execute BlackDuck Analysis | Deploy the documentation
     - stage: Deployment, BlackDuck & Documentation
       install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
       script: node .travis/heartbeat.js mvn clean deploy -Dhub-detect.skip=true $DEPLOY_OPTS   # Deploy artefacts to sonatype
@@ -61,7 +61,7 @@ jobs:
       script: node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false $DEPLOY_OPTS  # Launch BlackDuck analysis
 
     - stage: Deployment, BlackDuck & Documentation
-      script: cd documentaion && node ../.travis/heartbeat.js mvn verify -Pgh-pages -Dgithub.site.profile=latest $DEPLOY_OPTS # Deploy the documentation
+      script: cd documentaion && node ../.travis/heartbeat.js mvn clean verify -Pgh-pages -Pdoc-gen -Dgithub.site.profile=latest $DEPLOY_OPTS # Deploy the documentation
 
 stages:
   - Resolve maven dependencies
