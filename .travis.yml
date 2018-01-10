@@ -38,13 +38,19 @@ jobs:
     # After build stage
     # Deploy Artifacts to Sonatype | Execute BlackDuck Analysis | Deploy the documentation
     - stage: Deployment, BlackDuck & Documentation
+      env:
+      - COM=Deploy Maven artifacts
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
       script: node .travis/heartbeat.js mvn clean deploy -Dhub-detect.skip=true $DEPLOY_OPTS   # Deploy artefacts to sonatype
 
     - stage: Deployment, BlackDuck & Documentation
+      env:
+      - COM=BlackDuck analysis
       script: node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false $DEPLOY_OPTS  # Launch BlackDuck analysis
 
     - stage: Deployment, BlackDuck & Documentation
+      env:
+      - COM=Deploy documentation
       script: cd documentaion && node ../.travis/heartbeat.js mvn clean verify -Pgh-pages -Pdoc-gen -Dgithub.site.profile=latest $DEPLOY_OPTS # Deploy the documentation
 
 stages:
