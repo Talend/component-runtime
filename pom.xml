@@ -442,7 +442,7 @@
             <exclude>.classpath</exclude>
             <exclude>.settings/**/*</exclude>
             <exclude>.project</exclude>
-            <exclude>.idea/**/*</exclude>
+            <exclude>**/.idea/**/*</exclude>
             <exclude>.blackduck/**/*</exclude>
             <exclude>**/*.iml</exclude>
             <exclude>**/*.ipr</exclude>
