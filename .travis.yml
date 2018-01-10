@@ -68,4 +68,4 @@ stages:
   - Resolve web dependencies
   - Build
   - name: Deployment, BlackDuck & Documentation
-    if: branch = master AND type NOT IN (pull_request)
+    if: branch = master AND type != pull_request
