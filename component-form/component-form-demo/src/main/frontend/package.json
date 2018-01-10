@@ -32,6 +32,7 @@
     "i18next": "^9.0.0",
     "jest": "20.0.3",
     "jsonpath": "^0.2.12",
+    "lodash": "^4.17.4",
     "node-sass-chokidar": "^0.0.3",
     "npm-run-all": "^4.1.1",
     "object-assign": "4.1.1",

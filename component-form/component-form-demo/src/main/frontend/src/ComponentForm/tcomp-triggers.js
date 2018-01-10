@@ -14,6 +14,8 @@
  *  limitations under the License.
  */
 
+import deepClone from 'lodash.clonedeep';
+
 function validation({ schema, body }) {
 	if(body.rawData.status === 'KO') {
 		return {
@@ -24,12 +26,14 @@ function validation({ schema, body }) {
 	}
 }
 
-function schema(schema, body) {
-
+function schema({ schema, body, properties, trigger }) {
+	const newProperties = deepClone(properties);
+	// TODO
+	return { properties: newProperties };
 }
 
-function dynamic_values(schema, body) {
-
+function dynamic_values({ schema, body, properties, trigger }) {
+	return;
 }
 
 const registry = {
