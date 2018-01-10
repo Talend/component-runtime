@@ -1,7 +1,0 @@
-target
-*.iml
-*.iws
-.idea
-.node
-package-lock.json
-yarn.lock

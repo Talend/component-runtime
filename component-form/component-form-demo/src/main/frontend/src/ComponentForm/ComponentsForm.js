@@ -73,7 +73,7 @@ export default class ComponentsForm extends React.Component {
 					!this.state.submitted &&
 					<UIForm
 						data={this.state.uiSpec}
-						onTrigger={onDefaultTrigger}
+						onTrigger={onDefaultTrigger()}
 						onSubmit={this.onSubmit}
 					/>
 				}

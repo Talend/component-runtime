@@ -15,31 +15,44 @@
  */
 import jsonpath from 'jsonpath';
 import { COMPONENT_ACTION_URL } from '../constants';
+import registry from './tcomp-triggers';
 
-export default function onDefaultTrigger(event, { trigger, schema, properties }) {
+function getRequestPayload(parameters, properties = {}) {
+	if (!parameters) {
+		return properties;
+	}
+
 	const payload = {};
-	for(const param of trigger.parameters) {
+	for(const param of parameters) {
 		payload[param.key] = jsonpath.query(properties, `$.${param.path}`, 1)[0];
 	}
-	return fetch(
-		`${COMPONENT_ACTION_URL}?action=${trigger.action}&family=${trigger.family}&type=${trigger.type}`,
-		{
-			method: 'post',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(payload),
-		}
-	).then(resp => {
-		if(resp.ok) {
-			return {};
-		}
-		return resp.json()
+
+	return payload;
+}
+
+export default function onDefaultTrigger(registryCallback) {
+	const customRegistry = {
+		...registry,
+		...registryCallback,
+	};
+	return function (event, { trigger, schema, properties }) {
+		const payload = getRequestPayload(trigger.parameters, properties);
+		return fetch(
+			`${COMPONENT_ACTION_URL}?action=${trigger.action}&family=${trigger.family}&type=${trigger.type}`,
+			{
+				method: 'post',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
+			}
+		)
+			.then(resp => resp.json())
 			.then(body => {
-				const errorMessage = body && body.error ?
-					body.error :
-					`${resp.status}: ${resp.statusText}`;
-				return { errors: {
-					[schema.key]: errorMessage,
-				} };
+				return customRegistry[trigger.type]({
+					schema,
+					body,
+					trigger,
+					properties,
+				});
 			});
-	});
+	}
 }

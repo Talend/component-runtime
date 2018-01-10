@@ -24,3 +24,5 @@ dist
 .cache
 travis_wait_*.log
 .blackduck
+
+component-form/component-form-demo/src/main/frontend/build/
