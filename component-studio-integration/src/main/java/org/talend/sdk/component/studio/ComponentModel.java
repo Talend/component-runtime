@@ -338,7 +338,7 @@ public class ComponentModel extends AbstractBasicComponent {
                     } catch (final IOException e) {
                         throw new IllegalStateException("No TALEND-INF/tacokit.dependencies found");
                     }
-                    modulesNeeded.add(new ModuoleNeeded(getName(), "", true,
+                    modulesNeeded.add(new ModuleNeeded(getName(), "", true,
                             "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.VERSION));
                     modulesNeeded
                             .add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.SLF4J_VERSION));
