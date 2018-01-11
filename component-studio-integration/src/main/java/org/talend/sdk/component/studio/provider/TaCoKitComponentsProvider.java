@@ -13,6 +13,7 @@
 package org.talend.sdk.component.studio.provider;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -20,7 +21,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.core.model.components.AbstractComponentsProvider;
-import org.talend.sdk.component.studio.util.TaCoKitConst;
+// import org.talend.sdk.component.studio.util.TaCoKitConst;
 
 public class TaCoKitComponentsProvider extends AbstractComponentsProvider {
 
@@ -30,13 +31,12 @@ public class TaCoKitComponentsProvider extends AbstractComponentsProvider {
 
     @Override
     protected File getExternalComponentsLocation() {
-
-        URL url = FileLocator.find(Platform.getBundle(TaCoKitConst.BUNDLE_ID), new Path(getFolderName()), null);
+        URL url = FileLocator.find(Platform.getBundle("org.talend.designer.codegen"), new Path(getFolderName()), null);
         URL fileUrl;
         try {
             fileUrl = FileLocator.toFileURL(url);
             return new File(fileUrl.getPath());
-        } catch (Exception e) {
+        } catch (IOException e) {
             ExceptionHandler.process(e);
         }
         return null;
@@ -44,7 +44,19 @@ public class TaCoKitComponentsProvider extends AbstractComponentsProvider {
 
     @Override
     public String getFolderName() {
-        return "components"; //$NON-NLS-1$
+        return "tacokit/components"; //$NON-NLS-1$
+    }
+
+    public boolean isCustom() {
+        return true;
+    }
+
+    public String getComponentsBundle() {
+        return "org.talend.designer.codegen";
+    }
+
+    public String getComponentsLocation() {
+        return getFolderName();
     }
 
 }

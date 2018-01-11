@@ -17,6 +17,7 @@ package org.talend.sdk.component.studio;
 
 import static org.talend.sdk.component.studio.GAV.GROUP_ID;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -54,11 +55,7 @@ public class ServerManager extends AbstractUIPlugin {
             return;
         }
 
-        TemplatesExtractor extractor = new TemplatesExtractor("jet_stub/generic",
-                Platform
-                        .asLocalURL(Platform.getPlugin("org.talend.designer.codegen").getDescriptor().getInstallURL())
-                        .getFile());
-        extractor.extract();
+        extractFiles();
 
         reset = Lookups.init();
 
@@ -73,6 +70,21 @@ public class ServerManager extends AbstractUIPlugin {
         services.add(ctx.registerService(WebSocketClient.class.getName(), client, new Hashtable<>()));
         services.add(ctx.registerService(ComponentService.class.getName(), new ComponentService(), new Hashtable<>()));
         services.add(ctx.registerService(TaCoKitCache.class.getName(), new TaCoKitCache(), new Hashtable<>()));
+    }
+
+    private void extractFiles() throws IOException {
+        TemplatesExtractor stubExtractor = new TemplatesExtractor("jet_stub/generic",
+                Platform
+                        .asLocalURL(Platform.getPlugin("org.talend.designer.codegen").getDescriptor().getInstallURL())
+                        .getFile(),
+                "tacokit/jet_stub");
+        stubExtractor.extract();
+        TemplatesExtractor guessSchemaExtractor = new TemplatesExtractor("components/tTaCoKitGuessSchema",
+                Platform
+                        .asLocalURL(Platform.getPlugin("org.talend.designer.codegen").getDescriptor().getInstallURL())
+                        .getFile(),
+                "tacokit/components");
+        guessSchemaExtractor.extract();
     }
 
     @Override
