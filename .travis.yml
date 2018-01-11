@@ -51,7 +51,7 @@ jobs:
     - stage: Deployment, BlackDuck & Documentation
       env:
       - COM=Deploy documentation
-      script: cd documentaion && node ../.travis/heartbeat.js mvn clean verify -Pgh-pages -Pdoc-gen -Dgithub.site.profile=latest $DEPLOY_OPTS # Deploy the documentation
+      script: cd documentation && node ../.travis/heartbeat.js mvn clean verify -Pgh-pages -Pdoc-gen -Dgithub.site.profile=latest $DEPLOY_OPTS # Deploy the documentation
 
 stages:
   - Build
