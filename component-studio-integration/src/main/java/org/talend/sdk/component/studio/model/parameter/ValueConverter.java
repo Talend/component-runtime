@@ -51,7 +51,7 @@ public final class ValueConverter {
      * @return list value
      */
     public static List<Map<String, Object>> toTable(final String str) {
-        if (str == null || str.isEmpty()) {
+        if (isListEmpty(str)) {
             return new ArrayList<>();
         }
         ArrayList<Map<String, Object>> table = new ArrayList<>();
@@ -70,6 +70,16 @@ public final class ValueConverter {
             table.add(element);
         }
         return table;
+    }
+
+    /**
+     * Checks whether String representation of the list is empty or not
+     * 
+     * @param list String representation of the list
+     * @return true, if it is empty
+     */
+    private static boolean isListEmpty(final String list) {
+        return list == null || list.isEmpty() || "[]".equals(list);
     }
 
     /**
