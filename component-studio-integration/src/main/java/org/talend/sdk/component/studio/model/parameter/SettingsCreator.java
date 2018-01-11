@@ -173,13 +173,8 @@ public class SettingsCreator implements PropertyVisitor {
      * Converts default value from String to Boolean and sets it
      */
     private TaCoKitElementParameter visitCheck(final PropertyNode node) {
-        TaCoKitElementParameter parameter = createParameter(node);
-        String defaultValue = node.getProperty().getDefaultValue();
-        if (defaultValue == null) {
-            parameter.setValue(false);
-        } else {
-            parameter.setValue(Boolean.parseBoolean(defaultValue));
-        }
+        CheckElementParameter parameter = new CheckElementParameter(iNode);
+        commonSetup(parameter, node);
         return parameter;
     }
 
