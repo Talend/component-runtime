@@ -33,10 +33,12 @@ public class TemplatesExtractor {
 
     private final String destinationFolder;
 
+    private final String destinationSuffix;
+
     public void extract() throws IOException {
         final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         final URL templateEntry = bundle.getEntry(templatesPath);
-        final File destDir = new File(destinationFolder, "tacokit/jet_stub");
+        final File destDir = new File(destinationFolder, destinationSuffix);
         final String templateFolderPath = FileLocator.toFileURL(templateEntry).getPath();
         final File templateFolder = new File(templateFolderPath);
         org.talend.utils.io.FilesUtils.copyDirectory(templateFolder, destDir);
