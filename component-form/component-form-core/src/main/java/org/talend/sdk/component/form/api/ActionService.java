@@ -15,37 +15,13 @@
  */
 package org.talend.sdk.component.form.api;
 
-import static java.util.Optional.ofNullable;
-
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
 
-import org.talend.sdk.component.form.model.UiActionResult;
-
-// TODO: for now it is a passthrough but we'll need to comply to ui formats
+// for now it is a passthrough but planned for migrations
 public class ActionService {
 
-    public UiActionResult map(final String actionType, final Map<String, Object> action) {
-        final UiActionResult actionResult = new UiActionResult();
-        actionResult.setRawData(action);
-        switch (actionType) {
-        case "healthcheck":
-            // comment and status keys
-            break;
-        default:
-        }
-        return actionResult;
-    }
-
-    public UiActionResult map(final WebException exception) {
-        final UiActionResult actionResult = new UiActionResult();
-        actionResult.setRawData(exception.getData());
-        // default error will be mapped to the calling option
-        actionResult.setError(ofNullable(exception.getData())
-                .flatMap(d -> Stream.of("description", "comment").map(d::get).filter(Objects::nonNull).findFirst())
-                .map(String::valueOf)
-                .orElse(exception.getMessage()));
-        return actionResult;
+    public Map<String, Object> map(final String actionType, final Map<String, Object> action) {
+        // no-op for now
+        return action;
     }
 }
