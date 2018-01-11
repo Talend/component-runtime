@@ -22,7 +22,7 @@ import org.talend.core.model.process.IElement;
 
 /**
  * Represents Table parameter. Table parameter is ElementParameter, which EParameterFieldType is TABLE
- * Value of Table parameter should have List<Map<String, Object>> type. Its value is a list of table records.
+ * Value of Table parameter should have {@code List<Map<String, Object>>} type. Its value is a list of table records.
  * Each table record is represented by Map.
  * This class ensures Table parameter integrity. When user sets string value to this parameter, it is converted to List
  * Also it implements conversion of stored value from String representation in getStringValue() method. It is used to
@@ -36,7 +36,7 @@ public class TableElementParameter extends TaCoKitElementParameter {
     }
 
     /**
-     * Retrieves stored value and converts it to String using {@link List#toString()} method
+     * Retrieves stored value and converts it to String using List.toString() method
      * 
      * @return string representation of stored value
      */
