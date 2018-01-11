@@ -31,7 +31,7 @@ install: chmod +x ./.travis/install.sh && ./.travis/install.sh
 jobs:
   include:
     - stage: Build
-      script: node .travis/heartbeat.js mvn clean install -e --batch-mode --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true
+      script: node .travis/heartbeat.js mvn clean install -e -q --batch-mode --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true
 
     # After build stage
     # Deploy Artifacts to Sonatype | Execute BlackDuck Analysis | Deploy the documentation
@@ -39,19 +39,19 @@ jobs:
       env:
       - STEP=Deploy Maven artifacts
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-      script: node .travis/heartbeat.js mvn clean deploy -Dhub-detect.skip=true $DEPLOY_OPTS   # Deploy artefacts to sonatype
+      script: node .travis/heartbeat.js mvn clean deploy -e -q -Dhub-detect.skip=true $DEPLOY_OPTS   # Deploy artefacts to sonatype
 
     - stage: Deployment, BlackDuck & Documentation
       env:
       - STEP=BlackDuck analysis
-      script: node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false -Dgpg.skip=true $DEPLOY_OPTS  # Launch BlackDuck analysis
+      script: node .travis/heartbeat.js mvn clean verify -e -q -Dhub-detect.skip=false -Dgpg.skip=true $DEPLOY_OPTS  # Launch BlackDuck analysis
 
     - stage: Deployment, BlackDuck & Documentation
       env:
       - STEP=Deploy documentation
       script:
-      - mvn clean install $DEPLOY_OPTS -Dgpg.skip=true
-      - cd documentation && node ../.travis/heartbeat.js mvn clean verify -Pgh-pages -Pdoc-gen -Dgithub.site.profile=latest $DEPLOY_OPTS # Deploy the documentation
+      - mvn clean install -e -q -Pdoc-gen -Dgpg.skip=true $DEPLOY_OPTS
+      - cd documentation && node ../.travis/heartbeat.js mvn verify -e -q -Pgh-pages  -Dgithub.site.profile=latest -Dgpg.skip=true $DEPLOY_OPTS # Deploy the documentation
 
 stages:
   - Build
