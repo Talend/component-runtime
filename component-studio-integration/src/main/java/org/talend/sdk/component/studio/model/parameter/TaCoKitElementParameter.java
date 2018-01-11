@@ -63,7 +63,9 @@ public class TaCoKitElementParameter extends ElementParameter {
     }
 
     /**
-     * Sets parameter value and fires parameter change event, which is handled by registered listeners
+     * Sets parameter value and fires parameter change event, which is handled by registered listeners.
+     * Subclasses should extend (override and call super.setValue()) this method to provide correct conversion, when
+     * they use other value type than String.
      * 
      * @param newValue value to be set
      */
@@ -77,18 +79,6 @@ public class TaCoKitElementParameter extends ElementParameter {
         pcs.firePropertyChange(ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED, oldValue,
                 newValue);
         fireValueChange(oldValue, newValue);
-    }
-
-    /**
-     * Converts incoming value from String to proper type and sets parameter value.
-     * This method may be used to set parameter value from value serialized in repository.
-     * Default implementation assumes String is a proper type, so sets value without conversion.
-     * Subclasses should override this method to provide correct conversion according parameter type.
-     * 
-     * @param newValue String typed value to be set
-     */
-    public void setStringValue(final String newValue) {
-        setValue(newValue);
     }
 
     public void registerListener(final String propertyName, final PropertyChangeListener listener) {

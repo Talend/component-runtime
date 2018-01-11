@@ -56,7 +56,7 @@ public class TaCoKitWizardComposite extends TaCoKitComposite {
                             if (valueModel.getConfigurationModel() != configurationModel) {
                                 parameter.setReadOnly(true);
                             }
-                            parameter.setStringValue(valueModel.getValue());
+                            parameter.setValue(valueModel.getValue());
                         }
                     } catch (Exception e) {
                         ExceptionHandler.process(e);

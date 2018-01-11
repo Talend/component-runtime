@@ -24,10 +24,10 @@ import org.talend.core.model.process.IElement;
  * Represents Table parameter. Table parameter is ElementParameter, which EParameterFieldType is TABLE
  * Value of Table parameter should have List<Map<String, Object>> type. Its value is a list of table records.
  * Each table record is represented by Map.
- * This class ensures Table parameter integrity. When user sets null or "" value to this parameter, empty list is set
- * instead. Also it implements convertion of stored value from and to String representation, which is used to serialize
- * parameter
- * in repository
+ * This class ensures Table parameter integrity. When user sets string value to this parameter, it is converted to List
+ * Also it implements conversion of stored value from String representation in getStringValue() method. It is used to
+ * serialize
+ * parameter value in repository.
  */
 public class TableElementParameter extends TaCoKitElementParameter {
 
@@ -40,6 +40,7 @@ public class TableElementParameter extends TaCoKitElementParameter {
      * 
      * @return string representation of stored value
      */
+    @Override
     public String getStringValue() {
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> tableValue = (List<Map<String, Object>>) super.getValue();
@@ -47,17 +48,27 @@ public class TableElementParameter extends TaCoKitElementParameter {
     }
 
     /**
-     * Converts value from string to List of Maps (Table) and delegates parent to set the value.
-     * Expected input string is as follows: "[{key1=value11, key2=value12}, {key1=value21, key2=value22}]"
+     * Sets new parameter value. If new value is of type String, converts it to List of Maps (Table) and delegates
+     * parent to set the value.
+     * Expected string input should be as follows: "[{key1=value11, key2=value12}, {key1=value21, key2=value22}]"
      * A Map instance in the List represents Table row. Rows are separated by ", " (comma with a whitespace).
      * Entries in the Map are also should be separated by ", ".
-     * Generally, input string should be equal to the result of a call to List.toString().
+     * Generally, string argument should be equal to the result of a call to List.toString().
+     * 
+     * If incoming argument is of type List, then sets it without conversion.
+     * Else it throws exception.
      * 
      * @param newValue value to be set
      */
     @Override
-    public void setStringValue(final String newValue) {
-        super.setValue(ValueConverter.toTable(newValue));
+    public void setValue(final Object newValue) {
+        if (newValue == null || newValue instanceof String) {
+            super.setValue(ValueConverter.toTable((String) newValue));
+        } else if (newValue instanceof List) {
+            super.setValue(newValue);
+        } else {
+            throw new IllegalArgumentException("wrong type on new value: " + newValue.getClass().getName());
+        }
     }
 
 }
