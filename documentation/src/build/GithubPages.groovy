@@ -70,7 +70,7 @@ def ant = new AntBuilder()
 def versions = new StringBuilder()
 def root = System.getProperty('jbake.site.rootpath', project.properties.getProperty('jbake.site.rootpath'))
 workDir.listFiles(new FilenameFilter() {
-    private final Collection<String> excluded = ['css', 'images', 'js', 'presentations', 'tags', 'latest', 'current', 'apidocs']
+    private final Collection<String> excluded = ['css', 'images', 'js', 'presentations', 'tags', 'latest', 'current', 'apidocs', 'screencasts']
 
     @Override
     boolean accept(File dir, String name) {
