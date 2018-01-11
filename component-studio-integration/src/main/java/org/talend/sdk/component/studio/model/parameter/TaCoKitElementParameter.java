@@ -10,7 +10,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.talend.sdk.component.studio.metadata;
+package org.talend.sdk.component.studio.model.parameter;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.components.ElementParameter;
+import org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterEventProperties;
 
 import lombok.Setter;
 
@@ -49,6 +50,25 @@ public class TaCoKitElementParameter extends ElementParameter {
         setTaggedValue("org.talend.sdk.component.source", "tacokit");
     }
 
+    /**
+     * Returns parameter value converted to String type.
+     * This method may be used to get value for serialization in repository.
+     * Default implementation returns value without conversion assuming it is already stored as String.
+     * Subclasses should override this method to provide correct conversion according parameter type.
+     * 
+     * @return this parameter value
+     */
+    public String getStringValue() {
+        return (String) getValue();
+    }
+
+    /**
+     * Sets parameter value and fires parameter change event, which is handled by registered listeners.
+     * Subclasses should extend (override and call super.setValue()) this method to provide correct conversion, when
+     * they use other value type than String.
+     * 
+     * @param newValue value to be set
+     */
     @Override
     public void setValue(final Object newValue) {
         Object oldValue = super.getValue();

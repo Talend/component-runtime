@@ -19,6 +19,7 @@ import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.Lookups;
+import org.talend.sdk.component.studio.model.parameter.TaCoKitElementParameter;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ import lombok.Data;
 
 /**
  * DOC cmeng class global comment. Detailled comment
+ * Provides convenient API for updating {@link Connection} properties
  */
 public class TaCoKitConfigurationModel {
 
@@ -35,7 +37,7 @@ public class TaCoKitConfigurationModel {
 
     private static final String TACOKIT_PARENT_ITEM_ID = "__TACOKIT_PARENT_ITEM_ID"; //$NON-NLS-1$
 
-    private Connection connection;
+    private final Connection connection;
 
     private ConfigTypeNode configTypeNodeCache;
 
@@ -45,35 +47,35 @@ public class TaCoKitConfigurationModel {
 
     private String parentConfigurationModelItemIdCache;
 
-    private Map attrMap;
-
     public TaCoKitConfigurationModel(final Connection connection) {
         this.connection = connection;
-        attrMap = connection.getProperties();
     }
 
     public String getConfigurationId() {
-        return (String) attrMap.get(TACOKIT_CONFIG_ID);
+        return (String) getProperties().get(TACOKIT_CONFIG_ID);
     }
 
+    @SuppressWarnings("unchecked")
     public void setConfigurationId(final String id) {
-        attrMap.put(TACOKIT_CONFIG_ID, id);
+        getProperties().put(TACOKIT_CONFIG_ID, id);
     }
 
     public String getParentConfigurationId() {
-        return (String) attrMap.get(TACOKIT_CONFIG_PARENT_ID);
+        return (String) getProperties().get(TACOKIT_CONFIG_PARENT_ID);
     }
 
+    @SuppressWarnings("unchecked")
     public void setParentConfigurationId(final String parentId) {
-        attrMap.put(TACOKIT_CONFIG_PARENT_ID, parentId);
+        getProperties().put(TACOKIT_CONFIG_PARENT_ID, parentId);
     }
 
     public String getParentItemId() {
-        return (String) attrMap.get(TACOKIT_PARENT_ITEM_ID);
+        return (String) getProperties().get(TACOKIT_PARENT_ITEM_ID);
     }
 
+    @SuppressWarnings("unchecked")
     public void setParentItemId(final String parentItemId) {
-        attrMap.put(TACOKIT_PARENT_ITEM_ID, parentItemId);
+        getProperties().put(TACOKIT_PARENT_ITEM_ID, parentItemId);
     }
 
     public ValueModel getValue(final String key) throws Exception {
@@ -88,7 +90,7 @@ public class TaCoKitConfigurationModel {
                 return modelValue;
             }
         }
-        Object value = getValueOfSelf(key);
+        String value = getValueOfSelf(key);
         if (value != null || containsKey(key)) {
             return new ValueModel(this, value);
         }
@@ -122,20 +124,13 @@ public class TaCoKitConfigurationModel {
         return false;
     }
 
-    public Object getValueOfSelf(final String key) {
-        return attrMap.get(key);
+    public String getValueOfSelf(final String key) {
+        return (String) getProperties().get(key);
     }
 
-    public void setValue(final String key, final Object value) {
-        attrMap.put(key, value);
-    }
-
-    public Map getAttrMap() {
-        return attrMap;
-    }
-
-    public Connection getConnection() {
-        return connection;
+    @SuppressWarnings("unchecked")
+    public void setValue(final TaCoKitElementParameter parameter) {
+        getProperties().put(parameter.getName(), parameter.getStringValue());
     }
 
     public ConfigTypeNode getConfigTypeNode() throws Exception {
@@ -162,13 +157,24 @@ public class TaCoKitConfigurationModel {
         return parentConfigurationModelCache;
     }
 
+    /**
+     * Retrieves {@link Connection} properties holder.
+     * Properties should contain only String values as they values are not converted further during serialization
+     * 
+     * @return map of connection properties
+     */
+    @SuppressWarnings({ "deprecation", "rawtypes" })
+    private Map getProperties() {
+        return connection.getProperties();
+    }
+
     @Data
     @AllArgsConstructor
     public static class ValueModel {
 
         private TaCoKitConfigurationModel configurationModel;
 
-        private Object value;
+        private String value;
 
     }
 
