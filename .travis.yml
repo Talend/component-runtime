@@ -50,8 +50,8 @@ jobs:
       env:
       - STEP=Deploy documentation
       script:
-      - mvn clean install -e -q -Pdoc-gen -Dgpg.skip=true $DEPLOY_OPTS
-      - cd documentation && node ../.travis/heartbeat.js mvn verify -e -q -Pgh-pages  -Dgithub.site.profile=latest -Dgpg.skip=true $DEPLOY_OPTS # Deploy the documentation
+      - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true $DEPLOY_OPTS
+      - cd documentation && node ../.travis/heartbeat.js mvn verify -e -q -Pgh-pages -Dgithub.site.profile=latest -Dgpg.skip=true $DEPLOY_OPTS # Deploy the documentation
 
 stages:
   - Build
