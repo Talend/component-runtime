@@ -454,13 +454,6 @@
             </talend.component.server.component.coordinates>
           </properties>
         </configuration>
-        <dependencies>
-          <dependency> <!-- ensure it is here -->
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.196</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>
