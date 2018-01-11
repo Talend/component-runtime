@@ -15,7 +15,13 @@
  */
 package org.talend.sdk.component.form.api;
 
+import static java.util.Optional.ofNullable;
+
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import org.talend.sdk.component.form.model.UiActionResult;
 
 // for now it is a passthrough but planned for migrations
 public class ActionService {
@@ -23,5 +29,16 @@ public class ActionService {
     public Map<String, Object> map(final String actionType, final Map<String, Object> action) {
         // no-op for now
         return action;
+    }
+
+    public UiActionResult map(final WebException exception) {
+        final UiActionResult actionResult = new UiActionResult();
+        actionResult.setRawData(exception.getData());
+        // default error will be mapped to the calling option
+        actionResult.setError(ofNullable(exception.getData())
+                .flatMap(d -> Stream.of("description", "comment").map(d::get).filter(Objects::nonNull).findFirst())
+                .map(String::valueOf)
+                .orElse(exception.getMessage()));
+        return actionResult;
     }
 }

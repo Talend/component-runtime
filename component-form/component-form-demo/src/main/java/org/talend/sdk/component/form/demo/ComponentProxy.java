@@ -53,7 +53,7 @@ public class ComponentProxy {
 
     @POST
     @Path("action")
-    public UiActionResult action(@QueryParam("family") final String family, @QueryParam("type") final String type,
+    public Map<String, Object> action(@QueryParam("family") final String family, @QueryParam("type") final String type,
             @QueryParam("action") final String action, final Map<String, Object> params) {
         try {
             return actionService.map(type, client.action(family, type, action, params));

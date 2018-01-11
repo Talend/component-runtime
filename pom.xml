@@ -45,6 +45,7 @@
     <module>component-studio-integration</module>
     <module>documentation</module>
     <module>component-tools</module>
+    <module>slf4j-standard</module>
   </modules>
 
   <repositories>

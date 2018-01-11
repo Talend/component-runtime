@@ -338,13 +338,13 @@ public class ComponentModel extends AbstractBasicComponent {
                     } catch (final IOException e) {
                         throw new IllegalStateException("No TALEND-INF/tacokit.dependencies found");
                     }
-                    modulesNeeded.add(new ModuleNeeded(getName(), "", true,
+                    modulesNeeded.add(new ModuoleNeeded(getName(), "", true,
                             "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.VERSION));
                     modulesNeeded
                             .add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.SLF4J_VERSION));
                     if (!PluginChecker.isTIS()) {
                         modulesNeeded.add(new ModuleNeeded(getName(), "", true,
-                                "mvn:org.slf4j/slf4j-simple/" + GAV.SLF4J_VERSION));
+                                "mvn:" + GAV.GROUP_ID + "/slf4j-standard/" + GAV.VERSION));
                     } else {
                         modulesNeeded.add(new ModuleNeeded(getName(), "", true,
                                 "mvn:org.slf4j/slf4j-log4j12/" + GAV.SLF4J_VERSION));
