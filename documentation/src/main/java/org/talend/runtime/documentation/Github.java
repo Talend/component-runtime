@@ -122,7 +122,7 @@ public class Github {
         } catch (final ExecutionException ee) {
             if (WebApplicationException.class.isInstance(ee.getCause())) {
                 final Response response = WebApplicationException.class.cast(ee.getCause()).getResponse();
-                if (response != null) {
+                if (response != null && response.getEntity() != null) {
                     log.error(response.readEntity(String.class));
                 }
             }
