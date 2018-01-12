@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.core.model.components.AbstractComponentsProvider;
-import org.talend.sdk.component.studio.Lookups;
 // import org.talend.sdk.component.studio.util.TaCoKitConst;
 
 public class TaCoKitComponentsProvider extends AbstractComponentsProvider {
@@ -32,10 +31,11 @@ public class TaCoKitComponentsProvider extends AbstractComponentsProvider {
 
     @Override
     protected File getExternalComponentsLocation() {
-        if(!Lookups.configuration().isActive()) {
+        URL url = FileLocator.find(Platform.getBundle("org.talend.designer.codegen"), new Path(getFolderName()), null);
+        //TODO: Fix this part. We need to remove this extension point if server is not started.
+        if(url == null) {
             return null;
         }
-        URL url = FileLocator.find(Platform.getBundle("org.talend.designer.codegen"), new Path(getFolderName()), null);
         URL fileUrl;
         try {
             fileUrl = FileLocator.toFileURL(url);
