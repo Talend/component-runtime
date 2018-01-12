@@ -36,6 +36,7 @@ import java.io.FileWriter;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
@@ -83,6 +84,8 @@ import org.talend.sdk.component.api.service.completion.Values;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
 import org.talend.sdk.component.api.service.schema.Type;
+import org.talend.sdk.component.junit.environment.BaseEnvironmentProvider;
+import org.talend.sdk.component.junit.environment.builtin.beam.BeamEnvironment;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
@@ -109,6 +112,7 @@ public class Generator {
         generatedActions(generatedDir);
         generatedUi(generatedDir);
         generatedServerConfiguration(generatedDir);
+        generatedJUnitEnvironment(generatedDir);
 
         final boolean offline = "offline=true".equals(args[4]);
         if (offline) {
@@ -117,6 +121,43 @@ public class Generator {
         }
         generatedContributors(generatedDir, args[5], args[6], Boolean.parseBoolean(args[7]));
         generatedJira(generatedDir, args[1], args[2], args[3]);
+    }
+
+    private static void generatedJUnitEnvironment(final File generatedDir)
+            throws FileNotFoundException, MalformedURLException {
+        final File file = new File(generatedDir, "junit-environments.adoc");
+        try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+            stream.println("");
+            stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
+            stream.println("");
+            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
+            stream.println("|====");
+            stream.println("|Class|Name|Description");
+            final File api = jarLocation(BaseEnvironmentProvider.class);
+            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            final AnnotationFinder finder = new AnnotationFinder(
+                    api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
+            finder
+                    .link()
+                    .findSubclasses(BeamEnvironment.class)
+                    .stream()
+                    .sorted(Comparator.comparing(Class::getName))
+                    .forEach(type -> {
+                        final BeamEnvironment environment;
+                        try {
+                            environment = BeamEnvironment.class.cast(type.getConstructor().newInstance());
+                        } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException
+                                | InvocationTargetException e) {
+                            throw new IllegalStateException(e);
+                        }
+                        stream.println("|" + type.getSimpleName() + "|" + environment.getName() + "|"
+                                + environment.getName() + " runner");
+                    });
+            stream.println("|====");
+            stream.println();
+
+        }
+        System.out.println("Generated " + file);
     }
 
     private static void generatedContributors(final File generatedDir, final String user, final String pwd,
@@ -179,7 +220,8 @@ public class Generator {
             final List<JiraVersion> loggedVersions = versions
                     .stream()
                     .filter(v -> (v.isReleased() || jiraVersionMatches(currentVersion, v.getName())))
-                    .sorted((o1, o2) -> { // reversed order
+                    .sorted((o1, o2) -> { // reversed
+                                          // order
                         final String[] parts1 = o1.getName().split("\\.");
                         final String[] parts2 = o2.getName().split("\\.");
                         for (int i = 0; i < Math.max(parts1.length, parts2.length); i++) {

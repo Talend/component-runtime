@@ -577,6 +577,101 @@ If you want to ensure your component works in Beam the minimum to do is to try w
 
 Check https://beam.apache.org/contribute/testing/ out for more details.
 
+== Multiple environments for the same tests
+
+JUnit (4 or 5) already provides some ways to parameterized tests and execute the same "test logic"
+against several data. However it is not that convenient to test multiple environments.
+
+For instance, with Beam, you can desire to test against multiple runners your code
+and it requires to solve conflicts between runner dependencies, setup the correct classloaders
+etc...It is a lot of work!
+
+To simplify such cases, the framework provides you a multi-environment support for your tests.
+
+It is in the junit module and is usable with JUnit 4 and JUnit 5.
+
+=== JUnit 4
+
+[source,java]
+----
+@RunWith(MultiEnvironmentsRunner.class)
+@Environment(Env1.class)
+@Environment(Env1.class)
+public class TheTest {
+    @Test
+    public void test1() {
+        // ...
+    }
+}
+----
+
+The `MultiEnvironmentsRunner` will execute the test(s) for each defined environments. It means it will
+run `test1` for `Env1` and `Env2` in previous example.
+
+By default `JUnit4` runner will be used to execute the tests in one environment but you can use `@DelegateRunWith`
+to use another runner.
+
+=== JUnit 5
+
+JUnit 5 configuration is close to JUnit 4 one:
+
+[source,java]
+----
+@Environment(EnvironmentsExtensionTest.E1.class)
+@Environment(EnvironmentsExtensionTest.E2.class)
+class TheTest {
+
+    @EnvironmentalTest
+    void test1() {
+        // ...
+    }
+}
+----
+
+The main difference is you don't use a runner (it doesn't exist in JUnit 5) and you replace `@Test` by `@EnvironmentalTest`.
+
+IMPORTANT: the main difference with JUnit 4 integration is that the tests are execute one after each other for all environments
+instead of running all tests in each environments sequentially. It means, for instance, that `@BeforeAll` and `@AfterAll` are executed
+once for all runners.
+
+=== Provided environments
+
+The provided environment setup the contextual classloader to load the related runner of Apache Beam.
+
+Package: `org.talend.sdk.component.junit.environment.builtin.beam`
+
+include::{generated_adoc}/junit-environments.adoc[]
+
+=== Configuring environments
+
+If the environment extends `BaseEnvironmentProvider` and therefore defines an environment name - which is the case of the default ones, you can use `EnvironmentConfiguration`
+to customize the system properties used for that environment:
+
+[source,java]
+----
+@Environment(DirectRunnerEnvironment.class)
+@EnvironmentConfiguration(
+    environment = "Direct",
+    systemProperties = @EnvironmentConfiguration.Property(key = "beamTestPipelineOptions", value = "..."))
+
+@Environment(SparkRunnerEnvironment.class)
+@EnvironmentConfiguration(
+    environment = "Spark",
+    systemProperties = @EnvironmentConfiguration.Property(key = "beamTestPipelineOptions", value = "..."))
+
+@Environment(FlinkRunnerEnvironment.class)
+@EnvironmentConfiguration(
+    environment = "Flink",
+    systemProperties = @EnvironmentConfiguration.Property(key = "beamTestPipelineOptions", value = "..."))
+class MyBeamTest {
+
+    @EnvironmentalTest
+    void execute() {
+        // run some pipeline
+    }
+}
+----
+
 == Secrets/Passwords and Maven
 
 If you desire you can reuse your Maven `settings.xml` servers - including the encrypted ones.
