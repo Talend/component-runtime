@@ -30,6 +30,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbProperty;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -69,6 +70,7 @@ public class Github {
                                     .parallel()
                                     .map(contributor -> {
                                         if (contributor.url == null) { // anon contributor
+
                                             try {
                                                 final Contributor gravatar =
                                                         Gravatars.loadGravatar(gravatarBase, contributor.email);
@@ -116,8 +118,12 @@ public class Github {
                                     .filter(Objects::nonNull)
                                     .collect(toList()))
                     .get(15, MINUTES);
-
-        } catch (final InterruptedException | ExecutionException | TimeoutException e) {
+        } catch (final ExecutionException ee) {
+            if (WebApplicationException.class.isInstance(ee.getCause())) {
+                log.error(WebApplicationException.class.cast(ee.getCause()).getResponse().readEntity(String.class));
+            }
+            throw new IllegalStateException(ee.getCause());
+        } catch (final InterruptedException | TimeoutException e) {
             throw new IllegalStateException(e);
         } finally {
             client.close();
@@ -135,6 +141,10 @@ public class Github {
                         .get())
                 .flatMap(response -> {
                     final String link = response.getHeaderString("Link");
+                    if (response.getStatus() > 299) {
+                        throw new IllegalStateException("Invalid response: HTP " + response.getStatus() + " / "
+                                + response.readEntity(String.class));
+                    }
                     final Stream<GithubContributor> pageContributors = response.readEntity(responseType).stream();
                     if (link == null) {
                         return pageContributors;

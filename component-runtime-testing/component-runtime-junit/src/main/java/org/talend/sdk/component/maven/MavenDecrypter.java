@@ -169,7 +169,7 @@ public class MavenDecrypter {
                 throw new IllegalArgumentException("Unsupported encryption for " + value);
             }
 
-            final byte[] allEncryptedBytes = Base64.getDecoder().decode(value);
+            final byte[] allEncryptedBytes = Base64.getMimeDecoder().decode(value);
             final int totalLen = allEncryptedBytes.length;
             final byte[] salt = new byte[8];
             System.arraycopy(allEncryptedBytes, 0, salt, 0, 8);
