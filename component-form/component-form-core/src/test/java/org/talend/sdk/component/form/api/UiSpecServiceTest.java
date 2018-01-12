@@ -175,7 +175,7 @@ class UiSpecServiceTest {
         final Collection<UiSchema> uiSchema = payload.getUiSchema();
         assertNotNull(uiSchema);
         assertEquals(1, uiSchema.size());
-        assertUiSchema(uiSchema.iterator().next(), "fieldset", "Configuration", null, 3, schema -> {
+        assertUiSchema(uiSchema.iterator().next(), "fieldset", "Configuration", "configuration", 3, schema -> {
             final List<UiSchema> items = new ArrayList<>(schema.getItems());
             items.sort(Comparator.comparing(UiSchema::getTitle));
             final Iterator<UiSchema> it = items.iterator();
@@ -183,7 +183,7 @@ class UiSpecServiceTest {
                 assertNotNull(guessSchema.getTriggers());
                 assertEquals(1, guessSchema.getTriggers().size());
             });
-            assertUiSchema(it.next(), "fieldset", "JDBC Connection", null, 5, connection -> {
+            assertUiSchema(it.next(), "fieldset", "JDBC Connection", "configuration.connection", 5, connection -> {
                 final List<UiSchema> connectionItems = new ArrayList<>(connection.getItems());
                 connectionItems.sort(Comparator.comparing(UiSchema::getTitle));
                 final Iterator<UiSchema> connectionIt = connectionItems.iterator();
@@ -235,7 +235,7 @@ class UiSpecServiceTest {
                         });
                 assertFalse(connectionIt.hasNext());
             });
-            assertUiSchema(it.next(), "fieldset", "query", null, 2, query -> {
+            assertUiSchema(it.next(), "fieldset", "query", "configuration.query", 2, query -> {
                 final List<UiSchema> queryItems = new ArrayList<>(query.getItems());
                 queryItems.sort(Comparator.comparing(UiSchema::getKey));
                 final Iterator<UiSchema> queryIt = queryItems.iterator();
