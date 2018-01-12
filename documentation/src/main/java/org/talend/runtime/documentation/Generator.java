@@ -117,7 +117,13 @@ public class Generator {
 
     private static void generatedContributors(final File generatedDir, final String user, final String pwd)
             throws Exception {
-        final Collection<Contributor> contributors = new Github(user, pwd).load();
+        final Collection<Contributor> contributors;
+        if (user == null || user.trim().isEmpty() || "skip".equals(user)) {
+            System.err.println("No Github credentials, will skip contributors generation");
+            contributors = new ArrayList<>();
+        } else {
+            contributors = new Github(user, pwd).load();
+        }
         final File file = new File(generatedDir, "contributors.json");
         try (final Jsonb jsonb = JsonbBuilder.create(); final Writer writer = new FileWriter(file)) {
             jsonb.toJson(contributors, writer);
