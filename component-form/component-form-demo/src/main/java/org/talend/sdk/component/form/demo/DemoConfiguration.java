@@ -22,7 +22,7 @@ import javax.enterprise.inject.Produces;
 import org.talend.sdk.component.form.api.ActionService;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
-import org.talend.sdk.component.form.internal.ClientFactory;
+import org.talend.sdk.component.form.api.ClientFactory;
 
 @ApplicationScoped
 public class DemoConfiguration {
