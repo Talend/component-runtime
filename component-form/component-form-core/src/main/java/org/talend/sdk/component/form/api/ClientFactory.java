@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.form.internal;
+package org.talend.sdk.component.form.api;
 
-import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
 import org.talend.sdk.component.form.internal.spring.SpringRestClient;
 
