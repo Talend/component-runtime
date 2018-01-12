@@ -39,6 +39,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -92,7 +94,9 @@ import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor(access = PRIVATE)
 public class Generator {
 
@@ -111,22 +115,38 @@ public class Generator {
             System.out.println("System is offline, skipping jira changelog and github contributor generation");
             return;
         }
-        generatedContributors(generatedDir, args[5], args[6]);
+        generatedContributors(generatedDir, args[5], args[6], Boolean.parseBoolean(args[7]));
         generatedJira(generatedDir, args[1], args[2], args[3]);
     }
 
-    private static void generatedContributors(final File generatedDir, final String user, final String pwd)
-            throws Exception {
-        final Collection<Contributor> contributors;
+    private static void generatedContributors(final File generatedDir, final String user, final String pwd,
+            final boolean cache) throws Exception {
+        Collection<Contributor> contributors;
         if (user == null || user.trim().isEmpty() || "skip".equals(user)) {
             System.err.println("No Github credentials, will skip contributors generation");
             contributors = new ArrayList<>();
         } else {
-            contributors = new Github(user, pwd).load();
+            try {
+                contributors = new Github(user, pwd).load();
+            } catch (final RuntimeException re) {
+                log.error(re.getMessage(), re);
+                contributors = new ArrayList<>();
+            }
         }
         final File file = new File(generatedDir, "contributors.json");
+        final File cacheFile =
+                new File(System.getProperty("user.home"), "build/Talend/component-runtime/.ci-cache/contributors.json");
+        if (cache && contributors.isEmpty() && cacheFile.exists()) { // try to reuse the cache
+            log.info("Using cached contributors: {}", cacheFile.getAbsolutePath());
+            Files.copy(cacheFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            return;
+        }
         try (final Jsonb jsonb = JsonbBuilder.create(); final Writer writer = new FileWriter(file)) {
             jsonb.toJson(contributors, writer);
+        }
+        if (cache) {
+            cacheFile.getParentFile().mkdirs();
+            Files.copy(file.toPath(), cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 

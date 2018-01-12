@@ -38,6 +38,7 @@
     <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
 
     <talend.build.name>${talend.build.name.base}.documentation</talend.build.name>
+    <talend.github.cache>false</talend.github.cache>
   </properties>
 
   <dependencies>
@@ -171,6 +172,7 @@
                     <argument>offline=${settings.offline}</argument>
                     <argument>${talend.github.username}</argument>
                     <argument>${talend.github.password}</argument>
+                    <argument>${talend.github.cache}</argument>
                   </arguments>
                 </configuration>
               </execution>
