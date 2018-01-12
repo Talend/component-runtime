@@ -27,7 +27,7 @@ import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
  * Extension allowing the test to use a {@link org.talend.sdk.component.junit.ComponentsHandler}
  * and auto register components from current project.
  */
-public class ComponentExtension extends BaseComponentsHandler
+class ComponentExtension extends BaseComponentsHandler
         implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport {
 
     private static final ExtensionContext.Namespace NAMESPACE =
