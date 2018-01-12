@@ -35,6 +35,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.talend.sdk.component.maven.MavenDecrypter;
@@ -120,7 +121,10 @@ public class Github {
                     .get(15, MINUTES);
         } catch (final ExecutionException ee) {
             if (WebApplicationException.class.isInstance(ee.getCause())) {
-                log.error(WebApplicationException.class.cast(ee.getCause()).getResponse().readEntity(String.class));
+                final Response response = WebApplicationException.class.cast(ee.getCause()).getResponse();
+                if (response != null) {
+                    log.error(response.readEntity(String.class));
+                }
             }
             throw new IllegalStateException(ee.getCause());
         } catch (final InterruptedException | TimeoutException e) {
