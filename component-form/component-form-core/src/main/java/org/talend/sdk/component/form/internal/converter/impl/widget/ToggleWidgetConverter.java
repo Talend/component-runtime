@@ -32,7 +32,6 @@ public class ToggleWidgetConverter extends AbstractWidgetConverter {
     @Override
     public void convert(final PropertyContext p) {
         final UiSchema schema = newUiSchema(p);
-        schema.setKey(p.getProperty().getPath());
         schema.setWidget("toggle");
     }
 }

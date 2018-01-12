@@ -109,6 +109,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     protected UiSchema newUiSchema(final PropertyContext p) {
         final UiSchema schema = new UiSchema();
         schema.setTitle(p.getProperty().getDisplayName());
+        schema.setKey(p.getProperty().getPath());
         schema.setRequired(p.isRequired());
         schema.setPlaceholder(p.getProperty().getName() + " ...");
         if (actions != null) {

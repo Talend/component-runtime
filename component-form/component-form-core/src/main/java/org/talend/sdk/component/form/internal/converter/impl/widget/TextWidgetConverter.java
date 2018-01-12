@@ -32,7 +32,6 @@ public class TextWidgetConverter extends AbstractWidgetConverter {
     @Override
     public void convert(final PropertyContext p) {
         final UiSchema schema = newUiSchema(p);
-        schema.setKey(p.getProperty().getPath());
         schema.setWidget("text");
     }
 }

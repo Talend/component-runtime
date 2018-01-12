@@ -32,7 +32,6 @@ public class CredentialWidgetConverter extends AbstractWidgetConverter {
     @Override
     public void convert(final PropertyContext p) {
         final UiSchema schema = newUiSchema(p);
-        schema.setKey(p.getProperty().getPath());
         schema.setWidget("text");
         schema.setType("password");
     }

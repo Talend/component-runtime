@@ -36,7 +36,6 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
     public void convert(final PropertyContext p) {
         final UiSchema schema = newUiSchema(p);
         schema.setWidget("datalist");
-        schema.setKey(p.getProperty().getPath());
         schema.setTitleMap(p.getProperty().getValidation().getEnumValues().stream().sorted().map(v -> {
             final UiSchema.NameValue nameValue = new UiSchema.NameValue();
             nameValue.setName(v);
