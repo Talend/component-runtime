@@ -100,13 +100,3 @@ manager.unregisterListener(myListener); <2>
 <1> `registerListener` is used to add the listener from now on, it will not get any event for already created containers.
 
 <2> you can remove a listener with `unregisterListener` at any time.
-
-
-== Presentations
-
-You can find some _high level_ presentations of Talend Component framework at:
-
-* link:presentations/overview/index.html[Overview]
-* link:presentations/programming-model/index.html[Programming Model]
-* link:presentations/packaging/index.html[Packaging]
-* link:presentations/testing/index.html[Testing]

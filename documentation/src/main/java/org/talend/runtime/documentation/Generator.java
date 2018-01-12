@@ -105,18 +105,19 @@ public class Generator {
         generatedActions(generatedDir);
         generatedUi(generatedDir);
         generatedServerConfiguration(generatedDir);
-        generatedContributors(generatedDir);
 
         final boolean offline = "offline=true".equals(args[4]);
         if (offline) {
-            System.out.println("System is offline, skipping jira changelog generation");
+            System.out.println("System is offline, skipping jira changelog and github contributor generation");
             return;
         }
+        generatedContributors(generatedDir, args[5], args[6]);
         generatedJira(generatedDir, args[1], args[2], args[3]);
     }
 
-    private static void generatedContributors(final File generatedDir) throws Exception {
-        final Collection<Gravatars.Contributor> contributors = Gravatars.load();
+    private static void generatedContributors(final File generatedDir, final String user, final String pwd)
+            throws Exception {
+        final Collection<Contributor> contributors = new Github(user, pwd).load();
         final File file = new File(generatedDir, "contributors.json");
         try (final Jsonb jsonb = JsonbBuilder.create(); final Writer writer = new FileWriter(file)) {
             jsonb.toJson(contributors, writer);

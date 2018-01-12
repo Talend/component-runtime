@@ -33,7 +33,6 @@
     <sample_project>${sample_project-base}/src/main/java/org/talend/sdk/component/sample</sample_project>
     <sample_project_test>${sample_project-base}/src/test/java/org/talend/sdk/component/sample</sample_project_test>
     <generated_adoc>${project.build.directory}/generated-adoc</generated_adoc>
-    <asciidoctor-revealjs.version>1.0.2</asciidoctor-revealjs.version>
     <jbake.site.rootpath></jbake.site.rootpath>
     <args4j.version>2.33</args4j.version>
     <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
@@ -78,12 +77,6 @@
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit</artifactId>
-      <version>${jgit.version}</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>args4j</groupId>
       <artifactId>args4j</artifactId>
@@ -144,7 +137,7 @@
             <configuration>
               <allowSystemExits>true</allowSystemExits>
               <scripts>
-                <script>${project.basedir}/src/build/DecryptJiraCredentials.groovy</script>
+                <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
                 <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
               </scripts>
             </configuration>
@@ -176,6 +169,8 @@
                     <argument>${talend.jira.password}</argument>
                     <argument>${project.version}</argument>
                     <argument>offline=${settings.offline}</argument>
+                    <argument>${talend.github.username}</argument>
+                    <argument>${talend.github.password}</argument>
                   </arguments>
                 </configuration>
               </execution>
@@ -221,17 +216,6 @@
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-finder-shaded</artifactId>
                 <version>${xbean.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.eclipse.jgit</groupId>
-                <artifactId>org.eclipse.jgit</artifactId>
-                <version>${jgit.version}</version>
-                <exclusions>
-                  <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-jdk14</artifactId>
-                  </exclusion>
-                </exclusions>
               </dependency>
               <dependency>
                 <groupId>args4j</groupId>
@@ -313,202 +297,6 @@
                 <version>2.5.1</version>
               </dependency>
             </dependencies>
-          </plugin>
-          <plugin>
-            <groupId>com.googlecode.maven-download-plugin</groupId>
-            <artifactId>download-maven-plugin</artifactId>
-            <version>${download-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>install-asciidoctor-revealjs</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>wget</goal>
-                </goals>
-                <configuration>
-                  <url>https://github.com/asciidoctor/asciidoctor-reveal.js/archive/v${asciidoctor-revealjs.version}.zip
-                  </url>
-                  <outputFileName>asciidoctor-reveal.js-${asciidoctor-revealjs.version}.zip</outputFileName>
-                  <outputDirectory>${project.build.directory}</outputDirectory>
-                  <unpack>true</unpack>
-                </configuration>
-              </execution>
-              <execution>
-                <id>install-revealjs</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>wget</goal>
-                </goals>
-                <configuration>
-                  <url>https://github.com/hakimel/reveal.js/archive/${revealjs.version}.zip</url>
-                  <outputFileName>reveal.js-${revealjs.version}.zip</outputFileName>
-                  <outputDirectory>${project.build.directory}</outputDirectory>
-                  <unpack>true</unpack>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.8</version>
-            <executions>
-              <execution><!-- ensure we don't have the reveal.js version to override easily the theme -->
-                <id>setup-reveal.js</id>
-                <phase>prepare-package</phase>
-                <configuration>
-                  <target>
-                    <copy todir="${project.build.directory}/${project.build.finalName}/presentations/overview/reveal.js">
-                      <fileset dir="${project.basedir}/src/main/presentation/reveal.js"/>
-                      <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}">
-                        <exclude name="**/test/**"/>
-                      </fileset>
-                    </copy>
-                    <copy
-                            todir="${project.build.directory}/${project.build.finalName}/presentations/programming-model/reveal.js">
-                      <fileset dir="${project.basedir}/src/main/presentation/reveal.js"/>
-                      <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}">
-                        <exclude name="**/test/**"/>
-                      </fileset>
-                    </copy>
-                    <copy todir="${project.build.directory}/${project.build.finalName}/presentations/packaging/reveal.js">
-                      <fileset dir="${project.basedir}/src/main/presentation/reveal.js"/>
-                      <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}">
-                        <exclude name="**/test/**"/>
-                      </fileset>
-                    </copy>
-                    <copy todir="${project.build.directory}/${project.build.finalName}/presentations/testing/reveal.js">
-                      <fileset dir="${project.basedir}/src/main/presentation/reveal.js"/>
-                      <fileset dir="${project.build.directory}/reveal.js-${revealjs.version}">
-                        <exclude name="**/test/**"/>
-                      </fileset>
-                    </copy>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>1.5.6</version>
-            <dependencies>
-              <dependency>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctorj</artifactId>
-                <version>${asciidoctorj.version}</version>
-              </dependency>
-            </dependencies>
-            <executions>
-              <execution> <!-- mvn asciidoctor:http@slides#overview -->
-                <id>slides#overview</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>process-asciidoc</goal>
-                </goals>
-                <configuration>
-                  <sourceDirectory>src/main/presentation/overview</sourceDirectory>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/presentations/overview
-                  </outputDirectory>
-                  <backend>revealjs</backend>
-                  <templateDir>
-                    ${project.build.directory}/asciidoctor-reveal.js-${asciidoctor-revealjs.version}/templates/slim
-                  </templateDir>
-                  <sourceHighlighter>coderay</sourceHighlighter>
-                  <attributes>
-                    <revealjsdir>reveal.js</revealjsdir>
-                    <revealjs_theme>talend</revealjs_theme>
-                    <revealjs_transition>linear</revealjs_transition>
-                    <project-version>${project_version}</project-version>
-                    <generated_adoc>../../../../target/generated-adoc</generated_adoc>
-                  </attributes>
-                </configuration>
-              </execution>
-              <execution>
-                <id>slides#programming-model</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>process-asciidoc</goal>
-                </goals>
-                <configuration>
-                  <sourceDirectory>src/main/presentation/programming-model</sourceDirectory>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/presentations/programming-model
-                  </outputDirectory>
-                  <backend>revealjs</backend>
-                  <templateDir>
-                    ${project.build.directory}/asciidoctor-reveal.js-${asciidoctor-revealjs.version}/templates/slim
-                  </templateDir>
-                  <sourceHighlighter>coderay</sourceHighlighter>
-                  <attributes>
-                    <revealjsdir>reveal.js</revealjsdir>
-                    <revealjs_theme>talend</revealjs_theme>
-                    <revealjs_transition>linear</revealjs_transition>
-                    <project-version>${project_version}</project-version>
-                    <generated_adoc>${generated_adoc}</generated_adoc>
-                    <sample_project_base>${sample_project-base}</sample_project_base>
-                    <sample_project>${sample_project}</sample_project>
-                    <sample_project_test>${sample_project_test}</sample_project_test>
-                  </attributes>
-                </configuration>
-              </execution>
-              <execution>
-                <id>slides#packaging</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>process-asciidoc</goal>
-                </goals>
-                <configuration>
-                  <sourceDirectory>src/main/presentation/packaging</sourceDirectory>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/presentations/packaging
-                  </outputDirectory>
-                  <backend>revealjs</backend>
-                  <templateDir>
-                    ${project.build.directory}/asciidoctor-reveal.js-${asciidoctor-revealjs.version}/templates/slim
-                  </templateDir>
-                  <sourceHighlighter>coderay</sourceHighlighter>
-                  <attributes>
-                    <revealjsdir>reveal.js</revealjsdir>
-                    <revealjs_theme>talend</revealjs_theme>
-                    <revealjs_transition>linear</revealjs_transition>
-                    <project-version>${project_version}</project-version>
-                    <generated_adoc>${generated_adoc}</generated_adoc>
-                    <sample_project_base>${sample_project-base}</sample_project_base>
-                    <sample_project>${sample_project}</sample_project>
-                    <sample_project_test>${sample_project_test}</sample_project_test>
-                  </attributes>
-                </configuration>
-              </execution>
-              <execution>
-                <id>slides#testing</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>process-asciidoc</goal>
-                </goals>
-                <configuration>
-                  <sourceDirectory>src/main/presentation/testing</sourceDirectory>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/presentations/testing
-                  </outputDirectory>
-                  <backend>revealjs</backend>
-                  <templateDir>
-                    ${project.build.directory}/asciidoctor-reveal.js-${asciidoctor-revealjs.version}/templates/slim
-                  </templateDir>
-                  <sourceHighlighter>coderay</sourceHighlighter>
-                  <attributes>
-                    <revealjsdir>reveal.js</revealjsdir>
-                    <revealjs_theme>talend</revealjs_theme>
-                    <revealjs_transition>linear</revealjs_transition>
-                    <project-version>${project_version}</project-version>
-                    <generated_adoc>${generated_adoc}</generated_adoc>
-                    <sample_project_base>${sample_project-base}</sample_project_base>
-                    <sample_project>${sample_project}</sample_project>
-                    <sample_project_test>${sample_project_test}</sample_project_test>
-                  </attributes>
-                </configuration>
-              </execution>
-            </executions>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -604,7 +392,7 @@
             <configuration>
               <allowSystemExits>true</allowSystemExits>
               <scripts>
-                <script>${project.basedir}/src/build/DecryptJiraCredentials.groovy</script>
+                <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
                 <script>${project.basedir}/src/build/GithubPages.groovy</script>
                 <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
               </scripts>
