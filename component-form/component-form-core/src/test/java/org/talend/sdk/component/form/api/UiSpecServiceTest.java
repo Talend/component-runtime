@@ -84,7 +84,7 @@ class UiSpecServiceTest {
     });
 
     @Test
-    void items() throws Exception {
+    void objectArray() throws Exception {
         final Ui payload = service.convert(load("rest-api.json"));
         final List<UiSchema> orderItems = new ArrayList<>(payload
                 .getUiSchema()
@@ -92,9 +92,12 @@ class UiSpecServiceTest {
                 .next()
                 .getItems()
                 .stream()
-                .filter(i -> i.getKey().equals("tableDataSet.order"))
+                .filter(i -> i.getKey() == null && i.getItems().iterator().next().getKey().equals("tableDataSet.order"))
                 .findFirst()
                 .get()
+                .getItems()
+                .iterator()
+                .next()
                 .getItems());
         assertEquals(2, orderItems.size());
         assertEquals("tableDataSet.order[].field", orderItems.get(0).getKey());
