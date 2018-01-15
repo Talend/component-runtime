@@ -45,13 +45,13 @@ public class ArrayPropertyConverter implements PropertyConverter {
         final List<SimplePropertyDefinition> arrayElements =
                 properties.stream().filter(child -> child.getPath().startsWith(prefix)).collect(toList());
 
-        if (arrayElements.stream().anyMatch(e -> e.getPath().startsWith(prefix + '.'))) {// complex object
+        if (arrayElements.stream().anyMatch(e -> e.getPath().startsWith(prefix + '.'))) { // complex object
             final JsonSchema items = new JsonSchema();
             items.setProperties(new HashMap<>());
             arrayElements.stream().map(PropertyContext::new).forEach(
                     e -> new JsonSchemaConverter(items, emptyList()).convert(e));
             jsonSchema.setItems(items);
-        } else if (!arrayElements.isEmpty()) {// primitive
+        } else if (!arrayElements.isEmpty()) { // primitive
             final String type = arrayElements.get(0).getType();
             final JsonSchema item = new JsonSchema();
             item.setTitle(jsonSchema.getTitle());

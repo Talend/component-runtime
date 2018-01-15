@@ -168,6 +168,19 @@
               <arguments>run build</arguments>
             </configuration>
           </execution>
+          <execution> <!-- mvn frontend:yarn@watch -->
+            <id>watch</id>
+            <phase/>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <configuration>
+              <arguments>run watch</arguments>
+              <environmentVariables>
+                <NODE_ENV>development</NODE_ENV>
+              </environmentVariables>
+            </configuration>
+          </execution>
         </executions>
         <configuration>
           <installDirectory>${project.basedir}/.node</installDirectory>

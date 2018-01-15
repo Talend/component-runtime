@@ -53,10 +53,8 @@ public class MultiSelectTagWidgetConverter extends AbstractWidgetConverter {
         final UiSchema schema = newUiSchema(p);
         schema.setWidget("multiSelectTag");
         schema.setRestricted(false);
-        schema.setTitleMap(emptyList());
-        if (client != null) {// todo: add caching here with a small eviction (each 5mn?)
+        if (client != null) {
             try {
-
                 final Map<String, Object> values = client.action(family, "dynamic_values",
                         p.getProperty().getMetadata().get("action::dynamic_values"), emptyMap());
 
@@ -82,6 +80,7 @@ public class MultiSelectTagWidgetConverter extends AbstractWidgetConverter {
                         }).orElse(emptyList());
                 schema.setTitleMap(namedValues);
             } catch (final RuntimeException error) {
+                schema.setTitleMap(emptyList());
                 log.debug(error.getMessage(), error);
             }
         } else {

@@ -84,6 +84,25 @@ class UiSpecServiceTest {
     });
 
     @Test
+    void items() throws Exception {
+        final Ui payload = service.convert(load("rest-api.json"));
+        final List<UiSchema> orderItems = new ArrayList<>(payload
+                .getUiSchema()
+                .iterator()
+                .next()
+                .getItems()
+                .stream()
+                .filter(i -> i.getKey().equals("tableDataSet.order"))
+                .findFirst()
+                .get()
+                .getItems());
+        assertEquals(2, orderItems.size());
+        assertEquals("tableDataSet.order[].field", orderItems.get(0).getKey());
+        assertEquals("datalist", orderItems.get(0).getWidget());
+        assertEquals("tableDataSet.order[].order", orderItems.get(1).getKey());
+    }
+
+    @Test
     void triggerRelativeParameters() throws Exception {
         final Ui payload = service.convert(load("relative-params.json"));
         final Collection<UiSchema> schema = payload.getUiSchema();
@@ -291,4 +310,5 @@ class UiSpecServiceTest {
         assertEquals(key, next.getKey());
         assertEquals(path, next.getPath());
     }
+
 }

@@ -32,7 +32,7 @@ public class PropertyContext {
     }
 
     public boolean isDirectChild(final SimplePropertyDefinition child) {
-        String prefix = property.getPath() + ".";
+        final String prefix = property.getPath() + ".";
         return child.getPath().startsWith(prefix) && child.getPath().indexOf('.', prefix.length()) < 0;
     }
 }

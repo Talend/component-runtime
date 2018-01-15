@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.Collection;
 import java.util.Locale;
 
@@ -27,6 +29,7 @@ import org.talend.sdk.component.form.internal.converter.impl.widget.DataListWidg
 import org.talend.sdk.component.form.internal.converter.impl.widget.FieldSetWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.MultiSelectTagWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.NumberWidgetConverter;
+import org.talend.sdk.component.form.internal.converter.impl.widget.ObjectArrayWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.TextWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.ToggleWidgetConverter;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
@@ -65,7 +68,17 @@ public class UiSchemaConverter implements PropertyConverter {
             new NumberWidgetConverter(schemas, properties, actions).convert(p);
             break;
         case "array":
-            new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family).convert(p);
+            final String nestedPrefix = p.getProperty().getPath() + "[].";
+            final int from = nestedPrefix.length();
+            final Collection<SimplePropertyDefinition> nested = properties
+                    .stream()
+                    .filter(prop -> prop.getPath().startsWith(nestedPrefix) && prop.getPath().indexOf('.', from) < 0)
+                    .collect(toList());
+            if (!nested.isEmpty()) {
+                new ObjectArrayWidgetConverter(schemas, properties, actions, nested, family, client).convert(p);
+            } else {
+                new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family).convert(p);
+            }
             break;
         case "string":
         default:

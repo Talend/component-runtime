@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
@@ -36,16 +37,22 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
     public void convert(final PropertyContext p) {
         final UiSchema schema = newUiSchema(p);
         schema.setWidget("datalist");
-        schema.setTitleMap(p.getProperty().getValidation().getEnumValues().stream().sorted().map(v -> {
-            final UiSchema.NameValue nameValue = new UiSchema.NameValue();
-            nameValue.setName(v);
-            nameValue.setValue(v);
-            return nameValue;
-        }).collect(toList()));
 
         final JsonSchema jsonSchema = new JsonSchema();
         jsonSchema.setType("string");
-        jsonSchema.setEnumValues(p.getProperty().getValidation().getEnumValues());
         schema.setSchema(jsonSchema);
+
+        if (p.getProperty().getValidation().getEnumValues() != null) {
+            schema.setTitleMap(p.getProperty().getValidation().getEnumValues().stream().sorted().map(v -> {
+                final UiSchema.NameValue nameValue = new UiSchema.NameValue();
+                nameValue.setName(v);
+                nameValue.setValue(v);
+                return nameValue;
+            }).collect(toList()));
+            jsonSchema.setEnumValues(p.getProperty().getValidation().getEnumValues());
+        } else {
+            schema.setTitleMap(emptyList());
+            jsonSchema.setEnumValues(emptyList());
+        }
     }
 }
