@@ -39,7 +39,7 @@ public class EnvironmentsConfigurationParser {
             } catch (final InvocationTargetException ex) {
                 throw new IllegalStateException(ex.getTargetException());
             }
-        }).collect(toList());
+        }).map(DecoratingEnvironmentProvider::new).collect(toList());
         parallel = config.map(Environments::parallel).orElse(false);
     }
 

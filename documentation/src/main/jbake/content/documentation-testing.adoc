@@ -672,6 +672,8 @@ class MyBeamTest {
 }
 ----
 
+TIP: if you set the system property `<environment name>.skip=true` then the environment related executions will be skipped.
+
 == Secrets/Passwords and Maven
 
 If you desire you can reuse your Maven `settings.xml` servers - including the encrypted ones.

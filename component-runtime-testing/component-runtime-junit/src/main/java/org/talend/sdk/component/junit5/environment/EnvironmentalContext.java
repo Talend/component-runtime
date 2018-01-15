@@ -22,9 +22,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ConditionEvaluationResult;
+import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
+import org.talend.sdk.component.junit.environment.DecoratingEnvironmentProvider;
 import org.talend.sdk.component.junit.environment.EnvironmentProvider;
 
 import lombok.AllArgsConstructor;
@@ -47,7 +50,7 @@ class EnvironmentalContext implements TestTemplateInvocationContext {
     }
 
     @AllArgsConstructor
-    private static class EnvironmentalLifecycle implements BeforeEachCallback, AfterEachCallback {
+    private static class EnvironmentalLifecycle implements BeforeEachCallback, AfterEachCallback, ExecutionCondition {
 
         private final EnvironmentProvider provider;
 
@@ -67,6 +70,17 @@ class EnvironmentalContext implements TestTemplateInvocationContext {
                     throw new IllegalStateException(e);
                 }
             });
+        }
+
+        @Override
+        public ConditionEvaluationResult evaluateExecutionCondition(final ExtensionContext context) {
+            return isActive() ? ConditionEvaluationResult.enabled("provider is active")
+                    : ConditionEvaluationResult.disabled("provider is disabled");
+        }
+
+        private boolean isActive() {
+            return DecoratingEnvironmentProvider.class.isInstance(provider)
+                    && DecoratingEnvironmentProvider.class.cast(provider).isActive();
         }
     }
 }

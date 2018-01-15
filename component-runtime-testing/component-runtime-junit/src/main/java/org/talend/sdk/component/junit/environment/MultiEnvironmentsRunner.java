@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.junit.environment;
 
+import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 import org.talend.sdk.component.junit.delegate.DelegatingRunner;
@@ -31,6 +32,13 @@ public class MultiEnvironmentsRunner extends DelegatingRunner {
     @Override
     public void run(final RunNotifier notifier) {
         configuration.stream().forEach(e -> {
+            if (DecoratingEnvironmentProvider.class.isInstance(e)) {
+                final DecoratingEnvironmentProvider dep = DecoratingEnvironmentProvider.class.cast(e);
+                if (!dep.isActive()) {
+                    notifier.fireTestFinished(Description.createTestDescription(getTestClass(), dep.getName()));
+                    return;
+                }
+            }
             try (final AutoCloseable ignored = e.start(getTestClass(), getTestClass().getAnnotations())) {
                 MultiEnvironmentsRunner.super.run(notifier);
             } catch (final Exception e1) {
