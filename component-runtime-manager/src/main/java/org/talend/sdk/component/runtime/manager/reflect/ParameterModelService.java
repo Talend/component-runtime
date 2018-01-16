@@ -72,18 +72,29 @@ public class ParameterModelService {
                         && !p.getType().getName().startsWith("org.talend.sdk.component.api.service."))
                 .map(parameter -> {
                     final String name = findName(parameter);
-                    return buildParameter(name, name, parameter.getParameterizedType(),
+                    return buildParameter(name, name, new ParameterMeta.Source() {
+
+                        @Override
+                        public String name() {
+                            return parameter.getName();
+                        }
+
+                        @Override
+                        public Class<?> declaringClass() {
+                            return executable.getDeclaringClass();
+                        }
+                    }, parameter.getParameterizedType(),
                             Stream
                                     .concat(Stream.of(parameter.getType().getAnnotations()),
                                             Stream.of(parameter.getAnnotations()))
                                     .toArray(Annotation[]::new),
-                            i18nPackage);
+                            new ArrayList<>(singletonList(i18nPackage)));
                 })
                 .collect(toList());
     }
 
-    protected ParameterMeta buildParameter(final String name, final String prefix, final Type genericType,
-            final Annotation[] annotations, final String i18nPackage) {
+    protected ParameterMeta buildParameter(final String name, final String prefix, final ParameterMeta.Source source,
+            final Type genericType, final Annotation[] annotations, final Collection<String> i18nPackages) {
         final ParameterMeta.Type type = findType(genericType);
         final String normalizedPrefix = prefix.endsWith(".") ? prefix.substring(0, prefix.length() - 1) : prefix;
         final List<ParameterMeta> nested = new ArrayList<>();
@@ -91,7 +102,7 @@ public class ParameterModelService {
         switch (type) {
         case OBJECT:
             final List<ParameterMeta> meta =
-                    buildParametersMetas(name, normalizedPrefix + ".", genericType, annotations, i18nPackage);
+                    buildParametersMetas(name, normalizedPrefix + ".", genericType, annotations, i18nPackages);
             meta.sort(Comparator.comparing(ParameterMeta::getName));
             nested.addAll(meta);
             break;
@@ -101,7 +112,7 @@ public class ParameterModelService {
                     : ParameterizedType.class.cast(genericType).getActualTypeArguments()[0];
             nested.addAll(buildParametersMetas(name + "[${index}]", normalizedPrefix + "[${index}].", nestedType,
                     Class.class.isInstance(nestedType) ? Class.class.cast(nestedType).getAnnotations() : NO_ANNOTATIONS,
-                    i18nPackage));
+                    i18nPackages));
             break;
         case ENUM:
             proposals.addAll(Stream
@@ -113,7 +124,8 @@ public class ParameterModelService {
         default:
         }
         // don't sort here to ensure we don't mess up parameter method ordering
-        return new ParameterMeta(genericType, type, normalizedPrefix, name, i18nPackage, nested, proposals,
+        return new ParameterMeta(source, genericType, type, normalizedPrefix, name,
+                i18nPackages.toArray(new String[i18nPackages.size()]), nested, proposals,
                 buildExtensions(name, genericType, annotations));
     }
 
@@ -144,7 +156,7 @@ public class ParameterModelService {
     }
 
     private List<ParameterMeta> buildParametersMetas(final String name, final String prefix, final Type type,
-            final Annotation[] annotations, final String i18nPackage) {
+            final Annotation[] annotations, final Collection<String> i18nPackages) {
         if (ParameterizedType.class.isInstance(type)) {
             final ParameterizedType pt = ParameterizedType.class.cast(type);
             if (!Class.class.isInstance(pt.getRawType())) {
@@ -156,7 +168,7 @@ public class ParameterModelService {
                     throw new IllegalArgumentException(
                             "Unsupported list: " + pt + ", ensure to use a concrete class as generic");
                 }
-                return buildParametersMetas(name, prefix, Class.class.cast(type), annotations, i18nPackage);
+                return buildParametersMetas(name, prefix, Class.class.cast(type), annotations, i18nPackages);
             }
             if (Map.class.isAssignableFrom(raw)) {
                 if (!Class.class.isInstance(pt.getActualTypeArguments()[0])
@@ -166,9 +178,9 @@ public class ParameterModelService {
                 }
                 return Stream
                         .concat(buildParametersMetas(name + ".key[${index}]", prefix + "key[${index}].",
-                                Class.class.cast(pt.getActualTypeArguments()[0]), annotations, i18nPackage).stream(),
+                                Class.class.cast(pt.getActualTypeArguments()[0]), annotations, i18nPackages).stream(),
                                 buildParametersMetas(name + ".value[${index}]", prefix + "value[${index}].",
-                                        Class.class.cast(pt.getActualTypeArguments()[1]), annotations, i18nPackage)
+                                        Class.class.cast(pt.getActualTypeArguments()[1]), annotations, i18nPackages)
                                                 .stream())
                         .collect(toList());
             }
@@ -179,15 +191,27 @@ public class ParameterModelService {
             case STRING:
             case NUMBER:
             case BOOLEAN:
-                return singletonList(buildParameter(name, prefix, type, annotations, i18nPackage));
+                return singletonList(buildParameter(name, prefix, new ParameterMeta.Source() {
+
+                    @Override
+                    public String name() {
+                        return name;
+                    }
+
+                    @Override
+                    public Class<?> declaringClass() {
+                        return Class.class.cast(type);
+                    }
+                }, type, annotations, i18nPackages));
             default:
             }
-            return buildObjectParameters(prefix, Class.class.cast(type), i18nPackage);
+            return buildObjectParameters(prefix, Class.class.cast(type), i18nPackages);
         }
         throw new IllegalArgumentException("Unsupported parameter type: " + type);
     }
 
-    private List<ParameterMeta> buildObjectParameters(final String prefix, final Class type, final String i18nPackage) {
+    private List<ParameterMeta> buildObjectParameters(final String prefix, final Class type,
+            final Collection<String> i18nPackages) {
         final Map<String, Field> fields = new HashMap<>();
         final List<ParameterMeta> out = new ArrayList<>();
         Class<?> current = type;
@@ -200,8 +224,18 @@ public class ParameterModelService {
                     .filter(f -> fields.putIfAbsent(f.getName(), f) == null)
                     .map(f -> {
                         final String path = prefix + f.getName();
-                        return buildParameter(f.getName(), path + ".", f.getGenericType(), f.getAnnotations(),
-                                i18nPackage);
+                        return buildParameter(f.getName(), path + ".", new ParameterMeta.Source() {
+
+                            @Override
+                            public String name() {
+                                return f.getName();
+                            }
+
+                            @Override
+                            public Class<?> declaringClass() {
+                                return f.getDeclaringClass();
+                            }
+                        }, f.getGenericType(), f.getAnnotations(), i18nPackages);
                     })
                     .collect(toList()));
             current = current.getSuperclass();

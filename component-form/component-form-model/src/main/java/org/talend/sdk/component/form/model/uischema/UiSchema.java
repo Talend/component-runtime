@@ -37,6 +37,8 @@ public class UiSchema {
 
     private String widget;
 
+    private String itemWidget;
+
     private String type;
 
     private String description;
@@ -218,6 +220,8 @@ public class UiSchema {
 
         private String widget;
 
+        private String itemWidget;
+
         private String type;
 
         private String description;
@@ -261,6 +265,11 @@ public class UiSchema {
 
         public Builder withWidget(final String widget) {
             this.widget = widget;
+            return this;
+        }
+
+        public Builder withItemWidget(final String widget) {
+            this.itemWidget = widget;
             return this;
         }
 

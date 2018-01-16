@@ -49,6 +49,7 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
         final UiSchema arraySchema = newUiSchema(ctx);
         arraySchema.setTitle(ctx.getProperty().getDisplayName());
         arraySchema.setItems(new ArrayList<>());
+        arraySchema.setItemWidget("collapsibleFieldset");
         final UiSchemaConverter converter =
                 new UiSchemaConverter(family, arraySchema.getItems(), client, properties, actions);
         nestedProperties.forEach(p -> converter.convert(new PropertyContext(p)));

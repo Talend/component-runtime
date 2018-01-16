@@ -22,7 +22,7 @@ import java.util.ResourceBundle;
 public class ComponentBundle extends InternalBundle {
 
     public ComponentBundle(final ResourceBundle bundle, final String prefix) {
-        super(bundle, prefix);
+        super(new ResourceBundle[] { bundle }, prefix);
     }
 
     public Optional<String> displayName() {

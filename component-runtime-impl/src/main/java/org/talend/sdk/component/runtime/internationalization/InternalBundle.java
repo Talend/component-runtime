@@ -17,13 +17,14 @@ package org.talend.sdk.component.runtime.internationalization;
 
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 abstract class InternalBundle {
 
-    private final ResourceBundle bundle;
+    private final ResourceBundle[] bundles;
 
     private final String prefix;
 
@@ -32,6 +33,11 @@ abstract class InternalBundle {
     }
 
     protected Optional<String> readRawValue(final String key) {
-        return Optional.of(key).filter(bundle::containsKey).map(bundle::getString);
+        final Optional<String> value =
+                Stream.of(bundles).filter(b -> b.containsKey(key)).map(b -> b.getString(key)).findFirst();
+        if (value.isPresent() || !key.contains("${index}")) {
+            return value;
+        }
+        return readRawValue(key.replace("${index}", ""));
     }
 }

@@ -25,13 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
-import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
 
 import lombok.Data;
 
@@ -43,20 +44,18 @@ class PropertiesServiceTest {
 
     @Test
     void buildProperties() {
+        final String[] i18nPackages = { Config.class.getPackage().getName() };
 
-        ParameterMeta host = new ParameterMeta(Config.class, ParameterMeta.Type.STRING, "configuration.host", "host",
-                null, emptyList(), null, emptyMap());
-        ParameterMeta port = new ParameterMeta(Config.class, ParameterMeta.Type.NUMBER, "configuration.port", "port",
-                null, emptyList(), null, emptyMap());
-
-        ParameterMeta username = new ParameterMeta(Config.class, ParameterMeta.Type.STRING, "configuration.username",
-                "username", null, emptyList(), null, emptyMap());
-
-        ParameterMeta password = new ParameterMeta(Config.class, ParameterMeta.Type.STRING, "configuration.password",
-                "password", null, emptyList(), null, emptyMap());
-
-        ParameterMeta config = new ParameterMeta(Config.class, ParameterMeta.Type.OBJECT, "configuration",
-                "configuration", null, asList(host, port, username, password), null, emptyMap());
+        final ParameterMeta host = new ParameterMeta(null, Config.class, ParameterMeta.Type.STRING,
+                "configuration.host", "host", i18nPackages, emptyList(), null, emptyMap());
+        final ParameterMeta port = new ParameterMeta(null, Config.class, ParameterMeta.Type.NUMBER,
+                "configuration.port", "port", i18nPackages, emptyList(), null, emptyMap());
+        final ParameterMeta username = new ParameterMeta(null, Config.class, ParameterMeta.Type.STRING,
+                "configuration.username", "username", i18nPackages, emptyList(), null, emptyMap());
+        final ParameterMeta password = new ParameterMeta(null, Config.class, ParameterMeta.Type.STRING,
+                "configuration.password", "password", i18nPackages, emptyList(), null, emptyMap());
+        final ParameterMeta config = new ParameterMeta(null, Config.class, ParameterMeta.Type.OBJECT, "configuration",
+                "configuration", i18nPackages, asList(host, port, username, password), null, emptyMap());
 
         final List<SimplePropertyDefinition> props = propertiesService
                 .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.getDefault(), null)
@@ -73,15 +72,15 @@ class PropertiesServiceTest {
     @Test // the class BaseConfig don't contains attribute
     void validateProp() {
         assertThrows(IllegalArgumentException.class, () -> {
-            ParameterMeta attribute = new ParameterMeta(BadConfig.class, ParameterMeta.Type.STRING,
+            ParameterMeta attribute = new ParameterMeta(null, BadConfig.class, ParameterMeta.Type.STRING,
                     "configuration.attribute", "attribute", null, emptyList(), null, emptyMap());
 
-            ParameterMeta config = new ParameterMeta(Config.class, ParameterMeta.Type.OBJECT, "configuration",
+            ParameterMeta config = new ParameterMeta(null, Config.class, ParameterMeta.Type.OBJECT, "configuration",
                     "configuration", null, singletonList(attribute), null, emptyMap());
 
             propertiesService
-                    .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.getDefault(), null)
-                    .collect(toList());
+                    .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.ROOT, null)
+                    .forEach(Objects::nonNull);
         });
     }
 

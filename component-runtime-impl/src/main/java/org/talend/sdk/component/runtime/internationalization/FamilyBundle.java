@@ -22,7 +22,7 @@ import java.util.ResourceBundle;
 public class FamilyBundle extends InternalBundle {
 
     public FamilyBundle(final ResourceBundle bundle, final String prefix) {
-        super(bundle, prefix);
+        super(new ResourceBundle[] { bundle }, prefix);
     }
 
     public Optional<String> displayName() {

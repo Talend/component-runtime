@@ -15,19 +15,22 @@
  */
 package org.talend.sdk.component.runtime.manager;
 
+import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static java.util.Optional.ofNullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 
@@ -38,7 +41,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ParameterMeta {
 
-    private static final ParameterBundle NO_PARAMETER_BUNDLE = new ParameterBundle(null, null, null) {
+    private static final ParameterBundle NO_PARAMETER_BUNDLE = new ParameterBundle(null, null) {
+
+        @Override
+        protected Optional<String> readValue(final String key) {
+            return empty();
+        }
+
+        @Override
+        protected Optional<String> readRawValue(final String key) {
+            return empty();
+        }
 
         @Override
         public Optional<String> displayName() {
@@ -46,10 +59,12 @@ public class ParameterMeta {
         }
 
         @Override
-        public Optional<String> displayName(final String child) {
+        public Optional<String> fallbackDisplayName(final ParameterBundle parameterBundle) {
             return empty();
         }
     };
+
+    private final Source source;
 
     private final java.lang.reflect.Type javaType;
 
@@ -59,7 +74,7 @@ public class ParameterMeta {
 
     private final String name;
 
-    private final String i18nPackage; // fallback when the type is not sufficient (java.* types)
+    private final String[] i18nPackages; // fallback when the type is not sufficient (java.* types)
 
     private final List<ParameterMeta> nestedParameters;
 
@@ -73,22 +88,57 @@ public class ParameterMeta {
         final Class<?> type = of(javaType)
                 .filter(Class.class::isInstance)
                 .map(Class.class::cast)
-                .filter(c -> !c.getName().startsWith("java."))
+                .filter(c -> !c.getName().startsWith("java.") && !c.isPrimitive())
                 .orElse(null);
-        final String packageName = ofNullable(type).map(Class::getPackage).map(Package::getName).orElse(i18nPackage);
         return bundles.computeIfAbsent(locale, l -> {
             try {
-                final String baseName = (packageName.isEmpty() ? i18nPackage : (packageName + '.')) + "Messages";
-                log.debug("Using resource bundle " + baseName + " for " + ParameterMeta.this);
-                final ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale, loader);
-                return new ParameterBundle(bundle, path + '.', type == null ? null : type.getSimpleName());
+                final ResourceBundle[] bundles =
+                        (i18nPackages != null ? Stream.of(i18nPackages) : Stream.<String> empty())
+                                .filter(Objects::nonNull)
+                                .filter(s -> !s.isEmpty())
+                                .distinct()
+                                .map(p -> p + (!p.isEmpty() ? "." : "") + "Messages")
+                                .map(n -> {
+                                    try {
+                                        return ResourceBundle.getBundle(n, locale, loader);
+                                    } catch (final MissingResourceException mre) {
+                                        return null;
+                                    }
+                                })
+                                .filter(Objects::nonNull)
+                                .toArray(ResourceBundle[]::new);
+                if (bundles.length == 0) {
+                    log.warn(noBundleMessage());
+                    return NO_PARAMETER_BUNDLE;
+                }
+
+                final Collection<String> fallbacks = new ArrayList<>(2);
+                final Class<?> declaringClass = source == null ? null : source.declaringClass();
+                if (declaringClass != null && !declaringClass.getName().startsWith("java")) {
+                    fallbacks.add(declaringClass.getSimpleName() + '.' + source.name());
+                }
+                if (type != null) {
+                    fallbacks.add(type.getSimpleName() + '.' + name);
+                }
+                return new ParameterBundle(bundles, path + '.', fallbacks.toArray(new String[fallbacks.size()]));
             } catch (final MissingResourceException mre) {
-                log.warn("No bundle for " + packageName + " (" + ParameterMeta.this
-                        + "), means the display names will be the technical names");
+                log.warn(noBundleMessage());
                 log.debug(mre.getMessage(), mre);
                 return NO_PARAMETER_BUNDLE;
             }
         });
+    }
+
+    private String noBundleMessage() {
+        return (i18nPackages == null ? "No bundle " : "No bundle in " + asList(i18nPackages)) + " (" + path
+                + "), means the display names will be the technical names";
+    }
+
+    public interface Source {
+
+        String name();
+
+        Class<?> declaringClass();
     }
 
     public enum Type {

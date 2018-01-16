@@ -32,8 +32,8 @@ public class TaCoKitComponentsProvider extends AbstractComponentsProvider {
     @Override
     protected File getExternalComponentsLocation() {
         URL url = FileLocator.find(Platform.getBundle("org.talend.designer.codegen"), new Path(getFolderName()), null);
-        //TODO: Fix this part. We need to remove this extension point if server is not started.
-        if(url == null) {
+        // TODO: Fix this part. We need to remove this extension point if server is not started.
+        if (url == null) {
             return null;
         }
         URL fileUrl;

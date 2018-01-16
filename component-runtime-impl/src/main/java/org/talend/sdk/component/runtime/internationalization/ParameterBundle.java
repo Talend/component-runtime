@@ -15,23 +15,28 @@
  */
 package org.talend.sdk.component.runtime.internationalization;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 public class ParameterBundle extends InternalBundle {
 
-    private final String simpleName;
+    private final String[] simpleNames;
 
-    public ParameterBundle(final ResourceBundle bundle, final String prefix, final String simpleName) {
-        super(bundle, prefix);
-        this.simpleName = simpleName;
+    public ParameterBundle(final ResourceBundle[] bundles, final String prefix, final String... simpleNames) {
+        super(bundles, prefix);
+        this.simpleNames = simpleNames;
     }
 
     public Optional<String> displayName() {
         return readValue("_displayName");
     }
 
-    public Optional<String> displayName(final String child) {
-        return readRawValue(simpleName + "." + child + "._displayName");
+    public Optional<String> fallbackDisplayName(final ParameterBundle parent) {
+        return Stream.of(simpleNames).map(s -> {
+            final String k = s + "._displayName";
+            return readRawValue(k).orElse(parent == null ? null : parent.readRawValue(k).orElse(null));
+        }).filter(Objects::nonNull).findFirst();
     }
 }

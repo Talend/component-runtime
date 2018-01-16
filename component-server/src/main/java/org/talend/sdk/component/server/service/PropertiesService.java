@@ -94,12 +94,13 @@ public class PropertiesService {
                     .orElse(null);
             final Object instance = defaultValueInspector.createDemoInstance(rootInstance, p);
             return Stream.concat(
-                    Stream.of(new SimplePropertyDefinition(path, name,
-                            p
+                    Stream.of(new SimplePropertyDefinition(path, name, p
+                            .findBundle(loader, locale)
+                            .displayName()
+                            .orElseGet(() -> p
                                     .findBundle(loader, locale)
-                                    .displayName()
-                                    .orElseGet(() -> parent == null ? name
-                                            : parent.findBundle(loader, locale).displayName(p.getName()).orElse(name)),
+                                    .fallbackDisplayName(parent == null ? null : parent.findBundle(loader, locale))
+                                    .orElse(p.getName())),
                             type, toDefault(instance, p), validation, metadata)),
                     buildProperties(p.getNestedParameters(), loader, locale, instance, p));
         }).sorted(Comparator.comparing(SimplePropertyDefinition::getPath)); // important cause it is the way you want to

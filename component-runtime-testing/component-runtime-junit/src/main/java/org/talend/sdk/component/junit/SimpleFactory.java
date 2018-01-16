@@ -17,6 +17,7 @@ package org.talend.sdk.component.junit;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -50,7 +51,7 @@ public class SimpleFactory {
             return emptyMap();
         }
         final ParameterMeta params = new SimpleParameterModelService().build(prefix, prefix, instance.getClass(),
-                new Annotation[0], instance.getClass().getPackage().getName());
+                new Annotation[0], singletonList(instance.getClass().getPackage().getName()));
         return computeConfiguration(params.getNestedParameters(), instance, new HashMap<>());
     }
 
@@ -148,8 +149,8 @@ public class SimpleFactory {
     private static class SimpleParameterModelService extends ParameterModelService {
 
         private ParameterMeta build(final String name, final String prefix, final Type genericType,
-                final Annotation[] annotations, final String i18nPackage) {
-            return super.buildParameter(name, prefix, genericType, annotations, i18nPackage);
+                final Annotation[] annotations, final Collection<String> i18nPackages) {
+            return super.buildParameter(name, prefix, null, genericType, annotations, i18nPackages);
         }
     }
 }
