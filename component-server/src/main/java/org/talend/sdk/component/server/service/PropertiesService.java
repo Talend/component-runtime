@@ -17,6 +17,8 @@ package org.talend.sdk.component.server.service;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.internationalization.ParameterBundle.DISPLAY_NAME;
+import static org.talend.sdk.component.runtime.internationalization.ParameterBundle.PLACEHOLDER;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -94,17 +96,23 @@ public class PropertiesService {
                     .orElse(null);
             final Object instance = defaultValueInspector.createDemoInstance(rootInstance, p);
             return Stream.concat(
-                    Stream.of(new SimplePropertyDefinition(path, name, p
-                            .findBundle(loader, locale)
-                            .displayName()
-                            .orElseGet(() -> p
-                                    .findBundle(loader, locale)
-                                    .fallbackDisplayName(parent == null ? null : parent.findBundle(loader, locale))
-                                    .orElse(p.getName())),
-                            type, toDefault(instance, p), validation, metadata)),
+                    Stream.of(new SimplePropertyDefinition(path, name,
+                            getFromBundle(DISPLAY_NAME, p, loader, locale, parent), type, toDefault(instance, p),
+                            validation, metadata, getFromBundle(PLACEHOLDER, p, loader, locale, parent))),
                     buildProperties(p.getNestedParameters(), loader, locale, instance, p));
         }).sorted(Comparator.comparing(SimplePropertyDefinition::getPath)); // important cause it is the way you want to
         // see it
+    }
+
+    private String getFromBundle(final String key, final ParameterMeta p, final ClassLoader loader, final Locale locale,
+            final ParameterMeta parent) {
+        return p
+                .findBundle(loader, locale)
+                .get(key)
+                .orElseGet(() -> p
+                        .findBundle(loader, locale)
+                        .getFallback(parent == null ? null : parent.findBundle(loader, locale), key)
+                        .orElse(p.getName()));
     }
 
     private String toDefault(final Object instance, final ParameterMeta p) {

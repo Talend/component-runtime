@@ -22,6 +22,10 @@ import java.util.stream.Stream;
 
 public class ParameterBundle extends InternalBundle {
 
+    public static final String DISPLAY_NAME = "_displayName";
+
+    public static final String PLACEHOLDER = "_placeholder";
+
     private final String[] simpleNames;
 
     public ParameterBundle(final ResourceBundle[] bundles, final String prefix, final String... simpleNames) {
@@ -29,14 +33,15 @@ public class ParameterBundle extends InternalBundle {
         this.simpleNames = simpleNames;
     }
 
-    public Optional<String> displayName() {
-        return readValue("_displayName");
+    public Optional<String> get(final String suffix) {
+        return readValue(suffix);
     }
 
-    public Optional<String> fallbackDisplayName(final ParameterBundle parent) {
+    public Optional<String> getFallback(final ParameterBundle parent, final String suffix) {
         return Stream.of(simpleNames).map(s -> {
-            final String k = s + "._displayName";
+            final String k = s + "." + suffix;
             return readRawValue(k).orElse(parent == null ? null : parent.readRawValue(k).orElse(null));
         }).filter(Objects::nonNull).findFirst();
     }
+
 }

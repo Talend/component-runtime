@@ -118,7 +118,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         schema.setTitle(ctx.getProperty().getDisplayName());
         schema.setKey(ctx.getProperty().getPath());
         schema.setRequired(ctx.isRequired());
-        schema.setPlaceholder(ctx.getProperty().getName() + " ...");
+        schema.setPlaceholder(ctx.getProperty().getPlaceholder());
         if (actions != null) {
             ofNullable(ctx.getProperty().getMetadata().get("action::validation"))
                     .flatMap(v -> actions
