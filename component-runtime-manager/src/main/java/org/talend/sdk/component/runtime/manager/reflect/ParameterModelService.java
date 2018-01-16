@@ -101,6 +101,7 @@ public class ParameterModelService {
         final List<String> proposals = new ArrayList<>();
         switch (type) {
         case OBJECT:
+            addI18nPackageIfPossible(i18nPackages, genericType);
             final List<ParameterMeta> meta =
                     buildParametersMetas(name, normalizedPrefix + ".", genericType, annotations, i18nPackages);
             meta.sort(Comparator.comparing(ParameterMeta::getName));
@@ -110,11 +111,13 @@ public class ParameterModelService {
             final Type nestedType = Class.class.isInstance(genericType) && Class.class.cast(genericType).isArray()
                     ? Class.class.cast(genericType).getComponentType()
                     : ParameterizedType.class.cast(genericType).getActualTypeArguments()[0];
+            addI18nPackageIfPossible(i18nPackages, nestedType);
             nested.addAll(buildParametersMetas(name + "[${index}]", normalizedPrefix + "[${index}].", nestedType,
                     Class.class.isInstance(nestedType) ? Class.class.cast(nestedType).getAnnotations() : NO_ANNOTATIONS,
                     i18nPackages));
             break;
         case ENUM:
+            addI18nPackageIfPossible(i18nPackages, genericType);
             proposals.addAll(Stream
                     .of(((Class<? extends Enum<?>>) genericType).getEnumConstants())
                     .map(Enum::name)
@@ -127,6 +130,15 @@ public class ParameterModelService {
         return new ParameterMeta(source, genericType, type, normalizedPrefix, name,
                 i18nPackages.toArray(new String[i18nPackages.size()]), nested, proposals,
                 buildExtensions(name, genericType, annotations));
+    }
+
+    private void addI18nPackageIfPossible(final Collection<String> i18nPackages, final Type type) {
+        if (Class.class.isInstance(type)) {
+            final Package typePck = Class.class.cast(type).getPackage();
+            if (typePck != null && !typePck.getName().isEmpty()) {
+                i18nPackages.add(typePck.getName());
+            }
+        }
     }
 
     private Map<String, String> buildExtensions(final String name, final Type genericType,
