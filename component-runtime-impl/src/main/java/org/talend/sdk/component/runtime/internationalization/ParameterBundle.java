@@ -22,10 +22,6 @@ import java.util.stream.Stream;
 
 public class ParameterBundle extends InternalBundle {
 
-    public static final String DISPLAY_NAME = "_displayName";
-
-    public static final String PLACEHOLDER = "_placeholder";
-
     private final String[] simpleNames;
 
     public ParameterBundle(final ResourceBundle[] bundles, final String prefix, final String... simpleNames) {
@@ -33,15 +29,24 @@ public class ParameterBundle extends InternalBundle {
         this.simpleNames = simpleNames;
     }
 
-    public Optional<String> get(final String suffix) {
-        return readValue(suffix);
+    public Optional<String> displayName(final ParameterBundle parent) {
+        return get(parent, "_displayName");
     }
 
-    public Optional<String> getFallback(final ParameterBundle parent, final String suffix) {
-        return Stream.of(simpleNames).map(s -> {
-            final String k = s + "." + suffix;
-            return readRawValue(k).orElse(parent == null ? null : parent.readRawValue(k).orElse(null));
-        }).filter(Objects::nonNull).findFirst();
+    public Optional<String> placeholder(final ParameterBundle parent) {
+        return get(parent, "_placeholder");
+    }
+
+    private Optional<String> get(final ParameterBundle parentBundle, final String suffix) {
+        Optional<String> v = readValue(suffix);
+        if (!v.isPresent()) {
+            v = Stream.of(simpleNames).map(s -> {
+                final String k = s + "." + suffix;
+                return readRawValue(k).orElse(parentBundle == null ? null : parentBundle.readRawValue(k).orElse(null));
+            }).filter(Objects::nonNull).findFirst();
+        }
+
+        return v;
     }
 
 }

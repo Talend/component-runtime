@@ -54,12 +54,12 @@ public class ParameterMeta {
         }
 
         @Override
-        public Optional<String> get(final String suffix) {
+        public Optional<String> displayName(final ParameterBundle parent) {
             return empty();
         }
 
         @Override
-        public Optional<String> getFallback(final ParameterBundle parent, final String suffix) {
+        public Optional<String> placeholder(final ParameterBundle parent) {
             return empty();
         }
     };
