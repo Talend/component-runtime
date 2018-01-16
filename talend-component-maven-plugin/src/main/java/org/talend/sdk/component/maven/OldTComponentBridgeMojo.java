@@ -1223,7 +1223,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
         if (rootParam != null) {
             output
                     .append("        $$main.setTitle(\"")
-                    .append(rootParam.findBundle(loader, Locale.ENGLISH).displayName().orElseGet(
+                    .append(rootParam.findBundle(loader, Locale.ENGLISH).displayName(null).orElseGet(
                             () -> capitalise(rootParam.getName())))
                     .append("\");\n");
         }
@@ -1399,11 +1399,11 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
                     setProperty("property.$$internalChunkSize.displayName", "Chunk Size");
                 }
                 parameterMetas.forEach(p -> setProperty("property." + p.getName() + ".displayName",
-                        p.findBundle(loader, Locale.ENGLISH).displayName().orElse(p.getName())));
+                        p.findBundle(loader, Locale.ENGLISH).displayName(null).orElse(p.getName())));
 
                 if (rootParam != null) {
                     final String displayName =
-                            rootParam.findBundle(loader, ENGLISH).displayName().orElse(rootParam.getName());
+                            rootParam.findBundle(loader, ENGLISH).displayName(null).orElse(rootParam.getName());
                     forms.forEach(f -> {
                         setProperty("form." + f + ".title", displayName);
                         setProperty("form." + f + ".displayName", displayName);

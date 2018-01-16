@@ -571,7 +571,7 @@ public class LegacyComponentBridgeMojo extends ComponentManagerBasedMojo {
 
             // only handle EN as default for now
             internationalization.setProperty(name + ".NAME",
-                    param.findBundle(container.getLoader(), Locale.ENGLISH).displayName().orElse(param.getName()));
+                    param.findBundle(container.getLoader(), Locale.ENGLISH).displayName(null).orElse(param.getName()));
 
             configKeys.add(parameter.getNAME());
             return Stream.concat(Stream.of(parameter), nested);
