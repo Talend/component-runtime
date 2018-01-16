@@ -131,6 +131,12 @@ class UiSpecServiceTest {
     }
 
     @Test
+    void defaultValues() throws Exception {
+        final Ui payload = service.convert(load("rest-api.json"));
+        assertEquals(10000., read(payload.getProperties(), "tableDataSet.limit"));
+    }
+
+    @Test
     void triggerRelativeParameters() throws Exception {
         final Ui payload = service.convert(load("relative-params.json"));
         final Collection<UiSchema> schema = payload.getUiSchema();
@@ -339,4 +345,12 @@ class UiSpecServiceTest {
         assertEquals(path, next.getPath());
     }
 
+    private Object read(final Object rootMap, final String path) {
+        Map<String, ?> current = Map.class.cast(rootMap);
+        final String[] split = path.split("\\.");
+        for (int i = 0; i < split.length - 1; i++) {
+            current = Map.class.cast(current.get(split[i]));
+        }
+        return current.get(split[split.length - 1]);
+    }
 }
