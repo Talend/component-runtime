@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static org.talend.core.model.process.EComponentCategory.ADVANCED;
+import static org.talend.core.model.process.EComponentCategory.BASIC;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +27,7 @@ import org.talend.core.PluginChecker;
 import org.talend.core.model.components.ComponentCategory;
 import org.talend.core.model.components.IComponent;
 import org.talend.core.model.process.EComponentCategory;
+import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
@@ -79,15 +83,19 @@ public class ElementParameterCreator {
                     PropertyDefinitionDecorator.wrap(detail.getProperties());
             PropertyNode root = new PropertyTreeCreator(new WidgetTypeMapper()).createPropertyTree(properties);
             // add main parameters
-            SettingsCreator mainCreator =
-                    new SchemaSettingsCreator(node, EComponentCategory.BASIC, updateComponentsParameter);
-            root.accept(mainCreator, Metadatas.MAIN_FORM);
-            parameters.addAll(mainCreator.getSettings());
+            SettingsCreator mainSettingsCreator = new SettingsCreator(node, BASIC, updateComponentsParameter);
+            root.accept(mainSettingsCreator, Metadatas.MAIN_FORM);
+            parameters.addAll(mainSettingsCreator.getSettings());
             // add advanced parameters
-            SettingsCreator advancedCreator =
-                    new SettingsCreator(node, EComponentCategory.ADVANCED, updateComponentsParameter);
+            SettingsCreator advancedCreator = new SettingsCreator(node, ADVANCED, updateComponentsParameter);
             root.accept(advancedCreator, Metadatas.ADVANCED_FORM);
             parameters.addAll(advancedCreator.getSettings());
+            // If No schema add one
+            if (parameters.stream().noneMatch(p -> EParameterFieldType.SCHEMA_TYPE.equals(p.getFieldType()))) {
+                parameters.add(mainSettingsCreator
+                        .createSchemaParameter(EConnectionType.FLOW_MAIN.getName(), "SCHEMA"));
+            }
+
         }
     }
 
@@ -288,7 +296,7 @@ public class ElementParameterCreator {
     private void addPropertyParameter() {
         ElementParameter parameter = new ElementParameter(node);
         parameter.setName("PROPERTY");
-        parameter.setCategory(EComponentCategory.BASIC);
+        parameter.setCategory(BASIC);
         parameter.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
         parameter.setFieldType(EParameterFieldType.PROPERTY_TYPE);
         // TODO
@@ -305,7 +313,7 @@ public class ElementParameterCreator {
         parameter.setTaggedValue("IS_PROPERTY_SHOW", false);
 
         ElementParameter child1 = new ElementParameter(node);
-        child1.setCategory(EComponentCategory.BASIC);
+        child1.setCategory(BASIC);
         child1.setName(EParameterName.PROPERTY_TYPE.getName());
         child1.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
         child1.setListItemsDisplayName(
@@ -325,7 +333,7 @@ public class ElementParameterCreator {
         child1.setParentParameter(parameter);
 
         ElementParameter child2 = new ElementParameter(node);
-        child2.setCategory(EComponentCategory.BASIC);
+        child2.setCategory(BASIC);
         child2.setName(EParameterName.REPOSITORY_PROPERTY_TYPE.getName());
         child2.setDisplayName(EParameterName.REPOSITORY_PROPERTY_TYPE.getDisplayName());
         child2.setListItemsDisplayName(new String[] {});
@@ -357,7 +365,7 @@ public class ElementParameterCreator {
             parameter.setValue(Boolean.FALSE);
             parameter.setDisplayName(EParameterName.TSTATCATCHER_STATS.getDisplayName());
             parameter.setFieldType(EParameterFieldType.CHECK);
-            parameter.setCategory(EComponentCategory.ADVANCED);
+            parameter.setCategory(ADVANCED);
             parameter.setNumRow(199);
             parameter.setReadOnly(false);
             parameter.setRequired(false);
@@ -379,7 +387,7 @@ public class ElementParameterCreator {
             parameter.setValue(Boolean.FALSE);
             parameter.setDisplayName(EParameterName.PARALLELIZE.getDisplayName());
             parameter.setFieldType(EParameterFieldType.CHECK);
-            parameter.setCategory(EComponentCategory.ADVANCED);
+            parameter.setCategory(ADVANCED);
             parameter.setNumRow(200);
             parameter.setShow(true);
             parameter.setDefaultValue(parameter.getValue());
@@ -399,7 +407,7 @@ public class ElementParameterCreator {
             parameter.setValue(2);
             parameter.setDisplayName(EParameterName.PARALLELIZE_NUMBER.getDisplayName());
             parameter.setFieldType(EParameterFieldType.TEXT);
-            parameter.setCategory(EComponentCategory.ADVANCED);
+            parameter.setCategory(ADVANCED);
             parameter.setNumRow(200);
             parameter.setShowIf(EParameterName.PARALLELIZE.getName() + " == 'true'");
             parameter.setDefaultValue(parameter.getValue());
@@ -419,7 +427,7 @@ public class ElementParameterCreator {
             parameter.setValue(Boolean.FALSE);
             parameter.setDisplayName(EParameterName.PARALLELIZE_KEEP_EMPTY.getDisplayName());
             parameter.setFieldType(EParameterFieldType.CHECK);
-            parameter.setCategory(EComponentCategory.ADVANCED);
+            parameter.setCategory(ADVANCED);
             parameter.setNumRow(200);
             parameter.setShow(false);
             parameter.setDefaultValue(parameter.getValue());
@@ -445,7 +453,7 @@ public class ElementParameterCreator {
         parameter.setValue("");
         parameter.setDisplayName(EParameterName.UNIQUE_NAME.getDisplayName());
         parameter.setFieldType(EParameterFieldType.TEXT);
-        parameter.setCategory(EComponentCategory.ADVANCED);
+        parameter.setCategory(ADVANCED);
         parameter.setNumRow(1);
         parameter.setReadOnly(true);
         parameter.setShow(false);
