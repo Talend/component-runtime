@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl;
 
+import static java.util.Optional.ofNullable;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,13 +25,13 @@ import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-public class UiPropertiesConverter implements PropertyConverter {
+public class PropertiesConverter implements PropertyConverter {
 
     private final Map<String, Object> defaults;
 
     private final Collection<SimplePropertyDefinition> properties;
 
-    public UiPropertiesConverter(final Map<String, Object> defaults,
+    public PropertiesConverter(final Map<String, Object> defaults,
             final Collection<SimplePropertyDefinition> properties) {
         this.defaults = defaults;
         this.properties = properties;
@@ -37,21 +39,25 @@ public class UiPropertiesConverter implements PropertyConverter {
 
     @Override
     public void convert(final PropertyContext context) {
-        if ("object".equalsIgnoreCase(context.getProperty().getType())) {
+        final SimplePropertyDefinition property = context.getProperty();
+        if ("object".equalsIgnoreCase(property.getType())) {
             final Map<String, Object> childDefaults = new HashMap<>();
-            defaults.put(context.getProperty().getName(), childDefaults);
-            final UiPropertiesConverter uiPropertiesConverter = new UiPropertiesConverter(childDefaults, properties);
+            defaults.put(property.getName(), childDefaults);
+            final PropertiesConverter propertiesConverter = new PropertiesConverter(childDefaults, properties);
             properties.stream().filter(context::isDirectChild).map(PropertyContext::new).forEach(
-                    uiPropertiesConverter::convert);
-        } else if (context.getProperty().getMetadata().containsKey("ui::defaultvalue::value")) {
-            final String def = context.getProperty().getMetadata().get("ui::defaultvalue::value");
-            if ("number".equalsIgnoreCase(context.getProperty().getType())) {
-                defaults.put(context.getProperty().getName(), Double.parseDouble(def));
-            } else if ("boolean".equalsIgnoreCase(context.getProperty().getType())) {
-                defaults.put(context.getProperty().getName(), Boolean.parseBoolean(def));
-            } else {
-                defaults.put(context.getProperty().getName(), def);
-            }
+                    propertiesConverter::convert);
+            return;
         }
+
+        ofNullable(property.getMetadata().getOrDefault("ui::defaultvalue::value", property.getDefaultValue()))
+                .ifPresent(value -> {
+                    if ("number".equalsIgnoreCase(property.getType())) {
+                        defaults.put(property.getName(), Double.parseDouble(value));
+                    } else if ("boolean".equalsIgnoreCase(property.getType())) {
+                        defaults.put(property.getName(), Boolean.parseBoolean(value));
+                    } else {
+                        defaults.put(property.getName(), value);
+                    }
+                });
     }
 }

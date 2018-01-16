@@ -24,7 +24,7 @@ import java.util.Objects;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter;
-import org.talend.sdk.component.form.internal.converter.impl.UiPropertiesConverter;
+import org.talend.sdk.component.form.internal.converter.impl.PropertiesConverter;
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
@@ -60,11 +60,12 @@ public class UiSpecService {
                         .map(SimplePropertyDefinition::getName)
                         .collect(toSet()));
 
-        final JsonSchemaConverter jsc = new JsonSchemaConverter(ui.getJsonSchema(), detail.getProperties());
-        final UiSchemaConverter usc = new UiSchemaConverter(null, detail.getId().getFamily(), ui.getUiSchema(), client,
-                detail.getProperties(), detail.getActions());
-        final UiPropertiesConverter upc =
-                new UiPropertiesConverter((Map<String, Object>) ui.getProperties(), detail.getProperties());
+        final JsonSchemaConverter jsonSchemaConverter =
+                new JsonSchemaConverter(ui.getJsonSchema(), detail.getProperties());
+        final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, detail.getId().getFamily(),
+                ui.getUiSchema(), client, detail.getProperties(), detail.getActions());
+        final PropertiesConverter propertiesConverter =
+                new PropertiesConverter(Map.class.cast(ui.getProperties()), detail.getProperties());
 
         detail
                 .getProperties()
@@ -73,9 +74,9 @@ public class UiSpecService {
                 .filter(p -> p.getName().equals(p.getPath()))
                 .map(PropertyContext::new)
                 .forEach(p -> {
-                    jsc.convert(p);
-                    usc.convert(p);
-                    upc.convert(p);
+                    jsonSchemaConverter.convert(p);
+                    uiSchemaConverter.convert(p);
+                    propertiesConverter.convert(p);
                 });
 
         return ui;

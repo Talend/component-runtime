@@ -68,8 +68,8 @@ public class JsonSchemaConverter implements PropertyConverter {
                     .collect(toSet()));
             break;
         }
-        ofNullable(context.getProperty().getMetadata().get("ui::defaultvalue::value"))
-                .ifPresent(jsonSchema::setDefaultValue);
+        ofNullable(context.getProperty().getMetadata().getOrDefault("ui::defaultvalue::value",
+                context.getProperty().getDefaultValue())).ifPresent(jsonSchema::setDefaultValue);
 
         final PropertyValidation validation = context.getProperty().getValidation();
         if (validation != null) {
