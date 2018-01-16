@@ -65,6 +65,7 @@
     "start-js": "node scripts/start.js",
     "start": "npm-run-all -p watch-css start-js",
     "build": "yarn run build-css && node scripts/build.js",
+    "watch": "webpack --config config/webpack.config.prod --bail --progress --colors --watch --display-error-details --display-chunks",
     "test": "node scripts/test.js --env=jsdom"
   },
   "jest": {

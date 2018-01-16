@@ -131,7 +131,7 @@
         </dependencies>
       </plugin>
 
-      <plugin> <!-- frontend build (nodejs), generated at prepare-package to be there for tests -->
+      <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend.version}</version>
@@ -176,9 +176,6 @@
             </goals>
             <configuration>
               <arguments>run watch</arguments>
-              <environmentVariables>
-                <NODE_ENV>development</NODE_ENV>
-              </environmentVariables>
             </configuration>
           </execution>
         </executions>

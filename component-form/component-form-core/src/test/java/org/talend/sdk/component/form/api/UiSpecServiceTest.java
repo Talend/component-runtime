@@ -84,6 +84,26 @@ class UiSpecServiceTest {
     });
 
     @Test
+    void jsonSchemaArray() throws Exception {
+        final Ui payload = service.convert(load("rest-api.json"));
+        final JsonSchema commonConfig = payload
+                .getJsonSchema()
+                .getProperties()
+                .values()
+                .iterator()
+                .next()
+                .getProperties()
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey().equals("commonConfig"))
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElseThrow(IllegalStateException::new);
+        assertTrue(commonConfig.getProperties().keySet().stream().anyMatch(p -> p.equals("fields")));
+        assertTrue(commonConfig.getProperties().keySet().stream().noneMatch(p -> p.equals("fields[]")));
+    }
+
+    @Test
     void objectArray() throws Exception {
         final Ui payload = service.convert(load("rest-api.json"));
         final List<UiSchema> orderItems = new ArrayList<>(payload

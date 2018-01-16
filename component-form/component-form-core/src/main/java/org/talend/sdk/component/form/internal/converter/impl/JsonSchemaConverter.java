@@ -56,6 +56,9 @@ public class JsonSchemaConverter implements PropertyConverter {
             new ArrayPropertyConverter(jsonSchema, properties).convert(p);
             break;
         default:
+            if (p.getProperty().getPath().endsWith("[]")) {
+                return;
+            }
             jsonSchema.setType(p.getProperty().getType().toLowerCase(ROOT));
             jsonSchema.setRequired(properties
                     .stream()

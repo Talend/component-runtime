@@ -26,6 +26,7 @@ import static lombok.AccessLevel.PRIVATE;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,7 +52,7 @@ public class SimpleFactory {
             return emptyMap();
         }
         final ParameterMeta params = new SimpleParameterModelService().build(prefix, prefix, instance.getClass(),
-                new Annotation[0], singletonList(instance.getClass().getPackage().getName()));
+                new Annotation[0], new ArrayList<>(singletonList(instance.getClass().getPackage().getName())));
         return computeConfiguration(params.getNestedParameters(), instance, new HashMap<>());
     }
 

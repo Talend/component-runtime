@@ -17,30 +17,31 @@
 import deepClone from 'lodash.clonedeep';
 
 function validation({ schema, body }) {
-	if(body.rawData.status === 'KO') {
-		return {
-			errors: {
-				[schema.key]: body.rawData.comment,
-			}
-		}
-	}
+  if(body.status === 'KO') {
+    return {
+      errors: {
+        [schema.key]: body.comment,
+      }
+    }
+  }
+  return {errors:[]};
 }
 
 function schema({ schema, body, properties, trigger }) {
-	const newProperties = deepClone(properties);
-	// TODO
-	return { properties: newProperties };
+  const newProperties = deepClone(properties);
+  // TODO
+  return { properties: newProperties };
 }
 
 function dynamic_values({ schema, body, properties, trigger }) {
-	return;
+  return;
 }
 
 const registry = {
-	dynamic_values,
-	schema,
-	healthcheck: validation,
-	validation
+  dynamic_values,
+  schema,
+  healthcheck: validation,
+  validation
 };
 
 export default registry;
