@@ -15,11 +15,7 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
-import java.util.List;
-
 import org.talend.core.model.process.EComponentCategory;
-import org.talend.core.model.process.EConnectionType;
-import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.components.ElementParameter;
 
@@ -39,29 +35,4 @@ public class SchemaSettingsCreator extends SettingsCreator {
             final ElementParameter redrawParameter) {
         super(iNode, category, redrawParameter);
     }
-
-    @Override
-    public List<ElementParameter> getSettings() {
-        boolean hasSchema = false;
-
-        for (TaCoKitElementParameter param : settings.values()) {
-            if (param.getFieldType() == EParameterFieldType.SCHEMA_TYPE) {
-                hasSchema = true;
-                break;
-            }
-        }
-        if (!hasSchema) {
-            addSchemaProperty();
-        }
-
-        return super.getSettings();
-    }
-
-    /**
-     * FIXME
-     */
-    private void addSchemaProperty() {
-        addSetting(createSchemaParameter(EConnectionType.FLOW_MAIN.getName(), "SCHEMA"));
-    }
-
 }
