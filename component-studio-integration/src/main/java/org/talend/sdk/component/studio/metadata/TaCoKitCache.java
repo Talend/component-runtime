@@ -12,6 +12,7 @@
  */
 package org.talend.sdk.component.studio.metadata;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.core.model.components.IComponent;
@@ -30,6 +31,12 @@ public class TaCoKitCache {
 
     private Map<String, ConfigTypeNode> configTypeNodeMapCache;
 
+    /**
+     * Stores family ConfigTypeNode. A key represents family name. Value - family ConfigTypeNode
+     * It is initialized and filled up lazily
+     */
+    private Map<String, ConfigTypeNode> familyConfigTypes;
+
     public TaCoKitCache() {
         // nothing to do
     }
@@ -43,6 +50,61 @@ public class TaCoKitCache {
             return configNode;
         }
         return getFamilyNode(getConfigTypeNodeMap().get(parentId));
+    }
+
+    /**
+     * Retrieves ConfigTypeNode from cache for specified parameters
+     * 
+     * @param familyName ConfigTypeNode family name
+     * @param nodeName ConfigTypeNode name
+     * @param configurationType ConfigTypeNode type, either dataset or datastore
+     * @return ConfigTypeNode for specified parameters
+     */
+    public ConfigTypeNode getConfigTypeNode(final String familyName, final String nodeName,
+            final String configurationType) {
+        if (familyConfigTypes == null) {
+            fillFamilyConfig();
+        }
+        return findConfigTypeNode(familyConfigTypes.get(familyName), nodeName, configurationType);
+    }
+
+    /**
+     * Finds only family ConfigTypeNode and puts them to {@link #familyConfigTypes}
+     */
+    private void fillFamilyConfig() {
+        Map<String, ConfigTypeNode> allNodes = getConfigTypeNodeMap();
+        familyConfigTypes = new HashMap<>();
+        allNodes.values().stream().filter(c -> c.getParentId() == null).forEach(
+                c -> familyConfigTypes.put(c.getName(), c));
+    }
+
+    /**
+     * Finds required ConfigTypeNode by its name and configuration types (dataset or datastore) in ConfigTypeNode tree.
+     * 
+     * @param current a node which is visited
+     * @param nodeName a node name of required ConfigTypeNode
+     * @param configurationType configuration type of required ConfigTypeNode. It makes sense,
+     * when datastore and dataset may have the same name within one component family
+     * @return required ConfigTypeNode
+     */
+    private ConfigTypeNode findConfigTypeNode(final ConfigTypeNode current, final String nodeName,
+            final String configurationType) {
+        // node is found
+        if (current.getName().equals(nodeName) && current.getConfigurationType().equals(configurationType)) {
+            return current;
+        }
+        // it is leaf, but node wasn't found in this branch
+        if (current.getEdges().isEmpty()) {
+            return null;
+        }
+        for (String edge : current.getEdges()) {
+            ConfigTypeNode node = findConfigTypeNode(configTypeNodeMapCache.get(edge), nodeName, configurationType);
+            if (node != null) {
+                return node;
+            }
+        }
+        // node wasn't found at all
+        return null;
     }
 
     public ConfigTypeNodes getConfigTypeNodes() {

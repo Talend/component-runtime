@@ -53,12 +53,19 @@ import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivat
 public class SettingsCreator implements PropertyVisitor {
 
     /**
+     * Specifies row number, on which schema properties (schema widget and guess schema button) should be displayed
+     * On the 1st row Repository switch widget is located
+     */
+    private static final int SCHEMA_ROW_NUMBER = 2;
+
+    /**
      * {@link TaCoKitElementParameter} has numRow field which stores widget relative position (row number on which it
      * appears)
      * If numRow = 10, this does not necessarily mean that widget will be shown on 10th line,
      * but when 1 parameter has numRow = 8, and 2 has numRow = 10, then 2 will shown under 1
+     * It is initialized to 3, because 1 row is for repository value switch widget and 2 is for schema
      */
-    private int lastRowNumber = 2;
+    private int lastRowNumber = 3;
 
     /**
      * Element(Node) for which parameters are created. It is required to set {@link TaCoKitElementParameter} constructor
@@ -245,7 +252,7 @@ public class SettingsCreator implements PropertyVisitor {
         schema.setDisplayName("!!!SCHEMA.NAME!!!");
         schema.setCategory(EComponentCategory.BASIC);
         schema.setFieldType(EParameterFieldType.SCHEMA_TYPE);
-        schema.setNumRow(1);
+        schema.setNumRow(SCHEMA_ROW_NUMBER);
         schema.setShow(true);
         schema.setReadOnly(false);
         schema.setRequired(true);
@@ -293,7 +300,7 @@ public class SettingsCreator implements PropertyVisitor {
             guessSchemaParameter.setListItemsDisplayName(new String[0]);
             guessSchemaParameter.setListItemsValue(new String[0]);
             guessSchemaParameter.setName(tacokitGuessSchema);
-            guessSchemaParameter.setNumRow(1);
+            guessSchemaParameter.setNumRow(SCHEMA_ROW_NUMBER);
             guessSchemaParameter.setParentParameter(schema);
             guessSchemaParameter.setReadOnly(false);
             guessSchemaParameter.setRequired(false);

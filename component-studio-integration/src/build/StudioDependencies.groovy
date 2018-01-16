@@ -40,6 +40,7 @@ def dependencies = [
         'org.talend.common.ui.runtime',
         'org.talend.maven.resolver',
         'org.talend.core.repository',
+        'org.talend.repository',
         'org.talend.repository.view',
         'org.talend.repository.view.di',
         'org.talend.designer.core.generic',
