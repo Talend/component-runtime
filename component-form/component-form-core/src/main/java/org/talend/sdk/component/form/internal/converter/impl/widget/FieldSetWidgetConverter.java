@@ -15,12 +15,8 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
-import static java.util.Collections.singletonList;
-import static java.util.Optional.ofNullable;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -29,7 +25,7 @@ import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-public class FieldSetWidgetConverter extends AbstractWidgetConverter {
+public class FieldSetWidgetConverter extends ObjectWidgetConverter {
 
     private final Client client;
 
@@ -45,75 +41,19 @@ public class FieldSetWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public void convert(final PropertyContext p) {
-        final UiSchema uiSchema = newUiSchema(p);
+    public void convert(final PropertyContext context) {
+        final UiSchema uiSchema = newUiSchema(context);
         uiSchema.setWidget("fieldset");
         uiSchema.setItems(new ArrayList<>());
 
         final UiSchemaConverter uiSchemaConverter =
-                new UiSchemaConverter(family, uiSchema.getItems(), client, properties, actions);
+                new UiSchemaConverter(null, family, uiSchema.getItems(), client, properties, actions);
 
         // Create Nested UI Items
-        properties.stream().filter(p::isDirectChild).map(PropertyContext::new).forEach(uiSchemaConverter::convert);
+        properties.stream().filter(context::isDirectChild).map(PropertyContext::new).forEach(
+                uiSchemaConverter::convert);
 
-        // add common actions if needed
-        ofNullable(p.getProperty().getMetadata().get("action::schema"))
-                .flatMap(v -> actions
-                        .stream()
-                        .filter(a -> a.getName().equals(v) && "schema".equals(a.getType()))
-                        .findFirst())
-                .ifPresent(ref -> {
-                    final UiSchema.Trigger trigger = toTrigger(properties, p.getProperty(), ref);
-                    if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
-                        // find the matching dataset
-                        properties
-                                .stream()
-                                .filter(nested -> ref.getName().equals(
-                                        nested.getMetadata().get("configurationtype::name"))
-                                        && "dataset".equals(nested.getMetadata().get("configurationtype::type")))
-                                .findFirst()
-                                .ifPresent(dataset -> {
-                                    final UiSchema.Parameter parameter = new UiSchema.Parameter();
-                                    parameter.setKey("dataset");
-                                    parameter.setPath(p.getProperty().getPath());
-                                    trigger.setParameters(
-                                            toParams(properties, p.getProperty(), ref, p.getProperty().getPath()));
-                                });
-                    }
-
-                    final UiSchema button = new UiSchema();
-                    button.setKey("button_schema_" + p.getProperty().getPath());
-                    button.setTitle("Guess Schema");
-                    button.setWidget("button");
-                    button.setTriggers(singletonList(trigger));
-                    uiSchema.getItems().add(button);
-                });
-
-        ofNullable(p.getProperty().getMetadata().get("action::healthcheck"))
-                .flatMap(v -> (actions == null ? Stream.<ActionReference> empty() : actions.stream())
-                        .filter(a -> a.getName().equals(v) && "healthcheck".equals(a.getType()))
-                        .findFirst())
-                .ifPresent(ref -> {
-                    final UiSchema.Trigger trigger = toTrigger(properties, p.getProperty(), ref);
-                    if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
-                        // find the matching dataset
-                        properties
-                                .stream()
-                                .filter(nested -> "datastore"
-                                        .equals(nested.getMetadata().get("configurationtype::type"))
-                                        && ref.getName().equals(nested.getMetadata().get("configurationtype::name")))
-                                .findFirst()
-                                .ifPresent(datastore -> trigger
-                                        .setParameters(toParams(properties, datastore, ref, datastore.getPath())));
-                    }
-
-                    final UiSchema button = new UiSchema();
-                    button.setKey("button_healthcheck_" + p.getProperty().getPath());
-                    button.setTitle("Validate Datastore");
-                    button.setWidget("button");
-                    button.setTriggers(singletonList(trigger));
-                    uiSchema.getItems().add(button);
-                });
+        // add common actions
+        addActions(context, uiSchema);
     }
-
 }

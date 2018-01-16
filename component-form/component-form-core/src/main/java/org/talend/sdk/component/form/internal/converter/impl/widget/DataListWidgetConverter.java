@@ -34,22 +34,22 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public void convert(final PropertyContext p) {
-        final UiSchema schema = newUiSchema(p);
+    public void convert(final PropertyContext context) {
+        final UiSchema schema = newUiSchema(context);
         schema.setWidget("datalist");
 
         final JsonSchema jsonSchema = new JsonSchema();
         jsonSchema.setType("string");
         schema.setSchema(jsonSchema);
 
-        if (p.getProperty().getValidation().getEnumValues() != null) {
-            schema.setTitleMap(p.getProperty().getValidation().getEnumValues().stream().sorted().map(v -> {
+        if (context.getProperty().getValidation().getEnumValues() != null) {
+            schema.setTitleMap(context.getProperty().getValidation().getEnumValues().stream().sorted().map(v -> {
                 final UiSchema.NameValue nameValue = new UiSchema.NameValue();
                 nameValue.setName(v);
                 nameValue.setValue(v);
                 return nameValue;
             }).collect(toList()));
-            jsonSchema.setEnumValues(p.getProperty().getValidation().getEnumValues());
+            jsonSchema.setEnumValues(context.getProperty().getValidation().getEnumValues());
         } else {
             schema.setTitleMap(emptyList());
             jsonSchema.setEnumValues(emptyList());

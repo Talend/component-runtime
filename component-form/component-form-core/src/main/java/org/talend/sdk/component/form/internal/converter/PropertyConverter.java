@@ -17,6 +17,6 @@ package org.talend.sdk.component.form.internal.converter;
 
 public interface PropertyConverter {
 
-    void convert(PropertyContext p);
+    void convert(PropertyContext context);
 
 }

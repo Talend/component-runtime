@@ -45,32 +45,33 @@ public class JsonSchemaConverter implements PropertyConverter {
     private final Collection<SimplePropertyDefinition> properties;
 
     @Override
-    public void convert(final PropertyContext p) {
+    public void convert(final PropertyContext context) {
         final JsonSchema jsonSchema = new JsonSchema();
-        jsonSchema.setTitle(p.getProperty().getDisplayName());
-        switch (p.getProperty().getType().toLowerCase(ROOT)) {
+        jsonSchema.setTitle(context.getProperty().getDisplayName());
+        switch (context.getProperty().getType().toLowerCase(ROOT)) {
         case "enum":
-            new EnumPropertyConverter(jsonSchema).convert(p);
+            new EnumPropertyConverter(jsonSchema).convert(context);
             break;
         case "array":
-            new ArrayPropertyConverter(jsonSchema, properties).convert(p);
+            new ArrayPropertyConverter(jsonSchema, properties).convert(context);
             break;
         default:
-            if (p.getProperty().getPath().endsWith("[]")) {
+            if (context.getProperty().getPath().endsWith("[]")) {
                 return;
             }
-            jsonSchema.setType(p.getProperty().getType().toLowerCase(ROOT));
+            jsonSchema.setType(context.getProperty().getType().toLowerCase(ROOT));
             jsonSchema.setRequired(properties
                     .stream()
-                    .filter(p::isDirectChild)
+                    .filter(context::isDirectChild)
                     .filter(nested -> new PropertyContext(nested).isRequired())
                     .map(SimplePropertyDefinition::getName)
                     .collect(toSet()));
             break;
         }
-        ofNullable(p.getProperty().getMetadata().get("ui::defaultvalue::value")).ifPresent(jsonSchema::setDefaultValue);
+        ofNullable(context.getProperty().getMetadata().get("ui::defaultvalue::value"))
+                .ifPresent(jsonSchema::setDefaultValue);
 
-        final PropertyValidation validation = p.getProperty().getValidation();
+        final PropertyValidation validation = context.getProperty().getValidation();
         if (validation != null) {
             ofNullable(validation.getMin()).ifPresent(m -> jsonSchema.setMinimum(m.doubleValue()));
             ofNullable(validation.getMax()).ifPresent(m -> jsonSchema.setMaximum(m.doubleValue()));
@@ -82,14 +83,10 @@ public class JsonSchemaConverter implements PropertyConverter {
             ofNullable(validation.getPattern()).ifPresent(jsonSchema::setPattern);
         }
 
-        if (properties
-                .stream() // has child
-                .anyMatch(p::isDirectChild)) {
-            final boolean isOrder = p.getProperty().getMetadata().get("ui::optionsorder::value") != null;
-            if (isOrder) {
+        if (properties.stream().anyMatch(context::isDirectChild)) { // has child
+            final String order = context.getProperty().getMetadata().get("ui::optionsorder::value");
+            if (order != null) {
                 jsonSchema.setProperties(new TreeMap<>(new Comparator<String>() {
-
-                    final String order = p.getProperty().getMetadata().get("ui::optionsorder::value");
 
                     private final List<String> propertiesOrder = new ArrayList<>(asList(order.split(",")));
 
@@ -104,13 +101,13 @@ public class JsonSchemaConverter implements PropertyConverter {
             }
 
             final JsonSchemaConverter jsonSchemaConverter = new JsonSchemaConverter(jsonSchema, properties);
-            properties.stream().filter(p::isDirectChild).map(PropertyContext::new).forEach(
+            properties.stream().filter(context::isDirectChild).map(PropertyContext::new).forEach(
                     jsonSchemaConverter::convert);
         }
 
         if (rootJsonSchema.getProperties() == null) {
             rootJsonSchema.setProperties(new HashMap<>());
         }
-        rootJsonSchema.getProperties().put(p.getProperty().getName(), jsonSchema);
+        rootJsonSchema.getProperties().put(context.getProperty().getName(), jsonSchema);
     }
 }

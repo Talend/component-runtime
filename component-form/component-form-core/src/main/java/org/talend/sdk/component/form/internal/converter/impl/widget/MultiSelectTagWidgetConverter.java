@@ -49,14 +49,14 @@ public class MultiSelectTagWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public void convert(final PropertyContext p) {
-        final UiSchema schema = newUiSchema(p);
+    public void convert(final PropertyContext context) {
+        final UiSchema schema = newUiSchema(context);
         schema.setWidget("multiSelectTag");
         schema.setRestricted(false);
         if (client != null) {
             try {
                 final Map<String, Object> values = client.action(family, "dynamic_values",
-                        p.getProperty().getMetadata().get("action::dynamic_values"), emptyMap());
+                        context.getProperty().getMetadata().get("action::dynamic_values"), emptyMap());
 
                 final List<UiSchema.NameValue> namedValues =
                         ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance).map(c -> {

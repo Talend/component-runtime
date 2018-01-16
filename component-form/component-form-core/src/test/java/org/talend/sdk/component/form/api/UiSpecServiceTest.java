@@ -18,6 +18,7 @@ package org.talend.sdk.component.form.api;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -104,25 +105,29 @@ class UiSpecServiceTest {
     }
 
     @Test
-    void objectArray() throws Exception {
+    void gridLayout() throws Exception {
         final Ui payload = service.convert(load("rest-api.json"));
-        final List<UiSchema> orderItems = new ArrayList<>(payload
-                .getUiSchema()
-                .iterator()
-                .next()
-                .getItems()
-                .stream()
-                .filter(i -> i.getKey() == null && i.getItems().iterator().next().getKey().equals("tableDataSet.order"))
-                .findFirst()
-                .get()
-                .getItems()
-                .iterator()
-                .next()
-                .getItems());
-        assertEquals(2, orderItems.size());
-        assertEquals("tableDataSet.order[].field", orderItems.get(0).getKey());
-        assertEquals("datalist", orderItems.get(0).getWidget());
-        assertEquals("tableDataSet.order[].order", orderItems.get(1).getKey());
+        final UiSchema tableDataSet = payload.getUiSchema().iterator().next();
+        assertEquals(2, tableDataSet.getItems().size());
+        final Iterator<UiSchema> tableDataSetIt = tableDataSet.getItems().iterator();
+        final UiSchema tableDataSetMain = tableDataSetIt.next();
+        assertEquals("Main", tableDataSetMain.getTitle());
+
+        assertEquals(3, tableDataSetMain.getItems().size());
+        assertEquals(asList("dataStore", "commonConfig", "queryBuilder"),
+                tableDataSetMain.getItems().stream().map(UiSchema::getTitle).collect(toList()));
+
+        final Iterator<UiSchema> mainIt = tableDataSetMain.getItems().iterator();
+        final UiSchema dataStore = mainIt.next();
+        Iterator<UiSchema> dataStoreIt = dataStore.getItems().iterator();
+        dataStoreIt.next();
+        final UiSchema credentials = dataStoreIt.next();
+        assertEquals("columns", credentials.getWidget());
+        assertEquals(asList("Username", "Password"),
+                credentials.getItems().stream().map(UiSchema::getTitle).collect(toList()));
+
+        final UiSchema tableDataSetAdvanced = tableDataSetIt.next();
+        assertEquals("Advanced", tableDataSetAdvanced.getTitle());
     }
 
     @Test

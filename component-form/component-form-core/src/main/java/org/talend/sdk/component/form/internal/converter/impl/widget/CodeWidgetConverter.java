@@ -32,9 +32,9 @@ public class CodeWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public void convert(final PropertyContext p) {
-        final UiSchema schema = newUiSchema(p);
-        final String codeLang = p.getProperty().getMetadata().get("ui::code::value");
+    public void convert(final PropertyContext context) {
+        final UiSchema schema = newUiSchema(context);
+        final String codeLang = context.getProperty().getMetadata().get("ui::code::value");
         schema.setWidget("code");
         schema.setOptions(singletonMap("language", codeLang));
 

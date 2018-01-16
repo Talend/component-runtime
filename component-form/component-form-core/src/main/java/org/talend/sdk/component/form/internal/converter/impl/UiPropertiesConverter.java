@@ -36,21 +36,21 @@ public class UiPropertiesConverter implements PropertyConverter {
     }
 
     @Override
-    public void convert(final PropertyContext p) {
-        if ("object".equalsIgnoreCase(p.getProperty().getType())) {
+    public void convert(final PropertyContext context) {
+        if ("object".equalsIgnoreCase(context.getProperty().getType())) {
             final Map<String, Object> childDefaults = new HashMap<>();
-            defaults.put(p.getProperty().getName(), childDefaults);
+            defaults.put(context.getProperty().getName(), childDefaults);
             final UiPropertiesConverter uiPropertiesConverter = new UiPropertiesConverter(childDefaults, properties);
-            properties.stream().filter(p::isDirectChild).map(PropertyContext::new).forEach(
+            properties.stream().filter(context::isDirectChild).map(PropertyContext::new).forEach(
                     uiPropertiesConverter::convert);
-        } else if (p.getProperty().getMetadata().containsKey("ui::defaultvalue::value")) {
-            final String def = p.getProperty().getMetadata().get("ui::defaultvalue::value");
-            if ("number".equalsIgnoreCase(p.getProperty().getType())) {
-                defaults.put(p.getProperty().getName(), Double.parseDouble(def));
-            } else if ("boolean".equalsIgnoreCase(p.getProperty().getType())) {
-                defaults.put(p.getProperty().getName(), Boolean.parseBoolean(def));
+        } else if (context.getProperty().getMetadata().containsKey("ui::defaultvalue::value")) {
+            final String def = context.getProperty().getMetadata().get("ui::defaultvalue::value");
+            if ("number".equalsIgnoreCase(context.getProperty().getType())) {
+                defaults.put(context.getProperty().getName(), Double.parseDouble(def));
+            } else if ("boolean".equalsIgnoreCase(context.getProperty().getType())) {
+                defaults.put(context.getProperty().getName(), Boolean.parseBoolean(def));
             } else {
-                defaults.put(p.getProperty().getName(), def);
+                defaults.put(context.getProperty().getName(), def);
             }
         }
     }

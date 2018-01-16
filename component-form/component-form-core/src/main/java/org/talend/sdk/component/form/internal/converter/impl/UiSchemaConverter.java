@@ -15,10 +15,14 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl;
 
+import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -27,6 +31,7 @@ import org.talend.sdk.component.form.internal.converter.impl.widget.CodeWidgetCo
 import org.talend.sdk.component.form.internal.converter.impl.widget.CredentialWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.DataListWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.FieldSetWidgetConverter;
+import org.talend.sdk.component.form.internal.converter.impl.widget.GridLayoutWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.MultiSelectTagWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.NumberWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.ObjectArrayWidgetConverter;
@@ -41,6 +46,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UiSchemaConverter implements PropertyConverter {
 
+    private final String gridLayoutFilter;
+
     private final String family;
 
     private final Collection<UiSchema> schemas;
@@ -52,48 +59,66 @@ public class UiSchemaConverter implements PropertyConverter {
     private Collection<ActionReference> actions;
 
     @Override
-    public void convert(final PropertyContext p) {
-        final String type = p.getProperty().getType().toLowerCase(Locale.ROOT);
+    public void convert(final PropertyContext context) {
+        final String type = context.getProperty().getType().toLowerCase(Locale.ROOT);
         switch (type) {
         case "object":
-            new FieldSetWidgetConverter(schemas, properties, actions, client, family).convert(p);
+            final Map<String, String> gridLayouts = context
+                    .getProperty()
+                    .getMetadata()
+                    .entrySet()
+                    .stream()
+                    .filter(e -> e.getKey().startsWith("ui::gridlayout::") && e.getKey().endsWith("::value"))
+                    .collect(toMap(e -> e.getKey().substring("ui::gridlayout::".length(),
+                            e.getKey().length() - "::value".length()), Map.Entry::getValue, (a, b) -> {
+                                throw new IllegalArgumentException("Can't merge " + a + " and " + b);
+                            }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
+            if (!gridLayouts.isEmpty()) {
+                new GridLayoutWidgetConverter(schemas, properties, actions, client, family,
+                        gridLayoutFilter != null && gridLayouts.containsKey(gridLayoutFilter)
+                                ? singletonMap(gridLayoutFilter, gridLayouts.get(gridLayoutFilter))
+                                : gridLayouts).convert(context);
+            } else {
+                new FieldSetWidgetConverter(schemas, properties, actions, client, family).convert(context);
+            }
             break;
         case "boolean":
-            new ToggleWidgetConverter(schemas, properties, actions).convert(p);
+            new ToggleWidgetConverter(schemas, properties, actions).convert(context);
             break;
         case "enum":
-            new DataListWidgetConverter(schemas, properties, actions).convert(p);
+            new DataListWidgetConverter(schemas, properties, actions).convert(context);
             break;
         case "number":
-            new NumberWidgetConverter(schemas, properties, actions).convert(p);
+            new NumberWidgetConverter(schemas, properties, actions).convert(context);
             break;
         case "array":
-            final String nestedPrefix = p.getProperty().getPath() + "[].";
+            final String nestedPrefix = context.getProperty().getPath() + "[].";
             final int from = nestedPrefix.length();
             final Collection<SimplePropertyDefinition> nested = properties
                     .stream()
                     .filter(prop -> prop.getPath().startsWith(nestedPrefix) && prop.getPath().indexOf('.', from) < 0)
                     .collect(toList());
             if (!nested.isEmpty()) {
-                new ObjectArrayWidgetConverter(schemas, properties, actions, nested, family, client).convert(p);
+                new ObjectArrayWidgetConverter(schemas, properties, actions, nested, family, client, gridLayoutFilter)
+                        .convert(context);
             } else {
-                new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family).convert(p);
+                new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family).convert(context);
             }
             break;
         case "string":
         default:
-            if (p.getProperty().getPath().endsWith("[]")) {
+            if (context.getProperty().getPath().endsWith("[]")) {
                 return;
             }
-            if ("true".equalsIgnoreCase(p.getProperty().getMetadata().get("ui::credential"))) {
-                new CredentialWidgetConverter(schemas, properties, actions).convert(p);
-            } else if (p.getProperty().getMetadata().containsKey("ui::code::value")) {
-                new CodeWidgetConverter(schemas, properties, actions).convert(p);
-            } else if (p.getProperty().getMetadata() != null
-                    && p.getProperty().getMetadata().containsKey("action::dynamic_values")) {
-                new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family).convert(p);
+            if ("true".equalsIgnoreCase(context.getProperty().getMetadata().get("ui::credential"))) {
+                new CredentialWidgetConverter(schemas, properties, actions).convert(context);
+            } else if (context.getProperty().getMetadata().containsKey("ui::code::value")) {
+                new CodeWidgetConverter(schemas, properties, actions).convert(context);
+            } else if (context.getProperty().getMetadata() != null
+                    && context.getProperty().getMetadata().containsKey("action::dynamic_values")) {
+                new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family).convert(context);
             } else {
-                new TextWidgetConverter(schemas, properties, actions).convert(p);
+                new TextWidgetConverter(schemas, properties, actions).convert(context);
             }
             break;
         }

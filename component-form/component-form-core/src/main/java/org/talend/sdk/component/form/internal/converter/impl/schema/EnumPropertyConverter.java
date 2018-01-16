@@ -29,12 +29,13 @@ public class EnumPropertyConverter implements PropertyConverter {
     private final JsonSchema jsonSchema;
 
     @Override
-    public void convert(final PropertyContext p) {
+    public void convert(final PropertyContext context) {
         jsonSchema.setType("string");
-        if (p.getProperty().getValidation() == null || p.getProperty().getValidation().getEnumValues() == null) {
+        if (context.getProperty().getValidation() == null
+                || context.getProperty().getValidation().getEnumValues() == null) {
             jsonSchema.setEnumValues(emptyList());
         } else {
-            jsonSchema.setEnumValues(p.getProperty().getValidation().getEnumValues());
+            jsonSchema.setEnumValues(context.getProperty().getValidation().getEnumValues());
         }
     }
 }

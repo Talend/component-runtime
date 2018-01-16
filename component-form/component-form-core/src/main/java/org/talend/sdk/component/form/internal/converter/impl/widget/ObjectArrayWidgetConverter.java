@@ -29,6 +29,8 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
 
+    private final String gridLayoutFilter;
+
     private final Client client;
 
     private final String family;
@@ -37,21 +39,23 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
 
     public ObjectArrayWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
-            final Collection<SimplePropertyDefinition> nested, final String family, final Client client) {
+            final Collection<SimplePropertyDefinition> nested, final String family, final Client client,
+            final String gridLayoutFilter) {
         super(schemas, properties, actions);
         this.nestedProperties = nested;
         this.family = family;
         this.client = client;
+        this.gridLayoutFilter = gridLayoutFilter;
     }
 
     @Override
-    public void convert(final PropertyContext ctx) {
-        final UiSchema arraySchema = newUiSchema(ctx);
-        arraySchema.setTitle(ctx.getProperty().getDisplayName());
+    public void convert(final PropertyContext context) {
+        final UiSchema arraySchema = newOrphanSchema(context);
+        arraySchema.setTitle(context.getProperty().getDisplayName());
         arraySchema.setItems(new ArrayList<>());
         arraySchema.setItemWidget("collapsibleFieldset");
         final UiSchemaConverter converter =
-                new UiSchemaConverter(family, arraySchema.getItems(), client, properties, actions);
+                new UiSchemaConverter(gridLayoutFilter, family, arraySchema.getItems(), client, properties, actions);
         nestedProperties.forEach(p -> converter.convert(new PropertyContext(p)));
 
         // until previous schema supports a title
@@ -59,8 +63,6 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
         fieldSetWrapper.setTitle(arraySchema.getTitle());
         fieldSetWrapper.setItems(singletonList(arraySchema));
         fieldSetWrapper.setWidget("fieldset");
-        schemas.remove(arraySchema);
         schemas.add(fieldSetWrapper);
-
     }
 }

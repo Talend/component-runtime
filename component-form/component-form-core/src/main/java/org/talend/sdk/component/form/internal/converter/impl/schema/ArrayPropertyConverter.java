@@ -39,9 +39,9 @@ public class ArrayPropertyConverter implements PropertyConverter {
     private final Collection<SimplePropertyDefinition> properties;
 
     @Override
-    public void convert(final PropertyContext p) {
-        jsonSchema.setType(p.getProperty().getType().toLowerCase(ROOT));
-        final String prefix = p.getProperty().getPath() + "[]";
+    public void convert(final PropertyContext context) {
+        jsonSchema.setType(context.getProperty().getType().toLowerCase(ROOT));
+        final String prefix = context.getProperty().getPath() + "[]";
         final List<SimplePropertyDefinition> arrayElements =
                 properties.stream().filter(child -> child.getPath().startsWith(prefix)).collect(toList());
 

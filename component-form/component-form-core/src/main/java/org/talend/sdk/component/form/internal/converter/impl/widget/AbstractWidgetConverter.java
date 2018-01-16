@@ -106,23 +106,26 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         return paramRef;
     }
 
-    protected UiSchema newUiSchema(final PropertyContext p) {
+    protected UiSchema newUiSchema(final PropertyContext ctx) {
+        final UiSchema schema = newOrphanSchema(ctx);
+        schemas.add(schema);
+        return schema;
+    }
+
+    protected UiSchema newOrphanSchema(final PropertyContext ctx) {
         final UiSchema schema = new UiSchema();
-        schema.setTitle(p.getProperty().getDisplayName());
-        schema.setKey(p.getProperty().getPath());
-        schema.setRequired(p.isRequired());
-        schema.setPlaceholder(p.getProperty().getName() + " ...");
+        schema.setTitle(ctx.getProperty().getDisplayName());
+        schema.setKey(ctx.getProperty().getPath());
+        schema.setRequired(ctx.isRequired());
+        schema.setPlaceholder(ctx.getProperty().getName() + " ...");
         if (actions != null) {
-            ofNullable(p.getProperty().getMetadata().get("action::validation"))
+            ofNullable(ctx.getProperty().getMetadata().get("action::validation"))
                     .flatMap(v -> actions
                             .stream()
                             .filter(a -> a.getName().equals(v) && "validation".equals(a.getType()))
                             .findFirst())
-                    .ifPresent(ref -> {
-                        schema.setTriggers(singletonList(toTrigger(properties, p.getProperty(), ref)));
-                    });
+                    .ifPresent(ref -> schema.setTriggers(singletonList(toTrigger(properties, ctx.getProperty(), ref))));
         }
-        schemas.add(schema);
         return schema;
     }
 }
