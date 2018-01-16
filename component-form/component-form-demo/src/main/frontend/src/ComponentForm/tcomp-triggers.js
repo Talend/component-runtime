@@ -17,14 +17,11 @@
 import deepClone from 'lodash.clonedeep';
 
 function validation({ schema, body }) {
-  if(body.status === 'KO') {
-    return {
-      errors: {
-        [schema.key]: body.comment,
-      }
+  return {
+    errors: {
+      [schema.key]: body.status === 'KO' ? body.comment : undefined,
     }
-  }
-  return {errors:[]};
+  };
 }
 
 function schema({ schema, body, properties, trigger }) {
@@ -37,11 +34,9 @@ function dynamic_values({ schema, body, properties, trigger }) {
   return;
 }
 
-const registry = {
+export default {
   dynamic_values,
   schema,
   healthcheck: validation,
   validation
 };
-
-export default registry;
