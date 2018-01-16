@@ -93,20 +93,21 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
         final UiSchema uiSchema = newOrphanSchema(root);
         uiSchema.setItems(new ArrayList<>());
 
+        final Collection<SimplePropertyDefinition> visitedProperties = new ArrayList<>();
         final Map<String, SimplePropertyDefinition> childProperties =
                 properties.stream().filter(root::isDirectChild).collect(
                         toMap(SimplePropertyDefinition::getName, identity()));
         Stream.of(layout.split("\\|")).map(line -> line.split(",")).forEach(line -> {
             if (line.length == 1 && childProperties.containsKey(line[0])) {
-                new UiSchemaConverter(layoutFilter, family, uiSchema.getItems(), client, properties, actions)
-                        .convert(new PropertyContext(childProperties.get(line[0])));
+                new UiSchemaConverter(layoutFilter, family, uiSchema.getItems(), visitedProperties, client, properties,
+                        actions).convert(new PropertyContext(childProperties.get(line[0])));
             } else if (line.length > 1) {
                 final UiSchema schema = new UiSchema();
                 schema.setWidget("columns");
                 schema.setItems(new ArrayList<>());
 
-                final UiSchemaConverter columnConverter =
-                        new UiSchemaConverter(layoutFilter, family, schema.getItems(), client, properties, actions);
+                final UiSchemaConverter columnConverter = new UiSchemaConverter(layoutFilter, family, schema.getItems(),
+                        visitedProperties, client, properties, actions);
 
                 Stream
                         .of(line)
@@ -119,8 +120,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
                 uiSchema.getItems().add(schema);
             }
         });
-
-        addActions(root, uiSchema);
+        addActions(root, uiSchema, visitedProperties);
 
         return uiSchema;
     }

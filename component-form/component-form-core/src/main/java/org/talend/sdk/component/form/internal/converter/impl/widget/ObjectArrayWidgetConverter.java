@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
-import static java.util.Collections.singletonList;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -50,19 +48,12 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
 
     @Override
     public void convert(final PropertyContext context) {
-        final UiSchema arraySchema = newOrphanSchema(context);
+        final UiSchema arraySchema = newUiSchema(context);
         arraySchema.setTitle(context.getProperty().getDisplayName());
         arraySchema.setItems(new ArrayList<>());
         arraySchema.setItemWidget("collapsibleFieldset");
-        final UiSchemaConverter converter =
-                new UiSchemaConverter(gridLayoutFilter, family, arraySchema.getItems(), client, properties, actions);
+        final UiSchemaConverter converter = new UiSchemaConverter(gridLayoutFilter, family, arraySchema.getItems(),
+                new ArrayList<>(), client, properties, actions);
         nestedProperties.forEach(p -> converter.convert(new PropertyContext(p)));
-
-        // until previous schema supports a title
-        final UiSchema fieldSetWrapper = new UiSchema();
-        fieldSetWrapper.setTitle(arraySchema.getTitle());
-        fieldSetWrapper.setItems(singletonList(arraySchema));
-        fieldSetWrapper.setWidget("fieldset");
-        schemas.add(fieldSetWrapper);
     }
 }

@@ -228,14 +228,10 @@ class UiSpecServiceTest {
         final Collection<UiSchema> uiSchema = payload.getUiSchema();
         assertNotNull(uiSchema);
         assertEquals(1, uiSchema.size());
-        assertUiSchema(uiSchema.iterator().next(), "fieldset", "Configuration", "configuration", 3, schema -> {
+        assertUiSchema(uiSchema.iterator().next(), "fieldset", "Configuration", "configuration", 2, schema -> {
             final List<UiSchema> items = new ArrayList<>(schema.getItems());
             items.sort(Comparator.comparing(UiSchema::getTitle));
             final Iterator<UiSchema> it = items.iterator();
-            assertUiSchema(it.next(), "button", "Guess Schema", "button_schema_configuration", 0, guessSchema -> {
-                assertNotNull(guessSchema.getTriggers());
-                assertEquals(1, guessSchema.getTriggers().size());
-            });
             assertUiSchema(it.next(), "fieldset", "JDBC Connection", "configuration.connection", 5, connection -> {
                 final List<UiSchema> connectionItems = new ArrayList<>(connection.getItems());
                 connectionItems.sort(Comparator.comparing(UiSchema::getTitle));

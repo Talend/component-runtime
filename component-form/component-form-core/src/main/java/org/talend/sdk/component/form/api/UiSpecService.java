@@ -63,7 +63,7 @@ public class UiSpecService {
         final JsonSchemaConverter jsonSchemaConverter =
                 new JsonSchemaConverter(ui.getJsonSchema(), detail.getProperties());
         final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, detail.getId().getFamily(),
-                ui.getUiSchema(), client, detail.getProperties(), detail.getActions());
+                ui.getUiSchema(), new ArrayList<>(), client, detail.getProperties(), detail.getActions());
         final PropertiesConverter propertiesConverter =
                 new PropertiesConverter(Map.class.cast(ui.getProperties()), detail.getProperties());
 

@@ -17,6 +17,7 @@ package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -35,7 +36,6 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
             final Client client, final String family) {
         super(schemas, properties, actions);
-
         this.client = client;
         this.family = family;
     }
@@ -46,14 +46,15 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
         uiSchema.setWidget("fieldset");
         uiSchema.setItems(new ArrayList<>());
 
+        final List<SimplePropertyDefinition> properties = new ArrayList<>();
         final UiSchemaConverter uiSchemaConverter =
-                new UiSchemaConverter(null, family, uiSchema.getItems(), client, properties, actions);
+                new UiSchemaConverter(null, family, uiSchema.getItems(), properties, client, this.properties, actions);
 
         // Create Nested UI Items
-        properties.stream().filter(context::isDirectChild).map(PropertyContext::new).forEach(
+        this.properties.stream().filter(context::isDirectChild).map(PropertyContext::new).forEach(
                 uiSchemaConverter::convert);
 
         // add common actions
-        addActions(context, uiSchema);
+        addActions(context, uiSchema, properties);
     }
 }

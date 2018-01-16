@@ -52,6 +52,8 @@ public class UiSchemaConverter implements PropertyConverter {
 
     private final Collection<UiSchema> schemas;
 
+    private final Collection<SimplePropertyDefinition> includedProperties;
+
     private final Client client;
 
     private Collection<SimplePropertyDefinition> properties;
@@ -83,15 +85,19 @@ public class UiSchemaConverter implements PropertyConverter {
             }
             break;
         case "boolean":
+            includedProperties.add(context.getProperty());
             new ToggleWidgetConverter(schemas, properties, actions).convert(context);
             break;
         case "enum":
+            includedProperties.add(context.getProperty());
             new DataListWidgetConverter(schemas, properties, actions).convert(context);
             break;
         case "number":
+            includedProperties.add(context.getProperty());
             new NumberWidgetConverter(schemas, properties, actions).convert(context);
             break;
         case "array":
+            includedProperties.add(context.getProperty());
             final String nestedPrefix = context.getProperty().getPath() + "[].";
             final int from = nestedPrefix.length();
             final Collection<SimplePropertyDefinition> nested = properties
@@ -110,6 +116,7 @@ public class UiSchemaConverter implements PropertyConverter {
             if (context.getProperty().getPath().endsWith("[]")) {
                 return;
             }
+            includedProperties.add(context.getProperty());
             if ("true".equalsIgnoreCase(context.getProperty().getMetadata().get("ui::credential"))) {
                 new CredentialWidgetConverter(schemas, properties, actions).convert(context);
             } else if (context.getProperty().getMetadata().containsKey("ui::code::value")) {

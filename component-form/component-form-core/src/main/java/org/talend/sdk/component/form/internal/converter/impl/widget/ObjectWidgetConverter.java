@@ -33,38 +33,41 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
         super(schemas, properties, actions);
     }
 
-    protected void addActions(final PropertyContext root, final UiSchema uiSchema) {
-        ofNullable(root.getProperty().getMetadata().get("action::schema"))
-                .flatMap(v -> actions
-                        .stream()
-                        .filter(a -> a.getName().equals(v) && "schema".equals(a.getType()))
-                        .findFirst())
-                .ifPresent(ref -> {
-                    final UiSchema.Trigger trigger = toTrigger(properties, root.getProperty(), ref);
-                    if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
-                        // find the matching dataset
-                        properties
-                                .stream()
-                                .filter(nested -> ref.getName().equals(
-                                        nested.getMetadata().get("configurationtype::name"))
-                                        && "dataset".equals(nested.getMetadata().get("configurationtype::type")))
-                                .findFirst()
-                                .ifPresent(dataset -> {
-                                    final UiSchema.Parameter parameter = new UiSchema.Parameter();
-                                    parameter.setKey("dataset");
-                                    parameter.setPath(root.getProperty().getPath());
-                                    trigger.setParameters(toParams(properties, root.getProperty(), ref,
-                                            root.getProperty().getPath()));
-                                });
-                    }
+    protected void addActions(final PropertyContext root, final UiSchema uiSchema,
+            final Collection<SimplePropertyDefinition> includedProperties) {
+        if (includedProperties.stream().anyMatch(p -> p.getMetadata().containsKey("ui::structure::type"))) {
+            ofNullable(root.getProperty().getMetadata().get("action::schema"))
+                    .flatMap(v -> actions
+                            .stream()
+                            .filter(a -> a.getName().equals(v) && "schema".equals(a.getType()))
+                            .findFirst())
+                    .ifPresent(ref -> {
+                        final UiSchema.Trigger trigger = toTrigger(properties, root.getProperty(), ref);
+                        if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
+                            // find the matching dataset
+                            properties
+                                    .stream()
+                                    .filter(nested -> ref.getName().equals(
+                                            nested.getMetadata().get("configurationtype::name"))
+                                            && "dataset".equals(nested.getMetadata().get("configurationtype::type")))
+                                    .findFirst()
+                                    .ifPresent(dataset -> {
+                                        final UiSchema.Parameter parameter = new UiSchema.Parameter();
+                                        parameter.setKey("dataset");
+                                        parameter.setPath(root.getProperty().getPath());
+                                        trigger.setParameters(toParams(properties, root.getProperty(), ref,
+                                                root.getProperty().getPath()));
+                                    });
+                        }
 
-                    final UiSchema button = new UiSchema();
-                    button.setKey("button_schema_" + root.getProperty().getPath());
-                    button.setTitle("Guess Schema");
-                    button.setWidget("button");
-                    button.setTriggers(singletonList(trigger));
-                    uiSchema.getItems().add(button);
-                });
+                        final UiSchema button = new UiSchema();
+                        button.setKey("button_schema_" + root.getProperty().getPath());
+                        button.setTitle("Guess Schema");
+                        button.setWidget("button");
+                        button.setTriggers(singletonList(trigger));
+                        uiSchema.getItems().add(button);
+                    });
+        }
 
         ofNullable(root.getProperty().getMetadata().get("action::healthcheck"))
                 .flatMap(v -> (actions == null ? Stream.<ActionReference> empty() : actions.stream())
