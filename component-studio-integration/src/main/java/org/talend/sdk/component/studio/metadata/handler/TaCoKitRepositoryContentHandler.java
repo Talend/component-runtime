@@ -42,6 +42,7 @@ import org.talend.core.model.properties.PropertiesPackage;
 import org.talend.core.model.properties.Property;
 import org.talend.core.model.repository.AbstractRepositoryContentHandler;
 import org.talend.core.model.repository.ERepositoryObjectType;
+import org.talend.core.model.repository.IRepositoryTypeProcessor;
 import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.model.repository.RepositoryViewObject;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
@@ -158,6 +159,31 @@ public class TaCoKitRepositoryContentHandler extends AbstractRepositoryContentHa
             }
         }
         return type;
+    }
+
+    /**
+     * Checks whether {@code repositoryType} belongs to TaCoKit and creates RepositoryTypeProcessor if it is true
+     * RepositoryTypeProcessor implements repository tree filtering logic, which allows to show only repository nodes,
+     * which are related to the component, in repository review dialog.
+     * 
+     * @param repositoryType a String, which represents supported repository nodes types
+     * @return RepositoryTypeProcessor or null, it repository type doesn't belong to TaCoKit
+     */
+    @Override
+    public IRepositoryTypeProcessor getRepositoryTypeProcessor(final String repositoryType) {
+        if (isTaCoKitRepositoryType(repositoryType)) {
+            if (repositoryType.contains("|")) {
+                return new TaCoKitTypeProcessor(repositoryType.split("\\|"));
+            } else {
+                return new TaCoKitTypeProcessor(new String[] { repositoryType });
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private boolean isTaCoKitRepositoryType(final String repositoryType) {
+        return repositoryType != null && repositoryType.startsWith(TaCoKitConst.METADATA_TACOKIT_PREFIX);
     }
 
     @Override

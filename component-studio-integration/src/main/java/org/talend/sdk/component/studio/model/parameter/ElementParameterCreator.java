@@ -21,6 +21,7 @@ import static org.talend.core.model.process.EComponentCategory.BASIC;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.talend.core.CorePlugin;
 import org.talend.core.PluginChecker;
@@ -38,7 +39,10 @@ import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.components.EmfComponent;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.ComponentModel;
+import org.talend.sdk.component.studio.Lookups;
+import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
 /**
  * Creates {@link ComponentModel} {@link ElementParameter} list
@@ -59,6 +63,11 @@ public class ElementParameterCreator {
     private final List<ElementParameter> parameters = new ArrayList<>();
 
     /**
+     * Stores Component Property Definitions
+     */
+    private Collection<PropertyDefinitionDecorator> properties;
+
+    /**
      * This parameter is checked during refresh to decide whether UI should be redrawn
      * If UI should be redrawn, when some Parameter is changed, such Parameter should set this
      * Parameter to {@code true}
@@ -69,6 +78,9 @@ public class ElementParameterCreator {
         this.component = component;
         this.detail = detail;
         this.node = node;
+        if (!detail.getProperties().isEmpty()) {
+            properties = PropertyDefinitionDecorator.wrap(detail.getProperties());
+        }
     }
 
     public List<? extends IElementParameter> createParameters() {
@@ -78,9 +90,7 @@ public class ElementParameterCreator {
     }
 
     private void addComponentParameters() {
-        if (!detail.getProperties().isEmpty()) {
-            Collection<PropertyDefinitionDecorator> properties =
-                    PropertyDefinitionDecorator.wrap(detail.getProperties());
+        if (!properties.isEmpty()) {
             PropertyNode root = new PropertyTreeCreator(new WidgetTypeMapper()).createPropertyTree(properties);
             // add main parameters
             SettingsCreator mainSettingsCreator = new SettingsCreator(node, BASIC, updateComponentsParameter);
@@ -289,9 +299,13 @@ public class ElementParameterCreator {
     }
 
     /**
-     * Creates and adds "PROPERTY" parameter
-     * Looks like this is a property switch between repository properties and this component properties
-     * TODO move it to Component parameters
+     * Creates and adds "PROPERTY" parameter.
+     * This parameter represents a switch between repository properties values and component own values.
+     * "Property" parameter has 2 subproperties: property type and repository type.
+     * Property type is a switch between repository value (REPOSITORY option) and component own values (BUILT-IN
+     * option).
+     * Repository type allows to choose a name of repository node to use.
+     * This property is shown in the 1st row of component properties, before component schema
      */
     private void addPropertyParameter() {
         ElementParameter parameter = new ElementParameter(node);
@@ -299,58 +313,77 @@ public class ElementParameterCreator {
         parameter.setCategory(BASIC);
         parameter.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
         parameter.setFieldType(EParameterFieldType.PROPERTY_TYPE);
-        // TODO
-        // if (wizardDefinition != null) {
-        // param.setRepositoryValue(wizardDefinition.getName());
-        // }
+        parameter.setRepositoryValue(computeRepositoryNodeType());
         parameter.setValue("");
         parameter.setNumRow(1);
-        // TODO
-        // param.setShow(wizardDefinition != null);
-        parameter.setShow(false);
+        parameter.setShow(!findConfigurationTypes().isEmpty());
+        // TODO discover what is this used for
         // param.setTaggedValue(IGenericConstants.IS_PROPERTY_SHOW, wizardDefinition !=
         // null);
-        parameter.setTaggedValue("IS_PROPERTY_SHOW", false);
 
-        ElementParameter child1 = new ElementParameter(node);
-        child1.setCategory(BASIC);
-        child1.setName(EParameterName.PROPERTY_TYPE.getName());
-        child1.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
-        child1.setListItemsDisplayName(
+        ElementParameter propertyType = new ElementParameter(node);
+        propertyType.setCategory(EComponentCategory.BASIC);
+        propertyType.setName(EParameterName.PROPERTY_TYPE.getName());
+        propertyType.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
+        propertyType.setListItemsDisplayName(
                 new String[] { AbstractBasicComponent.TEXT_BUILTIN, AbstractBasicComponent.TEXT_REPOSITORY });
-        child1.setListItemsDisplayCodeName(
+        propertyType.setListItemsDisplayCodeName(
                 new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
-        child1.setListItemsValue(new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
-        child1.setValue(AbstractBasicComponent.BUILTIN);
-        child1.setNumRow(parameter.getNumRow());
-        child1.setFieldType(EParameterFieldType.TECHNICAL);
-        child1.setShow(false);
-        child1.setShowIf(parameter.getName() + " =='" + AbstractBasicComponent.REPOSITORY + "'");
-        child1.setReadOnly(parameter.isReadOnly());
-        child1.setNotShowIf(parameter.getNotShowIf());
-        child1.setContext("FLOW");
-        child1.setSerialized(true);
-        child1.setParentParameter(parameter);
+        propertyType
+                .setListItemsValue(new String[] { AbstractBasicComponent.BUILTIN, AbstractBasicComponent.REPOSITORY });
+        propertyType.setValue(AbstractBasicComponent.BUILTIN);
+        propertyType.setNumRow(parameter.getNumRow());
+        propertyType.setFieldType(EParameterFieldType.TECHNICAL);
+        propertyType.setShow(true);
+        propertyType.setShowIf(parameter.getName() + " =='" + AbstractBasicComponent.REPOSITORY + "'");
+        propertyType.setReadOnly(parameter.isReadOnly());
+        propertyType.setNotShowIf(parameter.getNotShowIf());
+        // TODO find out whether it is required
+        propertyType.setContext("FLOW");
+        propertyType.setSerialized(true);
+        propertyType.setParentParameter(parameter);
 
-        ElementParameter child2 = new ElementParameter(node);
-        child2.setCategory(BASIC);
-        child2.setName(EParameterName.REPOSITORY_PROPERTY_TYPE.getName());
-        child2.setDisplayName(EParameterName.REPOSITORY_PROPERTY_TYPE.getDisplayName());
-        child2.setListItemsDisplayName(new String[] {});
-        child2.setListItemsValue(new String[] {});
-        child2.setNumRow(parameter.getNumRow());
-        child2.setFieldType(EParameterFieldType.TECHNICAL);
-        child2.setValue("");
-        child2.setShow(false);
-        child2.setRequired(true);
-        child2.setReadOnly(parameter.isReadOnly());
-        child2.setShowIf(parameter.getName() + " =='" + AbstractBasicComponent.REPOSITORY + "'");
-        child2.setNotShowIf(parameter.getNotShowIf());
-        child2.setContext("FLOW");
-        child2.setSerialized(true);
-        child2.setParentParameter(parameter);
+        ElementParameter repositoryType = new ElementParameter(node);
+        repositoryType.setCategory(EComponentCategory.BASIC);
+        repositoryType.setName(EParameterName.REPOSITORY_PROPERTY_TYPE.getName());
+        repositoryType.setDisplayName(EParameterName.REPOSITORY_PROPERTY_TYPE.getDisplayName());
+        repositoryType.setListItemsDisplayName(new String[] {});
+        repositoryType.setListItemsValue(new String[] {});
+        repositoryType.setNumRow(parameter.getNumRow());
+        repositoryType.setFieldType(EParameterFieldType.TECHNICAL);
+        repositoryType.setValue("");
+        repositoryType.setShow(true);
+        repositoryType.setRequired(true);
+        repositoryType.setReadOnly(parameter.isReadOnly());
+        repositoryType.setShowIf(parameter.getName() + " =='" + AbstractBasicComponent.REPOSITORY + "'");
+        repositoryType.setNotShowIf(parameter.getNotShowIf());
+        // TODO find out whether it is required
+        repositoryType.setContext("FLOW");
+        repositoryType.setSerialized(true);
+        repositoryType.setParentParameter(parameter);
 
         parameters.add(parameter);
+    }
+
+    /**
+     * Computes and returns types of suitable repository nodes.
+     * They are represented as a String separated by '|'
+     * 
+     * @return suitable repository node types
+     */
+    private String computeRepositoryNodeType() {
+        return findConfigurationTypes().stream().map(p -> {
+            String configName = p.getConfigurationTypeName();
+            String configType = p.getConfigurationType();
+            ConfigTypeNode configNode =
+                    Lookups.taCoKitCache().getConfigTypeNode(detail.getId().getFamily(), configName, configType);
+            return TaCoKitUtil.getConfigTypePath(configNode).replaceAll("/", ".");
+        }).collect(Collectors.joining("|"));
+    }
+
+    private List<PropertyDefinitionDecorator> findConfigurationTypes() {
+        return properties.stream().filter(PropertyDefinitionDecorator::hasConfigurationType).collect(
+                Collectors.toList());
     }
 
     /**

@@ -23,6 +23,11 @@ public class TaCoKitConst {
 
     public static final String METADATA_TACOKIT_PATH = METADATA_TACOKIT.getFolder();
 
+    /**
+     * Prefix used in repository node type for TaCoKit components
+     */
+    public static final String METADATA_TACOKIT_PREFIX = "metadata.tacokit.";
+
     public static final String IMAGE_TACOKIT_REPOSITORY_PATH = "/icon/connection.png"; //$NON-NLS-1$
 
     public static final String IMAGE_TACOKIT_CONFIGURATION_PATH = "/icon/configuration_16x16.png"; //$NON-NLS-1$

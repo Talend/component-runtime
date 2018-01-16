@@ -17,6 +17,8 @@ package org.talend.sdk.component.studio.model.parameter;
 
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.CONDITION_IF_TARGET;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.CONDITION_IF_VALUE;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.CONFIG_NAME;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.CONFIG_TYPE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.MAIN_FORM;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.ORDER_SEPARATOR;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_GRIDLAYOUT_PREFIX;
@@ -238,6 +240,33 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
      */
     boolean hasOptionsOrder() {
         return delegate.getMetadata().containsKey(UI_OPTIONS_ORDER);
+    }
+
+    /**
+     * Checks whether it has configurationtype::type metadata
+     * 
+     * @return true, it has configuration type; false - otherwise
+     */
+    boolean hasConfigurationType() {
+        return delegate.getMetadata().containsKey(CONFIG_TYPE);
+    }
+
+    /**
+     * Returns configurationtype::type metadata value or null if it is absent
+     * 
+     * @return configuration type
+     */
+    String getConfigurationType() {
+        return delegate.getMetadata().get(CONFIG_TYPE);
+    }
+
+    /**
+     * Returns configurationtype::name metadata value or null if it is absent
+     * 
+     * @return configuration type name
+     */
+    String getConfigurationTypeName() {
+        return delegate.getMetadata().get(CONFIG_NAME);
     }
 
     /**

@@ -108,6 +108,12 @@ public class TaCoKitUtil {
         return null;
     }
 
+    public static String getConfigTypePath(final ConfigTypeNode configTypeNode) {
+        IPath tacokitPath = new Path(TaCoKitConst.METADATA_TACOKIT.getFolder());
+        IPath path = tacokitPath.append(getTaCoKitBaseFolder(configTypeNode));
+        return path.toPortableString();
+    }
+
     public static ERepositoryObjectType getOrCreateERepositoryObjectType(final ConfigTypeNode configTypeNode)
             throws Exception {
         if (configTypeNode == null) {
