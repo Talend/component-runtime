@@ -49,7 +49,7 @@ class PropertiesServiceTest {
         final List<SimplePropertyDefinition> props = propertiesService
                 .buildProperties(
                         new ParameterModelService().buildParameterMetas(
-                                getClass().getDeclaredMethod("boolWrapper", BoolWrapper.class), null),
+                                getClass().getDeclaredMethod("boolWrapper", BoolBool.class), null),
                         Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
                 .collect(toList());
         assertEquals("true", props.stream().filter(p -> p.getName().equals("val")).findFirst().get().getDefaultValue());
@@ -97,8 +97,15 @@ class PropertiesServiceTest {
         });
     }
 
-    private static void boolWrapper(final BoolWrapper wrapper) {
+    private static void boolWrapper(final BoolBool wrapper) {
         // no-op
+    }
+
+    @Data
+    public static class BoolBool {
+
+        @Option
+        private BoolWrapper wrapper;
     }
 
     @Data

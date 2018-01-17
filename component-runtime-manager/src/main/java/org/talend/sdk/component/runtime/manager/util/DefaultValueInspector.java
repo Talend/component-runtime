@@ -31,7 +31,10 @@ public class DefaultValueInspector {
     // but we can move it later in design module to directly read it from the bytecode
     public Object createDemoInstance(final Object rootInstance, final ParameterMeta param) {
         if (rootInstance != null) {
-            return findField(rootInstance, param);
+            final Object field = findField(rootInstance, param);
+            if (field != null) {
+                return field;
+            }
         }
 
         final Type javaType = param.getJavaType();
