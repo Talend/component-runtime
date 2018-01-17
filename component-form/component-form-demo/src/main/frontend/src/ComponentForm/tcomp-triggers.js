@@ -37,19 +37,22 @@ function validation({ schema, body }) {
 }
 
 function schema({ schema, body, properties, trigger }) {
-  if (!body.entries || !trigger.origins || trigger.origins.length == 0) {
+  if (!body.entries || !trigger.options || trigger.options.length == 0) {
     return { properties };
   }
   let newProperties = deepClone(properties);
-  for (const path of trigger.origins) {
-    const lastDot = path.lastIndexOf('.');
-    const parentPath = lastDot > 0 ? path.substring(0, lastDot) : path;
-    const directChildPath = lastDot > 0 ? path.substring(lastDot + 1) : path;
-    let mutable = parentPath === path ? newProperties : extract(newProperties, parentPath);
+  for (const option of trigger.options) {
+    const lastDot = option.path.lastIndexOf('.');
+    const parentPath = lastDot > 0 ? option.path.substring(0, lastDot) : option.path;
+    const directChildPath = lastDot > 0 ? option.path.substring(lastDot + 1) : option.path;
+    let mutable = parentPath === option.path ? newProperties : extract(newProperties, parentPath);
     if (!mutable) {
       continue;
     }
-    mutable[directChildPath] = body.entries.map(e => e.name);
+    mutable[directChildPath] = option.type === 'array' ? body.entries.map(e => e.name) : body.entries.reduce({}, (a, e) => {
+      a[e.name] = e.type;
+      return a;
+    });
   }
   return {
     properties: newProperties,

@@ -16,7 +16,6 @@
 package org.talend.sdk.component.form.model.uischema;
 
 import static java.util.Arrays.asList;
-import static lombok.AccessLevel.PRIVATE;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +25,6 @@ import java.util.Map;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 public class UiSchema {
@@ -88,7 +86,6 @@ public class UiSchema {
 
         private String value;
 
-        @NoArgsConstructor(access = PRIVATE)
         public static final class Builder {
 
             private String name;
@@ -121,7 +118,6 @@ public class UiSchema {
 
         private String path;
 
-        @NoArgsConstructor(access = PRIVATE)
         public static final class Builder {
 
             private String key;
@@ -148,6 +144,38 @@ public class UiSchema {
     }
 
     @Data
+    public static class Option {
+
+        private String path;
+
+        private String type;
+
+        public static class Builder {
+
+            private String path;
+
+            private String type;
+
+            public Builder withPath(final String path) {
+                this.path = path;
+                return this;
+            }
+
+            public Builder withType(final String type) {
+                this.type = type;
+                return this;
+            }
+
+            public Option build() {
+                final Option option = new Option();
+                option.setPath(path);
+                option.setType(type);
+                return option;
+            }
+        }
+    }
+
+    @Data
     public static class Trigger {
 
         private String action;
@@ -156,13 +184,10 @@ public class UiSchema {
 
         private String type;
 
-        private Collection<String> origins;
-
-        private Map<String, String> options;
+        private Collection<Option> options;
 
         private Collection<Parameter> parameters;
 
-        @NoArgsConstructor(access = PRIVATE)
         public static final class Builder {
 
             private String action;
@@ -171,9 +196,7 @@ public class UiSchema {
 
             private String type;
 
-            private Collection<String> origins;
-
-            private Map<String, String> options;
+            private Collection<Option> options;
 
             private Collection<Parameter> parameters;
 
@@ -192,35 +215,19 @@ public class UiSchema {
                 return this;
             }
 
-            public Builder withOptions(final Map<String, String> options) {
+            public Builder withOption(final Option value) {
                 if (this.options == null) {
-                    this.options = new HashMap<>();
+                    this.options = new ArrayList<>();
                 }
-                this.options.putAll(options);
+                this.options.add(value);
                 return this;
             }
 
-            public Builder withOption(final String key, final String value) {
+            public Builder withOptions(final Collection<Option> options) {
                 if (this.options == null) {
-                    this.options = new HashMap<>();
+                    this.options = new ArrayList<>();
                 }
-                this.options.put(key, value);
-                return this;
-            }
-
-            public Builder withOrigin(final String value) {
-                if (this.origins == null) {
-                    this.origins = new ArrayList<>();
-                }
-                this.origins.add(value);
-                return this;
-            }
-
-            public Builder withOrigins(final Collection<String> origins) {
-                if (this.origins == null) {
-                    this.origins = new ArrayList<>();
-                }
-                this.origins.addAll(origins);
+                this.options.addAll(options);
                 return this;
             }
 
@@ -246,13 +253,12 @@ public class UiSchema {
                 parameter.setFamily(family);
                 parameter.setType(type);
                 parameter.setParameters(parameters);
-                parameter.setOrigins(origins);
+                parameter.setOptions(options);
                 return parameter;
             }
         }
     }
 
-    @NoArgsConstructor(access = PRIVATE)
     public static final class Builder {
 
         private String key;

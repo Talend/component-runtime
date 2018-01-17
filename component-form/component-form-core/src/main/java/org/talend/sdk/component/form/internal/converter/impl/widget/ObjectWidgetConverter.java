@@ -16,7 +16,6 @@
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
@@ -46,18 +45,19 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                 .findFirst();
         if (schemaBinding.isPresent()) {
             SimplePropertyDefinition bindingProp = schemaBinding.get();
-            final String schemaActionName = ofNullable(bindingProp.getMetadata().get("ui::structure::discoverSchema"))
-                    .filter(n -> !n.isEmpty())
-                    .orElse("");
+            final String schemaActionName =
+                    ofNullable(bindingProp.getMetadata().get("action::schema")).filter(n -> !n.isEmpty()).orElse(
+                            "default");
             actions
                     .stream()
                     .filter(a -> a.getName().equals(schemaActionName) && "schema".equals(a.getType()))
                     .findFirst()
                     .ifPresent(ref -> {
                         final UiSchema.Trigger trigger = toTrigger(properties, root.getProperty(), ref);
-                        trigger.setOrigins(singletonList(bindingProp.getPath().replace("[]", "")));
-                        trigger.setOptions(singletonMap("bindingType",
-                                "array".equalsIgnoreCase(bindingProp.getType()) ? "array" : "object"));
+                        trigger.setOptions(singletonList(new UiSchema.Option.Builder()
+                                .withPath(bindingProp.getPath().replace("[]", ""))
+                                .withType("array".equalsIgnoreCase(bindingProp.getType()) ? "array" : "object")
+                                .build()));
                         if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
                             // find the matching dataset
                             Optional<SimplePropertyDefinition> findParameters = properties

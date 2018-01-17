@@ -16,7 +16,6 @@
 package org.talend.sdk.component.form.model.jsonschema;
 
 import static java.util.Arrays.asList;
-import static lombok.AccessLevel.PRIVATE;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,7 +24,6 @@ import java.util.Map;
 import javax.json.bind.annotation.JsonbProperty;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 // for now keep it simple,
 // if we need multiple types we will
@@ -83,7 +81,6 @@ public class JsonSchema {
         return new PojoJsonSchemaBuilder().create(pojo);
     }
 
-    @NoArgsConstructor(access = PRIVATE)
     public static final class Builder {
 
         private String id;

@@ -87,23 +87,13 @@ class UiSpecServiceTest {
     @Test
     void guessSchema() throws Exception {
         final Ui payload = service.convert(load("rest-api.json"));
-        assertTrue(payload
-                .getUiSchema()
-                .iterator()
-                .next()
-                .getItems()
-                .stream()
-                .filter(i -> i.getTitle().equals("Advanced"))
-                .findFirst()
-                .get()
-                .getItems()
-                .stream()
-                .filter(i -> i.getTitle().equals("commonConfig"))
-                .findFirst()
-                .get()
-                .getItems()
-                .stream()
-                .anyMatch(i -> i.getKey().equals("button_schema_tableDataSet.commonConfig")));
+        final UiSchema root = payload.getUiSchema().iterator().next();
+        final UiSchema advanced =
+                root.getItems().stream().filter(i -> i.getTitle().equals("Advanced")).findFirst().get();
+        final UiSchema commongConfig =
+                advanced.getItems().stream().filter(i -> i.getTitle().equals("commonConfig")).findFirst().get();
+        assertTrue(commongConfig.getItems().stream().anyMatch(
+                i -> i.getKey().equals("button_schema_tableDataSet.commonConfig")));
     }
 
     @Test
