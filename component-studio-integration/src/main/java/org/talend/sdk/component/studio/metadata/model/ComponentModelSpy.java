@@ -420,4 +420,14 @@ public class ComponentModelSpy implements IComponent {
         throw new RuntimeException("Action is not allowed by proxy component");
     }
 
+    @Override
+    public void setOriginalFamilyName(final String familyName) {
+        component.setOriginalFamilyName(familyName);
+    }
+
+    @Override
+    public void setTranslatedFamilyName(final String translatedFamilyName) {
+        component.setTranslatedFamilyName(translatedFamilyName);
+    }
+
 }
