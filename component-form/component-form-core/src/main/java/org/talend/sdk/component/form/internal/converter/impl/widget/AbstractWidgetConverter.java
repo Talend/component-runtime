@@ -67,8 +67,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                     .filter(o -> !"object".equalsIgnoreCase(o.getType()) && !"array".equalsIgnoreCase(o.getType()))
                     .map(o -> {
                         final UiSchema.Parameter parameter = new UiSchema.Parameter();
-                        parameter.setKey(parameterPrefix + o.getPath().substring(propertiesPrefix.length()));
-                        parameter.setPath(o.getPath());
+                        final String key = parameterPrefix + o.getPath().substring(propertiesPrefix.length());
+                        parameter.setKey(key.replace("[]", "")); // not a jsonpath otherwise
+                        parameter.setPath(o.getPath().replace("[]", ""));
                         return parameter;
                     })
                     .collect(toList());

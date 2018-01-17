@@ -156,6 +156,10 @@ public class UiSchema {
 
         private String type;
 
+        private Collection<String> origins;
+
+        private Map<String, String> options;
+
         private Collection<Parameter> parameters;
 
         @NoArgsConstructor(access = PRIVATE)
@@ -166,6 +170,10 @@ public class UiSchema {
             private String family;
 
             private String type;
+
+            private Collection<String> origins;
+
+            private Map<String, String> options;
 
             private Collection<Parameter> parameters;
 
@@ -181,6 +189,38 @@ public class UiSchema {
 
             public Builder withType(final String type) {
                 this.type = type;
+                return this;
+            }
+
+            public Builder withOptions(final Map<String, String> options) {
+                if (this.options == null) {
+                    this.options = new HashMap<>();
+                }
+                this.options.putAll(options);
+                return this;
+            }
+
+            public Builder withOption(final String key, final String value) {
+                if (this.options == null) {
+                    this.options = new HashMap<>();
+                }
+                this.options.put(key, value);
+                return this;
+            }
+
+            public Builder withOrigin(final String value) {
+                if (this.origins == null) {
+                    this.origins = new ArrayList<>();
+                }
+                this.origins.add(value);
+                return this;
+            }
+
+            public Builder withOrigins(final Collection<String> origins) {
+                if (this.origins == null) {
+                    this.origins = new ArrayList<>();
+                }
+                this.origins.addAll(origins);
                 return this;
             }
 
@@ -206,6 +246,7 @@ public class UiSchema {
                 parameter.setFamily(family);
                 parameter.setType(type);
                 parameter.setParameters(parameters);
+                parameter.setOrigins(origins);
                 return parameter;
             }
         }

@@ -16,6 +16,18 @@
 
 import deepClone from 'lodash.clonedeep';
 
+function extract(root, path) {
+  let object = root;
+  const levels = path.split('.');
+  for (const next of levels) {
+    object = object[next];
+    if (object === undefined) { // undefined, not falsy!
+      return undefined;
+    }
+  }
+  return object;
+}
+
 function validation({ schema, body }) {
   return {
     errors: {
@@ -25,15 +37,38 @@ function validation({ schema, body }) {
 }
 
 function schema({ schema, body, properties, trigger }) {
-  const newProperties = deepClone(properties);
-  // TODO
-  return { properties: newProperties };
+  if (!body.entries || !trigger.origins || trigger.origins.length == 0) {
+    return { properties };
+  }
+  let newProperties = deepClone(properties);
+  for (const path of trigger.origins) {
+    const lastDot = path.lastIndexOf('.');
+    const parentPath = lastDot > 0 ? path.substring(0, lastDot) : path;
+    const directChildPath = lastDot > 0 ? path.substring(lastDot + 1) : path;
+    let mutable = parentPath === path ? newProperties : extract(newProperties, parentPath);
+    if (!mutable) {
+      continue;
+    }
+    mutable[directChildPath] = body.entries.map(e => e.name);
+  }
+  return {
+    properties: newProperties,
+    errors: {
+      [schema.key]: body.error
+    }
+  };
 }
 
 function dynamic_values({ schema, body, properties, trigger }) {
   // for now it is set on the server side so no-op is ok
   return { properties };
 }
+
+export const TCompService = {
+  extract() {
+    return extract.apply(this, arguments);
+  }
+};
 
 export default {
   dynamic_values,

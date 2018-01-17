@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.talend.sdk.component.api.configuration.action.Discoverable;
 import org.talend.sdk.component.api.configuration.action.meta.ActionRef;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
@@ -48,7 +47,6 @@ public class ActionParameterEnricher implements ParameterExtensionEnricher {
             {
                 put(META_PREFIX + type, getValueString(annotation));
                 ofNullable(getParametersString(annotation)).ifPresent(v -> put(META_PREFIX + type + "::parameters", v));
-                ofNullable(getBinding(annotation)).ifPresent(v -> put(META_PREFIX + type + "::binding", v));
             }
         };
     }
@@ -58,16 +56,6 @@ public class ActionParameterEnricher implements ParameterExtensionEnricher {
             return String.valueOf(annotation.annotationType().getMethod("value").invoke(annotation));
         } catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new IllegalArgumentException("No value for " + annotation);
-        }
-    }
-
-    private String getBinding(final Annotation annotation) {
-        try {
-            return Discoverable.Binding.class
-                    .cast(annotation.annotationType().getMethod("binding").invoke(annotation))
-                    .name();
-        } catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            return null;
         }
     }
 

@@ -21,7 +21,6 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.configuration.action.Discoverable;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 
 class ActionParameterEnricherTest {
@@ -43,33 +42,6 @@ class ActionParameterEnricherTest {
             @Override
             public Class<? extends Annotation> annotationType() {
                 return Proposable.class;
-            }
-        }));
-    }
-
-    @Test
-    void discoverable() {
-        assertEquals(new HashMap<String, String>() {
-
-            {
-                put("tcomp::action::schema::binding", "ALL");
-                put("tcomp::action::schema", "test");
-            }
-        }, new ActionParameterEnricher().onParameterAnnotation("testParam", String.class, new Discoverable() {
-
-            @Override
-            public String value() {
-                return "test";
-            }
-
-            @Override
-            public Binding binding() {
-                return Binding.ALL;
-            }
-
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return Discoverable.class;
             }
         }));
     }

@@ -16,9 +16,14 @@
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -35,29 +40,52 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
 
     protected void addActions(final PropertyContext root, final UiSchema uiSchema,
             final Collection<SimplePropertyDefinition> includedProperties) {
-        if (includedProperties.stream().anyMatch(p -> p.getMetadata().containsKey("ui::structure::type"))) {
-            ofNullable(root.getProperty().getMetadata().get("action::schema"))
-                    .flatMap(v -> actions
-                            .stream()
-                            .filter(a -> a.getName().equals(v) && "schema".equals(a.getType()))
-                            .findFirst())
+        final Optional<SimplePropertyDefinition> schemaBinding = includedProperties
+                .stream()
+                .filter(p -> "IN".equals(p.getMetadata().get("ui::structure::type")))
+                .findFirst();
+        if (schemaBinding.isPresent()) {
+            SimplePropertyDefinition bindingProp = schemaBinding.get();
+            final String schemaActionName = bindingProp.getMetadata().get("ui::structure::value");
+            actions
+                    .stream()
+                    .filter(a -> a.getName().equals(schemaActionName) && "schema".equals(a.getType()))
+                    .findFirst()
                     .ifPresent(ref -> {
                         final UiSchema.Trigger trigger = toTrigger(properties, root.getProperty(), ref);
+                        trigger.setOrigins(singletonList(bindingProp.getPath().replace("[]", "")));
+                        trigger.setOptions(singletonMap("bindingType",
+                                "array".equalsIgnoreCase(bindingProp.getType()) ? "array" : "object"));
                         if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
                             // find the matching dataset
-                            properties
+                            Optional<SimplePropertyDefinition> findParameters = properties
                                     .stream()
                                     .filter(nested -> ref.getName().equals(
                                             nested.getMetadata().get("configurationtype::name"))
                                             && "dataset".equals(nested.getMetadata().get("configurationtype::type")))
-                                    .findFirst()
-                                    .ifPresent(dataset -> {
-                                        final UiSchema.Parameter parameter = new UiSchema.Parameter();
-                                        parameter.setKey("dataset");
-                                        parameter.setPath(root.getProperty().getPath());
-                                        trigger.setParameters(toParams(properties, root.getProperty(), ref,
-                                                root.getProperty().getPath()));
-                                    });
+                                    .findFirst();
+                            if (!findParameters.isPresent()) { // if not ambiguous grab the unique dataset
+                                final Collection<SimplePropertyDefinition> datasets = properties
+                                        .stream()
+                                        .filter(nested -> "dataset"
+                                                .equals(nested.getMetadata().get("configurationtype::type")))
+                                        .collect(toSet());
+                                if (datasets.size() == 1) {
+                                    findParameters = of(datasets.iterator().next());
+                                }
+                            }
+                            findParameters.ifPresent(dataset -> {
+                                final UiSchema.Parameter parameter = new UiSchema.Parameter();
+                                parameter.setKey(ofNullable(ref.getProperties())
+                                        .orElse(Collections.emptyList())
+                                        .stream()
+                                        .filter(p -> !p.getPath().contains("."))
+                                        .findFirst()
+                                        .map(SimplePropertyDefinition::getName)
+                                        .orElse("dataset"));
+                                parameter.setPath(dataset.getPath());
+                                trigger.setParameters(toParams(properties, dataset, ref, dataset.getPath()));
+                            });
                         }
 
                         final UiSchema button = new UiSchema();

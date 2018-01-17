@@ -105,36 +105,6 @@ Here are the most common ones:
 |====
 | Type | Action | Description | Configuration example | Action example
 
-| DataSet
-| `@Discoverable`
-| Expose a way to get a schema representation of the dataset
-a|
-[source,java]
-----
-@DataSet
-@Discoverable
-public class JdbcDataSet
-  implements Serializable {
-
-   @Option
-   private String query;
-
-   @Option
-   private int timeout;
-
-   // getters/setters
-}
-----
-a|
-[source,java]
-----
-@DiscoverSchema
-public Schema findSchema(@Option("dataset") JdbcDataSet dataSet) {
-    return extractSchemaFrom(dataSet);
-}
-----
-
-
 | DataStore
 | `@Checkable`
 | Expose a way to ensure the datastore/connection works

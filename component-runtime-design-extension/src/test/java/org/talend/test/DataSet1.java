@@ -15,20 +15,18 @@
  */
 package org.talend.test;
 
+import java.io.Serializable;
+
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
-import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.action.Discoverable;
-import org.talend.sdk.component.api.configuration.type.DataSet;
-import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
-
 @Data
 @DataSet("DataSet1")
-@Discoverable
 @AllArgsConstructor
 @NoArgsConstructor
 @OptionsOrder({ "connection", "query" })

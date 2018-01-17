@@ -85,6 +85,28 @@ class UiSpecServiceTest {
     });
 
     @Test
+    void guessSchema() throws Exception {
+        final Ui payload = service.convert(load("rest-api.json"));
+        assertTrue(payload
+                .getUiSchema()
+                .iterator()
+                .next()
+                .getItems()
+                .stream()
+                .filter(i -> i.getTitle().equals("Advanced"))
+                .findFirst()
+                .get()
+                .getItems()
+                .stream()
+                .filter(i -> i.getTitle().equals("commonConfig"))
+                .findFirst()
+                .get()
+                .getItems()
+                .stream()
+                .anyMatch(i -> i.getKey().equals("button_schema_tableDataSet.commonConfig")));
+    }
+
+    @Test
     void jsonSchemaArray() throws Exception {
         final Ui payload = service.convert(load("rest-api.json"));
         final JsonSchema commonConfig = payload

@@ -8,7 +8,7 @@
     },
     {
       "family": "ServiceNow",
-      "name": "default",
+      "name": "guessSchema",
       "properties": [
         {
           "displayName": "arg0",
@@ -80,7 +80,7 @@
             "action::healthcheck": "basicAuth",
             "configurationtype::type": "datastore",
             "configurationtype::name": "basicAuth",
-            "action::schema": "default",
+            "action::schema": "guessSchema",
             "action::schema::binding": "KEYS",
             "ui::gridlayout::Main::value": "url|username,password"
           },
@@ -356,7 +356,7 @@
             "action::healthcheck": "basicAuth",
             "configurationtype::type": "datastore",
             "configurationtype::name": "basicAuth",
-            "action::schema": "default",
+            "action::schema": "guessSchema",
             "action::schema::binding": "KEYS",
             "ui::gridlayout::Main::value": "url|username,password"
           },
@@ -412,7 +412,7 @@
     {
       "displayName": "tableDataSet",
       "metadata": {
-        "ui::gridlayout::Advanced::value": "limit|maxRecords|fields",
+        "ui::gridlayout::Advanced::value": "limit|maxRecords|commonConfig",
         "configurationtype::type": "dataset",
         "configurationtype::name": "table",
         "ui::gridlayout::Main::value": "dataStore|commonConfig|queryBuilder"
@@ -444,7 +444,7 @@
       "metadata": {
         "action::dynamic_values": "GetTableFields",
         "ui::structure::type": "IN",
-        "ui::structure::value": "__default__"
+        "ui::structure::value": "guessSchema"
       },
       "name": "fields",
       "path": "tableDataSet.commonConfig.fields",
@@ -479,7 +479,7 @@
         "action::healthcheck": "basicAuth",
         "configurationtype::type": "datastore",
         "configurationtype::name": "basicAuth",
-        "action::schema": "default",
+        "action::schema": "guessSchema",
         "action::schema::binding": "KEYS",
         "ui::gridlayout::Main::value": "url|username,password"
       },

@@ -25,7 +25,6 @@ import java.util.List;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.action.Discoverable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
@@ -85,7 +84,6 @@ public class MyInput implements Serializable {
     }
 
     @DataSet
-    @Discoverable
     public static class Configuration {
         @Option("name")
         private String name;

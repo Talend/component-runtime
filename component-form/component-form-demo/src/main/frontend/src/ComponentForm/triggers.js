@@ -13,46 +13,58 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import jsonpath from 'jsonpath';
 import { COMPONENT_ACTION_URL } from '../constants';
-import registry from './tcomp-triggers';
+import { TCompService, default as registry } from './tcomp-triggers';
 
 function getRequestPayload(parameters, properties = {}) {
-	if (!parameters) {
-		return properties;
-	}
+  if (!parameters) {
+    return properties;
+  }
 
-	const payload = {};
-	for(const param of parameters) {
-		payload[param.key] = jsonpath.query(properties, `$.${param.path}`, 1)[0];
-	}
+  const payload = {};
+  for(const param of parameters) {
+    const value = TCompService.extract(properties, param.path);
+    if (value !== undefined) {
+      if (Array.isArray(value)) {
+        if (value.length > 0) { // TODO: support array of objects
+          let index = 0;
+          for (const item of value) {
+            payload[param.key + '[' + index + ']'] = '' + item;
+            index++;
+          }
+        }
+      } else {
+        payload[param.key] = '' + TCompService.extract(properties, param.path);
+      }
+    }
+  }
 
-	return payload;
+  return payload;
 }
 
 export default function onDefaultTrigger(registryCallback) {
-	const customRegistry = {
-		...registry,
-		...registryCallback,
-	};
-	return function (event, { trigger, schema, properties }) {
-		const payload = getRequestPayload(trigger.parameters, properties);
-		return fetch(
-			`${COMPONENT_ACTION_URL}?action=${trigger.action}&family=${trigger.family}&type=${trigger.type}`,
-			{
-				method: 'post',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(payload),
-			}
-		)
-			.then(resp => resp.json())
-			.then(body => {
-				return customRegistry[trigger.type]({
-					schema,
-					body,
-					trigger,
-					properties,
-				});
-			});
-	}
+  const customRegistry = {
+    ...registry,
+    ...registryCallback,
+  };
+  return function (event, { trigger, schema, properties }) {
+    const payload = getRequestPayload(trigger.parameters, properties);
+    return fetch(
+      `${COMPONENT_ACTION_URL}?action=${trigger.action}&family=${trigger.family}&type=${trigger.type}`,
+      {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }
+    )
+      .then(resp => resp.json())
+      .then(body => {
+        return customRegistry[trigger.type]({
+          schema,
+          body,
+          trigger,
+          properties,
+        });
+      });
+  }
 }

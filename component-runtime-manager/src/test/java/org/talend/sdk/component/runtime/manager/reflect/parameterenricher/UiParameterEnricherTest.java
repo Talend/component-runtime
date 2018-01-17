@@ -172,6 +172,7 @@ class UiParameterEnricherTest {
             {
                 put("tcomp::ui::structure::value", "__default__");
                 put("tcomp::ui::structure::type", "IN");
+                put("tcomp::ui::structure::discoverSchema", "guess");
             }
         }, enricher.onParameterAnnotation("testParam", String.class, new Structure() {
 
@@ -183,6 +184,11 @@ class UiParameterEnricherTest {
             @Override
             public String value() {
                 return "__default__";
+            }
+
+            @Override
+            public String discoverSchema() {
+                return "guess";
             }
 
             @Override
