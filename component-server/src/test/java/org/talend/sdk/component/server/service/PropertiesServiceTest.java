@@ -30,7 +30,9 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
 
@@ -41,6 +43,17 @@ class PropertiesServiceTest {
 
     @Inject
     private PropertiesService propertiesService;
+
+    @Test
+    void booleanDefault() throws NoSuchMethodException {
+        final List<SimplePropertyDefinition> props = propertiesService
+                .buildProperties(
+                        new ParameterModelService().buildParameterMetas(
+                                getClass().getDeclaredMethod("boolWrapper", BoolWrapper.class), null),
+                        Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
+                .collect(toList());
+        assertEquals("true", props.stream().filter(p -> p.getName().equals("val")).findFirst().get().getDefaultValue());
+    }
 
     @Test
     void buildProperties() {
@@ -82,6 +95,17 @@ class PropertiesServiceTest {
                     .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.ROOT, null)
                     .forEach(Objects::nonNull);
         });
+    }
+
+    private static void boolWrapper(final BoolWrapper wrapper) {
+        // no-op
+    }
+
+    @Data
+    public static class BoolWrapper {
+
+        @Option
+        private boolean val = true;
     }
 
     @Data
