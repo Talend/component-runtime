@@ -135,8 +135,8 @@ class UiSpecServiceTest {
         final UiSchema tableDataSetMain = tableDataSetIt.next();
         assertEquals("Main", tableDataSetMain.getTitle());
 
-        assertEquals(3, tableDataSetMain.getItems().size());
-        assertEquals(asList("dataStore", "commonConfig", "queryBuilder"),
+        assertEquals(4, tableDataSetMain.getItems().size());
+        assertEquals(asList("dataStore", "commonConfig", "Query", "Ordered"),
                 tableDataSetMain.getItems().stream().map(UiSchema::getTitle).collect(toList()));
 
         final Iterator<UiSchema> mainIt = tableDataSetMain.getItems().iterator();

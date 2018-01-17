@@ -2,338 +2,6 @@
   "actions": [
     {
       "family": "ServiceNow",
-      "name": "GetTableFields",
-      "properties": [],
-      "type": "dynamic_values"
-    },
-    {
-      "family": "ServiceNow",
-      "name": "guessSchema",
-      "properties": [
-        {
-          "displayName": "arg0",
-          "metadata": {
-            "ui::gridlayout::Advanced::value": "limit|maxRecords|fields",
-            "configurationtype::type": "dataset",
-            "configurationtype::name": "table",
-            "ui::gridlayout::Main::value": "dataStore|commonConfig|queryBuilder"
-          },
-          "name": "arg0",
-          "path": "arg0",
-          "type": "OBJECT"
-        },
-        {
-          "displayName": "commonConfig",
-          "metadata": {
-            "ui::gridlayout::Advanced::value": "fields|excludeReferenceLink",
-            "ui::gridlayout::Main::value": "tableName"
-          },
-          "name": "commonConfig",
-          "path": "arg0.commonConfig",
-          "type": "OBJECT"
-        },
-        {
-          "defaultValue": "false",
-          "displayName": "excludeReferenceLink",
-          "metadata": {},
-          "name": "excludeReferenceLink",
-          "path": "arg0.commonConfig.excludeReferenceLink",
-          "type": "BOOLEAN"
-        },
-        {
-          "displayName": "fields",
-          "metadata": {
-            "action::dynamic_values": "GetTableFields",
-            "ui::structure::type": "IN",
-            "ui::structure::value": "__default__"
-          },
-          "name": "fields",
-          "path": "arg0.commonConfig.fields",
-          "type": "ARRAY"
-        },
-        {
-          "displayName": "fields[]",
-          "metadata": {},
-          "name": "fields[]",
-          "path": "arg0.commonConfig.fields[]",
-          "type": "STRING"
-        },
-        {
-          "displayName": "tableName",
-          "metadata": {},
-          "name": "tableName",
-          "path": "arg0.commonConfig.tableName",
-          "type": "ENUM",
-          "validation": {
-            "enumValues": [
-              "change_request",
-              "incident",
-              "problem",
-              "sc_cat_item",
-              "sc_request"
-            ]
-          }
-        },
-        {
-          "displayName": "dataStore",
-          "metadata": {
-            "action::healthcheck": "basicAuth",
-            "configurationtype::type": "datastore",
-            "configurationtype::name": "basicAuth",
-            "action::schema": "guessSchema",
-            "action::schema::binding": "KEYS",
-            "ui::gridlayout::Main::value": "url|username,password"
-          },
-          "name": "dataStore",
-          "path": "arg0.dataStore",
-          "type": "OBJECT"
-        },
-        {
-          "displayName": "Password",
-          "metadata": {
-            "ui::credential": "true"
-          },
-          "name": "password",
-          "path": "arg0.dataStore.password",
-          "type": "STRING"
-        },
-        {
-          "displayName": "API URL",
-          "metadata": {
-            "action::validation": "urlValidation",
-            "action::validation::parameters": "."
-          },
-          "name": "url",
-          "path": "arg0.dataStore.url",
-          "type": "STRING"
-        },
-        {
-          "displayName": "Username",
-          "metadata": {},
-          "name": "username",
-          "path": "arg0.dataStore.username",
-          "type": "STRING"
-        },
-        {
-          "defaultValue": "10000",
-          "displayName": "Limit",
-          "metadata": {},
-          "name": "limit",
-          "path": "arg0.limit",
-          "type": "NUMBER"
-        },
-        {
-          "defaultValue": "-1",
-          "displayName": "Max Records",
-          "metadata": {},
-          "name": "maxRecords",
-          "path": "arg0.maxRecords",
-          "type": "NUMBER"
-        },
-        {
-          "displayName": "order",
-          "metadata": {
-            "condition::if::value": "true",
-            "condition::if::target": "ordered",
-            "ui::gridlayout::Main::value": "field|order"
-          },
-          "name": "order",
-          "path": "arg0.order",
-          "type": "ARRAY"
-        },
-        {
-          "displayName": "field",
-          "metadata": {},
-          "name": "field",
-          "path": "arg0.order[].field",
-          "type": "ENUM",
-          "validation": {
-            "enumValues": [
-              "active",
-              "activity_due",
-              "additional_assignee_list",
-              "approval",
-              "approval_history",
-              "approval_set",
-              "assigned_to",
-              "assignment_group",
-              "business_duration",
-              "business_service",
-              "calendar_duration",
-              "category",
-              "close_notes",
-              "closed_by",
-              "comments",
-              "comments_and_work_notes",
-              "company",
-              "contact_type",
-              "correlation_display",
-              "correlation_id",
-              "delivery_plan",
-              "delivery_task",
-              "description",
-              "due_date",
-              "escalation",
-              "expected_start",
-              "follow_up",
-              "group_list",
-              "impact",
-              "location",
-              "made_sla",
-              "number",
-              "opened_at",
-              "parent",
-              "priority",
-              "reassignment_count",
-              "rejection_goto",
-              "short_description",
-              "sla_due",
-              "sys_class_name",
-              "sys_created_on",
-              "sys_domain_path",
-              "sys_mod_count",
-              "sys_tags",
-              "sys_updated_on",
-              "time_worked",
-              "upon_approval",
-              "upon_reject",
-              "urgency",
-              "user_input",
-              "watch_list",
-              "wf_activity",
-              "work_end",
-              "work_notes",
-              "work_notes_list",
-              "work_start"
-            ]
-          }
-        },
-        {
-          "displayName": "order",
-          "metadata": {},
-          "name": "order",
-          "path": "arg0.order[].order",
-          "type": "ENUM",
-          "validation": {
-            "enumValues": [
-              "ASC",
-              "DESC"
-            ]
-          }
-        },
-        {
-          "defaultValue": "false",
-          "displayName": "ordered",
-          "metadata": {},
-          "name": "ordered",
-          "path": "arg0.ordered",
-          "type": "BOOLEAN"
-        },
-        {
-          "displayName": "queryBuilder",
-          "metadata": {
-            "ui::gridlayout::Main::value": "field|operation|value"
-          },
-          "name": "queryBuilder",
-          "path": "arg0.queryBuilder",
-          "type": "ARRAY"
-        },
-        {
-          "displayName": "field",
-          "metadata": {},
-          "name": "field",
-          "path": "arg0.queryBuilder[].field",
-          "type": "ENUM",
-          "validation": {
-            "enumValues": [
-              "active",
-              "activity_due",
-              "additional_assignee_list",
-              "approval",
-              "approval_history",
-              "approval_set",
-              "assigned_to",
-              "assignment_group",
-              "business_duration",
-              "business_service",
-              "calendar_duration",
-              "category",
-              "close_notes",
-              "closed_by",
-              "comments",
-              "comments_and_work_notes",
-              "company",
-              "contact_type",
-              "correlation_display",
-              "correlation_id",
-              "delivery_plan",
-              "delivery_task",
-              "description",
-              "due_date",
-              "escalation",
-              "expected_start",
-              "follow_up",
-              "group_list",
-              "impact",
-              "location",
-              "made_sla",
-              "number",
-              "opened_at",
-              "parent",
-              "priority",
-              "reassignment_count",
-              "rejection_goto",
-              "short_description",
-              "sla_due",
-              "sys_class_name",
-              "sys_created_on",
-              "sys_domain_path",
-              "sys_mod_count",
-              "sys_tags",
-              "sys_updated_on",
-              "time_worked",
-              "upon_approval",
-              "upon_reject",
-              "urgency",
-              "user_input",
-              "watch_list",
-              "wf_activity",
-              "work_end",
-              "work_notes",
-              "work_notes_list",
-              "work_start"
-            ]
-          }
-        },
-        {
-          "displayName": "operation",
-          "metadata": {},
-          "name": "operation",
-          "path": "arg0.queryBuilder[].operation",
-          "type": "ENUM",
-          "validation": {
-            "enumValues": [
-              "Equals",
-              "Greater_Than",
-              "Greater_Than_OR_Equals",
-              "Less_Than",
-              "Less_Than_Or_Equals",
-              "Not_Equals"
-            ]
-          }
-        },
-        {
-          "displayName": "value",
-          "metadata": {},
-          "name": "value",
-          "path": "arg0.queryBuilder[].value",
-          "type": "STRING"
-        }
-      ],
-      "type": "schema"
-    },
-    {
-      "family": "ServiceNow",
       "name": "urlValidation",
       "properties": [
         {
@@ -348,6 +16,12 @@
     },
     {
       "family": "ServiceNow",
+      "name": "GetTableFields",
+      "properties": [],
+      "type": "dynamic_values"
+    },
+    {
+      "family": "ServiceNow",
       "name": "basicAuth",
       "properties": [
         {
@@ -356,8 +30,6 @@
             "action::healthcheck": "basicAuth",
             "configurationtype::type": "datastore",
             "configurationtype::name": "basicAuth",
-            "action::schema": "guessSchema",
-            "action::schema::binding": "KEYS",
             "ui::gridlayout::Main::value": "url|username,password"
           },
           "name": "basicAuth",
@@ -415,7 +87,7 @@
         "ui::gridlayout::Advanced::value": "limit|maxRecords|commonConfig",
         "configurationtype::type": "dataset",
         "configurationtype::name": "table",
-        "ui::gridlayout::Main::value": "dataStore|commonConfig|queryBuilder"
+        "ui::gridlayout::Main::value": "dataStore|commonConfig|queryBuilder|ordered|order"
       },
       "name": "tableDataSet",
       "path": "tableDataSet",
@@ -433,32 +105,33 @@
     },
     {
       "defaultValue": "false",
-      "displayName": "excludeReferenceLink",
+      "displayName": "Exclude Reference Link From Response",
       "metadata": {},
       "name": "excludeReferenceLink",
       "path": "tableDataSet.commonConfig.excludeReferenceLink",
       "type": "BOOLEAN"
     },
     {
-      "displayName": "fields",
+      "displayName": "Fields",
       "metadata": {
         "action::dynamic_values": "GetTableFields",
         "ui::structure::type": "IN",
-        "ui::structure::value": "guessSchema"
+        "ui::structure::discoverSchema": "",
+        "ui::structure::value": "guessTableSchema"
       },
       "name": "fields",
       "path": "tableDataSet.commonConfig.fields",
       "type": "ARRAY"
     },
     {
-      "displayName": "fields[]",
+      "displayName": "fields[${index}]",
       "metadata": {},
       "name": "fields[]",
       "path": "tableDataSet.commonConfig.fields[]",
       "type": "STRING"
     },
     {
-      "displayName": "tableName",
+      "displayName": "Table Name",
       "metadata": {},
       "name": "tableName",
       "path": "tableDataSet.commonConfig.tableName",
@@ -479,8 +152,6 @@
         "action::healthcheck": "basicAuth",
         "configurationtype::type": "datastore",
         "configurationtype::name": "basicAuth",
-        "action::schema": "guessSchema",
-        "action::schema::binding": "KEYS",
         "ui::gridlayout::Main::value": "url|username,password"
       },
       "name": "dataStore",
@@ -515,7 +186,7 @@
     },
     {
       "defaultValue": "10000",
-      "displayName": "Limit",
+      "displayName": "Limit Per Request",
       "metadata": {},
       "name": "limit",
       "path": "tableDataSet.limit",
@@ -530,21 +201,21 @@
       "type": "NUMBER"
     },
     {
-      "displayName": "order",
+      "displayName": "Order",
       "metadata": {
         "condition::if::value": "true",
         "condition::if::target": "ordered",
         "ui::gridlayout::Main::value": "field|order"
       },
-      "name": "order",
-      "path": "tableDataSet.order",
+      "name": "orderBuilder",
+      "path": "tableDataSet.orderBuilder",
       "type": "ARRAY"
     },
     {
-      "displayName": "field",
+      "displayName": "Field",
       "metadata": {},
       "name": "field",
-      "path": "tableDataSet.order[].field",
+      "path": "tableDataSet.orderBuilder[].field",
       "type": "ENUM",
       "validation": {
         "enumValues": [
@@ -608,10 +279,10 @@
       }
     },
     {
-      "displayName": "order",
+      "displayName": "Order",
       "metadata": {},
       "name": "order",
-      "path": "tableDataSet.order[].order",
+      "path": "tableDataSet.orderBuilder[].order",
       "type": "ENUM",
       "validation": {
         "enumValues": [
@@ -622,14 +293,14 @@
     },
     {
       "defaultValue": "false",
-      "displayName": "ordered",
+      "displayName": "Ordered",
       "metadata": {},
       "name": "ordered",
       "path": "tableDataSet.ordered",
       "type": "BOOLEAN"
     },
     {
-      "displayName": "queryBuilder",
+      "displayName": "Query",
       "metadata": {
         "ui::gridlayout::Main::value": "field|operation|value"
       },
@@ -638,7 +309,7 @@
       "type": "ARRAY"
     },
     {
-      "displayName": "field",
+      "displayName": "Filed",
       "metadata": {},
       "name": "field",
       "path": "tableDataSet.queryBuilder[].field",
@@ -705,7 +376,7 @@
       }
     },
     {
-      "displayName": "operation",
+      "displayName": "Operation",
       "metadata": {},
       "name": "operation",
       "path": "tableDataSet.queryBuilder[].operation",
@@ -722,7 +393,7 @@
       }
     },
     {
-      "displayName": "value",
+      "displayName": "Value",
       "metadata": {},
       "name": "value",
       "path": "tableDataSet.queryBuilder[].value",

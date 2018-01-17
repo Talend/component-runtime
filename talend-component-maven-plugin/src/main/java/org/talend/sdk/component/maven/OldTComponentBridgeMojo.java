@@ -628,6 +628,7 @@ public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
         }
     }
 
+    @Deprecated // no more functional
     private ServiceMeta.ActionMeta hasGuessSchemaAction(final ContainerComponentRegistry registry,
             final ComponentFamilyMeta.BaseMeta<?> meta) {
         return registry

@@ -46,7 +46,9 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                 .findFirst();
         if (schemaBinding.isPresent()) {
             SimplePropertyDefinition bindingProp = schemaBinding.get();
-            final String schemaActionName = bindingProp.getMetadata().get("ui::structure::value");
+            final String schemaActionName = ofNullable(bindingProp.getMetadata().get("ui::structure::discoverSchema"))
+                    .filter(n -> !n.isEmpty())
+                    .orElse("");
             actions
                     .stream()
                     .filter(a -> a.getName().equals(schemaActionName) && "schema".equals(a.getType()))

@@ -45,15 +45,15 @@ public class ActionParameterEnricher implements ParameterExtensionEnricher {
         return new HashMap<String, String>() {
 
             {
-                put(META_PREFIX + type, getValueString(annotation));
+                put(META_PREFIX + type, getValueString(ref.ref(), annotation));
                 ofNullable(getParametersString(annotation)).ifPresent(v -> put(META_PREFIX + type + "::parameters", v));
             }
         };
     }
 
-    private String getValueString(final Annotation annotation) {
+    private String getValueString(final String method, final Annotation annotation) {
         try {
-            return String.valueOf(annotation.annotationType().getMethod("value").invoke(annotation));
+            return String.valueOf(annotation.annotationType().getMethod(method).invoke(annotation));
         } catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new IllegalArgumentException("No value for " + annotation);
         }
