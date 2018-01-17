@@ -102,8 +102,8 @@ public class ElementParameterCreator {
             parameters.addAll(advancedCreator.getSettings());
             // If No schema add one
             if (parameters.stream().noneMatch(p -> EParameterFieldType.SCHEMA_TYPE.equals(p.getFieldType()))) {
-                parameters.add(mainSettingsCreator
-                        .createSchemaParameter(EConnectionType.FLOW_MAIN.getName(), "SCHEMA"));
+                parameters
+                        .add(mainSettingsCreator.createSchemaParameter(EConnectionType.FLOW_MAIN.getName(), "SCHEMA"));
             }
 
         }

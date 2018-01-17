@@ -74,7 +74,10 @@ while ((data_<%=cid%> = input_<%=cid%>.next()) != null) {
 
     // map data_<%=cid%> to the associated structure using the generic object map accessor
     final org.talend.sdk.component.api.processor.data.ObjectMap objectMap_<%=cid%> =
-        new org.talend.sdk.component.runtime.output.data.ObjectMapImpl(
-            mapper_<%=cid%>.plugin(), data_<%=cid%>,
-            accessorCache_<%=cid%>);
+                        org.talend.sdk.component.api.processor.data.ObjectMap.class.isInstance(data_<%=cid%>) ?
+                        org.talend.sdk.component.api.processor.data.ObjectMap.class.cast(data_<%=cid%>) :
+                        new org.talend.sdk.component.runtime.output.data.ObjectMapImpl(
+                                      mapper_<%=cid%>.plugin(),
+                                      data_<%=cid%>,
+                                      accessorCache_<%=cid%>);
     modelMapper_<%=cid%>.map(objectMap_<%=cid%>, <%=output%>);

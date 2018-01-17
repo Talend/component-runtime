@@ -93,7 +93,7 @@ final org.talend.sdk.component.runtime.output.OutputFactory outputs_<%=cid%> = n
                     org.talend.sdk.component.api.processor.data.ObjectMap.class.cast(value) :
                     new org.talend.sdk.component.runtime.output.data.ObjectMapImpl(
                                   processor_<%=cid%>.plugin(), value,
-                                  accessorCache_<%=cid%>)
+                                  accessorCache_<%=cid%>);
 
                 modelMapper_<%=cid%>.map(objectMap, <%= connection.getName() %>OutputRef_<%=cid%>.get());
             }
