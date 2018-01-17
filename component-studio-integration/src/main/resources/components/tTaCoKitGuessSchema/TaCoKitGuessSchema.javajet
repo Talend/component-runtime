@@ -82,13 +82,12 @@ class TaCoKitGuessSchema {
     }
 
     public void guessSchema(final StringBuffer strBuff) throws Exception {
-        boolean succeed = false;
         try {
             if (guessSchemaThroughAction(strBuff)) {
-                succeed = true;
+                return;
             }
             if (guessSchemaThroughResult(strBuff)) {
-                succeed = true;
+                return;
             }
         } finally {
             java.io.File outputFile = new java.io.File(tempFilePath);
@@ -119,9 +118,7 @@ class TaCoKitGuessSchema {
                 }
             }
         }
-        if (!succeed) {
-            throw new Exception("There is no available schema found.");
-        }
+        throw new Exception("There is no available schema found.");
     }
 
     private boolean guessSchemaThroughAction(final StringBuffer strBuff) throws Exception {
