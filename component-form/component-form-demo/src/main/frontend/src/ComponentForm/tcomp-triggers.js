@@ -31,7 +31,8 @@ function schema({ schema, body, properties, trigger }) {
 }
 
 function dynamic_values({ schema, body, properties, trigger }) {
-  return;
+  // for now it is set on the server side so no-op is ok
+  return { properties };
 }
 
 export default {
