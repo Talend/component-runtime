@@ -203,7 +203,7 @@ public class ComponentResource {
     @Path("index")
     @Documentation("Returns the list of available components.")
     public ComponentIndices getIndex(@QueryParam("language") @DefaultValue("en") final String language,
-            @QueryParam("includeIconContent") @DefaultValue("true") final boolean includeIconContent) {
+            @QueryParam("includeIconContent") @DefaultValue("false") final boolean includeIconContent) {
         final Locale locale = localeMapper.mapLocale(language);
         return indicesPerRequest.computeIfAbsent(new RequestKey(locale, includeIconContent),
                 k -> new ComponentIndices(manager

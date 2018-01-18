@@ -84,7 +84,7 @@ class ComponentResourceTest {
 
     @Test
     void webSocketGetIndex() throws IOException, DeploymentException {
-        assertIndex(ws.read(ComponentIndices.class, "get", "/component/index", ""));
+        assertIndex(ws.read(ComponentIndices.class, "get", "/component/index?includeIconContent=true", ""));
     }
 
     @Test

@@ -298,8 +298,9 @@ public class WebSocketClient implements AutoCloseable {
         }
 
         public ComponentIndices getIndex(final String language) {
-            return root.sendAndWait("/v1/get/component/index", "/component/index?language=" + language, null,
-                    ComponentIndices.class, true);
+            return root.sendAndWait("/v1/get/component/index",
+                    "/component/index?language=" + language + "&includeIconContent=true", null, ComponentIndices.class,
+                    true);
         }
 
         public byte[] icon(final String id) {
