@@ -33,6 +33,7 @@ import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.PropertyOrderStrategy;
 
+import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
 import org.talend.sdk.component.runtime.manager.util.DefaultValueInspector;
@@ -93,15 +94,12 @@ public class PropertiesService {
                             .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)))
                     .orElse(null);
             final Object instance = defaultValueInspector.createDemoInstance(rootInstance, p);
+            final ParameterBundle bundle = p.findBundle(loader, locale);
+            final ParameterBundle parentBundle = parent == null ? null : parent.findBundle(loader, locale);
             return Stream.concat(
-                    Stream.of(new SimplePropertyDefinition(path, name, p
-                            .findBundle(loader, locale)
-                            .displayName()
-                            .orElseGet(() -> p
-                                    .findBundle(loader, locale)
-                                    .fallbackDisplayName(parent == null ? null : parent.findBundle(loader, locale))
-                                    .orElse(p.getName())),
-                            type, toDefault(instance, p), validation, metadata)),
+                    Stream.of(new SimplePropertyDefinition(path, name,
+                            bundle.displayName(parentBundle).orElse(p.getName()), type, toDefault(instance, p),
+                            validation, metadata, bundle.placeholder(parentBundle).orElse(p.getName()))),
                     buildProperties(p.getNestedParameters(), loader, locale, instance, p));
         }).sorted(Comparator.comparing(SimplePropertyDefinition::getPath)); // important cause it is the way you want to
         // see it

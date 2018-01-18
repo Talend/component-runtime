@@ -54,12 +54,12 @@ public class ParameterMeta {
         }
 
         @Override
-        public Optional<String> displayName() {
+        public Optional<String> displayName(final ParameterBundle parent) {
             return empty();
         }
 
         @Override
-        public Optional<String> fallbackDisplayName(final ParameterBundle parameterBundle) {
+        public Optional<String> placeholder(final ParameterBundle parent) {
             return empty();
         }
     };
@@ -134,13 +134,6 @@ public class ParameterMeta {
                 + "), means the display names will be the technical names";
     }
 
-    public interface Source {
-
-        String name();
-
-        Class<?> declaringClass();
-    }
-
     public enum Type {
         OBJECT,
         ARRAY,
@@ -148,5 +141,12 @@ public class ParameterMeta {
         STRING,
         NUMBER,
         ENUM
+    }
+
+    public interface Source {
+
+        String name();
+
+        Class<?> declaringClass();
     }
 }

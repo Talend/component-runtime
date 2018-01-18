@@ -566,6 +566,7 @@ of supported keys:
 |${family}.${component_name}._displayName|the display name of the component (used by the GUIs)
 |${property_path}._displayName|the display name of the option.
 |${simple_class_name}.${property_name}._displayName|the display name of the option using it class name.
+|${property_path}._placeholder|the placeholder of the option.
 |====
 
 Example of configuration for a component named `list` belonging to the family `memory` (`@Emitter(family = "memory", name = "list")`):
@@ -595,10 +596,14 @@ You can give it a translatable display name by adding ${simple_class_name}.${pro
 [source]
 ----
 MyConfig.host._displayName = Server Host Name
+MyConfig.host._placeholder = Enter Server Host Name...
+
 MyConfig.port._displayName = Server Port
+MyConfig.port._placeholder = Enter Server Port...
 ----
 
-IMPORTANT: If you have a display name using the property path, it will override the display name defined using the simple class name
+IMPORTANT: If you have a display name using the property path, it will override the display name defined using the simple class name.
+this rule apply also to placeholders
 
 == Component loading
 

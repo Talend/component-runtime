@@ -42,7 +42,7 @@ public class TaCoKitElementParameter extends ElementParameter {
 
     /**
      * Sets tagged value "org.talend.sdk.component.source", which is used in code generation to recognize component type
-     * 
+     *
      * @param element {@link IElement} to which this parameter belongs to
      */
     public TaCoKitElementParameter(final IElement element) {
@@ -55,7 +55,7 @@ public class TaCoKitElementParameter extends ElementParameter {
      * This method may be used to get value for serialization in repository.
      * Default implementation returns value without conversion assuming it is already stored as String.
      * Subclasses should override this method to provide correct conversion according parameter type.
-     * 
+     *
      * @return this parameter value
      */
     public String getStringValue() {
@@ -66,7 +66,7 @@ public class TaCoKitElementParameter extends ElementParameter {
      * Sets parameter value and fires parameter change event, which is handled by registered listeners.
      * Subclasses should extend (override and call super.setValue()) this method to provide correct conversion, when
      * they use other value type than String.
-     * 
+     *
      * @param newValue value to be set
      */
     @Override
@@ -108,7 +108,7 @@ public class TaCoKitElementParameter extends ElementParameter {
      * super class fields
      * This overridden implementation fixes an error, when <code>item</code> wasn't found in both arrays.
      * It returns 0 in such case instead of -1. -1 causes ArrayIndexOutOfBoundsException, when new table column is added
-     * 
+     *
      * @param item default closed list value
      * @return default value index in possible values array
      */
@@ -124,7 +124,7 @@ public class TaCoKitElementParameter extends ElementParameter {
     /**
      * Checks whether this {@link TaCoKitElementParameter} forces redraw after each value change
      * It forces redraw if {@link #redrawParameter} was set
-     * 
+     *
      * @return true, if it forces redraw; false - otherwise
      */
     public boolean isRedrawable() {

@@ -78,8 +78,10 @@ class PropertiesServiceTest {
         assertEquals(5, props.size());
         assertEquals("Configuration", props.get(0).getDisplayName());
         assertEquals("Server Host Name", props.get(1).getDisplayName());
+        assertEquals("Enter the server host name...", props.get(1).getPlaceholder());
         assertEquals("Password", props.get(2).getDisplayName());
         assertEquals("Server Port", props.get(3).getDisplayName());
+        assertEquals("Enter the server port...", props.get(3).getPlaceholder());
         assertEquals("User Name", props.get(4).getDisplayName());
     }
 

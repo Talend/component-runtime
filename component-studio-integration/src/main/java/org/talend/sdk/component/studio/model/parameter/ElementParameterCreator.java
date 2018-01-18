@@ -60,7 +60,7 @@ public class ElementParameterCreator {
 
     private final ComponentDetail detail;
 
-    private final List<ElementParameter> parameters = new ArrayList<>();
+    private final List<IElementParameter> parameters = new ArrayList<>();
 
     /**
      * Stores Component Property Definitions
@@ -368,7 +368,7 @@ public class ElementParameterCreator {
     /**
      * Computes and returns types of suitable repository nodes.
      * They are represented as a String separated by '|'
-     * 
+     *
      * @return suitable repository node types
      */
     private String computeRepositoryNodeType() {

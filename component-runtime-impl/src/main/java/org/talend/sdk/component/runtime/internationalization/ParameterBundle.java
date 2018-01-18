@@ -29,14 +29,24 @@ public class ParameterBundle extends InternalBundle {
         this.simpleNames = simpleNames;
     }
 
-    public Optional<String> displayName() {
-        return readValue("_displayName");
+    public Optional<String> displayName(final ParameterBundle parent) {
+        return get(parent, "_displayName");
     }
 
-    public Optional<String> fallbackDisplayName(final ParameterBundle parent) {
-        return Stream.of(simpleNames).map(s -> {
-            final String k = s + "._displayName";
-            return readRawValue(k).orElse(parent == null ? null : parent.readRawValue(k).orElse(null));
-        }).filter(Objects::nonNull).findFirst();
+    public Optional<String> placeholder(final ParameterBundle parent) {
+        return get(parent, "_placeholder");
     }
+
+    private Optional<String> get(final ParameterBundle parentBundle, final String suffix) {
+        Optional<String> v = readValue(suffix);
+        if (!v.isPresent()) {
+            v = Stream.of(simpleNames).map(s -> {
+                final String k = s + "." + suffix;
+                return readRawValue(k).orElse(parentBundle == null ? null : parentBundle.readRawValue(k).orElse(null));
+            }).filter(Objects::nonNull).findFirst();
+        }
+
+        return v;
+    }
+
 }

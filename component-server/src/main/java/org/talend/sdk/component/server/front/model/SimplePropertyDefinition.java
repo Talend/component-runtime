@@ -39,4 +39,6 @@ public class SimplePropertyDefinition {
     private PropertyValidation validation;
 
     private Map<String, String> metadata;
+
+    private String placeholder;
 }
