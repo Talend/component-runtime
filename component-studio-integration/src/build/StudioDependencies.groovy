@@ -45,7 +45,6 @@ def dependencies = [
         'org.talend.repository.view.di',
         'org.talend.designer.core.generic',
         'org.talend.metadata.managment.ui',
-        'org.talend.repository.view.di',
         'org.eclipse.emf.ecore',
         'org.eclipse.emf.common',
         'org.eclipse.m2e.core',
@@ -53,7 +52,6 @@ def dependencies = [
         'org.eclipse.ui.navigator',
         'org.eclipse.ui.views.properties.tabbed',
         'org.apache.commons.collections',
-        'org.talend.components.api',
         'org.talend.cwm.mip',
         'org.talend.utils',
         'org.apache.log4j'

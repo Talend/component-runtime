@@ -234,7 +234,6 @@
               org.talend.metadata.managment.ui,
               org.talend.repository.view.di,
               org.apache.commons.collections,
-              org.talend.components.api,
               org.talend.cwm.mip,
               org.talend.utils,
               org.apache.log4j
@@ -360,6 +359,18 @@
       <dependencies>
         <dependency>
           <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.osgi.lib.loader</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.model</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
           <artifactId>org.talend.core</artifactId>
           <version>${studio.version}</version>
           <scope>provided</scope>
@@ -378,13 +389,19 @@
         </dependency>
         <dependency>
           <groupId>org.talend.studio</groupId>
-          <artifactId>org.talend.commons.runtime</artifactId>
+          <artifactId>org.eclipse.core.resources</artifactId>
           <version>${studio.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.talend.studio</groupId>
           <artifactId>org.talend.designer.core</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.commons.runtime</artifactId>
           <version>${studio.version}</version>
           <scope>provided</scope>
         </dependency>
@@ -397,24 +414,6 @@
         <dependency>
           <groupId>org.talend.studio</groupId>
           <artifactId>org.talend.common.ui.runtime</artifactId>
-          <version>${studio.version}</version>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.talend.studio</groupId>
-          <artifactId>org.talend.metadata.managment.ui</artifactId>
-          <version>${studio.version}</version>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.talend.studio</groupId>
-          <artifactId>org.talend.model</artifactId>
-          <version>${studio.version}</version>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.talend.studio</groupId>
-          <artifactId>org.talend.osgi.lib.loader</artifactId>
           <version>${studio.version}</version>
           <scope>provided</scope>
         </dependency>
@@ -450,6 +449,18 @@
         </dependency>
         <dependency>
           <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.designer.core.generic</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.metadata.managment.ui</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
           <artifactId>org.eclipse.emf.ecore</artifactId>
           <version>${studio.version}</version>
           <scope>provided</scope>
@@ -475,6 +486,36 @@
         <dependency>
           <groupId>org.talend.studio</groupId>
           <artifactId>org.eclipse.ui.navigator</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.eclipse.ui.views.properties.tabbed</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.apache.commons.collections</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.cwm.mip</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.talend.utils</artifactId>
+          <version>${studio.version}</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.talend.studio</groupId>
+          <artifactId>org.apache.log4j</artifactId>
           <version>${studio.version}</version>
           <scope>provided</scope>
         </dependency>
