@@ -15,58 +15,11 @@
  */
 package org.talend.sdk.component.build
 
-
-//
-// Helper script to publish a folder to npm using a settings.xml server
-//
-// It requires to configure a "npm" settings.xml server and these properties:
-// - packageJson: the location of the package.json, note that it should contain the sources to bundle too
-//
-// In term of dependencies you must something like declare (jax-rs client, JSON-B, commons-compress) + groovy indeed:
-/*
-<dependencies>
-  <dependency>
-    <groupId>org.codehaus.groovy</groupId>
-    <artifactId>groovy-all</artifactId>
-    <version>3.0.0-alpha-1</version>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.geronimo.specs</groupId>
-    <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
-    <version>1.0</version>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.geronimo.specs</groupId>
-    <artifactId>geronimo-json_1.1_spec</artifactId>
-    <version>1.0</version>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.geronimo.specs</groupId>
-    <artifactId>geronimo-jsonb_1.0_spec</artifactId>
-    <version>1.0</version>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-rt-rs-client</artifactId>
-    <version>3.2.1</version>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.johnzon</groupId>
-    <artifactId>johnzon-jsonb</artifactId>
-    <version>1.1.5</version>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.commons</groupId>
-    <artifactId>commons-compress</artifactId>
-    <version>1.14</version>
-  </dependency>
-</dependencies>
-*/
-//
-
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider
+import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest
+import org.apache.maven.settings.crypto.SettingsDecrypter
 
 import javax.json.bind.JsonbBuilder
 import javax.json.bind.annotation.JsonbProperty
@@ -82,6 +35,13 @@ import java.util.zip.GZIPOutputStream
 
 import static javax.ws.rs.client.Entity.entity
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE
+
+//
+// Helper script to publish a folder to npm using a settings.xml server
+//
+// It requires to configure a "npm" settings.xml server and these properties:
+// - packageJson: the location of the package.json, note that it should contain the sources to bundle too
+//
 
 class NpmLoginRequest {
     String name
@@ -139,8 +99,7 @@ class Npm {
         token = response.token
     }
 
-    def publish(pckJson, mvnVersion) {
-        def version = mvnVersion.endsWith('-SNAPSHOT') ? mvnVersion.replace('-SNAPSHOT', '-dev.' + System.currentTimeMillis()) : mvnVersion
+    def publish(pckJson, version) {
         def jsonb = JsonbBuilder.create()
         def json = new File(pckJson)
         try {
@@ -195,7 +154,7 @@ class Npm {
                     name: pck.name,
                     description: pck.description ?: '',
                     distTags: [
-                            "${mvnVersion.endsWith('-SNAPSHOT') ? 'latest' : mvnVersion}" : version
+                            "version" : version
                     ],
                     versions: [
                             "${version}": pck
@@ -284,6 +243,10 @@ class Npm {
 //
 // start script
 //
+if (project.version.endsWith('-SNAPSHOT')) {
+    log.info("Project is in SNAPSHOT, skipping NPM deployment")
+    return
+}
 
 // grab the credentials
 def serverId = project.properties.getProperty('talend.npm.serverId', 'npm')

@@ -37,15 +37,16 @@
     <module>component-runtime-testing</module>
     <module>component-runtime-design-extension</module>
     <module>component-server</module>
+    <module>component-kit.js</module>
     <module>component-form</module>
     <module>component-avro-integration</module>
     <module>talend-component-maven-plugin</module>
     <module>gradle-talend-component</module>
     <module>component-starter-server</module>
     <module>component-studio-integration</module>
-    <module>documentation</module>
     <module>component-tools</module>
     <module>slf4j-standard</module>
+    <module>documentation</module>
   </modules>
 
   <repositories>
@@ -143,7 +144,7 @@
     <commons-compress.version>1.15</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
     <commons-cli.version>1.4</commons-cli.version>
-    <geronimo-jaxrs.version>1.0-alpha-1</geronimo-jaxrs.version>
+    <geronimo-jaxrs.version>1.0</geronimo-jaxrs.version>
     <asciidoctorj.version>1.6.0-alpha.6</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.5.0-alpha.16</asciidoctorj-pdf.version>
     <jsonb-api.version>1.0</jsonb-api.version>
@@ -167,6 +168,7 @@
     <gmavenplus.version>1.6</gmavenplus.version>
     <dependency-plugin.version>3.0.2</dependency-plugin.version>
     <javadoc-plugin.version>3.0.0</javadoc-plugin.version>
+    <clean-plugin.version>3.0.0</clean-plugin.version>
     <download-plugin.version>1.2.1</download-plugin.version>
     <shade-plugin.version>3.0.0</shade-plugin.version>
     <git-commit-id-plugin.version>2.2.4</git-commit-id-plugin.version>

@@ -241,7 +241,7 @@
               </dependency>
               <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jaxrs_2.0_spec</artifactId>
+                <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
                 <version>${geronimo-jaxrs.version}</version>
               </dependency>
             </dependencies>

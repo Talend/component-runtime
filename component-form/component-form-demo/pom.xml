@@ -34,7 +34,7 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jaxrs_2.0_spec</artifactId>
+      <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
       <version>${geronimo-jaxrs.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -92,6 +92,13 @@
       <version>${log4j2.version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-kit.js</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -103,6 +110,32 @@
     </resources>
 
     <plugins>
+      <plugin> <!-- webpack doesn't like to resolve imports ourside src dir so we copy our module as a npm package -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>copy-component-kit.js</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.basedir}/src/main/frontend/node_modules/component-kit.js</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.parent.parent.basedir}/component-kit.js/</directory>
+                  <includes>
+                    <include>src/**</include>
+                    <include>package.json</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
