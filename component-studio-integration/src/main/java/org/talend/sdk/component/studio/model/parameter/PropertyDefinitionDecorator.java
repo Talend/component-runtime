@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.Data;
@@ -99,7 +100,7 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
      * @return parent path
      */
     String getParentPath() {
-        String path = delegate.getPath();
+        final String path = delegate.getPath();
         if (!path.contains(PATH_SEPARATOR)) {
             return NO_PARENT_ID;
         }
@@ -123,8 +124,8 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
      */
     Set<String> getChildrenNames(final String form) {
         if (hasGridLayout(form)) {
-            String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
-            String[] names = gridLayout.split(GRIDLAYOUT_SEPARATOR);
+            final String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
+            final String[] names = gridLayout.split(GRIDLAYOUT_SEPARATOR);
             return new HashSet<>(Arrays.asList(names));
         }
         return Collections.emptySet();
@@ -137,8 +138,8 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
      */
     Set<String> getOptionsOrderNames() {
         if (hasOptionsOrder()) {
-            String optionsOrder = delegate.getMetadata().get(UI_OPTIONS_ORDER);
-            String[] names = optionsOrder.split(ORDER_SEPARATOR);
+            final String optionsOrder = delegate.getMetadata().get(UI_OPTIONS_ORDER);
+            final String[] names = optionsOrder.split(ORDER_SEPARATOR);
             return new HashSet<>(Arrays.asList(names));
         }
         return Collections.emptySet();
@@ -188,9 +189,9 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         if (!hasGridLayout(form)) {
             return null;
         }
-        HashMap<String, Integer> order = new HashMap<>();
-        String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
-        String[] children = gridLayout.split(GRIDLAYOUT_SEPARATOR);
+        final HashMap<String, Integer> order = new HashMap<>();
+        final String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
+        final String[] children = gridLayout.split(GRIDLAYOUT_SEPARATOR);
         for (int i = 0; i < children.length; i++) {
             order.put(children[i], i);
         }
@@ -204,9 +205,9 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
      * @return order map or null, if there is no grid layout for specified form
      */
     private HashMap<String, Integer> getOptionsOrder() {
-        HashMap<String, Integer> order = new HashMap<>();
-        String optionsOrder = delegate.getMetadata().get(UI_OPTIONS_ORDER);
-        String[] children = optionsOrder.split(ORDER_SEPARATOR);
+        final HashMap<String, Integer> order = new HashMap<>();
+        final String optionsOrder = delegate.getMetadata().get(UI_OPTIONS_ORDER);
+        final String[] children = optionsOrder.split(ORDER_SEPARATOR);
         for (int i = 0; i < children.length; i++) {
             order.put(children[i], i);
         }
@@ -232,7 +233,7 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
      * @return true, if it has any grid layout; false - otherwise
      */
     boolean hasGridLayouts() {
-        Set<String> keys = delegate.getMetadata().keySet();
+        final Set<String> keys = delegate.getMetadata().keySet();
         return keys.stream().filter(key -> key.startsWith(UI_GRIDLAYOUT_PREFIX)).count() > 0;
     }
 
@@ -296,10 +297,10 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         if (!hasGridLayout(form)) {
             return false;
         }
-        String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
-        String[] rows = gridLayout.split("\\|");
-        for (String row : rows) {
-            String[] columns = row.split(",");
+        final String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
+        final String[] rows = gridLayout.split("\\|");
+        for (final String row : rows) {
+            final String[] columns = row.split(",");
             for (int i = 1; i < columns.length; i++) {
                 if (child.equals(columns[i])) {
                     return true;
@@ -318,6 +319,58 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
                     return new Condition(e.getValue(),
                             delegate.getMetadata().getOrDefault(valueKey, "true").split(VALUE_SEPARATOR));
                 });
+    }
+
+    /**
+     * Checks whether it has one of constraints
+     * 
+     * @return true, if it has constraint; false - otherwise
+     */
+    boolean hasConstraint() {
+        final PropertyValidation validation = delegate.getValidation();
+        if (validation == null) {
+            return false;
+        }
+        if (validation.getRequired() != null) {
+            return true;
+        }
+        if (validation.getUniqueItems() != null) {
+            return true;
+        }
+        if (validation.getMax() != null) {
+            return true;
+        }
+        if (validation.getMaxItems() != null) {
+            return true;
+        }
+        if (validation.getMaxLength() != null) {
+            return true;
+        }
+        if (validation.getMin() != null) {
+            return true;
+        }
+        if (validation.getMinItems() != null) {
+            return true;
+        }
+        if (validation.getMinLength() != null) {
+            return true;
+        }
+        if (validation.getPattern() != null) {
+            return true;
+        }
+        return false;
+    }
+
+    boolean isRequired() {
+        final PropertyValidation validation = delegate.getValidation();
+        if (validation == null) {
+            return false;
+        }
+        final Boolean isRequired = validation.getRequired();
+        if (isRequired != null && isRequired) {
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -23,6 +23,7 @@ import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUC
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_VALUE;
 
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +48,7 @@ import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.ui.editor.nodes.Node;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivator;
+import org.talend.sdk.component.studio.model.parameter.listener.ValidatorFactory;
 
 /**
  * Creates properties from leafs
@@ -119,7 +121,7 @@ public class SettingsCreator implements PropertyVisitor {
     public List<IElementParameter> getSettings() {
 
         activators.forEach((path, activators) -> {
-            IElementParameter targetParameter = settings.get(path);
+            final IElementParameter targetParameter = settings.get(path);
             if (TaCoKitElementParameter.class.isInstance(targetParameter)) {
                 final TaCoKitElementParameter param = TaCoKitElementParameter.class.cast(targetParameter);
                 param.setRedrawParameter(redrawParameter);
@@ -136,9 +138,9 @@ public class SettingsCreator implements PropertyVisitor {
     /**
      * Sends initial event to listener to set initial visibility
      */
-    private void initVisibility(final ElementParameter targetParameter, final ParameterActivator listener) {
-        Object initialValue = targetParameter.getValue();
-        PropertyChangeEvent event =
+    private void initVisibility(final ElementParameter targetParameter, final PropertyChangeListener listener) {
+        final Object initialValue = targetParameter.getValue();
+        final PropertyChangeEvent event =
                 new PropertyChangeEvent(targetParameter, EVENT_PROPERTY_VALUE_CHANGED, initialValue, initialValue);
         listener.propertyChange(event);
     }
@@ -151,19 +153,19 @@ public class SettingsCreator implements PropertyVisitor {
         if (node.isLeaf()) {
             switch (node.getFieldType()) {
             case CHECK:
-                CheckElementParameter check = visitCheck(node);
+                final CheckElementParameter check = visitCheck(node);
                 settings.put(check.getName(), check);
                 break;
             case CLOSED_LIST:
-                TaCoKitElementParameter closedList = visitClosedList(node);
+                final TaCoKitElementParameter closedList = visitClosedList(node);
                 settings.put(closedList.getName(), closedList);
                 break;
             case TABLE:
-                TaCoKitElementParameter table = visitTable((TablePropertyNode) node);
+                final TaCoKitElementParameter table = visitTable((TablePropertyNode) node);
                 settings.put(table.getName(), table);
                 break;
             case SCHEMA_TYPE:
-                TaCoKitElementParameter schema = visitSchema(node);
+                final TaCoKitElementParameter schema = visitSchema(node);
                 settings.put(schema.getName(), schema);
                 break;
             default:
@@ -193,7 +195,7 @@ public class SettingsCreator implements PropertyVisitor {
      * Converts default value from String to Boolean and sets it
      */
     private CheckElementParameter visitCheck(final PropertyNode node) {
-        CheckElementParameter parameter = new CheckElementParameter(iNode);
+        final CheckElementParameter parameter = new CheckElementParameter(iNode);
         commonSetup(parameter, node);
         return parameter;
     }
@@ -203,13 +205,13 @@ public class SettingsCreator implements PropertyVisitor {
      * Sets Closed List possible values and sets 1st element as default
      */
     private TaCoKitElementParameter visitClosedList(final PropertyNode node) {
-        TaCoKitElementParameter parameter = new TaCoKitElementParameter(iNode);
+        final TaCoKitElementParameter parameter = new TaCoKitElementParameter(iNode);
         commonSetup(parameter, node);
-        PropertyValidation validation = node.getProperty().getValidation();
+        final PropertyValidation validation = node.getProperty().getValidation();
         if (validation == null) {
             throw new IllegalArgumentException("validation should not be null");
         }
-        Collection<String> possibleValues = validation.getEnumValues();
+        final Collection<String> possibleValues = validation.getEnumValues();
         if (possibleValues == null) {
             throw new IllegalArgumentException("validation enum values should not be null");
         }
@@ -231,12 +233,12 @@ public class SettingsCreator implements PropertyVisitor {
      * Based on schema field controls whether table toolbox (buttons under table) is shown
      */
     private TaCoKitElementParameter visitTable(final TablePropertyNode tableNode) {
-        TaCoKitElementParameter parameter = createTableParameter(tableNode);
+        final TaCoKitElementParameter parameter = createTableParameter(tableNode);
 
-        List<IElementParameter> tableParameters = createTableParameters(tableNode);
-        List<String> codeNames = new ArrayList<>(tableParameters.size());
-        List<String> displayNames = new ArrayList<>(tableParameters.size());
-        for (IElementParameter param : tableParameters) {
+        final List<IElementParameter> tableParameters = createTableParameters(tableNode);
+        final List<String> codeNames = new ArrayList<>(tableParameters.size());
+        final List<String> displayNames = new ArrayList<>(tableParameters.size());
+        for (final IElementParameter param : tableParameters) {
             codeNames.add(param.getName());
             displayNames.add(param.getDisplayName());
         }
@@ -253,17 +255,17 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     private TaCoKitElementParameter visitSchema(final PropertyNode node) {
-        String connectionType = node.getProperty().getMetadata().get(UI_STRUCTURE_TYPE);
+        final String connectionType = node.getProperty().getMetadata().get(UI_STRUCTURE_TYPE);
         String connectionName = node.getProperty().getMetadata().get(UI_STRUCTURE_VALUE);
         connectionName = connectionName.equals("__default__") ? EConnectionType.FLOW_MAIN.getName() : connectionName;
-        String schemaName = connectionType + "$$" + node.getId();
+        final String schemaName = connectionType + "$$" + node.getId();
         return createSchemaParameter(connectionName, schemaName);
     }
 
     protected TaCoKitElementParameter createSchemaParameter(final String connectionName, final String schemaName) {
         // Maybe need to find some other condition. this way we will show schema widget for main flow only.
-        boolean show = EConnectionType.FLOW_MAIN.getName().equalsIgnoreCase(connectionName);
-        TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
+        final boolean show = EConnectionType.FLOW_MAIN.getName().equalsIgnoreCase(connectionName);
+        final TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
         schema.setName(schemaName);
         schema.setDisplayName("!!!SCHEMA.NAME!!!");
         schema.setCategory(EComponentCategory.BASIC);
@@ -276,7 +278,7 @@ public class SettingsCreator implements PropertyVisitor {
 
         // add child parameters
         // defines whether schema is built-in or repository
-        TaCoKitElementParameter childParameter1 = new TaCoKitElementParameter(getNode());
+        final TaCoKitElementParameter childParameter1 = new TaCoKitElementParameter(getNode());
         childParameter1.setCategory(EComponentCategory.BASIC);
         childParameter1.setContext(connectionName);
         childParameter1.setDisplayName("Schema");
@@ -292,7 +294,7 @@ public class SettingsCreator implements PropertyVisitor {
         childParameter1.setValue("BUILT_IN");
         schema.getChildParameters().put(EParameterName.SCHEMA_TYPE.getName(), childParameter1);
 
-        TaCoKitElementParameter childParameter2 = new TaCoKitElementParameter(getNode());
+        final TaCoKitElementParameter childParameter2 = new TaCoKitElementParameter(getNode());
         childParameter2.setCategory(EComponentCategory.BASIC);
         childParameter2.setContext(connectionName);
         childParameter2.setDisplayName("Repository");
@@ -307,8 +309,8 @@ public class SettingsCreator implements PropertyVisitor {
         schema.getChildParameters().put(EParameterName.REPOSITORY_SCHEMA_TYPE.getName(), childParameter2);
 
         if (canAddGuessSchema()) {
-            String tacokitGuessSchema = "Guess Schema";
-            TaCoKitElementParameter guessSchemaParameter = new TaCoKitElementParameter(getNode());
+            final String tacokitGuessSchema = "Guess Schema";
+            final TaCoKitElementParameter guessSchemaParameter = new TaCoKitElementParameter(getNode());
             guessSchemaParameter.setCategory(EComponentCategory.BASIC);
             guessSchemaParameter.setContext(EConnectionType.FLOW_MAIN.getName());
             guessSchemaParameter.setDisplayName(tacokitGuessSchema);
@@ -336,7 +338,7 @@ public class SettingsCreator implements PropertyVisitor {
      * @return created {@link TableElementParameter}
      */
     private TableElementParameter createTableParameter(final PropertyNode node) {
-        TableElementParameter parameter = new TableElementParameter(iNode);
+        final TableElementParameter parameter = new TableElementParameter(iNode);
         commonSetup(parameter, node);
         return parameter;
     }
@@ -359,7 +361,11 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setNumRow(lastRowNumber);
         parameter.setShow(true);
         parameter.setValue(node.getProperty().getDefaultValue());
+        parameter.setRequired(node.getProperty().isRequired());
         createParameterActivator(node, parameter);
+        if (node.getProperty().hasConstraint()) {
+            createValidationLabel(node, parameter);
+        }
     }
 
     /**
@@ -369,8 +375,8 @@ public class SettingsCreator implements PropertyVisitor {
      * @return list of table parameters
      */
     private List<IElementParameter> createTableParameters(final TablePropertyNode tableNode) {
-        List<PropertyNode> columns = tableNode.getColumns();
-        SettingsCreator creator = new SettingsCreator(new FakeElement("table"), category, redrawParameter);
+        final List<PropertyNode> columns = tableNode.getColumns();
+        final SettingsCreator creator = new SettingsCreator(new FakeElement("table"), category, redrawParameter);
         columns.forEach(creator::visit);
         return creator.getSettings();
     }
@@ -383,16 +389,38 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     /**
+     * Creates LABEL ElementParameter which shows validation message in case validation fail.
+     * It is shown on the next row, but may be shown in the next
+     */
+    private void createValidationLabel(final PropertyNode node, final TaCoKitElementParameter target) {
+        final ValidationLabel validationLabel = new ValidationLabel(iNode);
+        validationLabel.setCategory(category);
+        validationLabel.setName(node.getProperty().getPath() + "Validation");
+        validationLabel.setRepositoryValue(node.getProperty().getPath() + "validation");
+        // it shown on the next row by default, but maybe changed
+        validationLabel.setNumRow(++lastRowNumber);
+        settings.put(validationLabel.getName(), validationLabel);
+
+        final PropertyValidation validation = node.getProperty().getValidation();
+        final List<PropertyChangeListener> validators =
+                new ValidatorFactory().createValidators(validation, validationLabel);
+        if (!validators.isEmpty()) {
+            target.setRedrawParameter(redrawParameter);
+            validators.forEach(v -> target.registerListener(EVENT_PROPERTY_VALUE_CHANGED, v));
+        }
+    }
+
+    /**
      * Computes target path of {@link TaCoKitElementParameter}, which should be listened by Listener
      *
      * @return target path
      */
     private String computeTargetPath(final PropertyNode node, final String target) {
-        String currentPath = node.getParentId();
-        LinkedList<String> path = new LinkedList<>();
+        final String currentPath = node.getParentId();
+        final LinkedList<String> path = new LinkedList<>();
         path.addAll(Arrays.asList(currentPath.split("\\" + DOT_PATH_SEPARATOR)));
-        List<String> relativePath = Arrays.asList(target.split(PATH_SEPARATOR));
-        for (String s : relativePath) {
+        final List<String> relativePath = Arrays.asList(target.split(PATH_SEPARATOR));
+        for (final String s : relativePath) {
             if (PARENT_NODE.equals(s)) {
                 path.removeLast();
             } else {
@@ -404,13 +432,13 @@ public class SettingsCreator implements PropertyVisitor {
 
     private boolean canAddGuessSchema() {
         boolean canAddGuessSchema = false;
-        IElement node = getNode();
+        final IElement node = getNode();
         if (node instanceof Node) {
             boolean hasIncommingConnection = false;
-            List<? extends INodeConnector> listConnector = ((Node) node).getListConnector();
+            final List<? extends INodeConnector> listConnector = ((Node) node).getListConnector();
             if (listConnector != null) {
-                for (INodeConnector connector : listConnector) {
-                    EConnectionType connectionType = connector.getDefaultConnectionType();
+                for (final INodeConnector connector : listConnector) {
+                    final EConnectionType connectionType = connector.getDefaultConnectionType();
                     if (connectionType != null && connectionType.hasConnectionCategory(IConnectionCategory.FLOW)
                             && 0 < connector.getMaxLinkInput()) {
                         hasIncommingConnection = true;
