@@ -19,7 +19,7 @@ import javax.json.bind.serializer.JsonbSerializer;
 import javax.json.bind.serializer.SerializationContext;
 import javax.json.stream.JsonGenerator;
 
-public class MapSerializer implements JsonbSerializer<Object> {
+public class GenericObjectSerializer implements JsonbSerializer<Object> {
 
     @Override
     public void serialize(final Object obj, final JsonGenerator generator, final SerializationContext ctx) {

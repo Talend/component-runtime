@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.json.bind.Jsonb;
+
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
 import org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter;
@@ -33,6 +35,8 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class ArrayPropertyConverter implements PropertyConverter {
+
+    private final Jsonb jsonb;
 
     private final JsonSchema jsonSchema;
 
@@ -49,7 +53,7 @@ public class ArrayPropertyConverter implements PropertyConverter {
             final JsonSchema items = new JsonSchema();
             items.setProperties(new HashMap<>());
             arrayElements.stream().map(PropertyContext::new).forEach(
-                    e -> new JsonSchemaConverter(items, emptyList()).convert(e));
+                    e -> new JsonSchemaConverter(jsonb, items, emptyList()).convert(e));
             jsonSchema.setItems(items);
         } else if (!arrayElements.isEmpty()) { // primitive
             final String type = arrayElements.get(0).getType();

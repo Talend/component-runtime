@@ -21,21 +21,22 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.json.bind.Jsonb;
+
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class PropertiesConverter implements PropertyConverter {
+
+    private final Jsonb jsonb;
 
     private final Map<String, Object> defaults;
 
     private final Collection<SimplePropertyDefinition> properties;
-
-    public PropertiesConverter(final Map<String, Object> defaults,
-            final Collection<SimplePropertyDefinition> properties) {
-        this.defaults = defaults;
-        this.properties = properties;
-    }
 
     @Override
     public void convert(final PropertyContext context) {
@@ -43,7 +44,7 @@ public class PropertiesConverter implements PropertyConverter {
         if ("object".equalsIgnoreCase(property.getType())) {
             final Map<String, Object> childDefaults = new HashMap<>();
             defaults.put(property.getName(), childDefaults);
-            final PropertiesConverter propertiesConverter = new PropertiesConverter(childDefaults, properties);
+            final PropertiesConverter propertiesConverter = new PropertiesConverter(jsonb, childDefaults, properties);
             properties.stream().filter(context::isDirectChild).map(PropertyContext::new).forEach(
                     propertiesConverter::convert);
             return;
@@ -55,6 +56,10 @@ public class PropertiesConverter implements PropertyConverter {
                         defaults.put(property.getName(), Double.parseDouble(value));
                     } else if ("boolean".equalsIgnoreCase(property.getType())) {
                         defaults.put(property.getName(), Boolean.parseBoolean(value));
+                    } else if ("array".equalsIgnoreCase(property.getType())) {
+                        defaults.put(property.getName(), jsonb.fromJson(value, Object[].class));
+                    } else if ("object".equalsIgnoreCase(property.getType())) {
+                        defaults.put(property.getName(), jsonb.fromJson(value, Map.class));
                     } else {
                         defaults.put(property.getName(), value);
                     }

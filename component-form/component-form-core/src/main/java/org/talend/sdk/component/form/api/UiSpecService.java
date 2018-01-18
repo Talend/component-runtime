@@ -22,6 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter;
 import org.talend.sdk.component.form.internal.converter.impl.PropertiesConverter;
@@ -33,14 +37,21 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.extern.slf4j.Slf4j;
 
-// todo: support @Group and all the elements of the API
 @Slf4j
-public class UiSpecService {
+public class UiSpecService implements AutoCloseable {
 
     private final Client client;
 
+    private final Jsonb jsonb;
+
     public UiSpecService(final Client client) {
         this.client = client;
+        this.jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
+    }
+
+    public UiSpecService(final Client client, final Jsonb jsonb) {
+        this.client = client;
+        this.jsonb = jsonb;
     }
 
     public Ui convert(final ComponentDetail detail) {
@@ -61,11 +72,11 @@ public class UiSpecService {
                         .collect(toSet()));
 
         final JsonSchemaConverter jsonSchemaConverter =
-                new JsonSchemaConverter(ui.getJsonSchema(), detail.getProperties());
+                new JsonSchemaConverter(jsonb, ui.getJsonSchema(), detail.getProperties());
         final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, detail.getId().getFamily(),
                 ui.getUiSchema(), new ArrayList<>(), client, detail.getProperties(), detail.getActions());
         final PropertiesConverter propertiesConverter =
-                new PropertiesConverter(Map.class.cast(ui.getProperties()), detail.getProperties());
+                new PropertiesConverter(jsonb, Map.class.cast(ui.getProperties()), detail.getProperties());
 
         detail
                 .getProperties()
@@ -82,4 +93,8 @@ public class UiSpecService {
         return ui;
     }
 
+    @Override
+    public void close() throws Exception {
+        jsonb.close();
+    }
 }

@@ -25,7 +25,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
+
+import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
@@ -40,6 +44,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class JsonSchemaConverter implements PropertyConverter {
 
+    private final Jsonb jsonb;
+
     private final JsonSchema rootJsonSchema;
 
     private final Collection<SimplePropertyDefinition> properties;
@@ -48,18 +54,19 @@ public class JsonSchemaConverter implements PropertyConverter {
     public void convert(final PropertyContext context) {
         final JsonSchema jsonSchema = new JsonSchema();
         jsonSchema.setTitle(context.getProperty().getDisplayName());
-        switch (context.getProperty().getType().toLowerCase(ROOT)) {
+        final String type = context.getProperty().getType();
+        switch (type.toLowerCase(ROOT)) {
         case "enum":
             new EnumPropertyConverter(jsonSchema).convert(context);
             break;
         case "array":
-            new ArrayPropertyConverter(jsonSchema, properties).convert(context);
+            new ArrayPropertyConverter(jsonb, jsonSchema, properties).convert(context);
             break;
         default:
             if (context.getProperty().getPath().endsWith("[]")) {
                 return;
             }
-            jsonSchema.setType(context.getProperty().getType().toLowerCase(ROOT));
+            jsonSchema.setType(type.toLowerCase(ROOT));
             jsonSchema.setRequired(properties
                     .stream()
                     .filter(context::isDirectChild)
@@ -68,8 +75,9 @@ public class JsonSchemaConverter implements PropertyConverter {
                     .collect(toSet()));
             break;
         }
-        ofNullable(context.getProperty().getMetadata().getOrDefault("ui::defaultvalue::value",
-                context.getProperty().getDefaultValue())).ifPresent(jsonSchema::setDefaultValue);
+        final String defaultValue = context.getProperty().getMetadata().getOrDefault("ui::defaultvalue::value",
+                context.getProperty().getDefaultValue());
+        convertDefaultValue(type, defaultValue).ifPresent(jsonSchema::setDefaultValue);
 
         final PropertyValidation validation = context.getProperty().getValidation();
         if (validation != null) {
@@ -100,7 +108,7 @@ public class JsonSchemaConverter implements PropertyConverter {
                 jsonSchema.setProperties(new HashMap<>());
             }
 
-            final JsonSchemaConverter jsonSchemaConverter = new JsonSchemaConverter(jsonSchema, properties);
+            final JsonSchemaConverter jsonSchemaConverter = new JsonSchemaConverter(jsonb, jsonSchema, properties);
             properties.stream().filter(context::isDirectChild).map(PropertyContext::new).forEach(
                     jsonSchemaConverter::convert);
         }
@@ -109,5 +117,20 @@ public class JsonSchemaConverter implements PropertyConverter {
             rootJsonSchema.setProperties(new HashMap<>());
         }
         rootJsonSchema.getProperties().put(context.getProperty().getName(), jsonSchema);
+    }
+
+    private Optional<Object> convertDefaultValue(final String type, final String defaultValue) {
+        return ofNullable(defaultValue).map(def -> {
+            if ("array".equalsIgnoreCase(type)) { // for now we cant serialize object or primitive or array
+                return null; // jsonb.fromJson(def, Object[].class);
+            } else if ("object".equalsIgnoreCase(type)) {
+                return jsonb.fromJson(def, Map.class);
+            } else if ("boolean".equalsIgnoreCase(type)) {
+                return Boolean.parseBoolean(def.trim());
+            } else if ("number".equalsIgnoreCase(type)) {
+                return Double.parseDouble(def.trim());
+            }
+            return def;
+        });
     }
 }

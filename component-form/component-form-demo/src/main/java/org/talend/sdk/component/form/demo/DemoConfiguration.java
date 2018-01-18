@@ -24,6 +24,9 @@ import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.ClientFactory;
 import org.talend.sdk.component.form.api.UiSpecService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @ApplicationScoped
 public class DemoConfiguration {
 
@@ -39,6 +42,14 @@ public class DemoConfiguration {
     @Produces
     public UiSpecService uiSpecService(final Client client) {
         return new UiSpecService(client);
+    }
+
+    public void release(@Disposes final UiSpecService specService) {
+        try {
+            specService.close();
+        } catch (final Exception e) {
+            log.warn(e.getMessage(), e);
+        }
     }
 
     @Produces

@@ -62,7 +62,7 @@ public class JsonSchema {
     private String pattern;
 
     @JsonbProperty("default")
-    private String defaultValue;
+    private Object defaultValue;
 
     private Collection<String> required;
 
@@ -111,7 +111,7 @@ public class JsonSchema {
 
         private String pattern;
 
-        private String defaultValue;
+        private Object defaultValue;
 
         private Collection<String> required;
 
@@ -196,7 +196,7 @@ public class JsonSchema {
             return this;
         }
 
-        public Builder withDefaultValue(final String defaultValue) {
+        public Builder withDefaultValue(final Object defaultValue) {
             this.defaultValue = defaultValue;
             return this;
         }
