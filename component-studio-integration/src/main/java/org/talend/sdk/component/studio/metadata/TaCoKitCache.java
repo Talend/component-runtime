@@ -65,6 +65,10 @@ public class TaCoKitCache {
         if (familyConfigTypes == null) {
             fillFamilyConfig();
         }
+        ConfigTypeNode familyConfig = familyConfigTypes.get(familyName);
+        if (familyConfig == null) {
+            return null;
+        }
         return findConfigTypeNode(familyConfigTypes.get(familyName), nodeName, configurationType);
     }
 
