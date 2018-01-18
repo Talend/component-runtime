@@ -117,6 +117,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <org.slf4j.simpleLogger.showThreadName>true</org.slf4j.simpleLogger.showThreadName>
+    <org.slf4j.simpleLogger.showDateTime>true</org.slf4j.simpleLogger.showDateTime>
+    <org.slf4j.simpleLogger.dateTimeFormat>HH:mm:ss</org.slf4j.simpleLogger.dateTimeFormat>
 
     <!-- for the CI which splits dependencies download and build -->
     <component.front.build.skip>${skip.yarn}</component.front.build.skip>
@@ -308,6 +311,14 @@
   </dependencyManagement>
 
   <build>
+    <extensions>
+      <extension>
+        <groupId>com.github.rmannibucau</groupId>
+        <artifactId>maven-log-configurer-extension</artifactId>
+        <version>1.0.0</version>
+      </extension>
+    </extensions>
+
     <plugins>
       <plugin>
         <groupId>org.talend.tools</groupId>
