@@ -46,12 +46,13 @@ class PropertiesServiceTest {
 
     @Test
     void booleanDefault() throws NoSuchMethodException {
-        final List<SimplePropertyDefinition> props = propertiesService
-                .buildProperties(
-                        new ParameterModelService().buildParameterMetas(
-                                getClass().getDeclaredMethod("boolWrapper", BoolBool.class), null),
-                        Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
-                .collect(toList());
+        final List<SimplePropertyDefinition> props =
+                propertiesService
+                        .buildProperties(
+                                new ParameterModelService().buildParameterMetas(
+                                        getClass().getDeclaredMethod("boolWrapper", BoolBool.class), null),
+                                Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
+                        .collect(toList());
         assertEquals("true", props.stream().filter(p -> p.getName().equals("val")).findFirst().get().getDefaultValue());
     }
 
