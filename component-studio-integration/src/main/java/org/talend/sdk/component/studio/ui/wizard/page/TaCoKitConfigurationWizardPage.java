@@ -24,9 +24,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.Element;
+import org.talend.core.model.process.IElementParameter;
 import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.DummyComponent;
-import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.process.DataNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.i18n.Messages;
@@ -54,7 +54,8 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
     public TaCoKitConfigurationWizardPage(final TaCoKitConfigurationRuntimeData runtimeData) {
         super(Messages.getString("WizardPage.TaCoKitConfiguration"), runtimeData); //$NON-NLS-1$
         ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
-        setTitle(Messages.getString("TaCoKitConfiguration.wizard.title", configTypeNode.getConfigurationType(), //$NON-NLS-1$
+        setTitle(Messages.getString("TaCoKitConfiguration.wizard.title", configTypeNode.getConfigurationType(),
+                // $NON-NLS-1$
                 configTypeNode.getDisplayName()));
         setDescription(Messages.getString("TaCoKitConfiguration.wizard.description.edit", //$NON-NLS-1$
                 configTypeNode.getConfigurationType(), configTypeNode.getDisplayName()));
@@ -78,7 +79,7 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
         PropertyNode root = new PropertyTreeCreator(new WizardTypeMapper()).createPropertyTree(configTypeNode);
         SettingsCreator settingsCreator = new SettingsCreator(node, EComponentCategory.BASIC, null);
         root.accept(settingsCreator);
-        List<ElementParameter> parameters = settingsCreator.getSettings();
+        List<IElementParameter> parameters = settingsCreator.getSettings();
 
         element = new FakeElement(runtimeData.getTaCoKitRepositoryNode().getConfigTypeNode().getDisplayName());
         element.setReadOnly(runtimeData.isReadonly());

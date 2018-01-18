@@ -31,12 +31,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+
+import lombok.experimental.Delegate;
 
 /**
  * Extends functionality of {@link SimplePropertyDefinition}
@@ -66,6 +66,7 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
      */
     private static final String GRIDLAYOUT_SEPARATOR = ",|\\|";
 
+    @Delegate
     private final SimplePropertyDefinition delegate;
 
     /**
@@ -337,83 +338,8 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        return delegate.equals(o);
-    }
-
-    @Override
-    public String getDefaultValue() {
-        return delegate.getDefaultValue();
-    }
-
-    @Override
-    public String getDisplayName() {
-        return delegate.getDisplayName();
-    }
-
-    @Override
-    public Map<String, String> getMetadata() {
-        return delegate.getMetadata();
-    }
-
-    @Override
-    public String getName() {
-        return delegate.getName();
-    }
-
-    @Override
-    public String getPath() {
-        return delegate.getPath();
-    }
-
-    @Override
-    public String getType() {
-        return delegate.getType();
-    }
-
-    @Override
-    public PropertyValidation getValidation() {
-        return delegate.getValidation();
-    }
-
-    @Override
     public int hashCode() {
         return delegate.hashCode();
-    }
-
-    @Override
-    public void setDefaultValue(final String defaultValue) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setDisplayName(final String displayName) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setMetadata(final Map<String, String> metadata) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setName(final String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setPath(final String path) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setType(final String type) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setValidation(final PropertyValidation validation) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
