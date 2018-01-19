@@ -51,7 +51,7 @@ public class Lookups {
                 instance.setAccessible(true);
             }
             final Object originalInstance = instance.get(null);
-            instance.set(null, new EnrichedGlobalServiceRegister());
+            instance.set(null, EnrichedGlobalServiceRegister.clone(GlobalServiceRegister.class.cast(originalInstance)));
             return () -> {
                 try {
                     instance.set(null, originalInstance);
@@ -90,6 +90,16 @@ public class Lookups {
     private static class EnrichedGlobalServiceRegister extends GlobalServiceRegister {
 
         private volatile IGenericWizardService wizardService;
+        
+        public static EnrichedGlobalServiceRegister clone(final GlobalServiceRegister instance) throws Exception {
+            EnrichedGlobalServiceRegister enrichedRegister = new EnrichedGlobalServiceRegister();
+            Field[] fields = GlobalServiceRegister.class.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                field.set(enrichedRegister, field.get(instance));
+            }
+            return enrichedRegister;
+        }
 
         @Override
         public IService getService(final Class klass) {
@@ -104,14 +114,6 @@ public class Lookups {
                                             service.getClass().getInterfaces(), (proxy, method, args) -> {
                                                 try {
                                                     switch (method.getName()) {
-                                                    case "createNodesFromComponentService":
-                                                        final Object invoke = method.invoke(service, args);
-                                                        // if (args[0] != null) {
-                                                        // final Collection<RepositoryNode> nodes = customService
-                                                        // .createNodes(RepositoryNode.class.cast(args[0]));
-                                                        // Collection.class.cast(invoke).addAll(nodes);
-                                                        // }
-                                                        return invoke;
                                                     case "creatDynamicComposite":
                                                         if (args[1] != null && args[1] instanceof INode) {
                                                             INode node = (INode) args[1];
