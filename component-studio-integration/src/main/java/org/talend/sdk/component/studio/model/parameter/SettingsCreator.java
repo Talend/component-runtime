@@ -364,7 +364,7 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setRequired(node.getProperty().isRequired());
         createParameterActivator(node, parameter);
         if (node.getProperty().hasConstraint()) {
-            createValidationLabel(node, parameter);
+            createValidationLabel(node, (TaCoKitElementParameter) parameter);
         }
     }
 
