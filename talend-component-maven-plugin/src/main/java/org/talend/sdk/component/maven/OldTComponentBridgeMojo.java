@@ -91,6 +91,10 @@ import lombok.Data;
 
 // todo: move it to an utility able to work from a .jar?
 // todo: review the ComponentManager usage since the shutdown hook shouldnt be used
+
+/**
+ * @deprecated mojo responsible to convert new component to the old packaging.
+ */
 @Mojo(name = "prepare", defaultPhase = PACKAGE, requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
 public class OldTComponentBridgeMojo extends ComponentManagerBasedMojo {
 

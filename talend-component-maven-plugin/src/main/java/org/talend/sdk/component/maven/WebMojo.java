@@ -26,6 +26,10 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.talend.sdk.component.tools.WebServer;
 
+/**
+ * Starts a small web server where you can test the rendering of your
+ * component forms.
+ */
 @Mojo(name = "web", requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
 public class WebMojo extends AbstractMojo {
 
