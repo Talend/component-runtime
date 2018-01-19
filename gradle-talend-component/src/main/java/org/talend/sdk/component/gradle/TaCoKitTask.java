@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.gradle;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -23,13 +25,27 @@ import java.net.URLClassLoader;
 import java.util.stream.Stream;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.artifacts.ResolvedArtifact;
 
 public class TaCoKitTask extends DefaultTask {
+
+    protected boolean needsWeb() {
+        return false;
+    }
+
+    protected String toGav(final ResolvedArtifact a) {
+        return String.format("%s:%s:%s%s:%s:%s", a.getModuleVersion().getId().getGroup(), a.getName(),
+                ofNullable(a.getType()).orElse("jar"),
+                a.getClassifier() == null || a.getClassifier().isEmpty() ? "" : (":" + a.getClassifier()),
+                a.getModuleVersion().getId().getVersion(), "compile");
+    }
 
     protected void executeInContext(final Runnable task) {
         final Thread thread = Thread.currentThread();
         final ClassLoader old = thread.getContextClassLoader();
-        final URLClassLoader loader = createLoader(old);
+        final URLClassLoader loader =
+                !needsWeb() ? createLoader(old, Stream.of("talendComponentKit", "runtime"), findClasses())
+                        : createLoader(old, Stream.of("talendComponentKitWeb", "talendComponentKit"), Stream.empty());
         try {
             thread.setContextClassLoader(loader);
             task.run();
@@ -47,11 +63,11 @@ public class TaCoKitTask extends DefaultTask {
         }
     }
 
-    private URLClassLoader createLoader(final ClassLoader parent) {
+    private URLClassLoader createLoader(final ClassLoader parent, final Stream<String> configurations,
+            final Stream<File> otherFiles) {
         return new URLClassLoader(Stream
-                .concat(Stream.concat(
-                        getProject().getConfigurations().getByName("talendComponentKit").getFiles().stream(),
-                        getProject().getConfigurations().getByName("runtime").getFiles().stream()), findClasses())
+                .concat(configurations.flatMap(n -> getProject().getConfigurations().getByName(n).getFiles().stream()),
+                        otherFiles)
                 .distinct()
                 .map(f -> {
                     try {

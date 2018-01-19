@@ -20,13 +20,9 @@ import TalendComponentKitService from './service';
 export default class {
   constructor(props) {
     this.url = props.url;
-    this.service = new TalendComponentKitService();
-    this.registry = Object.assign({
-      dynamic_values: this.service.dynamic_values,
-      schema: this.service.schema,
-      healthcheck: this.service.validation,
-      validation: this.service.validation
-    }, props.callbackRegistry || {});
+    this.service = Object.assign(
+      new TalendComponentKitService(),
+      props.callbackRegistry || {});
   }
 
   onDefaultTrigger(event, { trigger, schema, properties }) {
@@ -40,7 +36,7 @@ export default class {
       }
     ).then(resp => resp.json())
     .then(body => {
-      return this.registry[trigger.type]({
+      return this.service[trigger.type]({
         schema,
         body,
         trigger,

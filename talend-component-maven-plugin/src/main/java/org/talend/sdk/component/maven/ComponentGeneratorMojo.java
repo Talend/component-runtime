@@ -50,6 +50,9 @@ import org.talend.sdk.component.api.service.Service;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Generates components in place.
+ */
 @Mojo(name = "generate")
 public class ComponentGeneratorMojo extends AbstractMojo {
 

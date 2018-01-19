@@ -16,6 +16,7 @@
 package org.talend.sdk.component.gradle;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Map;
 
 import lombok.Data;
@@ -38,6 +39,10 @@ public class TaCoKitExtension {
     private String sdkVersion = "${project.version}";
 
     private String apiVersion = "${component-api.version}";
+
+    private String meecrowaveVersion = "${meecrowave.version}";
+
+    private String commonsCliVersion = "${commons-cli.version}";
 
     //
     // deploy in studio
@@ -87,4 +92,11 @@ public class TaCoKitExtension {
     private boolean validateActions = true;
 
     private boolean validateDocumentation = true;
+
+    //
+    // web
+    //
+    private Collection<String> serverArguments;
+
+    private Integer serverPort;
 }

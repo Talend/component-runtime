@@ -30,6 +30,14 @@ export default class {
     return object;
   }
 
+  healthcheck({ schema, body }) {
+    return {
+     errors: {
+       [schema.key]: body.status === 'KO' ? body.comment : undefined,
+     }
+    };
+  }
+
   validation({ schema, body }) {
     return {
       errors: {

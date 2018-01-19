@@ -30,6 +30,9 @@ import org.apache.maven.project.MavenProject;
 import org.talend.sdk.component.tools.StudioInstaller;
 
 // mvn talend-component:deploy-in-studio -Dtalend.component.studioHome=/path/to/studio
+/**
+ * Deploys into a local Talend Studio Integration instance the current component module.
+ */
 @Mojo(name = "deploy-in-studio", requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
 public class DeployStudioMojo extends AbstractMojo {
 

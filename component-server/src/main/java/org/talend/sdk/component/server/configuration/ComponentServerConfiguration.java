@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.server.configuration;
 
-import java.util.Set;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -37,8 +37,8 @@ public interface ComponentServerConfiguration {
 
     // property to list plugins directly by gav. This is nice to set it on the cli but not as a maintenance solution.
     @Documentation("A comma separated list of gav to locate the components")
-    @ConfigProperty(name = "component.coordinates", converter = ConfigurationConverters.SetConverter.class)
-    Set<String> componentCoordinates();
+    @ConfigProperty(name = "component.coordinates")
+    List<String> componentCoordinates();
 
     // property to list plugins like in a fatjar, ie value = gav. Nice for assemblies, less for demo/cli usage.
     @Documentation("A property file where the value is a gav of a component to register (complementary with `coordinates`)")

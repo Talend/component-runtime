@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.gradle;
 
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
@@ -57,10 +56,7 @@ public class DeployInStudioTask extends TaCoKitTask {
                 .getResolvedConfiguration()
                 .getResolvedArtifacts()
                 .stream()
-                .collect(toMap(a -> String.format("%s:%s:%s%s:%s:%s", a.getModuleVersion().getId().getGroup(),
-                        a.getName(), ofNullable(a.getType()).orElse("jar"),
-                        a.getClassifier() == null || a.getClassifier().isEmpty() ? "" : (":" + a.getClassifier()),
-                        a.getModuleVersion().getId().getVersion(), "compile"), ResolvedArtifact::getFile));
+                .collect(toMap(this::toGav, ResolvedArtifact::getFile));
         final String mainGav =
                 String.format("%s:%s:%s", getProject().getGroup(), getProject().getName(), getProject().getVersion());
         artifacts.putIfAbsent(mainGav,

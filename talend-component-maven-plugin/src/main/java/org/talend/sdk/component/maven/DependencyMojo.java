@@ -31,6 +31,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+/**
+ * Creates the file descriptor listing dependencies needed at runtime for the module.
+ */
 @Mojo(name = "dependencies", requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
 public class DependencyMojo extends AbstractMojo {
 

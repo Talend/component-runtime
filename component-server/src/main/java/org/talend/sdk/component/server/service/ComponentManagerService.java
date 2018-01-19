@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.server.service;
 
-import static java.util.Collections.emptySet;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Stream.empty;
@@ -40,7 +40,6 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.text.StrSubstitutor;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
@@ -92,20 +91,16 @@ public class ComponentManagerService {
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
-        ofNullable(configuration.componentCoordinates()).orElse(emptySet()).forEach(this::deploy);
-        ofNullable(configuration.componentRegistry())
-                .map(StrSubstitutor::replaceSystemProperties)
-                .map(File::new)
-                .filter(File::exists)
-                .ifPresent(registry -> {
-                    final Properties properties = new Properties();
-                    try (final InputStream is = new FileInputStream(registry)) {
-                        properties.load(is);
-                    } catch (final IOException e) {
-                        throw new IllegalArgumentException(e);
-                    }
-                    properties.stringPropertyNames().stream().map(properties::getProperty).forEach(this::deploy);
-                });
+        ofNullable(configuration.componentCoordinates()).orElse(emptyList()).forEach(this::deploy);
+        ofNullable(configuration.componentRegistry()).map(File::new).filter(File::exists).ifPresent(registry -> {
+            final Properties properties = new Properties();
+            try (final InputStream is = new FileInputStream(registry)) {
+                properties.load(is);
+            } catch (final IOException e) {
+                throw new IllegalArgumentException(e);
+            }
+            properties.stringPropertyNames().stream().map(properties::getProperty).forEach(this::deploy);
+        });
 
         // trivial mecanism for now, just reset all accessor caches
         cacheEvictorPool = Executors.newScheduledThreadPool(1, new ThreadFactory() {

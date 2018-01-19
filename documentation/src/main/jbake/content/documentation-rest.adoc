@@ -9,9 +9,9 @@
 :jbake-tags: documentation
 :jbake-status: published
 
-== REST API
+== HTTP API
 
-The REST API intends to expose over HTTP most of Talend Component features, it is a standalone Java HTTP server.
+The HTTP API intends to expose over HTTP most of Talend Component features, it is a standalone Java HTTP server.
 
 TIP: WebSocket protocol is activated for the endpoints as well, instead of `/api/v1` they uses the base `/websocket/v1`, see WebSocket part for more details.
 
@@ -202,6 +202,50 @@ This can be done adding these dependencies:
   <artifactId>johnzon-jsonb</artifactId>
   <version>${johnzon.version}</version> <!-- 1.1.5 for instance -->
 </dependency>
+----
+
+=== Javascript integration
+
+Default javascript integration goes through link:https://github.com/Talend/ui/tree/master/packages/forms[Talend UI Forms] library.
+
+It is bundled as a NPM module called  `component-kit.js`. It provides a default trigger implementation for the `UIForm`.
+
+Here is how to use it:
+
+[source,javascript]
+----
+import React from 'react';
+import UIForm from '@talend/react-forms/lib/UIForm/UIForm.container';
+import TalendComponentKitTrigger from 'component-kit.js';
+
+export default class ComponentKitForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.trigger = new TalendComponentKitTrigger({ url: '/api/to/component/server/proxy' });
+    this.onTrigger = this.onTrigger.bind(this);
+    // ...
+  }
+
+  onTrigger(event, payload) {
+    return this.trigger.onDefaultTrigger(event, payload);
+  }
+
+  // ...
+
+  render() {
+    if(! this.state.uiSpec) {
+      return (<div>Loading ...</div>);
+    }
+
+    return (
+        <UIForm
+          data={this.state.uiSpec}
+          onTrigger={this.onTrigger}
+          onSubmit={this.onSubmit}
+        />
+    );
+  }
+}
 ----
 
 == Logging
