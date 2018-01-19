@@ -85,8 +85,8 @@ public class ObjectMapImpl implements ObjectMap, Serializable {
     public ObjectMap getMap(final String location) {
         return doFn(loader, () -> {
             final Object delegate = get(location);
-            if (delegate == null) {
-                return null;
+            if (delegate == null || ObjectMap.class.isInstance(delegate)) {
+                return ObjectMap.class.cast(delegate);
             }
             return new ObjectMapImpl(plugin, delegate, cache);
         });
