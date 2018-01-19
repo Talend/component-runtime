@@ -8,6 +8,8 @@ env:
     - BUILD_ARGS="clean install -e -q --batch-mode --settings .travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true"
 before_cache:
   - rm -Rf $HOME/.m2/repository/org/talend/sdk/component
+  - rm -Rf $HOME/build/Talend/component-runtime/component-runtime/component-form/component-form-demo/src/main/frontend/node_modules/component-kit.js
+  - rm -Rf $HOME/build/Talend/component-runtime/component-runtime/component-tools-webapp/src/main/frontend/node_modules/component-kit.js
 cache:
   directories:
   - "$HOME/.m2"
@@ -18,6 +20,8 @@ cache:
   - "$HOME/build/Talend/component-runtime/component-runtime/component-starter-server/src/main/frontend/node_modules"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-tools/.node"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-tools/src/main/frontend/node_modules"
+  - "$HOME/build/Talend/component-runtime/component-runtime/component-tools-webapp/.node"
+  - "$HOME/build/Talend/component-runtime/component-runtime/component-tools-webapp/src/main/frontend/node_modules"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-kit.js/.node"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-kit.js/node_modules"
   - "$HOME/build/Talend/component-runtime/component-studio-integration/.p2localrepository"

@@ -90,7 +90,7 @@ public class Lookups {
     private static class EnrichedGlobalServiceRegister extends GlobalServiceRegister {
 
         private volatile IGenericWizardService wizardService;
-        
+
         public static EnrichedGlobalServiceRegister clone(final GlobalServiceRegister instance) throws Exception {
             EnrichedGlobalServiceRegister enrichedRegister = new EnrichedGlobalServiceRegister();
             Field[] fields = GlobalServiceRegister.class.getDeclaredFields();

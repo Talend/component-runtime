@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.apache.catalina.core.StandardServer;
 import org.apache.commons.cli.CommandLine;
@@ -52,8 +53,10 @@ public class WebServer implements Runnable {
 
     @Override
     public void run() {
-        final String originalCompSystProp = System.getProperty("talend.component.server.component.coordinates");
-        System.setProperty("talend.component.server.component.coordinates", componentGav);
+        final String originalCompSystProp =
+                setSystemProperty("talend.component.server.component.coordinates", componentGav);
+        final String skipClasspathSystProp = setSystemProperty("component.manager.classpath.skip", "true");
+        final String skipCallersSystProp = setSystemProperty("component.manager.callers.skip", "true");
         final AtomicReference<Meecrowave> ref = new AtomicReference<>();
         try {
             final CountDownLatch latch = new CountDownLatch(1);
@@ -84,15 +87,31 @@ public class WebServer implements Runnable {
             final Scanner scanner = new Scanner(System.in);
             do {
                 log.info("Enter 'exit' to quit");
-            } while (!"exit".equals(scanner.nextLine()));
+            } while (!shouldQuit(scanner.nextLine()));
         } finally {
-            if (originalCompSystProp == null) {
-                System.clearProperty("talend.component.server.component.coordinates");
-            } else {
-                System.setProperty("talend.component.server.component.coordinates", originalCompSystProp);
-            }
+            reset("talend.component.server.component.coordinates", originalCompSystProp);
+            reset("component.manager.classpath.skip", skipClasspathSystProp);
+            reset("component.manager.callers.skip", skipCallersSystProp);
             ofNullable(ref.get()).ifPresent(mw -> StandardServer.class.cast(mw.getTomcat().getServer()).stopAwait());
         }
+    }
+
+    private String setSystemProperty(final String key, final String value) {
+        final String old = System.getProperty(key);
+        System.setProperty(key, value);
+        return old;
+    }
+
+    private void reset(final String key, final String value) {
+        if (value == null) {
+            System.clearProperty(key);
+        } else {
+            System.setProperty(key, value);
+        }
+    }
+
+    private boolean shouldQuit(final String value) {
+        return Stream.of("exit", "quit", "X").anyMatch(v -> v.equalsIgnoreCase(value));
     }
 
     private String[] buildArgs() {

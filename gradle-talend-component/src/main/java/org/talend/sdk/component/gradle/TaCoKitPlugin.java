@@ -66,10 +66,7 @@ public class TaCoKitPlugin implements Plugin<Project> {
             final DependencyHandler dependencyHandler = project.getDependencies();
             final DependencySet dependencies = configuration.getDependencies();
             dependencies.add(dependencyHandler
-                    .create("org.apache.meecrowave:meecrowave-core:" + extension.getMeecrowaveVersion()));
-            dependencies.add(dependencyHandler.create("commons-cli:commons-cli:" + extension.getCommonsCliVersion()));
-            dependencies.add(
-                    dependencyHandler.create("org.talend.sdk.component:component-server:" + extension.getSdkVersion()));
+                    .create("org.talend.sdk.component:component-tools-webapp:" + extension.getSdkVersion()));
         });
 
         // tasks

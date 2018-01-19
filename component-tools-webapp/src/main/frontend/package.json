@@ -1,0 +1,18 @@
+{
+  "name": "component-tools-webapp",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "webpack --config webpack.config --bail --progress --colors --display-error-details --display-chunks",
+    "watch": "webpack --config webpack.config --bail --progress --colors --watch --display-error-details --display-chunks"
+  },
+  "dependencies": {
+
+  },
+  "devDependencies": {
+    "webpack": "3.8.1",
+    "babel-loader": "7.1.2",
+    "babel-core": "6.26.0",
+    "babel-preset-env": "1.6.1"
+  }
+}

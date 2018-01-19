@@ -47,6 +47,7 @@
     <module>component-tools</module>
     <module>slf4j-standard</module>
     <module>documentation</module>
+    <module>component-tools-webapp</module>
   </modules>
 
   <repositories>
@@ -171,6 +172,8 @@
     <clean-plugin.version>3.0.0</clean-plugin.version>
     <download-plugin.version>1.2.1</download-plugin.version>
     <shade-plugin.version>3.0.0</shade-plugin.version>
+    <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
+    <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
     <git-commit-id-plugin.version>2.2.4</git-commit-id-plugin.version>
     <jgit.version>4.9.2.201712150930-r</jgit.version>
 
@@ -682,6 +685,7 @@
         <artifactId>maven-release-plugin</artifactId>
         <version>2.5.3</version>
         <configuration>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
           <localCheckout>true</localCheckout>
           <pushChanges>false</pushChanges>
           <releaseProfiles>release,gh-pages</releaseProfiles>

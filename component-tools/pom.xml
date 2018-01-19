@@ -70,6 +70,20 @@
       <groupId>org.apache.tomee</groupId>
       <artifactId>ziplock</artifactId>
       <version>${ziplock.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomee</groupId>
+          <artifactId>javaee-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.shrinkwrap</groupId>
+          <artifactId>shrinkwrap-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>openejb-jee</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -159,6 +173,13 @@
             <version>${groovy.version}</version>
           </dependency>
         </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkCount>1C</forkCount>
+        </configuration>
       </plugin>
     </plugins>
   </build>
