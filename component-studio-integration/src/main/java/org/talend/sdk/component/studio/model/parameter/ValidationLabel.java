@@ -15,8 +15,8 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.swt.graphics.RGB;
 import org.talend.core.model.process.EParameterFieldType;
@@ -31,7 +31,7 @@ public class ValidationLabel extends TaCoKitElementParameter {
 
     private static final RGB RED = new RGB(255, 0, 0);
 
-    private final List<String> validationMessages = new LinkedList<>();
+    private final Set<String> validationMessages = new HashSet<>();
 
     public ValidationLabel(final IElement element) {
         super(element);
@@ -43,9 +43,7 @@ public class ValidationLabel extends TaCoKitElementParameter {
     }
 
     public void show(final String message) {
-        if (!validationMessages.contains(message)) {
-            validationMessages.add(message);
-        }
+        validationMessages.add(message);
         setValue(buildValue());
         setShow(true);
     }
