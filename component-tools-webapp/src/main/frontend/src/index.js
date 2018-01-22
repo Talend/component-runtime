@@ -20,8 +20,8 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter, Route } from 'react-router-dom';
 import IconsProvider from '@talend/react-components/lib/IconsProvider';
 import HeaderBar from '@talend/react-components/lib/HeaderBar';
-import 'whatwg-fetch'
 import '@talend/bootstrap-theme/src/theme/theme.scss';
+
 import Home from './Home';
 
 class Root extends React.Component {
@@ -32,7 +32,7 @@ class Root extends React.Component {
           <IconsProvider/>
 
           <div className="header">
-            <HeaderBar logo={{ isFull: true }} brand={{ name: 'Talend Component Kit Tester' }} />
+            <HeaderBar logo={{ isFull: true }} brand={{ label: 'Talend Component Kit Tester' }} />
           </div>
           <div className="content">
             <Route exact path="/" component={Home}/>
