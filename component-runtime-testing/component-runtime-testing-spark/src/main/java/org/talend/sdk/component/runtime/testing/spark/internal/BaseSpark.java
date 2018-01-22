@@ -349,8 +349,8 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
 
                             { // overridable by args, it is just defaults
                                 put("--executor-memory", "512m"); // 256m fails so don't reduce it too much if you try
-                                // to go that
-                                // way
+                                // to go that way
+                                put("--driver-memory", "512m");
                                 put("--total-executor-cores", "1");
                                 put("--deploy-mode", "cluster");
                             }
