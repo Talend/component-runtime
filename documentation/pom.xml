@@ -39,6 +39,7 @@
 
     <talend.build.name>${talend.build.name.base}.documentation</talend.build.name>
     <talend.github.cache>false</talend.github.cache>
+    <asciidoctorj-diagram.version>1.5.4.1</asciidoctorj-diagram.version>
   </properties>
 
   <dependencies>
@@ -123,25 +124,83 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctor-maven-plugin</artifactId>
+            <version>1.5.6</version>
+            <executions>
+              <execution>
+                <id>asciidoc-to-docbook</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>process-asciidoc</goal>
+                </goals>
+                <configuration>
+                  <sourceDirectory>src/main/jbake/content</sourceDirectory>
+                  <backend>docbook</backend>
+                  <doctype>book</doctype>
+                  <outputDirectory>${project.build.directory}/documentation/docbook</outputDirectory>
+                  <requires>
+                    <require>asciidoctor-diagram</require>
+                  </requires>
+                  <attributes>
+                    <source-highlighter>coderay</source-highlighter>
+                    <coderay-css>style</coderay-css>
+                    <icons>font</icons>
+                    <project_version>${project.version}</project_version>
+                    <sample_project-base>${sample_project}</sample_project-base>
+                    <sample_project>${sample_project}</sample_project>
+                    <sample_project_test>${sample_project_test}</sample_project_test>
+                    <generated_adoc>${generated_adoc}</generated_adoc>
+                  </attributes>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctorj</artifactId>
+                <version>${asciidoctorj.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctorj-diagram</artifactId>
+                <version>${asciidoctorj-diagram.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+          <plugin>
             <groupId>org.codehaus.gmavenplus</groupId>
             <artifactId>gmavenplus-plugin</artifactId>
             <version>${gmavenplus.version}</version>
             <executions>
+              <execution>
+                <id>dita</id>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <allowSystemExits>true</allowSystemExits>
+                  <scripts>
+                    <script>${project.basedir}/src/build/Docbook2Dita.groovy</script>
+                  </scripts>
+                </configuration>
+              </execution>
               <execution>
                 <id>decrypt-password</id>
                 <phase>compile</phase> <!-- before exec plugin -->
                 <goals>
                   <goal>execute</goal>
                 </goals>
+                <configuration>
+                  <allowSystemExits>true</allowSystemExits>
+                  <scripts>
+                    <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
+                    <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
+                  </scripts>
+                </configuration>
               </execution>
             </executions>
-            <configuration>
-              <allowSystemExits>true</allowSystemExits>
-              <scripts>
-                <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
-                <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
-              </scripts>
-            </configuration>
             <dependencies>
               <dependency>
                 <groupId>org.codehaus.groovy</groupId>
@@ -286,7 +345,7 @@
               <dependency>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj-diagram</artifactId>
-                <version>1.5.4.1</version>
+                <version>${asciidoctorj-diagram.version}</version>
               </dependency>
               <dependency> <!-- just to avoid a warning in the console -->
                 <groupId>org.pegdown</groupId>
