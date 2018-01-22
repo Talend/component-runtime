@@ -15,14 +15,11 @@
  */
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
-const webpack = require('webpack');
+const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const autoprefixer = require('autoprefixer');
 
-const extractTextPluginFilename = 'static/css/[name].[contenthash:8].css';
+const extractCSS = new ExtractTextPlugin({ filename: '[name]-[hash].css' });
 
 const SASS_DATA = `
 $brand-primary: #4F93A7;
@@ -30,120 +27,64 @@ $brand-success: #B9BF15;
 @import '~@talend/bootstrap-theme/src/theme/guidelines';
 `;
 
-module.exports = {
-  devtool: 'source-map',
-  context: __dirname + '/src',
-  entry: './index',
-  output: {
-    path: __dirname + '/dist',
-    filename: 'component-kit-tools-webapp.min.js'
-  },
-  module: {
-    loaders: [
-      {
-        oneOf: [
-          {
-            test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-            loader: 'url-loader',
-            options: {
-              limit: 10000,
-              name: 'static/media/[name].[hash:8].[ext]',
-            }
-          },
-          {
-            test: /\.(js|jsx)$/,
-            include: path.resolve(fs.realpathSync(process.cwd()), 'src'),
-            loader: 'babel-loader',
-            options: {
-              babelrc: false,
-              presets: [ 'babel-preset-react-app' ],
-              compact: true
-            }
-          },
-          {
-            test: /\.css$/,
-            loader: ExtractTextPlugin.extract(
-              Object.assign(
-                {
-                  fallback: 'style-loader',
-                  use: [
-                    {
-                      loader: 'css-loader',
-                      options: {
-                        importLoaders: 1,
-                        minimize: true,
-                        sourceMap: true
-                      }
-                    },
-                    {
-                      loader: 'postcss-loader',
-                      options: {
-                        ident: 'postcss',
-                        plugins: () => [
-                          require('postcss-flexbugs-fixes'),
-                          autoprefixer({
-                            browsers: [
-                              '>1%',
-                              'last 4 versions',
-                              'Firefox ESR',
-                              'not ie < 9'
-                            ],
-                            flexbox: 'no-2009'
-                          })
-                        ]
-                      }
-                    }
-                  ]
-                },
-                {
-                  publicPath: Array(extractTextPluginFilename.split('/').length).join('../')
-                }
-              )
-            )
-          },
-          {
-            loader: 'file-loader',
-            include: [/favicon\.ico$/],
-            options: {
-              name: '[name].[ext]',
-            }
-          },
-          {
-            loader: 'file-loader',
-            exclude: [/\.js$/, /\.html$/, /\.json$/],
-            options: {
-              name: 'static/media/[name].[hash:8].[ext]',
-            }
-          }
-        ]
-      }
-    ]
-  },
-  plugins: [
-      new HtmlWebpackPlugin({
-        inject: true,
-        template: './public/index.html',
-        minify: {
-          removeComments: true,
-          collapseWhitespace: true,
-          removeRedundantAttributes: true,
-          useShortDoctype: true,
-          removeEmptyAttributes: true,
-          removeStyleLinkTypeAttributes: true,
-          keepClosingSlash: true,
-          minifyJS: true,
-          minifyCSS: true,
-          minifyURLs: true,
-        },
-      }),
-      new ExtractTextPlugin({
-        filename: extractTextPluginFilename
-      })
-    ],
-    node: {
-      dgram: 'empty',
-      fs: 'empty',
-      net: 'empty',
-      tls: 'empty',
-    }
+function getCommonStyleLoaders(enableModules) {
+	let cssOptions = {};
+	if (enableModules) {
+		cssOptions = { sourceMap: true, modules: true, importLoaders: 1, localIdentName: '[name]__[local]___[hash:base64:5]' };
+	}
+	return [
+		{ loader: 'css-loader', options: cssOptions },
+		{ loader: 'postcss-loader', options: { sourceMap: true, plugins: () => [autoprefixer({ browsers: ['last 2 versions'] })] } },
+		{ loader: 'resolve-url-loader' },
+	];
 }
+
+function getSassLoaders(enableModules) {
+	return getCommonStyleLoaders(enableModules).concat({ loader: 'sass-loader', options: { sourceMap: true, data: SASS_DATA } });
+}
+
+module.exports = {
+	entry: ['babel-polyfill', 'whatwg-fetch', './src/index.js'],
+	output: {
+		path: `${__dirname}/build`,
+		publicPath: '/',
+		filename: '[name]-[hash].js',
+	},
+	module: {
+		loaders: [
+			{
+				test: /\.js$/,
+				exclude: /node_modules/,
+				use: { loader: 'babel-loader' },
+			},
+			{
+				test: /\.css$/,
+				use: extractCSS.extract(getCommonStyleLoaders()),
+				exclude: /@talend/,
+			},
+			{
+				test: /\.scss$/,
+				use: extractCSS.extract(getSassLoaders()),
+				include: /theme.scss/,
+			},
+			{
+				test: /\.scss$/,
+				use: extractCSS.extract(getSassLoaders(true)),
+				exclude: /theme.scss/,
+			},
+			{
+				test: /\.woff(2)?(\?v=\d+\.\d+\.\d+)?$/,
+				loader: 'url-loader',
+				options: { name: './fonts/[name].[ext]', limit: 50000, mimetype: 'application/font-woff' },
+			},
+		],
+	},
+	plugins: [
+		extractCSS,
+		new HtmlWebpackPlugin({
+			filename: './index.html',
+			template: './src/public/index.html',
+			title: 'Talend Web App Name',
+		})
+	],
+};

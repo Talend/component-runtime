@@ -21,7 +21,7 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import IconsProvider from '@talend/react-components/lib/IconsProvider';
 import HeaderBar from '@talend/react-components/lib/HeaderBar';
 import 'whatwg-fetch'
-import '@talend/bootstrap-theme/dist/bootstrap.css';
+import '@talend/bootstrap-theme/src/theme/theme.scss';
 import Home from './Home';
 
 class Root extends React.Component {
