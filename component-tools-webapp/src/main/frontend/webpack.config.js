@@ -15,9 +15,23 @@
  */
 'use strict';
 
-const webpack = require('webpack')
+const path = require('path');
+const fs = require('fs');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const autoprefixer = require('autoprefixer');
+
+const extractTextPluginFilename = 'static/css/[name].[contenthash:8].css';
+
+const SASS_DATA = `
+$brand-primary: #4F93A7;
+$brand-success: #B9BF15;
+@import '~@talend/bootstrap-theme/src/theme/guidelines';
+`;
 
 module.exports = {
+  devtool: 'source-map',
   context: __dirname + '/src',
   entry: './index',
   output: {
@@ -27,19 +41,88 @@ module.exports = {
   module: {
     loaders: [
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          presets: ['env']
-        }
+        oneOf: [
+          {
+            test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+            loader: 'url-loader',
+            options: {
+              limit: 10000,
+              name: 'static/media/[name].[hash:8].[ext]',
+            }
+          },
+          {
+            test: /\.(js|jsx)$/,
+            include: path.resolve(fs.realpathSync(process.cwd()), 'src'),
+            loader: 'babel-loader',
+            options: {
+              babelrc: false,
+              presets: [ 'babel-preset-react-app' ],
+              compact: true
+            }
+          },
+          {
+            test: /\.css$/,
+            loader: ExtractTextPlugin.extract(
+              Object.assign(
+                {
+                  fallback: 'style-loader',
+                  use: [
+                    {
+                      loader: 'css-loader',
+                      options: {
+                        importLoaders: 1,
+                        minimize: true,
+                        sourceMap: true
+                      }
+                    },
+                    {
+                      loader: 'postcss-loader',
+                      options: {
+                        ident: 'postcss',
+                        plugins: () => [
+                          require('postcss-flexbugs-fixes'),
+                          autoprefixer({
+                            browsers: [
+                              '>1%',
+                              'last 4 versions',
+                              'Firefox ESR',
+                              'not ie < 9'
+                            ],
+                            flexbox: 'no-2009'
+                          })
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  publicPath: Array(extractTextPluginFilename.split('/').length).join('../')
+                }
+              )
+            )
+          },
+          {
+            loader: 'file-loader',
+            include: [/favicon\.ico$/],
+            options: {
+              name: '[name].[ext]',
+            }
+          },
+          {
+            loader: 'file-loader',
+            exclude: [/\.js$/, /\.html$/, /\.json$/],
+            options: {
+              name: 'static/media/[name].[hash:8].[ext]',
+            }
+          }
+        ]
       }
     ]
   },
   plugins: [
       new HtmlWebpackPlugin({
         inject: true,
-        template: paths.appHtml,
+        template: './public/index.html',
         minify: {
           removeComments: true,
           collapseWhitespace: true,
@@ -52,9 +135,9 @@ module.exports = {
           minifyCSS: true,
           minifyURLs: true,
         },
-      })
+      }),
       new ExtractTextPlugin({
-        filename: cssFilename,
+        filename: extractTextPluginFilename
       })
     ],
     node: {

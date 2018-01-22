@@ -63,6 +63,8 @@ public class UiSchema {
 
     private JsonSchema schema;
 
+    private Collection<Condition> conditions;
+
     public static Builder uiSchema() {
         return new Builder();
     }
@@ -77,6 +79,49 @@ public class UiSchema {
 
     public static Parameter.Builder parameter() {
         return new Parameter.Builder();
+    }
+
+    public static Condition.Builder condition() {
+        return new Condition.Builder();
+    }
+
+    @Data
+    public static class Condition {
+        private String path;
+        private Collection<String> values;
+
+        public static final class Builder {
+            private String path;
+            private Collection<String> values;
+
+            public Builder withPath(final String path) {
+                this.path = path;
+                return this;
+            }
+
+            public Builder withValues(final Collection<String> values) {
+                if (this.values == null) {
+                    this.values = new ArrayList<>();
+                }
+                this.values.addAll(values);
+                return this;
+            }
+
+            public Builder withValue(final String value) {
+                if (this.values == null) {
+                    this.values = new ArrayList<>();
+                }
+                this.values.add(value);
+                return this;
+            }
+
+            public Condition build() {
+                final Condition nameValue = new Condition();
+                nameValue.setPath(path);
+                nameValue.setValues(values);
+                return nameValue;
+            }
+        }
     }
 
     @Data

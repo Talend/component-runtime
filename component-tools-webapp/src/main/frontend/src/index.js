@@ -15,4 +15,32 @@
  */
 'use strict';
 
-console.log('Launching the application...');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
+import IconsProvider from '@talend/react-components/lib/IconsProvider';
+import HeaderBar from '@talend/react-components/lib/HeaderBar';
+import 'whatwg-fetch'
+import '@talend/bootstrap-theme/dist/bootstrap.css';
+import Home from './Home';
+
+class Root extends React.Component {
+  render() {
+    return (
+      <BrowserRouter>
+        <div className="App">
+          <IconsProvider/>
+
+          <div className="header">
+            <HeaderBar logo={{ isFull: true }} brand={{ name: 'Talend Component Kit Tester' }} />
+          </div>
+          <div className="content">
+            <Route exact path="/" component={Home}/>
+          </div>
+        </div>
+      </BrowserRouter>
+    );
+  }
+}
+
+ReactDOM.render(<Root />, document.getElementById('component-kit-tools-webapp'));
