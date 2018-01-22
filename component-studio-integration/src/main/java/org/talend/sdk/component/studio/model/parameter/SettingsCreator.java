@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
-import static org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.DOT_PATH_SEPARATOR;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.PARENT_NODE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.PATH_SEPARATOR;
@@ -126,7 +125,7 @@ public class SettingsCreator implements PropertyVisitor {
                 final TaCoKitElementParameter param = TaCoKitElementParameter.class.cast(targetParameter);
                 param.setRedrawParameter(redrawParameter);
                 activators.forEach(activator -> {
-                    param.registerListener(EVENT_PROPERTY_VALUE_CHANGED, activator);
+                    param.registerListener(param.getName(), activator);
                     initVisibility(param, activator);
                 });
             }
@@ -141,7 +140,7 @@ public class SettingsCreator implements PropertyVisitor {
     private void initVisibility(final ElementParameter targetParameter, final PropertyChangeListener listener) {
         final Object initialValue = targetParameter.getValue();
         final PropertyChangeEvent event =
-                new PropertyChangeEvent(targetParameter, EVENT_PROPERTY_VALUE_CHANGED, initialValue, initialValue);
+                new PropertyChangeEvent(targetParameter, targetParameter.getName(), initialValue, initialValue);
         listener.propertyChange(event);
     }
 
@@ -406,7 +405,7 @@ public class SettingsCreator implements PropertyVisitor {
                 new ValidatorFactory().createValidators(validation, validationLabel);
         if (!validators.isEmpty()) {
             target.setRedrawParameter(redrawParameter);
-            validators.forEach(v -> target.registerListener(EVENT_PROPERTY_VALUE_CHANGED, v));
+            validators.forEach(v -> target.registerListener(target.getName(), v));
         }
     }
 

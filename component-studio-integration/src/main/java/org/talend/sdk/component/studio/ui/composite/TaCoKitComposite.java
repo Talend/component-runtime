@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.studio.ui.composite;
 
-import static org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED;
-
 import java.beans.PropertyChangeListener;
 
 import org.eclipse.swt.graphics.Color;
@@ -81,7 +79,7 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
                 .filter(p -> p instanceof TaCoKitElementParameter)
                 .map(p -> (TaCoKitElementParameter) p)
                 .filter(TaCoKitElementParameter::isRedrawable)
-                .forEach(p -> p.registerListener(EVENT_PROPERTY_VALUE_CHANGED, refresher));
+                .forEach(p -> p.registerListener(p.getName(), refresher));
     }
 
     // TODO is it required?
@@ -127,7 +125,7 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
                 .filter(p -> p instanceof TaCoKitElementParameter)
                 .map(p -> (TaCoKitElementParameter) p)
                 .filter(TaCoKitElementParameter::isRedrawable)
-                .forEach(p -> p.unregisterListener(EVENT_PROPERTY_VALUE_CHANGED, refresher));
+                .forEach(p -> p.unregisterListener(p.getName(), refresher));
         super.dispose();
     }
 
