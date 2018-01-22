@@ -20,7 +20,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const extractCSS = new ExtractTextPlugin({ filename: '[name]-[hash].css' });
-const SASS_DATA = "@import '~@talend/bootstrap-theme/src/theme/guidelines'"
+
+const SASS_DATA = `@import '~@talend/bootstrap-theme/src/theme/guidelines';
+`;
 
 function getCommonStyleLoaders(enableModules) {
   let cssOptions = {};

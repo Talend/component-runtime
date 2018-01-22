@@ -13,20 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+.App {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 
-// if you use yarn directly instead of mvn frontend:yarn@watch
+  .header {
+    flex: 0 0 48px;
+  }
 
-const config = require('./webpack.config');
-const webpack = require('webpack');
-
-config.devtool = 'inline-source-map';
-config.plugins.push(new webpack.DefinePlugin({
-	'process.env.NODE_ENV': JSON.stringify('development'),
-}));
-
-config.watchOptions = {
-	aggregateTimeout: 300,
-	poll: 1000,
-};
-
-module.exports = config;
+  .content {
+    height: 100vh;
+    overflow: auto;
+    padding-top: 30px;
+  }
+}
