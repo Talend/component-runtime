@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -391,6 +392,14 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         }
         return delegate.getMetadata().get(ACTION_VALIDATION_NAME);
 
+    }
+
+    List<String> getValidationParameters() {
+        if (!hasValidation()) {
+            throw new IllegalStateException("Property has no validation");
+        }
+        final String parametersValue = delegate.getMetadata().get(ACTION_VALIDATION_PARAMETERS);
+        return Arrays.asList(parametersValue.split(VALUE_SEPARATOR));
     }
 
     @Override

@@ -15,24 +15,18 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
-import static org.talend.sdk.component.studio.model.parameter.Metadatas.DOT_PATH_SEPARATOR;
-import static org.talend.sdk.component.studio.model.parameter.Metadatas.PARENT_NODE;
-import static org.talend.sdk.component.studio.model.parameter.Metadatas.PATH_SEPARATOR;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_TYPE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_VALUE;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EConnectionType;
@@ -45,7 +39,6 @@ import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.ui.editor.nodes.Node;
-import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivator;
@@ -99,6 +92,8 @@ public class SettingsCreator implements PropertyVisitor {
      */
     private final Map<String, List<ParameterActivator>> activators = new HashMap<>();
 
+    private final List<ActionResolver> actionResolvers = new ArrayList<>();
+
     /**
      * {@link TaCoKitElementParameter} has numRow field which stores widget relative position (row number on which it
      * appears)
@@ -141,6 +136,8 @@ public class SettingsCreator implements PropertyVisitor {
                 });
             }
         });
+
+        actionResolvers.forEach(resolver -> resolver.resolveParameters(Collections.unmodifiableMap(settings)));
 
         return Collections.unmodifiableList(new ArrayList<>(settings.values()));
     }
@@ -394,7 +391,8 @@ public class SettingsCreator implements PropertyVisitor {
     private void createParameterActivator(final PropertyNode node, final IElementParameter parameter) {
         node.getProperty().getConditions().collect(() -> activators, (agg, c) -> {
             final ParameterActivator activator = new ParameterActivator(c.getValues(), parameter);
-            activators.computeIfAbsent(computeTargetPath(node, c.getTarget()), k -> new ArrayList<>()).add(activator);
+            activators.computeIfAbsent(PathResolver.resolve(node, c.getTarget()), k -> new ArrayList<>()).add(
+                    activator);
         }, Map::putAll);
     }
 
@@ -434,37 +432,9 @@ public class SettingsCreator implements PropertyVisitor {
         if (node.getProperty().hasValidation()) {
             final ValidationListener listener =
                     new ValidationListener(label, detail.getId().getFamily(), node.getProperty().getValidationName());
-            final ActionReference action = getAction(node.getProperty().getValidationName());
-            action.getProperties().forEach(p -> {
-                listener.addParameter(target.getName(), p.getName(), p.getDefaultValue());
-                target.setRedrawParameter(redrawParameter);
-                target.registerListener(target.getName(), listener);
-            });
+            final ActionResolver resolver = new ActionResolver(node, detail, listener, redrawParameter);
+            actionResolvers.add(resolver);
         }
-    }
-
-    private ActionReference getAction(final String actionName) {
-        return detail.getActions().stream().filter(a -> a.getName().equals(actionName)).findFirst().get();
-    }
-
-    /**
-     * Computes target path of {@link TaCoKitElementParameter}, which should be listened by Listener
-     *
-     * @return target path
-     */
-    private String computeTargetPath(final PropertyNode node, final String target) {
-        final String currentPath = node.getParentId();
-        final LinkedList<String> path = new LinkedList<>();
-        path.addAll(Arrays.asList(currentPath.split("\\" + DOT_PATH_SEPARATOR)));
-        final List<String> relativePath = Arrays.asList(target.split(PATH_SEPARATOR));
-        for (final String s : relativePath) {
-            if (PARENT_NODE.equals(s)) {
-                path.removeLast();
-            } else {
-                path.addLast(s);
-            }
-        }
-        return path.stream().collect(Collectors.joining(DOT_PATH_SEPARATOR));
     }
 
     private boolean canAddGuessSchema() {

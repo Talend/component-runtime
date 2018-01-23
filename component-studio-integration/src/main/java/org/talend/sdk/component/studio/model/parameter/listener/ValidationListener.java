@@ -17,9 +17,7 @@ package org.talend.sdk.component.studio.model.parameter.listener;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.model.parameter.ValidationLabel;
@@ -32,18 +30,19 @@ public class ValidationListener implements PropertyChangeListener {
 
     private static final String VALIDATION = "validation";
 
+    private static final String STATUS = "status";
+
+    private static final String OK = "OK";
+
+    private static final String MESSAGE = "comment";
+
     private final String family;
 
     private final String actionName;
 
     private final ValidationLabel label;
 
-    /**
-     * Maps ElementParameter path to parameter alias used during call to validation callback
-     */
-    private final Map<String, String> parameters = new HashMap<>();
-
-    private final Map<String, String> payload = new HashMap<>();
+    private final ActionParameters parameters = new ActionParameters();
 
     public ValidationListener(final ValidationLabel label, final String family, final String actionName) {
         this.label = label;
@@ -51,32 +50,26 @@ public class ValidationListener implements PropertyChangeListener {
         this.actionName = actionName;
     }
 
-    public void addParameter(final String path, final String parameterName, final String initialValue) {
-        Objects.nonNull(path);
-        Objects.nonNull(parameterName);
-        parameters.put(path, parameterName);
-        payload.put(parameterName, initialValue);
-    }
-
     @Override
     public void propertyChange(final PropertyChangeEvent event) {
-        updatePayload(event);
-        final Map<String, String> result = validationCallback(payload);
-        if ("OK".equals(result.get("status"))) {
+        parameters.setValue(event.getPropertyName(), (String) event.getNewValue());
+        if (!parameters.areSet()) {
+            return;
+        }
+        final Map<String, String> validation = callback(parameters.payload());
+        if (OK.equals(validation.get(STATUS))) {
             label.hideValidation();
         } else {
-            label.showValidation(result.get("comment"));
+            label.showValidation(validation.get(MESSAGE));
         }
     }
 
-    private void updatePayload(final PropertyChangeEvent event) {
-        final String parameter = parameters.get(event.getPropertyName());
-        final String newValue = (String) event.getNewValue();
-        payload.put(parameter, newValue);
+    public void addParameter(final ActionParameter parameter) {
+        parameters.add(parameter);
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, String> validationCallback(final Map<String, String> payload) {
+    private Map<String, String> callback(final Map<String, String> payload) {
         final V1Action action = Lookups.client().v1().action();
         return action.execute(Map.class, family, VALIDATION, actionName, payload);
     }
