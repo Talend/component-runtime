@@ -50,13 +50,13 @@ public abstract class PropertyValidator implements PropertyChangeListener {
     @Override
     public void propertyChange(final PropertyChangeEvent event) {
         if (isContextualValue(event.getNewValue())) {
-            label.hide(validationMessage);
+            label.hideConstraint(validationMessage);
             return;
         }
         if (!validate(event.getNewValue())) {
-            label.show(validationMessage);
+            label.showConstraint(validationMessage);
         } else {
-            label.hide(validationMessage);
+            label.hideConstraint(validationMessage);
         }
     }
 

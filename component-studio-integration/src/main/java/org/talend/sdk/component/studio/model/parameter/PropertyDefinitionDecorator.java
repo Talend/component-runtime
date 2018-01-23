@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.ACTION_VALIDATION_NAME;
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.ACTION_VALIDATION_PARAMETERS;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.CONDITION_IF_TARGET;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.CONDITION_IF_VALUE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.CONFIG_NAME;
@@ -371,6 +373,24 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Checks whether it has action::validation metadata
+     * 
+     * @return true, it it has action::validation metadata; false otherwise
+     */
+    boolean hasValidation() {
+        return delegate.getMetadata().containsKey(ACTION_VALIDATION_NAME)
+                && delegate.getMetadata().containsKey(ACTION_VALIDATION_PARAMETERS);
+    }
+
+    String getValidationName() {
+        if (!hasValidation()) {
+            throw new IllegalStateException("Property has no validation");
+        }
+        return delegate.getMetadata().get(ACTION_VALIDATION_NAME);
+
     }
 
     @Override

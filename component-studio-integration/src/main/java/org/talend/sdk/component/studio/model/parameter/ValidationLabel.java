@@ -16,7 +16,10 @@
 package org.talend.sdk.component.studio.model.parameter;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.swt.graphics.RGB;
 import org.talend.core.model.process.EParameterFieldType;
@@ -27,11 +30,22 @@ import org.talend.core.model.process.IElement;
  */
 public class ValidationLabel extends TaCoKitElementParameter {
 
+    /**
+     * Delimiter between messages in resulting validation message
+     */
     private static final String DELIMITER = "; ";
 
     private static final RGB RED = new RGB(255, 0, 0);
 
-    private final Set<String> validationMessages = new HashSet<>();
+    /**
+     * Constraint messages
+     */
+    private final Set<String> constraintMessages = new HashSet<>();
+
+    /**
+     * Validation message
+     */
+    private String validationMessage;
 
     public ValidationLabel(final IElement element) {
         super(element);
@@ -42,20 +56,35 @@ public class ValidationLabel extends TaCoKitElementParameter {
         setValue("");
     }
 
-    public void show(final String message) {
-        validationMessages.add(message);
+    public void showValidation(final String message) {
+        validationMessage = message;
         setValue(buildValue());
         setShow(true);
     }
 
-    public void hide(final String message) {
-        validationMessages.remove(message);
+    public void hideValidation() {
+        validationMessage = null;
         setValue(buildValue());
-        setShow(!validationMessages.isEmpty());
+        setShow(false);
+    }
+
+    public void showConstraint(final String message) {
+        constraintMessages.add(message);
+        setValue(buildValue());
+        setShow(true);
+    }
+
+    public void hideConstraint(final String message) {
+        constraintMessages.remove(message);
+        setValue(buildValue());
+        setShow(!constraintMessages.isEmpty());
     }
 
     private String buildValue() {
-        return String.join(DELIMITER, validationMessages);
+        return Stream
+                .concat(constraintMessages.stream(), Stream.of(validationMessage))
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(DELIMITER));
     }
 
 }

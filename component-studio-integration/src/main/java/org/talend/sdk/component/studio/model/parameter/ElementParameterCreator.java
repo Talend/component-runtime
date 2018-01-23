@@ -95,11 +95,11 @@ public class ElementParameterCreator {
         if (!properties.isEmpty()) {
             PropertyNode root = new PropertyTreeCreator(new WidgetTypeMapper()).createPropertyTree(properties);
             // add main parameters
-            SettingsCreator mainSettingsCreator = new SettingsCreator(node, BASIC, updateComponentsParameter);
+            SettingsCreator mainSettingsCreator = new SettingsCreator(node, BASIC, updateComponentsParameter, detail);
             root.accept(mainSettingsCreator, Metadatas.MAIN_FORM);
             parameters.addAll(mainSettingsCreator.getSettings());
             // add advanced parameters
-            SettingsCreator advancedCreator = new SettingsCreator(node, ADVANCED, updateComponentsParameter);
+            SettingsCreator advancedCreator = new SettingsCreator(node, ADVANCED, updateComponentsParameter, detail);
             root.accept(advancedCreator, Metadatas.ADVANCED_FORM);
             parameters.addAll(advancedCreator.getSettings());
             checkSchemaProperties(mainSettingsCreator);

@@ -45,8 +45,11 @@ import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.ui.editor.nodes.Node;
+import org.talend.sdk.component.server.front.model.ActionReference;
+import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivator;
+import org.talend.sdk.component.studio.model.parameter.listener.ValidationListener;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidatorFactory;
 
 /**
@@ -88,6 +91,8 @@ public class SettingsCreator implements PropertyVisitor {
      */
     private final ElementParameter redrawParameter;
 
+    private final ComponentDetail detail;
+
     /**
      * Stores created {@link ParameterActivator} for further registering them into corresponding
      * {@link ElementParameter}
@@ -105,10 +110,16 @@ public class SettingsCreator implements PropertyVisitor {
 
     public SettingsCreator(final IElement iNode, final EComponentCategory category,
             final ElementParameter redrawParameter) {
+        this(iNode, category, redrawParameter, null);
+    }
+
+    public SettingsCreator(final IElement iNode, final EComponentCategory category,
+            final ElementParameter redrawParameter, final ComponentDetail detail) {
         this.iNode = iNode;
         this.category = category;
         this.redrawParameter = redrawParameter;
         formName = (category == EComponentCategory.ADVANCED) ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
+        this.detail = detail;
     }
 
     /**
@@ -362,7 +373,7 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setValue(node.getProperty().getDefaultValue());
         parameter.setRequired(node.getProperty().isRequired());
         createParameterActivator(node, parameter);
-        if (node.getProperty().hasConstraint()) {
+        if (node.getProperty().hasConstraint() || node.getProperty().hasValidation()) {
             createValidationLabel(node, (TaCoKitElementParameter) parameter);
         }
     }
@@ -392,21 +403,48 @@ public class SettingsCreator implements PropertyVisitor {
      * It is shown on the next row, but may be shown in the next
      */
     private void createValidationLabel(final PropertyNode node, final TaCoKitElementParameter target) {
-        final ValidationLabel validationLabel = new ValidationLabel(iNode);
-        validationLabel.setCategory(category);
-        validationLabel.setName(node.getProperty().getPath() + "Validation");
-        validationLabel.setRepositoryValue(node.getProperty().getPath() + "validation");
-        // it shown on the next row by default, but maybe changed
-        validationLabel.setNumRow(++lastRowNumber);
-        settings.put(validationLabel.getName(), validationLabel);
+        final ValidationLabel label = new ValidationLabel(iNode);
+        label.setCategory(category);
+        label.setName(node.getProperty().getPath() + "Validation");
+        // TODO remove or modify it
+        label.setRepositoryValue(node.getProperty().getPath() + "validation");
+        label.setSerialized(false);
+        // it shown on the next row by default, but may be changed
+        label.setNumRow(++lastRowNumber);
+        settings.put(label.getName(), label);
 
-        final PropertyValidation validation = node.getProperty().getValidation();
-        final List<PropertyChangeListener> validators =
-                new ValidatorFactory().createValidators(validation, validationLabel);
-        if (!validators.isEmpty()) {
-            target.setRedrawParameter(redrawParameter);
-            validators.forEach(v -> target.registerListener(target.getName(), v));
+        processConstraints(node, target, label);
+        processValidations(node, target, label);
+    }
+
+    private void processConstraints(final PropertyNode node, final TaCoKitElementParameter target,
+            final ValidationLabel label) {
+        if (node.getProperty().hasConstraint()) {
+            final PropertyValidation validation = node.getProperty().getValidation();
+            final List<PropertyChangeListener> validators = new ValidatorFactory().createValidators(validation, label);
+            if (!validators.isEmpty()) {
+                target.setRedrawParameter(redrawParameter);
+                validators.forEach(v -> target.registerListener(target.getName(), v));
+            }
         }
+    }
+
+    private void processValidations(final PropertyNode node, final TaCoKitElementParameter target,
+            final ValidationLabel label) {
+        if (node.getProperty().hasValidation()) {
+            final ValidationListener listener =
+                    new ValidationListener(label, detail.getId().getFamily(), node.getProperty().getValidationName());
+            final ActionReference action = getAction(node.getProperty().getValidationName());
+            action.getProperties().forEach(p -> {
+                listener.addParameter(target.getName(), p.getName(), p.getDefaultValue());
+                target.setRedrawParameter(redrawParameter);
+                target.registerListener(target.getName(), listener);
+            });
+        }
+    }
+
+    private ActionReference getAction(final String actionName) {
+        return detail.getActions().stream().filter(a -> a.getName().equals(actionName)).findFirst().get();
     }
 
     /**

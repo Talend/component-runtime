@@ -25,6 +25,10 @@ public final class Metadatas {
 
     public static final String ACTION_DYNAMIC_VALUES = "action::dynamic_values";
 
+    public static final String ACTION_VALIDATION_NAME = "action::validation";
+
+    public static final String ACTION_VALIDATION_PARAMETERS = "action::validation::parameters";
+
     public static final String CONFIG_TYPE = "configurationtype::type";
 
     public static final String CONFIG_NAME = "configurationtype::name";
