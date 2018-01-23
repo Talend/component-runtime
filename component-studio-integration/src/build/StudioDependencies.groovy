@@ -41,6 +41,7 @@ def dependencies = [
         'org.talend.maven.resolver',
         'org.talend.core.repository',
         'org.talend.repository',
+        'org.talend.repository.metadata',
         'org.talend.repository.view',
         'org.talend.repository.view.di',
         'org.talend.designer.core.generic',

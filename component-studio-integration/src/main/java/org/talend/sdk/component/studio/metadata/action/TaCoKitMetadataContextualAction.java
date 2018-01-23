@@ -51,6 +51,8 @@ public abstract class TaCoKitMetadataContextualAction extends AbstractCreateActi
 
     protected ConfigTypeNode configTypeNode;
 
+    private boolean isReadonly;
+
     /**
      * Creates {@link WizardDialog}, opens it and refreshes repository node if result is ok
      */
@@ -148,4 +150,9 @@ public abstract class TaCoKitMetadataContextualAction extends AbstractCreateActi
     protected boolean isDeleted(final RepositoryNode node) {
         return node.getObject() != null && node.getObject().getProperty().getItem().getState().isDeleted();
     }
+
+    public boolean isReadonly() {
+        return this.isReadonly;
+    }
+
 }

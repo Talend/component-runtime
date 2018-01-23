@@ -23,6 +23,7 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.IWorkbench;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.ui.runtime.exception.ExceptionMessageDialog;
+import org.talend.core.model.properties.ConnectionItem;
 import org.talend.metadata.managment.ui.wizard.CheckLastVersionRepositoryWizard;
 import org.talend.metadata.managment.ui.wizard.metadata.connection.Step0WizardPage;
 import org.talend.repository.model.IRepositoryNode.ENodeType;
@@ -159,6 +160,9 @@ public abstract class TaCoKitConfigurationWizard extends CheckLastVersionReposit
 
     @Override
     public boolean canFinish() {
+        if (getRuntimeData().isReadonly()) {
+            return false;
+        }
         IWizardPage currentPage = this.getContainer().getCurrentPage();
         if (currentPage instanceof Step0WizardPage) {
             return false;
@@ -167,6 +171,11 @@ public abstract class TaCoKitConfigurationWizard extends CheckLastVersionReposit
             return true;
         }
         return false;
+    }
+
+    @Override
+    public ConnectionItem getConnectionItem() {
+        return connectionItem;
     }
 
 }

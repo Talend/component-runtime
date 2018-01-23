@@ -16,6 +16,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
@@ -37,7 +38,7 @@ public class EditTaCoKitConfigurationAction extends TaCoKitMetadataContextualAct
     }
 
     @Override
-    protected void init(final RepositoryNode node) {
+    public void init(final RepositoryNode node) {
         boolean isLeafNode = false;
         if (node instanceof ITaCoKitRepositoryNode) {
             isLeafNode = ((ITaCoKitRepositoryNode) node).isLeafNode();
@@ -60,17 +61,20 @@ public class EditTaCoKitConfigurationAction extends TaCoKitMetadataContextualAct
             if (isUserReadOnly() || belongsToCurrentProject(node) || isDeleted(node)) {
                 setEnabled(false);
                 return;
+            } else {
+                this.setText(getCreateLabel());
+                collectChildNames(node);
+                setEnabled(true);
             }
-            this.setText(getCreateLabel());
-            collectChildNames(node);
-            setEnabled(true);
             break;
         case REPOSITORY_ELEMENT:
             if (factory.isPotentiallyEditable(node.getObject()) && isLastVersion(node)) {
                 this.setText(getEditLabel());
                 collectSiblingNames(node);
+                setReadonly(false);
             } else {
                 this.setText(getOpenLabel());
+                setReadonly(true);
             }
             setEnabled(true);
             break;
@@ -81,8 +85,12 @@ public class EditTaCoKitConfigurationAction extends TaCoKitMetadataContextualAct
 
     @Override
     protected WizardDialog createWizardDialog() {
-        IWizard wizard = new TaCoKitEditWizard(PlatformUI.getWorkbench(), createRuntimeData());
+        IWizard wizard = createWizard(PlatformUI.getWorkbench());
         return new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+    }
+
+    public TaCoKitEditWizard createWizard(final IWorkbench wb) {
+        return new TaCoKitEditWizard(wb, createRuntimeData());
     }
 
     private TaCoKitConfigurationRuntimeData createRuntimeData() {
@@ -91,7 +99,7 @@ public class EditTaCoKitConfigurationAction extends TaCoKitMetadataContextualAct
         runtimeData.setConfigTypeNode(repositoryNode.getConfigTypeNode());
         runtimeData.setConnectionItem((ConnectionItem) repositoryNode.getObject().getProperty().getItem());
         runtimeData.setCreation(false);
-        runtimeData.setReadonly(false);
+        runtimeData.setReadonly(isReadonly());
         return runtimeData;
     }
 

@@ -51,11 +51,11 @@ import org.talend.repository.ProjectManager;
 import org.talend.repository.model.IRepositoryNode.ENodeType;
 import org.talend.repository.model.IRepositoryNode.EProperties;
 import org.talend.repository.model.RepositoryNode;
+import org.talend.sdk.component.studio.metadata.action.CreateTaCoKitConfigurationAction;
+import org.talend.sdk.component.studio.metadata.action.EditTaCoKitConfigurationAction;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
-import org.talend.sdk.component.studio.metadata.node.TaCoKitConfigurationRepositoryNode;
-import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
-import org.talend.sdk.component.studio.ui.wizard.TaCoKitCreateWizard;
+import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.util.ETaCoKitImage;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
@@ -308,16 +308,20 @@ public class TaCoKitRepositoryContentHandler extends AbstractRepositoryContentHa
     @Override
     public IWizard newWizard(final IWorkbench workbench, final boolean creation, final RepositoryNode node,
             final String[] existingNames) {
-        if (!(node instanceof TaCoKitConfigurationRepositoryNode)) {
+        if (!(node instanceof ITaCoKitRepositoryNode)) {
             return null;
         }
         IWorkbench wb = workbench != null ? workbench : PlatformUI.getWorkbench();
-        TaCoKitConfigurationRuntimeData runtimeData = new TaCoKitConfigurationRuntimeData();
-        runtimeData.setTaCoKitRepositoryNode((TaCoKitConfigurationRepositoryNode) node);
-        runtimeData.setCreation(true);
-        runtimeData.setReadonly(false);
-
-        return new TaCoKitCreateWizard(wb, runtimeData);
+        if (creation) {
+            CreateTaCoKitConfigurationAction createTaCoKitConfigurationAction =
+                    new CreateTaCoKitConfigurationAction(ITaCoKitRepositoryNode.class.cast(node).getConfigTypeNode());
+            createTaCoKitConfigurationAction.init(node);
+            return createTaCoKitConfigurationAction.createWizard(wb);
+        } else {
+            EditTaCoKitConfigurationAction editTaCoKitConfigurationAction = new EditTaCoKitConfigurationAction();
+            editTaCoKitConfigurationAction.init(node);
+            return editTaCoKitConfigurationAction.createWizard(wb);
+        }
     }
 
 }
