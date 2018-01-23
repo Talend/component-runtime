@@ -45,6 +45,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -403,16 +404,16 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                                     configurerOptions.isEmpty() ? EMPTY_CONFIGURER_OPTIONS
                                             : new Configurer.ConfigurerConfiguration() {
 
-                                        @Override
-                                        public Object[] configuration() {
-                                            return options.values().toArray(new Object[options.size()]);
-                                        }
+                                                @Override
+                                                public Object[] configuration() {
+                                                    return options.values().toArray(new Object[options.size()]);
+                                                }
 
-                                        @Override
-                                        public <T> T get(final String name, final Class<T> type) {
-                                            return type.cast(options.get(name));
-                                        }
-                                    });
+                                                @Override
+                                                public <T> T get(final String name, final Class<T> type) {
+                                                    return type.cast(options.get(name));
+                                                }
+                                            });
                         }
 
                         if (payloadProviderRef != null) {
@@ -492,17 +493,17 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
                             ? encoder.getAnnotation(ContentType.class).value()
                             : "*/*", encoder -> {
-                        try {
-                            return encoder.getConstructor().newInstance();
-                        } catch (final InstantiationException | IllegalAccessException
-                                | NoSuchMethodException e) {
-                            throw new IllegalArgumentException(e);
-                        } catch (final InvocationTargetException e) {
-                            throw toRuntimeException(e);
-                        }
-                    }, (k, v) -> {
-                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                    }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
+                                try {
+                                    return encoder.getConstructor().newInstance();
+                                } catch (final InstantiationException | IllegalAccessException
+                                        | NoSuchMethodException e) {
+                                    throw new IllegalArgumentException(e);
+                                } catch (final InvocationTargetException e) {
+                                    throw toRuntimeException(e);
+                                }
+                            }, (k, v) -> {
+                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                            }, LinkedHashMap::new));
 
             // always have a default encoders
             encoders.computeIfAbsent("*/*",
@@ -516,23 +517,23 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 return singletonMap("*/*", (value, expectedType) -> new String(value));
             }
 
-            final TreeMap<String, Decoder> decoders = stream(codec.decoder())
+            final Map<String, Decoder> decoders = stream(codec.decoder())
                     .filter(Objects::nonNull)
                     .filter(decoder -> decoder != Decoder.class)
                     .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
                             ? decoder.getAnnotation(ContentType.class).value()
                             : "*/*", decoder -> {
-                        try {
-                            return decoder.getConstructor().newInstance();
-                        } catch (final InstantiationException | IllegalAccessException
-                                | NoSuchMethodException e) {
-                            throw new IllegalArgumentException(e);
-                        } catch (final InvocationTargetException e) {
-                            throw toRuntimeException(e);
-                        }
-                    }, (k, v) -> {
-                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                    }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
+                                try {
+                                    return decoder.getConstructor().newInstance();
+                                } catch (final InstantiationException | IllegalAccessException
+                                        | NoSuchMethodException e) {
+                                    throw new IllegalArgumentException(e);
+                                } catch (final InvocationTargetException e) {
+                                    throw toRuntimeException(e);
+                                }
+                            }, (k, v) -> {
+                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                            }, LinkedHashMap::new));
 
             decoders.computeIfAbsent("*/*", s -> (value, expectedType) -> new String(value));
             return decoders;
