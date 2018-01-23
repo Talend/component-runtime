@@ -22,6 +22,7 @@ import org.talend.core.model.components.IComponent;
 import org.talend.core.model.components.IComponentsService;
 import org.talend.core.model.metadata.IMetadataTable;
 import org.talend.core.model.metadata.builder.connection.Connection;
+import org.talend.core.model.metadata.designerproperties.RepositoryToComponentProperty;
 import org.talend.core.model.process.IElement;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
@@ -33,6 +34,7 @@ import org.talend.core.model.utils.IComponentName;
 import org.talend.core.repository.RepositoryComponentSetting;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.ComponentModel;
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
@@ -77,7 +79,27 @@ public class TaCoKitDragAndDropHandler extends AbstractDragAndDropServiceHandler
                 if (result == null) {
                     return null;
                 } else {
-                    return valueModel.getValue();
+                    String type = null;
+                    try {
+                        List<SimplePropertyDefinition> properties =
+                                valueModel.getConfigurationModel().getConfigTypeNode().getProperties();
+                        if (properties != null) {
+                            for (SimplePropertyDefinition property : properties) {
+                                if (value.equals(property.getPath())) {
+                                    type = property.getType();
+                                    break;
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        ExceptionHandler.process(e);
+                    }
+                    if (TaCoKitConst.TYPE_STRING.equalsIgnoreCase(type)) {
+                        return RepositoryToComponentProperty.addQuotesIfNecessary(connection,
+                                String.class.cast(result));
+                    } else {
+                        return valueModel.getValue();
+                    }
                 }
             }
         } catch (Exception e) {

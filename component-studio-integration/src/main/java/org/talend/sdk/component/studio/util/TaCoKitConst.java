@@ -46,4 +46,6 @@ public class TaCoKitConst {
     public static final String GUESS_SCHEMA_PARAMETER_ENCODING_KEY =
             "___TACOKIT_GUESS_SCHEMA_PARAMETER_ENCODING_KEY___"; //$NON-NLS-1$
 
+    public static final String TYPE_STRING = "STRING"; //$NON-NLS-1$
+
 }

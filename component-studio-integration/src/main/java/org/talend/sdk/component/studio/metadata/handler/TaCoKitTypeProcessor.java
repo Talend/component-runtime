@@ -52,7 +52,7 @@ public class TaCoKitTypeProcessor extends MultiTypesProcessor {
             final RepositoryNode node) {
         if (node instanceof TaCoKitFamilyRepositoryNode) {
             TaCoKitFamilyRepositoryNode tacokitNode = (TaCoKitFamilyRepositoryNode) node;
-            ERepositoryObjectType type = tacokitNode.getChildrenObjectType();
+            ERepositoryObjectType type = tacokitNode.getContentType();
             for (String repositoryType : getRepositoryTypes()) {
                 if (repositoryType.startsWith(type.getKey())) {
                     return true;
