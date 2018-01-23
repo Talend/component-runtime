@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import static java.util.Arrays.stream;
+import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
@@ -58,6 +60,7 @@ import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.http.Codec;
 import org.talend.sdk.component.api.service.http.Configurer;
 import org.talend.sdk.component.api.service.http.ConfigurerOption;
+import org.talend.sdk.component.api.service.http.ContentType;
 import org.talend.sdk.component.api.service.http.Decoder;
 import org.talend.sdk.component.api.service.http.Encoder;
 import org.talend.sdk.component.api.service.http.Header;
@@ -101,14 +104,14 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 .collect(toList()));
         errors.addAll(methods.stream().filter(m -> {
             final Codec codec = m.getAnnotation(Codec.class);
-            return (codec == null || codec.encoder() == Encoder.class) && Stream
+            return (codec == null || codec.encoder().length == 0) && Stream
                     .of(m.getParameters())
                     .filter(p -> Stream.of(Path.class, Query.class, Header.class).noneMatch(p::isAnnotationPresent))
                     .anyMatch(p -> isNotSupportedByDefaultCodec(p.getParameterizedType()));
         }).map(m -> m + " defines a request payload without an adapted coder").collect(toList()));
         errors.addAll(methods.stream().filter(m -> {
             final Codec codec = m.getAnnotation(Codec.class);
-            return (codec == null || codec.decoder() == Decoder.class)
+            return (codec == null || codec.decoder().length == 0)
                     && isNotSupportedByDefaultCodec(m.getGenericReturnType());
         }).map(m -> m + " defines a response payload without an adapted coder").collect(toList()));
         return errors;
@@ -296,8 +299,8 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 } catch (final InvocationTargetException e) {
                     throw toRuntimeException(e);
                 }
-                final Encoder encoder = createEncoder(codec);
-                final Decoder decoder = createDecoder(codec);
+                final Map<String, Encoder> encoders = createEncoder(codec);
+                final Map<String, Decoder> decoders = createDecoder(codec);
 
                 // precompute the execution (kind of compile phase)
                 String path = request.path();
@@ -309,8 +312,10 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 final Collection<Function<Object[], String>> queryBuilder = new ArrayList<>();
                 final Collection<BiConsumer<Object[], HttpURLConnection>> headerProvider = new ArrayList<>();
                 final Map<String, Function<Object[], Object>> configurerOptions = new HashMap<>();
-                Function<Object[], byte[]> payloadProvider = null;
+                BiFunction<HttpURLConnection, Object[], byte[]> payloadProvider = null;
                 final Parameter[] parameters = m.getParameters();
+                final CodecMatcher<Encoder> encoderMatcher = new CodecMatcher<>();
+
                 for (int i = 0; i < parameters.length; i++) {
                     final int index = i;
                     if (parameters[i].isAnnotationPresent(Path.class)) {
@@ -355,14 +360,21 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         if (payloadProvider != null) {
                             throw new IllegalArgumentException(m + " has two payload parameters");
                         } else {
-                            payloadProvider = params -> encoder.encode(params[index]);
+                            if (encoders.size() == 1) {
+                                final Encoder encoder = encoders.values().iterator().next();
+                                payloadProvider = (u, params) -> encoder.encode(params[index]);
+                            } else {
+                                payloadProvider = (connection, params) -> encoderMatcher
+                                        .select(encoders, connection.getRequestProperty("content-type"))
+                                        .encode(params[index]);
+                            }
                         }
                     }
                 }
 
                 final String httpMethod = request.method();
                 final String startingPath = path;
-                final Function<Object[], byte[]> payloadProviderRef = payloadProvider;
+                final BiFunction<HttpURLConnection, Object[], byte[]> payloadProviderRef = payloadProvider;
                 final boolean isResponse = m.getReturnType() == Response.class;
                 final Type responseType =
                         isResponse ? ParameterizedType.class.cast(m.getGenericReturnType()).getActualTypeArguments()[0]
@@ -383,6 +395,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         for (final BiConsumer<Object[], HttpURLConnection> provider : headerProvider) {
                             provider.accept(params, urlConnection);
                         }
+
                         if (configurerInstance != null) {
                             final Map<String, Object> options = configurerOptions.entrySet().stream().collect(
                                     toMap(Map.Entry::getKey, e -> e.getValue().apply(params)));
@@ -390,45 +403,48 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                                     configurerOptions.isEmpty() ? EMPTY_CONFIGURER_OPTIONS
                                             : new Configurer.ConfigurerConfiguration() {
 
-                                                @Override
-                                                public Object[] configuration() {
-                                                    return options.values().toArray(new Object[options.size()]);
-                                                }
+                                        @Override
+                                        public Object[] configuration() {
+                                            return options.values().toArray(new Object[options.size()]);
+                                        }
 
-                                                @Override
-                                                public <T> T get(final String name, final Class<T> type) {
-                                                    return type.cast(options.get(name));
-                                                }
-                                            });
+                                        @Override
+                                        public <T> T get(final String name, final Class<T> type) {
+                                            return type.cast(options.get(name));
+                                        }
+                                    });
                         }
 
                         if (payloadProviderRef != null) {
                             urlConnection.setDoOutput(true);
                             try (final BufferedOutputStream outputStream =
                                     new BufferedOutputStream(urlConnection.getOutputStream())) {
-                                outputStream.write(payloadProviderRef.apply(params));
+                                outputStream.write(payloadProviderRef.apply(urlConnection, params));
                                 outputStream.flush();
                             }
                         }
 
                         final int responseCode = urlConnection.getResponseCode();
+                        final CodecMatcher<Decoder> decoderMatcher = new CodecMatcher<>();
+                        final String contentType = urlConnection.getHeaderField("content-type");
                         final byte[] error;
                         final byte[] response;
                         try {
                             response = slurp(urlConnection.getInputStream());
                             if (!isResponse) {
-                                return decoder.decode(response, responseType);
+                                return decoderMatcher.select(decoders, contentType).decode(response, responseType);
                             }
-                            return new ResponseImpl(responseCode, decoder, responseType, headers(urlConnection),
-                                    response, null);
+                            return new ResponseImpl(responseCode, decoderMatcher.select(decoders, contentType),
+                                    responseType, headers(urlConnection), response, null);
                         } catch (final IOException e) {
                             error = ofNullable(urlConnection.getErrorStream())
                                     .map(HttpClientFactoryImpl::slurp)
                                     .orElseGet(() -> ofNullable(e.getMessage())
                                             .map(s -> s.getBytes(StandardCharsets.UTF_8))
                                             .orElse(null));
-                            final Response<Object> errorResponse = new ResponseImpl(responseCode, decoder, responseType,
-                                    headers(urlConnection), null, error);
+                            final Response<Object> errorResponse =
+                                    new ResponseImpl(responseCode, decoderMatcher.select(decoders, contentType),
+                                            responseType, headers(urlConnection), null, error);
 
                             if (isResponse) {
                                 return errorResponse;
@@ -464,77 +480,109 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             }
         }
 
-        private Encoder createEncoder(final Codec codec) {
-            if (codec != null && codec.encoder() != Encoder.class) {
-                try {
-                    return codec.encoder().getConstructor().newInstance();
-                } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-                    throw new IllegalArgumentException(e);
-                } catch (final InvocationTargetException e) {
-                    throw toRuntimeException(e);
+        private Map<String, Encoder> createEncoder(final Codec codec) {
+            if (codec == null || codec.decoder().length == 0) {
+                return singletonMap("*/*",
+                        value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
+            }
+
+            final Map<String, Encoder> encoders = stream(codec.encoder())
+                    .filter(Objects::nonNull)
+                    .filter(encoder -> encoder != Encoder.class)
+                    .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
+                            ? encoder.getAnnotation(ContentType.class).value()
+                            : "*/*", encoder -> {
+                        try {
+                            return encoder.getConstructor().newInstance();
+                        } catch (final InstantiationException | IllegalAccessException
+                                | NoSuchMethodException e) {
+                            throw new IllegalArgumentException(e);
+                        } catch (final InvocationTargetException e) {
+                            throw toRuntimeException(e);
+                        }
+                    }, (k, v) -> {
+                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                    }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
+
+            // always have a default encoders
+            encoders.computeIfAbsent("*/*",
+                    s -> value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
+
+            return encoders;
+        }
+
+        private Map<String, Decoder> createDecoder(final Codec codec) {
+            if (codec == null || codec.decoder().length == 0) {
+                return singletonMap("*/*", (value, expectedType) -> new String(value));
+            }
+
+            final TreeMap<String, Decoder> decoders = stream(codec.decoder())
+                    .filter(Objects::nonNull)
+                    .filter(decoder -> decoder != Decoder.class)
+                    .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
+                            ? decoder.getAnnotation(ContentType.class).value()
+                            : "*/*", decoder -> {
+                        try {
+                            return decoder.getConstructor().newInstance();
+                        } catch (final InstantiationException | IllegalAccessException
+                                | NoSuchMethodException e) {
+                            throw new IllegalArgumentException(e);
+                        } catch (final InvocationTargetException e) {
+                            throw toRuntimeException(e);
+                        }
+                    }, (k, v) -> {
+                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                    }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
+
+            decoders.computeIfAbsent("*/*", s -> (value, expectedType) -> new String(value));
+            return decoders;
+        }
+
+        @AllArgsConstructor
+        private static class ResponseImpl<T> implements Response<T> {
+
+            private final int status;
+
+            private final Decoder decoder;
+
+            private final Type responseType;
+
+            private Map<String, List<String>> headers;
+
+            private byte[] responseBody;
+
+            private byte[] error;
+
+            @Override
+            public int status() {
+                return status;
+            }
+
+            @Override
+            public Map<String, List<String>> headers() {
+                return headers;
+            }
+
+            @Override
+            public T body() {
+                if (responseBody == null) {
+                    return null;
                 }
-            }
-            return value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8);
-        }
 
-        private Decoder createDecoder(final Codec codec) {
-            if (codec != null && codec.decoder() != Decoder.class) {
-                try {
-                    return codec.decoder().getConstructor().newInstance();
-                } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-                    throw new IllegalArgumentException(e);
-                } catch (final InvocationTargetException e) {
-                    throw toRuntimeException(e);
+                return (T) decoder.decode(responseBody, responseType);
+            }
+
+            @Override
+            public <E> E error(final Class<E> type) {
+                if (error == null) {
+                    return null;
                 }
+                if (String.class == type) {
+                    return type.cast(new String(error));
+                }
+
+                return type.cast(decoder.decode(error, type));
             }
-            return (value, expectedType) -> value == null ? null : new String(value);
-        }
-    }
-
-    @AllArgsConstructor
-    private static class ResponseImpl<T> implements Response<T> {
-
-        private final int status;
-
-        private final Decoder decoder;
-
-        private final Type responseType;
-
-        private Map<String, List<String>> headers;
-
-        private byte[] responseBody;
-
-        private byte[] error;
-
-        @Override
-        public int status() {
-            return status;
-        }
-
-        @Override
-        public Map<String, List<String>> headers() {
-            return headers;
-        }
-
-        @Override
-        public T body() {
-            if (responseBody == null) {
-                return null;
-            }
-
-            return (T) decoder.decode(responseBody, responseType);
-        }
-
-        @Override
-        public <E> E error(final Class<E> type) {
-            if (error == null) {
-                return null;
-            }
-            if (String.class == type) {
-                return type.cast(new String(error));
-            }
-
-            return type.cast(decoder.decode(error, type));
         }
     }
 }
