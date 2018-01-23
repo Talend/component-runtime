@@ -487,7 +487,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
             }
 
-            final Map<String, Encoder> encoders = stream(codec.encoder())
+            return stream(codec.encoder())
                     .filter(Objects::nonNull)
                     .filter(encoder -> encoder != Encoder.class)
                     .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
@@ -505,11 +505,6 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                                 throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
                             }, LinkedHashMap::new));
 
-            // always have a default encoders
-            encoders.computeIfAbsent("*/*",
-                    s -> value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
-
-            return encoders;
         }
 
         private Map<String, Decoder> createDecoder(final Codec codec) {
@@ -517,7 +512,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 return singletonMap("*/*", (value, expectedType) -> new String(value));
             }
 
-            final Map<String, Decoder> decoders = stream(codec.decoder())
+            return stream(codec.decoder())
                     .filter(Objects::nonNull)
                     .filter(decoder -> decoder != Decoder.class)
                     .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
@@ -534,9 +529,6 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                             }, (k, v) -> {
                                 throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
                             }, LinkedHashMap::new));
-
-            decoders.computeIfAbsent("*/*", s -> (value, expectedType) -> new String(value));
-            return decoders;
         }
 
         @AllArgsConstructor

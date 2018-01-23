@@ -48,10 +48,12 @@ public class CodecMatcher<T> {
             }
 
             // regex match
-            final String asRegex = mediaType.replace("+", "\\+").replace("*", ".+");
-            final Optional<T> matched =
-                    codecList.entrySet().stream().filter(e -> e.getKey().matches(asRegex)).findFirst().map(
-                            Map.Entry::getValue);
+            final Optional<T> matched = codecList
+                    .entrySet()
+                    .stream()
+                    .filter(e -> mediaType.matches(e.getKey().replace("+", "\\+").replace("*", ".+")))
+                    .findFirst()
+                    .map(Map.Entry::getValue);
             return matched.orElseThrow(
                     () -> new IllegalStateException("No codec found for content-type: '" + contentType + "'"));
 

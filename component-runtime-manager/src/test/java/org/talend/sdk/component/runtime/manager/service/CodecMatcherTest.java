@@ -16,11 +16,11 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -29,31 +29,33 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.http.ContentType;
 import org.talend.sdk.component.api.service.http.Encoder;
 
-public class CodecMatcherTest {
+class CodecMatcherTest {
 
     private static Map<String, Encoder> codecMap;
 
     private CodecMatcher<Encoder> matcher;
 
     @BeforeAll
-    public static void init() {
-        codecMap = new HashMap<String, Encoder>() {
+    static void init() {
+        codecMap = new LinkedHashMap<String, Encoder>() {
 
             {
                 put("application/json", new JsonEncoder());
+                put("*/json", new JsonEncoder());
                 put("application/talend+json", new TalendJsonEncoder());
+                put("application/*+json", new TalendJsonEncoder());
                 put("*/*", new DefaultEncoder());
             }
         };
     }
 
     @BeforeEach
-    public void before() {
+    void before() {
         matcher = new CodecMatcher<>();
     }
 
     @Test
-    public void selectWithExactMatch() {
+    void selectWithExactMatch() {
         final Encoder jsonEncoder = matcher.select(codecMap, "application/json");
         assertTrue(JsonEncoder.class.isInstance(jsonEncoder));
         assertEquals("application/json", jsonEncoder.getClass().getAnnotation(ContentType.class).value());
@@ -67,27 +69,41 @@ public class CodecMatcherTest {
     }
 
     @Test
-    public void selectWithtRegex() {
-        final Encoder jsonEncoder = matcher.select(codecMap, "*/json");
+    void selectWithtRegex() {
+        final Encoder jsonEncoder = matcher.select(codecMap, "foo/json");
         assertTrue(JsonEncoder.class.isInstance(jsonEncoder));
         assertEquals("application/json", jsonEncoder.getClass().getAnnotation(ContentType.class).value());
 
-        final Encoder talendEncoder = matcher.select(codecMap, "application/*+json");
+        final Encoder talendEncoder = matcher.select(codecMap, "application/foo+json");
         assertTrue(TalendJsonEncoder.class.isInstance(talendEncoder));
         assertEquals("application/talend+json", talendEncoder.getClass().getAnnotation(ContentType.class).value());
     }
 
     @Test
-    public void selectWithNoType() {
+    void selectWithNoType() {
         final Encoder encoder = matcher.select(codecMap, null);
         assertTrue(DefaultEncoder.class.isInstance(encoder));
     }
 
-    @Test()
-    public void selectWithUnsupportedType() {
-        assertThrows(IllegalStateException.class, () -> {
-            matcher.select(codecMap, "unsupported");
-        });
+    @Test
+    void selectWithUnsupportedType() {
+        assertThrows(IllegalStateException.class, () -> matcher.select(codecMap, "unsupported"));
+    }
+
+    @Test
+    void wildcardMatching() {
+        assertTrue(DefaultEncoder.class.isInstance(matcher.select(codecMap, "foo/bar")));
+        assertTrue(DefaultEncoder.class.isInstance(matcher.select(codecMap, "foo/bar+test")));
+    }
+
+    @Test
+    void noMatchingEntry() {
+        assertThrows(IllegalStateException.class, () -> matcher.select(new HashMap<String, Encoder>(codecMap) {
+
+            {
+                remove("*/*");
+            }
+        }, "no/matching"));
     }
 
     @ContentType("application/json")
