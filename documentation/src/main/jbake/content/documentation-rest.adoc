@@ -313,7 +313,7 @@ Output messages look like:
 
 - Rolling file appender
 
-[source]
+[source,xml]
 ----
 <?xml version="1.0"?>
 <Configuration status="INFO">
