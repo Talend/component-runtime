@@ -53,12 +53,29 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>${clean-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>clean-frontend</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <configuration>
+              <directory>${project.basedir}/src/main/frontend/dist</directory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <version>${maven-resources-plugin.version}</version>
         <executions>
           <execution>
             <id>copy-component-kit.js</id>
-            <phase>generate-sources</phase>
+            <phase>generate-resources</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
@@ -86,7 +103,10 @@
           <webapp>${project.basedir}/src/main/frontend/dist</webapp>
           <webResourceCached>false</webResourceCached>
           <properties>
-            <talend.component.server.component.coordinates>${talend.component.server.component.coordinates.samples}</talend.component.server.component.coordinates>
+            <talend.component.server.component.coordinates>
+              ${talend.component.server.component.coordinates.samples},
+              org.talend.components:widget:1.0.0-SNAPSHOT
+            </talend.component.server.component.coordinates>
           </properties>
         </configuration>
         <dependencies>
@@ -114,7 +134,7 @@
         <executions>
           <execution>
             <id>install-node-and-yarn</id>
-            <phase>prepare-package</phase>
+            <phase>generate-resources</phase>
             <goals>
               <goal>install-node-and-yarn</goal>
             </goals>
@@ -125,7 +145,7 @@
           </execution>
           <execution>
             <id>yarn-install</id>
-            <phase>prepare-package</phase>
+            <phase>generate-resources</phase>
             <goals>
               <goal>yarn</goal>
             </goals>
@@ -135,7 +155,7 @@
           </execution>
           <execution>
             <id>yarn-build</id>
-            <phase>prepare-package</phase>
+            <phase>generate-resources</phase>
             <goals>
               <goal>yarn</goal>
             </goals>
@@ -176,15 +196,15 @@
         <executions>
           <execution>
             <id>add-resource</id>
-            <phase>prepare-package</phase>
+            <phase>generate-resources</phase>
             <goals>
               <goal>add-resource</goal>
             </goals>
             <configuration>
               <resources>
                 <resource>
-                  <directory>dist</directory>
-                  <targetPath>META-INF/resources/</targetPath>
+                  <directory>src/main/frontend/dist</directory>
+                  <targetPath>META-INF/resources</targetPath>
                   <excludes>
                     <exclude>**/*.map</exclude>
                   </excludes>
