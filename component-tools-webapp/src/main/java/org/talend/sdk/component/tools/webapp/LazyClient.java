@@ -16,6 +16,7 @@
 package org.talend.sdk.component.tools.webapp;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -38,10 +39,16 @@ import lombok.experimental.Delegate;
 public class LazyClient implements Client {
 
     @Delegate
-    private Client client;
+    private volatile Client client;
 
-    public void lazyInit(final String base) {
-        client = ClientFactory.createDefault(base);
+    public void lazyInit(final Supplier<String> base) {
+        if (client == null) {
+            synchronized (this) {
+                if (client == null) {
+                    client = ClientFactory.createDefault(base.get());
+                }
+            }
+        }
     }
 
     @PreDestroy
@@ -50,7 +57,7 @@ public class LazyClient implements Client {
     }
 
     @Dependent
-    @WebFilter("/api/*")
+    @WebFilter("/api/v1/*")
     public static class LazyInitializer implements Filter {
 
         @Inject
@@ -59,7 +66,11 @@ public class LazyClient implements Client {
         @Override
         public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
                 throws IOException, ServletException {
-            lazyClient.lazyInit(HttpServletRequest.class.cast(request).getRequestURI());
+            lazyClient.lazyInit(() -> {
+                final HttpServletRequest servletRequest = HttpServletRequest.class.cast(request);
+                return String.format("%s://%s:%d/%s", servletRequest.getScheme(), servletRequest.getServerName(),
+                        servletRequest.getServerPort(), "api/v1");
+            });
             chain.doFilter(request, response);
         }
     }

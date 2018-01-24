@@ -17,10 +17,14 @@ package org.talend.sdk.component.runtime.manager.util;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = PRIVATE)
 public class IdGenerator {
 
     /**

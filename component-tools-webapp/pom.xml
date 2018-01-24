@@ -85,6 +85,9 @@
           <httpPort>10101</httpPort>
           <webapp>${project.basedir}/src/main/frontend/dist</webapp>
           <webResourceCached>false</webResourceCached>
+          <properties>
+            <talend.component.server.component.coordinates>${talend.component.server.component.coordinates.samples}</talend.component.server.component.coordinates>
+          </properties>
         </configuration>
         <dependencies>
           <dependency>
@@ -152,6 +155,9 @@
             </goals>
             <configuration>
               <arguments>run watch</arguments>
+              <environmentVariables>
+                <NODE_ENV>development</NODE_ENV>
+              </environmentVariables>
             </configuration>
           </execution>
         </executions>

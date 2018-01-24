@@ -26,6 +26,8 @@ public class ComponentId {
 
     private String id;
 
+    private String familyId;
+
     private String plugin;
 
     private String pluginLocation;

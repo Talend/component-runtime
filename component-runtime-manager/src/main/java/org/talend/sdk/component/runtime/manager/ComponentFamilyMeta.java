@@ -63,6 +63,8 @@ public class ComponentFamilyMeta {
         }
     };
 
+    private final String id;
+
     private final String plugin;
 
     private final Collection<String> categories;
@@ -78,6 +80,16 @@ public class ComponentFamilyMeta {
     private final Map<String, ProcessorMeta> processors = new HashMap<>();
 
     private final ConcurrentMap<Locale, FamilyBundle> bundles = new ConcurrentHashMap<>();
+
+    public ComponentFamilyMeta(final String plugin, final Collection<String> categories, final String icon,
+            final String name, final String packageName) {
+        this.id = IdGenerator.get(name);
+        this.plugin = plugin;
+        this.categories = categories;
+        this.icon = icon;
+        this.name = name;
+        this.packageName = packageName;
+    }
 
     public FamilyBundle findBundle(final ClassLoader loader, final Locale locale) {
         return bundles.computeIfAbsent(locale, l -> {

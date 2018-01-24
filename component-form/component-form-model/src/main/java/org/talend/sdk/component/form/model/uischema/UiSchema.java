@@ -87,11 +87,15 @@ public class UiSchema {
 
     @Data
     public static class Condition {
+
         private String path;
+
         private Collection<String> values;
 
         public static final class Builder {
+
             private String path;
+
             private Collection<String> values;
 
             public Builder withPath(final String path) {

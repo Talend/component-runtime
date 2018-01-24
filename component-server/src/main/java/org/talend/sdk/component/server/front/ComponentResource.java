@@ -314,44 +314,48 @@ public class ComponentResource {
         }
 
         final Map<String, ErrorPayload> errors = new HashMap<>();
-        List<ComponentDetail> details = Stream.of(ids).map(id -> ofNullable(componentDao.findById(id)).orElseGet(() -> {
-            errors.put(id, new ErrorPayload(COMPONENT_MISSING, "No component '" + id + "'"));
-            return null;
-        })).filter(Objects::nonNull).map(meta -> {
-            final Optional<Container> plugin = manager.findPlugin(meta.getParent().getPlugin());
-            if (!plugin.isPresent()) {
-                errors.put(meta.getId(),
-                        new ErrorPayload(PLUGIN_MISSING, "No plugin '" + meta.getParent().getPlugin() + "'"));
-                return null;
-            }
+        final List<ComponentDetail> details =
+                Stream.of(ids).map(id -> ofNullable(componentDao.findById(id)).orElseGet(() -> {
+                    errors.put(id, new ErrorPayload(COMPONENT_MISSING, "No component '" + id + "'"));
+                    return null;
+                })).filter(Objects::nonNull).map(meta -> {
+                    final Optional<Container> plugin = manager.findPlugin(meta.getParent().getPlugin());
+                    if (!plugin.isPresent()) {
+                        errors.put(meta.getId(),
+                                new ErrorPayload(PLUGIN_MISSING, "No plugin '" + meta.getParent().getPlugin() + "'"));
+                        return null;
+                    }
 
-            final Container container = plugin.get();
+                    final Container container = plugin.get();
 
-            final Optional<DesignModel> model = ofNullable(meta.get(DesignModel.class));
-            if (!model.isPresent()) {
-                errors.put(meta.getId(),
-                        new ErrorPayload(DESIGN_MODEL_MISSING, "No design model '" + meta.getId() + "'"));
-                return null;
-            }
-            ComponentDetail componentDetail = new ComponentDetail();
-            componentDetail.setLinks(emptyList() /* todo ? */);
-            componentDetail.setId(createMetaId(container, meta));
-            componentDetail.setVersion(meta.getVersion());
-            componentDetail.setIcon(meta.getIcon());
-            componentDetail.setInputFlows(model.get().getInputFlows());
-            componentDetail.setOutputFlows(model.get().getOutputFlows());
-            componentDetail.setType(ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor" : "input");
-            final Locale locale = localeMapper.mapLocale(language);
-            componentDetail.setDisplayName(
-                    meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()));
-            componentDetail.setProperties(propertiesService
-                    .buildProperties(meta.getParameterMetas(), container.getLoader(), locale, null)
-                    .collect(toList()));
-            componentDetail
-                    .setActions(findActions(meta.getParent().getName(), getActionReference(meta), container, locale));
+                    final Optional<DesignModel> model = ofNullable(meta.get(DesignModel.class));
+                    if (!model.isPresent()) {
+                        errors.put(meta.getId(),
+                                new ErrorPayload(DESIGN_MODEL_MISSING, "No design model '" + meta.getId() + "'"));
+                        return null;
+                    }
 
-            return componentDetail;
-        }).filter(Objects::nonNull).collect(toList());
+                    final Locale locale = localeMapper.mapLocale(language);
+
+                    final ComponentDetail componentDetail = new ComponentDetail();
+                    componentDetail.setLinks(emptyList() /* todo ? */);
+                    componentDetail.setId(createMetaId(container, meta));
+                    componentDetail.setVersion(meta.getVersion());
+                    componentDetail.setIcon(meta.getIcon());
+                    componentDetail.setInputFlows(model.get().getInputFlows());
+                    componentDetail.setOutputFlows(model.get().getOutputFlows());
+                    componentDetail
+                            .setType(ComponentFamilyMeta.ProcessorMeta.class.isInstance(meta) ? "processor" : "input");
+                    componentDetail.setDisplayName(
+                            meta.findBundle(container.getLoader(), locale).displayName().orElse(meta.getName()));
+                    componentDetail.setProperties(propertiesService
+                            .buildProperties(meta.getParameterMetas(), container.getLoader(), locale, null)
+                            .collect(toList()));
+                    componentDetail.setActions(
+                            findActions(meta.getParent().getName(), getActionReference(meta), container, locale));
+
+                    return componentDetail;
+                }).filter(Objects::nonNull).collect(toList());
 
         if (!errors.isEmpty()) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(errors).build());
@@ -370,7 +374,7 @@ public class ComponentResource {
     }
 
     private ComponentId createMetaId(final Container container, final ComponentFamilyMeta.BaseMeta<Object> meta) {
-        return new ComponentId(meta.getId(), meta.getParent().getPlugin(),
+        return new ComponentId(meta.getId(), meta.getParent().getId(), meta.getParent().getPlugin(),
                 ofNullable(container.get(ComponentManager.OriginalId.class))
                         .map(ComponentManager.OriginalId::getValue)
                         .orElse(container.getId()),
@@ -410,10 +414,11 @@ public class ComponentResource {
         final IconResolver.Icon iconContent = iconResolver.resolve(loader, icon);
         final IconResolver.Icon iconFamilyContent = iconResolver.resolve(loader, familyIcon);
         return new ComponentIndex(
-                new ComponentId(meta.getId(), plugin,
+                new ComponentId(meta.getId(), meta.getParent().getId(), plugin,
                         ofNullable(originalId).map(ComponentManager.OriginalId::getValue).orElse(plugin),
                         meta.getParent().getName(), meta.getName()),
                 meta.findBundle(loader, locale).displayName().orElse(meta.getName()),
+                meta.getParent().findBundle(loader, locale).displayName().orElse(meta.getParent().getName()),
                 new Icon(icon, iconContent == null ? null : iconContent.getType(),
                         !includeIcon ? null : (iconContent == null ? null : iconContent.getBytes())),
                 new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
