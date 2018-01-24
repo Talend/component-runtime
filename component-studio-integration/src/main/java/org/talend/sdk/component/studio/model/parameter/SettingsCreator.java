@@ -315,7 +315,8 @@ public class SettingsCreator implements PropertyVisitor {
             guessSchemaParameter.setFieldType(EParameterFieldType.TACOKIT_GUESS_SCHEMA);
             guessSchemaParameter.setListItemsDisplayName(new String[0]);
             guessSchemaParameter.setListItemsValue(new String[0]);
-            guessSchemaParameter.setName(tacokitGuessSchema);
+            // We need unique names for our parameters(?)
+            guessSchemaParameter.setName(tacokitGuessSchema + "_" + schemaName);
             guessSchemaParameter.setNumRow(SCHEMA_ROW_NUMBER);
             guessSchemaParameter.setParentParameter(schema);
             guessSchemaParameter.setReadOnly(false);
