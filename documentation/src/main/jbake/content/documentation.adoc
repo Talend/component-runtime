@@ -1210,15 +1210,18 @@ TIP: if your payload(s) is(are) `String` or `Void` you can ignore the coder/deco
 ----
 public interface APIClient extends HttpClient {
     @Request(path = "api/records/{id}", method = "GET")
-    @Codec(decoder = RecordDecoder.class) //decoder =  decode return data to Record class
+    @Codec(decoder = RecordDecoder.class) //decoder =  decode returned data to Record class
     Record getRecord(@Header("Authorization") String basicAuth, @Path("id") int id);
 
     @Request(path = "api/records", method = "POST")
-    @Codec(encoder = RecordEncoder.class, decoder = RecordDecoder.class) //encoder = encode record to fit request format (json n this example)
+    @Codec(encoder = RecordEncoder.class, decoder = RecordDecoder.class) //encoder = encode record to fit request format (json in this example)
     Record createRecord(@Header("Authorization") String basicAuth, Record record);
 }
 ----
 IMPORTANT: The interface should extends `HttpClient`.
+
+In the codec classes (class that implement Encoder/Decoder) you can inject any of your services annotated with `@Service` or `@Internationalized` into the constructor.
+The i18n services can be useful to have i18n messages for errors handling for example.
 
 This interface can be injected into our Components classes or Services to consume the defined api.
 [source,java]

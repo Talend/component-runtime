@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Spliterator;
@@ -64,9 +65,9 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
     static final ThreadLocal<State> STATE = new ThreadLocal<>();
 
-    protected String packageName;
-
     private final ThreadLocal<PreState> initState = ThreadLocal.withInitial(PreState::new);
+
+    protected String packageName;
 
     public EmbeddedComponentManager start() {
         final EmbeddedComponentManager embeddedComponentManager = new EmbeddedComponentManager(packageName) {
@@ -81,6 +82,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                 }
             }
         };
+
         STATE.set(new State(embeddedComponentManager, new ArrayList<>(), initState.get().emitter));
         return embeddedComponentManager;
     }
@@ -93,13 +95,10 @@ public class BaseComponentsHandler implements ComponentsHandler {
     /**
      * Collects all outputs of a processor.
      *
-     * @param processor
-     * the processor to run while there are inputs.
-     * @param inputs
-     * the input factory, when an input will return null it will stop the
-     * processing.
-     * @param bundleSize
-     * the bundle size to use.
+     * @param processor  the processor to run while there are inputs.
+     * @param inputs     the input factory, when an input will return null it will stop the
+     *                   processing.
+     * @param bundleSize the bundle size to use.
      * @return a map where the key is the output name and the value a stream of the
      * output values.
      */
@@ -134,17 +133,12 @@ public class BaseComponentsHandler implements ComponentsHandler {
      * IMPORTANT: don't forget to consume all the stream to ensure the underlying
      * { @see org.talend.sdk.component.runtime.input.Input} is closed.
      *
-     * @param recordType
-     * the record type to use to type the returned type.
-     * @param mapper
-     * the mapper to go through.
-     * @param maxRecords
-     * maximum number of records, allows to stop the source when
-     * infinite.
-     * @param concurrency
-     * requested (1 can be used instead if &lt;= 0) concurrency for the reader execution.
-     * @param <T>
-     * the returned type of the records of the mapper.
+     * @param recordType  the record type to use to type the returned type.
+     * @param mapper      the mapper to go through.
+     * @param maxRecords  maximum number of records, allows to stop the source when
+     *                    infinite.
+     * @param concurrency requested (1 can be used instead if &lt;= 0) concurrency for the reader execution.
+     * @param <T>         the returned type of the records of the mapper.
      * @return all the records emitted by the mapper.
      */
     @Override
@@ -362,6 +356,23 @@ public class BaseComponentsHandler implements ComponentsHandler {
         return STATE.get().manager;
     }
 
+    public <T> T findService(final String plugin, final Class<T> serviceClass) {
+        return serviceClass.cast(asManager().findPlugin(plugin)
+                .orElseThrow(() -> new IllegalArgumentException("cant find plugin '" + plugin + "'"))
+                .get(ComponentManager.AllServices.class)
+                .getServices()
+                .get(serviceClass));
+    }
+
+    public <T> T findService(final Class<T> serviceClass) {
+        return findService(Optional.of(getTestPlugins()).filter(c -> !c.isEmpty()).map(c -> c.iterator().next())
+                .orElseThrow(() -> new IllegalStateException("No component plugin found")), serviceClass);
+    }
+
+    public Set<String> getTestPlugins() {
+        return EmbeddedComponentManager.class.cast(asManager()).testPlugins;
+    }
+
     @Override
     public <T> void setInputData(final Iterable<T> data) {
         initState.get().emitter = data.iterator();
@@ -387,13 +398,15 @@ public class BaseComponentsHandler implements ComponentsHandler {
         final Iterator<?> emitter;
     }
 
-    protected static class EmbeddedComponentManager extends ComponentManager {
+    public static class EmbeddedComponentManager extends ComponentManager {
 
         private final ComponentManager oldInstance;
 
+        private final Set<String> testPlugins;
+
         private EmbeddedComponentManager(final String componentPackage) {
             super(findM2(), "TALEND-INF/dependencies.txt", "org.talend.sdk.component:type=component,value=%s");
-            addJarContaining(Thread.currentThread().getContextClassLoader(), componentPackage.replace('.', '/'));
+            testPlugins = addJarContaining(Thread.currentThread().getContextClassLoader(), componentPackage.replace('.', '/'));
             container.create("component-runtime-junit.jar", jarLocation(SimpleCollector.class).getAbsolutePath());
             oldInstance = CONTEXTUAL_INSTANCE.get();
             CONTEXTUAL_INSTANCE.set(this);
@@ -416,7 +429,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
              * value.startsWith("org.talend.sdk.component.junit");
              */
             return true; // embedded mode (no plugin structure) so just run with all classes in parent
-                         // classloader
+            // classloader
         }
     }
 

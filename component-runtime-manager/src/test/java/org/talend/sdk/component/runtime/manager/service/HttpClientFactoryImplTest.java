@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +31,12 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpServer;
+
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.internationalization.Internationalized;
+import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.http.Codec;
 import org.talend.sdk.component.api.service.http.Decoder;
 import org.talend.sdk.component.api.service.http.Encoder;
@@ -41,9 +47,8 @@ import org.talend.sdk.component.api.service.http.Path;
 import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
-
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpServer;
+import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
+import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -96,7 +101,9 @@ public class HttpClientFactoryImplTest {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
-            final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
+            final ComplexOk ok =
+                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()), emptyMap())
+                            .create(ComplexOk.class, null);
             ok.base("http://localhost:" + server.getAddress().getPort() + "/api");
 
             final String result = ok.main4(new Payload("test"), "token", 1, "search yes").value;
@@ -114,7 +121,9 @@ public class HttpClientFactoryImplTest {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
-            final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
+            final ComplexOk ok =
+                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()), emptyMap())
+                            .create(ComplexOk.class, null);
             ok.base("http://localhost:" + server.getAddress().getPort() + "/api");
 
             final String result = ok.defaultMain1(new Payload("test"), "search yes").value;
@@ -140,7 +149,9 @@ public class HttpClientFactoryImplTest {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_FORBIDDEN);
         try {
             server.start();
-            final ComplexOk ok = new HttpClientFactoryImpl("test").create(ComplexOk.class, null);
+            final ComplexOk ok =
+                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()), emptyMap())
+                            .create(ComplexOk.class, null);
             ok.base("http://localhost:" + server.getAddress().getPort() + "/api");
             ok.main1("search yes");
         } catch (final HttpException e) {
@@ -243,6 +254,20 @@ public class HttpClientFactoryImplTest {
 
         @Request
         Response<Void> main();
+    }
+
+    @Internationalized
+    public interface MyI18nService {
+
+        String error();
+    }
+
+    @Service
+    public static class MyService {
+
+        public void doSomething() {
+
+        }
     }
 
     @Data

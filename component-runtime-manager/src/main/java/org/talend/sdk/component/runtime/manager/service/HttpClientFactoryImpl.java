@@ -16,12 +16,14 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Stream.of;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.io.BufferedOutputStream;
@@ -31,6 +33,7 @@ import java.io.InputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -49,15 +52,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
-import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.http.Codec;
 import org.talend.sdk.component.api.service.http.Configurer;
 import org.talend.sdk.component.api.service.http.ConfigurerOption;
@@ -73,11 +75,14 @@ import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.api.service.http.UseConfigurer;
+import org.talend.sdk.component.runtime.manager.reflect.Constructors;
 import org.talend.sdk.component.runtime.manager.reflect.Copiable;
+import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.reflect.Defaults;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @AllArgsConstructor
@@ -89,11 +94,14 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
     private final String plugin;
 
+    private final ReflectionService reflections;
+
+    private final Map<Class<?>, Object> services;
+
     public static <T> Collection<String> createErrors(final Class<T> api) {
         final Collection<String> errors = new ArrayList<>();
         final Collection<Method> methods =
-                Stream.of(api.getMethods()).filter(m -> m.getDeclaringClass() == api && !m.isDefault()).collect(
-                        toList());
+                of(api.getMethods()).filter(m -> m.getDeclaringClass() == api && !m.isDefault()).collect(toList());
 
         if (!HttpClient.class.isAssignableFrom(api)) {
             errors.add(api.getCanonicalName() + " should extends HttpClient");
@@ -105,9 +113,8 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 .collect(toList()));
         errors.addAll(methods.stream().filter(m -> {
             final Codec codec = m.getAnnotation(Codec.class);
-            return (codec == null || codec.encoder().length == 0) && Stream
-                    .of(m.getParameters())
-                    .filter(p -> Stream.of(Path.class, Query.class, Header.class).noneMatch(p::isAnnotationPresent))
+            return (codec == null || codec.encoder().length == 0) && of(m.getParameters())
+                    .filter(p -> of(Path.class, Query.class, Header.class).noneMatch(p::isAnnotationPresent))
                     .anyMatch(p -> isNotSupportedByDefaultCodec(p.getParameterizedType()));
         }).map(m -> m + " defines a request payload without an adapted coder").collect(toList()));
         errors.addAll(methods.stream().filter(m -> {
@@ -198,7 +205,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             throw new IllegalArgumentException(api + " is not an interface");
         }
         validate(api);
-        final HttpHandler handler = new HttpHandler();
+        final HttpHandler handler = new HttpHandler(plugin, reflections, services);
         final T instance = api.cast(Proxy.newProxyInstance(api.getClassLoader(),
                 new Class<?>[] { api, HttpClient.class, Serializable.class, Copiable.class }, handler));
         HttpClient.class.cast(instance).base(base);
@@ -214,10 +221,11 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
     }
 
     Object writeReplace() throws ObjectStreamException {
-        return new SerializableService(plugin, LocalCache.class.getName());
+        return new SerializableService(plugin, HttpClientFactory.class.getName());
     }
 
     @ToString
+    @RequiredArgsConstructor
     private static class HttpHandler implements InvocationHandler, Serializable {
 
         private static final Object[] EMPTY_ARRAY = new Object[0];
@@ -236,6 +244,12 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     }
                 };
 
+        private final String plugin;
+
+        private final ReflectionService reflections;
+
+        private final Map<Class<?>, Object> services;
+
         private String base;
 
         private volatile ConcurrentMap<Method, Function<Object[], Object>> invokers;
@@ -243,7 +257,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             if (Copiable.class == method.getDeclaringClass()) {
-                final HttpHandler httpHandler = new HttpHandler();
+                final HttpHandler httpHandler = new HttpHandler(plugin, reflections, services);
                 httpHandler.base = base;
                 return Proxy.newProxyInstance(proxy.getClass().getClassLoader(), proxy.getClass().getInterfaces(),
                         httpHandler);
@@ -278,7 +292,6 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     throw new UnsupportedOperationException("HttpClient." + methodName);
                 }
             }
-
             if (invokers == null) {
                 synchronized (this) {
                     if (invokers == null) {
@@ -286,10 +299,15 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     }
                 }
             }
+            return invokers
+                    .computeIfAbsent(method,
+                            m -> createInvoker(m, args).orElseGet(() -> params -> delegate(method, args)))
+                    .apply(args);
+        }
 
-            return invokers.computeIfAbsent(method, m -> ofNullable(m.getAnnotation(Request.class)).map(request -> {
-                final Codec codec = ofNullable(m.getAnnotation(Codec.class))
-                        .orElseGet(() -> m.getDeclaringClass().getAnnotation(Codec.class));
+        private Optional<Function<Object[], Object>> createInvoker(final Method m, final Object[] args) {
+            return ofNullable(m.getAnnotation(Request.class)).map(request -> {
+
                 final UseConfigurer configurer = ofNullable(m.getAnnotation(UseConfigurer.class))
                         .orElseGet(() -> m.getDeclaringClass().getAnnotation(UseConfigurer.class));
                 final Configurer configurerInstance;
@@ -300,10 +318,15 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 } catch (final InvocationTargetException e) {
                     throw toRuntimeException(e);
                 }
-                final Map<String, Encoder> encoders = createEncoder(codec);
-                final Map<String, Decoder> decoders = createDecoder(codec);
 
-                // precompute the execution (kind of compile phase)
+                final Codec codec = ofNullable(m.getAnnotation(Codec.class))
+                        .orElseGet(() -> m.getDeclaringClass().getAnnotation(Codec.class));
+
+                // create codec instances
+                final Map<String, Encoder> encoders = createEncoder(codec, services);
+                final Map<String, Decoder> decoders = createDecoder(codec, services);
+
+                // preCompute the execution (kind of compile phase)
                 String path = request.path();
                 if (path.startsWith("/")) {
                     path = path.substring(1);
@@ -321,23 +344,8 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     final int index = i;
                     if (parameters[i].isAnnotationPresent(Path.class)) {
                         final Path annotation = parameters[i].getAnnotation(Path.class);
-                        final String placeholder = "{" + annotation.value() + '}';
-                        final boolean encode = annotation.encode();
-                        pathReplacements.add((p, params) -> {
-                            String out = p;
-                            int start;
-                            do {
-                                start = out.indexOf(placeholder);
-                                if (start >= 0) {
-                                    String value = String.valueOf(args[index]);
-                                    if (encode) {
-                                        value = pathEncode(value);
-                                    }
-                                    out = out.substring(0, start) + value + out.substring(start + placeholder.length());
-                                }
-                            } while (start >= 0);
-                            return out;
-                        });
+                        pathReplacements.add((p, params) -> replacePlaceholder(p, '{' + annotation.value() + '}',
+                                String.valueOf(args[index]), annotation.encode()));
                     } else if (parameters[i].isAnnotationPresent(Query.class)) {
                         final Query annotation = parameters[i].getAnnotation(Query.class);
                         final String queryName = annotation.value();
@@ -461,7 +469,31 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         throw new IllegalStateException(e);
                     }
                 };
-            }).orElseGet(() -> params -> delegate(method, args))).apply(args);
+            });
+        }
+
+        /**
+         * @param original : string with placeholders
+         * @param placeholder the placeholder to be replaced
+         * @param value the replacement value
+         * @param encode true if the value need to be encoded
+         * @return a new string with the placeholder replaced by value
+         */
+        private String replacePlaceholder(final String original, final String placeholder, final String value,
+                final boolean encode) {
+            String out = original;
+            int start;
+            do {
+                start = out.indexOf(placeholder);
+                if (start >= 0) {
+                    String replacement = value;
+                    if (encode) {
+                        replacement = pathEncode(replacement);
+                    }
+                    out = out.substring(0, start) + replacement + out.substring(start + placeholder.length());
+                }
+            } while (start >= 0);
+            return out;
         }
 
         private Map<String, List<String>> headers(final HttpURLConnection urlConnection) {
@@ -481,7 +513,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             }
         }
 
-        private Map<String, Encoder> createEncoder(final Codec codec) {
+        private Map<String, Encoder> createEncoder(final Codec codec, final Map<Class<?>, Object> services) {
             if (codec == null || codec.decoder().length == 0) {
                 return singletonMap("*/*",
                         value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
@@ -489,14 +521,15 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
             return stream(codec.encoder())
                     .filter(Objects::nonNull)
-                    .filter(encoder -> encoder != Encoder.class)
                     .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
                             ? encoder.getAnnotation(ContentType.class).value()
                             : "*/*", encoder -> {
                                 try {
-                                    return encoder.getConstructor().newInstance();
-                                } catch (final InstantiationException | IllegalAccessException
-                                        | NoSuchMethodException e) {
+                                    final Constructor<?> constructor = Constructors.findConstructor(encoder);
+                                    final Function<Map<String, String>, Object[]> paramFactory =
+                                            reflections.parameterFactory(constructor, services);
+                                    return Encoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                } catch (final InstantiationException | IllegalAccessException e) {
                                     throw new IllegalArgumentException(e);
                                 } catch (final InvocationTargetException e) {
                                     throw toRuntimeException(e);
@@ -507,21 +540,22 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
         }
 
-        private Map<String, Decoder> createDecoder(final Codec codec) {
+        private Map<String, Decoder> createDecoder(final Codec codec, final Map<Class<?>, Object> services) {
             if (codec == null || codec.decoder().length == 0) {
                 return singletonMap("*/*", (value, expectedType) -> new String(value));
             }
 
             return stream(codec.decoder())
                     .filter(Objects::nonNull)
-                    .filter(decoder -> decoder != Decoder.class)
                     .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
                             ? decoder.getAnnotation(ContentType.class).value()
                             : "*/*", decoder -> {
                                 try {
-                                    return decoder.getConstructor().newInstance();
-                                } catch (final InstantiationException | IllegalAccessException
-                                        | NoSuchMethodException e) {
+                                    final Constructor<?> constructor = Constructors.findConstructor(decoder);
+                                    final Function<Map<String, String>, Object[]> paramFactory =
+                                            reflections.parameterFactory(constructor, services);
+                                    return Decoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                } catch (final InstantiationException | IllegalAccessException e) {
                                     throw new IllegalArgumentException(e);
                                 } catch (final InvocationTargetException e) {
                                     throw toRuntimeException(e);
