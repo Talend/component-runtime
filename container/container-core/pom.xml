@@ -29,11 +29,7 @@
   <description>The classloader manager and implementation supporting isolation between components.</description>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
     <talend.build.name>${talend.build.name.base}.container</talend.build.name>
-
-    <slf4j.version>1.7.25</slf4j.version>
   </properties>
 
   <dependencies>

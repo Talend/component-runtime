@@ -30,10 +30,6 @@
   <name>Component Runtime :: Form</name>
   <description>Umbrella parent for the Web UI representation of the properties of the components.</description>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-
   <modules>
     <module>component-form-core</module>
     <module>component-form-demo</module>
