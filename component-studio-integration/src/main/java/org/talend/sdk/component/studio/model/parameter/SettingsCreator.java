@@ -261,13 +261,15 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     protected TaCoKitElementParameter createSchemaParameter(final String connectionName, final String schemaName) {
+        //Maybe need to find some other condition. this way we will show schema widget for main flow only.
+        boolean show = EConnectionType.FLOW_MAIN.getName().equalsIgnoreCase(connectionName);
         TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
         schema.setName(schemaName);
         schema.setDisplayName("!!!SCHEMA.NAME!!!");
         schema.setCategory(EComponentCategory.BASIC);
         schema.setFieldType(EParameterFieldType.SCHEMA_TYPE);
         schema.setNumRow(SCHEMA_ROW_NUMBER);
-        schema.setShow(true);
+        schema.setShow(show);
         schema.setReadOnly(false);
         schema.setRequired(true);
         schema.setContext(connectionName);
@@ -285,7 +287,7 @@ public class SettingsCreator implements PropertyVisitor {
         childParameter1.setName(EParameterName.SCHEMA_TYPE.getName());
         childParameter1.setNumRow(1);
         childParameter1.setParentParameter(schema);
-        childParameter1.setShow(true);
+        childParameter1.setShow(show);
         childParameter1.setShowIf("SCHEMA =='REPOSITORY'");
         childParameter1.setValue("BUILT_IN");
         schema.getChildParameters().put(EParameterName.SCHEMA_TYPE.getName(), childParameter1);
@@ -300,7 +302,7 @@ public class SettingsCreator implements PropertyVisitor {
         childParameter2.setName(EParameterName.REPOSITORY_SCHEMA_TYPE.getName());
         childParameter2.setParentParameter(schema);
         childParameter2.setRequired(true);
-        childParameter2.setShow(false);
+        childParameter2.setShow(show);
         childParameter2.setValue("");
         schema.getChildParameters().put(EParameterName.REPOSITORY_SCHEMA_TYPE.getName(), childParameter2);
 
@@ -318,7 +320,7 @@ public class SettingsCreator implements PropertyVisitor {
             guessSchemaParameter.setParentParameter(schema);
             guessSchemaParameter.setReadOnly(false);
             guessSchemaParameter.setRequired(false);
-            guessSchemaParameter.setShow(true);
+            guessSchemaParameter.setShow(show);
             guessSchemaParameter.setValue("");
             guessSchemaParameter.getChildParameters().put(tacokitGuessSchema, guessSchemaParameter);
         }
