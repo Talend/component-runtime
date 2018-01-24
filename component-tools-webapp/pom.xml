@@ -39,6 +39,12 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-form-core</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.talend.sdk.component</groupId>
+          <artifactId>component-server</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
@@ -75,7 +81,7 @@
         <executions>
           <execution>
             <id>copy-component-kit.js</id>
-            <phase>generate-resources</phase>
+            <phase>process-sources</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
@@ -134,7 +140,7 @@
         <executions>
           <execution>
             <id>install-node-and-yarn</id>
-            <phase>generate-resources</phase>
+            <phase>generate-sources</phase>
             <goals>
               <goal>install-node-and-yarn</goal>
             </goals>
@@ -145,7 +151,7 @@
           </execution>
           <execution>
             <id>yarn-install</id>
-            <phase>generate-resources</phase>
+            <phase>generate-sources</phase>
             <goals>
               <goal>yarn</goal>
             </goals>
