@@ -13,14 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore } from 'redux';
+import { Provider } from 'react-redux';
 import '@talend/bootstrap-theme/src/theme/theme.scss';
 import store from './store';
 
-import App from './App';
+import App from './components/App';
 
 ReactDOM.render(
-  <App store={store} />,
-  document.getElementById('component-kit-tools-webapp'));
+	<Provider store={store}>
+		<App />
+	</Provider>,
+	document.getElementById('component-kit-tools-webapp')
+);

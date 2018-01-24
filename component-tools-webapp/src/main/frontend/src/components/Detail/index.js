@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-.Detail {
-  padding-left: 10px;
-}
+
+import Detail from './Detail.connect';
+
+export default Detail;

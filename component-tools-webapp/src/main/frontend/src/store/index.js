@@ -14,8 +14,11 @@
  *  limitations under the License.
  */
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-}
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import reducers from './reducers';
+
+export default createStore(
+	reducers,
+	applyMiddleware(thunk)
+);

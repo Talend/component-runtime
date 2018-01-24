@@ -13,26 +13,35 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import React from 'react';
-import { IconsProvider, HeaderBar } from '@talend/react-components';
 
-import Main from './Main';
+import React from 'react';
+import { IconsProvider, HeaderBar, Layout } from '@talend/react-components';
+
+import Menu from '../Menu';
+import Detail from '../Detail';
 
 import theme from './App.scss';
 
-export default class App extends React.Component {
-  render() {
-    return (
-      <div className={theme.App}>
-        <IconsProvider/>
+export default function App() {
+	const header = (
+		<HeaderBar logo={{ isFull: true }} brand={{
+			id: 'header-brand',
+			label: 'Talend Component Kit Web Tester'
+		}}/>
+	);
+	const menu = (<Menu />);
 
-        <div className={theme.header}>
-          <HeaderBar logo={{ isFull: true }} brand={{ id: 'header-brand', label: 'Talend Component Kit Web Tester' }} />
-        </div>
-        <div className={theme.content}>
-          <Main store={this.props.store} />
-        </div>
-      </div>
-    );
-  }
+	return (
+		<div className={theme.App}>
+			<IconsProvider/>
+
+			<Layout
+				mode={'TwoColumns'}
+			    header={header}
+			    one={menu}
+			>
+				<Detail />
+			</Layout>
+		</div>
+	);
 }

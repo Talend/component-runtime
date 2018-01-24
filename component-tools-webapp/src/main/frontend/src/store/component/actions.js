@@ -1,0 +1,83 @@
+/**
+ *  Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+import {
+	GET_COMPONENT_LOADING,
+	GET_COMPONENT_ERROR,
+	GET_COMPONENT_OK,
+	SELECT_COMPONENT_NODE,
+	BACK_TO_COMPONENT_EDIT,
+	SUBMIT_COMPONENT,
+} from '../constants';
+
+export function isLoadingComponent() {
+	return {
+		type: GET_COMPONENT_LOADING,
+	};
+}
+
+export function getComponentOK(uiSpec) {
+	return {
+		type: GET_COMPONENT_OK,
+		uiSpec,
+	};
+}
+
+export function getComponentERROR(error) {
+	return {
+		type: GET_COMPONENT_ERROR,
+		error: error,
+	};
+}
+
+export function backToComponentEdit(event, properties) {
+	return {
+		type: BACK_TO_COMPONENT_EDIT,
+		event,
+		properties,
+	};
+}
+
+export function submitComponent(event, properties) {
+	return {
+		type: SUBMIT_COMPONENT,
+		event,
+		properties,
+	};
+}
+
+export function selectNode(node) {
+	return {
+		type: SELECT_COMPONENT_NODE,
+		node,
+	};
+}
+
+export function selectComponent(node) {
+	return dispatch => {
+		dispatch(selectNode(node));
+
+		if (node.$$type !== 'component') {
+			return;
+		}
+
+		dispatch(isLoadingComponent());
+		fetch(`api/v1${node.$$detail}`)
+			.then(resp => resp.json())
+			.then(resp => dispatch(getComponentOK(resp)))
+			.catch(error => dispatch(getComponentERROR(error)))
+	};
+}

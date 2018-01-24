@@ -8,10 +8,10 @@
     "watch": "webpack --config webpack.config --bail --progress --colors --watch --display-error-details --display-chunks"
   },
   "dependencies": {
-    "@talend/bootstrap-theme": "0.144.0",
-    "@talend/icons": "0.144.0",
-    "@talend/react-components": "0.144.0",
-    "@talend/react-forms": "0.144.0",
+    "@talend/bootstrap-theme": "0.148.0",
+    "@talend/icons": "0.148.0",
+    "@talend/react-components": "0.148.0",
+    "@talend/react-forms": "0.148.0",
     "bootstrap-sass": "3.3.7",
     "classnames": "2.2.5",
     "i18next": "9.0.0",
@@ -20,6 +20,7 @@
     "lodash": "4.17.4",
     "prop-types": "15.5.10",
     "react": "15.6.2",
+    "react-ace": "5.2.0",
     "react-addons-css-transition-group": "15.6.2",
     "react-bootstrap": "0.31.5",
     "react-css-transition": "^0.7.4",
@@ -27,8 +28,8 @@
     "react-i18next": "5.2.0",
     "react-redux": "5.0.5",
     "react-router-dom": "4.2.2",
-    "react-ace": "5.2.0",
     "redux": "3.6.0",
+    "redux-thunk": "^2.2.0",
     "uuid": "3.0.1",
     "whatwg-fetch": "2.0.3"
   },

@@ -14,8 +14,6 @@
  *  limitations under the License.
  */
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-}
+import App from './App.component';
+
+export default App;

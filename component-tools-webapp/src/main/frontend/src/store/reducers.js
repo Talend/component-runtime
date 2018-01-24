@@ -14,8 +14,12 @@
  *  limitations under the License.
  */
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+import componentsList from './componentsList/reducers';
+import component from './component/reducers';
+
+export default (state = {}, action) => {
+	return {
+		componentsList: componentsList(state.componentsList, action),
+		component: component(state.component, action),
+	};
 }

@@ -13,31 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-.Main {
-  display: flex;
-  flex-direction: row;
-  flex-grow: 1;
-  height: 100%;
 
-  .TreeView {
-    width: 300px;
-    border: 1px solid #eee;
-    flex-grow: 0 1;
+.menu {
+	width: 300px;
 
-    li {
-      > div {
-        padding: 0px 5px 0px 5px;
-        height: 30px;
-
-        > svg:last-of-type {
-          width: 20px !important;
-          height: 20px !important;
-        }
-      }
-    }
-  }
-
-  .Detail {
-    flex-grow: 1;
-  }
+	li {
+		> div {
+			padding: 0 5px 0 5px;
+			height: 30px;
+		}
+	}
 }

@@ -13,22 +13,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-class Api {
-  get(link) {
-    return fetch(`api/v1${link}`)
-      .then(resp => resp.json());
-  }
 
-  getIcon(link) {
-    return fetch(`api/v1${link}`)
-      .then(resp => resp.arrayBuffer())
-      .then(buffer => btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')));
-  }
+import { GET_ICON } from '../constants';
 
-  loadComponents() {
-    return fetch('api/v1/application/index')
-      .then(resp => resp.json());
-  }
+function getIconOK(icon) {
+	return {
+		type: GET_ICON,
+		icon,
+	};
 }
 
-export default new Api();
+export function getIcon(link) {
+	return dispatch => {
+		fetch(`api/v1${link}`)
+			.then(resp => resp.arrayBuffer())
+			.then(buffer => btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')))
+			.then(icon => dispatch(getIconOK(icon)));
+	}
+}

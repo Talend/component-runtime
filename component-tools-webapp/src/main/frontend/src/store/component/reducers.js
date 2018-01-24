@@ -13,9 +13,43 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
+import {
+	GET_COMPONENT_LOADING,
+	GET_COMPONENT_OK,
+	BACK_TO_COMPONENT_EDIT,
+	SUBMIT_COMPONENT,
+} from '../constants';
+
 export default (state = {}, action) => {
-  if (action.data) {
-    return { ...state, ...action.data };
-  }
-  return state;
+	switch (action.type) {
+		case GET_COMPONENT_LOADING:
+			return {
+				...state,
+				isLoading: true,
+			};
+		case GET_COMPONENT_OK:
+			return {
+				...state,
+				uiSpec: action.uiSpec,
+				isLoading: false,
+				submitted: false,
+			};
+		case SUBMIT_COMPONENT:
+			return {
+				...state,
+				uiSpec: {
+					...state.uiSpec,
+					properties: action.properties,
+				},
+				submitted: true,
+			};
+		case BACK_TO_COMPONENT_EDIT:
+			return {
+				...state,
+				submitted: false,
+			};
+		default:
+			return state;
+	}
 }

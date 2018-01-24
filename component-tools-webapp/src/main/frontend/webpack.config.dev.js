@@ -29,4 +29,15 @@ config.watchOptions = {
 	poll: 1000,
 };
 
+config.devServer = {
+	proxy: {
+		'/api': {
+			target: process.env.API_URL || 'http://localhost:10101',
+			changeOrigin: true,
+			secure: false,
+		},
+	},
+	historyApiFallback: true,
+};
+
 module.exports = config;

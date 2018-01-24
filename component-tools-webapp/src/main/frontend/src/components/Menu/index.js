@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import { createStore } from 'redux';
-import reducers from './reducers';
 
-export default createStore(reducers , {});
+import Menu from './Menu.connect';
+
+export default Menu;

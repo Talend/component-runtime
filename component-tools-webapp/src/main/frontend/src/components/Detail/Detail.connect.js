@@ -13,26 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { TreeView, IconsProvider } from '@talend/react-components';
 
-import Menu from './Menu';
-import Detail from './Detail';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { submitComponent, backToComponentEdit } from '../../store/component/actions';
 
-import theme from './Main.scss';
+import Detail from './Detail.component';
 
-export default class Main extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <div className={theme.Main}>
-        <Menu className={theme.TreeView} store={this.props.store} />
-        <Detail className={theme.Detail} store={this.props.store} />
-      </div>
-    );
-  }
+function mapStateToProps(state) {
+	return state.component;
 }
+
+function mapDispatchToProps(dispatch) {
+	return {
+		backToComponentEdit: bindActionCreators(backToComponentEdit, dispatch),
+		onSubmit: bindActionCreators(submitComponent, dispatch),
+	};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Detail);
