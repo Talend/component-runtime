@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
@@ -30,6 +31,7 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashMap;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
@@ -76,16 +78,16 @@ public class HttpClientFactoryImplTest {
     @Test
     void decoderKo() {
         assertEquals(singletonList("public abstract "
-                + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$Payload "
-                + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$DecoderKo.main(java.lang.String) "
-                + "defines a response payload without an adapted coder"),
+                        + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$Payload "
+                        + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$DecoderKo.main(java.lang.String) "
+                        + "defines a response payload without an adapted coder"),
                 HttpClientFactoryImpl.createErrors(DecoderKo.class));
     }
 
     @Test
     void methodKo() {
         assertEquals(singletonList("No @Request on public abstract java.lang.String "
-                + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$MethodKo.main(java.lang.String)"),
+                        + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$MethodKo.main(java.lang.String)"),
                 HttpClientFactoryImpl.createErrors(MethodKo.class));
     }
 
@@ -145,6 +147,27 @@ public class HttpClientFactoryImplTest {
     }
 
     @Test
+    void decoderWithServices() throws IOException {
+        final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
+        try {
+            server.start();
+            final DecoderWithService client =
+                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
+                            new HashMap<Class<?>, Object>() {{
+                                put(MyService.class, new MyService());
+                                put(MyI18nService.class, (MyI18nService) () -> "error from i18n service");
+                            }})
+                            .create(DecoderWithService.class, null);
+            client.base("http://localhost:" + server.getAddress().getPort() + "/api");
+
+            assertThrows(IllegalStateException.class, () -> client.error("search yes"));
+            assertEquals(MyService.class.getCanonicalName(), client.ok().value);
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
     void handleHttpError() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_FORBIDDEN);
         try {
@@ -177,14 +200,14 @@ public class HttpClientFactoryImplTest {
                     new BufferedReader(new InputStreamReader(httpExchange.getRequestBody(), StandardCharsets.UTF_8))) {
                 bytes = (httpExchange.getRequestMethod() + "@"
                         + headers
-                                .keySet()
-                                .stream()
-                                .sorted()
-                                .filter(k -> !asList("Accept", "Host", "User-agent").contains(k))
-                                .map(k -> k + "=" + headers.getFirst(k))
-                                .collect(joining("/"))
+                        .keySet()
+                        .stream()
+                        .sorted()
+                        .filter(k -> !asList("Accept", "Host", "User-agent").contains(k))
+                        .map(k -> k + "=" + headers.getFirst(k))
+                        .collect(joining("/"))
                         + "@" + httpExchange.getRequestURI().toASCIIString() + "@" + in.lines().collect(joining("\n")))
-                                .getBytes(StandardCharsets.UTF_8);
+                        .getBytes(StandardCharsets.UTF_8);
             }
             httpExchange.sendResponseHeaders(responseStatus, bytes.length);
             httpExchange.getResponseBody().write(bytes);
@@ -200,7 +223,7 @@ public class HttpClientFactoryImplTest {
         String main1(String ok);
 
         @Request
-        @Codec(decoder = PayloadCodec.class)
+        @Codec(decoder = { PayloadCodec.class })
         Payload main2(String ok);
 
         @Request(method = "POST")
@@ -231,6 +254,17 @@ public class HttpClientFactoryImplTest {
 
         @Request
         String main(Payload payload);
+    }
+
+    public interface DecoderWithService extends HttpClient {
+
+        @Request
+        @Codec(decoder = CodecWithService.class, encoder = CodecWithService.class)
+        Payload error(String ok);
+
+        @Request
+        @Codec(decoder = CodecWithService.class)
+        Payload ok();
     }
 
     public interface MethodKo extends HttpClient {
@@ -265,8 +299,8 @@ public class HttpClientFactoryImplTest {
     @Service
     public static class MyService {
 
-        public void doSomething() {
-
+        public String decode() {
+            return MyService.class.getCanonicalName();
         }
     }
 
@@ -288,6 +322,24 @@ public class HttpClientFactoryImplTest {
         @Override
         public byte[] encode(final Object value) {
             return Payload.class.cast(value).value.getBytes(StandardCharsets.UTF_8);
+        }
+    }
+
+    @AllArgsConstructor
+    public static class CodecWithService implements Decoder, Encoder {
+
+        public final MyService myService;
+
+        public final MyI18nService myI18nService;
+
+        @Override
+        public Object decode(final byte[] value, final Type expectedType) {
+            return new Payload(myService.decode());
+        }
+
+        @Override
+        public byte[] encode(final Object value) {
+            throw new IllegalStateException(myI18nService.error());
         }
     }
 }
