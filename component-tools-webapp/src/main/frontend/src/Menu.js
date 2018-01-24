@@ -99,7 +99,7 @@ export default class Menu extends React.Component {
               // todo: better handling of svg when we'll support svg as a first citizen image format
               const content = (
                 <svg xmlns="http://www.w3.org/2000/svg">
-                  <image href={`data:${icons[id].config.customIconType};base64,${icon}`}/>
+                  <image href={`data:${icons[id].config.customIconType};base64,${icon}`} height="20px" width="20px" />
                 </svg>
               );
 
