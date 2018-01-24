@@ -82,7 +82,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: './index.html',
       template: './src/public/index.html',
-      title: 'Talend Web App Name',
+      title: 'Talend Components Dev Tester',
     })
   ],
 };
