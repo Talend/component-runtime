@@ -238,7 +238,7 @@ public class ComponentModel extends AbstractBasicComponent {
     @Override // TODO This is dummy implementation. Correct impl should be added soon
     public List<? extends IElementParameter> createElementParameters(final INode node) {
         ElementParameterCreator creator = new ElementParameterCreator(this, detail, node);
-        List<IElementParameter> parameters = (List<IElementParameter>) creator.createParameters(node);
+        List<IElementParameter> parameters = (List<IElementParameter>) creator.createParameters();
         return parameters;
     }
 

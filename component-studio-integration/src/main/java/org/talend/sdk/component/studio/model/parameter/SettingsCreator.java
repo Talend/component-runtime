@@ -261,7 +261,7 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     protected TaCoKitElementParameter createSchemaParameter(final String connectionName, final String schemaName) {
-        //Maybe need to find some other condition. this way we will show schema widget for main flow only.
+        // Maybe need to find some other condition. this way we will show schema widget for main flow only.
         boolean show = EConnectionType.FLOW_MAIN.getName().equalsIgnoreCase(connectionName);
         TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
         schema.setName(schemaName);

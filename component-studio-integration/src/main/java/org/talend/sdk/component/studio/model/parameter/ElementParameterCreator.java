@@ -33,6 +33,7 @@ import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IConnectionCategory;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
+import org.talend.core.model.process.INodeConnector;
 import org.talend.core.prefs.ITalendCorePrefConstants;
 import org.talend.core.ui.component.ComponentsFactoryProvider;
 import org.talend.designer.core.model.components.AbstractBasicComponent;
@@ -84,13 +85,13 @@ public class ElementParameterCreator {
         }
     }
 
-    public List<? extends IElementParameter> createParameters(final INode node) {
+    public List<? extends IElementParameter> createParameters() {
         addCommonParameters();
-        addComponentParameters(node);
+        addComponentParameters();
         return parameters;
     }
 
-    private void addComponentParameters(final INode node) {
+    private void addComponentParameters() {
         if (!properties.isEmpty()) {
             PropertyNode root = new PropertyTreeCreator(new WidgetTypeMapper()).createPropertyTree(properties);
             // add main parameters
@@ -101,7 +102,7 @@ public class ElementParameterCreator {
             SettingsCreator advancedCreator = new SettingsCreator(node, ADVANCED, updateComponentsParameter);
             root.accept(advancedCreator, Metadatas.ADVANCED_FORM);
             parameters.addAll(advancedCreator.getSettings());
-            checkSchemaProperties(node, mainSettingsCreator);
+            checkSchemaProperties(mainSettingsCreator);
         }
     }
 
@@ -109,15 +110,14 @@ public class ElementParameterCreator {
      * Check whether all required schema settings are created and create ones we still need depending on connectors we
      * have.
      * 
-     * @param node
      * @param mainSettingsCreator
      */
-    protected void checkSchemaProperties(final INode node, final SettingsCreator mainSettingsCreator) {
+    protected void checkSchemaProperties(final SettingsCreator mainSettingsCreator) {
         // Get all schema parameters created for current component
         final Set<String> schemasPresent = parameters
                 .stream()
                 .filter(p -> EParameterFieldType.SCHEMA_TYPE.equals(p.getFieldType()))
-                .map(p -> p.getContext())
+                .map(IElementParameter::getContext)
                 .collect(Collectors.toSet());
         // Get all connectors without schema parameter for them
         final Set<String> connectorNames = component
@@ -125,7 +125,7 @@ public class ElementParameterCreator {
                 .stream()
                 .filter(c -> c.getDefaultConnectionType().hasConnectionCategory(IConnectionCategory.FLOW)
                         && !schemasPresent.contains(c.getName()))
-                .map(c -> c.getName())
+                .map(INodeConnector::getName)
                 .collect(Collectors.toSet());
         // Create schema parameter for each connector without schema parameter
         for (String connectorWithoutSchema : connectorNames) {
