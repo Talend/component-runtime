@@ -30,6 +30,8 @@ public class ComponentIndex {
 
     private String displayName;
 
+    private String familyDisplayName;
+
     private Icon icon;
 
     private Icon iconFamily;

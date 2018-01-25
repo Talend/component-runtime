@@ -28,10 +28,6 @@
   <packaging>pom</packaging>
   <description>Parent for classloader utilities.</description>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-
   <modules>
     <module>container-core</module>
     <module>nested-maven-repository</module>

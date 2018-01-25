@@ -39,6 +39,20 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-form-core</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.talend.sdk.component</groupId>
+          <artifactId>component-server</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency> <!-- reactor ordering -->
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-kit.js</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 
@@ -53,12 +67,29 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>${clean-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>clean-frontend</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <configuration>
+              <directory>${project.basedir}/src/main/frontend/dist</directory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <version>${maven-resources-plugin.version}</version>
         <executions>
           <execution>
             <id>copy-component-kit.js</id>
-            <phase>generate-sources</phase>
+            <phase>process-sources</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
@@ -85,6 +116,12 @@
           <httpPort>10101</httpPort>
           <webapp>${project.basedir}/src/main/frontend/dist</webapp>
           <webResourceCached>false</webResourceCached>
+          <properties>
+            <talend.component.server.component.coordinates>
+              ${talend.component.server.component.coordinates.samples},
+              org.talend.components:widget:1.0.0-SNAPSHOT
+            </talend.component.server.component.coordinates>
+          </properties>
         </configuration>
         <dependencies>
           <dependency>
@@ -111,7 +148,7 @@
         <executions>
           <execution>
             <id>install-node-and-yarn</id>
-            <phase>prepare-package</phase>
+            <phase>generate-sources</phase>
             <goals>
               <goal>install-node-and-yarn</goal>
             </goals>
@@ -122,7 +159,7 @@
           </execution>
           <execution>
             <id>yarn-install</id>
-            <phase>prepare-package</phase>
+            <phase>generate-sources</phase>
             <goals>
               <goal>yarn</goal>
             </goals>
@@ -132,7 +169,7 @@
           </execution>
           <execution>
             <id>yarn-build</id>
-            <phase>prepare-package</phase>
+            <phase>generate-resources</phase>
             <goals>
               <goal>yarn</goal>
             </goals>
@@ -152,6 +189,9 @@
             </goals>
             <configuration>
               <arguments>run watch</arguments>
+              <environmentVariables>
+                <NODE_ENV>development</NODE_ENV>
+              </environmentVariables>
             </configuration>
           </execution>
         </executions>
@@ -170,15 +210,15 @@
         <executions>
           <execution>
             <id>add-resource</id>
-            <phase>prepare-package</phase>
+            <phase>generate-resources</phase>
             <goals>
               <goal>add-resource</goal>
             </goals>
             <configuration>
               <resources>
                 <resource>
-                  <directory>dist</directory>
-                  <targetPath>META-INF/resources/</targetPath>
+                  <directory>src/main/frontend/dist</directory>
+                  <targetPath>META-INF/resources</targetPath>
                   <excludes>
                     <exclude>**/*.map</exclude>
                   </excludes>

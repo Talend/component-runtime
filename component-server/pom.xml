@@ -449,9 +449,7 @@
           <cdiConversation>false</cdiConversation>
           <webapp>${project.basedir}/src/dev/webapp</webapp>
           <properties>
-            <talend.component.server.component.coordinates>
-              org.talend.components:servicenow:0.0.1-SNAPSHOT
-            </talend.component.server.component.coordinates>
+            <talend.component.server.component.coordinates>${talend.component.server.component.coordinates.samples}</talend.component.server.component.coordinates>
           </properties>
         </configuration>
       </plugin>

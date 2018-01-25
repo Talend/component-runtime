@@ -18,10 +18,12 @@ package org.talend.sdk.component.runtime.manager;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
@@ -402,7 +404,7 @@ public class ComponentManager implements AutoCloseable {
         }
     }
 
-    protected void addJarContaining(final ClassLoader loader, final String resource) {
+    protected Set<String> addJarContaining(final ClassLoader loader, final String resource) {
         final URL url = loader.getResource(resource);
         if (url != null) {
             File plugin = null;
@@ -431,22 +433,27 @@ public class ComponentManager implements AutoCloseable {
             }
             if (plugin == null) {
                 log.warn("Can't find " + url);
-                return;
+                return null;
             }
-            Stream
+            return Stream
                     .of(plugin)
                     // just a small workaround for maven/gradle
                     .flatMap(p -> "test-classes".equals(p.getName()) && p.getParentFile() != null
                             ? Stream.of(p, new File(p.getParentFile(), "classes"))
                             : Stream.of(p))
                     .filter(path -> !container.find(path.getName()).isPresent())
-                    .forEach(p -> ofNullable(p).ifPresent(file -> {
+                    .map(file -> {
                         final String id = addPlugin(file.getAbsolutePath());
                         if (container.find(id).get().get(ContainerComponentRegistry.class).getComponents().isEmpty()) {
                             removePlugin(id);
+                            return null;
                         }
-                    }));
+                        return id;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(toSet());
         }
+        return emptySet();
     }
 
     public <T> Stream<T> find(final Function<Container, Stream<T>> mapper) {
@@ -594,7 +601,7 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
-        services.put(HttpClientFactory.class, new HttpClientFactoryImpl(container.getId()));
+        services.put(HttpClientFactory.class, new HttpClientFactoryImpl(container.getId(), reflections, services));
         services.put(LocalCache.class, new LocalCacheService(container.getId()));
         services.put(LocalConfiguration.class,
                 new LocalConfigurationService(createRawLocalConfigurations(), container.getId()));

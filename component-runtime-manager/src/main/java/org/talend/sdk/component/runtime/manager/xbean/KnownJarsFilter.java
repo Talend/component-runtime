@@ -38,6 +38,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("ant-");
             add("antlr-");
             add("aopalliance-");
+            add("apiguardian-api-");
             add("app-");
             add("args4j-");
             add("arquillian-core.jar");
@@ -248,6 +249,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("objenesis-");
             add("openjpa-");
             add("openmdx-");
+            add("opentest4j-");
             add("opensaml-");
             add("openwebbeans-");
             add("openws-");

@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.form.api;
 
+import static java.util.Optional.ofNullable;
+
 import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
 import org.talend.sdk.component.form.internal.spring.SpringRestClient;
 
@@ -26,7 +28,9 @@ public final class ClientFactory {
 
     public static Client createDefault(final String base) {
         try {
-            Thread.currentThread().getContextClassLoader().loadClass("javax.ws.rs.client.ClientBuilder");
+            ofNullable(Thread.currentThread().getContextClassLoader())
+                    .orElseGet(ClassLoader::getSystemClassLoader)
+                    .loadClass("javax.ws.rs.client.ClientBuilder");
             return new JAXRSClient(base);
         } catch (final NoClassDefFoundError | ClassNotFoundException cnfe) {
             return new SpringRestClient(base);

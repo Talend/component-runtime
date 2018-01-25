@@ -42,6 +42,7 @@ function getSassLoaders(enableModules) {
 
 module.exports = {
   entry: ['babel-polyfill', 'whatwg-fetch', './src/index.js'],
+  devtool: process.env.NODE_ENV === 'development' ? 'source-map' : undefined,
   output: {
     path: `${__dirname}/dist`,
     publicPath: '/',
@@ -81,7 +82,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: './index.html',
       template: './src/public/index.html',
-      title: 'Talend Web App Name',
+      title: 'Talend Components Dev Tester',
     })
   ],
 };
