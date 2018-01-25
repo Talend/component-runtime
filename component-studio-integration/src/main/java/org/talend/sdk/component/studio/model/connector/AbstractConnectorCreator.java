@@ -98,7 +98,7 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
             final EConnectionType defaultConnectionType) {
         final NodeConnector connector = new NodeConnector(node);
         connector.setName(type.getName());
-        connector.setBaseSchema(type.getName());
+        connector.setBaseSchema(name);
         connector.setDefaultConnectionType(defaultConnectionType);
         connector.setLinkName(type.getDefaultLinkName());
         connector.setMenuName(type.getDefaultMenuName());
