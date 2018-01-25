@@ -12,6 +12,17 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */%>
+<script>
+  (function() {
+    var cx = '005944347463368867332:ghrpamlmyqy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
 <div class="navbar navbar-inverse navbar-fixed-top">
   <div class="container">
     <div class="navbar-header">
@@ -51,6 +62,14 @@
           </ul>
         </li>
       </ul>
+      <div class="navbar-collapse collapse">
+        <form class="navbar-form navbar-right" role="search" action="search.html">
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Search" name="q">
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>

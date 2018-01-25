@@ -1,0 +1,9 @@
+= Search
+Romain Manni-Bucau
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:jbake-type: search
+:jbake-tags: documentation, search
+:jbake-status: published
