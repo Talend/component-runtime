@@ -21,6 +21,7 @@ import static org.talend.core.model.process.EComponentCategory.BASIC;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.talend.core.CorePlugin;
@@ -28,10 +29,11 @@ import org.talend.core.PluginChecker;
 import org.talend.core.model.components.ComponentCategory;
 import org.talend.core.model.components.IComponent;
 import org.talend.core.model.process.EComponentCategory;
-import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.EParameterFieldType;
+import org.talend.core.model.process.IConnectionCategory;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
+import org.talend.core.model.process.INodeConnector;
 import org.talend.core.prefs.ITalendCorePrefConstants;
 import org.talend.core.ui.component.ComponentsFactoryProvider;
 import org.talend.designer.core.model.components.AbstractBasicComponent;
@@ -100,12 +102,35 @@ public class ElementParameterCreator {
             SettingsCreator advancedCreator = new SettingsCreator(node, ADVANCED, updateComponentsParameter);
             root.accept(advancedCreator, Metadatas.ADVANCED_FORM);
             parameters.addAll(advancedCreator.getSettings());
-            // If No schema add one
-            if (parameters.stream().noneMatch(p -> EParameterFieldType.SCHEMA_TYPE.equals(p.getFieldType()))) {
-                parameters
-                        .add(mainSettingsCreator.createSchemaParameter(EConnectionType.FLOW_MAIN.getName(), "SCHEMA"));
-            }
+            checkSchemaProperties(mainSettingsCreator);
+        }
+    }
 
+    /**
+     * Check whether all required schema settings are created and create ones we still need depending on connectors we
+     * have.
+     * 
+     * @param mainSettingsCreator
+     */
+    protected void checkSchemaProperties(final SettingsCreator mainSettingsCreator) {
+        // Get all schema parameters created for current component
+        final Set<String> schemasPresent = parameters
+                .stream()
+                .filter(p -> EParameterFieldType.SCHEMA_TYPE.equals(p.getFieldType()))
+                .map(IElementParameter::getContext)
+                .collect(Collectors.toSet());
+        // Get all connectors without schema parameter for them
+        final Set<String> connectorNames = component
+                .createConnectors(node)
+                .stream()
+                .filter(c -> c.getDefaultConnectionType().hasConnectionCategory(IConnectionCategory.FLOW)
+                        && !schemasPresent.contains(c.getName()))
+                .map(INodeConnector::getName)
+                .collect(Collectors.toSet());
+        // Create schema parameter for each connector without schema parameter
+        for (String connectorWithoutSchema : connectorNames) {
+            parameters.add(mainSettingsCreator.createSchemaParameter(connectorWithoutSchema,
+                    "SCHEMA_" + connectorWithoutSchema));
         }
     }
 

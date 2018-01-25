@@ -87,7 +87,7 @@ class ProcessorConnectorCreator extends AbstractConnectorCreator {
                 .filter(output -> REJECT.equals(getType(output))) //
                 .findFirst() //
                 .map(output -> { //
-                    INodeConnector reject = createConnector(getType(output), getName(output), node);
+                    INodeConnector reject = createConnector(getType(output), getName(output), node, FLOW_MAIN);
                     reject.setMaxLinkOutput(1);
                     reject.addConnectionProperty(EConnectionType.FLOW_MAIN, new RGB(255, 0, 0), 2);
                     reject.getConnectionProperty(EConnectionType.FLOW_MAIN).setRGB(new RGB(255, 0, 0));

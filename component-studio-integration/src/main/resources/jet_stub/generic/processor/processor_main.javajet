@@ -71,7 +71,7 @@ for (final IConnection connection : node.getOutgoingSortedConnections()) {
         continue;
     }
 %>
-final java.util.concurrent.atomic.AtomicReference<> <%= connection.getName() %>OutputRef_<%=cid%> = new java.util.concurrent.atomic.AtomicReference<>(<%= connection.getName() %>);
+final java.util.concurrent.atomic.AtomicReference<<%= connection.getName() %>Struct> <%= connection.getName() %>OutputRef_<%=cid%> = new java.util.concurrent.atomic.AtomicReference<>(<%= connection.getName() %>);
 <% } %>
 
 <%/*here the assumption is tcomp only calls create once per output which should be the case*/%>
