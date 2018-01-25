@@ -14,13 +14,13 @@
   limitations under the License.
 */%>
 <html lang="en">
-  <script async type="text/javascript" src="https://cse.google.com/cse.js?cx=005944347463368867332:ghrpamlmyqy"></script>
   <head>
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-PSBN');</script>
+    <script>
+    window['dataLayer'] = window['dataLayer'] || [];
+    window['dataLayer'].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
+    </script>
+    <script async type="text/javascript" src="https://www.googletagmanager.com/gtm.js?id=GTM-PSBN"></script>
+    <script async type="text/javascript" src="https://cse.google.com/cse.js?cx=005944347463368867332:ghrpamlmyqy"></script>
 
     <meta charset="utf-8">
     <title>Talend Component Documentation</title>
