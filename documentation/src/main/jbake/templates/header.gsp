@@ -15,11 +15,13 @@
 */%>
 <html lang="en">
   <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
     <script>
-    window['dataLayer'] = window['dataLayer'] || [];
-    window['dataLayer'].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'GTM-PSBN');
     </script>
-    <script async type="text/javascript" src="https://www.googletagmanager.com/gtm.js?id=GTM-PSBN"></script>
     <script async type="text/javascript" src="https://cse.google.com/cse.js?cx=005944347463368867332:ghrpamlmyqy"></script>
 
     <meta charset="utf-8">
