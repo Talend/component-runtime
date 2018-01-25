@@ -22,6 +22,11 @@ include::../../../../../component-server/target/jaxrs-analyzer/rest-resources.ad
 IMPORTANT: to ensure the migration can be activated you need to set in the execution configuration you send to the server
 the version it was created with (component version, it is in component detail endpoint) with the key `tcomp::component::version`.
 
+=== Deprecated endpoints
+
+If some endpoints are intended to disappear they will be deprecated. In practise it means a header `X-Talend-Warning`
+will be returned with some message as value.
+
 === WebSocket transport
 
 You can connect on any endpoint replacing `/api` by `/websocket` and appending `/<http method>` for the URL and formatting the request as:
