@@ -21,6 +21,7 @@ import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -31,11 +32,12 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
-import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.talend.sdk.component.server.front.model.execution.WriteStatistics;
+import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
 @MonoMeecrowaveConfig
@@ -93,5 +95,18 @@ class ExecutionResourceTest {
         assertEquals(2, stats.getCount());
         assertEquals("{\"line1\":\"v1\"}\n{\"line2\":\"v2\"}",
                 Files.readAllLines(outputFile.toPath()).stream().collect(joining("\n")));
+    }
+
+    @Test
+    void deprecation() {
+        final Response output = base
+                .path("execution/read/{family}/{component}")
+                .resolveTemplate("family", "chain")
+                .resolveTemplate("component", "list")
+                .request("talend/stream")
+                .post(entity(Json.createObjectBuilder().add("values[0]", "v1").add("values[1]", "v2").build(),
+                        APPLICATION_JSON_TYPE));
+        assertEquals("{\"value\":\"v1\"}\n{\"value\":\"v2\"}\n", output.readEntity(String.class));
+        assertNotNull(output.getHeaderString("X-Talend-Warning"));
     }
 }

@@ -71,6 +71,7 @@ import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
+import org.talend.sdk.component.server.front.filter.message.DeprecatedEndpoint;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.front.model.execution.PrimitiveWrapper;
 import org.talend.sdk.component.server.front.model.execution.WriteStatistics;
@@ -82,6 +83,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Path("execution")
 @ApplicationScoped
+@DeprecatedEndpoint
 @Consumes(MediaType.APPLICATION_JSON)
 public class ExecutionResource {
 
