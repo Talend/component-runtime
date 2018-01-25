@@ -80,6 +80,8 @@ workDir.listFiles(new FilenameFilter() {
     versions.append("            <li><a href=\"${root}/${it.name}/index.html\">${it.name}</a></li>\n")
 }
 
+def sitemap = new File(source, 'sitemap.xml').text
+
 def copySite = { to ->
     ant.copy(todir: to.absolutePath, overwrite: true) {
         filterset(begintoken: "<!-- ", endtoken: ' -->') {
@@ -96,13 +98,22 @@ def copySite = { to ->
     }
 }
 
+def writeSiteMap = { dir, context ->
+    new File(dir, 'sitemap.xml').text = sitemap.replace('<loc>', "<loc>https://talend.github.io/component-runtime${context}/")
+}
+
 if (isLatest) {
-    copySite(new File(workDir, 'latest'))
+    def latestDir = new File(workDir, 'latest')
+    copySite(latestDir)
+    writeSiteMap(latestDir, '/latest')
 } else {
     copySite(workDir)
+    writeSiteMap(workDir, '/')
     // versionned version to keep an history - we can need to add version links later on on the main page
     // note: this is not yet a need since we'll not break anything for now
-    copySite(new File(workDir, project.version))
+    def versionDir = new File(workDir, project.version)
+    copySite(versionDir)
+    writeSiteMap(versionDir, "/${project.version}")
 }
 
 def message = (isLatest ? 'Updating latest website' : "Updating the website with version ${project.version}") + new Date().toString()

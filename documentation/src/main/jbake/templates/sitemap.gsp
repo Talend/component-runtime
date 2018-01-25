@@ -17,7 +17,7 @@
 <%published_content.each {content -> %>
     <url>
     	<loc>${content.uri}</loc>
-    	<% if (content.date) {%><lastmod>${content.date}</lastmod><% }%>
+    	 <lastmod>${content.date.format("yyyy-MM-dd")}</lastmod>
     </url>
 <%}%>
 </urlset>
