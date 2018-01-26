@@ -316,8 +316,10 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     }
                 }
             }
-            return invokers.computeIfAbsent(method,
-                    m -> createInvoker(m, args).orElseGet(() -> params -> delegate(method, args))).apply(args);
+            return invokers
+                    .computeIfAbsent(method,
+                            m -> createInvoker(m, args).orElseGet(() -> params -> delegate(method, args)))
+                    .apply(args);
         }
 
         private Optional<Function<Object[], Object>> createInvoker(final Method m, final Object[] args) {
@@ -338,13 +340,16 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         .orElseGet(() -> m.getDeclaringClass().getAnnotation(Codec.class));
 
                 // create codec instances
-                Stream.concat(of(m.getGenericReturnType()),
-                        of(m.getParameters()).filter(p -> of(Path.class, Query.class, Header.class)
-                                .noneMatch(p::isAnnotationPresent)).map(Parameter::getParameterizedType))
+                Stream
+                        .concat(of(m.getGenericReturnType()),
+                                of(m.getParameters())
+                                        .filter(p -> of(Path.class, Query.class, Header.class)
+                                                .noneMatch(p::isAnnotationPresent))
+                                        .map(Parameter::getParameterizedType))
                         .map(HttpClientFactoryImpl::toClassType)
                         .filter(Objects::nonNull)
-                        .filter(cType -> cType.isAnnotationPresent(XmlRootElement.class) || cType.isAnnotationPresent(
-                                XmlType.class))
+                        .filter(cType -> cType.isAnnotationPresent(XmlRootElement.class)
+                                || cType.isAnnotationPresent(XmlType.class))
                         .forEach(rootElemType -> {
                             jaxbContexts.computeIfAbsent(rootElemType, k -> {
                                 try {
@@ -353,8 +358,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                                     throw new IllegalStateException(e);
                                 }
                             });
-                        })
-                ;
+                        });
 
                 final Map<String, Encoder> encoders = createEncoder(codec);
                 final Map<String, Decoder> decoders = createDecoder(codec);
@@ -445,16 +449,16 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                                     configurerOptions.isEmpty() ? EMPTY_CONFIGURER_OPTIONS
                                             : new Configurer.ConfigurerConfiguration() {
 
-                                        @Override
-                                        public Object[] configuration() {
-                                            return options.values().toArray(new Object[options.size()]);
-                                        }
+                                                @Override
+                                                public Object[] configuration() {
+                                                    return options.values().toArray(new Object[options.size()]);
+                                                }
 
-                                        @Override
-                                        public <T> T get(final String name, final Class<T> type) {
-                                            return type.cast(options.get(name));
-                                        }
-                                    });
+                                                @Override
+                                                public <T> T get(final String name, final Class<T> type) {
+                                                    return type.cast(options.get(name));
+                                                }
+                                            });
                         }
 
                         if (payloadProviderRef != null) {
@@ -506,10 +510,10 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         }
 
         /**
-         * @param original    : string with placeholders
+         * @param original : string with placeholders
          * @param placeholder the placeholder to be replaced
-         * @param value       the replacement value
-         * @param encode      true if the value need to be encoded
+         * @param value the replacement value
+         * @param encode true if the value need to be encoded
          * @return a new string with the placeholder replaced by value
          */
         private String replacePlaceholder(final String original, final String placeholder, final String value,
@@ -549,17 +553,19 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         private Map<String, Encoder> createEncoder(final Codec codec) {
             if (codec == null || codec.decoder().length == 0) {
 
-                return new HashMap<String, Encoder>() {{
-                    //keep the put order
-                    if (!jaxbContexts.isEmpty()) {
-                        final JAXBEncoder jaxbEncoder = new JAXBEncoder(jaxbContexts);
-                        put("*/xml", jaxbEncoder);
-                        put("*/*+xml", jaxbEncoder);
+                return new HashMap<String, Encoder>() {
+
+                    {
+                        // keep the put order
+                        if (!jaxbContexts.isEmpty()) {
+                            final JAXBEncoder jaxbEncoder = new JAXBEncoder(jaxbContexts);
+                            put("*/xml", jaxbEncoder);
+                            put("*/*+xml", jaxbEncoder);
+                        }
+                        put("*/*", value -> value == null ? new byte[0]
+                                : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
                     }
-                    put("*/*", value -> value == null ?
-                            new byte[0] :
-                            String.valueOf(value).getBytes(StandardCharsets.UTF_8));
-                }};
+                };
             }
 
             return stream(codec.encoder())
@@ -567,33 +573,36 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
                             ? encoder.getAnnotation(ContentType.class).value()
                             : "*/*", encoder -> {
-                        try {
-                            final Constructor<?> constructor = Constructors.findConstructor(encoder);
-                            final Function<Map<String, String>, Object[]> paramFactory =
-                                    reflections.parameterFactory(constructor, services);
-                            return Encoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                        } catch (final InstantiationException | IllegalAccessException e) {
-                            throw new IllegalArgumentException(e);
-                        } catch (final InvocationTargetException e) {
-                            throw toRuntimeException(e);
-                        }
-                    }, (k, v) -> {
-                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                    }, LinkedHashMap::new));
+                                try {
+                                    final Constructor<?> constructor = Constructors.findConstructor(encoder);
+                                    final Function<Map<String, String>, Object[]> paramFactory =
+                                            reflections.parameterFactory(constructor, services);
+                                    return Encoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                } catch (final InstantiationException | IllegalAccessException e) {
+                                    throw new IllegalArgumentException(e);
+                                } catch (final InvocationTargetException e) {
+                                    throw toRuntimeException(e);
+                                }
+                            }, (k, v) -> {
+                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                            }, LinkedHashMap::new));
 
         }
 
         private Map<String, Decoder> createDecoder(final Codec codec) {
             if (codec == null || codec.decoder().length == 0) {
-                return new HashMap<String, Decoder>() {{
-                    //keep the put order
-                    if (!jaxbContexts.isEmpty()) {
-                        final JAXBDecoder jaxbDecoder = new JAXBDecoder(jaxbContexts);
-                        put("*/xml", jaxbDecoder);
-                        put("*/*+xml", jaxbDecoder);
+                return new HashMap<String, Decoder>() {
+
+                    {
+                        // keep the put order
+                        if (!jaxbContexts.isEmpty()) {
+                            final JAXBDecoder jaxbDecoder = new JAXBDecoder(jaxbContexts);
+                            put("*/xml", jaxbDecoder);
+                            put("*/*+xml", jaxbDecoder);
+                        }
+                        put("*/*", (value, expectedType) -> new String(value));
                     }
-                    put("*/*", (value, expectedType) -> new String(value));
-                }};
+                };
             }
 
             return stream(codec.decoder())
@@ -601,19 +610,19 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
                             ? decoder.getAnnotation(ContentType.class).value()
                             : "*/*", decoder -> {
-                        try {
-                            final Constructor<?> constructor = Constructors.findConstructor(decoder);
-                            final Function<Map<String, String>, Object[]> paramFactory =
-                                    reflections.parameterFactory(constructor, services);
-                            return Decoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                        } catch (final InstantiationException | IllegalAccessException e) {
-                            throw new IllegalArgumentException(e);
-                        } catch (final InvocationTargetException e) {
-                            throw toRuntimeException(e);
-                        }
-                    }, (k, v) -> {
-                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                    }, LinkedHashMap::new));
+                                try {
+                                    final Constructor<?> constructor = Constructors.findConstructor(decoder);
+                                    final Function<Map<String, String>, Object[]> paramFactory =
+                                            reflections.parameterFactory(constructor, services);
+                                    return Decoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                } catch (final InstantiationException | IllegalAccessException e) {
+                                    throw new IllegalArgumentException(e);
+                                } catch (final InvocationTargetException e) {
+                                    throw toRuntimeException(e);
+                                }
+                            }, (k, v) -> {
+                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                            }, LinkedHashMap::new));
         }
 
         @AllArgsConstructor
@@ -672,8 +681,11 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             public Object decode(final byte[] value, final Type expectedType) {
                 try {
                     final Class key = Class.class.cast(expectedType);
-                    return jaxbContexts.get(key).createUnmarshaller()
-                            .unmarshal(new StreamSource(new ByteArrayInputStream(value)), key).getValue();
+                    return jaxbContexts
+                            .get(key)
+                            .createUnmarshaller()
+                            .unmarshal(new StreamSource(new ByteArrayInputStream(value)), key)
+                            .getValue();
                 } catch (final JAXBException e) {
                     throw new IllegalArgumentException(e);
                 }
@@ -686,7 +698,8 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
             private final Map<Class<?>, JAXBContext> jaxbContexts;
 
-            @Override public byte[] encode(final Object value) {
+            @Override
+            public byte[] encode(final Object value) {
                 final ByteArrayOutputStream os = new ByteArrayOutputStream();
                 try {
                     jaxbContexts.get(value.getClass()).createMarshaller().marshal(value, os);

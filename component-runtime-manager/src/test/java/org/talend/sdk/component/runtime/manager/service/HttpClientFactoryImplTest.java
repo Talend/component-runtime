@@ -158,8 +158,7 @@ public class HttpClientFactoryImplTest {
             final byte[] bytes;
             try (final BufferedReader in =
                     new BufferedReader(new InputStreamReader(httpExchange.getRequestBody(), StandardCharsets.UTF_8))) {
-                bytes = "<root><value>xml content</value></root>".getBytes(
-                        StandardCharsets.UTF_8);
+                bytes = "<root><value>xml content</value></root>".getBytes(StandardCharsets.UTF_8);
             }
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
             httpExchange.getResponseBody().write(bytes);
