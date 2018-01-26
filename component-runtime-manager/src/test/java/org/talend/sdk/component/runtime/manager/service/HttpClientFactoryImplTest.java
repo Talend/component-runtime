@@ -158,7 +158,7 @@ public class HttpClientFactoryImplTest {
             final byte[] bytes;
             try (final BufferedReader in =
                     new BufferedReader(new InputStreamReader(httpExchange.getRequestBody(), StandardCharsets.UTF_8))) {
-                bytes = "<root><value>xml content</value></root>".getBytes(StandardCharsets.UTF_8);
+                bytes = in.lines().collect(joining("\n")).getBytes(StandardCharsets.UTF_8);
             }
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
             httpExchange.getResponseBody().write(bytes);
@@ -174,9 +174,8 @@ public class HttpClientFactoryImplTest {
 
             final Response<XmlRecord> result = client.main("application/xml", new XmlRecord("xml content"));
             assertEquals("xml content", result.body().getValue());
-
             assertEquals(HttpURLConnection.HTTP_OK, result.status());
-            assertEquals("39", result.headers().get("content-length").iterator().next());
+            assertEquals("104", result.headers().get("content-length").iterator().next());
         } finally {
             server.stop(0);
         }
@@ -329,8 +328,8 @@ public class HttpClientFactoryImplTest {
 
     public interface ResponseXml extends HttpClient {
 
-        @Request
-        Response<XmlRecord> main(@Header("content-type") String contentType, XmlRecord playload);
+        @Request(method = "POST")
+        Response<XmlRecord> main(@Header("content-type") String contentType, XmlRecord payload);
     }
 
     @Internationalized
