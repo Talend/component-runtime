@@ -402,6 +402,9 @@ public class ElementParameterCreator {
             String configType = p.getConfigurationType();
             ConfigTypeNode configNode =
                     Lookups.taCoKitCache().getConfigTypeNode(detail.getId().getFamily(), configName, configType);
+            if (configNode == null) {
+                return "";
+            }
             return TaCoKitUtil.getConfigTypePath(configNode).replaceAll("/", ".");
         }).collect(Collectors.joining("|"));
     }
