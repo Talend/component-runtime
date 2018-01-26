@@ -51,6 +51,7 @@ public class ArrayPropertyConverter implements PropertyConverter {
 
         if (arrayElements.stream().anyMatch(e -> e.getPath().startsWith(prefix + '.'))) { // complex object
             final JsonSchema items = new JsonSchema();
+            items.setType("object");
             items.setProperties(new HashMap<>());
             arrayElements.stream().map(PropertyContext::new).forEach(
                     e -> new JsonSchemaConverter(jsonb, items, emptyList()).convert(e));
