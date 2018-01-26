@@ -16,8 +16,10 @@
 package org.talend.sdk.component.container;
 
 import static java.lang.reflect.Proxy.newProxyInstance;
+import static java.util.Collections.list;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 
 import java.io.Closeable;
 import java.io.File;
@@ -26,11 +28,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
@@ -89,20 +95,34 @@ public class Container implements Lifecycle {
             // - if the nested file exists using the module as path in nested maven repo,
             // we use it
             // - if the nested path is in the global plugin.properties index, we use it
+            final File rootFile = of(rootModule).map(File::new).filter(File::exists).orElseGet(
+                    () -> localDependencyRelativeResolver.apply(rootModule));
+            final Predicate<String> resourceExists =
+                    rootFile.exists() && rootFile.getName().endsWith(".jar") ? jarIndex(rootFile)
+                            : s -> new File(rootFile, ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + s).exists();
+            final String[] rawNestedDependencies = configuration.isSupportsResourceDependencies()
+                    ? Stream.of(dependencies).map(Artifact::toPath).filter(resourceExists).toArray(String[]::new)
+                    : null;
             return new ConfigurableClassLoader(urls, configuration.getParent(), configuration.getClassesFilter(),
-                    configuration.getParentClassesFilter(),
-                    configuration.isSupportsResourceDependencies()
-                            ? Stream
-                                    .concat(Stream.of(dependencies).map(Artifact::toPath),
-                                            of(rootModule)
-                                                    .filter(m -> !new File(m).exists()
-                                                            && !localDependencyRelativeResolver.apply(m).exists())
-                                                    .map(Stream::of)
-                                                    .orElseGet(Stream::empty))
-                                    .toArray(String[]::new)
-                            : null);
+                    configuration.getParentClassesFilter(), rawNestedDependencies);
         };
         reload();
+    }
+
+    // we use that to prefilter the dependencies we keep, in some env we don't nest them
+    // so we don't care much testing the nested jars
+    private Predicate<String> jarIndex(final File rootFile) {
+        try (final JarFile jarFile = new JarFile(rootFile)) {
+            final Set<String> entries = list(jarFile.entries())
+                    .stream()
+                    .map(JarEntry::getName)
+                    .filter(n -> n.startsWith(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY))
+                    .map(n -> n.substring(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY.length()))
+                    .collect(toSet());
+            return entries::contains;
+        } catch (final IOException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     public <T> T set(final Class<T> key, final T instance) {
