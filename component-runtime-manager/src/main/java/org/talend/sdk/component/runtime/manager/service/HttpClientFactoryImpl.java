@@ -135,7 +135,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
     private static boolean isNotSupportedByDefaultCodec(final Type type) {
         final Class<?> cType = toClassType(type);
         return cType != null && cType != String.class && cType != Void.class
-                && !cType.isAnnotationPresent(XmlRootElement.class);
+                && !cType.isAnnotationPresent(XmlRootElement.class) && !cType.isAnnotationPresent(XmlType.class);
     }
 
     private static Class<?> toClassType(final Type type) {
