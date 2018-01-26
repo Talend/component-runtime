@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
@@ -27,6 +26,7 @@ import static java.util.stream.Stream.of;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,6 +59,13 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Stream;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.transform.stream.StreamSource;
 
 import org.talend.sdk.component.api.service.http.Codec;
 import org.talend.sdk.component.api.service.http.Configurer;
@@ -126,6 +133,12 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
     }
 
     private static boolean isNotSupportedByDefaultCodec(final Type type) {
+        final Class<?> cType = toClassType(type);
+        return cType != null && cType != String.class && cType != Void.class
+                && !cType.isAnnotationPresent(XmlRootElement.class);
+    }
+
+    private static Class<?> toClassType(final Type type) {
         Class<?> cType = null;
         if (Class.class.isInstance(type)) {
             cType = Class.class.cast(type);
@@ -136,7 +149,8 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 cType = Class.class.cast(pt.getActualTypeArguments()[0]);
             }
         }
-        return cType != String.class && cType != Void.class;
+
+        return cType;
     }
 
     private static byte[] slurp(final InputStream responseStream) {
@@ -252,6 +266,8 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
         private String base;
 
+        private volatile Map<Class<?>, JAXBContext> jaxbContexts = new HashMap<>();
+
         private volatile ConcurrentMap<Method, Function<Object[], Object>> invokers;
 
         @Override
@@ -296,6 +312,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 synchronized (this) {
                     if (invokers == null) {
                         invokers = new ConcurrentHashMap<>();
+                        jaxbContexts = new ConcurrentHashMap<>();
                     }
                 }
             }
@@ -323,8 +340,28 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         .orElseGet(() -> m.getDeclaringClass().getAnnotation(Codec.class));
 
                 // create codec instances
-                final Map<String, Encoder> encoders = createEncoder(codec, services);
-                final Map<String, Decoder> decoders = createDecoder(codec, services);
+                Stream
+                        .concat(of(m.getGenericReturnType()),
+                                of(m.getParameters())
+                                        .filter(p -> of(Path.class, Query.class, Header.class)
+                                                .noneMatch(p::isAnnotationPresent))
+                                        .map(Parameter::getParameterizedType))
+                        .map(HttpClientFactoryImpl::toClassType)
+                        .filter(Objects::nonNull)
+                        .filter(cType -> cType.isAnnotationPresent(XmlRootElement.class)
+                                || cType.isAnnotationPresent(XmlType.class))
+                        .forEach(rootElemType -> {
+                            jaxbContexts.computeIfAbsent(rootElemType, k -> {
+                                try {
+                                    return JAXBContext.newInstance(k);
+                                } catch (final JAXBException e) {
+                                    throw new IllegalStateException(e);
+                                }
+                            });
+                        });
+
+                final Map<String, Encoder> encoders = createEncoder(codec);
+                final Map<String, Decoder> decoders = createDecoder(codec);
 
                 // preCompute the execution (kind of compile phase)
                 String path = request.path();
@@ -513,10 +550,22 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             }
         }
 
-        private Map<String, Encoder> createEncoder(final Codec codec, final Map<Class<?>, Object> services) {
+        private Map<String, Encoder> createEncoder(final Codec codec) {
             if (codec == null || codec.decoder().length == 0) {
-                return singletonMap("*/*",
-                        value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
+
+                return new HashMap<String, Encoder>() {
+
+                    {
+                        // keep the put order
+                        if (!jaxbContexts.isEmpty()) {
+                            final JAXBEncoder jaxbEncoder = new JAXBEncoder(jaxbContexts);
+                            put("*/xml", jaxbEncoder);
+                            put("*/*+xml", jaxbEncoder);
+                        }
+                        put("*/*", value -> value == null ? new byte[0]
+                                : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
+                    }
+                };
             }
 
             return stream(codec.encoder())
@@ -540,9 +589,20 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
         }
 
-        private Map<String, Decoder> createDecoder(final Codec codec, final Map<Class<?>, Object> services) {
+        private Map<String, Decoder> createDecoder(final Codec codec) {
             if (codec == null || codec.decoder().length == 0) {
-                return singletonMap("*/*", (value, expectedType) -> new String(value));
+                return new HashMap<String, Decoder>() {
+
+                    {
+                        // keep the put order
+                        if (!jaxbContexts.isEmpty()) {
+                            final JAXBDecoder jaxbDecoder = new JAXBDecoder(jaxbContexts);
+                            put("*/xml", jaxbDecoder);
+                            put("*/*+xml", jaxbDecoder);
+                        }
+                        put("*/*", (value, expectedType) -> new String(value));
+                    }
+                };
             }
 
             return stream(codec.decoder())
@@ -609,6 +669,44 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 }
 
                 return type.cast(decoder.decode(error, type));
+            }
+        }
+
+        @AllArgsConstructor
+        private static class JAXBDecoder implements Decoder {
+
+            private final Map<Class<?>, JAXBContext> jaxbContexts;
+
+            @Override
+            public Object decode(final byte[] value, final Type expectedType) {
+                try {
+                    final Class key = Class.class.cast(expectedType);
+                    return jaxbContexts
+                            .get(key)
+                            .createUnmarshaller()
+                            .unmarshal(new StreamSource(new ByteArrayInputStream(value)), key)
+                            .getValue();
+                } catch (final JAXBException e) {
+                    throw new IllegalArgumentException(e);
+                }
+
+            }
+        }
+
+        @AllArgsConstructor
+        private static class JAXBEncoder implements Encoder {
+
+            private final Map<Class<?>, JAXBContext> jaxbContexts;
+
+            @Override
+            public byte[] encode(final Object value) {
+                final ByteArrayOutputStream os = new ByteArrayOutputStream();
+                try {
+                    jaxbContexts.get(value.getClass()).createMarshaller().marshal(value, os);
+                } catch (final JAXBException e) {
+                    throw new IllegalArgumentException(e);
+                }
+                return os.toByteArray();
             }
         }
     }

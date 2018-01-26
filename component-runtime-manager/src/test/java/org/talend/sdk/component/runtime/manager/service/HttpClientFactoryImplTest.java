@@ -33,6 +33,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
 
@@ -63,6 +65,7 @@ public class HttpClientFactoryImplTest {
         assertNoError(HttpClientFactoryImpl.createErrors(ComplexOk.class));
         assertNoError(HttpClientFactoryImpl.createErrors(ResponseString.class));
         assertNoError(HttpClientFactoryImpl.createErrors(ResponseVoid.class));
+        assertNoError(HttpClientFactoryImpl.createErrors(ResponseXml.class));
     }
 
     @Test
@@ -141,6 +144,38 @@ public class HttpClientFactoryImplTest {
                     response.body().value);
             assertEquals(HttpURLConnection.HTTP_OK, response.status());
             assertEquals("134", response.headers().get("content-length").iterator().next());
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void requestWithXML() throws IOException {
+        final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/").setHandler(httpExchange -> {
+            final Headers headers = httpExchange.getResponseHeaders();
+            headers.set("content-type", "application/xml;charset=UTF-8");
+            final byte[] bytes;
+            try (final BufferedReader in =
+                    new BufferedReader(new InputStreamReader(httpExchange.getRequestBody(), StandardCharsets.UTF_8))) {
+                bytes = in.lines().collect(joining("\n")).getBytes(StandardCharsets.UTF_8);
+            }
+            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
+            httpExchange.getResponseBody().write(bytes);
+            httpExchange.close();
+        });
+
+        try {
+            server.start();
+            final ResponseXml client =
+                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()), emptyMap())
+                            .create(ResponseXml.class, null);
+            client.base("http://localhost:" + server.getAddress().getPort() + "/api");
+
+            final Response<XmlRecord> result = client.main("application/xml", new XmlRecord("xml content"));
+            assertEquals("xml content", result.body().getValue());
+            assertEquals(HttpURLConnection.HTTP_OK, result.status());
+            assertEquals("104", result.headers().get("content-length").iterator().next());
         } finally {
             server.stop(0);
         }
@@ -291,6 +326,12 @@ public class HttpClientFactoryImplTest {
         Response<Void> main();
     }
 
+    public interface ResponseXml extends HttpClient {
+
+        @Request(method = "POST")
+        Response<XmlRecord> main(@Header("content-type") String contentType, XmlRecord payload);
+    }
+
     @Internationalized
     public interface MyI18nService {
 
@@ -342,5 +383,15 @@ public class HttpClientFactoryImplTest {
         public byte[] encode(final Object value) {
             throw new IllegalStateException(myI18nService.error());
         }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @XmlRootElement
+    public static class XmlRecord {
+
+        private String value;
+
     }
 }
