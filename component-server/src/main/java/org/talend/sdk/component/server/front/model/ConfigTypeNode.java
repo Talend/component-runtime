@@ -16,6 +16,7 @@
 package org.talend.sdk.component.server.front.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,4 +43,7 @@ public class ConfigTypeNode {
     private Set<String> edges = new HashSet<>();
 
     private List<SimplePropertyDefinition> properties = new ArrayList<>();
+
+    private Collection<ActionReference> actions;
+
 }

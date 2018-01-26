@@ -21,7 +21,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
@@ -31,14 +30,12 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
@@ -66,12 +63,9 @@ import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
-import org.talend.sdk.component.runtime.manager.ParameterMeta;
-import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ActionParameterEnricher;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 import org.talend.sdk.component.server.front.base.internal.RequestKey;
-import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentId;
@@ -83,6 +77,7 @@ import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.Icon;
 import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
+import org.talend.sdk.component.server.service.ActionsService;
 import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.component.server.service.IconResolver;
 import org.talend.sdk.component.server.service.LocaleMapper;
@@ -113,6 +108,9 @@ public class ComponentResource {
 
     @Inject
     private LocaleMapper localeMapper;
+
+    @Inject
+    private ActionsService actionsService;
 
     @Inject
     private PropertiesService propertiesService;
@@ -352,7 +350,7 @@ public class ComponentResource {
                             .buildProperties(meta.getParameterMetas(), container.getLoader(), locale, null)
                             .collect(toList()));
                     componentDetail.setActions(
-                            findActions(meta.getParent().getName(), getActionReference(meta), container, locale));
+                            actionsService.findActions(meta.getParent().getName(), container, locale, meta));
 
                     return componentDetail;
                 }).filter(Objects::nonNull).collect(toList());
@@ -364,46 +362,12 @@ public class ComponentResource {
         return new ComponentDetailList(details);
     }
 
-    private Set<ActionReference> getActionReference(final ComponentFamilyMeta.BaseMeta<Object> meta) {
-        return toStream(meta.getParameterMetas())
-                .flatMap(p -> p.getMetadata().entrySet().stream())
-                .filter(e -> e.getKey().startsWith(ActionParameterEnricher.META_PREFIX))
-                .map(e -> new ActionReference(meta.getParent().getName(), e.getValue(),
-                        e.getKey().substring(ActionParameterEnricher.META_PREFIX.length()), null))
-                .collect(toSet());
-    }
-
     private ComponentId createMetaId(final Container container, final ComponentFamilyMeta.BaseMeta<Object> meta) {
         return new ComponentId(meta.getId(), meta.getParent().getId(), meta.getParent().getPlugin(),
                 ofNullable(container.get(ComponentManager.OriginalId.class))
                         .map(ComponentManager.OriginalId::getValue)
                         .orElse(container.getId()),
                 meta.getParent().getName(), meta.getName());
-    }
-
-    private Stream<ParameterMeta> toStream(final Collection<ParameterMeta> parameterMetas) {
-        return Stream.concat(parameterMetas.stream(),
-                parameterMetas.stream().map(ParameterMeta::getNestedParameters).filter(Objects::nonNull).flatMap(
-                        this::toStream));
-    }
-
-    private Collection<ActionReference> findActions(final String family, final Set<ActionReference> actions,
-            final Container container, final Locale locale) {
-        final ContainerComponentRegistry registry = container.get(ContainerComponentRegistry.class);
-        return registry
-                .getServices()
-                .stream()
-                .flatMap(s -> s.getActions().stream())
-                .filter(s -> s.getFamily().equals(family))
-                .filter(s -> actions
-                        .stream()
-                        .anyMatch(e -> s.getFamily().equals(e.getFamily()) && s.getType().equals(e.getType())
-                                && s.getAction().equals(e.getName())))
-                .map(s -> new ActionReference(s.getFamily(), s.getAction(), s.getType(),
-                        propertiesService
-                                .buildProperties(s.getParameters(), container.getLoader(), locale, null)
-                                .collect(toList())))
-                .collect(toList());
     }
 
     private ComponentIndex toComponentIndex(final ClassLoader loader, final Locale locale, final String plugin,
