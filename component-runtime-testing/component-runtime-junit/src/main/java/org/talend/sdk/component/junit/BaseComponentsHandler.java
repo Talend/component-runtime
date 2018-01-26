@@ -95,9 +95,9 @@ public class BaseComponentsHandler implements ComponentsHandler {
     /**
      * Collects all outputs of a processor.
      *
-     * @param processor  the processor to run while there are inputs.
-     * @param inputs     the input factory, when an input will return null it will stop the
-     *                   processing.
+     * @param processor the processor to run while there are inputs.
+     * @param inputs the input factory, when an input will return null it will stop the
+     * processing.
      * @param bundleSize the bundle size to use.
      * @return a map where the key is the output name and the value a stream of the
      * output values.
@@ -133,12 +133,12 @@ public class BaseComponentsHandler implements ComponentsHandler {
      * IMPORTANT: don't forget to consume all the stream to ensure the underlying
      * { @see org.talend.sdk.component.runtime.input.Input} is closed.
      *
-     * @param recordType  the record type to use to type the returned type.
-     * @param mapper      the mapper to go through.
-     * @param maxRecords  maximum number of records, allows to stop the source when
-     *                    infinite.
+     * @param recordType the record type to use to type the returned type.
+     * @param mapper the mapper to go through.
+     * @param maxRecords maximum number of records, allows to stop the source when
+     * infinite.
      * @param concurrency requested (1 can be used instead if &lt;= 0) concurrency for the reader execution.
-     * @param <T>         the returned type of the records of the mapper.
+     * @param <T> the returned type of the records of the mapper.
      * @return all the records emitted by the mapper.
      */
     @Override
@@ -357,7 +357,8 @@ public class BaseComponentsHandler implements ComponentsHandler {
     }
 
     public <T> T findService(final String plugin, final Class<T> serviceClass) {
-        return serviceClass.cast(asManager().findPlugin(plugin)
+        return serviceClass.cast(asManager()
+                .findPlugin(plugin)
                 .orElseThrow(() -> new IllegalArgumentException("cant find plugin '" + plugin + "'"))
                 .get(ComponentManager.AllServices.class)
                 .getServices()
@@ -365,8 +366,10 @@ public class BaseComponentsHandler implements ComponentsHandler {
     }
 
     public <T> T findService(final Class<T> serviceClass) {
-        return findService(Optional.of(getTestPlugins()).filter(c -> !c.isEmpty()).map(c -> c.iterator().next())
-                .orElseThrow(() -> new IllegalStateException("No component plugin found")), serviceClass);
+        return findService(
+                Optional.of(getTestPlugins()).filter(c -> !c.isEmpty()).map(c -> c.iterator().next()).orElseThrow(
+                        () -> new IllegalStateException("No component plugin found")),
+                serviceClass);
     }
 
     public Set<String> getTestPlugins() {
@@ -406,7 +409,8 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
         private EmbeddedComponentManager(final String componentPackage) {
             super(findM2(), "TALEND-INF/dependencies.txt", "org.talend.sdk.component:type=component,value=%s");
-            testPlugins = addJarContaining(Thread.currentThread().getContextClassLoader(), componentPackage.replace('.', '/'));
+            testPlugins = addJarContaining(Thread.currentThread().getContextClassLoader(),
+                    componentPackage.replace('.', '/'));
             container.create("component-runtime-junit.jar", jarLocation(SimpleCollector.class).getAbsolutePath());
             oldInstance = CONTEXTUAL_INSTANCE.get();
             CONTEXTUAL_INSTANCE.set(this);

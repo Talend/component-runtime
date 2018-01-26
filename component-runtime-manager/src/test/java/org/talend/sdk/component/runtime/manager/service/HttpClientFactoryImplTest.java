@@ -78,16 +78,16 @@ public class HttpClientFactoryImplTest {
     @Test
     void decoderKo() {
         assertEquals(singletonList("public abstract "
-                        + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$Payload "
-                        + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$DecoderKo.main(java.lang.String) "
-                        + "defines a response payload without an adapted coder"),
+                + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$Payload "
+                + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$DecoderKo.main(java.lang.String) "
+                + "defines a response payload without an adapted coder"),
                 HttpClientFactoryImpl.createErrors(DecoderKo.class));
     }
 
     @Test
     void methodKo() {
         assertEquals(singletonList("No @Request on public abstract java.lang.String "
-                        + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$MethodKo.main(java.lang.String)"),
+                + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$MethodKo.main(java.lang.String)"),
                 HttpClientFactoryImpl.createErrors(MethodKo.class));
     }
 
@@ -151,13 +151,14 @@ public class HttpClientFactoryImplTest {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
-            final DecoderWithService client =
-                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
-                            new HashMap<Class<?>, Object>() {{
-                                put(MyService.class, new MyService());
-                                put(MyI18nService.class, (MyI18nService) () -> "error from i18n service");
-                            }})
-                            .create(DecoderWithService.class, null);
+            final DecoderWithService client = new HttpClientFactoryImpl("test",
+                    new ReflectionService(new ParameterModelService()), new HashMap<Class<?>, Object>() {
+
+                        {
+                            put(MyService.class, new MyService());
+                            put(MyI18nService.class, (MyI18nService) () -> "error from i18n service");
+                        }
+                    }).create(DecoderWithService.class, null);
             client.base("http://localhost:" + server.getAddress().getPort() + "/api");
 
             assertThrows(IllegalStateException.class, () -> client.error("search yes"));
@@ -200,14 +201,14 @@ public class HttpClientFactoryImplTest {
                     new BufferedReader(new InputStreamReader(httpExchange.getRequestBody(), StandardCharsets.UTF_8))) {
                 bytes = (httpExchange.getRequestMethod() + "@"
                         + headers
-                        .keySet()
-                        .stream()
-                        .sorted()
-                        .filter(k -> !asList("Accept", "Host", "User-agent").contains(k))
-                        .map(k -> k + "=" + headers.getFirst(k))
-                        .collect(joining("/"))
+                                .keySet()
+                                .stream()
+                                .sorted()
+                                .filter(k -> !asList("Accept", "Host", "User-agent").contains(k))
+                                .map(k -> k + "=" + headers.getFirst(k))
+                                .collect(joining("/"))
                         + "@" + httpExchange.getRequestURI().toASCIIString() + "@" + in.lines().collect(joining("\n")))
-                        .getBytes(StandardCharsets.UTF_8);
+                                .getBytes(StandardCharsets.UTF_8);
             }
             httpExchange.sendResponseHeaders(responseStatus, bytes.length);
             httpExchange.getResponseBody().write(bytes);
