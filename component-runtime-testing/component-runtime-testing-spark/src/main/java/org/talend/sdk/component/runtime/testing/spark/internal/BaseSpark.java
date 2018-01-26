@@ -52,6 +52,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.stream.IntStream;
@@ -279,7 +280,7 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
      * @param args
      * potential arguments to pass to spark submit.
      */
-    public void submitClasspath(final Class<?> main, final String... args) {
+    public void submitClasspath(final Class<?> main, final Predicate<File> classpathFilter, final String... args) {
         final Set<File> files;
         try {
             final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -292,7 +293,7 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
-        final String classpath = files.stream().map(file -> {
+        final String classpath = files.stream().filter(classpathFilter).map(file -> {
             if (file.isDirectory()) {
                 // bundle it to let spark submit it
                 return config.get().jarCache.computeIfAbsent(file, dir -> {
@@ -310,6 +311,13 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
         submit(main,
                 Stream.concat(args == null ? Stream.empty() : Stream.of(args), Stream.of("--jars", classpath)).toArray(
                         String[]::new));
+    }
+
+    /**
+     * See {@link #submitClasspath(Class, Predicate, String...)}.
+     */
+    public void submitClasspath(final Class<?> main, final String... args) {
+        submitClasspath(main, file -> true, args);
     }
 
     /**

@@ -437,7 +437,7 @@
         "ui::gridlayout::Advanced::value": "limit|maxRecords|commonConfig",
         "configurationtype::type": "dataset",
         "configurationtype::name": "table",
-        "ui::gridlayout::Main::value": "dataStore|commonConfig|queryBuilder|ordered|order"
+        "ui::gridlayout::Main::value": "dataStore|commonConfig|queryBuilder|ordered|orderBuilder"
       },
       "name": "tableDataSet",
       "path": "tableDataSet",

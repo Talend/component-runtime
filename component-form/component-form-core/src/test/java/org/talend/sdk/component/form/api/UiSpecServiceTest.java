@@ -17,6 +17,7 @@ package org.talend.sdk.component.form.api;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -85,6 +86,29 @@ class UiSpecServiceTest {
     });
 
     @Test
+    void condition() throws Exception {
+        final Ui payload = service.convert(load("rest-api.json"));
+        final UiSchema root = payload.getUiSchema().iterator().next();
+        final Collection<UiSchema.Condition> conditions = root
+                .getItems()
+                .stream()
+                .filter(i -> i.getTitle().equals("Main"))
+                .findFirst()
+                .get()
+                .getItems()
+                .stream()
+                .filter(i -> i.getTitle().equals("Order"))
+                .findFirst()
+                .get()
+                .getConditions();
+        assertEquals(1, conditions.size());
+
+        final UiSchema.Condition condition = conditions.iterator().next();
+        assertEquals("tableDataSet.ordered", condition.getPath());
+        assertEquals(singletonList("true"), condition.getValues());
+    }
+
+    @Test
     void guessSchema() throws Exception {
         final Ui payload = service.convert(load("rest-api.json"));
         final UiSchema root = payload.getUiSchema().iterator().next();
@@ -125,8 +149,8 @@ class UiSpecServiceTest {
         final UiSchema tableDataSetMain = tableDataSetIt.next();
         assertEquals("Main", tableDataSetMain.getTitle());
 
-        assertEquals(4, tableDataSetMain.getItems().size());
-        assertEquals(asList("dataStore", "commonConfig", "Query", "Ordered"),
+        assertEquals(5, tableDataSetMain.getItems().size());
+        assertEquals(asList("dataStore", "commonConfig", "Query", "Ordered", "Order"),
                 tableDataSetMain.getItems().stream().map(UiSchema::getTitle).collect(toList()));
 
         final Iterator<UiSchema> mainIt = tableDataSetMain.getItems().iterator();

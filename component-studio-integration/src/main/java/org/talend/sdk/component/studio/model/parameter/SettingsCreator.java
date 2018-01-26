@@ -359,9 +359,7 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setNumRow(lastRowNumber);
         parameter.setShow(true);
         parameter.setValue(node.getProperty().getDefaultValue());
-        if (node.getProperty().hasCondition()) {
-            createParameterActivator(node, parameter);
-        }
+        createParameterActivator(node, parameter);
     }
 
     /**
@@ -378,13 +376,10 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     private void createParameterActivator(final PropertyNode node, final IElementParameter parameter) {
-        String[] conditionValues = node.getProperty().getConditionValues();
-        ParameterActivator activator = new ParameterActivator(conditionValues, parameter);
-        String targetPath = computeTargetPath(node);
-        if (!activators.containsKey(targetPath)) {
-            activators.put(targetPath, new ArrayList<ParameterActivator>());
-        }
-        activators.get(targetPath).add(activator);
+        node.getProperty().getConditions().collect(() -> activators, (agg, c) -> {
+            final ParameterActivator activator = new ParameterActivator(c.getValues(), parameter);
+            activators.computeIfAbsent(computeTargetPath(node, c.getTarget()), k -> new ArrayList<>()).add(activator);
+        }, Map::putAll);
     }
 
     /**
@@ -392,11 +387,11 @@ public class SettingsCreator implements PropertyVisitor {
      *
      * @return target path
      */
-    private String computeTargetPath(final PropertyNode node) {
+    private String computeTargetPath(final PropertyNode node, final String target) {
         String currentPath = node.getParentId();
         LinkedList<String> path = new LinkedList<>();
         path.addAll(Arrays.asList(currentPath.split("\\" + DOT_PATH_SEPARATOR)));
-        List<String> relativePath = Arrays.asList(node.getProperty().getConditionTarget().split(PATH_SEPARATOR));
+        List<String> relativePath = Arrays.asList(target.split(PATH_SEPARATOR));
         for (String s : relativePath) {
             if (PARENT_NODE.equals(s)) {
                 path.removeLast();

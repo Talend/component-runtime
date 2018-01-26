@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -81,6 +82,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         }).collect(toList())).orElse(null);
     }
 
+    // ensure it is aligned with org.talend.sdk.component.studio.model.parameter.SettingsCreator.computeTargetPath()
     private String resolveProperty(final SimplePropertyDefinition prop, final String paramRef) {
         if (".".equals(paramRef)) {
             return prop.getPath();
@@ -127,6 +129,28 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                             .findFirst())
                     .ifPresent(ref -> schema.setTriggers(singletonList(toTrigger(properties, ctx.getProperty(), ref))));
         }
+        schema.setConditions(createConditions(ctx));
         return schema;
+    }
+
+    protected List<UiSchema.Condition> createConditions(final PropertyContext ctx) {
+        return ctx
+                .getProperty()
+                .getMetadata()
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey().startsWith("condition::if::target"))
+                .map(e -> {
+                    final String[] split = e.getKey().split("::");
+                    final String valueKey =
+                            "condition::if::value" + (split.length == 4 ? "::" + split[split.length - 1] : "");
+                    return new UiSchema.Condition.Builder()
+                            .withPath(resolveProperty(ctx.getProperty(),
+                                    (!e.getValue().contains(".") ? "../" : "") + e.getValue()))
+                            .withValues(
+                                    asList(ctx.getProperty().getMetadata().getOrDefault(valueKey, "true").split(",")))
+                            .build();
+                })
+                .collect(toList());
     }
 }

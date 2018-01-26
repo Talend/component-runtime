@@ -18,6 +18,7 @@ package org.talend.sdk.component.studio;
 import static java.lang.ClassLoader.getSystemClassLoader;
 import static java.lang.Thread.sleep;
 import static java.util.Collections.emptyEnumeration;
+import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 
 import java.io.BufferedReader;
@@ -31,9 +32,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -411,7 +412,7 @@ public class ProcessManager implements AutoCloseable {
             throw new IllegalArgumentException(serverJar + " doesn't exist");
         }
 
-        final Collection<URL> paths = new ArrayList<>();
+        final Collection<URL> paths = new HashSet<>(singleton(serverJar.toURI().toURL()));
         if (serverJar.isDirectory()) {
             try (final InputStream deps = new FileInputStream(new File(serverJar, "TALEND-INF/dependencies.txt"))) {
                 addDependencies(paths, deps);
@@ -427,7 +428,6 @@ public class ProcessManager implements AutoCloseable {
         // we use the Cli as main so we need it
         paths.add(resolve("commons-cli:commons-cli:jar:" + GAV.CLI_VERSION).toURI().toURL());
         paths.add(resolve("org.slf4j:slf4j-jdk14:jar:" + GAV.SLF4J_VERSION).toURI().toURL());
-        paths.add(serverJar.toURI().toURL());
         return paths;
     }
 

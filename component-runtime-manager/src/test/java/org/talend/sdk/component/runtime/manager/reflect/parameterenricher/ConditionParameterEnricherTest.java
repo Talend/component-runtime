@@ -22,8 +22,65 @@ import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
+import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
 
 class ConditionParameterEnricherTest {
+
+    @Test
+    void multipleConditions() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::condition::if::target::0", "foo.bar");
+                put("tcomp::condition::if::value::0", "true,false");
+                put("tcomp::condition::if::target::1", "dummy");
+                put("tcomp::condition::if::value::1", "ok");
+            }
+        }, new ConditionParameterEnricher().onParameterAnnotation("testParam", String.class, new ActiveIfs() {
+
+            @Override
+            public ActiveIf[] value() {
+                return new ActiveIf[] { new ActiveIf() {
+
+                    @Override
+                    public String target() {
+                        return "foo.bar";
+                    }
+
+                    @Override
+                    public String[] value() {
+                        return new String[] { "true", "false" };
+                    }
+
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return ActiveIf.class;
+                    }
+                }, new ActiveIf() {
+
+                    @Override
+                    public String target() {
+                        return "dummy";
+                    }
+
+                    @Override
+                    public String[] value() {
+                        return new String[] { "ok" };
+                    }
+
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return ActiveIf.class;
+                    }
+                } };
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return ActiveIfs.class;
+            }
+        }));
+    }
 
     @Test
     void condition() {

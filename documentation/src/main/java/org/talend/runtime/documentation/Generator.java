@@ -70,6 +70,7 @@ import org.apache.johnzon.mapper.MapperBuilder;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.JarArchive;
+import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.condition.meta.Condition;
 import org.talend.sdk.component.api.configuration.constraint.meta.Validation;
 import org.talend.sdk.component.api.configuration.constraint.meta.Validations;
@@ -643,6 +644,41 @@ public class Generator {
                             @Override
                             public String[] value() {
                                 return new String[] { "second", "third" };
+                            }
+                        } };
+                    }
+                    if (ActiveIf[].class == returnType) {
+                        return new ActiveIf[] { new ActiveIf() {
+
+                            @Override
+                            public String target() {
+                                return "sibling1";
+                            }
+
+                            @Override
+                            public String[] value() {
+                                return new String[] { "value1", "value2" };
+                            }
+
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return ActiveIf.class;
+                            }
+                        }, new ActiveIf() {
+
+                            @Override
+                            public String target() {
+                                return "../../other";
+                            }
+
+                            @Override
+                            public String[] value() {
+                                return new String[] { "SELECTED" };
+                            }
+
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return ActiveIf.class;
                             }
                         } };
                     }

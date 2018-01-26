@@ -31,8 +31,7 @@
   <description>Umbrella parent for the Web UI representation of the properties of the components.</description>
 
   <modules>
-    <module>component-form-core</module>
-    <module>component-form-demo</module>
     <module>component-form-model</module>
+    <module>component-form-core</module>
   </modules>
 </project>

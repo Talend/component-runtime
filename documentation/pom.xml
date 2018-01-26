@@ -124,80 +124,10 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>1.5.6</version>
-            <executions>
-              <execution>
-                <id>asciidoc-to-docbook-origin</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>process-asciidoc</goal>
-                </goals>
-                <configuration>
-                  <sourceDirectory>src/main/jbake/content</sourceDirectory>
-                </configuration>
-              </execution>
-              <execution>
-                <id>asciidoc-to-docbook-generated</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>process-asciidoc</goal>
-                </goals>
-                <configuration>
-                  <sourceDirectory>${project.build.directory}/generated-adoc</sourceDirectory>
-                </configuration>
-              </execution>
-            </executions>
-            <configuration>
-              <backend>docbook</backend>
-              <doctype>book</doctype>
-              <outputDirectory>${project.build.directory}/documentation/docbook</outputDirectory>
-              <requires>
-                <require>asciidoctor-diagram</require>
-              </requires>
-              <attributes>
-                <source-highlighter>coderay</source-highlighter>
-                <coderay-css>style</coderay-css>
-                <icons>font</icons>
-                <project_version>${project.version}</project_version>
-                <sample_project_base>${sample_project-base}</sample_project_base>
-                <sample_project>${sample_project}</sample_project>
-                <sample_project_test>${sample_project_test}</sample_project_test>
-                <generated_adoc>${generated_adoc}</generated_adoc>
-              </attributes>
-            </configuration>
-            <dependencies>
-              <dependency>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctorj</artifactId>
-                <version>${asciidoctorj.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctorj-diagram</artifactId>
-                <version>${asciidoctorj-diagram.version}</version>
-              </dependency>
-            </dependencies>
-          </plugin>
-          <plugin>
             <groupId>org.codehaus.gmavenplus</groupId>
             <artifactId>gmavenplus-plugin</artifactId>
             <version>${gmavenplus.version}</version>
             <executions>
-              <execution>
-                <id>dita</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>execute</goal>
-                </goals>
-                <configuration>
-                  <allowSystemExits>true</allowSystemExits>
-                  <scripts>
-                    <script>${project.basedir}/src/build/Docbook2Dita.groovy</script>
-                  </scripts>
-                </configuration>
-              </execution>
               <execution>
                 <id>decrypt-password</id>
                 <phase>compile</phase> <!-- before exec plugin -->

@@ -58,13 +58,13 @@ public class SparkClusterRuleTest {
     }
 
     @Test
-    public void classpathSubmit() throws IOException {
+    public void classpathSubmit() {
         final File out =
                 new File(jarLocation(SparkClusterRuleTest.class).getParentFile(), testName.getMethodName() + ".out");
         if (out.exists()) {
             out.delete();
         }
-        SPARK.submitClasspath(SubmittableMain.class, SPARK.getSparkMaster(), out.getAbsolutePath());
+        SPARK.submitClasspath(SubmittableMain.class, File::isDirectory, SPARK.getSparkMaster(), out.getAbsolutePath());
 
         await().atMost(5, MINUTES).until(
                 () -> out.exists() ? Files.readAllLines(out.toPath()).stream().collect(joining("\n")).trim() : null,

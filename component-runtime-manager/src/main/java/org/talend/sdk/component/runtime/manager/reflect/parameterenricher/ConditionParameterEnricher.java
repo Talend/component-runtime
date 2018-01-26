@@ -22,15 +22,17 @@ import static java.util.stream.Collectors.toMap;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
 import org.talend.sdk.component.api.configuration.condition.meta.Condition;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
 public class ConditionParameterEnricher implements ParameterExtensionEnricher {
 
-    public static final String META_PREFIX = "tcomp::condition::";
+    private static final String META_PREFIX = "tcomp::condition::";
 
     @Override
     public Map<String, String> onParameterAnnotation(final String parameterName, final Type parameterType,
@@ -38,6 +40,16 @@ public class ConditionParameterEnricher implements ParameterExtensionEnricher {
         final Condition condition = annotation.annotationType().getAnnotation(Condition.class);
         if (condition != null) {
             final String type = condition.value();
+            if (ActiveIfs.class.isInstance(annotation)) {
+                return Stream
+                        .of(ActiveIfs.class.cast(annotation).value())
+                        .map(ai -> onParameterAnnotation(parameterName, parameterType, ai))
+                        .collect(HashMap::new, (map, entry) -> {
+                            final String suffix = "::" + (map.size() / 2);
+                            map.putAll(entry.entrySet().stream().collect(
+                                    toMap(e -> e.getKey() + suffix, Map.Entry::getValue)));
+                        }, HashMap::putAll);
+            }
             return Stream
                     .of(annotation.annotationType().getMethods())
                     .filter(m -> m.getDeclaringClass() == annotation.annotationType())

@@ -33,9 +33,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
+import lombok.Data;
 import lombok.experimental.Delegate;
 
 /**
@@ -307,34 +309,15 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         return false;
     }
 
-    /**
-     * Checks whether it has condition::if metadata
-     * 
-     * @return true, it it has condition::if metadata; false otherwise
-     */
-    boolean hasCondition() {
-        return delegate.getMetadata().containsKey(CONDITION_IF_VALUE)
-                && delegate.getMetadata().containsKey(CONDITION_IF_TARGET);
-    }
-
-    /**
-     * Returns condition::if::value metadata values
-     * 
-     * @return condition::if::value metadata values
-     */
-    String[] getConditionValues() {
-        if (!hasCondition()) {
-            throw new IllegalStateException("Property has no condition");
-        }
-        String conditionValue = delegate.getMetadata().get(CONDITION_IF_VALUE);
-        return conditionValue.split(VALUE_SEPARATOR);
-    }
-
-    String getConditionTarget() {
-        if (!hasCondition()) {
-            throw new IllegalStateException("Property has no condition");
-        }
-        return delegate.getMetadata().get(CONDITION_IF_TARGET);
+    Stream<Condition> getConditions() {
+        return delegate.getMetadata().entrySet().stream().filter(e -> e.getKey().startsWith(CONDITION_IF_TARGET)).map(
+                e -> {
+                    final String[] split = e.getKey().split("::");
+                    final String valueKey =
+                            CONDITION_IF_VALUE + (split.length == 4 ? "::" + split[split.length - 1] : "");
+                    return new Condition(e.getValue(),
+                            delegate.getMetadata().getOrDefault(valueKey, "true").split(VALUE_SEPARATOR));
+                });
     }
 
     @Override
@@ -347,4 +330,11 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         return delegate.toString();
     }
 
+    @Data
+    public static class Condition {
+
+        private final String target;
+
+        private final String[] values;
+    }
 }
