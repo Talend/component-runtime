@@ -1773,54 +1773,24 @@ This is optional but allows to reuse maven placeholders to pass paths which is q
 
 You can find more customizations on Asciidoctor link:http://asciidoctor.org/docs/asciidoctor-maven-plugin/[website].
 
-=== Prepare
+=== Web
 
-IMPORTANT: this goal is deprecated.
+Testing the rendering of your component(s) configuration into the Studio is just a matter of deploying a component
+in Talend Studio (you can have a look to link::studio.html[Studio Documentation] page. But don't forget
+the component can also be deployed into a Cloud (web) environment. To ease the testing of the related rendering,
+you can use the goal `web` of the plugin:
 
-The `prepare` goal is to build artifacts you can deploy out of the box into the studio. It is a temporarly phase
-until the framework programming model is fully integrated in Talend suite.
-
-[source,xml]
+[source]
 ----
-<plugin>
-  <groupId>org.talend.sdk.component</groupId>
-  <artifactId>talend-component-maven-plugin</artifactId>
-  <version>${component.version}</version>
-  <executions>
-    <execution>
-      <id>talend-component-prepare</id>
-      <goals>
-        <goal>prepare</goal>
-      </goals>
-    </execution>
-  </executions>
-</plugin>
+mvn talend-component:web
 ----
 
-It will generate a maven project in `${project.build.directory}/oldtcomponentbridgemojo_workdir` which contains the artifacts
-you can deploy to the studio. Here is the associated configuration:
+Then you can test your component going on http://localhost:8080. You need to select which component form you want
+to see using the treeview on the left, then on the right the form will be displayed.
 
-[options="header,autowidth"]
-|===
-|Name|Description|Default
-|attach|attach the built virtual artifacts (definition and runtime modules) to the build/project (enables to deploy them)|true
-|componentNgApiVersion|The component API version, if set to `auto` uses the one of the plugin (recommanded)|auto
-|componentsApiVersion|The bridge component API version, if set to `auto` uses the one of the plugin (recommanded)|auto
-|studioHome|If set and `attach` is true, the created component will be installed in the studio located at that path|null
-|===
-
-TIP: if you configure a `studio` profile in your ~/.m2/settings.xml, you can activate/deactivate the deployment into the studio of your component
-with a profile (adding `-Pstudio` to you build command, ex: `mvn clean install -Pstudio`). Here is a sample declaration of such a profile:
-
-[source,xml]
-----
-<profile> <!-- to deploy in the studio at build time: mvn clean install -Pstudio -->
-  <id>studio</id>
-  <properties>
-    <talend.component.studioHome>/opt/talend/TOS_DI-V6.5.0</talend.component.studioHome>
-  </properties>
-</profile>
-----
+The two available configurations of the plugin are `serverPort` which is a shortcut to change the default, 8080, port
+of the embedded server and `serverArguments` to pass Meecrowave options to the server. More on that configuration
+is available at http://openwebbeans.apache.org/meecrowave/meecrowave-core/cli.html.
 
 === Generate inputs or outputs
 
@@ -1941,6 +1911,10 @@ talendComponentKit {
     validateDataStore = true
     validateDataSet = true
     validateActions = true
+
+    // web
+    serverArguments = []
+    serverPort = 8080
 }
 ----
 
