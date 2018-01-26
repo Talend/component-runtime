@@ -46,7 +46,7 @@ public class TaCoKitGuessSchemaProcess extends AbstractGuessSchemaProcess {
         INode node = getNode();
         configContext(process, node);
 
-        List<? extends IConnection> outgoingConnections = node.getOutgoingConnections();
+        List<? extends IConnection> outgoingConnections = new ArrayList<>(node.getOutgoingConnections());
         try {
             node.setOutgoingConnections(new ArrayList<>());
             DataProcess dataProcess = new DataProcess(process);

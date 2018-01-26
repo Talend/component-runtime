@@ -224,11 +224,13 @@ public class GuessSchema {
         IMetadataTable originaleOutputTable;
         String propertyName = elementParameter.getName();
         IElementParameter param = inputNode.getElementParameter(propertyName);
-        for (IElementParameter eParam : elem.getElementParameters()) {
-            if (eParam.getContext() != null) {
-                param = eParam;
-            }
-        }
+        // not really obvious logic. doesn't work for several connectors/schemas available.
+        // we already have context in parameter. why do we need to iterate through parameters?
+        // for (IElementParameter eParam : elem.getElementParameters()) {
+        // if (eParam.getContext() != null) {
+        // param = eParam;
+        // }
+        // }
         originaleOutputTable = inputNode.getMetadataFromConnector(param.getContext());
         if (originaleOutputTable != null) {
             outputMetaCopy = originaleOutputTable.clone();
