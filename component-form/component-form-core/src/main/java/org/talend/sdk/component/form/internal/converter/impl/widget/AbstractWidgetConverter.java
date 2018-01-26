@@ -15,14 +15,16 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -144,13 +146,35 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                     final String[] split = e.getKey().split("::");
                     final String valueKey =
                             "condition::if::value" + (split.length == 4 ? "::" + split[split.length - 1] : "");
+                    final String path = resolveProperty(ctx.getProperty(),
+                            (!e.getValue().contains(".") ? "../" : "") + e.getValue());
+                    final SimplePropertyDefinition definition =
+                            properties.stream().filter(p -> p.getPath().equals(path)).findFirst().orElse(null);
+                    final Function<String, Object> converter = findStringValueMapper(definition);
                     return new UiSchema.Condition.Builder()
-                            .withPath(resolveProperty(ctx.getProperty(),
-                                    (!e.getValue().contains(".") ? "../" : "") + e.getValue()))
-                            .withValues(
-                                    asList(ctx.getProperty().getMetadata().getOrDefault(valueKey, "true").split(",")))
+                            .withPath(path)
+                            .withValues(Stream
+                                    .of(ctx.getProperty().getMetadata().getOrDefault(valueKey, "true").split(","))
+                                    .map(converter)
+                                    .collect(toSet()))
                             .build();
                 })
                 .collect(toList());
+    }
+
+    private Function<String, Object> findStringValueMapper(final SimplePropertyDefinition definition) {
+        if (definition == null) {
+            return s -> s;
+        }
+        switch (definition.getType().toLowerCase(ROOT)) {
+        case "boolean":
+            return Boolean::parseBoolean;
+        case "number":
+            return Double::parseDouble;
+
+        // assume object and array are not supported
+        default:
+            return s -> s;
+        }
     }
 }

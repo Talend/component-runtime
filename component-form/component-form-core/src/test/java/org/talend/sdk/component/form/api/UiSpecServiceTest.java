@@ -105,7 +105,12 @@ class UiSpecServiceTest {
 
         final UiSchema.Condition condition = conditions.iterator().next();
         assertEquals("tableDataSet.ordered", condition.getPath());
-        assertEquals(singletonList("true"), condition.getValues());
+        assertEquals(singletonList(true), condition.getValues());
+
+        // typed serialization
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            assertEquals("{\"path\":\"tableDataSet.ordered\",\"values\":[true]}", jsonb.toJson(condition));
+        }
     }
 
     @Test

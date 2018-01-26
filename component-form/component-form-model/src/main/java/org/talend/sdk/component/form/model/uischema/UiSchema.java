@@ -90,20 +90,20 @@ public class UiSchema {
 
         private String path;
 
-        private Collection<String> values;
+        private Collection<Object> values;
 
         public static final class Builder {
 
             private String path;
 
-            private Collection<String> values;
+            private Collection<Object> values;
 
             public Builder withPath(final String path) {
                 this.path = path;
                 return this;
             }
 
-            public Builder withValues(final Collection<String> values) {
+            public Builder withValues(final Collection<Object> values) {
                 if (this.values == null) {
                     this.values = new ArrayList<>();
                 }
@@ -111,7 +111,7 @@ public class UiSchema {
                 return this;
             }
 
-            public Builder withValue(final String value) {
+            public Builder withValue(final Object value) {
                 if (this.values == null) {
                     this.values = new ArrayList<>();
                 }
