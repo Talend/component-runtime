@@ -33,9 +33,17 @@
 # $ docker run -p 8080:8080 talend-component-kit:1.0.0-snapshot
 #
 
+# In practise and during development you will want to use this kind of command to see the logs without connecting to the server:
+# $ docker run -p 8080:8080 -e CONSOLE_LOG_LEVEL=INFO registry.datapwn.com/talend-component-kit:1.0.0-snapshot
 #
-# Default command will launch the server, to shut it down properly run ./bin/meecrowave.sh stop:
-# $ docker exec -it <container_id> ./bin/meecrowave.sh stop
+# And if you want to deploy some components you can configure which ones in MEECROWAVE_OPTS (see server doc online)
+# and redirect your local m2:
+# $ docker run \
+#       -p 8080:8080 \
+#       -v ~/.m2:/root/.m2 \
+#       -e CONSOLE_LOG_LEVEL=INFO \
+#       -e MEECROWAVE_OPTS="-Dtalend.component.server.component.coordinates=g:a:v,g2:a2:v2,..." \
+#       talend-component-kit:<tag>
 #
 
 # not used cause of licensing
