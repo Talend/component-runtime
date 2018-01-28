@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.service.objectmap;
+package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.stream.Collectors.toList;
 
@@ -50,12 +50,16 @@ public class JsonObjectMap implements ObjectMap {
 
     @Override
     public ObjectMap getMap(final String location) {
-        return ObjectMap.class.cast(get(location));
+        return new JsonObjectMap(JsonObject.class.cast(get(location)));
     }
 
     @Override
     public Collection<ObjectMap> getCollection(final String location) {
-        return Collection.class.cast(get(location));
+        return JsonArray.class
+                .cast(get(location))
+                .stream()
+                .map(o -> new JsonObjectMap(JsonObject.class.cast(toObject(o))))
+                .collect(toList());
     }
 
     @Override
@@ -76,7 +80,7 @@ public class JsonObjectMap implements ObjectMap {
         case ARRAY:
             return JsonArray.class.cast(json).stream().map(this::toObject).collect(toList());
         case OBJECT:
-            return new JsonObjectMap(JsonObject.class.cast(json));
+            return JsonObject.class.cast(json);
         case NULL:
         default:
             return null;

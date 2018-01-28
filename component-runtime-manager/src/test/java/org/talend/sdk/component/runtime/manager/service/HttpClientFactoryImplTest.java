@@ -15,29 +15,11 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.joining;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.HashMap;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.Service;
@@ -51,12 +33,31 @@ import org.talend.sdk.component.api.service.http.Path;
 import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
+import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
+import org.talend.sdk.component.runtime.manager.processor.SubclassesCache;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
+import org.talend.sdk.component.runtime.output.data.AccessorCache;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HttpClientFactoryImplTest {
 
@@ -66,25 +67,6 @@ public class HttpClientFactoryImplTest {
         assertNoError(HttpClientFactoryImpl.createErrors(ResponseString.class));
         assertNoError(HttpClientFactoryImpl.createErrors(ResponseVoid.class));
         assertNoError(HttpClientFactoryImpl.createErrors(ResponseXml.class));
-    }
-
-    @Test
-    void encoderKo() {
-        assertEquals(
-                singletonList("public abstract java.lang.String "
-                        + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$EncoderKo.main("
-                        + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$Payload) "
-                        + "defines a request payload without an adapted coder"),
-                HttpClientFactoryImpl.createErrors(EncoderKo.class));
-    }
-
-    @Test
-    void decoderKo() {
-        assertEquals(singletonList("public abstract "
-                + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$Payload "
-                + "org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImplTest$DecoderKo.main(java.lang.String) "
-                + "defines a response payload without an adapted coder"),
-                HttpClientFactoryImpl.createErrors(DecoderKo.class));
     }
 
     @Test
@@ -106,9 +88,7 @@ public class HttpClientFactoryImplTest {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
-            final ComplexOk ok =
-                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()), emptyMap())
-                            .create(ComplexOk.class, null);
+            final ComplexOk ok = newDefaultFactory().create(ComplexOk.class, null);
             ok.base("http://localhost:" + server.getAddress().getPort() + "/api");
 
             final String result = ok.main4(new Payload("test"), "token", 1, "search yes").value;
@@ -126,9 +106,7 @@ public class HttpClientFactoryImplTest {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
-            final ComplexOk ok =
-                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()), emptyMap())
-                            .create(ComplexOk.class, null);
+            final ComplexOk ok = newDefaultFactory().create(ComplexOk.class, null);
             ok.base("http://localhost:" + server.getAddress().getPort() + "/api");
 
             final String result = ok.defaultMain1(new Payload("test"), "search yes").value;
@@ -167,9 +145,7 @@ public class HttpClientFactoryImplTest {
 
         try {
             server.start();
-            final ResponseXml client =
-                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()), emptyMap())
-                            .create(ResponseXml.class, null);
+            final ResponseXml client = newDefaultFactory().create(ResponseXml.class, null);
             client.base("http://localhost:" + server.getAddress().getPort() + "/api");
 
             final Response<XmlRecord> result = client.main("application/xml", new XmlRecord("xml content"));
@@ -182,12 +158,47 @@ public class HttpClientFactoryImplTest {
     }
 
     @Test
+    void requestWithJSON() throws IOException {
+        final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/").setHandler(httpExchange -> {
+            final Headers headers = httpExchange.getResponseHeaders();
+            headers.set("content-type", "application/json;charset=UTF-8");
+            final byte[] bytes;
+            try (final BufferedReader in =
+                    new BufferedReader(new InputStreamReader(httpExchange.getRequestBody(), StandardCharsets.UTF_8))) {
+                bytes = in.lines().collect(joining("\n")).getBytes(StandardCharsets.UTF_8);
+            }
+            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
+            httpExchange.getResponseBody().write(bytes);
+            httpExchange.close();
+        });
+
+        try {
+            server.start();
+            final ResponseJson client = newDefaultFactory().create(ResponseJson.class, null);
+            client.base("http://localhost:" + server.getAddress().getPort() + "/api");
+
+            final Response<Sample> result =
+                    client.main("application/json", new Sample(singletonList(new Foo("testJSON"))));
+            assertEquals(1, result.body().getFoos().size());
+            assertEquals("testJSON", result.body().getFoos().iterator().next().getName());
+            assertEquals(HttpURLConnection.HTTP_OK, result.status());
+            assertEquals("30", result.headers().get("content-length").iterator().next());
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
     void decoderWithServices() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
             final DecoderWithService client = new HttpClientFactoryImpl("test",
-                    new ReflectionService(new ParameterModelService()), new HashMap<Class<?>, Object>() {
+                    new SubclassesCache("test", new ProxyGenerator(), Thread.currentThread().getContextClassLoader(),
+                            new ConcurrentHashMap<>()),
+                    new AccessorCache("test"), new ReflectionService(new ParameterModelService()),
+                    new HashMap<Class<?>, Object>() {
 
                         {
                             put(MyService.class, new MyService());
@@ -208,9 +219,7 @@ public class HttpClientFactoryImplTest {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_FORBIDDEN);
         try {
             server.start();
-            final ComplexOk ok =
-                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()), emptyMap())
-                            .create(ComplexOk.class, null);
+            final ComplexOk ok = newDefaultFactory().create(ComplexOk.class, null);
             ok.base("http://localhost:" + server.getAddress().getPort() + "/api");
             ok.main1("search yes");
         } catch (final HttpException e) {
@@ -221,6 +230,13 @@ public class HttpClientFactoryImplTest {
         } finally {
             server.stop(0);
         }
+    }
+
+    private HttpClientFactoryImpl newDefaultFactory() {
+        return new HttpClientFactoryImpl("test",
+                new SubclassesCache("test", new ProxyGenerator(), Thread.currentThread().getContextClassLoader(),
+                        new ConcurrentHashMap<>()),
+                new AccessorCache("test"), new ReflectionService(new ParameterModelService()), emptyMap());
     }
 
     private void assertNoError(final Collection<String> errors) {
@@ -332,6 +348,12 @@ public class HttpClientFactoryImplTest {
         Response<XmlRecord> main(@Header("content-type") String contentType, XmlRecord payload);
     }
 
+    public interface ResponseJson extends HttpClient {
+
+        @Request(method = "POST")
+        Response<Sample> main(@Header("content-type") String contentType, Sample payload);
+    }
+
     @Internationalized
     public interface MyI18nService {
 
@@ -392,6 +414,21 @@ public class HttpClientFactoryImplTest {
     public static class XmlRecord {
 
         private String value;
+    }
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Sample {
+
+        private Collection<Foo> foos;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Foo {
+
+        private String name;
     }
 }

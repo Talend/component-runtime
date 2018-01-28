@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.service.objectmap;
-
-import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import javax.json.Json;
+package org.talend.sdk.component.runtime.manager.service;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.processor.data.ObjectMap;
+
+import javax.json.Json;
+
+import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsonObjectMapTest {
 

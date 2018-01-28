@@ -31,7 +31,7 @@ import static org.apache.ziplock.JarLocation.jarFromRegex
 
 log.info 'Converting SVG icons to PNG'
 
-def toPng(byte[] svg) throws IOException {
+def toPng(String name, byte[] svg) throws IOException {
     // convert svf to png at the right size (32x32)
     def pngTranscoder = new PNGTranscoder() {
         @Override
@@ -56,7 +56,7 @@ def toPng(byte[] svg) throws IOException {
     try {
         pngTranscoder.transcode(new TranscoderInput(new ByteArrayInputStream(svg)), new TranscoderOutput(ostream));
     } catch (final TranscoderException e) {
-        throw new IllegalStateException(e);
+        throw new IllegalStateException("Icon ${name}", e);
     }
     ostream.close();
 
@@ -78,6 +78,6 @@ jar.entries().findAll {
     png.parentFile.mkdirs()
 
     def out = new FileOutputStream(png)
-    out.write(toPng(jar.getInputStream(it).bytes))
+    out.write(toPng(it.name, jar.getInputStream(it).bytes))
     out.close()
 }

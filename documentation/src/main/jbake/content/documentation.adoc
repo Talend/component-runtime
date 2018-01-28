@@ -1189,11 +1189,13 @@ TIP: See the <<_httpclient_usage>> for details.
 |===
 
 === HttpClient usage
+
 Let assume that we have a REST API defined like below, and that it requires a basic authentication header.
 
-GET     `/api/records/{id}`
-
-POST    `/api/records`      => with a json playload to be created `{"id":"some id", "data":"some data"}`
+|===
+| GET     `/api/records/{id}` | -
+| POST    `/api/records`      | with a json playload to be created `{"id":"some id", "data":"some data"}`
+|===
 
 To create an http client able to consume this REST API, we will define an interface that extends `HttpClient`,
 
@@ -1218,6 +1220,7 @@ public interface APIClient extends HttpClient {
     Record createRecord(@Header("Authorization") String basicAuth, Record record);
 }
 ----
+
 IMPORTANT: The interface should extends `HttpClient`.
 
 In the codec classes (class that implement Encoder/Decoder) you can inject any of your services annotated with `@Service` or `@Internationalized` into the constructor.
@@ -1246,6 +1249,9 @@ public class MyService {
     Record newRecord = client.createRecord("Basic MLFKG?VKFJ", new Record());
 }
 ----
+
+Note: by default `*/*+json` are mapped to JSON-P and `*/*+xml` to JAX-B if the model has a `@XmlRootElement` annotation.
+The JSON-P integration supports `ObjectMap` as well but it is recommanded to keep it simple and use a `JsonObject` or `JsonArray`.
 
 ==== Advanced HTTP client request customization
 

@@ -165,16 +165,17 @@ public class ComponentManager implements AutoCloseable {
     @Getter
     protected final ContainerManager container;
 
-    // tcomp (org.talend + javax.annotation) + logging (slf4j) are/can be provided
+    // tcomp (org.talend + javax.annotation + jsonp) + logging (slf4j) are/can be provided
     // service
     // + tcomp "runtime" indeed (invisible from the components but required for the
     // runtime
-    private final Filter classesFilter = Filters.prefixes("org.talend.sdk.component.api.",
-            "org.talend.sdk.component.spi.", "javax.annotation.", "org.talend.sdk.component.classloader.",
-            "org.talend.sdk.component.runtime.", "org.slf4j.", "org.apache.beam.runners.", "org.apache.beam.sdk.");
+    private final Filter classesFilter =
+            Filters.prefixes("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.", "javax.annotation.",
+                    "javax.json.", "org.talend.sdk.component.classloader.", "org.talend.sdk.component.runtime.",
+                    "org.slf4j.", "org.apache.beam.runners.", "org.apache.beam.sdk.");
 
     private final Filter excludeClassesFilter =
-            Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.");
+            Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.", "javax.json.bind.");
 
     private final ParameterModelService parameterModelService = new ParameterModelService();
 
@@ -601,16 +602,19 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
-        services.put(HttpClientFactory.class, new HttpClientFactoryImpl(container.getId(), reflections, services));
+        final AccessorCache accessorCache = new AccessorCache(container.getId());
+        final SubclassesCache subclassesCache = new SubclassesCache(container.getId(), proxyGenerator,
+                container.getLoader(), new ConcurrentHashMap<>());
+        services.put(AccessorCache.class, accessorCache);
+        services.put(SubclassesCache.class, subclassesCache);
+        services.put(HttpClientFactory.class,
+                new HttpClientFactoryImpl(container.getId(), subclassesCache, accessorCache, reflections, services));
         services.put(LocalCache.class, new LocalCacheService(container.getId()));
         services.put(LocalConfiguration.class,
                 new LocalConfigurationService(createRawLocalConfigurations(), container.getId()));
         services.put(ProxyGenerator.class, proxyGenerator);
-        services.put(AccessorCache.class, new AccessorCache(container.getId()));
         services.put(Resolver.class,
                 new ResolverImpl(container.getId(), container.getLocalDependencyRelativeResolver()));
-        services.put(SubclassesCache.class, new SubclassesCache(container.getId(), proxyGenerator,
-                container.getLoader(), new ConcurrentHashMap<>()));
     }
 
     protected Collection<LocalConfiguration> createRawLocalConfigurations() {

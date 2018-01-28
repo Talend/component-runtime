@@ -67,6 +67,7 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.service.JsonObjectMap;
 import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -75,7 +76,6 @@ import org.talend.sdk.component.server.front.filter.message.DeprecatedEndpoint;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.front.model.execution.PrimitiveWrapper;
 import org.talend.sdk.component.server.front.model.execution.WriteStatistics;
-import org.talend.sdk.component.server.service.objectmap.JsonObjectMap;
 
 import lombok.extern.slf4j.Slf4j;
 
