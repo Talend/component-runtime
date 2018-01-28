@@ -39,7 +39,9 @@ import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.ui.editor.nodes.Node;
+import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivator;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidationListener;
@@ -84,7 +86,7 @@ public class SettingsCreator implements PropertyVisitor {
      */
     private final ElementParameter redrawParameter;
 
-    private final ComponentDetail detail;
+    private final Collection<ActionReference> actions;
 
     /**
      * Stores created {@link ParameterActivator} for further registering them into corresponding
@@ -104,17 +106,26 @@ public class SettingsCreator implements PropertyVisitor {
     private int lastRowNumber = 3;
 
     public SettingsCreator(final IElement iNode, final EComponentCategory category,
-            final ElementParameter redrawParameter) {
-        this(iNode, category, redrawParameter, null);
+            final ElementParameter redrawParameter, final ConfigTypeNode config) {
+        this(iNode, category, redrawParameter, config.getActions());
     }
 
     public SettingsCreator(final IElement iNode, final EComponentCategory category,
             final ElementParameter redrawParameter, final ComponentDetail detail) {
+        this(iNode, category, redrawParameter, detail.getActions());
+    }
+
+    public SettingsCreator(final IElement iNode, final EComponentCategory category,
+            final ElementParameter redrawParameter, final Collection<ActionReference> actions) {
         this.iNode = iNode;
         this.category = category;
         this.redrawParameter = redrawParameter;
         formName = (category == EComponentCategory.ADVANCED) ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
-        this.detail = detail;
+        this.actions = actions;
+    }
+
+    SettingsCreator(final IElement iNode, final EComponentCategory category, final ElementParameter redrawParameter) {
+        this(iNode, category, redrawParameter, Collections.emptyList());
     }
 
     /**
@@ -430,9 +441,10 @@ public class SettingsCreator implements PropertyVisitor {
     private void processValidations(final PropertyNode node, final TaCoKitElementParameter target,
             final ValidationLabel label) {
         if (node.getProperty().hasValidation()) {
+            final String family = actions.iterator().next().getFamily();
             final ValidationListener listener =
-                    new ValidationListener(label, detail.getId().getFamily(), node.getProperty().getValidationName());
-            final ActionResolver resolver = new ActionResolver(node, detail, listener, redrawParameter);
+                    new ValidationListener(label, family, node.getProperty().getValidationName());
+            final ActionResolver resolver = new ActionResolver(node, actions, listener, redrawParameter);
             actionResolvers.add(resolver);
         }
     }

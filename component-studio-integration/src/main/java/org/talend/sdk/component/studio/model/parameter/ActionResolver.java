@@ -17,6 +17,7 @@ package org.talend.sdk.component.studio.model.parameter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,6 @@ import java.util.stream.Collectors;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.server.front.model.ActionReference;
-import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.model.parameter.listener.ActionParameter;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidationListener;
@@ -41,11 +41,11 @@ class ActionResolver {
 
     private final ElementParameter redrawParameter;
 
-    ActionResolver(final PropertyNode actionOwner, final ComponentDetail detail, final ValidationListener listener,
-            final ElementParameter redrawParameter) {
+    ActionResolver(final PropertyNode actionOwner, final Collection<ActionReference> actions,
+            final ValidationListener listener, final ElementParameter redrawParameter) {
         // TODO remove these checks as it is package visible
         Objects.requireNonNull(actionOwner, "actionOwner should not be null");
-        Objects.requireNonNull(detail, "detail should not be null");
+        Objects.requireNonNull(actions, "actions should not be null");
         Objects.requireNonNull(listener, "listener should not be null");
         Objects.requireNonNull(redrawParameter, "redrawParameter should not be null");
         if (!actionOwner.getProperty().hasValidation()) {
@@ -55,7 +55,7 @@ class ActionResolver {
         this.listener = listener;
         this.redrawParameter = redrawParameter;
         final String actionName = actionOwner.getProperty().getValidationName();
-        action = detail.getActions().stream().filter(a -> a.getName().equals(actionName)).findFirst().get();
+        action = actions.stream().filter(a -> a.getName().equals(actionName)).findFirst().get();
     }
 
     void resolveParameters(final Map<String, IElementParameter> settings) {
