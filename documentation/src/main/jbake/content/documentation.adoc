@@ -1249,7 +1249,7 @@ public class MyService {
 
 ==== Advanced HTTP client request customization
 
-For advanced cases you can customize the `HttpUrlConnection` directly using `@UseConfigurer` on the method.
+For advanced cases you can customize the `Connection` directly using `@UseConfigurer` on the method.
 It will call your custom instance of `Configurer`. Note that you can use some `@ConfigurerOption` in the method
 signature to pass some configurer configuration.
 
@@ -1259,10 +1259,10 @@ For instance if you have this configurer:
 ----
 public class BasicConfigurer implements Configurer {
     @Override
-    public void configure(final HttpURLConnection connection, final ConfigurerConfiguration configuration) {
+    public void configure(final Connection connection, final ConfigurerConfiguration configuration) {
         final String user = configuration.get("username", String.class);
         final String pwd = configuration.get("password", String.class);
-        connection.setRequestProperty(
+        connection.withHeader(
             "Authorization",
             Base64.getEncoder().encodeToString((user + ':' + pwd).getBytes(StandardCharsets.UTF_8)));
     }

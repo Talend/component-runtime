@@ -445,7 +445,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         if (configurerInstance != null) {
                             final Map<String, Object> options = configurerOptions.entrySet().stream().collect(
                                     toMap(Map.Entry::getKey, e -> e.getValue().apply(params)));
-                            configurerInstance.configure(urlConnection,
+                            configurerInstance.configure(new DefaultConnection(urlConnection),
                                     configurerOptions.isEmpty() ? EMPTY_CONFIGURER_OPTIONS
                                             : new Configurer.ConfigurerConfiguration() {
 
@@ -708,6 +708,30 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 }
                 return os.toByteArray();
             }
+        }
+    }
+
+    @AllArgsConstructor
+    private static class DefaultConnection implements Configurer.Connection {
+
+        private final HttpURLConnection urlConnection;
+
+        @Override
+        public Configurer.Connection withHeader(final String name, final String value) {
+            urlConnection.addRequestProperty(name, value);
+            return this;
+        }
+
+        @Override
+        public Configurer.Connection withReadTimeout(final int timeout) {
+            urlConnection.setReadTimeout(timeout);
+            return this;
+        }
+
+        @Override
+        public Configurer.Connection withConnectionTimeout(final int timeout) {
+            urlConnection.setConnectTimeout(timeout);
+            return this;
         }
     }
 }
