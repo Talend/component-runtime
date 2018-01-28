@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,9 +31,10 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.jar.JarInputStream;
 import java.util.stream.Stream;
@@ -60,15 +61,38 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private final Predicate<String> childFirstFilter;
 
-    private final String[] nestedDependencies;
+    private final Map<String, Collection<Resource>> resources = new HashMap<>();
 
     public ConfigurableClassLoader(final URL[] urls, final ClassLoader parent, final Predicate<String> parentFilter,
             final Predicate<String> childFirstFilter, final String[] nestedDependencies) {
         super(urls, parent);
         this.parentFilter = parentFilter;
         this.childFirstFilter = childFirstFilter;
-        this.nestedDependencies = nestedDependencies == null ? null
-                : Stream.of(nestedDependencies).map(d -> NESTED_MAVEN_REPOSITORY + d).toArray(String[]::new);
+        if (nestedDependencies != null) { // load all in memory to avoid perf issues - should we try offheap?
+            final byte[] buffer = new byte[8192]; // should be good for most cases
+            final ByteArrayOutputStream out = new ByteArrayOutputStream(buffer.length);
+            Stream.of(nestedDependencies).map(d -> NESTED_MAVEN_REPOSITORY + d).forEach(resource -> {
+                final URL url = ofNullable(super.findResource(resource)).orElseGet(() -> parent.getResource(resource));
+                try (final JarInputStream jarInputStream = new JarInputStream(url.openStream())) {
+                    ZipEntry entry;
+                    while ((entry = jarInputStream.getNextEntry()) != null) {
+                        if (!entry.isDirectory()) {
+                            out.reset();
+
+                            int read;
+                            while ((read = jarInputStream.read(buffer, 0, buffer.length)) >= 0) {
+                                out.write(buffer, 0, read);
+                            }
+
+                            resources.computeIfAbsent(entry.getName(), k -> new ArrayList<>()).add(
+                                    new Resource(resource, out.toByteArray()));
+                        }
+                    }
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+        }
     }
 
     @Override
@@ -133,71 +157,37 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     @Override
     public URL findResource(final String name) {
-        return hasNoNestedRepositories() ? super.findResource(name)
-                : ofNullable(super.findResource(name)).orElseGet(() -> {
-                    final Resource nestedResource = findNestedResource(name);
-                    if (nestedResource != null) {
-                        return nestedResourceToURL(name, nestedResource);
-                    }
-                    return null;
-                });
+        return resources.isEmpty() ? super.findResource(name)
+                : ofNullable(super.findResource(name)).orElseGet(() -> ofNullable(resources.get(name))
+                        .filter(s -> !s.isEmpty())
+                        .map(s -> s.iterator().next())
+                        .map(r -> nestedResourceToURL(name, r))
+                        .orElse(null));
     }
 
     @Override
     public InputStream getResourceAsStream(final String name) {
-        return hasNoNestedRepositories() || Stream.of(nestedDependencies).anyMatch(d -> d.equals(name))
-                ? super.getResourceAsStream(name)
-                : ofNullable(super.getResourceAsStream(name)).orElseGet(() -> ofNullable(findNestedResource(name))
-                        .map(r -> new ByteArrayInputStream(r.resource))
-                        .map(InputStream.class::cast)
-                        .orElse(null));
+        return ofNullable(super.getResourceAsStream(name)).orElseGet(() -> ofNullable(resources.get(name))
+                .filter(s -> s.size() > 0)
+                .map(s -> s.iterator().next().resource)
+                .map(ByteArrayInputStream::new)
+                .orElse(null));
     }
 
     @Override
     public Enumeration<URL> findResources(final String name) throws IOException {
         final Enumeration<URL> delegates = super.findResources(name);
-        if (hasNoNestedRepositories()) {
+        if (resources.isEmpty()) {
             return delegates;
         }
 
-        final List<Resource> nested = Stream.of(nestedDependencies).map(dep -> {
-            final InputStream jarStream = super.getResourceAsStream(dep);
-            if (jarStream == null) {
-                return null;
-            }
-
-            try (final JarInputStream jarInputStream = new JarInputStream(jarStream)) {
-                ZipEntry entry;
-                while ((entry = jarInputStream.getNextEntry()) != null) {
-                    if (entry.getName().equals(name)) {
-                        break;
-                    }
-                }
-                if (entry != null) {
-                    final ByteArrayOutputStream out =
-                            new ByteArrayOutputStream(8192 /* should be good for most of cases */);
-                    final byte[] buffer = new byte[8192];
-                    int read;
-                    while ((read = jarInputStream.read(buffer, 0, buffer.length)) >= 0) {
-                        out.write(buffer, 0, read);
-                    }
-                    return new Resource(dep, out.toByteArray());
-                }
-            } catch (final IOException e) {
-                log.debug(e.getMessage(), e);
-            }
-            return null;
-        }).filter(Objects::nonNull).collect(toList());
+        final Collection<Resource> nested = ofNullable(resources.get(name)).orElseGet(Collections::emptyList);
         if (nested.isEmpty()) {
             return delegates;
         }
         final Collection<URL> aggregated = new ArrayList<>(list(delegates));
         aggregated.addAll(nested.stream().map(r -> nestedResourceToURL(name, r)).collect(toList()));
         return enumeration(aggregated);
-    }
-
-    private boolean hasNoNestedRepositories() {
-        return nestedDependencies == null || nestedDependencies.length == 0;
     }
 
     private URL nestedResourceToURL(final String name, final Resource nestedResource) {
@@ -379,9 +369,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
         try {
             clazz = findClass(name);
         } catch (final ClassNotFoundException ignored) {
-            if (nestedDependencies != null) {
-                final Resource resource = findNestedResource(name.replace(".", "/") + ".class");
-                if (resource != null) {
+            if (!resources.isEmpty()) {
+                final Collection<Resource> resources = this.resources.get(name.replace(".", "/") + ".class");
+                if (resources != null && !resources.isEmpty()) {
+                    final Resource resource = resources.iterator().next();
                     clazz = defineClass(name, resource.resource, 0, resource.resource.length);
                 }
             }
@@ -390,39 +381,6 @@ public class ConfigurableClassLoader extends URLClassLoader {
             return clazz;
         }
         return null;
-    }
-
-    private Resource findNestedResource(final String name) {
-        return Stream.of(nestedDependencies).map(dep -> {
-            final InputStream jarStream = getParent().getResourceAsStream(dep);
-            if (jarStream == null) {
-                return null;
-            }
-
-            try (final JarInputStream jarInputStream = new JarInputStream(jarStream)) {
-                // not the best part but alternative is to keep the jar in mem
-                // so probably better while it is not too slow
-                ZipEntry entry;
-                while ((entry = jarInputStream.getNextEntry()) != null) {
-                    if (entry.getName().equals(name)) {
-                        break;
-                    }
-                }
-                if (entry != null) {
-                    final ByteArrayOutputStream out =
-                            new ByteArrayOutputStream(8192 /* should be good for most of cases */);
-                    final byte[] buffer = new byte[8192];
-                    int read;
-                    while ((read = jarInputStream.read(buffer, 0, buffer.length)) >= 0) {
-                        out.write(buffer, 0, read);
-                    }
-                    return new Resource(dep, out.toByteArray());
-                }
-            } catch (final IOException e) {
-                log.debug(e.getMessage(), e);
-            }
-            return null;
-        }).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     @RequiredArgsConstructor
