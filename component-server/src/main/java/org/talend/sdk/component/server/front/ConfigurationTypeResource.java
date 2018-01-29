@@ -36,12 +36,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.design.extension.repository.Config;
 import org.talend.sdk.component.runtime.internationalization.FamilyBundle;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.service.ActionsService;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 
@@ -59,6 +61,9 @@ public class ConfigurationTypeResource {
 
     @Inject
     private PropertiesService propertiesService;
+
+    @Inject
+    private ActionsService actionsService;
 
     @Inject
     private LocaleMapper localeMapper;
@@ -87,8 +92,8 @@ public class ConfigurationTypeResource {
                                 return Stream.of(node);
                             }
                             node.setEdges(family.getConfigs().stream().map(Config::getId).collect(toSet()));
-                            return Stream.concat(Stream.of(node), createNode(family.getId(),
-                                    family.getConfigs().stream(), resourcesBundle, c.getLoader(), locale));
+                            return Stream.concat(Stream.of(node), createNode(family.getId(), family.getMeta().getName(),
+                                    family.getConfigs().stream(), resourcesBundle, c, locale));
                         }))
                 .collect(() -> {
                     final ConfigTypeNodes nodes = new ConfigTypeNodes();
@@ -99,8 +104,9 @@ public class ConfigurationTypeResource {
                         (first, second) -> first.getNodes().putAll(second.getNodes()));
     }
 
-    private Stream<ConfigTypeNode> createNode(final String parentId, final Stream<Config> configs,
-            final FamilyBundle resourcesBundle, final ClassLoader loader, final Locale locale) {
+    private Stream<ConfigTypeNode> createNode(final String parentId, final String family, final Stream<Config> configs,
+            final FamilyBundle resourcesBundle, final Container container, final Locale locale) {
+        final ClassLoader loader = container.getLoader();
         if (configs == null) {
             return Stream.empty();
         }
@@ -115,6 +121,7 @@ public class ConfigurationTypeResource {
                     .orElse(c.getKey().getConfigName()));
             node.setProperties(
                     propertiesService.buildProperties(singleton(c.getMeta()), loader, locale, null).collect(toList()));
+            node.setActions(actionsService.findActions(family, container, locale, c));
 
             if (c.getChildConfigs() == null) {
                 return Stream.of(node);
@@ -122,7 +129,7 @@ public class ConfigurationTypeResource {
 
             node.setEdges(c.getChildConfigs().stream().map(Config::getId).collect(toSet()));
             return Stream.concat(Stream.of(node),
-                    createNode(c.getId(), c.getChildConfigs().stream(), resourcesBundle, loader, locale));
+                    createNode(c.getId(), family, c.getChildConfigs().stream(), resourcesBundle, container, locale));
         });
     }
 }
