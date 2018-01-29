@@ -106,7 +106,7 @@ public class TaCoKitCache {
         }
         for (final String edge : current.getEdges()) {
             final ConfigTypeNode node =
-                    findConfigTypeNode(configTypeNodeMapCache.get(edge), nodeName, configurationType);
+                    findConfigTypeNode(getConfigTypeNodeMap().get(edge), nodeName, configurationType);
             if (node != null) {
                 return node;
             }
