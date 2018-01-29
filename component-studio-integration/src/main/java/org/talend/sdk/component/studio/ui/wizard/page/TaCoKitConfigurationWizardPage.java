@@ -12,6 +12,7 @@
  */
 package org.talend.sdk.component.studio.ui.wizard.page;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,10 +24,13 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.talend.core.model.process.EComponentCategory;
+import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.Element;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.DummyComponent;
+import org.talend.designer.core.model.components.EParameterName;
+import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.process.DataNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.i18n.Messages;
@@ -53,7 +57,7 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
 
     public TaCoKitConfigurationWizardPage(final TaCoKitConfigurationRuntimeData runtimeData) {
         super(Messages.getString("WizardPage.TaCoKitConfiguration"), runtimeData); //$NON-NLS-1$
-        ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
+        final ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
         setTitle(Messages.getString("TaCoKitConfiguration.wizard.title", configTypeNode.getConfigurationType(),
                 // $NON-NLS-1$
                 configTypeNode.getDisplayName()));
@@ -63,26 +67,31 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
 
     @Override
     public void createControl(final Composite parent) {
-        Composite container = new Composite(parent, SWT.NONE);
+        final Composite container = new Composite(parent, SWT.NONE);
         container.setLayoutData(new GridData(GridData.FILL_BOTH));
         container.setLayout(new FormLayout());
         setControl(container);
 
-        TaCoKitConfigurationRuntimeData runtimeData = getTaCoKitConfigurationRuntimeData();
-        TaCoKitConfigurationItemModel itemModel = new TaCoKitConfigurationItemModel(runtimeData.getConnectionItem());
+        final TaCoKitConfigurationRuntimeData runtimeData = getTaCoKitConfigurationRuntimeData();
+        final TaCoKitConfigurationItemModel itemModel =
+                new TaCoKitConfigurationItemModel(runtimeData.getConnectionItem());
         configurationModel = itemModel.getConfigurationModel();
-        boolean addContextFields = runtimeData.isAddContextFields();
+        final boolean addContextFields = runtimeData.isAddContextFields();
 
-        ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
-        DummyComponent component = new DummyComponent(configTypeNode.getDisplayName());
+        final ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
+        final DummyComponent component = new DummyComponent(configTypeNode.getDisplayName());
         final DataNode node = new DataNode(component, component.getName());
-        PropertyNode root = new PropertyTreeCreator(new WizardTypeMapper()).createPropertyTree(configTypeNode);
-        SettingsCreator settingsCreator = new SettingsCreator(node, EComponentCategory.BASIC, null);
-        root.accept(settingsCreator);
-        List<IElementParameter> parameters = settingsCreator.getSettings();
-
+        final PropertyNode root = new PropertyTreeCreator(new WizardTypeMapper()).createPropertyTree(configTypeNode);
         element = new FakeElement(runtimeData.getTaCoKitRepositoryNode().getConfigTypeNode().getDisplayName());
         element.setReadOnly(runtimeData.isReadonly());
+        final ElementParameter updateParameter = createUpdateComponentsParameter(element);
+        final List<IElementParameter> parameters = new ArrayList<>();
+        parameters.add(updateParameter);
+        final SettingsCreator settingsCreator =
+                new SettingsCreator(node, EComponentCategory.BASIC, updateParameter, configTypeNode);
+        root.accept(settingsCreator);
+        parameters.addAll(settingsCreator.getSettings());
+
         element.setElementParameters(parameters);
 
         tacokitComposite = new TaCoKitWizardComposite(container, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS,
@@ -100,7 +109,7 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
     }
 
     private FormData createMainFormData(final boolean addContextSupport) {
-        FormData data = new FormData();
+        final FormData data = new FormData();
         data.left = new FormAttachment(0, 0);
         data.right = new FormAttachment(100, 0);
         data.top = new FormAttachment(0, 0);
@@ -110,6 +119,23 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
             data.bottom = new FormAttachment(100, 0);
         }
         return data;
+    }
+
+    /**
+     * Creates and adds {@link EParameterName#UPDATE_COMPONENTS} parameter
+     * This parameter is used to decide whether UI should be redrawn during Composite refresh
+     */
+    private ElementParameter createUpdateComponentsParameter(final Element element) {
+        final ElementParameter parameter = new ElementParameter(element);
+        parameter.setName(EParameterName.UPDATE_COMPONENTS.getName());
+        parameter.setValue(false);
+        parameter.setDisplayName(EParameterName.UPDATE_COMPONENTS.getDisplayName());
+        parameter.setFieldType(EParameterFieldType.CHECK);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setReadOnly(true);
+        parameter.setRequired(false);
+        parameter.setShow(false);
+        return parameter;
     }
 
     @Override

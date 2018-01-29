@@ -45,7 +45,7 @@ public class TaCoKitCache {
         if (configNode == null) {
             return null;
         }
-        String parentId = configNode.getParentId();
+        final String parentId = configNode.getParentId();
         if (parentId == null) {
             return configNode;
         }
@@ -62,10 +62,13 @@ public class TaCoKitCache {
      */
     public ConfigTypeNode getConfigTypeNode(final String familyName, final String nodeName,
             final String configurationType) {
+        if (configurationType == null) {
+            throw new IllegalArgumentException("configurationType should not be null");
+        }
         if (familyConfigTypes == null) {
             fillFamilyConfig();
         }
-        ConfigTypeNode familyConfig = familyConfigTypes.get(familyName);
+        final ConfigTypeNode familyConfig = familyConfigTypes.get(familyName);
         if (familyConfig == null) {
             return null;
         }
@@ -76,7 +79,7 @@ public class TaCoKitCache {
      * Finds only family ConfigTypeNode and puts them to {@link #familyConfigTypes}
      */
     private void fillFamilyConfig() {
-        Map<String, ConfigTypeNode> allNodes = getConfigTypeNodeMap();
+        final Map<String, ConfigTypeNode> allNodes = getConfigTypeNodeMap();
         familyConfigTypes = new HashMap<>();
         allNodes.values().stream().filter(c -> c.getParentId() == null).forEach(
                 c -> familyConfigTypes.put(c.getName(), c));
@@ -94,15 +97,16 @@ public class TaCoKitCache {
     private ConfigTypeNode findConfigTypeNode(final ConfigTypeNode current, final String nodeName,
             final String configurationType) {
         // node is found
-        if (current.getName().equals(nodeName) && current.getConfigurationType().equals(configurationType)) {
+        if (current.getName().equals(nodeName) && configurationType.equals(current.getConfigurationType())) {
             return current;
         }
         // it is leaf, but node wasn't found in this branch
         if (current.getEdges().isEmpty()) {
             return null;
         }
-        for (String edge : current.getEdges()) {
-            ConfigTypeNode node = findConfigTypeNode(configTypeNodeMapCache.get(edge), nodeName, configurationType);
+        for (final String edge : current.getEdges()) {
+            final ConfigTypeNode node =
+                    findConfigTypeNode(getConfigTypeNodeMap().get(edge), nodeName, configurationType);
             if (node != null) {
                 return node;
             }

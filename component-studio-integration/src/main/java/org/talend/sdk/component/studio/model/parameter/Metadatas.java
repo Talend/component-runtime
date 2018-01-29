@@ -25,6 +25,14 @@ public final class Metadatas {
 
     public static final String ACTION_DYNAMIC_VALUES = "action::dynamic_values";
 
+    public static final String ACTION_VALIDATION_NAME = "action::validation";
+
+    public static final String ACTION_VALIDATION_PARAMETERS = "action::validation::parameters";
+
+    public static final String CONDITION_IF_VALUE = "condition::if::value";
+
+    public static final String CONDITION_IF_TARGET = "condition::if::target";
+
     public static final String CONFIG_TYPE = "configurationtype::type";
 
     public static final String CONFIG_NAME = "configurationtype::name";
@@ -32,10 +40,6 @@ public final class Metadatas {
     public static final String UI_CODE = "ui::code::value";
 
     public static final String UI_CREDENTIAL = "ui::credential";
-
-    public static final String UI_OPTIONS_ORDER = "ui::optionsorder::value";
-
-    public static final String UI_TEXTAREA = "ui::textarea";
 
     /**
      * UI gridlayout key prefix used to build gridlayout metadata key with arbitrary form name
@@ -47,13 +51,13 @@ public final class Metadatas {
      */
     public static final String UI_GRIDLAYOUT_SUFFIX = "::value";
 
-    public static final String CONDITION_IF_VALUE = "condition::if::value";
-
-    public static final String CONDITION_IF_TARGET = "condition::if::target";
+    public static final String UI_OPTIONS_ORDER = "ui::optionsorder::value";
 
     public static final String UI_STRUCTURE_TYPE = "ui::structure::type";
 
     public static final String UI_STRUCTURE_VALUE = "ui::structure::value";
+
+    public static final String UI_TEXTAREA = "ui::textarea";
 
     /**
      * Value separator for {@link #UI_OPTIONS_ORDER}
@@ -64,21 +68,6 @@ public final class Metadatas {
      * Value separator for {@link #CONDITION_IF_VALUE}
      */
     public static final String VALUE_SEPARATOR = ",";
-
-    /**
-     * Path separator which is used in target property
-     */
-    public static final String PATH_SEPARATOR = "/";
-
-    /**
-     * Path separator which is used in Property tree
-     */
-    public static final String DOT_PATH_SEPARATOR = ".";
-
-    /**
-     * Path character which denotes parent node
-     */
-    public static final String PARENT_NODE = "..";
 
     public static final String MAIN_FORM = "Main";
 
