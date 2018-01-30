@@ -70,7 +70,7 @@ with automated tools.
 
 === Generic and specific
 
-The processor API supports `ObjectMap` as well as any custom model. Intent is to support generic component
+The processor API supports `JsonObject` as well as any custom model. Intent is to support generic component
 development which need to access configured "object paths" and specific components which rely on a well defined
 path from the input.
 
@@ -79,7 +79,7 @@ A generic component would look like:
 [source,java]
 ----
 @ElementListener
-public MyOutput onElement(ObjectMap input) {
+public MyOutput onElement(JsonObject input) {
     return ...;
 }
 ----
@@ -98,9 +98,11 @@ public MyOutput onElement(MyInput input) {
 
 By design the framework must run in DI (plain standalone java program) but also in Beam pipelines. It is also
 out of scope of the framework to handle the way the runtime serializes - if needed - the data. For that reason
-it is primordial to not import serialization constraint in the stack. This is why `ObjectMap` is not an `IndexedRecord`
-from avro for instance. Any serialization concern should either be hidden in the framework runtime (= outside component developer scope)
-or in the runtime integration with the framework (beam integration for instance).
+it is primordial to not import serialization constraint in the stack. This is why `JsonObject` is not an `IndexedRecord`
+from avro for instance, to not impose any implementation.
+Any actual serialization concern - implementation - should either be hidden in the framework runtime (= outside component developer scope)
+or in the runtime integration with the framework (beam integration for instance). In this context, JSON-P is a good compromise
+because it brings a very powerful API with very few constraints.
 
 == Isolated
 

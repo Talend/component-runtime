@@ -24,6 +24,8 @@ import java.io.Serializable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -31,7 +33,6 @@ import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 @Version
 @Icon(Icon.IconType.FILTER)
@@ -49,7 +50,7 @@ public class ${configuration.className}${configuration.template} implements Seri
     }
 
     @ElementListener
-    public void onNext(final ObjectMap data) {
+    public void onNext(final JsonObject data) {
         // TODO: store data
     }
 

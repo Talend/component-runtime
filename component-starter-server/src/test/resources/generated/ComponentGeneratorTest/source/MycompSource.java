@@ -16,7 +16,8 @@ public class MycompSource implements Serializable {
     private final MycompMapperConfiguration configuration;
     private final TestService service;
 
-    public MycompSource(@Option("configuration") final MycompMapperConfiguration configuration, final TestService service) {
+    public MycompSource(@Option("configuration") final MycompMapperConfiguration configuration,
+                        final TestService service) {
         this.configuration = configuration;
         this.service = service;
     }
@@ -33,6 +34,7 @@ public class MycompSource implements Serializable {
         // to the component configuration
         //
         // return null means the dataset has no more data to go through
+
         return null;
     }
 

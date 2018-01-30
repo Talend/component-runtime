@@ -6,7 +6,11 @@ import static org.junit.Assert.assertEquals;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+{{#isGeneric}}
 
+import javax.json.JsonObject;
+
+{{/isGeneric}}
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.coders.ListCoder;
 import org.apache.beam.sdk.coders.MapCoder;
@@ -21,9 +25,6 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-{{#isGeneric}}
-import org.talend.sdk.component.api.processor.data.ObjectMap;
-{{/isGeneric}}
 import org.talend.sdk.component.junit.JoinInputFactory;
 {{^isOutput}}
 import org.talend.sdk.component.junit.RecordAsserts;

@@ -42,7 +42,7 @@ public class Freemarkers {
             cfg.setDefaultEncoding("UTF-8");
             cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
             cfg.setLogTemplateExceptions(false);
-            cfg.setTemplateLoader(new ClassTemplateLoader(LegacyComponentBridgeMojo.class.getClassLoader(), base));
+            cfg.setTemplateLoader(new ClassTemplateLoader(Freemarkers.class.getClassLoader(), base));
             try {
                 return cfg.getTemplate(tplName + ".ftlh");
             } catch (final IOException e) {

@@ -19,13 +19,14 @@ import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
 import java.io.Serializable;
 
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 import lombok.Data;
 
@@ -41,7 +42,7 @@ public class MissingDynamicValues implements Serializable {
     }
 
     @ElementListener
-    public ObjectMap objectMap(final ObjectMap item) {
+    public JsonObject objectMap(final JsonObject item) {
         return item;
     }
 

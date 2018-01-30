@@ -19,13 +19,14 @@ import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
 import java.io.Serializable;
 
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 @Version
 @Icon(FILE_JOB_O)
@@ -37,7 +38,7 @@ public class MyComponent implements Serializable {
     }
 
     @ElementListener
-    public ObjectMap passthrough(final ObjectMap item) {
+    public JsonObject passthrough(final JsonObject item) {
         return null;
     }
 

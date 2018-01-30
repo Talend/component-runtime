@@ -15,11 +15,30 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashMap;
+
+import javax.json.bind.JsonbBuilder;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.Service;
@@ -33,31 +52,12 @@ import org.talend.sdk.component.api.service.http.Path;
 import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
-import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
-import org.talend.sdk.component.runtime.manager.processor.SubclassesCache;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
-import org.talend.sdk.component.runtime.output.data.AccessorCache;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.joining;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 public class HttpClientFactoryImplTest {
 
@@ -194,17 +194,15 @@ public class HttpClientFactoryImplTest {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
-            final DecoderWithService client = new HttpClientFactoryImpl("test",
-                    new SubclassesCache("test", new ProxyGenerator(), Thread.currentThread().getContextClassLoader(),
-                            new ConcurrentHashMap<>()),
-                    new AccessorCache("test"), new ReflectionService(new ParameterModelService()),
-                    new HashMap<Class<?>, Object>() {
+            final DecoderWithService client =
+                    new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
+                            JsonbBuilder.create(), new HashMap<Class<?>, Object>() {
 
-                        {
-                            put(MyService.class, new MyService());
-                            put(MyI18nService.class, (MyI18nService) () -> "error from i18n service");
-                        }
-                    }).create(DecoderWithService.class, null);
+                                {
+                                    put(MyService.class, new MyService());
+                                    put(MyI18nService.class, (MyI18nService) () -> "error from i18n service");
+                                }
+                            }).create(DecoderWithService.class, null);
             client.base("http://localhost:" + server.getAddress().getPort() + "/api");
 
             assertThrows(IllegalStateException.class, () -> client.error("search yes"));
@@ -233,10 +231,8 @@ public class HttpClientFactoryImplTest {
     }
 
     private HttpClientFactoryImpl newDefaultFactory() {
-        return new HttpClientFactoryImpl("test",
-                new SubclassesCache("test", new ProxyGenerator(), Thread.currentThread().getContextClassLoader(),
-                        new ConcurrentHashMap<>()),
-                new AccessorCache("test"), new ReflectionService(new ParameterModelService()), emptyMap());
+        return new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
+                JsonbBuilder.create(), emptyMap());
     }
 
     private void assertNoError(final Collection<String> errors) {

@@ -39,7 +39,6 @@
     <module>component-server</module>
     <module>component-kit.js</module>
     <module>component-form</module>
-    <module>component-avro-integration</module>
     <module>talend-component-maven-plugin</module>
     <module>gradle-talend-component</module>
     <module>component-starter-server</module>

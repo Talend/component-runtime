@@ -42,8 +42,9 @@ final org.talend.sdk.component.runtime.manager.ComponentManager mgr_<%=cid%> = o
 
 <%@include file="../configuration.javajet"%>
 
-final org.talend.sdk.component.runtime.output.data.AccessorCache accessorCache_<%=cid%> = org.talend.sdk.component.runtime.output.data.AccessorCache.class.cast(globalMap.computeIfAbsent("__TCOMP_ACCESSOR_CACHE__", org.talend.sdk.component.runtime.output.data.AccessorCache::new));
-final org.talend.sdk.component.runtime.di.ModelMapper modelMapper_<%=cid%> = new org.talend.sdk.component.runtime.di.ModelMapper();
+final javax.json.bind.Jsonb jsonb_<%=cid%> = mgr_<%=cid%>.findPlugin(mapper_<%=cid%>.plugin()).get()
+                 .get(org.talend.sdk.component.runtime.manager.ComponentManager.AllServices.class)
+                 .get(javax.json.bind.Jsonb.class);
 
 <%
 final IElementParameter chunkSizeParam = node.getElementParameter("CHUNK_SIZE");

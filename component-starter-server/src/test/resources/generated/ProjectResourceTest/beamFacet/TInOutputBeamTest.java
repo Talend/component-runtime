@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import javax.json.JsonObject;
+
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.coders.ListCoder;
 import org.apache.beam.sdk.coders.MapCoder;
@@ -18,7 +20,6 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 import org.talend.sdk.component.junit.JoinInputFactory;
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.runtime.beam.TalendCoder;
@@ -46,7 +47,7 @@ public class TInOutputBeamTest {
         // Make sure to fil in some test data for the branches you want to test
         // You can also remove the branches that you don't need from the factory below
         final JoinInputFactory joinInputFactory =  new JoinInputFactory()
-                .withInput("__default__", asList(/* TODO - list of your input data for this branch. Instances of ObjectMap.class */));
+                .withInput("__default__", asList(/* TODO - list of your input data for this branch. Instances of JsonObject.class */));
 
         // Convert it to a beam "source"
         final PCollection<Map<String, List<Serializable>>> inputs = pipeline.apply(

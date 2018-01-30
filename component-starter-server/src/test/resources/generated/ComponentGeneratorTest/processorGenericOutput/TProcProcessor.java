@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.json.JsonObject;
+
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -15,7 +17,6 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 
 import com.foo.service.TestService;
 
@@ -28,7 +29,7 @@ public class TProcProcessor implements Serializable {
     private final TestService service;
 
     public TProcProcessor(@Option("configuration") final TProcProcessorConfiguration configuration,
-                         final TestService service) {
+                          final TestService service) {
         this.configuration = configuration;
         this.service = service;
     }
@@ -49,7 +50,7 @@ public class TProcProcessor implements Serializable {
 
     @ElementListener
     public void onNext(
-        @Output final OutputEmitter<ObjectMap> defaultOutput) {
+            @Output final OutputEmitter<JsonObject> defaultOutput) {
         // this is the method allowing you to handle the input(s) and emit the output(s)
         // after some custom logic you put here, to send a value to next element you can use an
         // output parameter and call emit(value).

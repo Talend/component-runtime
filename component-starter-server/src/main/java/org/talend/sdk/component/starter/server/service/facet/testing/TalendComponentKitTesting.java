@@ -143,7 +143,7 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
             // input branches names
             final Set<Map.Entry<String, String>> inputBranches =
                     processor.getInputStructures().entrySet().stream().flatMap(in -> {
-                        final String inName = in.getValue().isGeneric() ? "ObjectMap"
+                        final String inName = in.getValue().isGeneric() ? "JsonObject"
                                 : capitalize(processor.getName())
                                         + capitalize(names.sanitizeConnectionName(in.getKey())) + "Input";
                         Map<String, String> map = new HashMap<String, String>() {
@@ -159,7 +159,7 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
             // outputNames
             final Set<Map.Entry<String, String>> outputBranches =
                     !isOutput ? processor.getOutputStructures().entrySet().stream().flatMap(e -> {
-                        final String outName = e.getValue().isGeneric() ? "ObjectMap"
+                        final String outName = e.getValue().isGeneric() ? "JsonObject"
                                 : capitalize(processor.getName()) + capitalize(names.sanitizeConnectionName(e.getKey()))
                                         + "Output";
                         Map<String, String> map = new HashMap<String, String>() {
@@ -171,8 +171,8 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
                         return map.entrySet().stream();
                     }).collect(toSet()) : emptySet();
 
-            final boolean isGeneric = inputBranches.stream().anyMatch(e -> "ObjectMap".equals(e.getValue()))
-                    || outputBranches.stream().anyMatch(e -> "ObjectMap".equals(e.getValue()));
+            final boolean isGeneric = inputBranches.stream().anyMatch(e -> "JsonObject".equals(e.getValue()))
+                    || outputBranches.stream().anyMatch(e -> "JsonObject".equals(e.getValue()));
 
             final Collection<InMemoryFile> files = new ArrayList<>();
             files.add(new FacetGenerator.InMemoryFile(testJava + "/" + classDir + "/" + testClassName + ".java",

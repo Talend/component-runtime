@@ -23,7 +23,6 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -244,7 +243,7 @@ public class ComponentGenerator {
                     !isOutput ? processor.getOutputStructures().entrySet().stream().map(e -> {
                         final String javaName = names.sanitizeConnectionName(e.getKey());
                         if (e.getValue().isGeneric()) {
-                            return new Connection(e.getKey(), javaName, "ObjectMap", isDefault(e.getKey()));
+                            return new Connection(e.getKey(), javaName, "JsonObject", isDefault(e.getKey()));
                         }
 
                         final String outputClassName =
@@ -253,13 +252,13 @@ public class ComponentGenerator {
                                 files);
                         return new Connection(e.getKey(), javaName, outputClassName, isDefault(e.getKey()));
                     }).collect(toList()) : emptyList();
-            Collections.sort(outputNames, connectionComparator);
+            outputNames.sort(connectionComparator);
 
             final List<Connection> inputNames = processor.getInputStructures() != null
                     ? processor.getInputStructures().entrySet().stream().map(e -> {
                         final String javaName = names.sanitizeConnectionName(e.getKey());
                         if (e.getValue().isGeneric()) {
-                            return new Connection(e.getKey(), javaName, "ObjectMap", isDefault(e.getKey()));
+                            return new Connection(e.getKey(), javaName, "JsonObject", isDefault(e.getKey()));
                         }
 
                         final String inputClassName = capitalize(processor.getName() + capitalize(javaName + "Input"));
@@ -268,7 +267,7 @@ public class ComponentGenerator {
                         return new Connection(e.getKey(), javaName, inputClassName, isDefault(e.getKey()));
                     }).collect(toList())
                     : emptyList();
-            Collections.sort(inputNames, connectionComparator);
+            inputNames.sort(connectionComparator);
 
             generateConfiguration(null, processorPackage, mainJava, processor.getConfiguration(),
                     configurationClassName, files);
@@ -290,8 +289,8 @@ public class ComponentGenerator {
                                     put("hasOutputs", outputNames.size() != 0);
                                     put("icon", ofNullable(processor.getIcon()).filter(s -> !s.isEmpty()).orElse(
                                             "Icon.IconType.STAR"));
-                                    put("generic", outputNames.stream().anyMatch(o -> o.type.equals("ObjectMap"))
-                                            || inputNames.stream().anyMatch(o -> o.type.equals("ObjectMap")));
+                                    put("generic", outputNames.stream().anyMatch(o -> o.type.equals("JsonObject"))
+                                            || inputNames.stream().anyMatch(o -> o.type.equals("JsonObject")));
                                 }
                             })));
 
@@ -322,6 +321,7 @@ public class ComponentGenerator {
                     tpl.render("generator/component/Mapper.mustache", new HashMap<String, Object>() {
 
                         {
+                            put("generic", generic);
                             put("name", source.getName());
                             put("className", mapperName);
                             put("package", sourcePackage);
@@ -358,32 +358,34 @@ public class ComponentGenerator {
     private void generateModel(final String root, final String packageBase, final String mainJava,
             final ProjectRequest.DataStructure structure, final String modelClassName,
             final Collection<FacetGenerator.InMemoryFile> files) {
-        files
-                .add(new FacetGenerator.InMemoryFile(
-                        mainJava + "/" + packageBase.substring(packageBase.lastIndexOf('.') + 1) + "/" + modelClassName
-                                + ".java",
-                        tpl.render("generator/component/Model.mustache", new HashMap<String, Object>() {
+        if (structure != null) {
+            files
+                    .add(new FacetGenerator.InMemoryFile(
+                            mainJava + "/" + packageBase.substring(packageBase.lastIndexOf('.') + 1) + "/"
+                                    + modelClassName + ".java",
+                            tpl.render("generator/component/Model.mustache", new HashMap<String, Object>() {
 
-                            {
-                                put("className", modelClassName);
-                                put("package", packageBase);
-                                put("generic", structure == null);
-                                if (structure != null && structure.getEntries() != null) {
-                                    put("structure", structure
-                                            .getEntries()
-                                            .stream()
-                                            .map(e -> new Property(e.getName(), capitalize(e.getName()),
-                                                    names.toJavaConfigType(root, packageBase, e, (fqn, nested) -> {
-                                                        final int li = fqn.lastIndexOf('.');
-                                                        final String pck = li > 0 ? fqn.substring(0, li) : "";
-                                                        final String cn = li > 0 ? fqn.substring(li + 1) : fqn;
-                                                        generateModel((root == null ? "" : root) + capitalize(cn), pck,
-                                                                mainJava, e.getNestedType(), cn, files);
-                                                    }), false))
-                                            .collect(toList()));
+                                {
+                                    put("className", modelClassName);
+                                    put("package", packageBase);
+                                    put("generic", false);
+                                    if (structure.getEntries() != null) {
+                                        put("structure", structure
+                                                .getEntries()
+                                                .stream()
+                                                .map(e -> new Property(e.getName(), capitalize(e.getName()),
+                                                        names.toJavaConfigType(root, packageBase, e, (fqn, nested) -> {
+                                                            final int li = fqn.lastIndexOf('.');
+                                                            final String pck = li > 0 ? fqn.substring(0, li) : "";
+                                                            final String cn = li > 0 ? fqn.substring(li + 1) : fqn;
+                                                            generateModel((root == null ? "" : root) + capitalize(cn),
+                                                                    pck, mainJava, e.getNestedType(), cn, files);
+                                                        }), false))
+                                                .collect(toList()));
+                                    }
                                 }
-                            }
-                        })));
+                            })));
+        }
     }
 
     private void generateConfiguration(final String root, final String packageBase, final String mainJava,

@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.server.front;
 
-import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toMap;
@@ -28,7 +27,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
@@ -38,11 +36,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.json.Json;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonReaderFactory;
 import javax.json.JsonString;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
@@ -67,7 +62,6 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
-import org.talend.sdk.component.runtime.manager.service.JsonObjectMap;
 import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -105,8 +99,6 @@ public class ExecutionResource {
 
     private Jsonb inlineStreamingMapper; // particular cause wouldn't support prettification
 
-    private JsonReaderFactory readerFactory;
-
     private OutputFactory mockOutputFactory = name -> (OutputEmitter) value -> {
         // no-op
     };
@@ -114,7 +106,6 @@ public class ExecutionResource {
     @PostConstruct
     private void init() {
         inlineStreamingMapper = JsonbBuilder.create();
-        readerFactory = Json.createReaderFactory(emptyMap());
     }
 
     @PreDestroy
@@ -207,11 +198,7 @@ public class ExecutionResource {
                     return;
                 }
 
-                final JsonObject configuration;
-                try (final JsonReader input = readerFactory.createReader(new StringReader(line))) {
-                    configuration = input.readObject();
-                }
-
+                final JsonObject configuration = inlineStreamingMapper.fromJson(line, JsonObject.class);
                 final Map<String, String> config = convertConfig(configuration);
                 final Optional<Processor> processorOptional =
                         manager.findProcessor(family, component, getConfigComponentVersion(config), config);
@@ -230,10 +217,7 @@ public class ExecutionResource {
                 while ((line = reader.readLine()) != null) {
                     line = line.trim();
                     if (!line.isEmpty()) {
-                        final JsonObject object;
-                        try (final JsonReader input = readerFactory.createReader(new StringReader(line))) {
-                            object = input.readObject();
-                        }
+                        final JsonObject object = inlineStreamingMapper.fromJson(line, JsonObject.class);
                         if (groupCount == 0) {
                             processor.beforeGroup();
                         }
@@ -243,7 +227,8 @@ public class ExecutionResource {
                                 throw new IllegalArgumentException(
                                         "Can't access branch '" + name + "' from component " + family + "#" + name);
                             }
-                            return new JsonObjectMap(object);
+                            return inlineStreamingMapper.fromJson(inlineStreamingMapper.toJson(object),
+                                    JsonObject.class);
                         }, mockOutputFactory);
                         statistics.setCount(statistics.getCount() + 1);
                         if (groupCount == chunkSize) {

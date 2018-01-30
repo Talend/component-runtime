@@ -64,20 +64,18 @@ if (connections.isEmpty()) {
 final String output = connections.iterator().next().getName();
 %>
 
-final org.talend.sdk.component.runtime.output.data.AccessorCache accessorCache_<%=cid%> = org.talend.sdk.component.runtime.output.data.AccessorCache.class.cast(globalMap.computeIfAbsent("__TCOMP_ACCESSOR_CACHE__", org.talend.sdk.component.runtime.output.data.AccessorCache::new));
-final org.talend.sdk.component.runtime.di.ModelMapper modelMapper_<%=cid%> = new org.talend.sdk.component.runtime.di.ModelMapper();
+final javax.json.bind.Jsonb jsonb_<%=cid%> = mgr_<%=cid%>.findPlugin(mapper_<%=cid%>.plugin()).get()
+                                                     .get(org.talend.sdk.component.runtime.manager.ComponentManager.AllServices.class)
+                                                     .get(javax.json.bind.Jsonb.class);
+final Class outputType_<%=cid%> = <%=output%>.getClass();
 
 Object data_<%=cid%>;
 while ((data_<%=cid%> = input_<%=cid%>.next()) != null) {
     nbLineInput_<%=cid%>++;
     globalMap.put("<%=cid %>_NB_LINE", nbLineInput_<%=cid%>);
 
-    // map data_<%=cid%> to the associated structure using the generic object map accessor
-    final org.talend.sdk.component.api.processor.data.ObjectMap objectMap_<%=cid%> =
-                        org.talend.sdk.component.api.processor.data.ObjectMap.class.isInstance(data_<%=cid%>) ?
-                        org.talend.sdk.component.api.processor.data.ObjectMap.class.cast(data_<%=cid%>) :
-                        new org.talend.sdk.component.runtime.output.data.ObjectMapImpl(
-                                      mapper_<%=cid%>.plugin(),
-                                      data_<%=cid%>,
-                                      accessorCache_<%=cid%>);
-    modelMapper_<%=cid%>.map(objectMap_<%=cid%>, <%=output%>);
+    final javax.json.JsonValue jsonValue_<%=cid%> =
+            javax.json.JsonValue.class.isInstance(data_<%=cid%>) ?
+            javax.json.JsonValue.class.cast(data_<%=cid%>).toString() :
+            jsonb_<%=cid%>.toJson(data_<%=cid%>);
+    <%=output%> = jsonb_<%=cid%>.fromJson(jsonValue_<%=cid%>, outputType_<%=cid%>);

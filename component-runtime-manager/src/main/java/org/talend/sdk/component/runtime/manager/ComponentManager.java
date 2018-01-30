@@ -56,7 +56,6 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -67,6 +66,15 @@ import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonReaderFactory;
+import javax.json.JsonWriterFactory;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.spi.JsonbProvider;
+import javax.json.spi.JsonProvider;
+import javax.json.stream.JsonGeneratorFactory;
+import javax.json.stream.JsonParserFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -111,8 +119,7 @@ import org.talend.sdk.component.runtime.internationalization.Internationalizatio
 import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
-import org.talend.sdk.component.runtime.manager.processor.AdvancedProcessorImpl;
-import org.talend.sdk.component.runtime.manager.processor.SubclassesCache;
+import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
@@ -124,7 +131,7 @@ import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
 import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
-import org.talend.sdk.component.runtime.output.data.AccessorCache;
+import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
@@ -172,15 +179,29 @@ public class ComponentManager implements AutoCloseable {
     private final Filter classesFilter =
             Filters.prefixes("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.", "javax.annotation.",
                     "javax.json.", "org.talend.sdk.component.classloader.", "org.talend.sdk.component.runtime.",
-                    "org.slf4j.", "org.apache.beam.runners.", "org.apache.beam.sdk.");
+                    "org.slf4j.", "org.apache.beam.runners.", "org.apache.beam.sdk.", "org.apache.johnzon.");
 
     private final Filter excludeClassesFilter =
-            Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.", "javax.json.bind.");
+            Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.");
 
     private final ParameterModelService parameterModelService = new ParameterModelService();
 
     private final InternationalizationServiceFactory internationalizationServiceFactory =
             new InternationalizationServiceFactory();
+
+    private final JsonProvider jsonpProvider;
+
+    private final JsonGeneratorFactory jsonpGeneratorFactory;
+
+    private final JsonReaderFactory jsonpReaderFactory;
+
+    private final JsonBuilderFactory jsonpBuilderFactory;
+
+    private final JsonParserFactory jsonpParserFactory;
+
+    private final JsonWriterFactory jsonpWriterFactory;
+
+    private final JsonbProvider jsonbProvider;
 
     private final ProxyGenerator proxyGenerator = new ProxyGenerator();
 
@@ -200,6 +221,16 @@ public class ComponentManager implements AutoCloseable {
      */
     public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+
+        jsonpProvider = JsonProvider.provider();
+        jsonbProvider = JsonbProvider.provider();
+        // these factories have memory caches so ensure we reuse them properly
+        jsonpGeneratorFactory = jsonpProvider.createGeneratorFactory(emptyMap());
+        jsonpReaderFactory = jsonpProvider.createReaderFactory(emptyMap());
+        jsonpBuilderFactory = jsonpProvider.createBuilderFactory(emptyMap());
+        jsonpParserFactory = jsonpProvider.createParserFactory(emptyMap());
+        jsonpWriterFactory = jsonpProvider.createWriterFactory(emptyMap());
+
         this.container = new ContainerManager(
                 ContainerManager.DependenciesResolutionConfiguration
                         .builder()
@@ -602,13 +633,32 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
-        final AccessorCache accessorCache = new AccessorCache(container.getId());
-        final SubclassesCache subclassesCache = new SubclassesCache(container.getId(), proxyGenerator,
-                container.getLoader(), new ConcurrentHashMap<>());
-        services.put(AccessorCache.class, accessorCache);
-        services.put(SubclassesCache.class, subclassesCache);
+        // note: we can move it to manager instances at some point
+        final JsonProvider jsonpProvider = new PreComputedJsonpProvider(container.getId(), this.jsonpProvider,
+                jsonpParserFactory, jsonpWriterFactory, jsonpBuilderFactory, jsonpGeneratorFactory, jsonpReaderFactory);
+        services.put(JsonProvider.class, jsonpProvider);
+        services.put(JsonBuilderFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
+                container.getId(), JsonBuilderFactory.class.getName(), jsonpBuilderFactory));
+        services.put(JsonParserFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
+                container.getId(), JsonParserFactory.class.getName(), jsonpParserFactory));
+        services.put(JsonReaderFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
+                container.getId(), JsonReaderFactory.class.getName(), jsonpReaderFactory));
+        services.put(JsonWriterFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
+                container.getId(), JsonWriterFactory.class.getName(), jsonpWriterFactory));
+        services.put(JsonGeneratorFactory.class, javaProxyEnricherFactory.asSerializable(container.getLoader(),
+                container.getId(), JsonGeneratorFactory.class.getName(), jsonpGeneratorFactory));
+
+        final Jsonb jsonb = jsonbProvider
+                .create()
+                .withProvider(jsonpProvider) // reuses the same memory buffering
+                .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
+                .build();
+        services.put(Jsonb.class, javaProxyEnricherFactory.asSerializable(container.getLoader(), container.getId(),
+                Jsonb.class.getName(), jsonb));
+
+        // not JSON services
         services.put(HttpClientFactory.class,
-                new HttpClientFactoryImpl(container.getId(), subclassesCache, accessorCache, reflections, services));
+                new HttpClientFactoryImpl(container.getId(), reflections, jsonb, services));
         services.put(LocalCache.class, new LocalCacheService(container.getId()));
         services.put(LocalConfiguration.class,
                 new LocalConfigurationService(createRawLocalConfigurations(), container.getId()));
@@ -1062,6 +1112,16 @@ public class ComponentManager implements AutoCloseable {
                 registry.getServices().forEach(s -> doInvoke(container.getId(), s.getInstance(), PreDestroy.class));
                 registry.getServices().clear();
             });
+            ofNullable(container.get(AllServices.class))
+                    .map(s -> s.getServices().get(Jsonb.class))
+                    .map(Jsonb.class::cast)
+                    .ifPresent(jsonb -> {
+                        try {
+                            jsonb.close();
+                        } catch (final Exception e) {
+                            log.warn(e.getMessage(), e);
+                        }
+                    });
         }
 
         private void doInvoke(final String container, final Object instance, final Class<? extends Annotation> marker) {
@@ -1166,7 +1226,7 @@ public class ComponentManager implements AutoCloseable {
                                                                     parameterFactory.apply(config)), plugin,
                                                                     component.getName(), name),
                                                             org.talend.sdk.component.runtime.output.Processor.class))
-                                    : config -> new AdvancedProcessorImpl(this.component.getName(), name, plugin,
+                                    : config -> new ProcessorImpl(this.component.getName(), name, plugin,
                                             doInvoke(constructor, parameterFactory.apply(config)));
             component.getProcessors().put(name,
                     new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type), type,
