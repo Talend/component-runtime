@@ -89,7 +89,7 @@ public class ComponentGenerator {
             final Collection<ProjectRequest.ProcessorConfiguration> processors) {
         final String mainJava = build.getMainJavaDirectory() + '/' + packageBase.replace('.', '/');
         final Map<String, Map<String, String>> messageProperties = new HashMap<>();// Package , list of configuration
-                                                                                   // path for that package
+        // path for that package
         messageProperties.put(packageBase, new TreeMap<>());
         if (family != null && !family.isEmpty()) {
             messageProperties.get(packageBase).put(family, family);
@@ -141,9 +141,8 @@ public class ComponentGenerator {
                             .stream()
                             .filter(source -> source.getConfiguration() != null
                                     && source.getConfiguration().getEntries() != null)
-                            .flatMap(source -> toProperties(packageBase + ".source",
-                                    source.getConfiguration().getEntries(), null))
-                            .collect(toMap(Pair::getKey, Pair::getValue)));
+                            .flatMap(source -> toProperties(source.getName(), source.getConfiguration().getEntries()))
+                            .collect(toMap(Pair::getKey, Pair::getValue, (k1, k2) -> k1)));
                 }
             });
         }
@@ -164,9 +163,8 @@ public class ComponentGenerator {
                             .filter(processor -> processor.getConfiguration() != null
                                     && processor.getConfiguration().getEntries() != null)
                             .filter(ComponentGenerator::isOutput)
-                            .flatMap(
-                                    p -> toProperties(packageBase + ".output", p.getConfiguration().getEntries(), null))
-                            .collect(toMap(Pair::getKey, Pair::getValue)));
+                            .flatMap(p -> toProperties(p.getName(), p.getConfiguration().getEntries()))
+                            .collect(toMap(Pair::getKey, Pair::getValue, (k1, k2) -> k1)));
                 }
             });
 
@@ -184,9 +182,8 @@ public class ComponentGenerator {
                             .filter(processor -> processor.getConfiguration() != null
                                     && processor.getConfiguration().getEntries() != null)
                             .filter(ComponentGenerator::isProcessor)
-                            .flatMap(p -> toProperties(packageBase + ".processor", p.getConfiguration().getEntries(),
-                                    null))
-                            .collect(toMap(Pair::getKey, Pair::getValue)));
+                            .flatMap(p -> toProperties(p.getName(), p.getConfiguration().getEntries()))
+                            .collect(toMap(Pair::getKey, Pair::getValue, (k1, k2) -> k1)));
                 }
             });
         }
@@ -196,14 +193,14 @@ public class ComponentGenerator {
         return files.stream();
     }
 
-    private Stream<Pair<String, String>> toProperties(final String pck,
-            final Collection<ProjectRequest.Entry> structure, final String parentPath) {
+    private Stream<Pair<String, String>> toProperties(final String configName,
+            final Collection<ProjectRequest.Entry> structure) {
         return structure.stream().flatMap(e -> {
-            final String prop = (parentPath == null || parentPath.isEmpty()) ? "configuration." + e.getName()
-                    : parentPath + "." + e.getName();
+            final String prop = names.toConfigurationName(configName) + "." + e.getName();
+
             final Pair<String, String> pair = Pair.of(prop, e.getName());
             if (e.getNestedType() != null) {
-                return Stream.concat(Stream.of(pair), toProperties(pck, e.getNestedType().getEntries(), prop));
+                return Stream.concat(Stream.of(pair), toProperties(e.getName(), e.getNestedType().getEntries()));
             }
             return Stream.of(pair);
         });

@@ -19,15 +19,19 @@ import {{servicePackage}}.{{serviceName}};
 @Documentation("TODO fill the documentation for this source")
 public class {{className}} implements Serializable {
     private final {{configurationName}} configuration;
-    private final {{serviceName}} service;{{#generic}}
-    private final JsonBuilderFactory jsonBuilderFactory;{{/generic}}
+    private final {{serviceName}} service;
+{{#generic}}
+    private final JsonBuilderFactory jsonBuilderFactory;
+{{/generic}}
 
     public {{className}}(@Option("configuration") final {{configurationName}} configuration,
                         final {{serviceName}} service{{#generic}},
                         final JsonBuilderFactory jsonBuilderFactory{{/generic}}) {
         this.configuration = configuration;
-        this.service = service;{{#generic}}
-        this.jsonBuilderFactory = jsonBuilderFactory;{{/generic}}
+        this.service = service;
+{{#generic}}
+        this.jsonBuilderFactory = jsonBuilderFactory;
+{{/generic}}
     }
 
     @PostConstruct

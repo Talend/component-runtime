@@ -87,7 +87,7 @@ public class GradleBuildGenerator implements BuildGenerator {
         return new Build(buildConfiguration.getArtifact(), buildConfiguration.getGroup(),
                 buildConfiguration.getVersion(), "src/main/java", "src/test/java", "src/main/resources",
                 "src/test/resources", "src/main/webapp", "build.gradle",
-                tpl.render("generator/gradle/build.gradle", model), "build", generateWrapperFiles());
+                tpl.render("generator/gradle/build.mustache", model), "build", generateWrapperFiles());
     }
 
     private List<FacetGenerator.InMemoryFile> generateWrapperFiles() {

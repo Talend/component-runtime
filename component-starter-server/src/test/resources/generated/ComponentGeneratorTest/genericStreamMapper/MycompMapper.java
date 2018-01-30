@@ -28,13 +28,15 @@ import com.foo.service.TestService;
 @Documentation("TODO fill the documentation for this mapper")
 public class MycompMapper implements Serializable {
     private final MycompMapperConfiguration configuration;
-    private final TestService service;    private final JsonBuilderFactory jsonBuilderFactory;
+    private final TestService service;
+    private final JsonBuilderFactory jsonBuilderFactory;
 
     public MycompMapper(@Option("configuration") final MycompMapperConfiguration configuration,
                         final TestService service,
                         final JsonBuilderFactory jsonBuilderFactory) {
         this.configuration = configuration;
-        this.service = service;        this.jsonBuilderFactory = jsonBuilderFactory;
+        this.service = service;
+        this.jsonBuilderFactory = jsonBuilderFactory;
     }
 
     @Assessor
