@@ -17,26 +17,20 @@ package org.talend.sdk.component.sample;
 
 import java.io.Serializable;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 // tag::user[]
 public class User implements Serializable {
 
-    private final String id;
+    private String id;
 
-    private final String name;
+    private String name;
     // end::user[]
-
-    public User(final String id, final String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
 
     @Override
     public String toString() {

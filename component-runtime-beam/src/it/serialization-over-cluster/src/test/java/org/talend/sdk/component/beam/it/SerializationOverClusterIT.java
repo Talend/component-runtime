@@ -37,7 +37,7 @@ public class SerializationOverClusterIT {
 
     private static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
 
-    private static final SparkClusterRule SPARK = new SparkClusterRule("2.10", "1.6.3", 1);
+    private static final SparkClusterRule SPARK = new SparkClusterRule("2.11", "2.2.1", 1);
 
     @ClassRule
     public static final TestRule RULE = outerRule(TEMPORARY_FOLDER).around(SPARK);
@@ -52,7 +52,7 @@ public class SerializationOverClusterIT {
             // not sexy but beam TextIO adds a prefix/suffix to handle bundles
             final File[] outputs = output.getParentFile().listFiles((dir, name) -> name.startsWith(output.getName()));
             assertTrue("output doesn't exist", outputs != null && outputs.length >= 1/* for out test */);
-            assertEquals("User{id='a6normal', name='normal'}\nUser{id='a36marilyn', name='marilyn'}", Stream.of(outputs).map(f -> {
+            assertEquals("{\"id\":\"a6normal\",\"name\":\"normal\"}\n{\"id\":\"a36marilyn\",\"name\":\"marilyn\"}", Stream.of(outputs).map(f -> {
                 try {
                     return Files.lines(f.toPath()).collect(joining("\n"));
                 } catch (final IOException e) {

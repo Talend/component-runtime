@@ -1422,7 +1422,7 @@ public class Main {
         pipeline.apply(TalendIO.read(manager.findMapper(manager.findMapper("sample", "reader", 1, new HashMap<String, String>() {{
                     put("fileprefix", "input");
                 }}).get()))
-                .apply(new ViewsMappingTransform<>(emptyMap())) // prepare it for the output record format (see next part)
+                .apply(new ViewsMappingTransform(emptyMap(), "sample")) // prepare it for the output record format (see next part)
         //Create beam processor from talend processor and apply to pipeline
                 .apply(TalendIO.write(manager.findProcessor("test", "writer", 1, new HashMap<String, String>() {{
                     put("fileprefix", "output");
@@ -1454,7 +1454,8 @@ public class Main {
 The multiple inputs/outputs are represented by a `Map` element in beam case to avoid to use multiple inputs/outputs.
 
 TIP: you can use `ViewsMappingTransform` or `CoGroupByKeyResultMappingTransform` to adapt the input/output
-format to this `Map<String, List<Serializable>>`.
+format to the record format representing the multiple inputs/output, so a kind of `Map<String, List<?>>`,
+but materialized as a `JsonObject`. Input data must be of type `JsonObject` in this case.
 
 ==== Deployment
 

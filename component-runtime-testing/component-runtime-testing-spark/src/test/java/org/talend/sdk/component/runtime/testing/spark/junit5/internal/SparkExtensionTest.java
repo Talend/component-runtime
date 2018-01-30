@@ -23,18 +23,17 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
+
+import scala.Tuple2;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
-import org.apache.ziplock.IO;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.testing.spark.SparkClusterRuleTest;
 import org.talend.sdk.component.runtime.testing.spark.internal.BaseSpark;
@@ -43,18 +42,11 @@ import org.talend.sdk.component.runtime.testing.spark.junit5.WithSpark;
 
 import lombok.NoArgsConstructor;
 
-import scala.Tuple2;
-
 @WithSpark
 class SparkExtensionTest {
 
     @SparkInject
     private BaseSpark<?> spark;
-
-    @Test
-    void ensureSparkIsStarted() throws IOException {
-        assertEquals("[ ]", IO.readString(new URL(spark.getSparkMasterHttp("/api/v1/applications"))).trim());
-    }
 
     @Test
     void classpathSubmit() throws IOException {
@@ -80,7 +72,7 @@ class SparkExtensionTest {
 
             context
                     .parallelize(singletonList("a b"))
-                    .flatMap((FlatMapFunction<String, String>) text -> asList(text.split(" ")))
+                    .flatMap((FlatMapFunction<String, String>) text -> asList(text.split(" ")).iterator())
                     .mapToPair(word -> new Tuple2<>(word, 1))
                     .reduceByKey((a, b) -> a + b)
                     .foreach(result -> {

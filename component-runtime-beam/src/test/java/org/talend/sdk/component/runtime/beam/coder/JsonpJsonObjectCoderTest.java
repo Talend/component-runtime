@@ -15,33 +15,35 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
+import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.runtime.beam.TalendIOTest;
 
 class JsonpJsonObjectCoderTest {
+
+    private static final String PLUGIN = jarLocation(TalendIOTest.class).getAbsolutePath();
 
     @Test
     void encode() throws IOException {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new JsonpJsonObjectCoder(Json.createReaderFactory(Collections.emptyMap()))
-                .encode(Json.createObjectBuilder().add("test", "foo").build(), outputStream);
+        JsonpJsonObjectCoder.of(PLUGIN).encode(Json.createObjectBuilder().add("test", "foo").build(), outputStream);
         assertEquals("{\"test\":\"foo\"}", new String(outputStream.toByteArray()));
     }
 
     @Test
     void decode() throws IOException {
-        final JsonObject jsonObject = new JsonpJsonObjectCoder(Json.createReaderFactory(Collections.emptyMap()))
-                .decode(new ByteArrayInputStream("{\"name\":\"test\"}".getBytes(StandardCharsets.UTF_8)));
+        final JsonObject jsonObject = JsonpJsonObjectCoder.of(PLUGIN).decode(
+                new ByteArrayInputStream("{\"name\":\"test\"}".getBytes(StandardCharsets.UTF_8)));
         assertEquals("test", jsonObject.getString("name"));
         assertEquals(1, jsonObject.size());
     }

@@ -18,13 +18,17 @@ package org.talend.sdk.component.runtime.beam;
 import static java.util.Collections.emptyIterator;
 import static java.util.stream.Collectors.toMap;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
+import javax.json.bind.Jsonb;
 
 import org.apache.beam.sdk.transforms.DoFn;
 import org.talend.sdk.component.api.processor.OutputEmitter;
@@ -61,16 +65,16 @@ abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
 
     protected static final class BeamInputFactory implements InputFactory {
 
-        private final Map<String, Iterator<Serializable>> iterators;
+        private final Map<String, Iterator<JsonValue>> objects;
 
-        BeamInputFactory(final DoFn<Map<String, List<Serializable>>, ?>.ProcessContext context) {
-            iterators = context.element().entrySet().stream().collect(
-                    toMap(Map.Entry::getKey, e -> e.getValue().iterator()));
+        BeamInputFactory(final DoFn<JsonObject, ?>.ProcessContext context) {
+            objects = context.element().entrySet().stream().collect(
+                    toMap(Map.Entry::getKey, e -> e.getValue().asJsonArray().iterator()));
         }
 
         @Override
         public Object read(final String name) {
-            final Iterator<Serializable> values = iterators.getOrDefault(name, emptyIterator());
+            final Iterator<JsonValue> values = objects.getOrDefault(name, emptyIterator());
             return values.hasNext() ? values.next() : null;
         }
     }
@@ -78,18 +82,27 @@ abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
     @RequiredArgsConstructor
     protected static final class BeamOutputFactory implements OutputFactory {
 
-        private final Consumer<Map<String, List<Serializable>>> emit;
+        private final Consumer<JsonObject> emit;
 
-        private final Map<String, List<Serializable>> record = new HashMap<>();
+        private final JsonBuilderFactory factory;
+
+        private final Jsonb jsonb;
+
+        private Map<String, JsonArrayBuilder> outputs = new HashMap<>();
 
         @Override
         public OutputEmitter create(final String name) {
-            return new BeamOutputEmitter(record.computeIfAbsent(name, k -> new ArrayList<>()));
+            return new BeamOutputEmitter(outputs.computeIfAbsent(name, k -> factory.createArrayBuilder()), jsonb);
         }
 
         public void postProcessing() {
-            if (!record.isEmpty()) {
-                emit.accept(record);
+            if (!outputs.isEmpty()) {
+                emit.accept(outputs
+                        .entrySet()
+                        .stream()
+                        .collect(factory::createObjectBuilder, (a, o) -> a.add(o.getKey(), o.getValue()),
+                                JsonObjectBuilder::addAll)
+                        .build());
             }
         }
     }
@@ -97,11 +110,14 @@ abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
     @RequiredArgsConstructor
     private static class BeamOutputEmitter implements OutputEmitter {
 
-        private final List<Serializable> aggregator;
+        private final JsonArrayBuilder builder;
+
+        private final Jsonb jsonb;
 
         @Override
         public void emit(final Object value) {
-            aggregator.add(Serializable.class.cast(value));
+            builder.add(JsonObject.class.isInstance(value) ? JsonObject.class.cast(value)
+                    : jsonb.fromJson(jsonb.toJson(value), JsonObject.class));
         }
     }
 }

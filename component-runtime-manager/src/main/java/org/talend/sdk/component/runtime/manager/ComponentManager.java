@@ -191,16 +191,22 @@ public class ComponentManager implements AutoCloseable {
 
     private final JsonProvider jsonpProvider;
 
+    @Getter
     private final JsonGeneratorFactory jsonpGeneratorFactory;
 
+    @Getter
     private final JsonReaderFactory jsonpReaderFactory;
 
+    @Getter
     private final JsonBuilderFactory jsonpBuilderFactory;
 
+    @Getter
     private final JsonParserFactory jsonpParserFactory;
 
+    @Getter
     private final JsonWriterFactory jsonpWriterFactory;
 
+    @Getter
     private final JsonbProvider jsonbProvider;
 
     private final ProxyGenerator proxyGenerator = new ProxyGenerator();

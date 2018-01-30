@@ -25,23 +25,43 @@ import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
 
 import org.apache.beam.sdk.coders.CustomCoder;
+import org.talend.sdk.component.runtime.beam.io.NoCloseInputStream;
+import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
 
-    private final JsonReaderFactory factory; // ensure you reuse the same instance for memory management
+    public static JsonpJsonObjectCoder of(final String plugin) {
+        return new JsonpJsonObjectCoder(plugin, null);
+    }
+
+    private final String plugin;
+
+    private volatile JsonReaderFactory factory; // ensure you reuse the same instance for memory management
 
     @Override
     public void encode(final JsonObject jsonObject, final OutputStream outputStream) throws IOException {
+        ensureInit();
         outputStream.write(jsonObject.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
     public JsonObject decode(final InputStream inputStream) throws IOException {
-        try (final JsonReader reader = factory.createReader(inputStream)) {
+        ensureInit();
+        try (final JsonReader reader = factory.createReader(new NoCloseInputStream(inputStream))) {
             return reader.readObject();
+        }
+    }
+
+    private void ensureInit() {
+        if (factory == null) {
+            synchronized (this) {
+                if (factory == null) {
+                    factory = ContainerFinder.Instance.get().find(plugin).findService(JsonReaderFactory.class);
+                }
+            }
         }
     }
 }

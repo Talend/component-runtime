@@ -26,7 +26,6 @@ public class KnownJarsFilter implements Predicate<String> {
     private final Collection<String> excludes = new HashSet<String>() {
 
         {
-            add("brave-");
             add("ApacheJMeter");
             add("XmlSchema-");
             add("activation-");
@@ -38,6 +37,9 @@ public class KnownJarsFilter implements Predicate<String> {
             add("ant-");
             add("antlr-");
             add("aopalliance-");
+            add("apacheds-");
+            add("api-util-");
+            add("api-asn1-");
             add("apiguardian-api-");
             add("app-");
             add("args4j-");
@@ -64,6 +66,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("awaitility-");
             add("axis-");
             add("axis2-");
+            add("base64-");
             add("batchee-jbatch");
             add("batik-");
             add("bcprov-");
@@ -71,6 +74,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("beam-runners-");
             add("bootstrap.jar");
             add("bsf-");
+            add("brave-");
             add("bval-core");
             add("bval-jsr");
             add("c3p0-");
@@ -154,8 +158,10 @@ public class KnownJarsFilter implements Predicate<String> {
             add("hawtjni-runtime");
             add("help-");
             add("hibernate-");
+            add("hk2-");
             add("howl-");
             add("hsqldb-");
+            add("htrace-");
             add("htmlunit-");
             add("httpclient-");
             add("httpcore-");
@@ -175,6 +181,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("jasypt-");
             add("java-atk-wrapper");
             add("java-support-");
+            add("java-xmlbuilder-");
             add("javaee-");
             add("javaee-api");
             add("javassist-");
@@ -226,6 +233,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("lucene-analyzers-");
             add("lucene-core-");
             add("lz4");
+            add("mail-");
             add("management-agent.jar");
             add("management-api-");
             add("mapstruct-");
@@ -242,6 +250,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("myfaces-api");
             add("myfaces-impl");
             add("mysql-connector-java-");
+            add("mx4j-");
             add("nashorn");
             add("neethi-");
             add("nekohtml-");

@@ -47,6 +47,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import javax.json.JsonReaderFactory;
+
 import org.talend.sdk.component.junit.lang.StreamDecorator;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -354,6 +356,10 @@ public class BaseComponentsHandler implements ComponentsHandler {
     @Override
     public ComponentManager asManager() {
         return STATE.get().manager;
+    }
+
+    public JsonReaderFactory getJsonpReaderFactory() {
+        return asManager().getJsonpReaderFactory();
     }
 
     public <T> T findService(final String plugin, final Class<T> serviceClass) {
