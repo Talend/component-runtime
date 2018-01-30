@@ -19,8 +19,6 @@ import java.util.List;
 
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.components.ElementParameter;
-import org.talend.sdk.component.studio.Lookups;
-import org.talend.sdk.component.studio.debounce.DebouncedAction;
 
 import lombok.Setter;
 
@@ -32,8 +30,6 @@ public class TaCoKitElementParameter extends ElementParameter {
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     private final List<IValueChangedListener> valueChangeListeners = new ArrayList<>();
-
-    private final DebouncedAction debounced = Lookups.debouncer().createAction();
 
     /**
      * UPDATE_COMPONENTS {@link ElementParameter}
@@ -65,26 +61,6 @@ public class TaCoKitElementParameter extends ElementParameter {
         return (String) getValue();
     }
 
-    /**
-     * Sets parameter value and fires parameter change event, which is handled by registered listeners.
-     * Subclasses should extend (override and call super.setValue()) this method to provide correct conversion, when
-     * they use other value type than String.
-     *
-     * @param newValue value to be set
-     */
-    @Override
-    public void setValue(final Object newValue) {
-        final Object oldValue = super.getValue();
-        super.setValue(newValue);
-        debounced.debounce(() -> {
-            if (isRedrawable()) {
-                redrawParameter.setValue(true);
-            }
-            pcs.firePropertyChange(getName(), oldValue, newValue);
-            fireValueChange(oldValue, newValue);
-        }, 1000);
-    }
-
     public void registerListener(final String propertyName, final PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(propertyName, listener);
     }
@@ -101,9 +77,19 @@ public class TaCoKitElementParameter extends ElementParameter {
         return valueChangeListeners.remove(listener);
     }
 
-    public void fireValueChange(final Object oldValue, final Object newValue) {
+    protected void firePropertyChange(final String name, final Object oldValue, final Object newValue) {
+        pcs.firePropertyChange(name, oldValue, newValue);
+    }
+
+    protected void fireValueChange(final Object oldValue, final Object newValue) {
         for (final IValueChangedListener listener : valueChangeListeners) {
             listener.onValueChanged(this, oldValue, newValue);
+        }
+    }
+
+    protected void redraw() {
+        if (isRedrawable()) {
+            redrawParameter.setValue(true);
         }
     }
 

@@ -29,7 +29,7 @@ import org.talend.core.model.process.IElement;
  * serialize
  * parameter value in repository.
  */
-public class TableElementParameter extends TaCoKitElementParameter {
+public class TableElementParameter extends ValueChangedParameter {
 
     public TableElementParameter(final IElement element) {
         super(element);
@@ -43,7 +43,7 @@ public class TableElementParameter extends TaCoKitElementParameter {
     @Override
     public String getStringValue() {
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> tableValue = (List<Map<String, Object>>) super.getValue();
+        final List<Map<String, Object>> tableValue = (List<Map<String, Object>>) super.getValue();
         return tableValue.toString();
     }
 
