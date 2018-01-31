@@ -48,6 +48,8 @@ final org.talend.sdk.component.runtime.manager.ComponentManager mgr_<%=cid%> = o
 final org.talend.sdk.component.runtime.input.Mapper tempMapper_<%=cid%> = mgr_<%=cid%>.findMapper("<%=family%>", "<%=originalName%>", <%=version%>, configuration_<%=cid%>)
     .orElseThrow(() -> new IllegalArgumentException("Can't find <%=family%>#<%=originalName%>"));
 
+int nbLineInput_<%=cid%> = 0;
+
 tempMapper_<%=cid%>.start();
 final org.talend.sdk.component.runtime.manager.chain.ChainedMapper mapper_<%=cid%>;
 try {
