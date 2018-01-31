@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyMap;
+import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
@@ -31,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectStreamException;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
@@ -539,82 +541,112 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         }
 
         private Map<String, Encoder> createEncoder(final JsonpEncoder jsonpEncoder, final Codec codec) {
-            if (codec == null || codec.decoder().length == 0) {
-
-                return new LinkedHashMap<String, Encoder>() {
-
-                    {
-                        // keep the put order
-                        if (!jaxbContexts.isEmpty()) {
-                            final JAXBEncoder jaxbEncoder = new JAXBEncoder(jaxbContexts);
-                            put("*/xml", jaxbEncoder);
-                            put("*/*+xml", jaxbEncoder);
-                        }
-                        put("*/json", jsonpEncoder);
-                        put("*/*+json", jsonpEncoder);
-                        put("*/*", value -> value == null ? new byte[0]
-                                : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
-                    }
-                };
+            final Map<String, Encoder> encoders = new HashMap<>();
+            if (codec != null && codec.encoder().length != 0) {
+                encoders.putAll(stream(codec.encoder())
+                        .filter(Objects::nonNull)
+                        .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
+                                ? encoder.getAnnotation(ContentType.class).value()
+                                : "*/*", encoder -> {
+                                    try {
+                                        final Constructor<?> constructor = Constructors.findConstructor(encoder);
+                                        final Function<Map<String, String>, Object[]> paramFactory =
+                                                reflections.parameterFactory(constructor, services);
+                                        return Encoder.class
+                                                .cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                    } catch (final InstantiationException | IllegalAccessException e) {
+                                        throw new IllegalArgumentException(e);
+                                    } catch (final InvocationTargetException e) {
+                                        throw toRuntimeException(e);
+                                    }
+                                }, (k, v) -> {
+                                    throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                                })));
             }
 
-            return stream(codec.encoder())
-                    .filter(Objects::nonNull)
-                    .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
-                            ? encoder.getAnnotation(ContentType.class).value()
-                            : "*/*", encoder -> {
-                                try {
-                                    final Constructor<?> constructor = Constructors.findConstructor(encoder);
-                                    final Function<Map<String, String>, Object[]> paramFactory =
-                                            reflections.parameterFactory(constructor, services);
-                                    return Encoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                                } catch (final InstantiationException | IllegalAccessException e) {
-                                    throw new IllegalArgumentException(e);
-                                } catch (final InvocationTargetException e) {
-                                    throw toRuntimeException(e);
-                                }
-                            }, (k, v) -> {
-                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                            }, LinkedHashMap::new));
+            // keep the put order
+            if (!jaxbContexts.isEmpty()) {
+                final JAXBEncoder jaxbEncoder = new JAXBEncoder(jaxbContexts);
+                encoders.putIfAbsent("*/xml", jaxbEncoder);
+                encoders.putIfAbsent("*/*+xml", jaxbEncoder);
+            }
+
+            encoders.putIfAbsent("*/json", jsonpEncoder);
+            encoders.putIfAbsent("*/*+json", jsonpEncoder);
+            encoders.putIfAbsent("*/*",
+                    value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
+
+            return sortMap(encoders);
 
         }
 
         private Map<String, Decoder> createDecoder(final JsonpDecoder jsonpDecoder, final Codec codec) {
-            if (codec == null || codec.decoder().length == 0) {
-                return new LinkedHashMap<String, Decoder>() {
+            final Map<String, Decoder> decoders = new HashMap<>();
+            if (codec != null && codec.decoder().length != 0) {
+                decoders.putAll(stream(codec.decoder())
+                        .filter(Objects::nonNull)
+                        .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
+                                ? decoder.getAnnotation(ContentType.class).value()
+                                : "*/*", decoder -> {
+                                    try {
+                                        final Constructor<?> constructor = Constructors.findConstructor(decoder);
+                                        final Function<Map<String, String>, Object[]> paramFactory =
+                                                reflections.parameterFactory(constructor, services);
+                                        return Decoder.class
+                                                .cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                    } catch (final InstantiationException | IllegalAccessException e) {
+                                        throw new IllegalArgumentException(e);
+                                    } catch (final InvocationTargetException e) {
+                                        throw toRuntimeException(e);
+                                    }
+                                }, (k, v) -> {
+                                    throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                                })));
+            }
+            // add default decoders if not override by the user
+            // keep the put order
+            if (!jaxbContexts.isEmpty()) {
+                final JAXBDecoder jaxbDecoder = new JAXBDecoder(jaxbContexts);
+                decoders.putIfAbsent("*/xml", jaxbDecoder);
+                decoders.putIfAbsent("*/*+xml", jaxbDecoder);
+            }
+            decoders.putIfAbsent("*/json", jsonpDecoder);
+            decoders.putIfAbsent("*/*+json", jsonpDecoder);
+            decoders.putIfAbsent("*/*", (value, expectedType) -> new String(value));
 
-                    {
-                        // keep the put order
-                        if (!jaxbContexts.isEmpty()) {
-                            final JAXBDecoder jaxbDecoder = new JAXBDecoder(jaxbContexts);
-                            put("*/xml", jaxbDecoder);
-                            put("*/*+xml", jaxbDecoder);
-                        }
-                        put("*/json", jsonpDecoder);
-                        put("*/*+json", jsonpDecoder);
-                        put("*/*", (value, expectedType) -> new String(value));
-                    }
-                };
+            return sortMap(decoders);
+        }
+
+        private <T> Map<String, T> sortMap(final Map<String, T> entries) {
+            final List<String> keys = new ArrayList<>(entries.keySet());
+            keys.sort(new MediaTypeComparator(new ArrayList<>(keys)));
+            return keys.stream().collect(toMap(k -> k.toLowerCase(ROOT), entries::get, (a, b) -> {
+                throw new IllegalArgumentException(a + "/" + b);
+            }, LinkedHashMap::new));
+        }
+
+        @AllArgsConstructor
+        private static class DefaultConnection implements Configurer.Connection {
+
+            private final HttpURLConnection urlConnection;
+
+            @Override
+            public Configurer.Connection withHeader(final String name, final String value) {
+                urlConnection.addRequestProperty(name, value);
+                return this;
             }
 
-            return stream(codec.decoder())
-                    .filter(Objects::nonNull)
-                    .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
-                            ? decoder.getAnnotation(ContentType.class).value()
-                            : "*/*", decoder -> {
-                                try {
-                                    final Constructor<?> constructor = Constructors.findConstructor(decoder);
-                                    final Function<Map<String, String>, Object[]> paramFactory =
-                                            reflections.parameterFactory(constructor, services);
-                                    return Decoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                                } catch (final InstantiationException | IllegalAccessException e) {
-                                    throw new IllegalArgumentException(e);
-                                } catch (final InvocationTargetException e) {
-                                    throw toRuntimeException(e);
-                                }
-                            }, (k, v) -> {
-                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                            }, LinkedHashMap::new));
+            @Override
+            public Configurer.Connection withReadTimeout(final int timeout) {
+                urlConnection.setReadTimeout(timeout);
+                return this;
+            }
+
+            @Override
+            public Configurer.Connection withConnectionTimeout(final int timeout) {
+                urlConnection.setConnectTimeout(timeout);
+                return this;
+            }
         }
 
         @AllArgsConstructor
@@ -724,34 +756,14 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
             @Override
             public byte[] encode(final Object value) {
-                final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                jsonb.toJson(value, out);
-                return out.toByteArray();
+                final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                try (final OutputStreamWriter out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+                    jsonb.toJson(value, out);
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+                return outputStream.toByteArray();
             }
-        }
-    }
-
-    @AllArgsConstructor
-    private static class DefaultConnection implements Configurer.Connection {
-
-        private final HttpURLConnection urlConnection;
-
-        @Override
-        public Configurer.Connection withHeader(final String name, final String value) {
-            urlConnection.addRequestProperty(name, value);
-            return this;
-        }
-
-        @Override
-        public Configurer.Connection withReadTimeout(final int timeout) {
-            urlConnection.setReadTimeout(timeout);
-            return this;
-        }
-
-        @Override
-        public Configurer.Connection withConnectionTimeout(final int timeout) {
-            urlConnection.setConnectTimeout(timeout);
-            return this;
         }
     }
 }

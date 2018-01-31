@@ -19,9 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,14 +38,20 @@ class CodecMatcherTest {
 
     @BeforeAll
     static void init() {
-        codecMap = new LinkedHashMap<String, Encoder>() {
+        final Map<String, Encoder> encoderMap = new HashMap<String, Encoder>() {
 
             {
-                put("application/json", new JsonEncoder());
-                put("*/json", new JsonEncoder());
-                put("application/talend+json", new TalendJsonEncoder());
-                put("application/*+json", new TalendJsonEncoder());
                 put("*/*", new DefaultEncoder());
+                put("*/json", new JsonEncoder());
+                put("application/*+json", new TalendJsonEncoder());
+                put("application/talend+json", new TalendJsonEncoder());
+                put("application/json", new JsonEncoder());
+            }
+        };
+        codecMap = new TreeMap<String, Encoder>(new MediaTypeComparator(new ArrayList<>(encoderMap.keySet()))) {
+
+            {
+                putAll(encoderMap);
             }
         };
     }
@@ -83,11 +90,6 @@ class CodecMatcherTest {
     void selectWithNoType() {
         final Encoder encoder = matcher.select(codecMap, null);
         assertTrue(DefaultEncoder.class.isInstance(encoder));
-    }
-
-    @Test
-    void selectWithUnsupportedType() {
-        assertThrows(IllegalStateException.class, () -> matcher.select(codecMap, "unsupported"));
     }
 
     @Test

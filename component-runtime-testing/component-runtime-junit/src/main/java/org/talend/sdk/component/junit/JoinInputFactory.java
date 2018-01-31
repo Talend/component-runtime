@@ -28,9 +28,9 @@ import java.util.Map;
  */
 public class JoinInputFactory implements ControllableInputFactory {
 
-    private final Map<String, Iterator<? extends Serializable>> data = new HashMap<>();
+    private final Map<String, Iterator<?>> data = new HashMap<>();
 
-    public JoinInputFactory withInput(final String branch, final Collection<? extends Serializable> branchData) {
+    public JoinInputFactory withInput(final String branch, final Collection<?> branchData) {
         data.put(branch, branchData.iterator());
         return this;
     }

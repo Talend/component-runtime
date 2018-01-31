@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import static java.util.Locale.ROOT;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,7 +67,7 @@ public class CodecMatcher<T> {
             return "*/*";
         }
         // content-type contains charset and/or boundary
-        return (contentType.contains(";")) ? contentType.split(";")[0] : contentType;
+        return ((contentType.contains(";")) ? contentType.split(";")[0] : contentType).toLowerCase(ROOT);
 
     }
 }
