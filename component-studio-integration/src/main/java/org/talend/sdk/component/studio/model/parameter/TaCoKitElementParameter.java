@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.components.ElementParameter;
-import org.talend.sdk.component.studio.metadata.ITaCoKitElementParameterEventProperties;
 
 import lombok.Setter;
 
@@ -76,8 +75,7 @@ public class TaCoKitElementParameter extends ElementParameter {
         if (isRedrawable()) {
             redrawParameter.setValue(true);
         }
-        pcs.firePropertyChange(ITaCoKitElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED, oldValue,
-                newValue);
+        pcs.firePropertyChange(getName(), oldValue, newValue);
         fireValueChange(oldValue, newValue);
     }
 
