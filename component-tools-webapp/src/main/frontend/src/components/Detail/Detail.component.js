@@ -17,7 +17,7 @@
 import React from 'react';
 import { CircularProgress } from '@talend/react-components';
 import { UIForm } from '@talend/react-forms/lib/UIForm';
-import TalendComponentKitTrigger from 'component-kit.js';
+import getDefaultTrigger from '../../triggers';
 
 function NoSelectedComponent() {
 	return (
@@ -31,12 +31,20 @@ function NoSelectedComponent() {
 class Detail extends React.Component {
 	constructor(props) {
 		super(props);
-		this.trigger = new TalendComponentKitTrigger({ url: 'api/v1/application/action' });
+		this.trigger = getDefaultTrigger({ url: 'api/v1/application/action' });
 		this.onTrigger = this.onTrigger.bind(this);
 	}
 
 	onTrigger(event, payload) {
-		return this.trigger.onDefaultTrigger(event, payload);
+		return this.trigger(event, payload)
+			.then(triggerResult => {
+				if (triggerResult.properties) {
+					this.props.onChange(event, triggerResult);
+				}
+				if (triggerResult.errors) {
+					this.props.onErrors(event, triggerResult.errors);
+				}
+			});
 	}
 
 	render() {
