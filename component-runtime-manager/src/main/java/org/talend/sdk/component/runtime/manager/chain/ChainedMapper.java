@@ -67,12 +67,12 @@ public final class ChainedMapper implements Mapper {
 
     @Override
     public void start() {
-        root.start();
+        // no-op: already done for the split
     }
 
     @Override
     public void stop() {
-        root.stop();
+        // no-op: must be handled outside this
     }
 
     Iterator<Mapper> getIterator() {

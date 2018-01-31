@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -53,7 +54,14 @@ public class ExecutionChain {
         root.start();
 
         final long totalSize = root.assess();
-        final ChainedMapper mapper = new ChainedMapper(root, root.split(totalSize).iterator());
+        root.start();
+        final Iterator<Mapper> iterator;
+        try {
+            iterator = root.split(totalSize).iterator();
+        } finally {
+            root.stop();
+        }
+        final ChainedMapper mapper = new ChainedMapper(root, iterator);
 
         final Input input = mapper.create();
         input.start();
