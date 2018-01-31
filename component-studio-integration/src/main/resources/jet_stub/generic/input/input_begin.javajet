@@ -45,16 +45,21 @@ final org.talend.sdk.component.runtime.manager.ComponentManager mgr_<%=cid%> = o
 
 <%@include file="../configuration.javajet"%>
 
-final org.talend.sdk.component.runtime.input.Mapper mapper_<%=cid%> = mgr_<%=cid%>.findMapper("<%=family%>", "<%=originalName%>", <%=version%>, configuration_<%=cid%>)
+final org.talend.sdk.component.runtime.input.Mapper tempMapper_<%=cid%> = mgr_<%=cid%>.findMapper("<%=family%>", "<%=originalName%>", <%=version%>, configuration_<%=cid%>)
     .orElseThrow(() -> new IllegalArgumentException("Can't find <%=family%>#<%=originalName%>"));
 
 int nbLineInput_<%=cid%> = 0;
+
+tempMapper_<%=cid%>.start();
+
+final java.util.List<org.talend.sdk.component.runtime.input.Mapper> splitMappers_<%=cid%> = tempMapper_<%=cid%>.split(tempMapper_<%=cid%>.assess());
+org.talend.sdk.component.runtime.manager.chain.ChainedMapper mapper_<%=cid%> = new org.talend.sdk.component.runtime.manager.chain.ChainedMapper(tempMapper_<%=cid%>, splitMappers_<%=cid%>.iterator());
 mapper_<%=cid%>.start();
 globalMap.put("mapper_<%=cid%>", mapper_<%=cid%>);
 
 final org.talend.sdk.component.runtime.input.Input input_<%=cid%> = mapper_<%=cid%>.create();
 input_<%=cid%>.start();
-globalMap.put("input_<%=cid%>", mapper_<%=cid%>);
+globalMap.put("input_<%=cid%>", input_<%=cid%>);
 
 <%
 final List<? extends IConnection> connections = node.getOutgoingConnections(EConnectionType.FLOW_MAIN);
@@ -64,9 +69,9 @@ if (connections.isEmpty()) {
 final String output = connections.iterator().next().getName();
 %>
 
-final javax.json.bind.Jsonb jsonb_<%=cid%> = mgr_<%=cid%>.findPlugin(mapper_<%=cid%>.plugin()).get()
+final javax.json.bind.Jsonb jsonb_<%=cid%> = (javax.json.bind.Jsonb)mgr_<%=cid%>.findPlugin(mapper_<%=cid%>.plugin()).get()
                                                      .get(org.talend.sdk.component.runtime.manager.ComponentManager.AllServices.class)
-                                                     .get(javax.json.bind.Jsonb.class);
+                                                     .getServices().get(javax.json.bind.Jsonb.class);
 final Class outputType_<%=cid%> = <%=output%>.getClass();
 
 Object data_<%=cid%>;
@@ -74,8 +79,9 @@ while ((data_<%=cid%> = input_<%=cid%>.next()) != null) {
     nbLineInput_<%=cid%>++;
     globalMap.put("<%=cid %>_NB_LINE", nbLineInput_<%=cid%>);
 
-    final javax.json.JsonValue jsonValue_<%=cid%> =
+    final String jsonValue_<%=cid%> =
             javax.json.JsonValue.class.isInstance(data_<%=cid%>) ?
             javax.json.JsonValue.class.cast(data_<%=cid%>).toString() :
             jsonb_<%=cid%>.toJson(data_<%=cid%>);
-    <%=output%> = jsonb_<%=cid%>.fromJson(jsonValue_<%=cid%>, outputType_<%=cid%>);
+    <%//this looks saner than using outputType_cid, as we won't have possibility to cast the value to required class%>
+    <%=output%> = jsonb_<%=cid%>.fromJson(jsonValue_<%=cid%>, <%=output%>.getClass());
