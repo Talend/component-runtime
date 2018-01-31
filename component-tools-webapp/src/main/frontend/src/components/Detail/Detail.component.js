@@ -33,15 +33,10 @@ class Detail extends React.Component {
 		super(props);
 		this.trigger = new TalendComponentKitTrigger({ url: 'api/v1/application/action' });
 		this.onTrigger = this.onTrigger.bind(this);
-		this.onSubmit = this.onSubmit.bind(this);
 	}
 
 	onTrigger(event, payload) {
 		return this.trigger.onDefaultTrigger(event, payload);
-	}
-
-	onSubmit(event, payload) {
-		this.props.onSubmit(event, payload);
 	}
 
 	render() {
@@ -60,8 +55,10 @@ class Detail extends React.Component {
 			return (
 				<UIForm
 					data={this.props.uiSpec}
+					onChange={this.props.onChange}
+					onErrors={this.props.onErrors}
 					onTrigger={this.onTrigger}
-					onSubmit={this.onSubmit}
+					onSubmit={this.props.onSubmit}
 				/>
 			);
 		}

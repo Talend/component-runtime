@@ -15,6 +15,8 @@
  */
 
 import {
+	CHANGE_COMPONENT_ERRORS,
+	CHANGE_COMPONENT_PROPERTIES,
 	GET_COMPONENT_LOADING,
 	GET_COMPONENT_OK,
 	BACK_TO_COMPONENT_EDIT,
@@ -34,6 +36,22 @@ export default (state = {}, action) => {
 				uiSpec: action.uiSpec,
 				isLoading: false,
 				submitted: false,
+			};
+		case CHANGE_COMPONENT_ERRORS:
+			return {
+				...state,
+				uiSpec: {
+					...state.uiSpec,
+					errors: action.errors,
+				}
+			};
+		case CHANGE_COMPONENT_PROPERTIES:
+			return {
+				...state,
+				uiSpec: {
+					...state.uiSpec,
+					properties: action.properties,
+				}
 			};
 		case SUBMIT_COMPONENT:
 			return {

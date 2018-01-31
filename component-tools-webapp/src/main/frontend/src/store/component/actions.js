@@ -15,6 +15,8 @@
  */
 
 import {
+	CHANGE_COMPONENT_ERRORS,
+	CHANGE_COMPONENT_PROPERTIES,
 	GET_COMPONENT_LOADING,
 	GET_COMPONENT_ERROR,
 	GET_COMPONENT_OK,
@@ -48,6 +50,22 @@ export function backToComponentEdit(event, properties) {
 		type: BACK_TO_COMPONENT_EDIT,
 		event,
 		properties,
+	};
+}
+
+export function onComponentPropertiesChange(event, { properties }) {
+	return {
+		type: CHANGE_COMPONENT_PROPERTIES,
+		event,
+		properties,
+	};
+}
+
+export function onComponentErrorsChange(event, errors) {
+	return {
+		type: CHANGE_COMPONENT_ERRORS,
+		event,
+		errors,
 	};
 }
 

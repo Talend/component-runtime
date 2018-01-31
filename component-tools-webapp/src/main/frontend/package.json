@@ -8,10 +8,10 @@
     "watch": "webpack --config webpack.config --bail --progress --colors --watch --display-error-details --display-chunks"
   },
   "dependencies": {
-    "@talend/bootstrap-theme": "0.149.0",
-    "@talend/icons": "0.149.0",
-    "@talend/react-components": "0.149.0",
-    "@talend/react-forms": "0.149.0",
+    "@talend/bootstrap-theme": "0.150.0",
+    "@talend/icons": "0.150.0",
+    "@talend/react-components": "0.150.0",
+    "@talend/react-forms": "0.150.0",
     "bootstrap-sass": "3.3.7",
     "classnames": "2.2.5",
     "i18next": "9.0.0",

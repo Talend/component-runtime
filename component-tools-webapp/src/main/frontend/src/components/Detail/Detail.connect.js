@@ -16,7 +16,12 @@
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { submitComponent, backToComponentEdit } from '../../store/component/actions';
+import {
+	backToComponentEdit,
+	onComponentPropertiesChange,
+	onComponentErrorsChange,
+	submitComponent,
+} from '../../store/component/actions';
 
 import Detail from './Detail.component';
 
@@ -27,6 +32,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
 	return {
 		backToComponentEdit: bindActionCreators(backToComponentEdit, dispatch),
+		onChange: bindActionCreators(onComponentPropertiesChange, dispatch),
+		onErrors: bindActionCreators(onComponentErrorsChange, dispatch),
 		onSubmit: bindActionCreators(submitComponent, dispatch),
 	};
 }
