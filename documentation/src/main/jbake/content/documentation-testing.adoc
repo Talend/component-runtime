@@ -718,3 +718,6 @@ Check against your use case to know which one is the best.
 
 NOTE: an interesting alternative to data generation is to import _real_ data and use Talend Studio to sanitize the data (remove sensitive information replacing them by generated data or anonymized data)
 and just inject that file into the system.
+
+If you are using JUnit 5, you can have a look to https://glytching.github.io/junit-extensions/randomBeans
+which is pretty good on that topic.
