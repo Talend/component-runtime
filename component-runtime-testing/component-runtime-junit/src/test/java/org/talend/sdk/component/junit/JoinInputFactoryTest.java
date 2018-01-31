@@ -20,21 +20,35 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
+import javax.json.Json;
+import javax.json.JsonObject;
 
-public class JoinInputFactoryTest {
+import org.junit.jupiter.api.Test;
+
+class JoinInputFactoryTest {
 
     @Test
-    public void iterationEmpty() {
+    void iterationEmpty() {
         final JoinInputFactory factory = new JoinInputFactory();
         assertFalse(factory.hasMoreData());
     }
 
     @Test
-    public void iteration() {
+    void iteration() {
         final JoinInputFactory factory = new JoinInputFactory().withInput("__default__", singleton("test"));
         assertTrue(factory.hasMoreData());
         assertEquals("test", factory.read("__default__"));
+        assertFalse(factory.hasMoreData());
+    }
+
+    @Test
+    void jsonp() {
+        final JoinInputFactory factory = new JoinInputFactory().withInput("__default__",
+                singleton(Json.createObjectBuilder().add("test", "foo").build()));
+        assertTrue(factory.hasMoreData());
+        final Object main = factory.read("__default__");
+        assertTrue(JsonObject.class.isInstance(main));
+        assertEquals("{\"test\":\"foo\"}", main.toString());
         assertFalse(factory.hasMoreData());
     }
 }

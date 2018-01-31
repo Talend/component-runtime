@@ -189,6 +189,7 @@ public class ComponentManager implements AutoCloseable {
     private final InternationalizationServiceFactory internationalizationServiceFactory =
             new InternationalizationServiceFactory();
 
+    @Getter
     private final JsonProvider jsonpProvider;
 
     @Getter

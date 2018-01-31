@@ -50,7 +50,7 @@ public class ComponentExtensionTest {
     private ComponentsHandler handler;
 
     @Test
-    public void manualMapper() {
+    void manualMapper() {
         final Mapper mapper = handler.createMapper(Source.class, new Source.Config() {
 
             {
@@ -65,7 +65,7 @@ public class ComponentExtensionTest {
     }
 
     @Test
-    public void sourceCollector() {
+    void sourceCollector() {
         final Mapper mapper = handler.createMapper(Source.class, new Source.Config() {
 
             {
@@ -76,7 +76,7 @@ public class ComponentExtensionTest {
     }
 
     @Test
-    public void sourceCollectorParallel() {
+    void sourceCollectorParallel() {
         final CountDownLatch latch = new CountDownLatch(1);
         final Mapper mapper = new PartitionMapperImpl() {
 
@@ -129,7 +129,7 @@ public class ComponentExtensionTest {
     }
 
     @Test
-    public void processorCollector() {
+    void processorCollector() {
         final Processor processor = handler.createProcessor(Transform.class, null);
         final SimpleComponentRule.Outputs outputs = handler.collect(processor,
                 new JoinInputFactory()

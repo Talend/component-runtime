@@ -28,7 +28,8 @@ import lombok.Data;
 /**
  * An iterable representing the input data.
  */
-@Data class InputFactoryIterable implements Iterable<Map<String, List<?>>>, Serializable {
+@Data
+class InputFactoryIterable implements Iterable<Map<String, List<?>>>, Serializable {
 
     private final ControllableInputFactory inputFactory;
 

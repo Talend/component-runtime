@@ -34,12 +34,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-json_1.1_spec</artifactId>
-      <version>1.0</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-spi</artifactId>
       <version>${project.version}</version>
