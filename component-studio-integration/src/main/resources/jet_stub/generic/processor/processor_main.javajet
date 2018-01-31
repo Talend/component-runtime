@@ -41,7 +41,6 @@ for (final IConnection connection : node.getIncomingConnections(EConnectionType.
 //row1Struct row2 = new row1Struct();
 //...
 //row2 = row1;
-}
 %>
 final java.util.concurrent.atomic.AtomicReference<?> <%= connection.getName() %>InputRef_<%=cid%> = new java.util.concurrent.atomic.AtomicReference<>(<%= connection.getName() %>);
 <% } %>
@@ -63,7 +62,7 @@ final org.talend.sdk.component.runtime.output.InputFactory inputs_<%=cid%> = new
         if (value == null) {
             return null;
         }
-        return javax.json.JsonValue.class.isInstance(data_<%=cid%>) ?
+        return javax.json.JsonValue.class.isInstance(value) ?
                 javax.json.JsonValue.class.cast(value) :
                 jsonb_<%=cid%>.fromJson(jsonb_<%=cid%>.toJson(value), javax.json.JsonValue.class);
     }
@@ -96,11 +95,12 @@ final org.talend.sdk.component.runtime.output.OutputFactory outputs_<%=cid%> = n
         add(new org.talend.sdk.component.api.processor.OutputEmitter() {
             @Override
             public void emit(final Object value) {
-                final javax.json.JsonValue jsonValue_<%=cid%> =
-                        javax.json.JsonValue.class.isInstance(data_<%=cid%>) ?
-                        javax.json.JsonValue.class.cast(data_<%=cid%>).toString() :
-                        jsonb_<%=cid%>.toJson(data_<%=cid%>);
-                <%= connection.getName() %>OutputRef_<%=cid%>.set(jsonb_<%=cid%>.fromJson(jsonValue_<%=cid%>.toString(), <%= connection.getName() %>outputType_<%=cid%>));
+                final String jsonValue =
+                        javax.json.JsonValue.class.isInstance(value) ?
+                        javax.json.JsonValue.class.cast(value).toString() :
+                        jsonb_<%=cid%>.toJson(value);
+                //This is the only way to set the value to the reference. Otherwise it won't let us do it, as the class is unknown at compile time.
+                <%= connection.getName() %>OutputRef_<%=cid%>.set(jsonb_<%=cid%>.fromJson(jsonValue, <%= connection.getName() %>Struct.class));
             }
         });
         <%

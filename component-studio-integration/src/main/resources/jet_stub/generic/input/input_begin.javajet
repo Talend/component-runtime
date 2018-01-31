@@ -67,9 +67,9 @@ if (connections.isEmpty()) {
 final String output = connections.iterator().next().getName();
 %>
 
-final javax.json.bind.Jsonb jsonb_<%=cid%> = mgr_<%=cid%>.findPlugin(mapper_<%=cid%>.plugin()).get()
+final javax.json.bind.Jsonb jsonb_<%=cid%> = (javax.json.bind.Jsonb)mgr_<%=cid%>.findPlugin(mapper_<%=cid%>.plugin()).get()
                                                      .get(org.talend.sdk.component.runtime.manager.ComponentManager.AllServices.class)
-                                                     .get(javax.json.bind.Jsonb.class);
+                                                     .getServices().get(javax.json.bind.Jsonb.class);
 final Class outputType_<%=cid%> = <%=output%>.getClass();
 
 Object data_<%=cid%>;
@@ -77,8 +77,9 @@ while ((data_<%=cid%> = input_<%=cid%>.next()) != null) {
     nbLineInput_<%=cid%>++;
     globalMap.put("<%=cid %>_NB_LINE", nbLineInput_<%=cid%>);
 
-    final javax.json.JsonValue jsonValue_<%=cid%> =
+    final String jsonValue_<%=cid%> =
             javax.json.JsonValue.class.isInstance(data_<%=cid%>) ?
             javax.json.JsonValue.class.cast(data_<%=cid%>).toString() :
             jsonb_<%=cid%>.toJson(data_<%=cid%>);
-    <%=output%> = jsonb_<%=cid%>.fromJson(jsonValue_<%=cid%>, outputType_<%=cid%>);
+    <%//this looks saner than using outputType_cid, as we won't have possibility to cast the value to required class%>
+    <%=output%> = jsonb_<%=cid%>.fromJson(jsonValue_<%=cid%>, <%=output%>.getClass());
