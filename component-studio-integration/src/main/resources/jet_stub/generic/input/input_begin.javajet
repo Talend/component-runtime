@@ -45,16 +45,19 @@ final org.talend.sdk.component.runtime.manager.ComponentManager mgr_<%=cid%> = o
 
 <%@include file="../configuration.javajet"%>
 
-final org.talend.sdk.component.runtime.input.Mapper mapper_<%=cid%> = mgr_<%=cid%>.findMapper("<%=family%>", "<%=originalName%>", <%=version%>, configuration_<%=cid%>)
+final org.talend.sdk.component.runtime.input.Mapper tempMapper_<%=cid%> = mgr_<%=cid%>.findMapper("<%=family%>", "<%=originalName%>", <%=version%>, configuration_<%=cid%>)
     .orElseThrow(() -> new IllegalArgumentException("Can't find <%=family%>#<%=originalName%>"));
 
 int nbLineInput_<%=cid%> = 0;
+
+final java.util.List<org.talend.sdk.component.runtime.input.Mapper> splitMappers_<%=cid%> = tempMapper_<%=cid%>.split(tempMapper_<%=cid%>.assess());
+org.talend.sdk.component.runtime.manager.chain.ChainedMapper mapper_<%=cid%> = new org.talend.sdk.component.runtime.manager.chain.ChainedMapper(tempMapper_<%=cid%>, splitMappers_<%=cid%>.iterator());
 mapper_<%=cid%>.start();
 globalMap.put("mapper_<%=cid%>", mapper_<%=cid%>);
 
 final org.talend.sdk.component.runtime.input.Input input_<%=cid%> = mapper_<%=cid%>.create();
 input_<%=cid%>.start();
-globalMap.put("input_<%=cid%>", mapper_<%=cid%>);
+globalMap.put("input_<%=cid%>", input_<%=cid%>);
 
 <%
 final List<? extends IConnection> connections = node.getOutgoingConnections(EConnectionType.FLOW_MAIN);

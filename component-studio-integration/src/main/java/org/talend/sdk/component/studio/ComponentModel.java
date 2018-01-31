@@ -298,7 +298,7 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     @Override
     public boolean isDataAutoPropagated() {
-        return true;
+        return false;
     }
 
     /**

@@ -208,7 +208,8 @@ public class Generator {
                 + Base64.getEncoder().encodeToString((username + ':' + password).getBytes(StandardCharsets.UTF_8));
 
         try {
-            final WebTarget restApi = client.target(jiraBase + "/rest/api/2");
+            final WebTarget restApi =
+                    client.target(jiraBase + "/rest/api/2").property("http.connection.timeout", 60000L);
             final List<JiraVersion> versions = restApi
                     .path("project/{project}/versions")
                     .resolveTemplate("project", project)

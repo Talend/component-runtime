@@ -35,8 +35,15 @@ final String cid = node.getUniqueName();
 
 <%
 for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
+//We have to use Object type here, as the input row class is not strict. It can be propagated from other component.
+//Example(tLogRow case):
+//row1Struct row1 = new row1Struct();
+//row1Struct row2 = new row1Struct();
+//...
+//row2 = row1;
+}
 %>
-final java.util.concurrent.atomic.AtomicReference<<%= connection.getName() %>Struct> <%= connection.getName() %>InputRef_<%=cid%> = new java.util.concurrent.atomic.AtomicReference<>(<%= connection.getName() %>);
+final java.util.concurrent.atomic.AtomicReference<?> <%= connection.getName() %>InputRef_<%=cid%> = new java.util.concurrent.atomic.AtomicReference<>(<%= connection.getName() %>);
 <% } %>
 final org.talend.sdk.component.runtime.output.InputFactory inputs_<%=cid%> = new org.talend.sdk.component.runtime.output.InputFactory() {
     private final java.util.Iterator<java.util.concurrent.atomic.AtomicReference<?>> values = new java.util.ArrayList<java.util.concurrent.atomic.AtomicReference<?>>() {{
@@ -68,6 +75,8 @@ for (final IConnection connection : node.getOutgoingSortedConnections()) {
     if (connection.getLineStyle() != EConnectionType.FLOW_MAIN) {
         continue;
     }
+//We must always have a strict class here, as we cannot set the row from Object class.
+//ComponentModel MUST provide a new class for each row. No data autopropagation should be possible.
 %>
 final java.util.concurrent.atomic.AtomicReference<<%= connection.getName() %>Struct> <%= connection.getName() %>OutputRef_<%=cid%> = new java.util.concurrent.atomic.AtomicReference<>(<%= connection.getName() %>);
 final Class <%= connection.getName() %>outputType_<%=cid%> = <%= connection.getName() %>.getClass();
