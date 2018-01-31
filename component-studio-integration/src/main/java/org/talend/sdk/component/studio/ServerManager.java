@@ -29,6 +29,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.talend.osgi.hook.maven.MavenResolver;
+import org.talend.sdk.component.studio.debounce.DebounceManager;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.service.Configuration;
@@ -44,6 +45,8 @@ public class ServerManager extends AbstractUIPlugin {
 
     private Runnable reset;
 
+    private DebounceManager debounceManager;
+
     @Override
     public void start(final BundleContext context) throws Exception {
         super.start(context);
@@ -51,6 +54,8 @@ public class ServerManager extends AbstractUIPlugin {
         final BundleContext ctx = getBundle().getBundleContext();
         final Configuration configuration = new Configuration(!Boolean.getBoolean("component.kit.skip"));
         services.add(ctx.registerService(Configuration.class.getName(), configuration, new Hashtable<>()));
+        debounceManager = new DebounceManager();
+        services.add(ctx.registerService(DebounceManager.class.getName(), debounceManager, new Hashtable<>()));
         if (!configuration.isActive()) {
             return;
         }
@@ -94,6 +99,14 @@ public class ServerManager extends AbstractUIPlugin {
             services.clear();
 
             RuntimeException error = null;
+            try {
+                if (debounceManager != null) {
+                    debounceManager.close();
+                    debounceManager = null;
+                }
+            } catch (final RuntimeException re) {
+                error = re;
+            }
             try {
                 if (manager != null) {
                     manager.close();

@@ -33,6 +33,7 @@ import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.Element;
 import org.talend.core.model.process.INode;
 import org.talend.core.runtime.services.IGenericWizardService;
+import org.talend.sdk.component.studio.debounce.DebounceManager;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.service.Configuration;
@@ -62,6 +63,10 @@ public class Lookups {
         } catch (final Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public static DebounceManager debouncer() {
+        return lookup(DebounceManager.class);
     }
 
     public static Configuration configuration() {
@@ -146,9 +151,6 @@ public class Lookups {
             return service;
         }
 
-        /**
-         * Substitutes {@link IGenericWizardService#creatDynamicComposite() original method
-         */
         private Composite creatComposite(final Composite parent, final Element element,
                 final EComponentCategory category, final boolean isCompactView) {
 
