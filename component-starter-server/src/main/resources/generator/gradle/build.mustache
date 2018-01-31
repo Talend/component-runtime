@@ -71,6 +71,6 @@ repositories {
 
 dependencies {
   {{#dependencies}}
-  {{scope}} group: '{{value.group}}', name: '{{value.artifact}}', version: '{{value.version}}'{{#value.type}}, ext: '{{value.type}}'{{/value.type}}{{#value.classifier}}, classifier: '{{value.classifier}}'{{/value.classifier}}
+  {{value.scope}} group: '{{value.group}}', name: '{{value.artifact}}', version: '{{value.version}}'{{#value.type}}, ext: '{{value.type}}'{{/value.type}}{{#value.classifier}}, classifier: '{{value.classifier}}'{{/value.classifier}}
   {{/dependencies}}
 }
