@@ -72,13 +72,13 @@ RUN set -ex && \
     export REPOSITORY=$([[ "${SERVER_VERSION%-SNAPSHOT}" != "$SERVER_VERSION" ]] && echo 'snapshots' || echo 'releases') && \
     export DOWNLOAD_URL="$NEXUS_BASE/service/local/artifact/maven/content?r=$REPOSITORY&g=$GROUP_ID&a=$ARTIFACT_ID&v=$SERVER_VERSION&e=zip" && \
     echo "Using artifact $GROUP_ID:$ARTIFACT_ID:zip:$SERVER_VERSION" && \
-    wget $DOWNLOAD_URL.asc -O component-server.zip.asc && \
-    wget $DOWNLOAD_URL -O component-server.zip && \
-    gpg --batch --verify component-server.zip.asc component-server.zip && \
-    unzip component-server.zip && \
-    mv component-server-distribution/* $MEECROWAVE_BASE && \
-    rm -Rf component-server-distribution && \
-    rm component-server.zip* && \
+    wget $DOWNLOAD_URL.asc -O $ARTIFACT_ID.zip.asc && \
+    wget $DOWNLOAD_URL -O $ARTIFACT_ID.zip && \
+    gpg --batch --verify $ARTIFACT_ID.zip.asc $ARTIFACT_ID.zip && \
+    unzip $ARTIFACT_ID.zip && \
+    mv $ARTIFACT_ID-distribution/* $MEECROWAVE_BASE && \
+    rm -Rf $ARTIFACT_ID-distribution && \
+    rm $ARTIFACT_ID.zip* && \
     echo "$GROUP_ID:$ARTIFACT_ID:zip:$SERVER_VERSION" > conf/build.gav && \
     date > conf/build.date
 COPY conf/* $MEECROWAVE_BASE/conf/
