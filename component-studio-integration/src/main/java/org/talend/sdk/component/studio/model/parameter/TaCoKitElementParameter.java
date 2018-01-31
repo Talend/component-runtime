@@ -19,6 +19,8 @@ import java.util.List;
 
 import org.talend.core.model.process.IElement;
 import org.talend.designer.core.model.components.ElementParameter;
+import org.talend.sdk.component.studio.Lookups;
+import org.talend.sdk.component.studio.debounce.DebouncedAction;
 
 import lombok.Setter;
 
@@ -30,6 +32,8 @@ public class TaCoKitElementParameter extends ElementParameter {
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     private final List<IValueChangedListener> valueChangeListeners = new ArrayList<>();
+
+    private final DebouncedAction debounced = Lookups.debouncer().createAction();
 
     /**
      * UPDATE_COMPONENTS {@link ElementParameter}
@@ -70,13 +74,15 @@ public class TaCoKitElementParameter extends ElementParameter {
      */
     @Override
     public void setValue(final Object newValue) {
-        Object oldValue = super.getValue();
+        final Object oldValue = super.getValue();
         super.setValue(newValue);
-        if (isRedrawable()) {
-            redrawParameter.setValue(true);
-        }
-        pcs.firePropertyChange(getName(), oldValue, newValue);
-        fireValueChange(oldValue, newValue);
+        debounced.debounce(() -> {
+            if (isRedrawable()) {
+                redrawParameter.setValue(true);
+            }
+            pcs.firePropertyChange(getName(), oldValue, newValue);
+            fireValueChange(oldValue, newValue);
+        }, 1000);
     }
 
     public void registerListener(final String propertyName, final PropertyChangeListener listener) {
@@ -96,7 +102,7 @@ public class TaCoKitElementParameter extends ElementParameter {
     }
 
     public void fireValueChange(final Object oldValue, final Object newValue) {
-        for (IValueChangedListener listener : valueChangeListeners) {
+        for (final IValueChangedListener listener : valueChangeListeners) {
             listener.onValueChanged(this, oldValue, newValue);
         }
     }
@@ -112,7 +118,7 @@ public class TaCoKitElementParameter extends ElementParameter {
      */
     @Override
     public int getIndexOfItemFromList(final String item) {
-        int index = super.getIndexOfItemFromList(item);
+        final int index = super.getIndexOfItemFromList(item);
         if (index == -1) {
             return 0;
         }
