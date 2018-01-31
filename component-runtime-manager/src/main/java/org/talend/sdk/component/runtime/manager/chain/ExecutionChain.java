@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -200,110 +199,4 @@ public class ExecutionChain {
         };
     }
 
-    @RequiredArgsConstructor
-    private static final class ChainedInput implements Input {
-
-        private final ChainedMapper parent;
-
-        private Input delegate = null;
-
-        @Override
-        public Object next() {
-            while (true) {
-                if (delegate == null) {
-                    delegate = parent.iterator.hasNext() ? parent.iterator.next().create() : null;
-                    if (delegate == null) {
-                        return null;
-                    }
-                    delegate.start();
-                }
-                final Object next = delegate.next();
-                if (next != null) {
-                    return next;
-                }
-                delegate.stop();
-                delegate = null;
-            }
-        }
-
-        @Override
-        public String plugin() {
-            return parent.plugin();
-        }
-
-        @Override
-        public String rootName() {
-            return parent.rootName();
-        }
-
-        @Override
-        public String name() {
-            return parent.name();
-        }
-
-        @Override
-        public void start() {
-            // no-op
-        }
-
-        @Override
-        public void stop() {
-            if (delegate != null) {
-                delegate.stop();
-            }
-        }
-    }
-
-    @RequiredArgsConstructor
-    private static final class ChainedMapper implements Mapper {
-
-        private final Mapper root;
-
-        private final Iterator<Mapper> iterator;
-
-        @Override
-        public long assess() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public List<Mapper> split(final long desiredSize) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Input create() {
-            return new ChainedInput(this);
-        }
-
-        @Override
-        public boolean isStream() {
-            return false;
-        }
-
-        @Override
-        public String plugin() {
-            return root.plugin();
-        }
-
-        @Override
-        public String rootName() {
-            return root.rootName();
-        }
-
-        @Override
-        public String name() {
-            return root.name();
-        }
-
-        @Override
-        public void start() {
-            root.start();
-        }
-
-        @Override
-        public void stop() {
-            root.stop();
-        }
-    }
 }

@@ -48,14 +48,20 @@ final org.talend.sdk.component.runtime.manager.ComponentManager mgr_<%=cid%> = o
 final org.talend.sdk.component.runtime.input.Mapper tempMapper_<%=cid%> = mgr_<%=cid%>.findMapper("<%=family%>", "<%=originalName%>", <%=version%>, configuration_<%=cid%>)
     .orElseThrow(() -> new IllegalArgumentException("Can't find <%=family%>#<%=originalName%>"));
 
-int nbLineInput_<%=cid%> = 0;
-
 tempMapper_<%=cid%>.start();
-
-final java.util.List<org.talend.sdk.component.runtime.input.Mapper> splitMappers_<%=cid%> = tempMapper_<%=cid%>.split(tempMapper_<%=cid%>.assess());
-org.talend.sdk.component.runtime.manager.chain.ChainedMapper mapper_<%=cid%> = new org.talend.sdk.component.runtime.manager.chain.ChainedMapper(tempMapper_<%=cid%>, splitMappers_<%=cid%>.iterator());
-mapper_<%=cid%>.start();
-globalMap.put("mapper_<%=cid%>", mapper_<%=cid%>);
+final org.talend.sdk.component.runtime.manager.chain.ChainedMapper mapper_<%=cid%>;
+try {
+    final java.util.List<org.talend.sdk.component.runtime.input.Mapper> splitMappers_<%=cid%> = tempMapper_<%=cid%>.split(tempMapper_<%=cid%>.assess());
+    mapper_<%=cid%> = new org.talend.sdk.component.runtime.manager.chain.ChainedMapper(tempMapper_<%=cid%>, splitMappers_<%=cid%>.iterator());
+    mapper_<%=cid%>.start();
+    globalMap.put("mapper_<%=cid%>", mapper_<%=cid%>);
+} finally {
+    try {
+        tempMapper_<%=cid%>.stop();
+    } catch (final RuntimeException re) {
+        re.printStackTrace();
+    }
+}
 
 final org.talend.sdk.component.runtime.input.Input input_<%=cid%> = mapper_<%=cid%>.create();
 input_<%=cid%>.start();
