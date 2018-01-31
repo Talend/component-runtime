@@ -52,10 +52,10 @@ jobs:
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
       script: node .travis/heartbeat.js mvn clean deploy -e -q -Dhub-detect.skip=true $DEPLOY_OPTS   # Deploy artefacts to sonatype
 
-    #- stage: master_build
-    #  env:
-    #  - STEP=BlackDuck analysis
-    #  script: node .travis/heartbeat.js mvn clean verify -e -q -Dhub-detect.skip=false -Dgpg.skip=true $DEPLOY_OPTS  # Launch BlackDuck analysis
+    - stage: master_build
+      env:
+      - STEP=BlackDuck analysis
+      script: node .travis/heartbeat.js mvn clean verify -e -q -Dhub-detect.skip=false -Dgpg.skip=true $DEPLOY_OPTS  # Launch BlackDuck analysis
 
     - stage: master_build
       env:
