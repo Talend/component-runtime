@@ -24,7 +24,7 @@ import org.talend.sdk.component.studio.debounce.DebouncedAction;
  */
 public class DebouncedParameter extends TaCoKitElementParameter {
 
-    private static final int TIMEOUT = 750;
+    private static final int TIMEOUT = Lookups.configuration().getDebounceTimeout();
 
     private final DebouncedAction debounced = Lookups.debouncer().createAction();
 

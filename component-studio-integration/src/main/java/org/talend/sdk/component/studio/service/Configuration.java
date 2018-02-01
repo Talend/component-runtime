@@ -24,6 +24,8 @@ public class Configuration {
 
     private volatile boolean active;
 
+    private final int debounceTimeout;
+
     public void disable() {
         active = false;
     }
