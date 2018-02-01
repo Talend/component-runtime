@@ -660,12 +660,13 @@ public class ComponentManager implements AutoCloseable {
                 .withProvider(jsonpProvider) // reuses the same memory buffering
                 .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
                 .build();
-        services.put(Jsonb.class, javaProxyEnricherFactory.asSerializable(container.getLoader(), container.getId(),
-                Jsonb.class.getName(), jsonb));
+        final Jsonb serializableJsonb = Jsonb.class.cast(javaProxyEnricherFactory.asSerializable(container.getLoader(),
+                container.getId(), Jsonb.class.getName(), jsonb));
+        services.put(Jsonb.class, serializableJsonb);
 
         // not JSON services
         services.put(HttpClientFactory.class,
-                new HttpClientFactoryImpl(container.getId(), reflections, jsonb, services));
+                new HttpClientFactoryImpl(container.getId(), reflections, serializableJsonb, services));
         services.put(LocalCache.class, new LocalCacheService(container.getId()));
         services.put(LocalConfiguration.class,
                 new LocalConfigurationService(createRawLocalConfigurations(), container.getId()));

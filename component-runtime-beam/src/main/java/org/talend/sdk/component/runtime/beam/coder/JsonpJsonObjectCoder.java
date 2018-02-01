@@ -48,7 +48,7 @@ public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
     }
 
     @Override
-    public JsonObject decode(final InputStream inputStream) throws IOException {
+    public JsonObject decode(final InputStream inputStream) {
         ensureInit();
         try (final JsonReader reader = factory.createReader(new NoCloseInputStream(inputStream))) {
             return reader.readObject();

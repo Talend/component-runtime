@@ -25,7 +25,6 @@ import java.lang.reflect.Proxy;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.runtime.reflect.Defaults;
-import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -80,19 +79,7 @@ public class JavaProxyEnricherFactory {
         }
 
         Object writeReplace() throws ObjectStreamException {
-            return new SerializableHandlerService(plugin, key);
-        }
-    }
-
-    @RequiredArgsConstructor
-    public static class SerializableHandlerService implements Serializable {
-
-        private final String plugin;
-
-        private final String type;
-
-        public Object readResolve() throws ObjectStreamException {
-            return Proxy.getInvocationHandler(new SerializableService(plugin, type).readResolve());
+            return new SerializationHandlerReplacer(plugin, key);
         }
     }
 }

@@ -85,6 +85,7 @@ import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.api.service.http.UseConfigurer;
+import org.talend.sdk.component.runtime.manager.proxy.SerializationHandlerReplacer;
 import org.talend.sdk.component.runtime.manager.reflect.Constructors;
 import org.talend.sdk.component.runtime.manager.reflect.Copiable;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
@@ -207,7 +208,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             throw new IllegalArgumentException(api + " is not an interface");
         }
         validate(api);
-        final HttpHandler handler = new HttpHandler(plugin, jsonb, reflections, services);
+        final HttpHandler handler = new HttpHandler(api.getName(), plugin, jsonb, reflections, services);
         final T instance = api.cast(Proxy.newProxyInstance(api.getClassLoader(),
                 new Class<?>[] { api, HttpClient.class, Serializable.class, Copiable.class }, handler));
         HttpClient.class.cast(instance).base(base);
@@ -246,6 +247,8 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     }
                 };
 
+        private final String proxyType;
+
         private final String plugin;
 
         private final Jsonb jsonb;
@@ -263,7 +266,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             if (Copiable.class == method.getDeclaringClass()) {
-                final HttpHandler httpHandler = new HttpHandler(plugin, jsonb, reflections, services);
+                final HttpHandler httpHandler = new HttpHandler(proxyType, plugin, jsonb, reflections, services);
                 httpHandler.base = base;
                 return Proxy.newProxyInstance(proxy.getClass().getClassLoader(), proxy.getClass().getInterfaces(),
                         httpHandler);
@@ -310,6 +313,10 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     .computeIfAbsent(method,
                             m -> createInvoker(m, args).orElseGet(() -> params -> delegate(method, args)))
                     .apply(args);
+        }
+
+        Object writeReplace() throws ObjectStreamException {
+            return new SerializationHandlerReplacer(plugin, proxyType);
         }
 
         private Optional<Function<Object[], Object>> createInvoker(final Method m, final Object[] args) {
