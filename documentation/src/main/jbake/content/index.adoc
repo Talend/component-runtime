@@ -1,4 +1,4 @@
-= Talend Component Reference Guide
+= Talend Component Kit (Developer) Reference Guide
 Romain Manni-Bucau
 :numbered:
 :icons: font
