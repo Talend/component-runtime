@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -63,13 +64,15 @@ public class ParameterModelService {
                 .collect(toList()));
     }
 
-    public List<ParameterMeta> buildParameterMetas(final Executable executable, final String i18nPackage) {
+    public List<ParameterMeta> buildParameterMetas(final Executable executable, final String i18nPackage,
+            final Set<Class<?>> services) {
         return Stream
                 .of(executable.getParameters())
                 .filter(p -> !p.getType().isAnnotationPresent(Service.class)
-                        && !p.getType().isAnnotationPresent(Internationalized.class)
+                        && !p.getType().isAnnotationPresent(Internationalized.class) && !services.contains(p.getType())
                         && Stream.of(p.getType().getMethods()).noneMatch(m -> m.isAnnotationPresent(Request.class))
-                        && !p.getType().getName().startsWith("org.talend.sdk.component.api.service."))
+                        && !p.getType().getName().startsWith("org.talend.sdk.component.api.service.")
+                        && !p.getType().getName().startsWith("javax."))
                 .map(parameter -> {
                     final String name = findName(parameter);
                     return buildParameter(name, name, new ParameterMeta.Source() {
@@ -145,7 +148,7 @@ public class ParameterModelService {
             final Annotation[] annotations) {
         return Stream
                 .concat(Stream.of(annotations), Class.class.isInstance(genericType) // if a class concat its
-                                                                                    // annotations
+                        // annotations
                         ? Stream.of(Class.class.cast(genericType).getAnnotations()).filter(
                                 a -> Stream.of(annotations).noneMatch(o -> o.annotationType() == a.annotationType()))
                         : (ParameterizedType.class.isInstance(genericType) // if a list concat the item type annotations

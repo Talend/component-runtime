@@ -50,7 +50,8 @@ class PropertiesServiceTest {
                 propertiesService
                         .buildProperties(
                                 new ParameterModelService().buildParameterMetas(
-                                        getClass().getDeclaredMethod("boolWrapper", BoolBool.class), null),
+                                        getClass().getDeclaredMethod("boolWrapper", BoolBool.class), null,
+                                        services.keySet()),
                                 Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
                         .collect(toList());
         assertEquals("true", props.stream().filter(p -> p.getName().equals("val")).findFirst().get().getDefaultValue());
