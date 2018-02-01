@@ -362,6 +362,7 @@ public class SettingsCreator implements PropertyVisitor {
         childParameter2.setParentParameter(schema);
         childParameter2.setRequired(true);
         childParameter2.setShow(show);
+        childParameter2.setShowIf("SCHEMA =='REPOSITORY'");
         childParameter2.setValue("");
         schema.getChildParameters().put(EParameterName.REPOSITORY_SCHEMA_TYPE.getName(), childParameter2);
 
