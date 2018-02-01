@@ -154,7 +154,8 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
         private Serializable loadDelegate() throws IOException, ClassNotFoundException {
             try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(value),
                     ContainerFinder.Instance.get().find(plugin).classloader())) {
-                return Serializable.class.cast(ois.readObject());
+                final Object obj = ois.readObject();
+                return Serializable.class.cast(obj);
             }
         }
     }
