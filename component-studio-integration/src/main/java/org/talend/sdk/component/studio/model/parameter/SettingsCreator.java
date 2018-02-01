@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_TYPE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_VALUE;
 
@@ -43,6 +45,7 @@ import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
+import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivator;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidationListener;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidatorFactory;
@@ -120,7 +123,7 @@ public class SettingsCreator implements PropertyVisitor {
         this.iNode = iNode;
         this.category = category;
         this.redrawParameter = redrawParameter;
-        formName = (category == EComponentCategory.ADVANCED) ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
+        this.formName = category == EComponentCategory.ADVANCED ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
         this.actions = actions;
     }
 
@@ -226,22 +229,58 @@ public class SettingsCreator implements PropertyVisitor {
         final TaCoKitElementParameter parameter = new TaCoKitElementParameter(iNode);
         commonSetup(parameter, node);
         final PropertyValidation validation = node.getProperty().getValidation();
-        if (validation == null) {
-            throw new IllegalArgumentException("validation should not be null");
+
+        final boolean isEnum = node.getProperty().getType().equalsIgnoreCase("enum");
+        if (isEnum && (validation == null || validation.getEnumValues() == null)) {
+            throw new IllegalArgumentException("No values for enum " + node.getProperty().getPath());
         }
-        final Collection<String> possibleValues = validation.getEnumValues();
-        if (possibleValues == null) {
-            throw new IllegalArgumentException("validation enum values should not be null");
+        final int valuesCount;
+        if (validation == null || validation.getEnumValues() == null || validation.getEnumValues().isEmpty()) {
+            final ActionReference dynamicValuesAction =
+                    ofNullable(node.getProperty().getMetadata().get("action::dynamic_values"))
+                            .flatMap(ref -> actions
+                                    .stream()
+                                    .filter(a -> "dynamic_values".equals(a.getType()) && ref.equals(a.getName()))
+                                    .findFirst())
+
+                            .orElseThrow(() -> new IllegalArgumentException(
+                                    "No values for list " + node.getProperty().getPath()));
+
+            // todo: should we make this retryable?
+            final Map<String, Object> values =
+                    Lookups.client().v1().action().execute(Map.class, dynamicValuesAction.getFamily(),
+                            dynamicValuesAction.getType(), dynamicValuesAction.getName(), emptyMap());
+
+            final Object rawItems = values.get("items");
+            if (rawItems == null) {
+                throw new IllegalStateException("No proposals for " + node.getProperty().getPath());
+            }
+            final Collection<Map<String, String>> items = Collection.class.cast(rawItems);
+            valuesCount = items.size();
+            final String[] ids = items.stream().map(m -> m.get("id")).toArray(String[]::new);
+            final String[] labels =
+                    items.stream().map(m -> m.getOrDefault("label", m.get("id"))).toArray(String[]::new);
+            parameter.setListItemsValue(ids);
+            parameter.setListItemsDisplayName(labels);
+            parameter.setListItemsDisplayCodeName(labels);
+        } else {
+            final Collection<String> possibleValues = validation.getEnumValues();
+            valuesCount = possibleValues.size();
+
+            final String[] valuesArray = possibleValues.toArray(new String[valuesCount]);
+            parameter.setListItemsValue(valuesArray);
+            parameter.setListItemsDisplayName(valuesArray);
+            parameter.setListItemsDisplayCodeName(valuesArray);
         }
-        parameter.setListItemsValue(possibleValues.toArray());
-        parameter.setListItemsDisplayName(possibleValues.toArray(new String[0]));
-        parameter.setListItemsDisplayCodeName(possibleValues.toArray(new String[0]));
-        parameter.setListItemsReadOnlyIf(new String[possibleValues.size()]);
-        parameter.setListItemsNotReadOnlyIf(new String[possibleValues.size()]);
-        parameter.setListItemsShowIf(new String[possibleValues.size()]);
-        parameter.setListItemsNotShowIf(new String[possibleValues.size()]);
-        parameter.setDefaultClosedListValue(node.getProperty().getDefaultValue());
-        parameter.setDefaultValue(node.getProperty().getDefaultValue());
+
+        parameter.setListItemsReadOnlyIf(new String[valuesCount]);
+        parameter.setListItemsNotReadOnlyIf(new String[valuesCount]);
+        parameter.setListItemsShowIf(new String[valuesCount]);
+        parameter.setListItemsNotShowIf(new String[valuesCount]);
+
+        final String defaultValue = node.getProperty().getDefaultValue();
+        parameter.setDefaultClosedListValue(defaultValue);
+        parameter.setDefaultValue(defaultValue);
         return parameter;
     }
 

@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static java.util.Collections.emptyList;
 import static org.talend.core.model.process.EComponentCategory.ADVANCED;
 import static org.talend.core.model.process.EComponentCategory.BASIC;
 
@@ -81,7 +82,9 @@ public class ElementParameterCreator {
         this.detail = detail;
         this.node = node;
         if (!detail.getProperties().isEmpty()) {
-            properties = PropertyDefinitionDecorator.wrap(detail.getProperties());
+            this.properties = PropertyDefinitionDecorator.wrap(detail.getProperties());
+        } else {
+            this.properties = emptyList();
         }
     }
 

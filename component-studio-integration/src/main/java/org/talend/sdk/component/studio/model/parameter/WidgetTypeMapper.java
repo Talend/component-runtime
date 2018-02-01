@@ -141,7 +141,7 @@ public class WidgetTypeMapper {
      * Checks whether widget type is {@link EParameterFieldType#CLOSED_LIST}
      */
     private boolean isClosedList() {
-        return ENUM.equals(property.getType());
+        return ENUM.equals(property.getType()) || property.getMetadata().containsKey(Metadatas.ACTION_DYNAMIC_VALUES);
     }
 
     protected EParameterFieldType getClosedListType() {
