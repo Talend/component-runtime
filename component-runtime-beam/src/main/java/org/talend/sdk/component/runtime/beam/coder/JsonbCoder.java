@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,11 +47,17 @@ public class JsonbCoder<T> extends CustomCoder<T> {
 
     @Override
     public void encode(final T object, final OutputStream outputStream) throws IOException {
-        jsonb.toJson(object, outputStream);
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        jsonb.toJson(object, buffer);
+        final DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+        dataOutputStream.writeInt(buffer.size());
+        dataOutputStream.write(buffer.toByteArray());
+        dataOutputStream.flush();
     }
 
     @Override
     public T decode(final InputStream inputStream) throws IOException {
-        return jsonb.fromJson(new NoCloseInputStream(inputStream), type);
+        final DataInputStream in = new DataInputStream(inputStream);
+        return jsonb.fromJson(new NoCloseInputStream(in, in.readInt()), type);
     }
 }

@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,13 +46,19 @@ public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
     @Override
     public void encode(final JsonObject jsonObject, final OutputStream outputStream) throws IOException {
         ensureInit();
-        outputStream.write(jsonObject.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = jsonObject.toString().getBytes(StandardCharsets.UTF_8);
+        final DataOutputStream dataOutStream = new DataOutputStream(outputStream);
+        dataOutStream.writeInt(bytes.length);
+        dataOutStream.write(bytes);
+        dataOutStream.flush();
     }
 
     @Override
-    public JsonObject decode(final InputStream inputStream) {
+    public JsonObject decode(final InputStream inputStream) throws IOException {
         ensureInit();
-        try (final JsonReader reader = factory.createReader(new NoCloseInputStream(inputStream))) {
+        final DataInputStream dataInputStream = new DataInputStream(inputStream);
+        try (final JsonReader reader =
+                factory.createReader(new NoCloseInputStream(dataInputStream, dataInputStream.readInt()))) {
             return reader.readObject();
         }
     }

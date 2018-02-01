@@ -15,36 +15,52 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.stream.StreamSupport;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 
+import org.apache.beam.sdk.coders.IterableCoder;
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.runtime.beam.TalendIOTest;
 
 class JsonpJsonObjectCoderTest {
 
-    private static final String PLUGIN = jarLocation(TalendIOTest.class).getAbsolutePath();
+    private static final String PLUGIN = jarLocation(JsonpJsonObjectCoderTest.class).getAbsolutePath();
 
     @Test
-    void encode() throws IOException {
+    void roundTrip() throws IOException {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        JsonpJsonObjectCoder.of(PLUGIN).encode(Json.createObjectBuilder().add("test", "foo").build(), outputStream);
-        assertEquals("{\"test\":\"foo\"}", new String(outputStream.toByteArray()));
+        final JsonpJsonObjectCoder coder = JsonpJsonObjectCoder.of(PLUGIN);
+        coder.encode(Json.createObjectBuilder().add("test", "foo").build(), outputStream);
+        final JsonObject jsonObject = coder.decode(new ByteArrayInputStream(outputStream.toByteArray()));
+        assertTrue(new String(outputStream.toByteArray()).endsWith("{\"test\":\"foo\"}"));
+        assertEquals("foo", jsonObject.getString("test"));
+        assertEquals(1, jsonObject.size());
     }
 
     @Test
-    void decode() throws IOException {
-        final JsonObject jsonObject = JsonpJsonObjectCoder.of(PLUGIN).decode(
-                new ByteArrayInputStream("{\"name\":\"test\"}".getBytes(StandardCharsets.UTF_8)));
-        assertEquals("test", jsonObject.getString("name"));
-        assertEquals(1, jsonObject.size());
+    void iterable() throws IOException {
+        final IterableCoder<JsonObject> coder =
+                IterableCoder.of(new JsonpJsonObjectCoder("foo", Json.createReaderFactory(emptyMap())));
+        final Iterator<JsonObject> iterator =
+                Collections.singletonList(Json.createObjectBuilder().add("test", "value").build()).iterator();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        coder.encode(() -> iterator, out);
+        final Iterable<JsonObject> decode = coder.decode(new ByteArrayInputStream(out.toByteArray()));
+        final Collection<JsonObject> result = StreamSupport.stream(decode.spliterator(), false).collect(toList());
+        assertEquals(1, result.size());
+        assertEquals("value", result.iterator().next().getString("test"));
     }
 }

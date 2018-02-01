@@ -89,6 +89,11 @@ public final class TalendIO {
         public String getName() {
             return delegate.rootName() + "/" + delegate.name();
         }
+
+        @Override
+        protected Coder<?> getDefaultOutputCoder() {
+            return JsonpJsonObjectCoder.of(delegate.plugin());
+        }
     }
 
     private static class Read extends Base<PBegin, PCollection<JsonObject>, Mapper> {
@@ -211,7 +216,7 @@ public final class TalendIO {
         }
 
         @Override
-        public Coder<JsonObject> getDefaultOutputCoder() {
+        public Coder<JsonObject> getOutputCoder() {
             return JsonpJsonObjectCoder.of(mapper.plugin());
         }
     }
@@ -240,7 +245,7 @@ public final class TalendIO {
         }
 
         @Override
-        public Coder<JsonObject> getDefaultOutputCoder() {
+        public Coder<JsonObject> getOutputCoder() {
             return JsonpJsonObjectCoder.of(mapper.plugin());
         }
 

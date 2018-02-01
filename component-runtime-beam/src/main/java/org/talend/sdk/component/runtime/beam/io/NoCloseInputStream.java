@@ -25,34 +25,55 @@ public class NoCloseInputStream extends InputStream /* not the filter version fo
 
     private final InputStream in;
 
+    private int maxBytes;
+
     @Override
-    public void close() throws IOException {
+    public void close() {
         // no-pop
     }
 
     @Override
     public int read() throws IOException {
+        if (maxBytes == 0) {
+            return -1;
+        }
+        maxBytes--;
         return in.read();
     }
 
     @Override
     public int read(final byte[] b) throws IOException {
-        return in.read(b);
+        if (maxBytes == 0) {
+            return -1;
+        }
+        final int read = in.read(b, 0, maxBytes);
+        maxBytes -= read;
+        return read;
     }
 
     @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
-        return in.read(b, off, len);
+        if (maxBytes == 0) {
+            return -1;
+        }
+        final int read = in.read(b, off, Math.min(maxBytes, len));
+        maxBytes -= read;
+        return read;
     }
 
     @Override
     public long skip(final long n) throws IOException {
-        return in.skip(n);
+        if (maxBytes == 0) {
+            return 0;
+        }
+        final long skip = in.skip(Math.min(maxBytes, n));
+        maxBytes -= skip;
+        return skip;
     }
 
     @Override
     public int available() throws IOException {
-        return in.available();
+        return Math.min(in.available(), maxBytes);
     }
 
     @Override
