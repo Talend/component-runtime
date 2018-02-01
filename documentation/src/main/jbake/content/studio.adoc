@@ -31,6 +31,7 @@ The configuration goes into `$STUDIO_HOME/configuration/config.ini`.
 
 |===
 | Name | Description | Default
+| component.debounce.timeout | Specifies timeout in milliseconds before calling listeners in components Text fields | 750
 | component.kit.skip | If `true` the plugin is not active. Useful if you don't have any component develop with the framework. | false
 | component.java.arguments | Component server additional options | -
 | component.java.m2 | The maven repository the server uses to resolve components | default to global Studio configuration

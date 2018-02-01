@@ -22,7 +22,7 @@ import org.talend.core.model.process.IElement;
  * Value of Table parameter should have Boolean type.
  * This class provides correct conversion from/to String of parameter value
  */
-public class CheckElementParameter extends TaCoKitElementParameter {
+public class CheckElementParameter extends ValueChangedParameter {
 
     public CheckElementParameter(final IElement element) {
         super(element);

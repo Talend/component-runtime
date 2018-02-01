@@ -52,7 +52,8 @@ public class ServerManager extends AbstractUIPlugin {
         super.start(context);
 
         final BundleContext ctx = getBundle().getBundleContext();
-        final Configuration configuration = new Configuration(!Boolean.getBoolean("component.kit.skip"));
+        final Configuration configuration = new Configuration(!Boolean.getBoolean("component.kit.skip"),
+                Integer.getInteger("component.debounce.timeout", 750));
         services.add(ctx.registerService(Configuration.class.getName(), configuration, new Hashtable<>()));
         debounceManager = new DebounceManager();
         services.add(ctx.registerService(DebounceManager.class.getName(), debounceManager, new Hashtable<>()));
@@ -78,13 +79,13 @@ public class ServerManager extends AbstractUIPlugin {
     }
 
     private void extractFiles() throws IOException {
-        TemplatesExtractor stubExtractor = new TemplatesExtractor("jet_stub/generic",
+        final TemplatesExtractor stubExtractor = new TemplatesExtractor("jet_stub/generic",
                 Platform
                         .asLocalURL(Platform.getPlugin("org.talend.designer.codegen").getDescriptor().getInstallURL())
                         .getFile(),
                 "tacokit/jet_stub");
         stubExtractor.extract();
-        TemplatesExtractor guessSchemaExtractor = new TemplatesExtractor("components/tTaCoKitGuessSchema",
+        final TemplatesExtractor guessSchemaExtractor = new TemplatesExtractor("components/tTaCoKitGuessSchema",
                 Platform
                         .asLocalURL(Platform.getPlugin("org.talend.designer.codegen").getDescriptor().getInstallURL())
                         .getFile(),
