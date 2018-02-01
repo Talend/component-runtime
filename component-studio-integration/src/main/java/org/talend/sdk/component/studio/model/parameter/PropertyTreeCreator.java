@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static java.util.Comparator.comparing;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -107,7 +109,9 @@ public class PropertyTreeCreator {
      */
     void linkNodes(final Collection<? extends PropertyDefinitionDecorator> properties,
             final Map<String, PropertyNode> nodes) {
-        properties.stream().map(property -> property.getPath()).forEach(id -> {
+        // sort to ensure to create parents before children
+        properties.stream().sorted(comparing(PropertyDefinitionDecorator::getPath)).map(
+                PropertyDefinitionDecorator::getPath).forEach(id -> {
             PropertyNode current = nodes.get(id);
             if (!current.isRoot()) {
                 String parentId = current.getParentId();
