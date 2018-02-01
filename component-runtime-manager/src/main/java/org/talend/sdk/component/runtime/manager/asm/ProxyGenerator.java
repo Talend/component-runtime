@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -63,7 +63,6 @@ import static org.apache.xbean.asm6.Opcodes.RETURN;
 import static org.apache.xbean.asm6.Opcodes.SIPUSH;
 import static org.apache.xbean.asm6.Opcodes.V1_8;
 
-import java.beans.Introspector;
 import java.io.InputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -82,7 +81,6 @@ import org.apache.xbean.asm6.Label;
 import org.apache.xbean.asm6.MethodVisitor;
 import org.apache.xbean.asm6.Type;
 import org.apache.xbean.asm6.shade.commons.EmptyVisitor;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 import org.talend.sdk.component.api.service.interceptor.InterceptorHandler;
 import org.talend.sdk.component.api.service.interceptor.Intercepts;
 
@@ -92,8 +90,6 @@ import lombok.AllArgsConstructor;
 //
 // goal is mainly to add a writeReplace method to ensure services are serializable when not done by the developer.
 public class ProxyGenerator implements Serializable {
-
-    private static final String OBJECT_MAP_NAME = Type.getInternalName(ObjectMap.class);
 
     private static final String FIELD_INTERCEPTOR_HANDLER = "tacokitIntDecHandler";
 
@@ -548,7 +544,7 @@ public class ProxyGenerator implements Serializable {
                     .visitEnd();
         }
 
-        final String parentClassFileName = createConstructor(cw, classToProxy, superClassName, classFileName,
+        createConstructor(cw, classToProxy, superClassName, classFileName,
                 Stream.of(classToProxy.getDeclaredConstructors()).filter(c -> {
                     final int modifiers = c.getModifiers();
                     return Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers);
@@ -605,105 +601,6 @@ public class ProxyGenerator implements Serializable {
         } catch (final IllegalAccessException | NoSuchFieldException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    public Class<?> subclass(final ClassLoader loader, final Class<?> classToProxy) {
-        final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-        final String proxyClassName = fixPreservedPackages(
-                (classToProxy.getSigners() != null ? getSignedClassProxyName(classToProxy) : classToProxy.getName()))
-                + "$$Subclass";
-
-        final String classFileName = proxyClassName.replace('.', '/');
-
-        final String superClassName = Type.getInternalName(classToProxy);
-
-        cw.visit(javaVersion, ACC_PUBLIC + ACC_SUPER + ACC_SYNTHETIC, classFileName, null, superClassName,
-                new String[] { Type.getInternalName(GetObjectMap.class) });
-        cw.visitSource(classFileName + ".java", null);
-
-        // private ObjectMap this$map; (weird field value to ensure we don't conflict
-        // and proxying is obvious)
-        cw
-                .visitField(ACC_PRIVATE, "this$map", "Lorg/talend/sdk/component/api/processor/data/ObjectMap;", null,
-                        null)
-                .visitEnd();
-
-        {
-            final MethodVisitor getObjectMap = cw.visitMethod(ACC_PUBLIC, "getObjectMap",
-                    "()Lorg/talend/sdk/component/api/processor/data/ObjectMap;", null, null);
-            getObjectMap.visitCode();
-            getObjectMap.visitVarInsn(ALOAD, 0);
-            getObjectMap.visitFieldInsn(GETFIELD, classFileName, "this$map",
-                    "Lorg/talend/sdk/component/api/processor/data/ObjectMap;");
-            getObjectMap.visitInsn(ARETURN);
-            getObjectMap.visitMaxs(1, 1);
-            getObjectMap.visitEnd();
-        }
-
-        try {
-            createObjectMapConstructor(cw, superClassName, classFileName, classToProxy.getConstructor());
-        } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException(
-                    classToProxy + " can't be proxied, check your chain. Did you use ObjectMap as intended?");
-        }
-
-        proxyGetters(cw, classFileName,
-                Stream
-                        .of(classToProxy.getMethods())
-                        .filter(m -> (m.getName().startsWith("get") || m.getName().startsWith("is"))
-                                && m.getParameterCount() == 0 && m.getReturnType() != void.class)
-                        .filter(m -> !unproxyableMethod(m)));
-
-        return Unsafes.defineAndLoadClass(loader, proxyClassName, cw.toByteArray());
-    }
-
-    private void proxyGetters(final ClassWriter cw, final String classFileName, final Stream<Method> getters) {
-        getters.forEach(m -> {
-            final String key = Introspector
-                    .decapitalize(m.getName().substring((m.getName().startsWith("get") ? "get" : "is").length()));
-
-            final MethodVisitor mv =
-                    cw.visitMethod(ACC_PUBLIC, m.getName(), "()" + Type.getDescriptor(m.getReturnType()), null, null);
-            mv.visitCode();
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, classFileName, "this$map", "L" + OBJECT_MAP_NAME + ";");
-            mv.visitLdcInsn(key);
-            mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_MAP_NAME, "get", "(Ljava/lang/String;)Ljava/lang/Object;", true);
-            mv.visitTypeInsn(CHECKCAST, getCastType(m.getReturnType()));
-            if (m.getReturnType().isPrimitive()) {
-                mv.visitMethodInsn(INVOKEVIRTUAL, getWrapperType(m.getReturnType()),
-                        getPrimitiveMethod(m.getReturnType()), "()" + Type.getDescriptor(m.getReturnType()), false);
-            } // else todo: nested support generating/getting nested subclasses etc
-            mv.visitInsn(getReturnInsn(m.getReturnType()));
-            mv.visitMaxs(-1, -1);
-            mv.visitEnd();
-        });
-    }
-
-    private void createObjectMapConstructor(final ClassWriter cw, final String parentClassFileName,
-            final String classFileName, final Constructor<?> constructor) {
-        final String[] exceptions = new String[constructor.getExceptionTypes().length];
-        for (int i = 0; i < exceptions.length; i++) {
-            exceptions[i] = Type.getInternalName(constructor.getExceptionTypes()[i]);
-        }
-
-        final MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(L" + OBJECT_MAP_NAME + ";)V", null, exceptions);
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, parentClassFileName, "<init>", "()V", false);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitFieldInsn(PUTFIELD, classFileName, "this$map", "L" + OBJECT_MAP_NAME + ";");
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(2, 1);
-        mv.visitEnd();
-    }
-
-    private boolean unproxyableMethod(final Method delegatedMethod) {
-        final int modifiers = delegatedMethod.getModifiers();
-
-        return (modifiers & (Modifier.PRIVATE | Modifier.STATIC | Modifier.FINAL | Modifier.NATIVE)) > 0
-                || "finalize".equals(delegatedMethod.getName()) || delegatedMethod.isBridge();
     }
 
     private String getWrapperType(final Class<?> type) {
@@ -803,11 +700,6 @@ public class ProxyGenerator implements Serializable {
         Object readResolve() throws ObjectStreamException {
             return ProxyGenerator.SINGLETON;
         }
-    }
-
-    public interface GetObjectMap {
-
-        ObjectMap getObjectMap();
     }
 
     private static class VersionVisitor extends EmptyVisitor {

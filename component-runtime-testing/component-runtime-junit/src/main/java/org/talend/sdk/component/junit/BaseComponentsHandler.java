@@ -47,6 +47,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbConfig;
+
 import org.talend.sdk.component.junit.lang.StreamDecorator;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -55,6 +59,7 @@ import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.chain.CountingSuccessListener;
 import org.talend.sdk.component.runtime.manager.chain.ExecutionChainBuilder;
 import org.talend.sdk.component.runtime.manager.chain.ToleratingErrorHandler;
+import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.RequiredArgsConstructor;
@@ -75,6 +80,14 @@ public class BaseComponentsHandler implements ComponentsHandler {
             @Override
             public void close() {
                 try {
+                    final State state = STATE.get();
+                    if (state.jsonb != null) {
+                        try {
+                            state.jsonb.close();
+                        } catch (final Exception e) {
+                            // no-op: not important
+                        }
+                    }
                     STATE.remove();
                     initState.remove();
                 } finally {
@@ -146,6 +159,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
             final int concurrency) {
         mapper.start();
 
+        final State state = STATE.get();
         final long assess = mapper.assess();
         final int proc = Math.max(1, concurrency);
         final List<Mapper> mappers = mapper.split(Math.max(assess / proc, 1));
@@ -226,7 +240,11 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
                 @Override
                 public T next() {
-                    return records.poll();
+                    T poll = records.poll();
+                    if (poll != null) {
+                        return mapRecord(state, recordType, poll);
+                    }
+                    return null;
                 }
             }), task -> {
                 try {
@@ -383,7 +401,23 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
     @Override
     public <T> List<T> getCollectedData(final Class<T> recordType) {
-        return STATE.get().collector.stream().filter(recordType::isInstance).map(recordType::cast).collect(toList());
+        final State state = STATE.get();
+        return state.collector
+                .stream()
+                .filter(r -> recordType.isInstance(r) || JsonObject.class.isInstance(r))
+                .map(r -> mapRecord(state, recordType, r))
+                .collect(toList());
+    }
+
+    private <T> T mapRecord(final State state, final Class<T> recordType, final Object r) {
+        if (recordType.isInstance(r)) {
+            return recordType.cast(r);
+        }
+        if (JsonObject.class.isInstance(r)) {
+            final Jsonb jsonb = state.jsonb();
+            return jsonb.fromJson(jsonb.toJson(r), recordType);
+        }
+        throw new IllegalArgumentException("Unsupported record: " + r);
     }
 
     static class PreState {
@@ -399,6 +433,23 @@ public class BaseComponentsHandler implements ComponentsHandler {
         final Collection<Object> collector;
 
         final Iterator<?> emitter;
+
+        volatile Jsonb jsonb;
+
+        synchronized Jsonb jsonb() {
+            if (jsonb == null) {
+                jsonb = manager
+                        .getJsonbProvider()
+                        .create()
+                        .withProvider(new PreComputedJsonpProvider("test", manager.getJsonpProvider(),
+                                manager.getJsonpParserFactory(), manager.getJsonpWriterFactory(),
+                                manager.getJsonpBuilderFactory(), manager.getJsonpGeneratorFactory(),
+                                manager.getJsonpReaderFactory())) // reuses the same memory buffering
+                        .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
+                        .build();
+            }
+            return jsonb;
+        }
     }
 
     public static class EmbeddedComponentManager extends ComponentManager {

@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyMap;
+import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
@@ -31,10 +32,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectStreamException;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,8 +43,6 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -64,23 +63,13 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonReader;
-import javax.json.JsonReaderFactory;
-import javax.json.JsonValue;
-import javax.json.JsonWriter;
-import javax.json.JsonWriterFactory;
-import javax.json.spi.JsonProvider;
+import javax.json.bind.Jsonb;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.transform.stream.StreamSource;
 
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 import org.talend.sdk.component.api.service.http.Codec;
 import org.talend.sdk.component.api.service.http.Configurer;
 import org.talend.sdk.component.api.service.http.ConfigurerOption;
@@ -96,12 +85,9 @@ import org.talend.sdk.component.api.service.http.Query;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.api.service.http.UseConfigurer;
-import org.talend.sdk.component.runtime.manager.processor.SubclassesCache;
 import org.talend.sdk.component.runtime.manager.reflect.Constructors;
 import org.talend.sdk.component.runtime.manager.reflect.Copiable;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
-import org.talend.sdk.component.runtime.output.data.AccessorCache;
-import org.talend.sdk.component.runtime.output.data.ObjectMapImpl;
 import org.talend.sdk.component.runtime.reflect.Defaults;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
@@ -118,11 +104,9 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
     private final String plugin;
 
-    private final SubclassesCache subclassesCache;
-
-    private final AccessorCache accessorCache;
-
     private final ReflectionService reflections;
+
+    private final Jsonb jsonb;
 
     private final Map<Class<?>, Object> services;
 
@@ -140,12 +124,6 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 .map(m -> "No @Request on " + m)
                 .collect(toList()));
         return errors;
-    }
-
-    private static boolean isNotSupportedByDefaultCodec(final Type type) {
-        final Class<?> cType = toClassType(type);
-        return cType != null && cType != String.class && cType != Void.class
-                && !cType.isAnnotationPresent(XmlRootElement.class) && !cType.isAnnotationPresent(XmlType.class);
     }
 
     private static Class<?> toClassType(final Type type) {
@@ -229,7 +207,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             throw new IllegalArgumentException(api + " is not an interface");
         }
         validate(api);
-        final HttpHandler handler = new HttpHandler(plugin, subclassesCache, accessorCache, reflections, services);
+        final HttpHandler handler = new HttpHandler(plugin, jsonb, reflections, services);
         final T instance = api.cast(Proxy.newProxyInstance(api.getClassLoader(),
                 new Class<?>[] { api, HttpClient.class, Serializable.class, Copiable.class }, handler));
         HttpClient.class.cast(instance).base(base);
@@ -270,9 +248,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
         private final String plugin;
 
-        private final SubclassesCache subclassesCache;
-
-        private final AccessorCache accessorCache;
+        private final Jsonb jsonb;
 
         private final ReflectionService reflections;
 
@@ -287,8 +263,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             if (Copiable.class == method.getDeclaringClass()) {
-                final HttpHandler httpHandler =
-                        new HttpHandler(plugin, subclassesCache, accessorCache, reflections, services);
+                final HttpHandler httpHandler = new HttpHandler(plugin, jsonb, reflections, services);
                 httpHandler.base = base;
                 return Proxy.newProxyInstance(proxy.getClass().getClassLoader(), proxy.getClass().getInterfaces(),
                         httpHandler);
@@ -375,12 +350,8 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                             });
                         });
 
-                final JsonProvider jsonProvider = JsonProvider.provider();
-                final Map<String, Encoder> encoders =
-                        createEncoder(new JsonpEncoder(jsonProvider.createWriterFactory(emptyMap()),
-                                jsonProvider.createBuilderFactory(emptyMap()), plugin, accessorCache), codec);
-                final Map<String, Decoder> decoders = createDecoder(
-                        new JsonpDecoder(jsonProvider.createReaderFactory(emptyMap()), subclassesCache), codec);
+                final Map<String, Encoder> encoders = createEncoder(new JsonpEncoder(jsonb), codec);
+                final Map<String, Decoder> decoders = createDecoder(new JsonpDecoder(jsonb), codec);
 
                 // preCompute the execution (kind of compile phase)
                 String path = request.path();
@@ -570,82 +541,112 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         }
 
         private Map<String, Encoder> createEncoder(final JsonpEncoder jsonpEncoder, final Codec codec) {
-            if (codec == null || codec.decoder().length == 0) {
-
-                return new LinkedHashMap<String, Encoder>() {
-
-                    {
-                        // keep the put order
-                        if (!jaxbContexts.isEmpty()) {
-                            final JAXBEncoder jaxbEncoder = new JAXBEncoder(jaxbContexts);
-                            put("*/xml", jaxbEncoder);
-                            put("*/*+xml", jaxbEncoder);
-                        }
-                        put("*/json", jsonpEncoder);
-                        put("*/*+json", jsonpEncoder);
-                        put("*/*", value -> value == null ? new byte[0]
-                                : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
-                    }
-                };
+            final Map<String, Encoder> encoders = new HashMap<>();
+            if (codec != null && codec.encoder().length != 0) {
+                encoders.putAll(stream(codec.encoder())
+                        .filter(Objects::nonNull)
+                        .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
+                                ? encoder.getAnnotation(ContentType.class).value()
+                                : "*/*", encoder -> {
+                                    try {
+                                        final Constructor<?> constructor = Constructors.findConstructor(encoder);
+                                        final Function<Map<String, String>, Object[]> paramFactory =
+                                                reflections.parameterFactory(constructor, services);
+                                        return Encoder.class
+                                                .cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                    } catch (final InstantiationException | IllegalAccessException e) {
+                                        throw new IllegalArgumentException(e);
+                                    } catch (final InvocationTargetException e) {
+                                        throw toRuntimeException(e);
+                                    }
+                                }, (k, v) -> {
+                                    throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                                })));
             }
 
-            return stream(codec.encoder())
-                    .filter(Objects::nonNull)
-                    .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
-                            ? encoder.getAnnotation(ContentType.class).value()
-                            : "*/*", encoder -> {
-                                try {
-                                    final Constructor<?> constructor = Constructors.findConstructor(encoder);
-                                    final Function<Map<String, String>, Object[]> paramFactory =
-                                            reflections.parameterFactory(constructor, services);
-                                    return Encoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                                } catch (final InstantiationException | IllegalAccessException e) {
-                                    throw new IllegalArgumentException(e);
-                                } catch (final InvocationTargetException e) {
-                                    throw toRuntimeException(e);
-                                }
-                            }, (k, v) -> {
-                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                            }, LinkedHashMap::new));
+            // keep the put order
+            if (!jaxbContexts.isEmpty()) {
+                final JAXBEncoder jaxbEncoder = new JAXBEncoder(jaxbContexts);
+                encoders.putIfAbsent("*/xml", jaxbEncoder);
+                encoders.putIfAbsent("*/*+xml", jaxbEncoder);
+            }
+
+            encoders.putIfAbsent("*/json", jsonpEncoder);
+            encoders.putIfAbsent("*/*+json", jsonpEncoder);
+            encoders.putIfAbsent("*/*",
+                    value -> value == null ? new byte[0] : String.valueOf(value).getBytes(StandardCharsets.UTF_8));
+
+            return sortMap(encoders);
 
         }
 
         private Map<String, Decoder> createDecoder(final JsonpDecoder jsonpDecoder, final Codec codec) {
-            if (codec == null || codec.decoder().length == 0) {
-                return new LinkedHashMap<String, Decoder>() {
+            final Map<String, Decoder> decoders = new HashMap<>();
+            if (codec != null && codec.decoder().length != 0) {
+                decoders.putAll(stream(codec.decoder())
+                        .filter(Objects::nonNull)
+                        .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
+                                ? decoder.getAnnotation(ContentType.class).value()
+                                : "*/*", decoder -> {
+                                    try {
+                                        final Constructor<?> constructor = Constructors.findConstructor(decoder);
+                                        final Function<Map<String, String>, Object[]> paramFactory =
+                                                reflections.parameterFactory(constructor, services);
+                                        return Decoder.class
+                                                .cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                    } catch (final InstantiationException | IllegalAccessException e) {
+                                        throw new IllegalArgumentException(e);
+                                    } catch (final InvocationTargetException e) {
+                                        throw toRuntimeException(e);
+                                    }
+                                }, (k, v) -> {
+                                    throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                                })));
+            }
+            // add default decoders if not override by the user
+            // keep the put order
+            if (!jaxbContexts.isEmpty()) {
+                final JAXBDecoder jaxbDecoder = new JAXBDecoder(jaxbContexts);
+                decoders.putIfAbsent("*/xml", jaxbDecoder);
+                decoders.putIfAbsent("*/*+xml", jaxbDecoder);
+            }
+            decoders.putIfAbsent("*/json", jsonpDecoder);
+            decoders.putIfAbsent("*/*+json", jsonpDecoder);
+            decoders.putIfAbsent("*/*", (value, expectedType) -> new String(value));
 
-                    {
-                        // keep the put order
-                        if (!jaxbContexts.isEmpty()) {
-                            final JAXBDecoder jaxbDecoder = new JAXBDecoder(jaxbContexts);
-                            put("*/xml", jaxbDecoder);
-                            put("*/*+xml", jaxbDecoder);
-                        }
-                        put("*/json", jsonpDecoder);
-                        put("*/*+json", jsonpDecoder);
-                        put("*/*", (value, expectedType) -> new String(value));
-                    }
-                };
+            return sortMap(decoders);
+        }
+
+        private <T> Map<String, T> sortMap(final Map<String, T> entries) {
+            final List<String> keys = new ArrayList<>(entries.keySet());
+            keys.sort(new MediaTypeComparator(new ArrayList<>(keys)));
+            return keys.stream().collect(toMap(k -> k.toLowerCase(ROOT), entries::get, (a, b) -> {
+                throw new IllegalArgumentException(a + "/" + b);
+            }, LinkedHashMap::new));
+        }
+
+        @AllArgsConstructor
+        private static class DefaultConnection implements Configurer.Connection {
+
+            private final HttpURLConnection urlConnection;
+
+            @Override
+            public Configurer.Connection withHeader(final String name, final String value) {
+                urlConnection.addRequestProperty(name, value);
+                return this;
             }
 
-            return stream(codec.decoder())
-                    .filter(Objects::nonNull)
-                    .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
-                            ? decoder.getAnnotation(ContentType.class).value()
-                            : "*/*", decoder -> {
-                                try {
-                                    final Constructor<?> constructor = Constructors.findConstructor(decoder);
-                                    final Function<Map<String, String>, Object[]> paramFactory =
-                                            reflections.parameterFactory(constructor, services);
-                                    return Decoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                                } catch (final InstantiationException | IllegalAccessException e) {
-                                    throw new IllegalArgumentException(e);
-                                } catch (final InvocationTargetException e) {
-                                    throw toRuntimeException(e);
-                                }
-                            }, (k, v) -> {
-                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                            }, LinkedHashMap::new));
+            @Override
+            public Configurer.Connection withReadTimeout(final int timeout) {
+                urlConnection.setReadTimeout(timeout);
+                return this;
+            }
+
+            @Override
+            public Configurer.Connection withConnectionTimeout(final int timeout) {
+                urlConnection.setConnectTimeout(timeout);
+                return this;
+            }
         }
 
         @AllArgsConstructor
@@ -736,9 +737,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
         @AllArgsConstructor
         private static class JsonpDecoder implements Decoder {
 
-            private final JsonReaderFactory readerFactory;
-
-            private final SubclassesCache subclassesCache;
+            private final Jsonb jsonb;
 
             @Override
             public Object decode(final byte[] value, final Type expectedType) {
@@ -746,188 +745,25 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     throw new IllegalArgumentException("Unsupported type: " + expectedType);
                 }
                 final Class<?> clazz = Class.class.cast(expectedType);
-                try (final JsonReader reader = readerFactory.createReader(new ByteArrayInputStream(value))) {
-                    return toObject(clazz, reader.readValue());
-                }
-            }
-
-            private Object toObject(final Class<?> clazz, final JsonValue jsonValue) {
-                if (ObjectMap.class.isAssignableFrom(clazz)) {
-                    return new JsonObjectMap(JsonObject.class.cast(jsonValue));
-                } else if (JsonValue.class.isAssignableFrom(clazz)) {
-                    return jsonValue;
-                }
-                try {
-                    final JsonObjectMap delegate = new JsonObjectMap(JsonObject.class.cast(jsonValue)) {
-
-                        @Override
-                        public Object get(final String location) {
-                            // doesn't support inheritance etc yet, to enhance if used a lot
-                            final Class<?> type;
-                            final Field declaredField;
-                            try {
-                                declaredField = clazz.getDeclaredField(location);
-                                type = declaredField.getType();
-                            } catch (final NoSuchFieldException nsfe) {
-                                throw new IllegalArgumentException(nsfe);
-                            }
-
-                            final Object val = super.get(location);
-                            if (val == null) {
-                                return null;
-                            }
-
-                            if (ObjectMap.class.isAssignableFrom(type)) {
-                                return new JsonObjectMap(JsonObject.class.cast(val));
-                            } else if (JsonValue.class.isAssignableFrom(type)) {
-                                return jsonValue;
-                            } else if (Collection.class.isAssignableFrom(type)) { // todo: enrich
-                                final ParameterizedType pt =
-                                        ParameterizedType.class.cast(declaredField.getGenericType());
-                                final Class<?> elt = Class.class.cast(pt.getActualTypeArguments()[0]);
-                                if (String.class.isAssignableFrom(elt)) {
-                                    return val;
-                                } else if (Integer.class.isAssignableFrom(elt)) {
-                                    return val;
-                                } else if (Long.class.isAssignableFrom(elt)) {
-                                    return val;
-                                } else if (Boolean.class.isAssignableFrom(elt)) {
-                                    return val;
-                                } else if (Float.class.isAssignableFrom(elt)) {
-                                    return val;
-                                } else if (Double.class.isAssignableFrom(elt)) {
-                                    return val;
-                                } else if (BigDecimal.class.isAssignableFrom(elt)) {
-                                    return val;
-                                } else if (BigInteger.class.isAssignableFrom(elt)) {
-                                    return val;
-                                } else { // assume object
-                                    return Collection.class
-                                            .cast(val)
-                                            .stream()
-                                            .map(v -> toObject(elt, JsonValue.class.cast(v)))
-                                            .collect(toList()); // only support lists for now
-                                }
-                            } else if (String.class.isInstance(val)) {
-                                return val;
-                            } else if (Integer.class.isInstance(val)) {
-                                return val;
-                            } else if (Long.class.isInstance(val)) {
-                                return val;
-                            } else if (Boolean.class.isInstance(val)) {
-                                return val;
-                            } else if (Float.class.isInstance(val)) {
-                                return val;
-                            } else if (Double.class.isInstance(val)) {
-                                return val;
-                            } else if (BigDecimal.class.isInstance(val)) {
-                                return val;
-                            } else if (BigInteger.class.isInstance(val)) {
-                                return val;
-                            } else {
-                                try {
-                                    return subclassesCache.find(type).newInstance(
-                                            new JsonObjectMap(JsonObject.class.cast(val)));
-                                } catch (final InstantiationException | IllegalAccessException e) {
-                                    throw new IllegalStateException(e);
-                                } catch (final InvocationTargetException e) {
-                                    throw new IllegalStateException(e.getTargetException());
-                                }
-                            }
-                        }
-                    };
-                    return subclassesCache.find(clazz).newInstance(delegate);
-                } catch (final InstantiationException | IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                } catch (final InvocationTargetException e) {
-                    throw new IllegalStateException(e.getTargetException());
-                }
+                return jsonb.fromJson(new ByteArrayInputStream(value), clazz);
             }
         }
 
         @AllArgsConstructor
         private static class JsonpEncoder implements Encoder {
 
-            private final JsonWriterFactory writerFactory;
-
-            private final JsonBuilderFactory builderFactory;
-
-            private final String plugin;
-
-            private final AccessorCache cache;
+            private final Jsonb jsonb;
 
             @Override
             public byte[] encode(final Object value) {
-                final JsonValue jsonObject = JsonValue.class.isInstance(value) ? JsonValue.class.cast(value)
-                        : toJson(ObjectMap.class.isInstance(value) ? ObjectMap.class.cast(value)
-                                : new ObjectMapImpl(plugin, value, cache));
-
-                final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                try (final JsonWriter writer = writerFactory.createWriter(out)) {
-                    writer.write(jsonObject);
+                final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                try (final OutputStreamWriter out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+                    jsonb.toJson(value, out);
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
                 }
-                return out.toByteArray();
+                return outputStream.toByteArray();
             }
-
-            private JsonValue toJson(final ObjectMap objectMap) {
-                final JsonObjectBuilder objectBuilder = builderFactory.createObjectBuilder();
-                objectMap.keys().forEach(k -> {
-                    final Object val = objectMap.get(k);
-                    if (String.class.isInstance(val)) {
-                        objectBuilder.add(k, String.class.cast(val));
-                    } else if (Integer.class.isInstance(val)) {
-                        objectBuilder.add(k, Integer.class.cast(val));
-                    } else if (Long.class.isInstance(val)) {
-                        objectBuilder.add(k, Long.class.cast(val));
-                    } else if (Boolean.class.isInstance(val)) {
-                        objectBuilder.add(k, Boolean.class.cast(val));
-                    } else if (Float.class.isInstance(val)) {
-                        objectBuilder.add(k, Float.class.cast(val));
-                    } else if (Double.class.isInstance(val)) {
-                        objectBuilder.add(k, Double.class.cast(val));
-                    } else if (BigDecimal.class.isInstance(val)) {
-                        objectBuilder.add(k, BigDecimal.class.cast(val));
-                    } else if (BigInteger.class.isInstance(val)) {
-                        objectBuilder.add(k, BigInteger.class.cast(val));
-                    } else if (Collection.class.isInstance(val)) {
-                        objectBuilder.add(k,
-                                objectMap
-                                        .getCollection(k)
-                                        .stream()
-                                        .map(this::toJson)
-                                        .collect(builderFactory::createArrayBuilder, JsonArrayBuilder::add,
-                                                JsonArrayBuilder::addAll)
-                                        .build());
-                    } else {
-                        objectBuilder.add(k, toJson(objectMap.getMap(k)));
-                    }
-                });
-                return objectBuilder.build();
-            }
-        }
-    }
-
-    @AllArgsConstructor
-    private static class DefaultConnection implements Configurer.Connection {
-
-        private final HttpURLConnection urlConnection;
-
-        @Override
-        public Configurer.Connection withHeader(final String name, final String value) {
-            urlConnection.addRequestProperty(name, value);
-            return this;
-        }
-
-        @Override
-        public Configurer.Connection withReadTimeout(final int timeout) {
-            urlConnection.setReadTimeout(timeout);
-            return this;
-        }
-
-        @Override
-        public Configurer.Connection withConnectionTimeout(final int timeout) {
-            urlConnection.setConnectTimeout(timeout);
-            return this;
         }
     }
 }

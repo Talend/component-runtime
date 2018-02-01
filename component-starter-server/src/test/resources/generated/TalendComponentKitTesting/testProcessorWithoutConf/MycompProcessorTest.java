@@ -7,10 +7,11 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.List;
 
+import javax.json.JsonObject;
+
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 import org.talend.sdk.component.junit.JoinInputFactory;
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -35,7 +36,7 @@ public class MycompProcessorTest {
         // Make sure to fil in some test data for the branches you want to test
         // You can also remove the branches that you don't need from the factory below
         final JoinInputFactory joinInputFactory =  new JoinInputFactory()
-                                                            .withInput("__default__", asList(/* TODO - list of your input data for this branch. Instances of ObjectMap.class */));
+                                                            .withInput("__default__", asList(/* TODO - list of your input data for this branch. Instances of JsonObject.class */));
 
 
         // Run the flow and get the outputs
@@ -46,8 +47,8 @@ public class MycompProcessorTest {
 
         // Here you have all your processor output branches
         // You can fill in the expected data for every branch to test them
-        final List<ObjectMap> value___default__ = outputs.get(ObjectMap.class, "__default__");
-        assertEquals(asList(/* TODO - give a list of your expected values here. Instances of ObjectMap.class */), value___default__);
+        final List<JsonObject> value___default__ = outputs.get(JsonObject.class, "__default__");
+        assertEquals(asList(/* TODO - give a list of your expected values here. Instances of JsonObject.class */), value___default__);
 
     }
 

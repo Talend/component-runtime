@@ -17,6 +17,7 @@ package org.talend.sdk.component.junit.environment;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +26,7 @@ import java.util.stream.Stream;
 
 import org.jboss.shrinkwrap.resolver.api.maven.ConfigurableMavenResolverSystem;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenResolveStageBase;
 import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
 import org.jboss.shrinkwrap.resolver.api.maven.strategy.AcceptScopesStrategy;
 import org.jboss.shrinkwrap.resolver.api.maven.strategy.MavenResolutionStrategy;
@@ -36,7 +38,40 @@ public class Dependencies {
 
     private static final ConcurrentMap<String, URL[]> CACHE = new ConcurrentHashMap<>();
 
-    private static final ConfigurableMavenResolverSystem RESOLVER = Maven.configureResolver();
+    private static final MavenResolveStageBase<?, ?, ?> RESOLVER = createResolver();
+
+    private static MavenResolveStageBase<?, ?, ?> createResolver() {
+        ConfigurableMavenResolverSystem resolverSystem =
+                Maven.configureResolver().withClassPathResolution(true).workOffline(
+                        Boolean.getBoolean("talend.component.junit.maven.offline"));
+
+        final String repos = System.getProperty("talend.component.junit.maven.repositories");
+        if (repos != null && !repos.isEmpty()) {
+            for (final String repo : repos.split(",")) {
+                final String[] parts = repo.split("::");
+                resolverSystem = resolverSystem.withRemoteRepo(parts[0], parts[1], parts[2]);
+            }
+        } else if (!Boolean.getBoolean("talend.component.junit.maven.skipPomReading")) {
+            // try to grab from the root pom the repos - simplifying maven parsing for speed reasons and enough
+            // generally
+
+            File current = new File(".").getAbsoluteFile();
+            while (new File(current, "pom.xml").exists()) {
+                final File parent = current.getParentFile();
+                if (parent != null && new File(parent, "pom.xml").exists()) {
+                    current = parent;
+                    continue;
+                }
+                break;
+            }
+            final File pom = new File(current, "pom.xml");
+            if (pom.exists()) {
+                return resolverSystem.loadPomFromFile(pom);
+            }
+        }
+
+        return resolverSystem;
+    }
 
     private static final MavenResolutionStrategy STRATEGY =
             new AcceptScopesStrategy(ScopeType.COMPILE, ScopeType.RUNTIME);

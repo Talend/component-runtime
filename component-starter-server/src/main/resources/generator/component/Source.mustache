@@ -4,13 +4,15 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+{{#generic}}
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
+{{/generic}}
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
-{{#generic}}
-import org.talend.sdk.component.api.processor.data.ObjectMap;
-{{/generic}}
 
 import {{servicePackage}}.{{serviceName}};
 
@@ -18,10 +20,18 @@ import {{servicePackage}}.{{serviceName}};
 public class {{className}} implements Serializable {
     private final {{configurationName}} configuration;
     private final {{serviceName}} service;
+{{#generic}}
+    private final JsonBuilderFactory jsonBuilderFactory;
+{{/generic}}
 
-    public {{className}}(@Option("configuration") final {{configurationName}} configuration, final {{serviceName}} service) {
+    public {{className}}(@Option("configuration") final {{configurationName}} configuration,
+                        final {{serviceName}} service{{#generic}},
+                        final JsonBuilderFactory jsonBuilderFactory{{/generic}}) {
         this.configuration = configuration;
         this.service = service;
+{{#generic}}
+        this.jsonBuilderFactory = jsonBuilderFactory;
+{{/generic}}
     }
 
     @PostConstruct
@@ -31,11 +41,12 @@ public class {{className}} implements Serializable {
     }
 
     @Producer
-    public {{#generic}}ObjectMap{{/generic}}{{^generic}}{{modelName}}{{/generic}} next() {
+    public {{#generic}}JsonObject{{/generic}}{{^generic}}{{modelName}}{{/generic}} next() {
         // this is the method allowing you to go through the dataset associated
         // to the component configuration
         //
         // return null means the dataset has no more data to go through
+{{#generic}}        // you can use the jsonBuilderFactory to create new JsonObjects.{{/generic}}
         return null;
     }
 

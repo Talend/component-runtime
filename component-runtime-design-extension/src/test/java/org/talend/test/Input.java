@@ -15,19 +15,21 @@
  */
 package org.talend.test;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.Serializable;
 
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.api.input.Producer;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
 public class Input implements Serializable {
 
     @Producer
-    public Record next() {
+    public JsonObject next() {
         return null;
     }
 }

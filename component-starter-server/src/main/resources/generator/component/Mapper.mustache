@@ -4,6 +4,10 @@ import static java.util.Collections.singletonList;
 
 import java.io.Serializable;
 import java.util.List;
+{{#generic}}
+
+import javax.json.JsonBuilderFactory;
+{{/generic}}
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -27,10 +31,18 @@ import {{servicePackage}}.{{serviceName}};
 public class {{className}} implements Serializable {
     private final {{configurationName}} configuration;
     private final {{serviceName}} service;
+{{#generic}}
+    private final JsonBuilderFactory jsonBuilderFactory;
+{{/generic}}
 
-    public {{className}}(@Option("configuration") final {{configurationName}} configuration, final {{serviceName}} service) {
+    public {{className}}(@Option("configuration") final {{configurationName}} configuration,
+                        final {{serviceName}} service{{#generic}},
+                        final JsonBuilderFactory jsonBuilderFactory{{/generic}}) {
         this.configuration = configuration;
         this.service = service;
+{{#generic}}
+        this.jsonBuilderFactory = jsonBuilderFactory;
+{{/generic}}
     }
 
     @Assessor
@@ -58,6 +70,6 @@ public class {{className}} implements Serializable {
         // here we create an actual worker,
         // you are free to rework the configuration etc but our default generated implementation
         // propagates the partition mapper entries.
-        return new {{sourceName}}(configuration, service);
+        return new {{sourceName}}(configuration, service{{#generic}}, jsonBuilderFactory{{/generic}});
     }
 }

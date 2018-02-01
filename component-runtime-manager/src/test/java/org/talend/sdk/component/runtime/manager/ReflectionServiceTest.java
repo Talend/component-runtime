@@ -32,23 +32,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import javax.json.bind.JsonbBuilder;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.Request;
-import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
-import org.talend.sdk.component.runtime.manager.processor.SubclassesCache;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
 
 import lombok.Data;
-import org.talend.sdk.component.runtime.output.data.AccessorCache;
 
 class ReflectionServiceTest {
 
@@ -58,11 +56,8 @@ class ReflectionServiceTest {
     void copiable() throws NoSuchMethodException {
         final HashMap<Class<?>, Object> precomputed = new HashMap<>();
         precomputed.put(UserHttpClient.class,
-                new HttpClientFactoryImpl("test",
-                        new SubclassesCache("test", new ProxyGenerator(),
-                                Thread.currentThread().getContextClassLoader(), new ConcurrentHashMap<>()),
-                        new AccessorCache("test"), new ReflectionService(new ParameterModelService()), emptyMap())
-                                .create(UserHttpClient.class, "http://foo"));
+                new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
+                        JsonbBuilder.create(), emptyMap()).create(UserHttpClient.class, "http://foo"));
         final Method httpMtd = TableOwner.class.getMethod("http", UserHttpClient.class);
         final HttpClient client1 =
                 HttpClient.class.cast(reflectionService.parameterFactory(httpMtd, precomputed).apply(emptyMap())[0]);

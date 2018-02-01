@@ -39,7 +39,6 @@
     <module>component-server</module>
     <module>component-kit.js</module>
     <module>component-form</module>
-    <module>component-avro-integration</module>
     <module>talend-component-maven-plugin</module>
     <module>gradle-talend-component</module>
     <module>component-starter-server</module>
@@ -58,6 +57,10 @@
     <repository>
       <id>TalendOpenSourceSnapshot</id>
       <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+    </repository>
+    <repository>
+      <id>beam-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachebeam-1026/</url>
     </repository>
     <repository>
       <id>asf-snapshot</id>
@@ -140,7 +143,7 @@
     <cxf.version>3.2.1</cxf.version>
     <log4j2.version>2.10.0</log4j2.version>
     <batik.version>1.9</batik.version>
-    <beam.version>2.2.0</beam.version>
+    <beam.version>2.3.0</beam.version>
     <commons-codec.version>1.11</commons-codec.version>
     <commons-compress.version>1.15</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>

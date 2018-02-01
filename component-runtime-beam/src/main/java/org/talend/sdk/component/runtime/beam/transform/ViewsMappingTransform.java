@@ -16,13 +16,14 @@
 package org.talend.sdk.component.runtime.beam.transform;
 
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
+import static lombok.AccessLevel.PROTECTED;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import org.apache.beam.sdk.coders.CannotProvideCoderException;
 import org.apache.beam.sdk.coders.Coder;
@@ -31,41 +32,50 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
-import org.talend.sdk.component.runtime.beam.TalendCoder;
+import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.runtime.serialization.ContainerFinder;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 /**
  * Adapter to convert a ProcessContext to a
- * {@code Map<String, List<?>>}
+ * {@code Map<String, List<?>>} encapsulated in a {@code JsonObject}.
  */
-public class ViewsMappingTransform<I extends Serializable>
-        extends PTransform<PCollection<I>, PCollection<Map<String, List<Serializable>>>> {
+@AllArgsConstructor
+@NoArgsConstructor(access = PROTECTED)
+public class ViewsMappingTransform extends PTransform<PCollection<JsonObject>, PCollection<JsonObject>> {
 
-    private final Map<String, PCollectionView<?>> views;
+    private Map<String, PCollectionView<?>> views;
 
-    public ViewsMappingTransform(final Map<String, PCollectionView<?>> sides) {
-        this.views = sides;
-    }
+    private String plugin;
 
     @Override
-    public PCollection<Map<String, List<Serializable>>> expand(final PCollection<I> input) {
-        return input.apply(ParDo.of(new MappingViewsFn<>(views)));
+    public PCollection<JsonObject> expand(final PCollection<JsonObject> input) {
+        return input.apply(ParDo.of(new MappingViewsFn(views, plugin)));
     }
 
     @Override
     protected Coder<?> getDefaultOutputCoder() throws CannotProvideCoderException {
-        return TalendCoder.of();
+        return JsonpJsonObjectCoder.of(plugin);
     }
 
-    public static class MappingViewsFn<I extends Serializable> extends DoFn<I, Map<String, List<Serializable>>> {
+    @NoArgsConstructor(access = PROTECTED)
+    public static class MappingViewsFn extends DoFn<JsonObject, JsonObject> {
 
-        private final Map<String, PCollectionView<?>> views;
+        private volatile JsonBuilderFactory builderFactory;
 
-        protected MappingViewsFn() {
-            this.views = emptyMap();
+        private String plugin;
+
+        private Map<String, PCollectionView<?>> views;
+
+        private MappingViewsFn(final String plugin) {
+            this(emptyMap(), plugin);
         }
 
-        private MappingViewsFn(final Map<String, PCollectionView<?>> views) {
+        private MappingViewsFn(final Map<String, PCollectionView<?>> views, final String plugin) {
             this.views = views.entrySet().stream().collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+            this.plugin = plugin;
         }
 
         @ProcessElement
@@ -73,14 +83,26 @@ public class ViewsMappingTransform<I extends Serializable>
             context.output(createMap(context));
         }
 
-        private Map<String, List<Serializable>> createMap(final ProcessContext context) {
-            final Map<String, List<Serializable>> map = new HashMap<>();
-            map.put("__default__", singletonList(context.element()));
+        private JsonObject createMap(final ProcessContext context) {
+            final JsonObjectBuilder builder = builderFactory().createObjectBuilder();
+            builder.add("__default__", builderFactory.createArrayBuilder().add(context.element()));
             views.forEach((n, v) -> {
-                final Serializable sideInput = Serializable.class.cast(context.sideInput(v));
-                map.put(n, singletonList(sideInput));
+                final JsonObject sideInput = JsonObject.class.cast(context.sideInput(v));
+                builder.add(n, builderFactory.createArrayBuilder().add(sideInput));
             });
-            return map;
+            return builder.build();
+        }
+
+        private JsonBuilderFactory builderFactory() {
+            if (builderFactory == null) {
+                synchronized (this) {
+                    if (builderFactory == null) {
+                        builderFactory =
+                                ContainerFinder.Instance.get().find(plugin).findService(JsonBuilderFactory.class);
+                    }
+                }
+            }
+            return builderFactory;
         }
     }
 }

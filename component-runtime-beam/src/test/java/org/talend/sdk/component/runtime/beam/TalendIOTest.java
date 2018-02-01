@@ -18,18 +18,27 @@ package org.talend.sdk.component.runtime.beam;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.testing.PAssert;
@@ -40,6 +49,8 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.junit.Rule;
 import org.junit.Test;
+import org.talend.sdk.component.runtime.beam.coder.JsonbCoder;
+import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 import org.talend.sdk.component.runtime.beam.transform.ViewsMappingTransform;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -48,16 +59,22 @@ import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 public class TalendIOTest implements Serializable {
+
+    private static final String PLUGIN = jarLocation(TalendIOTest.class).getAbsolutePath();
+
+    private static final Jsonb JSONB = JsonbBuilder.create();
 
     @Rule
     public transient final TestPipeline pipeline = TestPipeline.create();
 
     @Test
     public void input() {
-        final PCollection<Sample> out = pipeline.apply(TalendIO.read(new TheTestMapper() {
+        final PCollection<JsonObject> out = pipeline.apply(TalendIO.read(new TheTestMapper() {
 
             @Override
             public Input create() {
@@ -75,11 +92,11 @@ public class TalendIOTest implements Serializable {
                 };
             }
         }));
-        PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Sample, String>() {
+        PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<JsonObject, String>() {
 
             @ProcessElement
             public void toData(final ProcessContext sample) {
-                sample.output(sample.element().data);
+                sample.output(JSONB.fromJson(sample.element().toString(), Sample.class).data);
             }
         }))).containsInAnyOrder("a", "b");
         assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
@@ -89,13 +106,22 @@ public class TalendIOTest implements Serializable {
     public void output() {
         Output.DATA.clear();
         pipeline
-                .apply(Create.of(new Sample("a"), new Sample("b")))
-                .apply(new ViewsMappingTransform<>(emptyMap()))
+                .apply(Create.of(new Sample("a"), new Sample("b")).withCoder(JsonbCoder.of(Sample.class, jsonb())))
+                .apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Sample, JsonObject>() {
+
+                    @ProcessElement
+                    public void toData(final ProcessContext sample) {
+                        sample.output(JSONB.fromJson(JSONB.toJson(sample.element()), JsonObject.class));
+                    }
+                }))
+                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .apply(new ViewsMappingTransform(emptyMap(), PLUGIN))
                 .apply(TalendIO.write(new BaseTestProcessor() {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
-                        Output.DATA.add(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data);
+                        Output.DATA
+                                .add(JSONB.fromJson(input.read(Branches.DEFAULT_BRANCH).toString(), Sample.class).data);
                     }
                 }));
         assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
@@ -105,21 +131,32 @@ public class TalendIOTest implements Serializable {
     @Test
     public void processor() {
         final PCollection<SampleLength> out = pipeline
-                .apply(Create.of(new Sample("a"), new Sample("bb")))
-                .apply(new ViewsMappingTransform<>(emptyMap()))
+                .apply(Create.of(new Sample("a"), new Sample("bb")).withCoder(JsonbCoder.of(Sample.class, jsonb())))
+                .apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Sample, JsonObject>() {
+
+                    @ProcessElement
+                    public void toData(final ProcessContext sample) {
+                        sample.output(JSONB.fromJson(JSONB.toJson(sample.element()), JsonObject.class));
+                    }
+                }))
+                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .apply(new ViewsMappingTransform(emptyMap(), PLUGIN))
                 .apply(TalendFn.asFn(new BaseTestProcessor() {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
-                        factory.create(Branches.DEFAULT_BRANCH).emit(
-                                new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
+                        factory.create(Branches.DEFAULT_BRANCH).emit(new SampleLength(
+                                JSONB.fromJson(input.read(Branches.DEFAULT_BRANCH).toString(), Sample.class).data
+                                        .length()));
                     }
                 }))
-                .apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
+                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .apply(ParDo.of(new DoFn<JsonObject, SampleLength>() {
 
                     @ProcessElement
                     public void onElement(final ProcessContext ctx) {
-                        ctx.output(SampleLength.class.cast(ctx.element().get("__default__").get(0)));
+                        ctx.output(JSONB.fromJson(ctx.element().getJsonArray("__default__").getJsonObject(0).toString(),
+                                SampleLength.class));
                     }
                 }));
         PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<SampleLength, Integer>() {
@@ -135,21 +172,31 @@ public class TalendIOTest implements Serializable {
     @Test
     public void processorMulti() {
         final PCollection<SampleLength> out = pipeline
-                .apply(Create.of(new Sample("a"), new Sample("bb")))
-                .apply(new ViewsMappingTransform<>(emptyMap()))
+                .apply(Create.of(new Sample("a"), new Sample("bb")).withCoder(JsonbCoder.of(Sample.class, jsonb())))
+                .apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Sample, JsonObject>() {
+
+                    @ProcessElement
+                    public void toData(final ProcessContext sample) {
+                        sample.output(JSONB.fromJson(JSONB.toJson(sample.element()), JsonObject.class));
+                    }
+                }))
+                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .apply(new ViewsMappingTransform(emptyMap(), PLUGIN))
                 .apply(TalendFn.asFn(new BaseTestProcessor() {
 
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
-                        factory.create(Branches.DEFAULT_BRANCH).emit(
-                                new SampleLength(Sample.class.cast(input.read(Branches.DEFAULT_BRANCH)).data.length()));
+                        factory.create(Branches.DEFAULT_BRANCH).emit(new SampleLength(
+                                JSONB.fromJson(input.read(Branches.DEFAULT_BRANCH).toString(), Sample.class).data
+                                        .length()));
                     }
                 }))
-                .apply(ParDo.of(new DoFn<Map<String, List<Serializable>>, SampleLength>() {
+                .apply(ParDo.of(new DoFn<JsonObject, SampleLength>() {
 
                     @ProcessElement
                     public void onElement(final ProcessContext ctx) {
-                        ctx.output(SampleLength.class.cast(ctx.element().get("__default__").get(0)));
+                        ctx.output(JSONB.fromJson(ctx.element().getJsonArray("__default__").getJsonObject(0).toString(),
+                                SampleLength.class));
                     }
                 }));
         PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<SampleLength, Integer>() {
@@ -167,16 +214,25 @@ public class TalendIOTest implements Serializable {
         private static final Collection<String> DATA = new CopyOnWriteArrayList<>();
     }
 
-    @RequiredArgsConstructor
-    public static class Sample implements Serializable {
-
-        private final String data;
+    private static Jsonb jsonb() { // ensure it is serializable
+        return Jsonb.class.cast(Proxy.newProxyInstance(TalendIOTest.class.getClassLoader(),
+                new Class<?>[] { Jsonb.class, Serializable.class }, new JsonbInvocationHandler()));
     }
 
-    @RequiredArgsConstructor
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Sample {
+
+        private String data;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SampleLength implements Serializable {
 
-        private final int len;
+        private int len;
     }
 
     private static abstract class BaseTestProcessor implements Serializable, Processor {
@@ -193,17 +249,17 @@ public class TalendIOTest implements Serializable {
 
         @Override
         public String plugin() {
-            return "test";
+            return PLUGIN;
         }
 
         @Override
         public String rootName() {
-            return "test";
+            return "test-classes";
         }
 
         @Override
         public String name() {
-            return "test";
+            return "test-classes";
         }
 
         @Override
@@ -221,17 +277,17 @@ public class TalendIOTest implements Serializable {
 
         @Override
         public String plugin() {
-            return "test";
+            return PLUGIN;
         }
 
         @Override
         public String rootName() {
-            return "test";
+            return "test-classes";
         }
 
         @Override
         public String name() {
-            return "test";
+            return "test-classes";
         }
 
         @Override
@@ -264,17 +320,17 @@ public class TalendIOTest implements Serializable {
 
         @Override
         public String plugin() {
-            return "test";
+            return PLUGIN;
         }
 
         @Override
         public String rootName() {
-            return "test";
+            return "test-classes";
         }
 
         @Override
         public String name() {
-            return "test";
+            return "test-classes";
         }
 
         @Override
@@ -285,6 +341,29 @@ public class TalendIOTest implements Serializable {
         @Override
         public void stop() {
             // no-op
+        }
+    }
+
+    private static class JSONBReplacement implements Serializable {
+
+        Object readResolve() throws ObjectStreamException {
+            return new JsonbInvocationHandler();
+        }
+    }
+
+    private static class JsonbInvocationHandler implements InvocationHandler, Serializable {
+
+        @Override
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            try {
+                return method.invoke(JSONB, args);
+            } catch (final InvocationTargetException ite) {
+                throw ite.getTargetException();
+            }
+        }
+
+        Object writeReplace() throws ObjectStreamException {
+            return new JSONBReplacement();
         }
     }
 }

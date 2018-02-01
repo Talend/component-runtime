@@ -19,10 +19,9 @@ import static java.util.Collections.emptyMap;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import javax.json.JsonObject;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
@@ -55,7 +54,7 @@ public class Main {
                 put("old_file", options.getInputFile()); // will be migrated to "file" with the migration handler
             }
         }).orElseThrow(() -> new IllegalArgumentException("No reader sample#reader, existing: " + manager.availablePlugins()))))
-                .apply(new ViewsMappingTransform<>(emptyMap()))
+                .apply(new ViewsMappingTransform(emptyMap(), "sample"))
                 .apply(TalendFn.asFn(manager.findProcessor("sample", "mapper", 1, emptyMap())
                         .orElseThrow(() -> new IllegalStateException("didn't find the processor"))))
                 .apply(ParDo.of(new ToStringFn()))
@@ -64,11 +63,11 @@ public class Main {
         System.out.println(state);
     }
 
-    static class ToStringFn extends DoFn<Map<String, List<Serializable>>, String> {
+    static class ToStringFn extends DoFn<JsonObject, String> {
 
         @ProcessElement
         public void processElement(final ProcessContext context) throws Exception {
-            context.output(context.element().values().iterator().next().get(0).toString());
+            context.output(context.element().values().iterator().next().asJsonArray().getJsonObject(0).toString());
         }
     }
 

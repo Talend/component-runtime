@@ -29,23 +29,23 @@ import lombok.Data;
  * An iterable representing the input data.
  */
 @Data
-class InputFactoryIterable implements Iterable<Map<String, List<Serializable>>>, Serializable {
+class InputFactoryIterable implements Iterable<Map<String, List<?>>>, Serializable {
 
     private final ControllableInputFactory inputFactory;
 
-    private final Map<String, Iterator<? extends Serializable>> data;
+    private final Map<String, Iterator<?>> data;
 
     @Override
-    public Iterator<Map<String, List<Serializable>>> iterator() {
+    public Iterator<Map<String, List<?>>> iterator() {
         return new InputFactoryIterator(inputFactory, data);
     }
 
     @Data
-    private static class InputFactoryIterator implements Iterator<Map<String, List<Serializable>>> {
+    private static class InputFactoryIterator implements Iterator<Map<String, List<?>>> {
 
         private final ControllableInputFactory inputFactory;
 
-        private final Map<String, Iterator<? extends Serializable>> data;
+        private final Map<String, Iterator<?>> data;
 
         @Override
         public boolean hasNext() {
@@ -53,7 +53,7 @@ class InputFactoryIterable implements Iterable<Map<String, List<Serializable>>>,
         }
 
         @Override
-        public Map<String, List<Serializable>> next() {
+        public Map<String, List<?>> next() {
             return data.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> singletonList(e.getValue().next())));
         }
     }

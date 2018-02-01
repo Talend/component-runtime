@@ -29,16 +29,17 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
+import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
-import org.talend.sdk.component.api.processor.data.ObjectMap;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
-import org.talend.sdk.component.runtime.output.data.AccessorCache;
-import org.talend.sdk.component.runtime.output.data.ObjectMapImpl;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 
@@ -53,6 +54,8 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     private transient Method process;
 
     private transient List<BiFunction<InputFactory, OutputFactory, Object>> parameterBuilder;
+
+    private transient Jsonb jsonb;
 
     private boolean forwardReturn;
 
@@ -80,14 +83,11 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                 }
 
                 final Class<?> parameterType = parameter.getType();
-                final boolean isObjectMap = ObjectMap.class.isAssignableFrom(parameterType);
-                final AccessorCache cache =
-                        ofNullable(ContainerFinder.Instance.get().find(plugin()).findService(AccessorCache.class))
-                                .orElseGet(() -> new AccessorCache(plugin()));
+                final boolean isGeneric = JsonObject.class.isAssignableFrom(parameterType);
                 final String inputName = ofNullable(parameter.getAnnotation(Input.class)).map(Input::value).orElse(
                         Branches.DEFAULT_BRANCH);
                 return (BiFunction<InputFactory, OutputFactory, Object>) (inputs,
-                        outputs) -> doConvertInput(parameterType, isObjectMap, cache, inputs.read(inputName));
+                        outputs) -> doConvertInput(parameterType, isGeneric, inputs.read(inputName));
             }).collect(toList());
             forwardReturn = process.getReturnType() != void.class;
         }
@@ -95,19 +95,36 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
         beforeGroup.forEach(this::doInvoke);
     }
 
-    private Object doConvertInput(final Class<?> parameterType, final boolean isObjectMap, final AccessorCache cache,
-            final Object data) {
-        if (isObjectMap) {
-            if (ObjectMap.class.isInstance(data)) {
+    private Object doConvertInput(final Class<?> parameterType, final boolean isGeneric, final Object data) {
+        if (isGeneric) {
+            if (JsonObject.class.isInstance(data)) {
                 return data;
             }
-            return new ObjectMapImpl(plugin(), data, cache);
+            final Jsonb jsonb = jsonb();
+            return jsonb.fromJson(jsonb.toJson(data), JsonObject.class);
         }
         if (parameterType.isInstance(data) || parameterType.isPrimitive()/* this case can need some more work */) {
             return data;
         }
         // here we need to subclass parameter.getType to support an objectmap as input
-        return newSubClassInstance(parameterType, new ObjectMapImpl(plugin(), data, cache));
+        final Jsonb jsonb = jsonb();
+        return jsonb.fromJson(
+                JsonObject.class.isInstance(data) ? JsonObject.class.cast(data).toString() : jsonb.toJson(data),
+                parameterType);
+    }
+
+    private Jsonb jsonb() {
+        if (jsonb == null) {
+            synchronized (this) {
+                if (jsonb == null) {
+                    jsonb = ContainerFinder.Instance.get().find(plugin()).findService(Jsonb.class);
+                }
+                if (jsonb == null) { // for tests mainly
+                    jsonb = JsonbBuilder.create();
+                }
+            }
+        }
+        return jsonb;
     }
 
     @Override
@@ -127,11 +144,6 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     @Override
     public Object getDelegate() {
         return delegate;
-    }
-
-    protected Object newSubClassInstance(final Class<?> type, final ObjectMap data) {
-        throw new UnsupportedOperationException("Subclass " + getClass().getName() + " to support " + type
-                + " as input or " + "use an ObjectMap in " + plugin() + "#" + rootName() + "#" + name());
     }
 
     Object writeReplace() throws ObjectStreamException {

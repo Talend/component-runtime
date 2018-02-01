@@ -25,7 +25,7 @@ public class TProcOutput implements Serializable {
     private final TestService service;
 
     public TProcOutput(@Option("configuration") final TProcOutputConfiguration configuration,
-                         final TestService service) {
+                          final TestService service) {
         this.configuration = configuration;
         this.service = service;
     }

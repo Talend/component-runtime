@@ -45,15 +45,12 @@ class ComponentModelTest {
                 new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
         final ComponentModel componentModel = new ComponentModel(idx, detail);
         final List<ModuleNeeded> modulesNeeded = componentModel.getModulesNeeded();
-        assertEquals(15, modulesNeeded.size());
+        assertEquals(18, modulesNeeded.size());
         // just assert a few
-        assertTrue(modulesNeeded.stream().anyMatch(
-                m -> "component-runtime-manager-1.0.0-SNAPSHOT.jar".equals(m.getModuleName())));
-        assertTrue(modulesNeeded.stream().anyMatch(
-                m -> "component-runtime-impl-1.0.0-SNAPSHOT.jar".equals(m.getModuleName())));
-        assertTrue(modulesNeeded.stream().anyMatch(
-                m -> "component-runtime-di-1.0.0-SNAPSHOT.jar".equals(m.getModuleName())));
-        assertTrue(modulesNeeded.stream().anyMatch(m -> "xbean-reflect-4.6.jar".equals(m.getModuleName())));
+        assertTrue(modulesNeeded.stream().anyMatch(m -> m.getModuleName().startsWith("component-runtime-manager")));
+        assertTrue(modulesNeeded.stream().anyMatch(m -> m.getModuleName().startsWith("component-runtime-impl")));
+        assertTrue(modulesNeeded.stream().anyMatch(m -> m.getModuleName().startsWith("component-runtime-di")));
+        assertTrue(modulesNeeded.stream().anyMatch(m -> m.getModuleName().startsWith("xbean-reflect")));
         assertTrue(modulesNeeded.stream().anyMatch(m -> "plugin-1.jar".equals(m.getModuleName())));
     }
 

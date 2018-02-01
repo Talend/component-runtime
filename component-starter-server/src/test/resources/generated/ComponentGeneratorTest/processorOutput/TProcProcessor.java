@@ -27,7 +27,7 @@ public class TProcProcessor implements Serializable {
     private final TestService service;
 
     public TProcProcessor(@Option("configuration") final TProcProcessorConfiguration configuration,
-                         final TestService service) {
+                          final TestService service) {
         this.configuration = configuration;
         this.service = service;
     }
@@ -48,7 +48,7 @@ public class TProcProcessor implements Serializable {
 
     @ElementListener
     public void onNext(
-        @Output final OutputEmitter<TProcDefaultOutput> defaultOutput) {
+            @Output final OutputEmitter<TProcDefaultOutput> defaultOutput) {
         // this is the method allowing you to handle the input(s) and emit the output(s)
         // after some custom logic you put here, to send a value to next element you can use an
         // output parameter and call emit(value).

@@ -528,7 +528,7 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                                 () -> new IllegalArgumentException("No spark dependencies in " + sparkHome)))
                         .map(File::getAbsolutePath)
                         .collect(joining(File.pathSeparator));
-                LOGGER.info("Launching " + asList(mainAndArgs));
+                LOGGER.debug("Launching " + asList(mainAndArgs));
                 final ProcessBuilder builder = new ProcessBuilder().redirectErrorStream(true).command(Stream
                         .concat(Stream.of(new File(System.getProperty("java.home"), "bin/java").getAbsolutePath(),
                                 "-cp", classpath), Stream.of(mainAndArgs))

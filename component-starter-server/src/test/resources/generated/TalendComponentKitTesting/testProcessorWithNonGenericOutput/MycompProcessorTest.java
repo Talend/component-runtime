@@ -6,7 +6,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.List;
-
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;

@@ -8,13 +8,14 @@ import java.io.IOException;
 {{#outputBranches.size}}
 import java.util.List;
 {{/outputBranches.size}}
+{{#isGeneric}}
 
+import javax.json.JsonObject;
+
+{{/isGeneric}}
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-{{#isGeneric}}
-import org.talend.sdk.component.api.processor.data.ObjectMap;
-{{/isGeneric}}
 import org.talend.sdk.component.junit.JoinInputFactory;
 import org.talend.sdk.component.junit.SimpleComponentRule;
 import org.talend.sdk.component.runtime.output.Processor;

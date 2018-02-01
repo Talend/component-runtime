@@ -15,30 +15,22 @@
  */
 package org.talend.sdk.component.sample;
 
-import java.io.Serializable;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 // tag::person[]
-public class Person implements Serializable {
+public class Person {
 
-    private final String name;
+    private String name;
 
-    private final int age;
+    private int age;
     // end::person[]
-
-    public Person(final String name, final int age) {
-        this.name = name;
-        this.age = age;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getAge() {
-        return age;
-    }
 
     @Override
     public String toString() {

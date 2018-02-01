@@ -216,9 +216,9 @@ class TaCoKitGuessSchema {
             }
             if (rowObject instanceof java.util.Map) {
                 return guessSchemaThroughResultMap(strBuff, input, (java.util.Map) rowObject);
-            } else if (rowObject instanceof org.talend.sdk.component.api.processor.data.ObjectMap) {
+            } else if (rowObject instanceof javax.json.JsonObject) {
                 return guessSchemaThroughResultMap(strBuff, input,
-                        (org.talend.sdk.component.api.processor.data.ObjectMap) rowObject);
+                        (javax.json.JsonObject) rowObject);
             } else if (rowObject instanceof java.util.Collection) {
                 throw new Exception("Can't guess schema from a Collection");
             } else {
@@ -263,27 +263,28 @@ class TaCoKitGuessSchema {
         return originalSize != strBuff.length();
     }
 
+    // todo: rewrite this part, there are too much copy/paste
     private boolean guessSchemaThroughResultMap(final StringBuffer strBuff,
             final org.talend.sdk.component.runtime.input.Input input,
-            final org.talend.sdk.component.api.processor.data.ObjectMap rowObject) throws Exception {
-        java.util.Set<String> keys = rowObject.keys();
+            final javax.json.JsonObject rowObject) throws Exception {
+        java.util.Set<String> keys = rowObject.keySet();
         if (keys == null || keys.isEmpty()) {
             return false;
         }
         final int originalSize = strBuff.length();
         java.util.Set<String> keysNoTypeYet = new java.util.HashSet<>();
         keysNoTypeYet.addAll(keys);
-        org.talend.sdk.component.api.processor.data.ObjectMap row = rowObject;
+        javax.json.JsonObject row = rowObject;
         for (int line = 0; row != null && !keysNoTypeYet.isEmpty()
-                && line < lineLimit; line++, row = (org.talend.sdk.component.api.processor.data.ObjectMap) input.next()) {
+                && line < lineLimit; line++, row = (javax.json.JsonObject) input.next()) {
             java.util.Iterator<String> iter = keysNoTypeYet.iterator();
             while (iter.hasNext()) {
                 String key = iter.next();
-                Object result = row.get(key);
-                if (result == null) {
+                javax.json.JsonValue result = row.get(key);
+                if (result == null || result == javax.json.JsonValue.NULL) {
                     continue;
                 }
-                String type = getTalendType(result.getClass());
+                String type = getTalendType(result);
                 ColumnInfo ci = new ColumnInfo();
                 ci.setName(key);
                 ci.setType(type);
@@ -351,6 +352,21 @@ class TaCoKitGuessSchema {
         strBuff.append(quotechar).append(ci.getPrecision()).append(quotechar).append(separator);
         strBuff.append(quotechar).append(ci.isNullable()).append(quotechar).append(separator);
         strBuff.append("\n");
+    }
+
+    private String getTalendType(final javax.json.JsonValue value) {
+        switch (value.getValueType()) {
+            case TRUE:
+            case FALSE:
+                return javaTypesManager.BOOLEAN.getId();
+            case NUMBER:
+                return javaTypesManager.DOUBLE.getId();
+            case STRING:
+                return javaTypesManager.STRING.getId();
+            case OBJECT:
+            default:
+                return javaTypesManager.OBJECT.getId();
+        }
     }
 
     private String getTalendType(final Class type) {

@@ -17,23 +17,16 @@ package org.talend.sdk.component.server.service;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Stream.empty;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
@@ -46,7 +39,6 @@ import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.util.IdGenerator;
-import org.talend.sdk.component.runtime.output.data.AccessorCache;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.dao.ComponentDao;
@@ -74,10 +66,6 @@ public class ComponentManagerService {
 
     private MvnCoordinateToFileConverter mvnCoordinateToFileConverter;
 
-    private ScheduledExecutorService cacheEvictorPool;
-
-    private ScheduledFuture<?> evictor;
-
     void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         // we just want it to be touched
     }
@@ -101,32 +89,6 @@ public class ComponentManagerService {
             }
             properties.stringPropertyNames().stream().map(properties::getProperty).forEach(this::deploy);
         });
-
-        // trivial mecanism for now, just reset all accessor caches
-        cacheEvictorPool = Executors.newScheduledThreadPool(1, new ThreadFactory() {
-
-            @Override
-            public Thread newThread(final Runnable r) {
-                final Thread thread = new Thread(r);
-                thread.setName(getClass().getName() + "-evictor");
-                thread.setDaemon(true);
-                return thread;
-            }
-        });
-
-        evictor = cacheEvictorPool.schedule(() -> instance
-                .find(c -> Stream.of(c.get(ComponentManager.AllServices.class).getServices()))
-                .filter(Objects::nonNull)
-                .map(s -> AccessorCache.class.cast(s.get(AccessorCache.class)))
-                .filter(Objects::nonNull)
-                .peek(AccessorCache::reset)
-                .count(), 1, MINUTES);
-    }
-
-    @PreDestroy
-    private void close() {
-        evictor.cancel(true);
-        cacheEvictorPool.shutdownNow();
     }
 
     public String deploy(final String pluginGAV) {

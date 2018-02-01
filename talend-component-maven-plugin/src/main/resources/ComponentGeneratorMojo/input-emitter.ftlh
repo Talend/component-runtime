@@ -46,13 +46,5 @@ public class ${configuration.className}${configuration.template} implements Seri
 
     public static class ${configuration.className}Record implements Serializable {
         // TODO: add data
-
-        /**
-          * if you don't know your schema before the execution you can use to store the values.
-          *
-          *  @ObjectMap.Any
-          *  private Map<String, Object> values;
-          *
-          */
     }
 }

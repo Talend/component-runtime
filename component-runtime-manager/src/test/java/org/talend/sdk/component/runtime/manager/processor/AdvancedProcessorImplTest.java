@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.runtime.manager.test.Serializer;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.output.ProcessorImpl;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,7 +37,7 @@ class AdvancedProcessorImplTest {
 
     @Test
     void serialization() throws IOException, ClassNotFoundException {
-        final Processor processor = new AdvancedProcessorImpl("Root", "Test", "Plugin", new SampleOutput());
+        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", new SampleOutput());
         final Processor copy = Serializer.roundTrip(processor);
         assertNotSame(copy, processor);
         assertEquals("Root", copy.rootName());
@@ -46,7 +47,7 @@ class AdvancedProcessorImplTest {
 
     @Test
     void subclassing() {
-        final Processor processor = new AdvancedProcessorImpl("Root", "Test", "Plugin", new SampleOutput());
+        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", new SampleOutput());
         final AtomicReference<Object> ref = new AtomicReference<>();
         processor.beforeGroup(); // just to enforce the init
         processor.onNext(name -> new Whatever(1), name -> value -> assertTrue(ref.compareAndSet(null, value)));

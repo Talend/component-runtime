@@ -28,7 +28,8 @@ public class MycompMapper implements Serializable {
     private final MycompMapperConfiguration configuration;
     private final TestService service;
 
-    public MycompMapper(@Option("configuration") final MycompMapperConfiguration configuration, final TestService service) {
+    public MycompMapper(@Option("configuration") final MycompMapperConfiguration configuration,
+                        final TestService service) {
         this.configuration = configuration;
         this.service = service;
     }

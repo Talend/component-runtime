@@ -41,7 +41,6 @@ for (final IConnection connection : node.getIncomingConnections(EConnectionType.
 //row1Struct row2 = new row1Struct();
 //...
 //row2 = row1;
-}
 %>
 final java.util.concurrent.atomic.AtomicReference<?> <%= connection.getName() %>InputRef_<%=cid%> = new java.util.concurrent.atomic.AtomicReference<>(<%= connection.getName() %>);
 <% } %>
@@ -63,11 +62,9 @@ final org.talend.sdk.component.runtime.output.InputFactory inputs_<%=cid%> = new
         if (value == null) {
             return null;
         }
-        return org.talend.sdk.component.api.processor.data.ObjectMap.class.isInstance(value)?
-            org.talend.sdk.component.api.processor.data.ObjectMap.class.cast(value) :
-            new org.talend.sdk.component.runtime.output.data.ObjectMapImpl(
-                          processor_<%=cid%>.plugin(), value,
-                          accessorCache_<%=cid%>);
+        return javax.json.JsonValue.class.isInstance(value) ?
+                javax.json.JsonValue.class.cast(value) :
+                jsonb_<%=cid%>.fromJson(jsonb_<%=cid%>.toJson(value), javax.json.JsonValue.class);
     }
 };
 
@@ -81,6 +78,7 @@ for (final IConnection connection : node.getOutgoingSortedConnections()) {
 //ComponentModel MUST provide a new class for each row. No data autopropagation should be possible.
 %>
 final java.util.concurrent.atomic.AtomicReference<<%= connection.getName() %>Struct> <%= connection.getName() %>OutputRef_<%=cid%> = new java.util.concurrent.atomic.AtomicReference<>(<%= connection.getName() %>);
+final Class <%= connection.getName() %>outputType_<%=cid%> = <%= connection.getName() %>.getClass();
 <% } %>
 
 <%/*here the assumption is tcomp only calls create once per output which should be the case*/%>
@@ -97,14 +95,12 @@ final org.talend.sdk.component.runtime.output.OutputFactory outputs_<%=cid%> = n
         add(new org.talend.sdk.component.api.processor.OutputEmitter() {
             @Override
             public void emit(final Object value) {
-                final org.talend.sdk.component.api.processor.data.ObjectMap objectMap =
-                    org.talend.sdk.component.api.processor.data.ObjectMap.class.isInstance(value)?
-                    org.talend.sdk.component.api.processor.data.ObjectMap.class.cast(value) :
-                    new org.talend.sdk.component.runtime.output.data.ObjectMapImpl(
-                                  processor_<%=cid%>.plugin(), value,
-                                  accessorCache_<%=cid%>);
-
-                modelMapper_<%=cid%>.map(objectMap, <%= connection.getName() %>OutputRef_<%=cid%>.get());
+                final String jsonValue =
+                        javax.json.JsonValue.class.isInstance(value) ?
+                        javax.json.JsonValue.class.cast(value).toString() :
+                        jsonb_<%=cid%>.toJson(value);
+                //This is the only way to set the value to the reference. Otherwise it won't let us do it, as the class is unknown at compile time.
+                <%= connection.getName() %>OutputRef_<%=cid%>.set(jsonb_<%=cid%>.fromJson(jsonValue, <%= connection.getName() %>Struct.class));
             }
         });
         <%

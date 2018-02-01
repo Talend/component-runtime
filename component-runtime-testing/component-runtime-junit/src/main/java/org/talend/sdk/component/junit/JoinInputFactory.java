@@ -15,11 +15,15 @@
  */
 package org.talend.sdk.component.junit;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
 
 /**
  * An input factory which joins multiple distinct sources reading them in "parallel".
@@ -28,9 +32,11 @@ import java.util.Map;
  */
 public class JoinInputFactory implements ControllableInputFactory {
 
-    private final Map<String, Iterator<? extends Serializable>> data = new HashMap<>();
+    private final Map<String, Iterator<?>> data = new HashMap<>();
 
-    public JoinInputFactory withInput(final String branch, final Collection<? extends Serializable> branchData) {
+    private volatile Jsonb jsonb;
+
+    public JoinInputFactory withInput(final String branch, final Collection<?> branchData) {
         data.put(branch, branchData.iterator());
         return this;
     }
@@ -38,16 +44,51 @@ public class JoinInputFactory implements ControllableInputFactory {
     @Override
     public Object read(final String name) {
         final Iterator<?> iterator = data.get(name);
-        return iterator != null && iterator.hasNext() ? iterator.next() : null;
+        if (iterator != null && iterator.hasNext()) {
+            return map(iterator.next());
+        }
+        return null;
     }
 
     @Override
     public boolean hasMoreData() {
-        return !data.isEmpty() && data.entrySet().stream().allMatch(e -> e.getValue().hasNext());
+        final boolean hasMore = !data.isEmpty() && data.entrySet().stream().allMatch(e -> e.getValue().hasNext());
+        if (!hasMore && jsonb != null) {
+            synchronized (this) {
+                if (jsonb != null) {
+                    try {
+                        jsonb.close();
+                    } catch (final Exception e) {
+                        // no-op: not important here
+                    }
+                }
+            }
+        }
+        return hasMore;
     }
 
     @Override
     public InputFactoryIterable asInputRecords() {
         return new InputFactoryIterable(this, data);
+    }
+
+    private Object map(final Object next) {
+        if (next == null || JsonObject.class.isInstance(next)) {
+            return next;
+        }
+        if (jsonb == null) {
+            synchronized (this) {
+                if (jsonb == null) {
+                    jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
+                }
+            }
+        }
+        final String str = jsonb.toJson(next);
+        // primitives mainly, not that accurate in main code but for now not forbidden
+        if (str.equals(next.toString())) {
+            return next;
+        }
+        // pojo
+        return jsonb.fromJson(str, JsonObject.class);
     }
 }
