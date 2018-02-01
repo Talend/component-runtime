@@ -68,6 +68,6 @@ public class TInProcessorBeamTest {
                 ::apply);
 
         // run the pipeline and ensure the execution was successful
-        assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
+        assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
 }
