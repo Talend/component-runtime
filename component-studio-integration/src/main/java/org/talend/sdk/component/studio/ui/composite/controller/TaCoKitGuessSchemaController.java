@@ -20,13 +20,11 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.views.properties.tabbed.ITabbedPropertyConstants;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.core.model.process.IContextManager;
 import org.talend.core.model.process.IElementParameter;
@@ -86,12 +84,7 @@ public class TaCoKitGuessSchemaController extends AbstractTaCoKitController {
         data = new FormData();
 
         GC gc = new GC(btnCmd);
-        Point labelSize = gc.stringExtent(GUESS_SCHEMA_NAME);
         gc.dispose();
-        int currentLabelWidth = STANDARD_BUTTON_WIDTH;
-        if ((labelSize.x + ITabbedPropertyConstants.HSPACE * 2) > STANDARD_BUTTON_WIDTH) {
-            currentLabelWidth = labelSize.x + ITabbedPropertyConstants.HSPACE * 2;
-        }
 
         data.left = new FormAttachment(lastControl, 0);
         data.top = new FormAttachment(0, top);
