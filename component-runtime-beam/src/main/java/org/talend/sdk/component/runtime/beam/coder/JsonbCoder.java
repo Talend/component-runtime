@@ -15,9 +15,6 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,6 +23,8 @@ import java.lang.reflect.Type;
 import javax.json.bind.Jsonb;
 
 import org.apache.beam.sdk.coders.CustomCoder;
+import org.apache.beam.sdk.util.VarInt;
+import org.talend.sdk.component.runtime.beam.io.CountingOutputStream;
 import org.talend.sdk.component.runtime.beam.io.NoCloseInputStream;
 
 import lombok.AllArgsConstructor;
@@ -47,17 +46,15 @@ public class JsonbCoder<T> extends CustomCoder<T> {
 
     @Override
     public void encode(final T object, final OutputStream outputStream) throws IOException {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        final CountingOutputStream buffer = new CountingOutputStream();
         jsonb.toJson(object, buffer);
-        final DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-        dataOutputStream.writeInt(buffer.size());
-        dataOutputStream.write(buffer.toByteArray());
-        dataOutputStream.flush();
+        VarInt.encode(buffer.getCounter(), outputStream);
+        outputStream.write(buffer.toByteArray());
+        outputStream.flush();
     }
 
     @Override
     public T decode(final InputStream inputStream) throws IOException {
-        final DataInputStream in = new DataInputStream(inputStream);
-        return jsonb.fromJson(new NoCloseInputStream(in, in.readInt()), type);
+        return jsonb.fromJson(new NoCloseInputStream(inputStream, VarInt.decodeLong(inputStream)), type);
     }
 }

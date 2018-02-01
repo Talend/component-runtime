@@ -15,20 +15,21 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
+import javax.json.JsonWriterFactory;
 
 import org.apache.beam.sdk.coders.CustomCoder;
+import org.apache.beam.sdk.util.VarInt;
+import org.talend.sdk.component.runtime.beam.io.CountingOutputStream;
 import org.talend.sdk.component.runtime.beam.io.NoCloseInputStream;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
+import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.AllArgsConstructor;
 
@@ -36,38 +37,40 @@ import lombok.AllArgsConstructor;
 public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
 
     public static JsonpJsonObjectCoder of(final String plugin) {
-        return new JsonpJsonObjectCoder(plugin, null);
+        return new JsonpJsonObjectCoder(plugin, null, null);
     }
 
     private final String plugin;
 
-    private volatile JsonReaderFactory factory; // ensure you reuse the same instance for memory management
+    private volatile JsonReaderFactory readerFactory; // ensure you reuse the same instance for memory management
+
+    private volatile JsonWriterFactory writerFactory;
 
     @Override
     public void encode(final JsonObject jsonObject, final OutputStream outputStream) throws IOException {
         ensureInit();
-        final byte[] bytes = jsonObject.toString().getBytes(StandardCharsets.UTF_8);
-        final DataOutputStream dataOutStream = new DataOutputStream(outputStream);
-        dataOutStream.writeInt(bytes.length);
-        dataOutStream.write(bytes);
-        dataOutStream.flush();
+        final CountingOutputStream buffer = new CountingOutputStream();
+        writerFactory.createWriter(buffer).write(jsonObject);
+        VarInt.encode(buffer.getCounter(), outputStream);
+        outputStream.write(buffer.toByteArray());
     }
 
     @Override
     public JsonObject decode(final InputStream inputStream) throws IOException {
         ensureInit();
-        final DataInputStream dataInputStream = new DataInputStream(inputStream);
         try (final JsonReader reader =
-                factory.createReader(new NoCloseInputStream(dataInputStream, dataInputStream.readInt()))) {
+                readerFactory.createReader(new NoCloseInputStream(inputStream, VarInt.decodeLong(inputStream)))) {
             return reader.readObject();
         }
     }
 
     private void ensureInit() {
-        if (factory == null) {
+        if (readerFactory == null) {
             synchronized (this) {
-                if (factory == null) {
-                    factory = ContainerFinder.Instance.get().find(plugin).findService(JsonReaderFactory.class);
+                if (readerFactory == null) {
+                    final LightContainer container = ContainerFinder.Instance.get().find(plugin);
+                    readerFactory = container.findService(JsonReaderFactory.class);
+                    writerFactory = container.findService(JsonWriterFactory.class);
                 }
             }
         }

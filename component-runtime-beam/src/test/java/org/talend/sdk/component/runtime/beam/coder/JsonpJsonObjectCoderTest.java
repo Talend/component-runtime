@@ -52,8 +52,8 @@ class JsonpJsonObjectCoderTest {
 
     @Test
     void iterable() throws IOException {
-        final IterableCoder<JsonObject> coder =
-                IterableCoder.of(new JsonpJsonObjectCoder("foo", Json.createReaderFactory(emptyMap())));
+        final IterableCoder<JsonObject> coder = IterableCoder.of(new JsonpJsonObjectCoder("foo",
+                Json.createReaderFactory(emptyMap()), Json.createWriterFactory(emptyMap())));
         final Iterator<JsonObject> iterator =
                 Collections.singletonList(Json.createObjectBuilder().add("test", "value").build()).iterator();
         final ByteArrayOutputStream out = new ByteArrayOutputStream();

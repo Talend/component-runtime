@@ -25,7 +25,7 @@ public class NoCloseInputStream extends InputStream /* not the filter version fo
 
     private final InputStream in;
 
-    private int maxBytes;
+    private long maxBytes;
 
     @Override
     public void close() {
@@ -46,7 +46,7 @@ public class NoCloseInputStream extends InputStream /* not the filter version fo
         if (maxBytes == 0) {
             return -1;
         }
-        final int read = in.read(b, 0, maxBytes);
+        final int read = in.read(b, 0, maxBytesOrMaxValue());
         maxBytes -= read;
         return read;
     }
@@ -56,7 +56,7 @@ public class NoCloseInputStream extends InputStream /* not the filter version fo
         if (maxBytes == 0) {
             return -1;
         }
-        final int read = in.read(b, off, Math.min(maxBytes, len));
+        final int read = in.read(b, off, Math.min(maxBytesOrMaxValue(), len));
         maxBytes -= read;
         return read;
     }
@@ -73,7 +73,7 @@ public class NoCloseInputStream extends InputStream /* not the filter version fo
 
     @Override
     public int available() throws IOException {
-        return Math.min(in.available(), maxBytes);
+        return Math.min(in.available(), maxBytesOrMaxValue());
     }
 
     @Override
@@ -89,5 +89,9 @@ public class NoCloseInputStream extends InputStream /* not the filter version fo
     @Override
     public boolean markSupported() {
         return in.markSupported();
+    }
+
+    private int maxBytesOrMaxValue() {
+        return maxBytes > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) maxBytes;
     }
 }
