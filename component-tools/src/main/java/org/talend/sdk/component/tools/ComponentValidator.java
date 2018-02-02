@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.tools;
 
+import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -57,6 +58,7 @@ import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
@@ -65,6 +67,10 @@ import lombok.Data;
 
 // IMPORTANT: this class is used by reflection in gradle integration, don't break signatures without checking it
 public class ComponentValidator extends BaseTask {
+
+    final ParameterModelService parameterModelService = new ParameterModelService(emptyList()) {
+
+    };
 
     private final Configuration configuration;
 
@@ -390,13 +396,8 @@ public class ComponentValidator extends BaseTask {
     }
 
     private int countParameters(final Method m) {
-        return (int) Stream.of(m.getParameterTypes()).filter(p -> !isService(p)).count();
-    }
 
-    private boolean isService(final Class<?> p) {
-        return p.isAnnotationPresent(Service.class) || p.isAnnotationPresent(Internationalized.class)
-                || Stream.of(p.getMethods()).anyMatch(m -> m.isAnnotationPresent(Request.class))
-                || p.getName().startsWith("org.talend.sdk.component.api.service");
+        return (int) Stream.of(m.getParameterTypes()).filter(p -> !parameterModelService.isService(p)).count();
     }
 
     private String validateComponentResourceBundle(final Class<?> component) {

@@ -63,34 +63,33 @@ public class ParameterModelService {
                 .collect(toList()));
     }
 
+    public boolean isService(final Class<?> p) {
+        return p.isAnnotationPresent(Service.class) || p.isAnnotationPresent(Internationalized.class)
+                || Stream.of(p.getMethods()).anyMatch(m -> m.isAnnotationPresent(Request.class))
+                || p.getName().startsWith("org.talend.sdk.component.api.service") || p.getName().startsWith("javax.");
+    }
+
     public List<ParameterMeta> buildParameterMetas(final Executable executable, final String i18nPackage) {
-        return Stream
-                .of(executable.getParameters())
-                .filter(p -> !p.getType().isAnnotationPresent(Service.class)
-                        && !p.getType().isAnnotationPresent(Internationalized.class)
-                        && Stream.of(p.getType().getMethods()).noneMatch(m -> m.isAnnotationPresent(Request.class))
-                        && !p.getType().getName().startsWith("org.talend.sdk.component.api.service."))
-                .map(parameter -> {
-                    final String name = findName(parameter);
-                    return buildParameter(name, name, new ParameterMeta.Source() {
+        return Stream.of(executable.getParameters()).filter(p -> !isService(p.getType())).map(parameter -> {
+            final String name = findName(parameter);
+            return buildParameter(name, name, new ParameterMeta.Source() {
 
-                        @Override
-                        public String name() {
-                            return parameter.getName();
-                        }
+                @Override
+                public String name() {
+                    return parameter.getName();
+                }
 
-                        @Override
-                        public Class<?> declaringClass() {
-                            return executable.getDeclaringClass();
-                        }
-                    }, parameter.getParameterizedType(),
-                            Stream
-                                    .concat(Stream.of(parameter.getType().getAnnotations()),
-                                            Stream.of(parameter.getAnnotations()))
-                                    .toArray(Annotation[]::new),
-                            new ArrayList<>(singletonList(i18nPackage)));
-                })
-                .collect(toList());
+                @Override
+                public Class<?> declaringClass() {
+                    return executable.getDeclaringClass();
+                }
+            }, parameter.getParameterizedType(),
+                    Stream
+                            .concat(Stream.of(parameter.getType().getAnnotations()),
+                                    Stream.of(parameter.getAnnotations()))
+                            .toArray(Annotation[]::new),
+                    new ArrayList<>(singletonList(i18nPackage)));
+        }).collect(toList());
     }
 
     protected ParameterMeta buildParameter(final String name, final String prefix, final ParameterMeta.Source source,
@@ -145,7 +144,7 @@ public class ParameterModelService {
             final Annotation[] annotations) {
         return Stream
                 .concat(Stream.of(annotations), Class.class.isInstance(genericType) // if a class concat its
-                                                                                    // annotations
+                        // annotations
                         ? Stream.of(Class.class.cast(genericType).getAnnotations()).filter(
                                 a -> Stream.of(annotations).noneMatch(o -> o.annotationType() == a.annotationType()))
                         : (ParameterizedType.class.isInstance(genericType) // if a list concat the item type annotations

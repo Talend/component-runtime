@@ -38,11 +38,14 @@ import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
 
 import lombok.Data;
 
-@MonoMeecrowaveConfig
-class PropertiesServiceTest {
+@MonoMeecrowaveConfig class PropertiesServiceTest {
 
     @Inject
     private PropertiesService propertiesService;
+
+    private static void boolWrapper(final BoolBool wrapper) {
+        // no-op
+    }
 
     @Test
     void booleanDefault() throws NoSuchMethodException {
@@ -98,10 +101,6 @@ class PropertiesServiceTest {
                     .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.ROOT, null)
                     .forEach(Objects::nonNull);
         });
-    }
-
-    private static void boolWrapper(final BoolBool wrapper) {
-        // no-op
     }
 
     @Data

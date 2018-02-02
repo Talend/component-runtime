@@ -76,6 +76,7 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                                     annotation) -> annotation.annotationType() == Documentation.class ? singletonMap(
                                             "documentation", Documentation.class.cast(annotation).value())
                                             : emptyMap())) {
+
             };
 
     // CHECKSTYLE:OFF - used by reflection so better to not create a wrapper
