@@ -1121,8 +1121,8 @@ public class ComponentManager implements AutoCloseable {
             ofNullable(container.get(ContainerComponentRegistry.class)).ifPresent(r -> {
                 final ContainerComponentRegistry registry = container.remove(ContainerComponentRegistry.class);
                 registry.getComponents().clear();
-                registry.getServices().stream().filter(i -> !Proxy.isProxyClass(i.getClass()))
-                        .forEach(s -> doInvoke(container.getId(), s.getInstance(), PreDestroy.class));
+                registry.getServices().stream().filter(i -> !Proxy.isProxyClass(i.getClass())).forEach(
+                        s -> doInvoke(container.getId(), s.getInstance(), PreDestroy.class));
                 registry.getServices().clear();
             });
             ofNullable(container.get(AllServices.class))
