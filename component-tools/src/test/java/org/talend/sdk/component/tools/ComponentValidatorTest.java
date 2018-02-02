@@ -175,9 +175,9 @@ class ComponentValidatorTest {
     @ComponentPackage(value = "org.talend.test.failure.layout")
     void testFailureLayoutOption(final ExceptionSpec expectedException) {
         expectedException.expectMessage("Some error were detected:\n"
-                + "- Option 'prox' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent.OtherConfig'\n"
-                + "- Option 'badOption' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent.MyConfig'\n"
-                + "- Option 'badOption' in @OptionsOrder doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent.MyNestedConfig'");
+                + "- Option 'prox' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$OtherConfig'\n"
+                + "- Option 'badOption' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$MyConfig'\n"
+                + "- Option 'badOption' in @OptionsOrder doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$MyNestedConfig'");
     }
 
     @Test

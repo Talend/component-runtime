@@ -67,7 +67,6 @@ import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
-import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
@@ -81,7 +80,9 @@ public class ComponentValidator extends BaseTask {
 
     private final Log log;
 
-    private final ParameterModelService parameterModelService = new ParameterModelService();
+    private final ParameterModelService parameterModelService = new ParameterModelService(emptyList()) {
+
+    };
 
     public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
         super(classes);
@@ -182,8 +183,7 @@ public class ComponentValidator extends BaseTask {
                 .collect(toSet())
                 .stream()
                 .filter(c -> c.isAnnotationPresent(GridLayout.class) && c.isAnnotationPresent(OptionsOrder.class))
-                .map(c -> "Concurrent layout found for '" + c.getCanonicalName()
-                        + "', the @OptionsOrder will be ignored.")
+                .map(c -> "Concurrent layout found for '" + c.getName() + "', the @OptionsOrder will be ignored.")
                 .forEach(this.log::error);
 
         final List<AbstractMap.SimpleEntry<Class<?>, String>> gridLayouts = optionFields
@@ -208,22 +208,22 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .filter(l -> flatOptions.stream().noneMatch(p -> l.getValue().equals(p.getName())))
                 .map(l -> "Option '" + l.getValue() + "' in @GridLayout doesn't exist in declaring class '"
-                        + l.getKey().getCanonicalName() + "'")
+                        + l.getKey().getName() + "'")
                 .collect(toList()));
 
         errors.addAll(optionOrder
                 .stream()
                 .filter(oo -> flatOptions.stream().noneMatch(p -> oo.getValue().equals(p.getName())))
                 .map(l -> "Option '" + l.getValue() + "' in @OptionsOrder doesn't exist in declaring class '"
-                        + l.getKey().getCanonicalName() + "'")
+                        + l.getKey().getName() + "'")
                 .collect(toList()));
 
         flatOptions
                 .stream()
                 .filter(option -> gridLayouts.stream().noneMatch(l -> l.getValue().equals(option.getName()))
                         && optionOrder.stream().noneMatch(o -> o.getValue().equals(option.getName())))
-                .map(option -> "Field '" + option.getName() + "' in "
-                        + option.getSource().declaringClass().getCanonicalName() + " is not declared in any layout.")
+                .map(option -> "Field '" + option.getName() + "' in " + option.getSource().declaringClass().getName()
+                        + " is not declared in any layout.")
                 .forEach(this.log::error);
     }
 
@@ -476,13 +476,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private int countParameters(final Method m) {
-        return (int) of(m.getParameterTypes()).filter(p -> !isService(p)).count();
-    }
-
-    private boolean isService(final Class<?> p) {
-        return p.isAnnotationPresent(Service.class) || p.isAnnotationPresent(Internationalized.class)
-                || of(p.getMethods()).anyMatch(m -> m.isAnnotationPresent(Request.class))
-                || p.getName().startsWith("org.talend.sdk.component.api.service");
+        return (int) Stream.of(m.getParameters()).filter(p -> !parameterModelService.isService(p)).count();
     }
 
     private String validateComponentResourceBundle(final Class<?> component) {
