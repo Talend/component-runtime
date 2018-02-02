@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.studio.model.parameter.listener;
+package org.talend.sdk.component.studio.model.action;
+
+import java.util.regex.Pattern;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 
 @Getter(AccessLevel.PACKAGE)
 public class ActionParameter {
+
+    private static final Pattern QUOTES_PATTERN = Pattern.compile("^\"|\"$");
 
     /**
      * ElementParameter name (which also denotes its path)
@@ -58,8 +62,11 @@ public class ActionParameter {
     void setValue(final String newValue) {
         if (newValue != null) {
             isSet = true;
-            this.value = newValue;
+            this.value = removeQuotes(newValue);
         }
     }
 
+    protected String removeQuotes(final String quotedString) {
+        return QUOTES_PATTERN.matcher(quotedString).replaceAll("");
+    }
 }

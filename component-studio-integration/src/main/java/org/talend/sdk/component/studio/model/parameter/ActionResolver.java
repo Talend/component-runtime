@@ -28,7 +28,7 @@ import org.talend.core.model.process.IElementParameter;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
-import org.talend.sdk.component.studio.model.parameter.listener.ActionParameter;
+import org.talend.sdk.component.studio.model.action.ActionParameter;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidationListener;
 
 class ActionResolver {
@@ -61,9 +61,6 @@ class ActionResolver {
     void resolveParameters(final Map<String, IElementParameter> settings) {
         final List<SimplePropertyDefinition> callbackParameters = new ArrayList<>(action.getProperties());
         final List<String> relativePaths = actionOwner.getProperty().getValidationParameters();
-        if (callbackParameters.size() != relativePaths.size()) {
-            throw new IllegalStateException("Action parameters size is different from metadata");
-        }
 
         for (int i = 0; i < relativePaths.size(); i++) {
             final TaCoKitElementParameter parameter = resolveParameter(relativePaths.get(i), settings);

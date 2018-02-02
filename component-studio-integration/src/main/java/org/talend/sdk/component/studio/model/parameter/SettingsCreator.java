@@ -46,6 +46,8 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.studio.Lookups;
+import org.talend.sdk.component.studio.i18n.Messages;
+import org.talend.sdk.component.studio.model.command.HealthCheckCommand;
 import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivator;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidationListener;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidatorFactory;
@@ -70,7 +72,7 @@ public class SettingsCreator implements PropertyVisitor {
     /**
      * Element(Node) for which parameters are created. It is required to set {@link TaCoKitElementParameter} constructor
      */
-    private final IElement iNode;
+    private final IElement element;
 
     /**
      * Defines {@link EComponentCategory} to be set in created {@link TaCoKitElementParameter}
@@ -83,6 +85,8 @@ public class SettingsCreator implements PropertyVisitor {
      * Defines a Form name, for which properties are built. E.g. "Main" or "Advanced"
      */
     private final String formName;
+
+    private String family;
 
     /**
      * {@link ElementParameter} which defines whether UI should be redrawn
@@ -120,11 +124,14 @@ public class SettingsCreator implements PropertyVisitor {
 
     public SettingsCreator(final IElement iNode, final EComponentCategory category,
             final ElementParameter redrawParameter, final Collection<ActionReference> actions) {
-        this.iNode = iNode;
+        this.element = iNode;
         this.category = category;
         this.redrawParameter = redrawParameter;
         this.formName = category == EComponentCategory.ADVANCED ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
         this.actions = actions;
+        actions.stream().findFirst().ifPresent(a -> {
+            this.family = a.getFamily();
+        });
     }
 
     SettingsCreator(final IElement iNode, final EComponentCategory category, final ElementParameter redrawParameter) {
@@ -192,9 +199,9 @@ public class SettingsCreator implements PropertyVisitor {
             default:
                 final IElementParameter text;
                 if (node.getProperty().getPlaceholder() == null) {
-                    text = new TaCoKitElementParameter(iNode);
+                    text = new TaCoKitElementParameter(element);
                 } else {
-                    final TextElementParameter advancedText = new TextElementParameter(iNode);
+                    final TextElementParameter advancedText = new TextElementParameter(element);
                     advancedText.setMessage(node.getProperty().getPlaceholder());
                     text = advancedText;
                 }
@@ -203,12 +210,33 @@ public class SettingsCreator implements PropertyVisitor {
 
                 break;
             }
-
+        } else if (node.getProperty().isCheckable()) {
+            final TaCoKitElementParameter button = visitCheckable(node);
+            settings.put(button.getName(), button);
         }
     }
 
     IElement getNode() {
-        return this.iNode;
+        return this.element;
+    }
+
+    private TaCoKitElementParameter visitCheckable(final PropertyNode node) {
+        final ButtonParameter button = createTestConnectionButton(node);
+        final HealthCheckCommand command = new HealthCheckCommand(node.getProperty().getHealthCheckName(), family);
+        final HealthCheckResolver resolver = new HealthCheckResolver(node, button, command, actions);
+        resolver.resolveParameters(settings);
+        return button;
+    }
+
+    private ButtonParameter createTestConnectionButton(final PropertyNode node) {
+        final ButtonParameter button = new ButtonParameter(element);
+        button.setCategory(category);
+        button.setDisplayName(Messages.getString("healthCheck.button"));
+        button.setName(node.getProperty().getPath() + ".testConnection");
+        lastRowNumber++;
+        button.setNumRow(lastRowNumber);
+        button.setShow(true);
+        return button;
     }
 
     /**
@@ -216,7 +244,7 @@ public class SettingsCreator implements PropertyVisitor {
      * Converts default value from String to Boolean and sets it
      */
     private CheckElementParameter visitCheck(final PropertyNode node) {
-        final CheckElementParameter parameter = new CheckElementParameter(iNode);
+        final CheckElementParameter parameter = new CheckElementParameter(element);
         commonSetup(parameter, node);
         return parameter;
     }
@@ -226,7 +254,7 @@ public class SettingsCreator implements PropertyVisitor {
      * Sets Closed List possible values and sets 1st element as default
      */
     private TaCoKitElementParameter visitClosedList(final PropertyNode node) {
-        final TaCoKitElementParameter parameter = new TaCoKitElementParameter(iNode);
+        final TaCoKitElementParameter parameter = new TaCoKitElementParameter(element);
         commonSetup(parameter, node);
         final PropertyValidation validation = node.getProperty().getValidation();
 
@@ -396,7 +424,7 @@ public class SettingsCreator implements PropertyVisitor {
      * @return created {@link TableElementParameter}
      */
     private TableElementParameter createTableParameter(final PropertyNode node) {
-        final TableElementParameter parameter = new TableElementParameter(iNode);
+        final TableElementParameter parameter = new TableElementParameter(element);
         commonSetup(parameter, node);
         return parameter;
     }
@@ -452,7 +480,7 @@ public class SettingsCreator implements PropertyVisitor {
      * It is shown on the next row, but may be shown in the next
      */
     private void createValidationLabel(final PropertyNode node, final TaCoKitElementParameter target) {
-        final ValidationLabel label = new ValidationLabel(iNode);
+        final ValidationLabel label = new ValidationLabel(element);
         label.setCategory(category);
         label.setName(node.getProperty().getPath() + "Validation");
         // TODO remove or modify it
@@ -481,7 +509,6 @@ public class SettingsCreator implements PropertyVisitor {
     private void processValidations(final PropertyNode node, final TaCoKitElementParameter target,
             final ValidationLabel label) {
         if (node.getProperty().hasValidation()) {
-            final String family = actions.iterator().next().getFamily();
             final ValidationListener listener =
                     new ValidationListener(label, family, node.getProperty().getValidationName());
             final ActionResolver resolver = new ActionResolver(node, actions, listener, redrawParameter);

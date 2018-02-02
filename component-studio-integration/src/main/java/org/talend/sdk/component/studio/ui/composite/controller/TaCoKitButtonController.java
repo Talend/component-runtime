@@ -29,6 +29,7 @@ import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.ui.CoreUIPlugin;
 import org.talend.core.ui.properties.tab.IDynamicProperty;
+import org.talend.sdk.component.studio.model.parameter.ButtonParameter;
 
 /**
  * Creates SWT Button control
@@ -65,6 +66,7 @@ public class TaCoKitButtonController extends AbstractTaCoKitController {
             }
         }
         data.top = new FormAttachment(0, top);
+        data.height = STANDARD_HEIGHT + 2;
         button.setLayoutData(data);
         button.setEnabled(!param.isReadOnly());
         button.setData(param);
@@ -81,7 +83,8 @@ public class TaCoKitButtonController extends AbstractTaCoKitController {
     }
 
     public Command createCommand(final Button button) {
-        return null;
+        final ButtonParameter parameter = (ButtonParameter) button.getData();
+        return parameter.getCommand();
     }
 
 }
