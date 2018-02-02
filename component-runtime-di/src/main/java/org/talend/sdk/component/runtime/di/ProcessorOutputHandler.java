@@ -35,11 +35,16 @@ public class ProcessorOutputHandler {
     private final Map<String, Output> outputs = new HashMap<>();
 
     public void addOutput(final String name, final Class<?> type) {
-        outputs.put(name, new Output<>(new AtomicReference<>(), type));
+        try {
+            outputs.put(name, new Output<>(new AtomicReference<>(), type, type.getConstructor().newInstance()));
+        } catch (final Exception e) {
+            throw new IllegalStateException("Can't create an instance of " + type);
+        }
     }
 
     public void reset() {
-        outputs.values().forEach(r -> r.value.set(null));
+        // we reset to the default value since studio expects the records to not be null
+        outputs.values().forEach(r -> r.value.set(r.defaultInstance));
     }
 
     public <T> T getValue(final String name, final Class<T> type) {
@@ -63,5 +68,7 @@ public class ProcessorOutputHandler {
         private final AtomicReference<T> value;
 
         private final Class<T> type;
+
+        private final Object defaultInstance;
     }
 }
