@@ -16,100 +16,62 @@
 package org.talend.sdk.component.junit.beam;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.StreamSupport;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import javax.json.Json;
+import javax.json.JsonObject;
 
 import org.apache.beam.sdk.PipelineResult;
+import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
-import org.junit.Ignore;
+import org.apache.beam.sdk.transforms.SerializableFunction;
+import org.apache.beam.sdk.values.PCollection;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.talend.sdk.component.api.processor.AfterGroup;
-import org.talend.sdk.component.api.processor.BeforeGroup;
-import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.junit.JoinInputFactory;
+import org.talend.sdk.component.junit.SimpleComponentRule;
+import org.talend.sdk.component.junit.beam.test.SampleProcessor;
+import org.talend.sdk.component.runtime.beam.TalendFn;
 import org.talend.sdk.component.runtime.output.Processor;
-import org.talend.sdk.component.runtime.output.ProcessorImpl;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-@Ignore
 public class ProcessorTest {
+
+    @ClassRule
+    public static final SimpleComponentRule COMPONENT_FACTORY =
+            new SimpleComponentRule(SampleProcessor.class.getPackage().getName());
 
     @Rule
     public transient final TestPipeline pipeline = TestPipeline.create();
 
     @Test
-    @Ignore("You need to complete this test with your own data and assertions")
     public void processor() {
+        final Processor processor = COMPONENT_FACTORY.createProcessor(SampleProcessor.class, new Object());
 
-        final Processor processor = new ProcessorImpl("root", "processor", "test", new SampleProcessor());
+        final JoinInputFactory joinInputFactory = new JoinInputFactory().withInput("__default__",
+                asList(new SampleProcessor.Sample(1), Json.createObjectBuilder().add("data", 2).build()));
 
-        // The join input factory construct inputs test data for every input branch you have defined for this component
-        // Make sure to fil in some test data for the branches you want to test
-        // You can also remove the branches that you don't need from the factory below
-        final JoinInputFactory joinInputFactory = new JoinInputFactory()
-                .withInput("__default__",
-                        asList(/* TODO - list of your input data for this branch. Instances of CompanyComponent4DefaultInput.class */));
+        final PCollection<JsonObject> inputs =
+                pipeline.apply(SimpleIO.of(processor.plugin(), joinInputFactory.asInputRecords()));
 
-        // Convert it to a beam "source"
-        //fixme
-        //        final MapCoder<String, List<Serializable>> coder = MapCoder.of(StringUtf8Coder.of(),
-        //                ListCoder.of(SerializableCoder.of(Serializable.class)));
-        //        final PCollection<Map<String, List<Serializable>>> inputs = pipeline.apply(
-        //                Create.of(joinInputFactory.asInputRecords())
-        //                        .withCoder(coder));
+        final PCollection<JsonObject> outputs = inputs.apply(TalendFn.asFn(processor));
+        PAssert.that(outputs).satisfies((SerializableFunction<Iterable<JsonObject>, Void>) input -> {
+            final List<JsonObject> result = StreamSupport.stream(input.spliterator(), false).collect(toList());
+            assertEquals(2, result.size());
+            result.forEach(e -> assertTrue(e.containsKey("__default__")));
+            assertEquals(new HashSet<>(asList(1, 2)),
+                    result.stream().map(e -> e.getJsonArray("__default__").getJsonObject(0).getInt("data")).collect(
+                            toSet()));
+            return null;
+        });
 
-        // add our processor right after to see each data as configured previously
-        //todo inputs.apply(TalendFn.asFn(processor));
-
-        // run the pipeline and ensure the execution was successful
         assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
-
-    public static class SampleProcessor implements Serializable {
-
-        @ElementListener
-        public Sample onNext(final Sample sample) {
-            stack.add("next{" + sample.data + "}");
-            return sample;
-        }
-
-        final Collection<String> stack = new ArrayList<>();
-
-        @PostConstruct
-        public void init() {
-            stack.add("start");
-        }
-
-        @BeforeGroup
-        public void beforeGroup() {
-            stack.add("beforeGroup");
-        }
-
-        @AfterGroup
-        public void afterGroup() {
-            stack.add("afterGroup");
-        }
-
-        @PreDestroy
-        public void destroy() {
-            stack.add("stop");
-        }
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class Sample {
-
-        private int data;
-    }
-
 }
