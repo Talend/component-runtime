@@ -29,8 +29,7 @@ function createComponentNode(familyNode, component) {
 		...component,
 		name: component.displayName,
 		familyId: component.id.family,
-		icon: customIconType ? `app_component-${componentId}` : icon,
-
+		icon: customIconType ? { name: `src-/api/v1/component/icon/${component.id.id}`} : icon,
 		$$id: componentId,
 		$$detail: component.links[0].path,
 		$$type: 'component',
@@ -71,7 +70,9 @@ function getOrCreateFamilyNode(categoryNode, component) {
 		familyNode = {
 			id: familyId,
 			name: familyDisplayName,
-			icon: iconFamily.customIconType ? `app_family-${familyId}` : iconFamily.icon,
+			icon: iconFamily.customIconType ?
+				{ name: `src-/api/v1/component/icon/family/${familyId}`} :
+				iconFamily.icon,
 			toggled: false,
 			children: [],
 			$$type: 'family',
@@ -106,37 +107,6 @@ function createTree(components) {
 	return treeview;
 }
 
-function getIconsSet(treeview) {
-	// TODO
-	// Object.keys(icons).filter(id => icons[id].config.customIconType).forEach(id => {
-	// 	Api.getIcon(icons[id].path)
-	// 		.then(icon => {
-	// 			// todo: better handling of svg when we'll support svg as a first citizen image format
-	// 			const content = (
-	// 				<svg xmlns="http://www.w3.org/2000/svg">
-	// 					<image href={`data:${icons[id].config.customIconType};base64,${icon}`} height="20px" width="20px" />
-	// 				</svg>
-	// 			);
-	//
-	// 			svgIcons[id] = content;
-	// 			svgIcons[`${id}-closed`] = content;
-	//
-	// 			state.remainingIcons--;
-	// 			if (state.remainingIcons === 0) {
-	// 				this.setState({ icons: {...svgIcons} });
-	// 			}
-	// 		});
-	// });
-}
-
-function adaptPayload({ components }) {
-	const treeview = createTree(components);
-	return {
-		categories: treeview,
-		icons: getIconsSet(treeview)
-	}
-}
-
 function isLoadingComponentsList() {
 	return {
 		type: GET_COMPONENT_LIST_LOADING,
@@ -147,13 +117,6 @@ function getComponentsListOK(categories) {
 	return {
 		type: GET_COMPONENT_LIST_OK,
 		categories,
-	};
-}
-
-function getIconsListOK(icons) {
-	return {
-		type: GET_ICONS_LIST_OK,
-		icons,
 	};
 }
 
@@ -169,11 +132,8 @@ export function getComponentsList() {
 		dispatch(isLoadingComponentsList());
 		fetch('api/v1/application/index')
 			.then(resp => resp.json())
-			.then(adaptPayload)
-			.then(({ categories, icons }) => {
-				dispatch(getComponentsListOK(categories));
-				dispatch(getIconsListOK(icons));
-			})
+			.then(({ components }) => createTree(components))
+			.then(categories => { dispatch(getComponentsListOK(categories)); })
 			.catch(error => dispatch(getComponentsListERROR(error)))
 	};
 }

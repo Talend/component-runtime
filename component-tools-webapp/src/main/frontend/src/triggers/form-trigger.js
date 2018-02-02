@@ -53,5 +53,5 @@ export default function getDefaultTrigger({ url, customRegistry }) {
 					trigger,
 				});
 			});
-	}
+	};
 };
