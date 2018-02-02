@@ -13,7 +13,7 @@ Version: {project_version}
 
 NOTE: if you prefer you can use the <<all-in-one.adoc#, single page>> documentation.
 
-= Documentation index
+= Table Of Content
 
 * <<documentation-overview.adoc#, Overview>>
 * <<getting-started.adoc#, Getting Started>>
