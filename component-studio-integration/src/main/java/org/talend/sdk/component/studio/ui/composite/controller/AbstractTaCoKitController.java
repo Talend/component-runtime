@@ -12,6 +12,10 @@
  */
 package org.talend.sdk.component.studio.ui.composite.controller;
 
+import java.beans.PropertyChangeEvent;
+
+import org.eclipse.swt.widgets.Composite;
+import org.talend.core.model.process.IElementParameter;
 import org.talend.core.ui.properties.tab.IDynamicProperty;
 import org.talend.designer.core.ui.editor.properties.controllers.AbstractElementPropertySectionController;
 
@@ -22,6 +26,21 @@ public abstract class AbstractTaCoKitController extends AbstractElementPropertyS
 
     public AbstractTaCoKitController(final IDynamicProperty dp) {
         super(dp);
+    }
+
+    @Override
+    public int estimateRowSize(final Composite subComposite, final IElementParameter param) {
+        return 0;
+    }
+
+    @Override
+    public void propertyChange(final PropertyChangeEvent evt) {
+        // no-op
+    }
+
+    @Override
+    public void refresh(final IElementParameter param, final boolean check) {
+        // no-op
     }
 
 }

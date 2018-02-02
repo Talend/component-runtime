@@ -69,6 +69,11 @@
            mapping="TACOKIT_GUESS_SCHEMA"
            name="TaCoKit Generator">
      </generator>
+     <generator
+           class="org.talend.sdk.component.studio.ui.composite.generator.TaCoKitButtonGenerator"
+           mapping="TACOKIT_BUTTON"
+           name="TaCoKit Button Generator">
+     </generator>
   </extension>
   <extension
         point="org.talend.designer.core.process_provider">

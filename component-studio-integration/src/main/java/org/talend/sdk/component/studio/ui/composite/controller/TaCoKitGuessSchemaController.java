@@ -12,8 +12,6 @@
  */
 package org.talend.sdk.component.studio.ui.composite.controller;
 
-import java.beans.PropertyChangeEvent;
-
 import org.eclipse.gef.commands.Command;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -44,7 +42,7 @@ public class TaCoKitGuessSchemaController extends AbstractTaCoKitController {
 
     private static final String SCHEMA = "SCHEMA"; //$NON-NLS-1$
 
-    private SelectionListener listenerSelection = new SelectionAdapter() {
+    private final SelectionListener listenerSelection = new SelectionAdapter() {
 
         @Override
         public void widgetSelected(final SelectionEvent e) {
@@ -64,11 +62,6 @@ public class TaCoKitGuessSchemaController extends AbstractTaCoKitController {
 
     public TaCoKitGuessSchemaController(final IDynamicProperty dp) {
         super(dp);
-    }
-
-    @Override
-    public void propertyChange(final PropertyChangeEvent evt) {
-        // nothing to do
     }
 
     @Override
@@ -108,16 +101,6 @@ public class TaCoKitGuessSchemaController extends AbstractTaCoKitController {
             ExceptionHandler.process(e);
         }
         return null;
-    }
-
-    @Override
-    public int estimateRowSize(final Composite subComposite, final IElementParameter param) {
-        return 0;
-    }
-
-    @Override
-    public void refresh(final IElementParameter param, final boolean check) {
-        // nothing to do
     }
 
     private String checkQuotes(final String str) {
