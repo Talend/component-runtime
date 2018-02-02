@@ -49,22 +49,126 @@ import lombok.extern.slf4j.Slf4j;
 @ExtendWith(ComponentValidatorTest.ValidatorExtension.class)
 class ComponentValidatorTest {
 
-    // .properties are ok from the classpath, no need to copy them
-    private static void listPackageClasses(final File pluginDir, final String sourcePackage) {
-        final File root = new File(jarLocation(ComponentValidatorTest.class), sourcePackage);
-        File classDir = new File(pluginDir, sourcePackage);
-        classDir.mkdirs();
-        ofNullable(root.listFiles())
-                .map(Stream::of)
-                .orElseGet(Stream::empty)
-                .filter(c -> c.getName().endsWith(".class"))
-                .forEach(c -> {
-                    try {
-                        Files.copy(c.toPath(), new File(classDir, c.getName()).toPath());
-                    } catch (IOException e) {
-                        fail("cant create test plugin");
-                    }
-                });
+    @Data
+    static class ExceptionSpec {
+
+        private String message = "";
+
+        void expectMessage(final String message) {
+            this.message = message;
+        }
+    }
+
+    @Target(METHOD)
+    @Retention(RUNTIME)
+    public @interface ComponentPackage {
+
+        String value();
+
+        boolean success() default false;
+
+        boolean validateDocumentation() default false;
+    }
+
+    @Slf4j
+    public static class TestLog implements Log {
+
+        @Override
+        public void debug(final String s) {
+            log.info(s);
+        }
+
+        @Override
+        public void error(final String s) {
+            log.error(s);
+        }
+
+        @Override
+        public void info(final String s) {
+            log.info(s);
+        }
+    }
+
+    public static class ValidatorExtension implements BeforeEachCallback, AfterEachCallback, BeforeAllCallback,
+            AfterAllCallback, JUnit5InjectionSupport {
+
+        private static final ExtensionContext.Namespace NAMESPACE =
+                ExtensionContext.Namespace.create(ValidatorExtension.class.getName());
+
+        @Override
+        public void beforeAll(final ExtensionContext context) throws Exception {
+            final TemporaryFolder temporaryFolder = new TemporaryFolder();
+            context.getStore(NAMESPACE).put(TemporaryFolder.class.getName(), temporaryFolder);
+            temporaryFolder.create();
+        }
+
+        @Override
+        public void afterAll(final ExtensionContext context) {
+            TemporaryFolder.class.cast(context.getStore(NAMESPACE).get(TemporaryFolder.class.getName())).delete();
+        }
+
+        @Override
+        public void beforeEach(final ExtensionContext context) {
+            final ComponentPackage config = context.getElement().get().getAnnotation(ComponentPackage.class);
+            final ExtensionContext.Store store = context.getStore(NAMESPACE);
+            final File pluginDir =
+                    new File(TemporaryFolder.class.cast(store.get(TemporaryFolder.class.getName())).getRoot() + "/"
+                            + context.getRequiredTestMethod().getName());
+            final ComponentValidator.Configuration cfg = new ComponentValidator.Configuration();
+            cfg.setValidateFamily(true);
+            cfg.setValidateSerializable(true);
+            cfg.setValidateMetadata(true);
+            cfg.setValidateInternationalization(true);
+            cfg.setValidateDataSet(true);
+            cfg.setValidateActions(true);
+            cfg.setValidateComponent(true);
+            cfg.setValidateModel(true);
+            cfg.setValidateDataStore(true);
+            cfg.setValidateLayout(true);
+            cfg.setValidateDocumentation(config.validateDocumentation());
+            listPackageClasses(pluginDir, config.value().replace('.', '/'));
+            store.put(ComponentPackage.class.getName(), config);
+            store.put(ComponentValidator.class.getName(),
+                    new ComponentValidator(cfg, new File[] { pluginDir }, new TestLog()));
+            store.put(ExceptionSpec.class.getName(), new ExceptionSpec());
+        }
+
+        @Override
+        public void afterEach(final ExtensionContext context) {
+            final ExtensionContext.Store store = context.getStore(NAMESPACE);
+            final boolean fails = !ComponentPackage.class.cast(store.get(ComponentPackage.class.getName())).success();
+            try {
+                ComponentValidator.class.cast(store.get(ComponentValidator.class.getName())).run();
+                if (fails) {
+                    fail("should have failed");
+                }
+            } catch (final IllegalStateException ise) {
+                if (fails) {
+                    assertTrue(ise
+                            .getMessage()
+                            .contains(ExceptionSpec.class
+                                    .cast(context.getStore(NAMESPACE).get(ExceptionSpec.class.getName()))
+                                    .getMessage()));
+                } else {
+                    fail(ise);
+                }
+            }
+        }
+
+        @Override
+        public Object findInstance(final ExtensionContext extensionContext, final Class<?> type) {
+            return extensionContext.getStore(NAMESPACE).get(type.getName());
+        }
+
+        @Override
+        public boolean supports(final Class<?> type) {
+            return ExceptionSpec.class == type;
+        }
+
+        @Override
+        public Class<? extends Annotation> injectionMarker() {
+            return Inject.class; // skip
+        }
     }
 
     @Test
@@ -192,125 +296,21 @@ class ComponentValidatorTest {
         // no-op
     }
 
-    @Target(METHOD)
-    @Retention(RUNTIME)
-    public @interface ComponentPackage {
-
-        String value();
-
-        boolean success() default false;
-
-        boolean validateDocumentation() default false;
-    }
-
-    @Data
-    static class ExceptionSpec {
-
-        private String message = "";
-
-        void expectMessage(final String message) {
-            this.message = message;
-        }
-    }
-
-    @Slf4j
-    public static class TestLog implements Log {
-
-        @Override
-        public void debug(final String s) {
-            log.info(s);
-        }
-
-        @Override
-        public void error(final String s) {
-            log.error(s);
-        }
-
-        @Override
-        public void info(final String s) {
-            log.info(s);
-        }
-    }
-
-    public static class ValidatorExtension implements BeforeEachCallback, AfterEachCallback, BeforeAllCallback,
-            AfterAllCallback, JUnit5InjectionSupport {
-
-        private static final ExtensionContext.Namespace NAMESPACE =
-                ExtensionContext.Namespace.create(ValidatorExtension.class.getName());
-
-        @Override
-        public void beforeAll(final ExtensionContext context) throws Exception {
-            final TemporaryFolder temporaryFolder = new TemporaryFolder();
-            context.getStore(NAMESPACE).put(TemporaryFolder.class.getName(), temporaryFolder);
-            temporaryFolder.create();
-        }
-
-        @Override
-        public void afterAll(final ExtensionContext context) {
-            TemporaryFolder.class.cast(context.getStore(NAMESPACE).get(TemporaryFolder.class.getName())).delete();
-        }
-
-        @Override
-        public void beforeEach(final ExtensionContext context) {
-            final ComponentPackage config = context.getElement().get().getAnnotation(ComponentPackage.class);
-            final ExtensionContext.Store store = context.getStore(NAMESPACE);
-            final File pluginDir =
-                    new File(TemporaryFolder.class.cast(store.get(TemporaryFolder.class.getName())).getRoot() + "/"
-                            + context.getRequiredTestMethod().getName());
-            final ComponentValidator.Configuration cfg = new ComponentValidator.Configuration();
-            cfg.setValidateFamily(true);
-            cfg.setValidateSerializable(true);
-            cfg.setValidateMetadata(true);
-            cfg.setValidateInternationalization(true);
-            cfg.setValidateDataSet(true);
-            cfg.setValidateActions(true);
-            cfg.setValidateComponent(true);
-            cfg.setValidateModel(true);
-            cfg.setValidateDataStore(true);
-            cfg.setValidateLayout(true);
-            cfg.setValidateDocumentation(config.validateDocumentation());
-            listPackageClasses(pluginDir, config.value().replace('.', '/'));
-            store.put(ComponentPackage.class.getName(), config);
-            store.put(ComponentValidator.class.getName(),
-                    new ComponentValidator(cfg, new File[] { pluginDir }, new TestLog()));
-            store.put(ExceptionSpec.class.getName(), new ExceptionSpec());
-        }
-
-        @Override
-        public void afterEach(final ExtensionContext context) {
-            final ExtensionContext.Store store = context.getStore(NAMESPACE);
-            final boolean fails = !ComponentPackage.class.cast(store.get(ComponentPackage.class.getName())).success();
-            try {
-                ComponentValidator.class.cast(store.get(ComponentValidator.class.getName())).run();
-                if (fails) {
-                    fail("should have failed");
-                }
-            } catch (final IllegalStateException ise) {
-                if (fails) {
-                    assertTrue(ise
-                            .getMessage()
-                            .contains(ExceptionSpec.class
-                                    .cast(context.getStore(NAMESPACE).get(ExceptionSpec.class.getName()))
-                                    .getMessage()));
-                } else {
-                    fail(ise);
-                }
-            }
-        }
-
-        @Override
-        public Object findInstance(final ExtensionContext extensionContext, final Class<?> type) {
-            return extensionContext.getStore(NAMESPACE).get(type.getName());
-        }
-
-        @Override
-        public boolean supports(final Class<?> type) {
-            return ExceptionSpec.class == type;
-        }
-
-        @Override
-        public Class<? extends Annotation> injectionMarker() {
-            return Inject.class; // skip
-        }
+    // .properties are ok from the classpath, no need to copy them
+    private static void listPackageClasses(final File pluginDir, final String sourcePackage) {
+        final File root = new File(jarLocation(ComponentValidatorTest.class), sourcePackage);
+        File classDir = new File(pluginDir, sourcePackage);
+        classDir.mkdirs();
+        ofNullable(root.listFiles())
+                .map(Stream::of)
+                .orElseGet(Stream::empty)
+                .filter(c -> c.getName().endsWith(".class"))
+                .forEach(c -> {
+                    try {
+                        Files.copy(c.toPath(), new File(classDir, c.getName()).toPath());
+                    } catch (IOException e) {
+                        fail("cant create test plugin");
+                    }
+                });
     }
 }
