@@ -41,6 +41,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -1120,7 +1121,8 @@ public class ComponentManager implements AutoCloseable {
             ofNullable(container.get(ContainerComponentRegistry.class)).ifPresent(r -> {
                 final ContainerComponentRegistry registry = container.remove(ContainerComponentRegistry.class);
                 registry.getComponents().clear();
-                registry.getServices().forEach(s -> doInvoke(container.getId(), s.getInstance(), PreDestroy.class));
+                registry.getServices().stream().filter(i -> !Proxy.isProxyClass(i.getClass()))
+                        .forEach(s -> doInvoke(container.getId(), s.getInstance(), PreDestroy.class));
                 registry.getServices().clear();
             });
             ofNullable(container.get(AllServices.class))

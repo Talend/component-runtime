@@ -41,7 +41,7 @@
           "metadata":{
             "action::dynamic_values":"GetTableFields",
             "action::schema":"guessTableSchema",
-            "ui::structure::type":"IN",
+            "ui::structure::type":"OUT",
             "ui::structure::discoverSchema":"guessTableSchema",
             "ui::structure::value":"__default__"
           },
@@ -465,7 +465,7 @@
       "displayName": "Fields",
       "metadata": {
         "action::dynamic_values": "GetTableFields",
-        "ui::structure::type": "IN",
+        "ui::structure::type": "OUT",
         "ui::structure::discoverSchema": "guessTableSchema",
         "ui::structure::value": "",
         "action::schema": "guessTableSchema"

@@ -41,7 +41,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
             final Collection<SimplePropertyDefinition> includedProperties) {
         final Optional<SimplePropertyDefinition> schemaBinding = includedProperties
                 .stream()
-                .filter(p -> "IN".equals(p.getMetadata().get("ui::structure::type")))
+                .filter(p -> "OUT".equals(p.getMetadata().get("ui::structure::type")))
                 .findFirst();
         if (schemaBinding.isPresent()) {
             SimplePropertyDefinition bindingProp = schemaBinding.get();

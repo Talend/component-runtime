@@ -59,7 +59,9 @@ public class ProcessorOutputHandler {
 
     @AllArgsConstructor
     private static class Output<T> {
+
         private final AtomicReference<T> value;
+
         private final Class<T> type;
     }
 }
