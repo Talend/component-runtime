@@ -63,14 +63,17 @@ public class ParameterModelService {
                 .collect(toList()));
     }
 
-    public boolean isService(final Class<?> p) {
-        return p.isAnnotationPresent(Service.class) || p.isAnnotationPresent(Internationalized.class)
-                || Stream.of(p.getMethods()).anyMatch(m -> m.isAnnotationPresent(Request.class))
-                || p.getName().startsWith("org.talend.sdk.component.api.service") || p.getName().startsWith("javax.");
+    public boolean isService(final Parameter parameter) {
+        final Class<?> type = parameter.getType();
+        return !parameter.isAnnotationPresent(Option.class) && (type.isAnnotationPresent(Service.class)
+                || type.isAnnotationPresent(Internationalized.class)
+                || Stream.of(type.getMethods()).anyMatch(m -> m.isAnnotationPresent(Request.class))
+                || (type.getName().startsWith("org.talend.sdk.component.") && type.getName().contains(".service."))
+                || type.getName().startsWith("javax."));
     }
 
     public List<ParameterMeta> buildParameterMetas(final Executable executable, final String i18nPackage) {
-        return Stream.of(executable.getParameters()).filter(p -> !isService(p.getType())).map(parameter -> {
+        return Stream.of(executable.getParameters()).filter(p -> !isService(p)).map(parameter -> {
             final String name = findName(parameter);
             return buildParameter(name, name, new ParameterMeta.Source() {
 

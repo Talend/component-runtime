@@ -961,6 +961,9 @@ public class ComponentManager implements AutoCloseable {
                             } finally {
                                 context.setCurrentExtension(null);
                             }
+                            if (context.getOwningExtension() == e) {
+                                ofNullable(e.getExtensionServices()).ifPresent(services::putAll);
+                            }
                         });
 
                         final ComponentMetaBuilder builder = new ComponentMetaBuilder(container.getId(), services,

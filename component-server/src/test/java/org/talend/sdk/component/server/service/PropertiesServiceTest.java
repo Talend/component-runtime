@@ -38,12 +38,13 @@ import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
 
 import lombok.Data;
 
-@MonoMeecrowaveConfig class PropertiesServiceTest {
+@MonoMeecrowaveConfig
+class PropertiesServiceTest {
 
     @Inject
     private PropertiesService propertiesService;
 
-    private static void boolWrapper(final BoolBool wrapper) {
+    private static void boolWrapper(@Option final BoolBool wrapper) {
         // no-op
     }
 

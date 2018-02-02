@@ -46,8 +46,8 @@ class ParameterModelServiceTest {
         }
         {
             final ParameterMeta param = params.get(1);
-            assertEquals("arg1", param.getName());
-            assertEquals("arg1", param.getPath());
+            assertEquals("defaultName", param.getName());
+            assertEquals("defaultName", param.getPath());
             assertEquals(ParameterMeta.Type.STRING, param.getType());
             assertTrue(param.getNestedParameters().isEmpty());
             assertTrue(param.getProposals().isEmpty());
@@ -135,8 +135,8 @@ class ParameterModelServiceTest {
         assertEquals(1, params.size());
         {
             final ParameterMeta param = params.get(0);
-            assertEquals("arg0", param.getName());
-            assertEquals("arg0", param.getPath());
+            assertEquals("value", param.getName());
+            assertEquals("value", param.getPath());
             assertEquals(ParameterMeta.Type.OBJECT, param.getType());
             assertEquals(1, param.getNestedParameters().size());
             assertTrue(param.getProposals().isEmpty());
@@ -145,7 +145,7 @@ class ParameterModelServiceTest {
             {
                 final ParameterMeta nested = param.getNestedParameters().get(0);
                 assertEquals("urls", nested.getName());
-                assertEquals("arg0.urls", nested.getPath());
+                assertEquals("value.urls", nested.getPath());
                 assertEquals(ParameterMeta.Type.ARRAY, nested.getType());
                 assertEquals(1, nested.getNestedParameters().size());
                 assertTrue(nested.getProposals().isEmpty());
@@ -153,7 +153,7 @@ class ParameterModelServiceTest {
                 {
                     final ParameterMeta nestedItem = nested.getNestedParameters().get(0);
                     assertEquals("urls[${index}]", nestedItem.getName());
-                    assertEquals("arg0.urls[${index}]", nestedItem.getPath());
+                    assertEquals("value.urls[${index}]", nestedItem.getPath());
                     assertEquals(ParameterMeta.Type.STRING, nestedItem.getType());
                     assertTrue(nestedItem.getNestedParameters().isEmpty());
                     assertTrue(nestedItem.getProposals().isEmpty());
@@ -174,7 +174,7 @@ class ParameterModelServiceTest {
         final List<ParameterMeta> params = service.buildParameterMetas(
                 MethodsHolder.class.getMethod("object", MethodsHolder.Config.class, MethodsHolder.Config.class), "def");
         assertEquals(2, params.size());
-        assertConfigModel("arg0", params.get(0));
+        assertConfigModel("implicit", params.get(0));
         assertConfigModel("prefixed", params.get(1));
         assertEquals(expectedDataSet, params.get(0).getMetadata());
         assertEquals(expectedDataSet, params.get(1).getMetadata());
@@ -192,8 +192,8 @@ class ParameterModelServiceTest {
         assertEquals(1, params.size());
         {
             final ParameterMeta param = params.get(0);
-            assertEquals("arg0", param.getName());
-            assertEquals("arg0", param.getPath());
+            assertEquals("value", param.getName());
+            assertEquals("value", param.getPath());
             assertEquals(ParameterMeta.Type.OBJECT, param.getType());
             assertEquals(4, param.getNestedParameters().size());
             assertTrue(param.getProposals().isEmpty());
@@ -201,17 +201,17 @@ class ParameterModelServiceTest {
             {
                 final ParameterMeta nested = param.getNestedParameters().get(0);
                 assertEquals("direct", nested.getName());
-                assertEquals("arg0.direct", nested.getPath());
+                assertEquals("value.direct", nested.getPath());
                 assertEquals(ParameterMeta.Type.OBJECT, nested.getType());
                 assertEquals(2, nested.getNestedParameters().size());
                 assertTrue(nested.getProposals().isEmpty());
-                assertConfigFieldsModel("arg0.direct", nested.getNestedParameters().get(0),
+                assertConfigFieldsModel("value.direct", nested.getNestedParameters().get(0),
                         nested.getNestedParameters().get(1));
             }
             {
                 final ParameterMeta nested = param.getNestedParameters().get(1);
                 assertEquals("keyed", nested.getName());
-                assertEquals("arg0.keyed", nested.getPath());
+                assertEquals("value.keyed", nested.getPath());
                 assertEquals(ParameterMeta.Type.OBJECT, nested.getType());
                 assertEquals(3, nested.getNestedParameters().size());
                 assertTrue(nested.getProposals().isEmpty());
@@ -219,28 +219,28 @@ class ParameterModelServiceTest {
                 {
                     final ParameterMeta key = nested.getNestedParameters().get(0);
                     assertEquals("keyed.key[${index}]", key.getName());
-                    assertEquals("arg0.keyed.key[${index}]", key.getPath());
+                    assertEquals("value.keyed.key[${index}]", key.getPath());
                     assertEquals(ParameterMeta.Type.STRING, key.getType());
                     assertTrue(key.getNestedParameters().isEmpty());
                     assertTrue(key.getProposals().isEmpty());
                 }
-                assertConfigFieldsModel("arg0.keyed.value[${index}]", nested.getNestedParameters().get(1),
+                assertConfigFieldsModel("value.keyed.value[${index}]", nested.getNestedParameters().get(1),
                         nested.getNestedParameters().get(2));
             }
             {
                 final ParameterMeta nested = param.getNestedParameters().get(2);
                 assertEquals("multiple", nested.getName());
-                assertEquals("arg0.multiple", nested.getPath());
+                assertEquals("value.multiple", nested.getPath());
                 assertEquals(ParameterMeta.Type.ARRAY, nested.getType());
                 assertEquals(2, nested.getNestedParameters().size());
                 assertTrue(nested.getProposals().isEmpty());
-                assertConfigFieldsModel("arg0.multiple[${index}]", nested.getNestedParameters().get(1),
+                assertConfigFieldsModel("value.multiple[${index}]", nested.getNestedParameters().get(1),
                         nested.getNestedParameters().get(0));
             }
             {
                 final ParameterMeta nested = param.getNestedParameters().get(3);
                 assertEquals("passthrough", nested.getName());
-                assertEquals("arg0.passthrough", nested.getPath());
+                assertEquals("value.passthrough", nested.getPath());
                 assertEquals(ParameterMeta.Type.STRING, nested.getType());
                 assertTrue(nested.getNestedParameters().isEmpty());
                 assertTrue(nested.getProposals().isEmpty());

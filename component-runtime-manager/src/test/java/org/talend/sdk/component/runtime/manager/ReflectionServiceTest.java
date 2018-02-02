@@ -81,7 +81,7 @@ class ReflectionServiceTest {
 
                         {
                             put("url", "http://foo");
-                            put("arg1", "default");
+                            put("defaultName", "default");
                             put("port", "1");
                         }
                     });
@@ -155,8 +155,8 @@ class ReflectionServiceTest {
                 .apply(new HashMap<String, String>() {
 
                     {
-                        put("arg0.urls[0]", "http://foo");
-                        put("arg0.urls[1]", "https://bar");
+                        put("value.urls[0]", "http://foo");
+                        put("value.urls[1]", "https://bar");
                     }
                 });
         assertEquals(1, params.length);
@@ -174,15 +174,15 @@ class ReflectionServiceTest {
                         .apply(new HashMap<String, String>() {
 
                             {
-                                put("arg0.urls[0]", "http://foo");
-                                put("arg0.urls[1]", "https://bar");
+                                put("implicit.urls[0]", "http://foo");
+                                put("implicit.urls[1]", "https://bar");
                                 put("prefixed.urls[0]", "http://foo2");
                                 put("prefixed.urls[1]", "https://bar2");
 
-                                put("arg0.mapping.key[0]", "key1");
-                                put("arg0.mapping.value[0]", "val1");
-                                put("arg0.mapping.key[1]", "key2");
-                                put("arg0.mapping.value[1]", "val2");
+                                put("implicit.mapping.key[0]", "key1");
+                                put("implicit.mapping.value[0]", "val1");
+                                put("implicit.mapping.key[1]", "key2");
+                                put("implicit.mapping.value[1]", "val2");
                             }
                         });
         Stream.of(params).forEach(p -> assertTrue(MethodsHolder.Config.class.isInstance(p)));
@@ -208,19 +208,19 @@ class ReflectionServiceTest {
                 .apply(new HashMap<String, String>() {
 
                     {
-                        put("arg0.direct.urls[0]", "http://foo");
-                        put("arg0.direct.urls[1]", "https://bar");
-                        put("arg0.multiple[0].urls[0]", "http://foo1");
-                        put("arg0.multiple[0].urls[1]", "https://bar1");
-                        put("arg0.multiple[1].urls[0]", "http://foo2");
-                        put("arg0.multiple[1].urls[1]", "https://bar2");
-                        put("arg0.keyed.key[0]", "k1");
-                        put("arg0.keyed.value[0].urls[0]", "v1");
-                        put("arg0.keyed.value[0].urls[1]", "v2");
-                        put("arg0.keyed.key[1]", "k2");
-                        put("arg0.keyed.value[1].urls[0]", "v3");
-                        put("arg0.keyed.value[1].urls[1]", "v4");
-                        put("arg0.passthrough", "ok");
+                        put("value.direct.urls[0]", "http://foo");
+                        put("value.direct.urls[1]", "https://bar");
+                        put("value.multiple[0].urls[0]", "http://foo1");
+                        put("value.multiple[0].urls[1]", "https://bar1");
+                        put("value.multiple[1].urls[0]", "http://foo2");
+                        put("value.multiple[1].urls[1]", "https://bar2");
+                        put("value.keyed.key[0]", "k1");
+                        put("value.keyed.value[0].urls[0]", "v1");
+                        put("value.keyed.value[0].urls[1]", "v2");
+                        put("value.keyed.key[1]", "k2");
+                        put("value.keyed.value[1].urls[0]", "v3");
+                        put("value.keyed.value[1].urls[1]", "v4");
+                        put("value.passthrough", "ok");
                     }
                 });
         assertTrue(MethodsHolder.ConfigOfConfig.class.isInstance(params[0]));

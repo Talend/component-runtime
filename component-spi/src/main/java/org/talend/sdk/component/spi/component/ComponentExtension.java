@@ -15,6 +15,10 @@
  */
 package org.talend.sdk.component.spi.component;
 
+import static java.util.Collections.emptyMap;
+
+import java.util.Map;
+
 /**
  * Provide a way to interact with component scanning and metadata extraction.
  *
@@ -51,6 +55,13 @@ public interface ComponentExtension {
      * @return an instance of component.
      */
     <T> T convert(ComponentInstance instance, Class<T> component);
+
+    /**
+     * @return the services specific to the extension;
+     */
+    default Map<Class<?>, Object> getExtensionServices() {
+        return emptyMap();
+    }
 
     /**
      * This is the handle giving the extension information about the component being

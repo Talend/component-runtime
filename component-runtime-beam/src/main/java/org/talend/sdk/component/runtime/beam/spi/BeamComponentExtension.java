@@ -15,10 +15,15 @@
  */
 package org.talend.sdk.component.runtime.beam.spi;
 
+import static java.util.Collections.singletonMap;
+
+import java.util.Map;
+
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
+import org.talend.sdk.component.runtime.beam.factory.service.AutoValueFluentApiFactory;
 import org.talend.sdk.component.runtime.beam.impl.BeamMapperImpl;
 import org.talend.sdk.component.runtime.beam.impl.BeamProcessorChainImpl;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -38,6 +43,11 @@ public class BeamComponentExtension implements ComponentExtension {
     @Override
     public boolean supports(final Class<?> componentType) {
         return componentType == Mapper.class || componentType == Processor.class;
+    }
+
+    @Override
+    public Map<Class<?>, Object> getExtensionServices() {
+        return singletonMap(AutoValueFluentApiFactory.class, new AutoValueFluentApiFactory());
     }
 
     @Override

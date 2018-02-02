@@ -506,6 +506,9 @@
           <forceJavacCompilerUse>true</forceJavacCompilerUse>
           <compilerId>javac</compilerId>
           <fork>true</fork>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>

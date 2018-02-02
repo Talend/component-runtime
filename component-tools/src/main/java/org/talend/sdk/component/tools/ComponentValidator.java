@@ -397,7 +397,7 @@ public class ComponentValidator extends BaseTask {
 
     private int countParameters(final Method m) {
 
-        return (int) Stream.of(m.getParameterTypes()).filter(p -> !parameterModelService.isService(p)).count();
+        return (int) Stream.of(m.getParameters()).filter(p -> !parameterModelService.isService(p)).count();
     }
 
     private String validateComponentResourceBundle(final Class<?> component) {
