@@ -63,3 +63,18 @@ processor_<%=cid%>.start();
 globalMap.put("processor_<%=cid%>", processor_<%=cid%>);
 
 int nbLineInput_<%=cid%> = 0;
+
+final org.talend.sdk.component.runtime.di.ProcessorOutputHandler outputHandler_<%=cid%> = new org.talend.sdk.component.runtime.di.ProcessorOutputHandler();
+<%
+for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
+//We have to use Object type here, as the input row class is not strict. It can be propagated from other component.
+//Example(tLogRow case):
+//row1Struct row1 = new row1Struct();
+//row1Struct row2 = new row1Struct();
+//...
+//row2 = row1;
+%>
+outputHandler_<%=cid%>.addOutput("<%= connection.getName() %>", <%= connection.getName() %>Struct.class);
+<% } %>
+
+final org.talend.sdk.component.runtime.output.OutputFactory outputs_<%=cid%> = outputHandler_<%=cid%>.asOutputFactory();

@@ -33,17 +33,6 @@ final INode node = INode.class.cast(codeGenArgument.getArgument());
 final String cid = node.getUniqueName();
 %>
 
-<%
-for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
-//We have to use Object type here, as the input row class is not strict. It can be propagated from other component.
-//Example(tLogRow case):
-//row1Struct row1 = new row1Struct();
-//row1Struct row2 = new row1Struct();
-//...
-//row2 = row1;
-%>
-final java.util.concurrent.atomic.AtomicReference<?> <%= connection.getName() %>InputRef_<%=cid%> = new java.util.concurrent.atomic.AtomicReference<>(<%= connection.getName() %>);
-<% } %>
 final org.talend.sdk.component.runtime.output.InputFactory inputs_<%=cid%> = new org.talend.sdk.component.runtime.output.InputFactory() {
     private final java.util.Iterator<java.util.concurrent.atomic.AtomicReference<?>> values = new java.util.ArrayList<java.util.concurrent.atomic.AtomicReference<?>>() {{
         <%
@@ -68,58 +57,9 @@ final org.talend.sdk.component.runtime.output.InputFactory inputs_<%=cid%> = new
     }
 };
 
-// ensure we can set the row output from the anonymous classes
-<%
-for (final IConnection connection : node.getOutgoingSortedConnections()) {
-    if (connection.getLineStyle() != EConnectionType.FLOW_MAIN) {
-        continue;
-    }
-//We must always have a strict class here, as we cannot set the row from Object class.
-//ComponentModel MUST provide a new class for each row. No data autopropagation should be possible.
-%>
-final java.util.concurrent.atomic.AtomicReference<<%= connection.getName() %>Struct> <%= connection.getName() %>OutputRef_<%=cid%> = new java.util.concurrent.atomic.AtomicReference<>(<%= connection.getName() %>);
-final Class <%= connection.getName() %>outputType_<%=cid%> = <%= connection.getName() %>.getClass();
-<% } %>
 
-<%/*here the assumption is tcomp only calls create once per output which should be the case*/%>
-final org.talend.sdk.component.runtime.output.OutputFactory outputs_<%=cid%> = new org.talend.sdk.component.runtime.output.OutputFactory() {
-    <%/* link the studio indexed outputs to the tcomp ones which should rely on names, for now assume ordering is respected (guaranteed by getParameters() */%>
-    private final java.util.Iterator<org.talend.sdk.component.api.processor.OutputEmitter> emitters = new java.util.ArrayList<org.talend.sdk.component.api.processor.OutputEmitter>() {{
-        <%
-        for (final IConnection connection : node.getOutgoingSortedConnections()) {
-            if (connection.getLineStyle() != EConnectionType.FLOW_MAIN) {
-                continue;
-            }
-        %>
-        // <%= connection.getName() %> Main output
-        add(new org.talend.sdk.component.api.processor.OutputEmitter() {
-            @Override
-            public void emit(final Object value) {
-                final String jsonValue =
-                        javax.json.JsonValue.class.isInstance(value) ?
-                        javax.json.JsonValue.class.cast(value).toString() :
-                        jsonb_<%=cid%>.toJson(value);
-                //This is the only way to set the value to the reference. Otherwise it won't let us do it, as the class is unknown at compile time.
-                <%= connection.getName() %>OutputRef_<%=cid%>.set(jsonb_<%=cid%>.fromJson(jsonValue, <%= connection.getName() %>Struct.class));
-            }
-        });
-        <%
-        }
-        %>
-    }}.iterator();
-
-    @Override
-    public org.talend.sdk.component.api.processor.OutputEmitter create(final String name) {
-        return emitters.hasNext() ? emitters.next() : new org.talend.sdk.component.api.processor.OutputEmitter() {
-            @Override
-            public void emit(final Object value) {
-                System.err.println("Ignoring <" + value + "> since " + processor_<%=cid%>.rootName() + "#" + processor_<%=cid%>.name() + " misses an output");
-            }
-        };
-    }
-};
+outputHandler_<%=cid%>.reset();
 processor_<%=cid%>.onElement(inputs_<%=cid%>, outputs_<%=cid%>);
-
 <%
 // once processed update all outputs
 for (final IConnection connection : node.getOutgoingSortedConnections()) {
@@ -127,7 +67,7 @@ for (final IConnection connection : node.getOutgoingSortedConnections()) {
         continue;
     }
 %>
-<%= connection.getName() %> = <%= connection.getName() %>OutputRef_<%=cid%>.get();
+<%= connection.getName() %> = outputHandler_<%=cid%>.getValue("<%= connection.getName() %>", <%= connection.getName() %>Struct.class);
 <% } %>
 
 nbLineInput_<%=cid%>++;
