@@ -33,6 +33,7 @@
     <module>component-runtime-junit</module>
     <module>component-runtime-http-junit</module>
     <module>component-runtime-junit-base</module>
+    <module>component-runtime-beam-junit</module>
   </modules>
 
   <dependencyManagement>
