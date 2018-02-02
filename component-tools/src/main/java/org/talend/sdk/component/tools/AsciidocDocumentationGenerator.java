@@ -16,7 +16,6 @@
 package org.talend.sdk.component.tools;
 
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.Comparator.comparing;
@@ -77,6 +76,7 @@ public class AsciidocDocumentationGenerator extends BaseTask {
                                     annotation) -> annotation.annotationType() == Documentation.class ? singletonMap(
                                             "documentation", Documentation.class.cast(annotation).value())
                                             : emptyMap())) {
+
             };
 
     // CHECKSTYLE:OFF - used by reflection so better to not create a wrapper
@@ -137,9 +137,8 @@ public class AsciidocDocumentationGenerator extends BaseTask {
     }
 
     private String toAsciidoc(final Class<?> aClass) {
-        final Collection<ParameterMeta> parameterMetas =
-                parameterModelService.buildParameterMetas(Constructors.findConstructor(aClass),
-                        ofNullable(aClass.getPackage()).map(Package::getName).orElse(""), emptySet());
+        final Collection<ParameterMeta> parameterMetas = parameterModelService.buildParameterMetas(
+                Constructors.findConstructor(aClass), ofNullable(aClass.getPackage()).map(Package::getName).orElse(""));
         return levelPrefix + " "
                 + componentMarkers()
                         .filter(aClass::isAnnotationPresent)

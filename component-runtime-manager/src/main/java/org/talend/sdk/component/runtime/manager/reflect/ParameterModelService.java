@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -64,36 +63,33 @@ public class ParameterModelService {
                 .collect(toList()));
     }
 
-    public List<ParameterMeta> buildParameterMetas(final Executable executable, final String i18nPackage,
-            final Set<Class<?>> services) {
-        return Stream
-                .of(executable.getParameters())
-                .filter(p -> !p.getType().isAnnotationPresent(Service.class)
-                        && !p.getType().isAnnotationPresent(Internationalized.class) && !services.contains(p.getType())
-                        && Stream.of(p.getType().getMethods()).noneMatch(m -> m.isAnnotationPresent(Request.class))
-                        && !p.getType().getName().startsWith("org.talend.sdk.component.api.service.")
-                        && !p.getType().getName().startsWith("javax."))
-                .map(parameter -> {
-                    final String name = findName(parameter);
-                    return buildParameter(name, name, new ParameterMeta.Source() {
+    public boolean isService(final Class<?> p) {
+        return p.isAnnotationPresent(Service.class) || p.isAnnotationPresent(Internationalized.class)
+                || Stream.of(p.getMethods()).anyMatch(m -> m.isAnnotationPresent(Request.class))
+                || p.getName().startsWith("org.talend.sdk.component.api.service") || p.getName().startsWith("javax.");
+    }
 
-                        @Override
-                        public String name() {
-                            return parameter.getName();
-                        }
+    public List<ParameterMeta> buildParameterMetas(final Executable executable, final String i18nPackage) {
+        return Stream.of(executable.getParameters()).filter(p -> !isService(p.getType())).map(parameter -> {
+            final String name = findName(parameter);
+            return buildParameter(name, name, new ParameterMeta.Source() {
 
-                        @Override
-                        public Class<?> declaringClass() {
-                            return executable.getDeclaringClass();
-                        }
-                    }, parameter.getParameterizedType(),
-                            Stream
-                                    .concat(Stream.of(parameter.getType().getAnnotations()),
-                                            Stream.of(parameter.getAnnotations()))
-                                    .toArray(Annotation[]::new),
-                            new ArrayList<>(singletonList(i18nPackage)));
-                })
-                .collect(toList());
+                @Override
+                public String name() {
+                    return parameter.getName();
+                }
+
+                @Override
+                public Class<?> declaringClass() {
+                    return executable.getDeclaringClass();
+                }
+            }, parameter.getParameterizedType(),
+                    Stream
+                            .concat(Stream.of(parameter.getType().getAnnotations()),
+                                    Stream.of(parameter.getAnnotations()))
+                            .toArray(Annotation[]::new),
+                    new ArrayList<>(singletonList(i18nPackage)));
+        }).collect(toList());
     }
 
     protected ParameterMeta buildParameter(final String name, final String prefix, final ParameterMeta.Source source,

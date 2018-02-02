@@ -1065,8 +1065,8 @@ public class ComponentManager implements AutoCloseable {
             return new ServiceMeta.ActionMeta(component, actionType.value(), name,
                     serviceMethod.getGenericParameterTypes(),
                     parameterModelService.buildParameterMetas(serviceMethod,
-                            ofNullable(serviceMethod.getDeclaringClass().getPackage()).map(Package::getName).orElse(""),
-                            services.keySet()),
+                            ofNullable(serviceMethod.getDeclaringClass().getPackage()).map(Package::getName).orElse(
+                                    "")),
                     invoker);
         }
 
@@ -1189,8 +1189,7 @@ public class ComponentManager implements AutoCloseable {
 
             component.getPartitionMappers().put(name,
                     new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
-                            type,
-                            parameterModelService.buildParameterMetas(constructor, getPackage(type), services.keySet()),
+                            type, parameterModelService.buildParameterMetas(constructor, getPackage(type)),
                             instantiator, findMigrationHandler(type), !context.isNoValidation()));
         }
 
@@ -1213,8 +1212,7 @@ public class ComponentManager implements AutoCloseable {
                                     doInvoke(constructor, parameterFactory.apply(config)));
             component.getPartitionMappers().put(name,
                     new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
-                            type,
-                            parameterModelService.buildParameterMetas(constructor, getPackage(type), services.keySet()),
+                            type, parameterModelService.buildParameterMetas(constructor, getPackage(type)),
                             instantiator, findMigrationHandler(type), !context.isNoValidation()));
         }
 
@@ -1240,8 +1238,8 @@ public class ComponentManager implements AutoCloseable {
                                             doInvoke(constructor, parameterFactory.apply(config)));
             component.getProcessors().put(name,
                     new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type), type,
-                            parameterModelService.buildParameterMetas(constructor, getPackage(type), services.keySet()),
-                            instantiator, findMigrationHandler(type), !context.isNoValidation()));
+                            parameterModelService.buildParameterMetas(constructor, getPackage(type)), instantiator,
+                            findMigrationHandler(type), !context.isNoValidation()));
         }
 
         private String getPackage(final Class<?> type) {
