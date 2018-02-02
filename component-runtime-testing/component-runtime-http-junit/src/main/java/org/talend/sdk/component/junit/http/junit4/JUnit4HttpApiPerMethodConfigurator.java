@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.junit.http.junit4;
 
+import java.io.Serializable;
+
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -25,7 +27,7 @@ import org.talend.sdk.component.junit.http.internal.impl.Handlers;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class JUnit4HttpApiPerMethodConfigurator implements TestRule {
+public class JUnit4HttpApiPerMethodConfigurator implements TestRule, Serializable {
 
     private final JUnit4HttpApi server;
 

@@ -15,13 +15,15 @@
  */
 package org.talend.sdk.component.junit.http.junit4;
 
+import java.io.Serializable;
+
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 import org.talend.sdk.component.junit.http.internal.impl.HandlerImpl;
 
-public class JUnit4HttpApi extends HttpApiHandler<JUnit4HttpApi> implements TestRule {
+public class JUnit4HttpApi extends HttpApiHandler<JUnit4HttpApi> implements TestRule, Serializable {
 
     @Override
     public Statement apply(final Statement base, final Description description) {
