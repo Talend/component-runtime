@@ -64,17 +64,20 @@ globalMap.put("processor_<%=cid%>", processor_<%=cid%>);
 
 int nbLineInput_<%=cid%> = 0;
 
-final org.talend.sdk.component.runtime.di.ProcessorOutputHandler outputHandler_<%=cid%> = new org.talend.sdk.component.runtime.di.ProcessorOutputHandler();
+final org.talend.sdk.component.runtime.di.InputsHandler inputsHandler_<%=cid%> = new org.talend.sdk.component.runtime.di.InputsHandler(jsonb_<%=cid%>);
+
+
+final org.talend.sdk.component.runtime.di.OutputsHandler outputHandler_<%=cid%> = new org.talend.sdk.component.runtime.di.OutputsHandler(jsonb_<%=cid%>);
 <%
-for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
-//We have to use Object type here, as the input row class is not strict. It can be propagated from other component.
-//Example(tLogRow case):
-//row1Struct row1 = new row1Struct();
-//row1Struct row2 = new row1Struct();
-//...
-//row2 = row1;
+for (final IConnection connection : node.getOutgoingSortedConnections()) {
+    if (connection.getLineStyle() != EConnectionType.FLOW_MAIN) {
+        continue;
+    }
+//We must always have a strict class here, as we cannot set the row from Object class.
+//ComponentModel MUST provide a new class for each row. No data autopropagation should be possible.
 %>
-outputHandler_<%=cid%>.addOutput("<%= connection.getName() %>", <%= connection.getName() %>Struct.class);
+outputHandler_<%=cid%>.addConnection("<%= connection.getName() %>", <%= connection.getName() %>Struct.class);
 <% } %>
 
+final org.talend.sdk.component.runtime.output.InputFactory inputs_<%=cid%> = inputsHandler_<%=cid%>.asInputFactory();
 final org.talend.sdk.component.runtime.output.OutputFactory outputs_<%=cid%> = outputHandler_<%=cid%>.asOutputFactory();
