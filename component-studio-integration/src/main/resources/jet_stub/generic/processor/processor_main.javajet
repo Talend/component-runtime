@@ -33,29 +33,19 @@ final INode node = INode.class.cast(codeGenArgument.getArgument());
 final String cid = node.getUniqueName();
 %>
 
-final org.talend.sdk.component.runtime.output.InputFactory inputs_<%=cid%> = new org.talend.sdk.component.runtime.output.InputFactory() {
-    private final java.util.Iterator<java.util.concurrent.atomic.AtomicReference<?>> values = new java.util.ArrayList<java.util.concurrent.atomic.AtomicReference<?>>() {{
-        <%
-        for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
-        %>
-        // <%= connection.getName() %> Main input
-        add(<%= connection.getName() %>InputRef_<%=cid%>);
-        <%
-        }
-        %>
-    }}.iterator();
-
-    @Override
-    public Object read(final String name) {
-        final Object value = values.hasNext() ? values.next().get() : null;
-        if (value == null) {
-            return null;
-        }
-        return javax.json.JsonValue.class.isInstance(value) ?
-                javax.json.JsonValue.class.cast(value) :
-                jsonb_<%=cid%>.fromJson(jsonb_<%=cid%>.toJson(value), javax.json.JsonValue.class);
-    }
-};
+inputsHandler_<%=cid%>.reset();
+<%
+for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
+//We have to use Object type here, as the input row class is not strict. It can be propagated from other component.
+//Example(tLogRow case):
+//row1Struct row1 = new row1Struct();
+//row1Struct row2 = new row1Struct();
+//...
+//row2 = row1;
+%>
+inputsHandler_<%=cid%>.addConnection("<%= connection.getName() %>", Object.class);
+inputsHandler_<%=cid%>.setInputValue("<%= connection.getName() %>", <%= connection.getName() %>);
+<% } %>
 
 
 outputHandler_<%=cid%>.reset();
