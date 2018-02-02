@@ -23,6 +23,10 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.empty;
+import static java.util.stream.Stream.of;
+import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
 import java.io.File;
 import java.io.Serializable;
@@ -30,6 +34,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -48,6 +53,8 @@ import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -58,6 +65,7 @@ import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
@@ -68,13 +76,13 @@ import lombok.Data;
 // IMPORTANT: this class is used by reflection in gradle integration, don't break signatures without checking it
 public class ComponentValidator extends BaseTask {
 
-    final ParameterModelService parameterModelService = new ParameterModelService(emptyList()) {
-
-    };
-
     private final Configuration configuration;
 
     private final Log log;
+
+    private final ParameterModelService parameterModelService = new ParameterModelService(emptyList()) {
+
+    };
 
     public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
         super(classes);
@@ -145,11 +153,85 @@ public class ComponentValidator extends BaseTask {
             validateDocumentation(finder, components, errors);
         }
 
+        if (configuration.isValidateLayout()) {
+            validateLayout(finder, components, errors);
+        }
+
         if (!errors.isEmpty()) {
             errors.forEach(log::error);
             throw new IllegalStateException(
                     "Some error were detected:" + errors.stream().collect(joining("\n- ", "\n- ", "")));
         }
+    }
+
+    private void validateLayout(final AnnotationFinder finder, final List<Class<?>> components,
+            final Set<String> errors) {
+
+        final List<ParameterMeta> flatOptions = components
+                .stream()
+                .flatMap(c -> parameterModelService
+                        .buildParameterMetas(findConstructor(c),
+                                ofNullable(c.getPackage()).map(Package::getName).orElse(""))
+                        .stream())
+                .flatMap(v -> getName(v.getNestedParameters()))
+                .collect(toList());
+
+        final List<Field> optionFields = finder.findAnnotatedFields(Option.class);
+        optionFields
+                .stream()
+                .map(Field::getDeclaringClass)
+                .collect(toSet())
+                .stream()
+                .filter(c -> c.isAnnotationPresent(GridLayout.class) && c.isAnnotationPresent(OptionsOrder.class))
+                .map(c -> "Concurrent layout found for '" + c.getName() + "', the @OptionsOrder will be ignored.")
+                .forEach(this.log::error);
+
+        final List<AbstractMap.SimpleEntry<Class<?>, String>> gridLayouts = optionFields
+                .stream()
+                .map(Field::getDeclaringClass)
+                .filter(c -> c.isAnnotationPresent(GridLayout.class))
+                .map(c -> new AbstractMap.SimpleEntry<Class<?>, GridLayout>(c, c.getAnnotation(GridLayout.class)))
+                .flatMap(gl -> of(gl.getValue().value()).flatMap(row -> of(row.value())).map(
+                        s -> new AbstractMap.SimpleEntry<Class<?>, String>(gl.getKey(), s)))
+                .collect(toList());
+
+        final List<AbstractMap.SimpleEntry<Class<?>, String>> optionOrder = optionFields
+                .stream()
+                .map(Field::getDeclaringClass)
+                .filter(c -> c.isAnnotationPresent(OptionsOrder.class) && !c.isAnnotationPresent(GridLayout.class))
+                .map(c -> new AbstractMap.SimpleEntry<Class<?>, OptionsOrder>(c, c.getAnnotation(OptionsOrder.class)))
+                .flatMap(oo -> of(oo.getValue().value())
+                        .map(s -> new AbstractMap.SimpleEntry<Class<?>, String>(oo.getKey(), s)))
+                .collect(toList());
+
+        errors.addAll(gridLayouts
+                .stream()
+                .filter(l -> flatOptions.stream().noneMatch(p -> l.getValue().equals(p.getName())))
+                .map(l -> "Option '" + l.getValue() + "' in @GridLayout doesn't exist in declaring class '"
+                        + l.getKey().getName() + "'")
+                .collect(toList()));
+
+        errors.addAll(optionOrder
+                .stream()
+                .filter(oo -> flatOptions.stream().noneMatch(p -> oo.getValue().equals(p.getName())))
+                .map(l -> "Option '" + l.getValue() + "' in @OptionsOrder doesn't exist in declaring class '"
+                        + l.getKey().getName() + "'")
+                .collect(toList()));
+
+        flatOptions
+                .stream()
+                .filter(option -> gridLayouts.stream().noneMatch(l -> l.getValue().equals(option.getName()))
+                        && optionOrder.stream().noneMatch(o -> o.getValue().equals(option.getName())))
+                .map(option -> "Field '" + option.getName() + "' in " + option.getSource().declaringClass().getName()
+                        + " is not declared in any layout.")
+                .forEach(this.log::error);
+    }
+
+    private Stream<ParameterMeta> getName(final List<ParameterMeta> params) {
+        if (params == null) {
+            return empty();
+        }
+        return params.stream().flatMap(p -> concat(of(p), getName(p.getNestedParameters())));
     }
 
     private void validateDocumentation(final AnnotationFinder finder, final List<Class<?>> components,
@@ -178,8 +260,7 @@ public class ComponentValidator extends BaseTask {
         for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
             final ResourceBundle resourceBundle = findResourceBundle(i);
             if (resourceBundle != null) {
-                final Collection<String> keys = Stream
-                        .of(i.getMethods())
+                final Collection<String> keys = of(i.getMethods())
                         .filter(m -> m.getDeclaringClass() != Object.class)
                         .map(m -> i.getName() + "." + m.getName())
                         .collect(toSet());
@@ -328,8 +409,7 @@ public class ComponentValidator extends BaseTask {
 
     private void validateActions(final AnnotationFinder finder, final Set<String> errors) {
         // returned types
-        errors.addAll(Stream
-                .of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class)
+        errors.addAll(of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class)
                 .flatMap(action -> {
                     final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
                     final List<Method> annotatedMethods = finder.findAnnotatedMethods(action);
@@ -396,7 +476,6 @@ public class ComponentValidator extends BaseTask {
     }
 
     private int countParameters(final Method m) {
-
         return (int) Stream.of(m.getParameters()).filter(p -> !parameterModelService.isService(p)).count();
     }
 
@@ -411,8 +490,7 @@ public class ComponentValidator extends BaseTask {
         final String prefix = components(component).map(c -> findFamily(c, component) + "." + c.name()).orElseThrow(
                 () -> new IllegalStateException(component.getName()));
         final Collection<String> missingKeys =
-                Stream.of("_displayName").map(n -> prefix + "." + n).filter(k -> !bundle.containsKey(k)).collect(
-                        toList());
+                of("_displayName").map(n -> prefix + "." + n).filter(k -> !bundle.containsKey(k)).collect(toList());
         if (!missingKeys.isEmpty()) {
             return baseName + " is missing the key(s): " + missingKeys.stream().collect(joining("\n"));
         }
@@ -447,5 +525,7 @@ public class ComponentValidator extends BaseTask {
         private boolean validateActions;
 
         private boolean validateDocumentation;
+
+        private boolean validateLayout;
     }
 }

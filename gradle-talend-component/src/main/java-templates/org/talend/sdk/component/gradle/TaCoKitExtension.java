@@ -93,6 +93,8 @@ public class TaCoKitExtension {
 
     private boolean validateDocumentation = true;
 
+    private boolean validateLayout = true;
+
     //
     // web
     //
