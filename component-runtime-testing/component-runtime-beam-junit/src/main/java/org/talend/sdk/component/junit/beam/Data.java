@@ -36,7 +36,7 @@ import org.talend.sdk.component.runtime.serialization.LightContainer;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
-public class SimpleIO {
+public class Data {
 
     public static Create.Values<JsonObject> of(final String plugin, final Iterable<Map<String, List<?>>> elems) {
         return Create.of(() -> {

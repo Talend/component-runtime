@@ -59,7 +59,7 @@ public class ProcessorTest {
                 asList(new SampleProcessor.Sample(1), Json.createObjectBuilder().add("data", 2).build()));
 
         final PCollection<JsonObject> inputs =
-                pipeline.apply(SimpleIO.of(processor.plugin(), joinInputFactory.asInputRecords()));
+                pipeline.apply(Data.of(processor.plugin(), joinInputFactory.asInputRecords()));
 
         final PCollection<JsonObject> outputs = inputs.apply(TalendFn.asFn(processor));
         PAssert.that(outputs).satisfies((SerializableFunction<Iterable<JsonObject>, Void>) input -> {
