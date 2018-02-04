@@ -15,6 +15,7 @@
  */
 package org.talend.runtime.documentation;
 
+import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
@@ -93,7 +94,7 @@ public class Github {
                                                         GithubUser.class);
                                         return Contributor
                                                 .builder()
-                                                .id(contributor.login)
+                                                .id(normalizeLogin(contributor.login))
                                                 .name(ofNullable(user.name).orElse(contributor.name))
                                                 .description((user.bio == null ? "" : user.bio)
                                                         + (user.blog != null && !user.blog.trim().isEmpty()
@@ -133,6 +134,18 @@ public class Github {
             client.close();
             pool.shutdownNow();
         }
+    }
+
+    // handle duplicates
+    private String normalizeLogin(final String login) {
+        if (login != null) {
+            switch (login.toLowerCase(ROOT)) {
+            case "jso-technologies":
+                return "jsomsanith";
+            default:
+            }
+        }
+        return login;
     }
 
     private Stream<GithubContributor> contributors(final Client client, final String token, final String url) {
