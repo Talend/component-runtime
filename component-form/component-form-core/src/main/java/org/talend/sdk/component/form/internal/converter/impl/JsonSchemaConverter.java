@@ -121,8 +121,8 @@ public class JsonSchemaConverter implements PropertyConverter {
 
     private Optional<Object> convertDefaultValue(final String type, final String defaultValue) {
         return ofNullable(defaultValue).map(def -> {
-            if ("array".equalsIgnoreCase(type)) { // for now we cant serialize object or primitive or array
-                return null; // jsonb.fromJson(def, Object[].class);
+            if ("array".equalsIgnoreCase(type)) {
+                return jsonb.fromJson(def, Object[].class);
             } else if ("object".equalsIgnoreCase(type)) {
                 return jsonb.fromJson(def, Map.class);
             } else if ("boolean".equalsIgnoreCase(type)) {

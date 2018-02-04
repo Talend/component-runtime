@@ -15,14 +15,13 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
+import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import javax.json.bind.JsonbBuilder;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +32,7 @@ public class JsonbCoderTest {
     @Test
     void roundTrip() throws IOException {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final JsonbCoder<Model> coder = JsonbCoder.of(Model.class, JsonbBuilder.create());
+        final JsonbCoder<Model> coder = JsonbCoder.of(Model.class, jarLocation(JsonbCoderTest.class).getAbsolutePath());
         final Model model = new Model();
         model.name = "test";
         coder.encode(model, outputStream);

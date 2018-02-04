@@ -15,8 +15,11 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Method;
@@ -45,16 +48,16 @@ class JsonSchemaConverterTest {
             schema.setDefaultValue("yes");
             assertEquals("{\"default\":\"yes\"}", jsonb.toJson(schema));
 
-            /*
-             * see org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter.convertDefaultValue
-             * schema.setDefaultValue(asList("a", "b"));
-             * assertNull(jsonb.toJson(schema));
-             */
+            schema.setDefaultValue(asList("a", "b"));
+            assertEquals("{\"default\":[\"a\",\"b\"]}", jsonb.toJson(schema));
 
             final Model model = new Model();
             model.id = "1";
             schema.setDefaultValue(model);
             assertEquals("{\"default\":{\"id\":\"1\"}}", jsonb.toJson(schema));
+
+            schema.setDefaultValue(singletonList(model));
+            assertEquals("{\"default\":[{\"id\":\"1\"}]}", jsonb.toJson(schema));
         }
     }
 

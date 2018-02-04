@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -106,7 +105,7 @@ public class TalendIOTest implements Serializable {
     public void output() {
         Output.DATA.clear();
         pipeline
-                .apply(Create.of(new Sample("a"), new Sample("b")).withCoder(JsonbCoder.of(Sample.class, jsonb())))
+                .apply(Create.of(new Sample("a"), new Sample("b")).withCoder(JsonbCoder.of(Sample.class, PLUGIN)))
                 .apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Sample, JsonObject>() {
 
                     @ProcessElement
@@ -131,7 +130,7 @@ public class TalendIOTest implements Serializable {
     @Test
     public void processor() {
         final PCollection<SampleLength> out = pipeline
-                .apply(Create.of(new Sample("a"), new Sample("bb")).withCoder(JsonbCoder.of(Sample.class, jsonb())))
+                .apply(Create.of(new Sample("a"), new Sample("bb")).withCoder(JsonbCoder.of(Sample.class, PLUGIN)))
                 .apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Sample, JsonObject>() {
 
                     @ProcessElement
@@ -172,7 +171,7 @@ public class TalendIOTest implements Serializable {
     @Test
     public void processorMulti() {
         final PCollection<SampleLength> out = pipeline
-                .apply(Create.of(new Sample("a"), new Sample("bb")).withCoder(JsonbCoder.of(Sample.class, jsonb())))
+                .apply(Create.of(new Sample("a"), new Sample("bb")).withCoder(JsonbCoder.of(Sample.class, PLUGIN)))
                 .apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Sample, JsonObject>() {
 
                     @ProcessElement
@@ -212,11 +211,6 @@ public class TalendIOTest implements Serializable {
     private static final class Output {
 
         private static final Collection<String> DATA = new CopyOnWriteArrayList<>();
-    }
-
-    private static Jsonb jsonb() { // ensure it is serializable
-        return Jsonb.class.cast(Proxy.newProxyInstance(TalendIOTest.class.getClassLoader(),
-                new Class<?>[] { Jsonb.class, Serializable.class }, new JsonbInvocationHandler()));
     }
 
     @Data

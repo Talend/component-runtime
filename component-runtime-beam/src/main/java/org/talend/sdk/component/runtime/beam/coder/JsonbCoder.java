@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
+import static lombok.AccessLevel.PRIVATE;
+import static lombok.AccessLevel.PROTECTED;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,23 +29,26 @@ import org.apache.beam.sdk.coders.CustomCoder;
 import org.apache.beam.sdk.util.VarInt;
 import org.talend.sdk.component.runtime.beam.io.CountingOutputStream;
 import org.talend.sdk.component.runtime.beam.io.NoCloseInputStream;
+import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
+@AllArgsConstructor(access = PRIVATE)
+@NoArgsConstructor(access = PROTECTED)
 public class JsonbCoder<T> extends CustomCoder<T> {
 
-    public static <T> JsonbCoder<T> of(final Class<T> type, final Jsonb jsonb) {
-        return new JsonbCoder<>(type, jsonb);
+    public static <T> JsonbCoder<T> of(final Class<T> type, final String plugin) {
+        return new JsonbCoder<>(type, ContainerFinder.Instance.get().find(plugin).findService(Jsonb.class));
     }
 
-    public static JsonbCoder of(final Type type, final Jsonb jsonb) {
-        return new JsonbCoder<>(type, jsonb);
+    public static JsonbCoder of(final Type type, final String plugin) {
+        return new JsonbCoder<>(type, ContainerFinder.Instance.get().find(plugin).findService(Jsonb.class));
     }
 
-    private final Type type;
+    private Type type;
 
-    private final Jsonb jsonb;
+    private Jsonb jsonb;
 
     @Override
     public void encode(final T object, final OutputStream outputStream) throws IOException {

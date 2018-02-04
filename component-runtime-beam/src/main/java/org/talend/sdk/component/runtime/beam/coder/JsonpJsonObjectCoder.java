@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
+import static lombok.AccessLevel.PRIVATE;
+import static lombok.AccessLevel.PROTECTED;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,23 +35,24 @@ import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
+@AllArgsConstructor(access = PRIVATE)
+@NoArgsConstructor(access = PROTECTED)
 public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
 
     public static JsonpJsonObjectCoder of(final String plugin) {
-        return new JsonpJsonObjectCoder(plugin, null, null);
+        final LightContainer container = ContainerFinder.Instance.get().find(plugin);
+        return new JsonpJsonObjectCoder(container.findService(JsonReaderFactory.class),
+                container.findService(JsonWriterFactory.class));
     }
 
-    private final String plugin;
+    private JsonReaderFactory readerFactory;
 
-    private volatile JsonReaderFactory readerFactory; // ensure you reuse the same instance for memory management
-
-    private volatile JsonWriterFactory writerFactory;
+    private JsonWriterFactory writerFactory;
 
     @Override
     public void encode(final JsonObject jsonObject, final OutputStream outputStream) throws IOException {
-        ensureInit();
         final CountingOutputStream buffer = new CountingOutputStream();
         writerFactory.createWriter(buffer).write(jsonObject);
         VarInt.encode(buffer.getCounter(), outputStream);
@@ -57,22 +61,9 @@ public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
 
     @Override
     public JsonObject decode(final InputStream inputStream) throws IOException {
-        ensureInit();
         try (final JsonReader reader =
                 readerFactory.createReader(new NoCloseInputStream(inputStream, VarInt.decodeLong(inputStream)))) {
             return reader.readObject();
-        }
-    }
-
-    private void ensureInit() {
-        if (readerFactory == null) {
-            synchronized (this) {
-                if (readerFactory == null) {
-                    final LightContainer container = ContainerFinder.Instance.get().find(plugin);
-                    readerFactory = container.findService(JsonReaderFactory.class);
-                    writerFactory = container.findService(JsonWriterFactory.class);
-                }
-            }
         }
     }
 }

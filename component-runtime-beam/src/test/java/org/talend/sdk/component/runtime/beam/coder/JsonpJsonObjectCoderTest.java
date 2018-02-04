@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
-import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,8 +51,7 @@ class JsonpJsonObjectCoderTest {
 
     @Test
     void iterable() throws IOException {
-        final IterableCoder<JsonObject> coder = IterableCoder.of(new JsonpJsonObjectCoder("foo",
-                Json.createReaderFactory(emptyMap()), Json.createWriterFactory(emptyMap())));
+        final IterableCoder<JsonObject> coder = IterableCoder.of(JsonpJsonObjectCoder.of(PLUGIN));
         final Iterator<JsonObject> iterator =
                 Collections.singletonList(Json.createObjectBuilder().add("test", "value").build()).iterator();
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
