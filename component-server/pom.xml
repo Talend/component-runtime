@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.talend.ui</groupId>
       <artifactId>talend-icon</artifactId>
-      <version>${talend-icon.version}</version>
+      <version>${talend-ui.version}</version>
     </dependency>
 
     <dependency>

@@ -143,7 +143,7 @@
     <cxf.version>3.2.1</cxf.version>
     <log4j2.version>2.10.0</log4j2.version>
     <batik.version>1.9</batik.version>
-    <beam.version>2.3.0</beam.version>
+    <beam.version>2.3.0-SNAPSHOT</beam.version>
     <commons-codec.version>1.11</commons-codec.version>
     <commons-compress.version>1.15</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
@@ -157,7 +157,7 @@
     <junit5.version>5.1.0-RC1</junit5.version>
     <junit-platform-surefire-provider.version>1.1.0-RC1</junit-platform-surefire-provider.version>
 
-    <talend-icon.version>0.151.0</talend-icon.version>
+    <talend-ui.version>0.151.0</talend-ui.version>
     <component-api.version>1.0.0-SNAPSHOT</component-api.version>
 
     <!-- for the starter -->
@@ -177,6 +177,7 @@
     <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
     <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
     <git-commit-id-plugin.version>2.2.4</git-commit-id-plugin.version>
+    <formatter-plugin.version>2.7.0</formatter-plugin.version>
     <jgit.version>4.9.2.201712150930-r</jgit.version>
 
     <node.version>v8.4.0</node.version>
@@ -385,50 +386,23 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.gmavenplus</groupId>
-        <artifactId>gmavenplus-plugin</artifactId>
-        <version>${gmavenplus.version}</version>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.0.0</version>
         <executions>
           <execution>
-            <id>initialize-formatter.xml</id>
+            <id>set-rootlocation</id>
             <phase>initialize</phase>
             <goals>
-              <goal>execute</goal>
+              <goal>rootlocation</goal>
             </goals>
-            <configuration>
-              <scripts>
-                <script>
-                  def base =  project.basedir
-                  while (!new File(base, 'formatter.xml').exists()) {
-                    base = base.parentFile
-                  }
-                  def formatterFile = new File(base, 'formatter.xml')
-                  def formatter = formatterFile.toURI().toURL().toExternalForm()
-                  log.info("Setting formatter url to: ${formatter}")
-                  project.properties.setProperty('componentFormatter', formatter)
-
-                  def projectRoot = formatterFile.parentFile.absolutePath
-                  project.properties.setProperty('projectRoot', projectRoot)
-                </script>
-              </scripts>
-            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <allowSystemExits>true</allowSystemExits>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>${groovy.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>
         <artifactId>formatter-maven-plugin</artifactId>
-        <version>2.7.0</version>
+        <version>${formatter-plugin.version}</version>
         <executions>
           <execution>
             <goals>
@@ -437,7 +411,7 @@
           </execution>
         </executions>
         <configuration>
-          <configFile>${componentFormatter}</configFile>
+          <configFile>${rootlocation}/formatter.xml</configFile>
           <lineEnding>LF</lineEnding>
         </configuration>
       </plugin>

@@ -27,3 +27,9 @@ travis_wait_*.log
 yarn-error.log
 
 component-form/component-form-demo/src/main/frontend/build/
+
+
+# generated from the filtered version
+component-kit.js/package.json
+component-starter-server/src/main/frontend/package.json
+component-tools-webapp/src/main/frontend/package.json

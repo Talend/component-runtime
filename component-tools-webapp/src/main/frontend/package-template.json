@@ -3,15 +3,15 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "NODE_ENV=developement webpack-dev-server --inline --config webpack.config.dev.js --content-base build/",
+    "start": "NODE_ENV=developement webpack-dev-server --inline --config webpack.config.dev.js --content-base dist/",
     "build": "webpack --config webpack.config --bail --progress --colors --display-error-details --display-chunks",
     "watch": "webpack --config webpack.config --bail --progress --colors --watch --display-error-details --display-chunks"
   },
   "dependencies": {
-    "@talend/bootstrap-theme": "0.151.0",
-    "@talend/icons": "0.151.0",
-    "@talend/react-components": "0.151.0",
-    "@talend/react-forms": "0.151.0",
+    "@talend/bootstrap-theme": "${talend-ui.version}",
+    "@talend/icons": "${talend-ui.version}",
+    "@talend/react-components": "${talend-ui.version}",
+    "@talend/react-forms": "${talend-ui.version}",
     "bootstrap-sass": "3.3.7",
     "classnames": "2.2.5",
     "i18next": "9.0.0",

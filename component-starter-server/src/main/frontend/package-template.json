@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@talend/bootstrap-theme": "0.124.0",
-    "@talend/icons": "0.124.0",
-    "@talend/react-components": "0.124.0",
+    "@talend/bootstrap-theme": "${talend-ui-starter.version}",
+    "@talend/icons": "${talend-ui-starter.version}",
+    "@talend/react-components": "${talend-ui-starter.version}",
     "autoprefixer": "7.1.2",
     "babel-core": "6.25.0",
     "babel-eslint": "7.2.3",
