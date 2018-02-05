@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Input;
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 
 import lombok.AllArgsConstructor;
@@ -32,8 +35,11 @@ public class SampleProcessor implements Serializable {
     public static final Collection<String> STACK = new ArrayList<>();
 
     @ElementListener
-    public Sample onNext(final Sample sample) {
-        return sample;
+    public void onNext(final @Input Sample sample, final @Output OutputEmitter<Sample> success,
+            final @Output("reject") OutputEmitter<Reject> reject) {
+
+        success.emit(sample);
+        reject.emit(new Reject(sample, "error"));
     }
 
     @Data
@@ -42,5 +48,15 @@ public class SampleProcessor implements Serializable {
     public static class Sample {
 
         private int data;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Reject {
+
+        private Sample data;
+
+        private String error;
     }
 }
