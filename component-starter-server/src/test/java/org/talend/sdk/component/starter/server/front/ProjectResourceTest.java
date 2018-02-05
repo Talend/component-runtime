@@ -145,9 +145,10 @@ class ProjectResourceTest {
         // todo: add source/proc
         final Map<String, String> files = createZip(projectModel, target);
         assertEquals(Stream
-                .of("application/.mvn/wrapper/", "application/mvnw.cmd", "application/", "application/mvnw",
-                        "application/.mvn/", "application/.mvn/wrapper/maven-wrapper.jar",
-                        "application/.mvn/wrapper/maven-wrapper.properties", "application/pom.xml",
+                .of("application/", "application/src/test/resources/", "application/src/", "application/mvnw.cmd",
+                        "application/mvnw", "application/.mvn/", "application/.mvn/wrapper/maven-wrapper.properties",
+                        "application/.mvn/wrapper/", "application/.mvn/wrapper/maven-wrapper.jar",
+                        "application/src/test/", "application/src/test/resources/log4j2.xml", "application/pom.xml",
                         "application/README.adoc")
                 .collect(toSet()), files.keySet());
         Stream.of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>").forEach(
@@ -215,11 +216,10 @@ class ProjectResourceTest {
         assertWadl(files);
         Stream
                 .of("apply plugin: 'nebula.provided-base'\n" + "apply plugin: 'org.talend.sdk.component'\n"
-                        + "apply plugin: 'java'\n" + "\n" + "compileJava {\n" + "options.fork = true\n"
-                        + "options.forkOptions.executable = 'javac'\n" + "options.compilerArgs += [\"-parameters\"]\n"
-                        + "}\n" + "\n" + "compileTestJava {\n" + "options.fork = true\n"
-                        + "options.forkOptions.executable = 'javac'\n" + "options.compilerArgs += [\"-parameters\"]\n"
-                        + "}\n" + "\n" + "import org.apache.cxf.tools.common.ToolContext\n"
+                        + "apply plugin: 'java'\n" + "\n" + "tasks.withType(JavaCompile) {\n"
+                        + "    sourceCompatibility = 1.8\n" + "    targetCompatibility = 1.8\n"
+                        + "    options.compilerArgs << '-parameters'\n" + "    options.fork = true\n" + "}\n" + "\n"
+                        + "import org.apache.cxf.tools.common.ToolContext\n"
                         + "import org.apache.cxf.tools.wadlto.WADLToJava\n" + "\n" + "buildscript {\n"
                         + "  repositories {\n" + "    mavenLocal()\n" + "    mavenCentral()\n" + "    maven {\n"
                         + "      url \"https://plugins.gradle.org/m2/\"\n" + "    }\n" + "  }\n" + "  dependencies {\n"
@@ -240,8 +240,7 @@ class ProjectResourceTest {
                         + "      wadl\n" + "    ] as String[]).run(new ToolContext())\n" + "  }\n" + "}\n" + "\n"
                         + "sourceSets {\n" + "  main {\n" + "    java {\n"
                         + "      project.tasks.compileJava.dependsOn project.tasks.generateWadlClient\n"
-                        + "      srcDir wadlGeneratedFolder\n" + "    }\n" + "  }\n" + "}\n" + "\n"
-                        + "sourceCompatibility = 1.8\n" + "targetCompatibility = 1.8\n" + "\n" + "repositories {\n"
+                        + "      srcDir wadlGeneratedFolder\n" + "    }\n" + "  }\n" + "}\n" + "\n" + "repositories {\n"
                         + "  mavenCentral()\n" + "}\n" + "\n" + "dependencies {\n"
                         + "  provided group: 'org.talend.sdk.component', name: 'component-api', version: '1.0.0-SNAPSHOT'\n"
                         + "  compile group: 'org.apache.cxf', name: 'cxf-rt-rs-client', version: '3.2.1'\n" + "}")

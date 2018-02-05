@@ -21,5 +21,6 @@ public interface Versions {
     String KIT = "${project.version}";
     String BEAM = "${beam.version}";
     String SUREFIRE = "2.20.1";
-    String CXF = "3.2.1";
+    String CXF = "${cxf.version}";
+    String LOG4J2_VERSION = "${log4j2.version}";
 }

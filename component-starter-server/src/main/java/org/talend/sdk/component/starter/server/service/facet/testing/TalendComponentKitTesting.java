@@ -78,6 +78,11 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
                 createProcessorsTest(testJava, packageBase, processors));
     }
 
+    @Override
+    public String loggingScope() {
+        return "test";
+    }
+
     private Stream<InMemoryFile> createSourceTest(final String testJava, final String packageBase,
             final Collection<ProjectRequest.SourceConfiguration> sources) {
 

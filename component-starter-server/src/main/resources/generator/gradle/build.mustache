@@ -2,19 +2,14 @@ apply plugin: 'nebula.provided-base'
 apply plugin: 'org.talend.sdk.component'
 apply plugin: 'java'
 {{#plugins}}
-    apply plugin: '{{value}}'
+apply plugin: '{{value}}'
 {{/plugins}}
 
-compileJava {
-options.fork = true
-options.forkOptions.executable = 'javac'
-options.compilerArgs += ["-parameters"]
-}
-
-compileTestJava {
-options.fork = true
-options.forkOptions.executable = 'javac'
-options.compilerArgs += ["-parameters"]
+tasks.withType(JavaCompile) {
+    sourceCompatibility = {{build.javaVersion}}
+    targetCompatibility = {{build.javaVersion}}
+    options.compilerArgs << '-parameters'
+    options.fork = true
 }
 
 {{#imports}}
@@ -74,15 +69,12 @@ sourceSets {
 }
 {{/javaMainSourceSets.size}}
 
-sourceCompatibility = {{build.javaVersion}}
-targetCompatibility = {{build.javaVersion}}
-
 repositories {
   mavenCentral()
 }
 
 dependencies {
-  {{#dependencies}}
+{{#dependencies}}
   {{value.scope}} group: '{{value.group}}', name: '{{value.artifact}}', version: '{{value.version}}'{{#value.type}}, ext: '{{value.type}}'{{/value.type}}{{#value.classifier}}, classifier: '{{value.classifier}}'{{/value.classifier}}
-  {{/dependencies}}
+{{/dependencies}}
 }

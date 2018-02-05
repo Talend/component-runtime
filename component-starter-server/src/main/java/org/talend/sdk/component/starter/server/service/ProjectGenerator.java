@@ -43,6 +43,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
+import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.service.build.BuildGenerator;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
@@ -160,7 +161,8 @@ public class ProjectGenerator {
             }
             return s1;
         }).filter(s -> !s.isEmpty()).ifPresent(scope -> {
-            dependencies.add(new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", "2.9.1", scope));
+            dependencies.add(
+                    new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", Versions.LOG4J2_VERSION, scope));
             files.put(
                     ("test".equals(scope) ? build.getTestResourcesDirectory() : build.getMainResourcesDirectory())
                             + "/log4j2.xml",
