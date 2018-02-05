@@ -55,7 +55,7 @@ jobs:
     - stage: master_build
       env:
       - STEP=BlackDuck analysis
-      script: true
+      script: mvn clean install $DEPLOY_OPTS
       after_success: node .travis/heartbeat.js mvn clean verify -e -q -Dhub-detect.skip=false -Dgpg.skip=true $DEPLOY_OPTS  # Launch BlackDuck analysis
 
     - stage: master_build
