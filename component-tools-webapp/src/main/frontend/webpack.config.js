@@ -57,7 +57,7 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        include: /node_modules\/component-kit\.js/,
+        include: /component-kit\.js/,
         use: { loader: 'babel-loader' },
       },
       {
