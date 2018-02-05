@@ -17,7 +17,7 @@
 import React from 'react';
 import { CircularProgress } from '@talend/react-components';
 import { UIForm } from '@talend/react-forms/lib/UIForm';
-import getDefaultTrigger from '../../triggers';
+import kit from 'component-kit.js';
 
 function NoSelectedComponent() {
 	return (
@@ -31,7 +31,7 @@ function NoSelectedComponent() {
 class Detail extends React.Component {
 	constructor(props) {
 		super(props);
-		this.trigger = getDefaultTrigger({ url: 'api/v1/application/action' });
+		this.trigger = kit.createTriggers({ url: 'api/v1/application/action' });
 		this.onTrigger = this.onTrigger.bind(this);
 	}
 
@@ -53,9 +53,10 @@ class Detail extends React.Component {
 		} else if (!this.props.uiSpec) {
 			return (<NoSelectedComponent/>);
 		} else if (this.props.submitted) {
+		    const configuration = kit.flatten(this.props.uiSpec.properties);
 			return (
 				<div>
-					<pre>{JSON.stringify(this.props.uiSpec.properties, undefined, 2)}</pre>
+					<pre>{JSON.stringify(configuration, undefined, 2)}</pre>
 					<button className="btn btn-success" onClick={this.props.backToComponentEdit}>Back to form</button>
 				</div>
 			);

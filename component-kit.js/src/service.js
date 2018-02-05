@@ -13,98 +13,91 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-'use strict';
 
-import clonedeep from 'lodash.clonedeep';
+import clonedeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import { removeError, addError, getError } from '@talend/react-forms/lib/UIForm/utils/errors';
 
-export default class {
-  extractPropertyByPath(root, path) {
-    let object = root;
-    const levels = path.split('.');
-    for (const next of levels) {
-      object = object[next];
-      if (object === undefined) { // undefined, not falsy!
-        return undefined;
-      }
-    }
-    return object;
-  }
+/**
+ * Change errors on the target input
+ * Add the error if trigger results in an error
+ * Remove error if trigger has no error
+ * @param errors The form errors map
+ * @param schema The input schema
+ * @param errorMessage The trigger error message
+ * @returns {object} The new errors map
+ */
+function getNewErrors(errors, schema, errorMessage) {
+	if (errorMessage) {
+		return addError(errors, schema, errorMessage);
+	} else if (getError(errors, schema) !== undefined) {
+		return removeError(errors, schema);
+	}
+	return errors;
+}
 
-  healthcheck({ schema, body }) {
-    return {
-     errors: {
-       [schema.key]: body.status === 'KO' ? body.comment : undefined,
-     }
-    };
-  }
+/**
+ * Add or Remove the input error depending on the trigger result
+ * @param schema The input schema
+ * @param body The trigger response body
+ * @param errors The form errors map
+ * @returns {{errors: *}} The new errors map
+ */
+function validation({ schema, body, errors }) {
+	const newError = body.status === 'KO' ? body.comment : undefined;
+	return { errors: getNewErrors(errors, schema, newError) };
+}
 
-  validation({ schema, body }) {
-    return {
-      errors: {
-        [schema.key]: body.status === 'KO' ? body.comment : undefined,
-      }
-    };
-  }
+/**
+ * Insert new form data
+ * @param schema The input schema
+ * @param body The trigger response body
+ * @param properties The form data
+ * @param trigger The trigger configuration
+ * @param errors The form errors map
+ * @returns {{properties: *, errors: Object}} The properties and errors map
+ */
+function schema({ schema, body, properties, trigger, errors }) {
+	const newErrors = getNewErrors(errors, schema, body.error);
+	let newProperties = properties;
 
-  schema({ schema, body, properties, trigger }) {
-    if (!body.entries || !trigger.options || trigger.options.length == 0) {
-      return {
-        properties,
-        errors: {
-          [schema.key]: body.error
-        }
-      };
-    }
-    let newProperties = clonedeep(properties);
-    for (const option of trigger.options) {
-      const lastDot = option.path.lastIndexOf('.');
-      const parentPath = lastDot > 0 ? option.path.substring(0, lastDot) : option.path;
-      const directChildPath = lastDot > 0 ? option.path.substring(lastDot + 1) : option.path;
-      let mutable = parentPath === option.path ? newProperties : this.extractPropertyByPath(newProperties, parentPath);
-      if (!mutable) {
-        continue;
-      }
-      mutable[directChildPath] = option.type === 'array' ? body.entries.map(e => e.name) : body.entries.reduce({}, (a, e) => {
-        a[e.name] = e.type;
-        return a;
-      });
-    }
-    return {
-      properties: newProperties,
-      errors: {
-        [schema.key]: body.error
-      }
-    };
-  }
+	if (body.entries && trigger.options && trigger.options.length !== 0) {
+		newProperties = clonedeep(properties);
+		for (const { path, type } of trigger.options) {
+			let parentPath = path;
+			let directChildPath = path;
+			const lastDot = path.lastIndexOf('.');
+			if (lastDot > 0) {
+				parentPath = path.substring(0, lastDot);
+				directChildPath = path.substring(lastDot + 1);
+			}
 
-  dynamic_values({ schema, body, properties, trigger }) {
-    // for now it is set on the server side so no-op is ok
-    return { properties };
-  }
+			let mutable = (parentPath === path) ? newProperties : get(newProperties, parentPath);
+			if (!mutable) {
+				continue;
+			}
+			mutable[directChildPath] = (type === 'array') ?
+				body.entries.map(e => e.name) :
+				body.entries.reduce({}, (a, e) => {
+					a[e.name] = e.type;
+					return a;
+				});
+		}
+	}
+	return {
+		properties: newProperties,
+		errors: newErrors,
+	};
+}
 
-  extractRequestPayload(parameters, properties) {
-    if (!parameters) {
-      return {};
-    }
+function dynamic_values({ schema, body, properties, trigger }) {
+	// for now it is set on the server side so no-op is ok
+	return { properties };
+}
 
-    const payload = {};
-    for(const param of parameters) {
-      const value = this.extractPropertyByPath(properties, param.path);
-      if (value !== undefined) {
-        if (Array.isArray(value)) {
-          if (value.length > 0) { // TODO: support array of objects
-            let index = 0;
-            for (const item of value) {
-              payload[param.key + '[' + index + ']'] = '' + item;
-              index++;
-            }
-          }
-        } else {
-          payload[param.key] = '' + this.extractPropertyByPath(properties, param.path);
-        }
-      }
-    }
-
-    return payload;
-  }
+export default {
+	dynamic_values,
+	healthcheck: validation,
+	schema,
+	validation,
 };

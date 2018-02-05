@@ -56,6 +56,11 @@ module.exports = {
         use: { loader: 'babel-loader' },
       },
       {
+        test: /\.js$/,
+        include: /node_modules\/component-kit\.js/,
+        use: { loader: 'babel-loader' },
+      },
+      {
         test: /\.css$/,
         use: extractCSS.extract(getCommonStyleLoaders()),
         exclude: /@talend/,

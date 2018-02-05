@@ -15,5 +15,10 @@
  */
 'use strict';
 
-import TalendComponentKitTrigger from './form-trigger';
-export default TalendComponentKitTrigger;
+import createTriggers from './form-trigger';
+import flatten from './flatten';
+
+export default {
+    createTriggers,
+    flatten
+};
