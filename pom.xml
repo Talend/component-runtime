@@ -178,6 +178,7 @@
     <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
     <git-commit-id-plugin.version>2.2.4</git-commit-id-plugin.version>
     <formatter-plugin.version>2.7.0</formatter-plugin.version>
+    <common-plugin.version>1.0.5</common-plugin.version>
     <jgit.version>4.9.2.201712150930-r</jgit.version>
 
     <node.version>v8.4.0</node.version>
@@ -386,39 +387,23 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.gmavenplus</groupId>
-        <artifactId>gmavenplus-plugin</artifactId>
-        <version>${gmavenplus.version}</version>
+        <groupId>com.github.rmannibucau</groupId>
+        <artifactId>common-maven-plugin</artifactId>
+        <version>${common-plugin.version}</version>
         <executions>
           <execution>
-            <id>initialize-formatter.xml</id>
-            <phase>initialize</phase>
+            <id>set-rootlocation</id>
             <goals>
-              <goal>execute</goal>
+              <goal>rootlocation</goal>
             </goals>
-            <configuration>
-              <scripts>
-                <script>
-                  def rootProject = session.getCurrentProject();
-                  while (rootProject.getParent() != null) {
-                    rootProject = rootProject.getParent();
-                  }
-                  project.properties.setProperty('rootlocation', rootProject.basedir.absolutePath)
-                </script>
-              </scripts>
-            </configuration>
+          </execution>
+          <execution>
+            <id>frontend-filter</id>
+            <goals>
+              <goal>frontend-filter</goal>
+            </goals>
           </execution>
         </executions>
-        <configuration>
-          <allowSystemExits>true</allowSystemExits>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>${groovy.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>

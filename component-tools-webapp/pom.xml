@@ -83,37 +83,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.gmavenplus</groupId>
-        <artifactId>gmavenplus-plugin</artifactId>
-        <version>${gmavenplus.version}</version>
-        <executions>
-          <execution>
-            <id>generate-package.json</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <allowSystemExits>true</allowSystemExits>
-              <scripts>
-                <script>${project.parent.basedir}/build/FilterResource.groovy</script>
-              </scripts>
-              <properties>
-                <from>${project.basedir}/src/main/frontend/package-template.json</from>
-                <to>${project.basedir}/src/main/frontend/package.json</to>
-              </properties>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>${groovy.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <version>${maven-resources-plugin.version}</version>

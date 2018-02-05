@@ -332,23 +332,6 @@
         <version>${gmavenplus.version}</version>
         <executions>
           <execution>
-            <id>generate-package.json</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <allowSystemExits>true</allowSystemExits>
-              <scripts>
-                <script>${project.parent.basedir}/build/FilterResource.groovy</script>
-              </scripts>
-              <properties>
-                <from>${project.basedir}/src/main/frontend/package-template.json</from>
-                <to>${project.basedir}/src/main/frontend/package.json</to>
-              </properties>
-            </configuration>
-          </execution>
-          <execution>
             <id>grab-gradle-wrapper</id>
             <phase>process-resources</phase>
             <goals>
