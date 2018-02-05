@@ -33,15 +33,26 @@ public abstract class BaseIOHandler {
     protected final Map<String, IO> connections = new HashMap<>();
 
     public void addConnection(final String name, final Class<?> type) {
-        connections.put(name, new IO(new AtomicReference<>(), type));
+        connections.put(getActualName(name), new IO(new AtomicReference<>(), type));
     }
 
     public void reset() {
-        connections.values().forEach(r -> r.value.set(null));
+        connections.values().forEach(r -> {
+            try {
+                r.value.set(r.type.getConstructor().newInstance());
+            } catch (Exception e) {
+                throw new IllegalStateException("Can't create an instance of " + r.type);
+            }
+        });
     }
 
     public <T> T getValue(final String name, final Class<T> type) {
-        return type.cast(connections.get(name).value.get());
+        final String actualName = getActualName(name);
+        return type.cast(connections.get(actualName).value.get());
+    }
+
+    protected final String getActualName(final String name) {
+        return "__default__".equalsIgnoreCase(name) ? "flow" : name.toLowerCase();
     }
 
     @AllArgsConstructor

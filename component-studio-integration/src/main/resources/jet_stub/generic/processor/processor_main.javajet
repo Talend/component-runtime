@@ -36,15 +36,8 @@ final String cid = node.getUniqueName();
 inputsHandler_<%=cid%>.reset();
 <%
 for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
-//We have to use Object type here, as the input row class is not strict. It can be propagated from other component.
-//Example(tLogRow case):
-//row1Struct row1 = new row1Struct();
-//row1Struct row2 = new row1Struct();
-//...
-//row2 = row1;
 %>
-inputsHandler_<%=cid%>.addConnection("<%= connection.getName() %>", Object.class);
-inputsHandler_<%=cid%>.setInputValue("<%= connection.getName() %>", <%= connection.getName() %>);
+inputsHandler_<%=cid%>.setInputValue("<%= connection.getConnectorName().toLowerCase() %>", <%= connection.getName() %>);
 <% } %>
 
 
@@ -57,7 +50,7 @@ for (final IConnection connection : node.getOutgoingSortedConnections()) {
         continue;
     }
 %>
-<%= connection.getName() %> = outputHandler_<%=cid%>.getValue("<%= connection.getName() %>", <%= connection.getName() %>Struct.class);
+<%= connection.getName() %> = outputHandler_<%=cid%>.getValue("<%= connection.getConnectorName().toLowerCase() %>", <%= connection.getName() %>.getClass());
 <% } %>
 
 nbLineInput_<%=cid%>++;
