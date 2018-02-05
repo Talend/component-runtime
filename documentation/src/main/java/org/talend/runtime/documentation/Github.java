@@ -72,12 +72,12 @@ public class Github {
                     .submit(() -> contributors(client, token,
                             "https://api.github.com/repos/talend/component-runtime/contributors")
                                     .parallel()
-                                    .collect(toMap(e -> normalizeLogin(e.login), identity(),
-                                            (c1, c2) -> {
-                                                c1.contributions += c2.contributions;
-                                                return c1;
-                                            }))
-                                    .values().stream()
+                                    .collect(toMap(e -> normalizeLogin(e.login), identity(), (c1, c2) -> {
+                                        c1.contributions += c2.contributions;
+                                        return c1;
+                                    }))
+                                    .values()
+                                    .stream()
                                     .map(contributor -> {
                                         if (contributor.url == null) { // anon contributor
 
