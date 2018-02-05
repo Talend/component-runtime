@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 
 import javax.json.Json;
@@ -61,14 +62,17 @@ public class ProcessorTest {
         final PCollection<JsonObject> inputs =
                 pipeline.apply(Data.of(processor.plugin(), joinInputFactory.asInputRecords()));
 
-        final PCollection<JsonObject> outputs = inputs.apply(TalendFn.asFn(processor));
-        PAssert.that(outputs).satisfies((SerializableFunction<Iterable<JsonObject>, Void>) input -> {
-            final List<JsonObject> result = StreamSupport.stream(input.spliterator(), false).collect(toList());
+        final PCollection<Map<String, JsonObject>> outputs =
+                inputs.apply(TalendFn.asFn(processor)).apply(Data.map(processor.plugin(), JsonObject.class));
+
+        PAssert.that(outputs).satisfies((SerializableFunction<Iterable<Map<String, JsonObject>>, Void>) input -> {
+            final List<Map<String, JsonObject>> result =
+                    StreamSupport.stream(input.spliterator(), false).collect(toList());
+
             assertEquals(2, result.size());
-            result.forEach(e -> assertTrue(e.containsKey("__default__")));
+            result.forEach(e -> assertTrue(e.containsKey("__default__") && e.containsKey("reject")));
             assertEquals(new HashSet<>(asList(1, 2)),
-                    result.stream().map(e -> e.getJsonArray("__default__").getJsonObject(0).getInt("data")).collect(
-                            toSet()));
+                    result.stream().map(e -> e.get("__default__").getInt("data")).collect(toSet()));
             return null;
         });
 
