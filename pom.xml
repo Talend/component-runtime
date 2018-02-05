@@ -154,11 +154,10 @@
     <jsonb-api.version>1.0</jsonb-api.version>
     <jsonp-api.version>1.0</jsonp-api.version>
     <deltaspike.version>1.8.1</deltaspike.version>
-    <junit5.version>5.0.3</junit5.version>
-    <junit-vintage-engine.version>4.12.3</junit-vintage-engine.version>
-    <junit-platform-surefire-provider.version>1.0.3</junit-platform-surefire-provider.version>
+    <junit5.version>5.1.0-RC1</junit5.version>
+    <junit-platform-surefire-provider.version>1.1.0-RC1</junit-platform-surefire-provider.version>
 
-    <talend-icon.version>0.149.0</talend-icon.version>
+    <talend-icon.version>0.151.0</talend-icon.version>
     <component-api.version>1.0.0-SNAPSHOT</component-api.version>
 
     <!-- for the starter -->
@@ -533,7 +532,7 @@
           <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
-            <version>${junit-vintage-engine.version}</version>
+            <version>${junit5.version}</version>
           </dependency>
         </dependencies>
       </plugin>

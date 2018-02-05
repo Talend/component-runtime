@@ -18,7 +18,9 @@ package org.talend.runtime.documentation;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.nio.charset.StandardCharsets;
@@ -70,6 +72,12 @@ public class Github {
                     .submit(() -> contributors(client, token,
                             "https://api.github.com/repos/talend/component-runtime/contributors")
                                     .parallel()
+                                    .collect(toMap(e -> normalizeLogin(e.login), identity(),
+                                            (c1, c2) -> {
+                                                c1.contributions += c2.contributions;
+                                                return c1;
+                                            }))
+                                    .values().stream()
                                     .map(contributor -> {
                                         if (contributor.url == null) { // anon contributor
 
@@ -94,7 +102,7 @@ public class Github {
                                                         GithubUser.class);
                                         return Contributor
                                                 .builder()
-                                                .id(normalizeLogin(contributor.login))
+                                                .id(contributor.login)
                                                 .name(ofNullable(user.name).orElse(contributor.name))
                                                 .description((user.bio == null ? "" : user.bio)
                                                         + (user.blog != null && !user.blog.trim().isEmpty()
