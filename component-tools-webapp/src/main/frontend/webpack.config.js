@@ -15,6 +15,7 @@
  */
 'use strict';
 
+const path = require('path');
 const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -57,7 +58,7 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        include: /node_modules\/component-kit\.js/,
+        include: /component-kit\.js/,
         use: { loader: 'babel-loader' },
       },
       {
