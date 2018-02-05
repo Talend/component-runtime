@@ -23,7 +23,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>sample</artifactId>
+  <artifactId>sample-it</artifactId>
   <name>Component Runtime :: Maven Plugin :: IT :: Dependencies</name>
 
   <dependencies>
@@ -75,6 +75,21 @@
         <configuration>
           <skip>true</skip>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.rmannibucau</groupId>
+        <artifactId>common-maven-plugin</artifactId>
+        <version>@{common-plugin.version@</version>
+        <executions>
+          <execution>
+            <id>set-rootlocation</id>
+            <phase>none</phase>
+          </execution>
+          <execution>
+            <id>frontend-filter</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.talend.sdk.component</groupId>
