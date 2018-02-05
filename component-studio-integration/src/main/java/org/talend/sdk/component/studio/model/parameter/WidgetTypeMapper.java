@@ -15,10 +15,14 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static java.util.Locale.ROOT;
 import static org.talend.core.model.process.EParameterFieldType.CHECK;
 import static org.talend.core.model.process.EParameterFieldType.CLOSED_LIST;
 import static org.talend.core.model.process.EParameterFieldType.FILE;
+import static org.talend.core.model.process.EParameterFieldType.MEMO;
 import static org.talend.core.model.process.EParameterFieldType.MEMO_JAVA;
+import static org.talend.core.model.process.EParameterFieldType.MEMO_PERL;
+import static org.talend.core.model.process.EParameterFieldType.MEMO_SQL;
 import static org.talend.core.model.process.EParameterFieldType.OPENED_LIST;
 import static org.talend.core.model.process.EParameterFieldType.PASSWORD;
 import static org.talend.core.model.process.EParameterFieldType.SCHEMA_TYPE;
@@ -78,8 +82,10 @@ public class WidgetTypeMapper {
             return getFileType();
         } else if (isTable()) {
             return getTableType();
-        } else if (isMemoJava()) {
-            return getMemoJavaType();
+        }
+        final String codeStyle = property.getMetadata().get(UI_CODE);
+        if (codeStyle != null) {
+            return getCodeType(codeStyle);
         }
         return getTextType();
     }
@@ -87,6 +93,19 @@ public class WidgetTypeMapper {
     private boolean isSchema() {
         return property.getMetadata().containsKey(UI_STRUCTURE_TYPE)
                 || property.getMetadata().containsKey(UI_STRUCTURE_VALUE);
+    }
+
+    protected EParameterFieldType getCodeType(final String codeStyle) {
+        switch (codeStyle.toLowerCase(ROOT)) {
+        case "java":
+            return MEMO_JAVA;
+        case "perl":
+            return MEMO_PERL;
+        case "sql":
+            return MEMO_SQL;
+        default:
+            return MEMO;
+        }
     }
 
     protected EParameterFieldType getSchemaType() {
@@ -176,14 +195,11 @@ public class WidgetTypeMapper {
      * Checks whether widget type is {@link EParameterFieldType#MEMO_JAVA}
      */
     private boolean isMemoJava() {
-        if (property.getMetadata().get(UI_CODE) == null) {
+        final String codeStyle = property.getMetadata().get(UI_CODE);
+        if (codeStyle == null) {
             return false;
         }
         return JAVA.equals(property.getMetadata().get(UI_CODE));
-    }
-
-    protected EParameterFieldType getMemoJavaType() {
-        return MEMO_JAVA;
     }
 
     /**
