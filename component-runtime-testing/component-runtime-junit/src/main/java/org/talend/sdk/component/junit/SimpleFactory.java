@@ -19,6 +19,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PRIVATE;
@@ -44,15 +45,17 @@ import lombok.NoArgsConstructor;
 public class SimpleFactory {
 
     public static <T> Map<String, String> configurationByExample(final T instance) {
-        return configurationByExample(instance, "configuration.");
+        return configurationByExample(instance, null);
     }
 
     public static <T> Map<String, String> configurationByExample(final T instance, final String prefix) {
         if (instance == null) {
             return emptyMap();
         }
-        final ParameterMeta params = new SimpleParameterModelService().build(prefix, prefix, instance.getClass(),
-                new Annotation[0], new ArrayList<>(singletonList(instance.getClass().getPackage().getName())));
+        final String usedPrefix = ofNullable(prefix).orElse("configuration.");
+        final ParameterMeta params =
+                new SimpleParameterModelService().build(usedPrefix, usedPrefix, instance.getClass(), new Annotation[0],
+                        new ArrayList<>(singletonList(instance.getClass().getPackage().getName())));
         return computeConfiguration(params.getNestedParameters(), instance, new HashMap<>());
     }
 
