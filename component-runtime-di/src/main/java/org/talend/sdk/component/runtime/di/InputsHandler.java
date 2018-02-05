@@ -27,20 +27,21 @@ public class InputsHandler extends BaseIOHandler {
 
     public InputFactory asInputFactory() {
         return name -> {
-            final BaseIOHandler.IO ref =
-                    connections.values().iterator().hasNext() ? connections.values().iterator().next() : null;
-            if (ref == null || ref.getValue() == null) {
+            final String actualName = getActualName(name);
+            final BaseIOHandler.IO ref = connections.get(actualName);
+            if (ref == null || ref.getValue() == null || ref.getValue().get() == null) {
                 return null;
             }
+            Object value = ref.getValue().get();
 
-            return javax.json.JsonValue.class.isInstance(ref.getValue())
-                    ? javax.json.JsonValue.class.cast(ref.getValue())
-                    : jsonb.fromJson(jsonb.toJson(ref.getValue()), javax.json.JsonValue.class);
+            return javax.json.JsonValue.class.isInstance(value)
+                    ? javax.json.JsonValue.class.cast(value)
+                    : jsonb.fromJson(jsonb.toJson(value), javax.json.JsonValue.class);
         };
     }
 
     public <T> void setInputValue(final String name, final T value) {
-        IO input = connections.get(name);
+        IO input = connections.get(getActualName(name));
         if (input != null) {
             input.getValue().set(value);
         }
