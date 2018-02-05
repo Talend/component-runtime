@@ -29,7 +29,6 @@ import static org.talend.core.model.process.EParameterFieldType.SCHEMA_TYPE;
 import static org.talend.core.model.process.EParameterFieldType.TABLE;
 import static org.talend.core.model.process.EParameterFieldType.TEXT;
 import static org.talend.core.model.process.EParameterFieldType.TEXT_AREA;
-import static org.talend.sdk.component.studio.model.parameter.Metadatas.JAVA;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CODE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_CREDENTIAL;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_TYPE;
@@ -189,17 +188,6 @@ public class WidgetTypeMapper {
 
     protected EParameterFieldType getFileType() {
         return FILE;
-    }
-
-    /**
-     * Checks whether widget type is {@link EParameterFieldType#MEMO_JAVA}
-     */
-    private boolean isMemoJava() {
-        final String codeStyle = property.getMetadata().get(UI_CODE);
-        if (codeStyle == null) {
-            return false;
-        }
-        return JAVA.equals(property.getMetadata().get(UI_CODE));
     }
 
     /**

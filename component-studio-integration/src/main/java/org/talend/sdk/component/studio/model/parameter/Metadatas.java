@@ -72,7 +72,4 @@ public final class Metadatas {
     public static final String MAIN_FORM = "Main";
 
     public static final String ADVANCED_FORM = "Advanced";
-
-    // Supported Code languages
-    public static final String JAVA = "Java";
 }
