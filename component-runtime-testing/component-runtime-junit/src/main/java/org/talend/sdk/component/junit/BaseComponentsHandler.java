@@ -331,7 +331,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
         final ComponentFamilyMeta.BaseMeta<? extends Lifecycle> meta = findMeta(componentType);
         return api.cast(meta
                 .getInstantiator()
-                .apply(configuration == null ? emptyMap()
+                .apply(configuration == null || meta.getParameterMetas().isEmpty() ? emptyMap()
                         : configurationByExample(configuration, meta
                                 .getParameterMetas()
                                 .stream()
