@@ -32,10 +32,11 @@ public class InputsHandler extends BaseIOHandler {
             if (ref == null || ref.getValue() == null || ref.getValue().get() == null) {
                 return null;
             }
+            Object value = ref.getValue().get();
 
-            return javax.json.JsonValue.class.isInstance(ref.getValue().get())
-                    ? javax.json.JsonValue.class.cast(ref.getValue().get())
-                    : jsonb.fromJson(jsonb.toJson(ref.getValue().get()), javax.json.JsonValue.class);
+            return javax.json.JsonValue.class.isInstance(value)
+                    ? javax.json.JsonValue.class.cast(value)
+                    : jsonb.fromJson(jsonb.toJson(value), javax.json.JsonValue.class);
         };
     }
 

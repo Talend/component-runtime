@@ -37,7 +37,7 @@ inputsHandler_<%=cid%>.reset();
 <%
 for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
 %>
-inputsHandler_<%=cid%>.setInputValue("<%= connection.getConnectorName().toLowerCase() %>", <%= connection.getName() %>);
+inputsHandler_<%=cid%>.setInputValue("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>);
 <% } %>
 
 
@@ -50,7 +50,7 @@ for (final IConnection connection : node.getOutgoingSortedConnections()) {
         continue;
     }
 %>
-<%= connection.getName() %> = outputHandler_<%=cid%>.getValue("<%= connection.getConnectorName().toLowerCase() %>", <%= connection.getName() %>.getClass());
+<%= connection.getName() %> = outputHandler_<%=cid%>.getValue("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>.getClass());
 <% } %>
 
 nbLineInput_<%=cid%>++;

@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.di;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -41,7 +42,7 @@ public abstract class BaseIOHandler {
             try {
                 r.value.set(r.type.getConstructor().newInstance());
             } catch (Exception e) {
-                throw new IllegalStateException("Can't create an instance of " + r.type);
+                throw new IllegalStateException("Can't create an instance of " + r.type, e);
             }
         });
     }
@@ -52,7 +53,7 @@ public abstract class BaseIOHandler {
     }
 
     protected final String getActualName(final String name) {
-        return "__default__".equalsIgnoreCase(name) ? "flow" : name.toLowerCase();
+        return "__default__".equalsIgnoreCase(name) ? "flow" : name.toLowerCase(Locale.ROOT);
     }
 
     @AllArgsConstructor
