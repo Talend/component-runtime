@@ -478,9 +478,7 @@ public class ComponentManager implements AutoCloseable {
             return Stream
                     .of(plugin)
                     // just a small workaround for maven/gradle
-                    .flatMap(p -> "test-classes".equals(p.getName()) && p.getParentFile() != null
-                            ? Stream.of(p, new File(p.getParentFile(), "classes"))
-                            : Stream.of(p))
+                    .flatMap(this::toPluginLocations)
                     .filter(path -> !container.find(path.getName()).isPresent())
                     .map(file -> {
                         final String id = addPlugin(file.getAbsolutePath());
@@ -494,6 +492,24 @@ public class ComponentManager implements AutoCloseable {
                     .collect(toSet());
         }
         return emptySet();
+    }
+
+    private Stream<File> toPluginLocations(final File src) {
+        if ("test-classes".equals(src.getName()) && src.getParentFile() != null) { // maven
+            return Stream.of(src, new File(src.getParentFile(), "classes"));
+        }
+
+        // gradle (v3 & v4)
+        if ("classes".equals(src.getName()) && src.getParentFile() != null
+                && "test".equals(src.getParentFile().getName()) && src.getParentFile().getParentFile() != null) {
+            return Stream.of(src, new File(src.getParentFile().getParentFile(), "production/classes")).filter(
+                    File::exists);
+        }
+        if ("test".equals(src.getName()) && src.getParentFile() != null
+                && "java".equals(src.getParentFile().getName())) {
+            return Stream.of(src, new File(src.getParentFile(), "main")).filter(File::exists);
+        }
+        return Stream.of(src);
     }
 
     public <T> Stream<T> find(final Function<Container, Stream<T>> mapper) {

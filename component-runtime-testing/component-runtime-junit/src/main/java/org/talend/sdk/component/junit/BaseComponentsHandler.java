@@ -52,8 +52,10 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
 
 import org.talend.sdk.component.junit.lang.StreamDecorator;
+import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.chain.CountingSuccessListener;
@@ -326,15 +328,28 @@ public class BaseComponentsHandler implements ComponentsHandler {
     }
 
     private <C, T, A> A create(final Class<A> api, final Class<T> componentType, final C configuration) {
-        return api.cast(asManager()
+        final ComponentFamilyMeta.BaseMeta<? extends Lifecycle> meta = findMeta(componentType);
+        return api.cast(meta
+                .getInstantiator()
+                .apply(configuration == null ? emptyMap()
+                        : configurationByExample(configuration, meta
+                                .getParameterMetas()
+                                .stream()
+                                .filter(p -> p.getName().equals(p.getPath()))
+                                .findFirst()
+                                .map(p -> p.getName() + '.')
+                                .orElseThrow(() -> new IllegalArgumentException("Didn't find any option and therefore "
+                                        + "can't convert the configuration instance to a configuration")))));
+    }
+
+    private <T> ComponentFamilyMeta.BaseMeta<? extends Lifecycle> findMeta(final Class<T> componentType) {
+        return asManager()
                 .find(c -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
                 .flatMap(f -> Stream.concat(f.getProcessors().values().stream(),
                         f.getPartitionMappers().values().stream()))
                 .filter(m -> m.getType().getName().equals(componentType.getName()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No component " + componentType))
-                .getInstantiator()
-                .apply(configurationByExample(configuration)));
+                .orElseThrow(() -> new IllegalArgumentException("No component " + componentType));
     }
 
     @Override
