@@ -15,6 +15,7 @@
  */
 package org.talend.runtime.documentation;
 
+import static java.util.Comparator.comparing;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -126,6 +127,7 @@ public class Github {
                                                 .build();
                                     })
                                     .filter(Objects::nonNull)
+                                    .sorted(comparing(Contributor::getCommits).reversed())
                                     .collect(toList()))
                     .get(15, MINUTES);
         } catch (final ExecutionException ee) {
