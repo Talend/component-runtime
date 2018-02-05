@@ -386,18 +386,39 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>${gmavenplus.version}</version>
         <executions>
           <execution>
-            <id>set-rootlocation</id>
+            <id>initialize-formatter.xml</id>
             <phase>initialize</phase>
             <goals>
-              <goal>rootlocation</goal>
+              <goal>execute</goal>
             </goals>
+            <configuration>
+              <scripts>
+                <script>
+                  def rootProject = session.getCurrentProject();
+                  while (rootProject.getParent() != null) {
+                    rootProject = rootProject.getParent();
+                  }
+                  project.properties.setProperty('rootlocation', rootProject.basedir.absolutePath)
+                </script>
+              </scripts>
+            </configuration>
           </execution>
         </executions>
+        <configuration>
+          <allowSystemExits>true</allowSystemExits>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>
