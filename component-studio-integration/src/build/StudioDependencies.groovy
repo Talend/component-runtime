@@ -143,7 +143,7 @@ def addDependency = { base, localRepo, gav, index ->
         def os = localPathJar.newOutputStream()
         try {
             os << (local ?
-                    overrideJar.newOpenInputStream() :
+                    overrideJar.newInputStream() :
                     new URL("${base}/plugins/${jarName}.jar").openStream())
         } finally { // todo: be resilient if download fails instead of storing a corrupted jar and have to delete localPathJar
             os.close()
