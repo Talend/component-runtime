@@ -20,58 +20,68 @@ import { UIForm } from '@talend/react-forms/lib/UIForm';
 import kit from 'component-kit.js';
 
 function NoSelectedComponent() {
-	return (
-		<div>
-			<h1>No component selected</h1>
-			<p>Click on a component to see its form</p>
-		</div>
-	);
+  return (
+    <div>
+      <h1>No component selected</h1>
+      <p>Click on a component to see its form</p>
+    </div>
+  );
 }
 
 class Detail extends React.Component {
-	constructor(props) {
-		super(props);
-		this.trigger = kit.createTriggers({ url: 'api/v1/application/action' });
-		this.onTrigger = this.onTrigger.bind(this);
-	}
+  constructor(props) {
+    super(props);
+    this.trigger = kit.createTriggers({ url: 'api/v1/application/action' });
+    this.onTrigger = this.onTrigger.bind(this);
+  }
 
-	onTrigger(event, payload) {
-		return this.trigger(event, payload)
-			.then(triggerResult => {
-				if (triggerResult.properties) {
-					this.props.onChange(event, triggerResult);
-				}
-				if (triggerResult.errors) {
-					this.props.onErrors(event, triggerResult.errors);
-				}
-			});
-	}
+  onTrigger(event, payload) {
+    return this.trigger(event, payload)
+      .then(triggerResult => {
+        if (triggerResult.properties) {
+          this.props.onChange(event, triggerResult);
+        }
+        if (triggerResult.errors) {
+          this.props.onErrors(event, triggerResult.errors);
+        }
+      });
+  }
 
-	render() {
-		if (this.props.isLoading) {
-			return (<CircularProgress />);
-		} else if (!this.props.uiSpec) {
-			return (<NoSelectedComponent/>);
-		} else if (this.props.submitted) {
-		    const configuration = kit.flatten(this.props.uiSpec.properties);
-			return (
-				<div>
-					<pre>{JSON.stringify(configuration, undefined, 2)}</pre>
-					<button className="btn btn-success" onClick={this.props.backToComponentEdit}>Back to form</button>
-				</div>
-			);
-		} else {
-			return (
-				<UIForm
-					data={this.props.uiSpec}
-					onChange={this.props.onChange}
-					onErrors={this.props.onErrors}
-					onTrigger={this.onTrigger}
-					onSubmit={this.props.onSubmit}
-				/>
-			);
-		}
-	}
+  render() {
+    if (this.props.isLoading) {
+      return (<CircularProgress />);
+    } else if (!this.props.uiSpec) {
+      return (<NoSelectedComponent/>);
+    } else if (this.props.submitted) {
+        const configuration = kit.flatten(this.props.uiSpec.properties);
+      return (
+        <div>
+          <pre>{JSON.stringify(configuration, undefined, 2)}</pre>
+          <button className="btn btn-success" onClick={this.props.backToComponentEdit}>Back to form</button>
+        </div>
+      );
+    } else {
+      return (
+        <UIForm
+          data={this.props.uiSpec}
+          onChange={this.props.onChange}
+          onErrors={this.props.onErrors}
+          onTrigger={this.onTrigger}
+          onSubmit={this.props.onSubmit}
+          actions={
+            [
+              {
+                bsStyle: 'primary',
+                label: 'Show Configuration',
+                type: 'submit',
+                widget: 'button',
+              }
+            ]
+          }
+        />
+      );
+    }
+  }
 }
 
 export default Detail;
