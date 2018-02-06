@@ -21,6 +21,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -40,7 +41,7 @@ import org.apache.xbean.propertyeditor.PropertyEditors;
  */
 // dev note: this could be in the API and in main services but it is "fragile" so better to keep it a bit hidden
 // @Service - for doc purposes only
-public class AutoValueFluentApiFactory {
+public class AutoValueFluentApiFactory implements Serializable {
 
     public <T> T create(final Class<T> base, final String factoryMethod, final Map<String, Object> config) {
         try {

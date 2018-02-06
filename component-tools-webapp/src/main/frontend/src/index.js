@@ -18,13 +18,25 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import '@talend/bootstrap-theme/src/theme/theme.scss';
+
+// code rendering
+import 'react-ace';
+import 'brace/theme/chrome';
+import 'brace/ext/language_tools';
+import 'brace/mode/java';
+import 'brace/mode/python';
+import 'brace/mode/sql';
+import 'brace/snippets/java';
+import 'brace/snippets/sql';
+import 'brace/snippets/python';
+
 import store from './store';
 
 import App from './components/App';
 
 ReactDOM.render(
-	<Provider store={store}>
-		<App />
-	</Provider>,
-	document.getElementById('component-kit-tools-webapp')
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('component-kit-tools-webapp')
 );

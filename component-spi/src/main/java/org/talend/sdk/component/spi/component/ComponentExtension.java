@@ -57,9 +57,10 @@ public interface ComponentExtension {
     <T> T convert(ComponentInstance instance, Class<T> component);
 
     /**
-     * @return the services specific to the extension;
+     * @param plugin the plugin to enrich with services.
+     * @return the services specific to the extension.
      */
-    default Map<Class<?>, Object> getExtensionServices() {
+    default Map<Class<?>, Object> getExtensionServices(final String plugin) {
         return emptyMap();
     }
 

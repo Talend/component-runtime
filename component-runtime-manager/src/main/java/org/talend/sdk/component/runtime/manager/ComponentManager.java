@@ -979,7 +979,7 @@ public class ComponentManager implements AutoCloseable {
                                 context.setCurrentExtension(null);
                             }
                             if (context.getOwningExtension() == e) {
-                                ofNullable(e.getExtensionServices()).ifPresent(services::putAll);
+                                ofNullable(e.getExtensionServices(container.getId())).ifPresent(services::putAll);
                             }
                         });
 
