@@ -35,6 +35,7 @@ import org.talend.sdk.component.form.internal.converter.impl.widget.GridLayoutWi
 import org.talend.sdk.component.form.internal.converter.impl.widget.MultiSelectTagWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.NumberWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.ObjectArrayWidgetConverter;
+import org.talend.sdk.component.form.internal.converter.impl.widget.TextAreaWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.TextWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.ToggleWidgetConverter;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
@@ -124,6 +125,9 @@ public class UiSchemaConverter implements PropertyConverter {
             } else if (context.getProperty().getMetadata() != null
                     && context.getProperty().getMetadata().containsKey("action::dynamic_values")) {
                 new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family).convert(context);
+            } else if (context.getProperty().getMetadata().containsKey("ui::textarea")
+                    && Boolean.valueOf(context.getProperty().getMetadata().get("ui::textarea"))) {
+                new TextAreaWidgetConverter(schemas, properties, actions).convert(context);
             } else {
                 new TextWidgetConverter(schemas, properties, actions).convert(context);
             }
