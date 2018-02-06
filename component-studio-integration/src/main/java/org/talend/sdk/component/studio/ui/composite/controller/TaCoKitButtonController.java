@@ -19,6 +19,7 @@ import org.eclipse.gef.commands.Command;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -40,6 +41,18 @@ public class TaCoKitButtonController extends AbstractTaCoKitController {
         super(dp);
     }
 
+    /**
+     * Creates Button control
+     * Sets current row size in the end of the method. It is required to have proper position for subsequent controls
+     * 
+     * @param subComposite composite which will contain created control
+     * @param param ElementParameter instance
+     * @param numInRow number of created control in the current row
+     * @param nbInRow total number of all controls in the current row
+     * @param top offset from top of the composite. It is computed as row size of all previously added controls + spaces between controls 
+     * @param lastControl previously added control in the current row. It is null, if it is first control in the row
+     * @return created button
+     */
     @Override
     public Control createControl(final Composite subComposite, final IElementParameter param, final int numInRow,
             final int nbInRow, final int top, final Control lastControl) {
@@ -79,6 +92,8 @@ public class TaCoKitButtonController extends AbstractTaCoKitController {
                 executeCommand(cmd);
             }
         });
+        Point initialSize = button.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        dynamicProperty.setCurRowSize(initialSize.y + ITabbedPropertyConstants.VSPACE);
         return button;
     }
 
