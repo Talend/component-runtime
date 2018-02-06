@@ -15,20 +15,16 @@ package org.talend.sdk.component.studio.ui.composite.generator;
 import org.talend.core.ui.properties.tab.IDynamicProperty;
 import org.talend.designer.core.ui.editor.properties.controllers.generator.IControllerGenerator;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * DOC cmeng class global comment. Detailled comment
  */
 public abstract class AbstractTaCoKitGenerator implements IControllerGenerator {
 
-    private IDynamicProperty dp;
-
-    @Override
-    public void setDynamicProperty(final IDynamicProperty dp) {
-        this.dp = dp;
-    }
-
-    protected IDynamicProperty getDynamicProperty() {
-        return dp;
-    }
+    @Setter
+    @Getter(lombok.AccessLevel.PROTECTED)
+    private IDynamicProperty dynamicProperty;
 
 }

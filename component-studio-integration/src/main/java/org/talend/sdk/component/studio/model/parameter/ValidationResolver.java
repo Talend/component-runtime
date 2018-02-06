@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static org.talend.sdk.component.studio.model.action.Action.VALIDATION;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,10 +30,10 @@ import org.talend.core.model.process.IElementParameter;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
-import org.talend.sdk.component.studio.model.parameter.listener.ActionParameter;
+import org.talend.sdk.component.studio.model.action.ActionParameter;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidationListener;
 
-class ActionResolver {
+class ValidationResolver {
 
     private final ActionReference action;
 
@@ -41,7 +43,7 @@ class ActionResolver {
 
     private final ElementParameter redrawParameter;
 
-    ActionResolver(final PropertyNode actionOwner, final Collection<ActionReference> actions,
+    ValidationResolver(final PropertyNode actionOwner, final Collection<ActionReference> actions,
             final ValidationListener listener, final ElementParameter redrawParameter) {
         // TODO remove these checks as it is package visible
         Objects.requireNonNull(actionOwner, "actionOwner should not be null");
@@ -55,15 +57,17 @@ class ActionResolver {
         this.listener = listener;
         this.redrawParameter = redrawParameter;
         final String actionName = actionOwner.getProperty().getValidationName();
-        action = actions.stream().filter(a -> a.getName().equals(actionName)).findFirst().get();
+        action = actions
+                .stream()
+                .filter(a -> VALIDATION.equals(a.getType()))
+                .filter(a -> a.getName().equals(actionName))
+                .findFirst()
+                .get();
     }
 
     void resolveParameters(final Map<String, IElementParameter> settings) {
         final List<SimplePropertyDefinition> callbackParameters = new ArrayList<>(action.getProperties());
         final List<String> relativePaths = actionOwner.getProperty().getValidationParameters();
-        if (callbackParameters.size() != relativePaths.size()) {
-            throw new IllegalStateException("Action parameters size is different from metadata");
-        }
 
         for (int i = 0; i < relativePaths.size(); i++) {
             final TaCoKitElementParameter parameter = resolveParameter(relativePaths.get(i), settings);

@@ -25,6 +25,8 @@ public final class Metadatas {
 
     public static final String ACTION_DYNAMIC_VALUES = "action::dynamic_values";
 
+    public static final String ACTION_HEALTHCHECK = "action::healthcheck";
+
     public static final String ACTION_VALIDATION_NAME = "action::validation";
 
     public static final String ACTION_VALIDATION_PARAMETERS = "action::validation::parameters";

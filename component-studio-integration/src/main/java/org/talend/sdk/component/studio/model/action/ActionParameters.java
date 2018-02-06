@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.studio.model.parameter.listener;
+package org.talend.sdk.component.studio.model.action;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.talend.sdk.component.studio.model.parameter.listener.ValidationListener;
 
 import lombok.NoArgsConstructor;
 
@@ -27,27 +29,27 @@ import lombok.NoArgsConstructor;
  * {@link ValidationListener}
  */
 @NoArgsConstructor
-class ActionParameters {
+public class ActionParameters {
 
     private final Map<String, ActionParameter> parameters = new HashMap<>();
 
-    void add(final ActionParameter parameter) {
+    public void add(final ActionParameter parameter) {
         Objects.requireNonNull(parameter, "parameter should not be null");
         parameters.put(parameter.getName(), parameter);
     }
 
-    void setValue(final String parameterName, final String parameterValue) {
+    public void setValue(final String parameterName, final String parameterValue) {
         if (!parameters.containsKey(parameterName)) {
             throw new IllegalArgumentException("Non-existent parameter: " + parameterName);
         }
         parameters.get(parameterName).setValue(parameterValue);
     }
 
-    boolean areSet() {
+    public boolean areSet() {
         return parameters.values().stream().allMatch(ActionParameter::isSet);
     }
 
-    Map<String, String> payload() {
+    public Map<String, String> payload() {
         return parameters.values().stream().collect(
                 Collectors.toMap(ActionParameter::getParameter, ActionParameter::getValue));
     }

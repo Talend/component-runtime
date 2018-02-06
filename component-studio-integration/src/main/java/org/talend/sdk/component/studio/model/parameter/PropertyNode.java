@@ -40,7 +40,7 @@ public class PropertyNode {
     private PropertyNode parent;
 
     @Setter(AccessLevel.NONE)
-    private List<PropertyNode> children = new ArrayList<>();
+    private final List<PropertyNode> children = new ArrayList<>();
 
     private final PropertyDefinitionDecorator property;
 
@@ -91,8 +91,8 @@ public class PropertyNode {
      * @param visitor the property visitor to use to traverse the nodes.
      */
     public void accept(final PropertyVisitor visitor) {
-        visitor.visit(this);
         children.forEach(child -> child.accept(visitor));
+        visitor.visit(this);
     }
 
     /**
@@ -102,10 +102,10 @@ public class PropertyNode {
      * @param form Name of form
      */
     public void accept(final PropertyVisitor visitor, final String form) {
-        visitor.visit(this);
         List<PropertyNode> children = getChildren(form);
         sortChildren(children, form);
         children.forEach(child -> child.accept(visitor, form));
+        visitor.visit(this);
     }
 
     /**

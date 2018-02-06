@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static org.talend.sdk.component.studio.model.parameter.Metadatas.ACTION_HEALTHCHECK;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.ACTION_VALIDATION_NAME;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.ACTION_VALIDATION_PARAMETERS;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.CONDITION_IF_TARGET;
@@ -400,6 +401,17 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         }
         final String parametersValue = delegate.getMetadata().get(ACTION_VALIDATION_PARAMETERS);
         return Arrays.asList(parametersValue.split(VALUE_SEPARATOR));
+    }
+
+    boolean isCheckable() {
+        return delegate.getMetadata().containsKey(ACTION_HEALTHCHECK);
+    }
+
+    String getHealthCheckName() {
+        if (!isCheckable()) {
+            throw new IllegalArgumentException("It is not checkable");
+        }
+        return delegate.getMetadata().get(ACTION_HEALTHCHECK);
     }
 
     @Override

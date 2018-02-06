@@ -19,35 +19,16 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
 
-import org.talend.sdk.component.studio.Lookups;
+import org.talend.sdk.component.studio.model.action.Action;
 import org.talend.sdk.component.studio.model.parameter.ValidationLabel;
-import org.talend.sdk.component.studio.websocket.WebSocketClient.V1Action;
 
-/**
- *
- */
-public class ValidationListener implements PropertyChangeListener {
-
-    private static final String VALIDATION = "validation";
-
-    private static final String STATUS = "status";
-
-    private static final String OK = "OK";
-
-    private static final String MESSAGE = "comment";
-
-    private final String family;
-
-    private final String actionName;
+public class ValidationListener extends Action implements PropertyChangeListener {
 
     private final ValidationLabel label;
 
-    private final ActionParameters parameters = new ActionParameters();
-
     public ValidationListener(final ValidationLabel label, final String family, final String actionName) {
+        super(actionName, family, VALIDATION);
         this.label = label;
-        this.family = family;
-        this.actionName = actionName;
     }
 
     @Override
@@ -56,7 +37,7 @@ public class ValidationListener implements PropertyChangeListener {
         if (!parameters.areSet()) {
             return;
         }
-        final Map<String, String> validation = callback(parameters.payload());
+        final Map<String, String> validation = callback();
         if (OK.equals(validation.get(STATUS))) {
             label.hideValidation();
         } else {
@@ -64,13 +45,4 @@ public class ValidationListener implements PropertyChangeListener {
         }
     }
 
-    public void addParameter(final ActionParameter parameter) {
-        parameters.add(parameter);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, String> callback(final Map<String, String> payload) {
-        final V1Action action = Lookups.client().v1().action();
-        return action.execute(Map.class, family, VALIDATION, actionName, payload);
-    }
 }
