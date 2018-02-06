@@ -101,7 +101,7 @@ public class SettingsCreator implements PropertyVisitor {
      */
     private final Map<String, List<ParameterActivator>> activators = new HashMap<>();
 
-    private final List<ActionResolver> actionResolvers = new ArrayList<>();
+    private final List<ValidationResolver> actionResolvers = new ArrayList<>();
 
     /**
      * {@link TaCoKitElementParameter} has numRow field which stores widget relative position (row number on which it
@@ -511,7 +511,7 @@ public class SettingsCreator implements PropertyVisitor {
         if (node.getProperty().hasValidation()) {
             final ValidationListener listener =
                     new ValidationListener(label, family, node.getProperty().getValidationName());
-            final ActionResolver resolver = new ActionResolver(node, actions, listener, redrawParameter);
+            final ValidationResolver resolver = new ValidationResolver(node, actions, listener, redrawParameter);
             actionResolvers.add(resolver);
         }
     }

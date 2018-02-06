@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static org.talend.sdk.component.studio.model.action.Action.HEALTH_CHECK;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -44,6 +46,7 @@ public class HealthCheckResolver {
         this.checkableNode = checkableNode;
         this.action = actions
                 .stream()
+                .filter(a -> HEALTH_CHECK.equals(a.getType()))
                 .filter(a -> a.getName().equals(checkableNode.getProperty().getHealthCheckName()))
                 .findFirst()
                 .get();
