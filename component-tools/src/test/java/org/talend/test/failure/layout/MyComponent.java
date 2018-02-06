@@ -76,7 +76,7 @@ public class MyComponent implements Serializable {
         private String password;
     }
 
-    @GridLayout({ @GridLayout.Row({ "prop1", "prox" }), })
+    @GridLayout({ @GridLayout.Row({ "prop1", "proxy" }), })
     @OptionsOrder({ "prop1", "prop2" })
     public static class OtherConfig {
 

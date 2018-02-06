@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.tools;
 
-import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -26,6 +25,9 @@ import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.empty;
 import static java.util.stream.Stream.of;
+import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.ARRAY;
+import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.ENUM;
+import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.OBJECT;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
 import java.io.File;
@@ -53,8 +55,6 @@ import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
-import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -80,9 +80,7 @@ public class ComponentValidator extends BaseTask {
 
     private final Log log;
 
-    private final ParameterModelService parameterModelService = new ParameterModelService(emptyList()) {
-
-    };
+    private final ParameterModelService parameterModelService = new ParameterModelService();
 
     public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
         super(classes);
@@ -167,64 +165,121 @@ public class ComponentValidator extends BaseTask {
     private void validateLayout(final AnnotationFinder finder, final List<Class<?>> components,
             final Set<String> errors) {
 
-        final List<ParameterMeta> flatOptions = components
+        components
                 .stream()
-                .flatMap(c -> parameterModelService
-                        .buildParameterMetas(findConstructor(c),
-                                ofNullable(c.getPackage()).map(Package::getName).orElse(""))
-                        .stream())
-                .flatMap(v -> getName(v.getNestedParameters()))
-                .collect(toList());
+                .map(c -> parameterModelService.buildParameterMetas(findConstructor(c),
+                        ofNullable(c.getPackage()).map(Package::getName).orElse("")))
+                .flatMap(this::toFlatNonPrimitivConfig)
+                .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue, (p1, p2) -> p1))
+                .entrySet()
+                .forEach(c -> visitLayout(c, errors));
+    }
 
-        final List<Field> optionFields = finder.findAnnotatedFields(Option.class);
-        optionFields
-                .stream()
-                .map(Field::getDeclaringClass)
-                .collect(toSet())
-                .stream()
-                .filter(c -> c.isAnnotationPresent(GridLayout.class) && c.isAnnotationPresent(OptionsOrder.class))
-                .map(c -> "Concurrent layout found for '" + c.getName() + "', the @OptionsOrder will be ignored.")
-                .forEach(this.log::error);
+    private void visitLayout(final Map.Entry<String, ParameterMeta> config, final Set<String> errors) {
 
-        final List<AbstractMap.SimpleEntry<Class<?>, String>> gridLayouts = optionFields
+        final Set<String> fieldsInGridLayout = config
+                .getValue()
+                .getMetadata()
+                .entrySet()
                 .stream()
-                .map(Field::getDeclaringClass)
-                .filter(c -> c.isAnnotationPresent(GridLayout.class))
-                .map(c -> new AbstractMap.SimpleEntry<Class<?>, GridLayout>(c, c.getAnnotation(GridLayout.class)))
-                .flatMap(gl -> of(gl.getValue().value()).flatMap(row -> of(row.value())).map(
-                        s -> new AbstractMap.SimpleEntry<Class<?>, String>(gl.getKey(), s)))
-                .collect(toList());
+                .filter(meta -> meta.getKey().startsWith("tcomp::ui::gridlayout"))
+                .flatMap(meta -> of(meta.getValue().split("\\|")))
+                .flatMap(s -> of(s.split(",")))
+                .filter(s -> !s.isEmpty())
+                .collect(toSet());
 
-        final List<AbstractMap.SimpleEntry<Class<?>, String>> optionOrder = optionFields
+        final Set<String> fieldsInOptionOrder = config
+                .getValue()
+                .getMetadata()
+                .entrySet()
                 .stream()
-                .map(Field::getDeclaringClass)
-                .filter(c -> c.isAnnotationPresent(OptionsOrder.class) && !c.isAnnotationPresent(GridLayout.class))
-                .map(c -> new AbstractMap.SimpleEntry<Class<?>, OptionsOrder>(c, c.getAnnotation(OptionsOrder.class)))
-                .flatMap(oo -> of(oo.getValue().value())
-                        .map(s -> new AbstractMap.SimpleEntry<Class<?>, String>(oo.getKey(), s)))
-                .collect(toList());
+                .filter(meta -> meta.getKey().startsWith("tcomp::ui::optionsorder"))
+                .flatMap(meta -> of(meta.getValue().split(",")))
+                .collect(toSet());
 
-        errors.addAll(gridLayouts
-                .stream()
-                .filter(l -> flatOptions.stream().noneMatch(p -> l.getValue().equals(p.getName())))
-                .map(l -> "Option '" + l.getValue() + "' in @GridLayout doesn't exist in declaring class '"
-                        + l.getKey().getName() + "'")
-                .collect(toList()));
+        if (!fieldsInGridLayout.isEmpty() && !fieldsInOptionOrder.isEmpty()) {
+            this.log.error("Concurrent layout found for '" + config.getKey() + "', the @OptionsOrder will be ignored.");
+        }
 
-        errors.addAll(optionOrder
-                .stream()
-                .filter(oo -> flatOptions.stream().noneMatch(p -> oo.getValue().equals(p.getName())))
-                .map(l -> "Option '" + l.getValue() + "' in @OptionsOrder doesn't exist in declaring class '"
-                        + l.getKey().getName() + "'")
-                .collect(toList()));
+        if (!fieldsInGridLayout.isEmpty()) {
+            errors.addAll(fieldsInGridLayout
+                    .stream()
+                    .filter(fieldInLayout -> config
+                            .getValue()
+                            .getNestedParameters()
+                            .stream()
+                            .map(ParameterMeta::getName)
+                            .noneMatch(field -> field.equals(fieldInLayout)))
+                    .map(fieldInLayout -> "Option '" + fieldInLayout
+                            + "' in @GridLayout doesn't exist in declaring class '" + config.getKey() + "'")
+                    .collect(toList()));
 
-        flatOptions
+            config
+                    .getValue()
+                    .getNestedParameters()
+                    .stream()
+                    .filter(field -> !fieldsInGridLayout.contains(field.getName()))
+                    .map(field -> "Field '" + field.getName() + "' in " + config.getKey()
+                            + " is not declared in any layout.")
+                    .forEach(this.log::error);
+        } else {
+            errors.addAll(fieldsInOptionOrder
+                    .stream()
+                    .filter(fieldInLayout -> config
+                            .getValue()
+                            .getNestedParameters()
+                            .stream()
+                            .map(ParameterMeta::getName)
+                            .noneMatch(field -> field.equals(fieldInLayout)))
+                    .map(fieldInLayout -> "Option '" + fieldInLayout
+                            + "' in @OptionOrder doesn't exist in declaring class '" + config.getKey() + "'")
+                    .collect(toList()));
+
+            config
+                    .getValue()
+                    .getNestedParameters()
+                    .stream()
+                    .filter(field -> !fieldsInOptionOrder.contains(field.getName()))
+                    .map(field -> "Field '" + field.getName() + "' in " + config.getKey()
+                            + " is not declared in any layout.")
+                    .forEach(this.log::error);
+        }
+
+    }
+
+    private Stream<AbstractMap.SimpleEntry<String, ParameterMeta>>
+            toFlatNonPrimitivConfig(final List<ParameterMeta> config) {
+        if (config == null || config.isEmpty()) {
+            return empty();
+        }
+
+        return config
                 .stream()
-                .filter(option -> gridLayouts.stream().noneMatch(l -> l.getValue().equals(option.getName()))
-                        && optionOrder.stream().noneMatch(o -> o.getValue().equals(option.getName())))
-                .map(option -> "Field '" + option.getName() + "' in " + option.getSource().declaringClass().getName()
-                        + " is not declared in any layout.")
-                .forEach(this.log::error);
+                .filter(Objects::nonNull)
+                .filter(p -> OBJECT.equals(p.getType()) || isArrayOfObject(p))
+                .filter(p -> p.getNestedParameters() != null)
+                .flatMap(p -> concat(of(new AbstractMap.SimpleEntry<>(toJavaType(p).getName(), p)),
+                        toFlatNonPrimitivConfig(p.getNestedParameters())));
+    }
+
+    private Class<?> toJavaType(final ParameterMeta p) {
+        if (p.getType().equals(OBJECT) || p.getType().equals(ENUM)) {
+            return Class.class.cast(p.getJavaType());
+        }
+
+        if (p.getType().equals(ARRAY) && ParameterizedType.class.isInstance(p.getJavaType())) {
+            return Class.class.cast(ParameterizedType.class.cast(p.getJavaType()).getActualTypeArguments()[0]);
+        }
+
+        throw new IllegalStateException("Parameter '" + p.getName() + "' is not an object.");
+    }
+
+    private boolean isArrayOfObject(final ParameterMeta param) {
+
+        return ARRAY.equals(param.getType()) && param.getNestedParameters() != null
+                && param.getNestedParameters().stream().anyMatch(
+                        p -> OBJECT.equals(p.getType()) || ENUM.equals(p.getType()) || isArrayOfObject(p));
+
     }
 
     private Stream<ParameterMeta> getName(final List<ParameterMeta> params) {
