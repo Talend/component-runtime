@@ -49,7 +49,8 @@ public class TaCoKitButtonController extends AbstractTaCoKitController {
      * @param param ElementParameter instance
      * @param numInRow number of created control in the current row
      * @param nbInRow total number of all controls in the current row
-     * @param top offset from top of the composite. It is computed as row size of all previously added controls + spaces between controls 
+     * @param top offset from top of the composite. It is computed as row size of all previously added controls + spaces
+     * between controls
      * @param lastControl previously added control in the current row. It is null, if it is first control in the row
      * @return created button
      */

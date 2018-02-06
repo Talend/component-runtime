@@ -120,12 +120,15 @@ def doIndex= { base ->
 
 def addDependency = { base, localRepo, gav, index ->
     def gavSplit = gav.split(':')
+
     def localPathJar = new File(localRepo, "${gavSplit[0].replace('.', '/')}/${gavSplit[1]}/${gavSplit[2]}/${gavSplit[1]}-${gavSplit[2]}.jar")
     if (!localPathJar.exists() ||
             (!useReleaseVersion && Boolean.parseBoolean(System.getProperty('talend.component.kit.build.studio.m2.forceupdate', project.properties['talend.component.kit.build.studio.m2.forceupdate'])))) {
         if (index.isEmpty()) { // not needed after first download
             index.putAll(doIndex(studioRepo))
         }
+
+        def overrideJar = new File(project.getBasedir(), ".p2overrides/${gavSplit[1]}-${project.properties['studio.version']}.jar")
 
         def jarName = index.get(gav)
         if (jarName == null) {
@@ -135,10 +138,13 @@ def addDependency = { base, localRepo, gav, index ->
             throw new IllegalArgumentException("Didn't find ${gav} nor ${gavSplit[1]}, available: ${index.keySet().toString()}")
         }
 
+        def local = overrideJar.exists()
         localPathJar.parentFile.mkdirs()
         def os = localPathJar.newOutputStream()
         try {
-            os << new URL("${base}/plugins/${jarName}.jar").openStream()
+            os << (local ?
+                    overrideJar.newOpenInputStream() :
+                    new URL("${base}/plugins/${jarName}.jar").openStream())
         } finally { // todo: be resilient if download fails instead of storing a corrupted jar and have to delete localPathJar
             os.close()
         }
@@ -166,10 +172,10 @@ def addDependency = { base, localRepo, gav, index ->
 }
 
 // add the local repo
-final Repository repository = new Repository();
-repository.id = "build-p2-local-repository";
-repository.url = new File(project.getBasedir(), ".p2localrepository").toURI().toURL();
-project.getRepositories().add(repository);
+final Repository repository = new Repository()
+repository.id = "build-p2-local-repository"
+repository.url = new File(project.getBasedir(), ".p2localrepository").toURI().toURL()
+project.getRepositories().add(repository)
 
 println("""
   <repositories>
