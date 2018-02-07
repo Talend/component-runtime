@@ -22,15 +22,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit-tests for {@link ValueConverter}
  */
-public class ValueConverterTest {
+class ValueConverterTest {
 
     @Test
-    public void testToTable() {
+    void testToTable() {
         Map<String, Object> expected0 = new HashMap<>();
         expected0.put("key1", "value11");
         expected0.put("key2", "value12");
@@ -46,14 +46,14 @@ public class ValueConverterTest {
     }
 
     @Test
-    public void testToTableNull() {
+    void testToTableNull() {
         ArrayList<Map<String, Object>> empty = new ArrayList<>();
         List<Map<String, Object>> actual = ValueConverter.toTable(null);
         assertEquals(empty, actual);
     }
 
     @Test
-    public void testToTableEmpty() {
+    void testToTableEmpty() {
         ArrayList<Map<String, Object>> empty = new ArrayList<>();
         List<Map<String, Object>> actual = ValueConverter.toTable("");
         assertEquals(empty, actual);

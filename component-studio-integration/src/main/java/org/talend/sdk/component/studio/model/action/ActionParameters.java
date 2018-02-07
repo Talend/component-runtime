@@ -46,7 +46,7 @@ public class ActionParameters {
     }
 
     public boolean areSet() {
-        return parameters.values().stream().allMatch(ActionParameter::isSet);
+        return parameters.values().stream().allMatch(ActionParameter::isHasDirectValue);
     }
 
     public Map<String, String> payload() {

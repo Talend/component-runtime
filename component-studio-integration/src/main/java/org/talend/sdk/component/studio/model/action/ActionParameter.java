@@ -17,6 +17,8 @@ package org.talend.sdk.component.studio.model.action;
 
 import java.util.regex.Pattern;
 
+import org.talend.core.model.utils.ContextParameterUtils;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -36,10 +38,10 @@ public class ActionParameter {
     private final String parameter;
 
     /**
-     * Denotes whether associated ElementParameter is set. Once set it can't be
+     * Denotes whether associated ElementParameter is set and usable. Once set it can't be
      * unset
      */
-    private boolean isSet = false;
+    private boolean hasDirectValue = false;
 
     /**
      * Parameter value
@@ -61,8 +63,13 @@ public class ActionParameter {
 
     void setValue(final String newValue) {
         if (newValue != null) {
-            isSet = true;
             this.value = removeQuotes(newValue);
+            // todo: if context -> evaluate
+            this.hasDirectValue =
+                    !this.value.equals(newValue) || !ContextParameterUtils.containContextVariables(newValue);
+        } else {
+            this.value = null;
+            this.hasDirectValue = false;
         }
     }
 
