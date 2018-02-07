@@ -14,11 +14,9 @@
 */%>
 <%@ jet
     imports="
-        org.talend.core.model.components.IComponent
         org.talend.core.model.process.INode
         org.talend.designer.codegen.config.CodeGeneratorArgument
         org.talend.core.model.process.ElementParameterParser
-        org.talend.designer.core.model.components.EParameterName
         org.talend.core.model.process.IElementParameter
         org.talend.core.model.process.EParameterFieldType
         org.talend.core.model.metadata.IMetadataColumn
@@ -31,30 +29,31 @@
     "
 %>
 
-<%
-    final CodeGeneratorArgument codeGenArgument = CodeGeneratorArgument.class.cast(argument);
-    final INode node = INode.class.cast(codeGenArgument.getArgument());
-    final String cid = node.getUniqueName();
-    final String originalName = (String)node.getElementParameter(EParameterName.COMPONENT_NAME.getName()).getValue();
-    final String family = (String)node.getElementParameter(EParameterName.FAMILY.getName()).getValue();
-    final String version = (String)node.getElementParameter(EParameterName.VERSION.getName()).getValue();
-    final IComponent component = node.getComponent();
-    final boolean useLookup = component.useLookup();
-%>
-
-    inputsHandler_<%=cid%>.reset();
-<%
-    if (useLookup) {
-%>
-        <%@include file="./processor_multiple_input_main.javajet"%>
-<%
-    } else {
-        for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
-%>
-          inputsHandler_<%=cid%>.setInputValue("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>);
-<%
+    boolean continueLoop = true;
+    while(continueLoop) {
+        continueLoop = false;
+        for (java.util.Iterator<Object> loopIter : inputIterMap.values()) {
+            if (loopIter.hasNext()) {
+                continueLoop = true;
+                break;
+            }
         }
-    }
-%>
+        if (!continueLoop) {
+            break;
+        }
 
-    <%@include file="./processor_output.javajet"%>
+        inputsHandler_<%=cid%>.reset();
+        Object loopIterObj = null;
+        for (java.util.Map.Entry<String, Object> loopEntry : inputIterMap.entrySet())
+            loopIterObj = null;
+            String loopRowName = loopEntry.getKey();
+            java.util.Iterator<Object> loopIter = loopEntry.getValue();
+            if (loopIter.hasNext()) {
+                loopIterObj = loopIter.next();
+            }
+            inputsHandler_<%=cid%>.setInputValue(loopRowName, loopIterObj);
+        }
+
+        <%@include file="./processor_output.javajet"%>
+
+    }

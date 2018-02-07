@@ -18,6 +18,15 @@
         org.talend.core.model.process.INode
         org.talend.designer.codegen.config.CodeGeneratorArgument
         org.talend.designer.core.model.components.EParameterName
+        org.talend.core.model.process.ElementParameterParser
+        org.talend.core.model.process.IElementParameter
+        org.talend.core.model.process.EParameterFieldType
+        org.talend.core.model.metadata.IMetadataColumn
+        org.talend.core.model.metadata.IMetadataTable
+        org.talend.core.model.process.IConnection
+        org.talend.core.model.process.IConnectionCategory
+        org.talend.core.model.process.EConnectionType
+        java.util.List
         java.util.Locale
     "
 %>
@@ -29,19 +38,13 @@
     final IComponent component = node.getComponent();
     final boolean useLookup = component.useLookup();
 %>
-
 <%
     if (useLookup) {
 %>
-        <%@include file="./processor_multiple_input_finally.javajet"%>
+        <%@include file="./processor_multiple_input_end.javajet"%>
 <%
+    } else {
+        // nothing to do
     }
 %>
-    final org.talend.sdk.component.runtime.di.AutoChunkProcessor processor_<%=cid%> = org.talend.sdk.component.runtime.di.AutoChunkProcessor.class.cast(globalMap.remove("processor_<%=cid%>"));
-    try {
-        if (processor_<%=cid%> != null) {
-            processor_<%=cid%>.stop();
-        }
-    } catch (final RuntimeException re) {
-        throw new TalendException(re, currentComponent, globalMap);
-    }
+

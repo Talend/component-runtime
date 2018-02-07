@@ -80,6 +80,8 @@ public class ComponentModel extends AbstractBasicComponent {
 
     private volatile List<ModuleNeeded> modulesNeeded;
 
+    private boolean useLookup = false;
+
     public ComponentModel(final ComponentIndex component, final ComponentDetail detail, final ImageDescriptor image32) {
         setPaletteType(ComponentCategory.CATEGORY_4_DI.getName());
         this.index = component;
@@ -130,9 +132,9 @@ public class ComponentModel extends AbstractBasicComponent {
      * @return
      */
     private List<ECodePart> createCodePartList() {
-        return (detail.getType().equalsIgnoreCase("input"))
+        return (detail.getType().equalsIgnoreCase("input")) //$NON-NLS-1$
                 ? Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.END, ECodePart.FINALLY))
-                : Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.FINALLY));
+                : Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY));
     }
 
     /**
@@ -459,6 +461,11 @@ public class ComponentModel extends AbstractBasicComponent {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean useLookup() {
+        return useLookup;
     }
 
 }
