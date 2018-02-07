@@ -325,7 +325,7 @@ public class ComponentModel extends AbstractBasicComponent {
         if (modulesNeeded == null) {
             synchronized (this) {
                 if (modulesNeeded == null) {
-                    modulesNeeded = new ArrayList<>();
+                    modulesNeeded = new ArrayList<>(20);
                     try (final BufferedReader reader = new BufferedReader(
                             new InputStreamReader(ComponentModel.class.getClassLoader().getResourceAsStream(
                                     "TALEND-INF/tacokit.dependencies")))) {
