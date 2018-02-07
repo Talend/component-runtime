@@ -20,9 +20,6 @@ import static org.talend.sdk.component.studio.model.ReturnVariables.AFTER;
 import static org.talend.sdk.component.studio.model.ReturnVariables.RETURN_ERROR_MESSAGE;
 import static org.talend.sdk.component.studio.model.ReturnVariables.RETURN_TOTAL_RECORD_COUNT;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,6 +50,7 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.model.connector.ConnectorCreatorFactory;
 import org.talend.sdk.component.studio.model.parameter.ElementParameterCreator;
 import org.talend.sdk.component.studio.model.parameter.Metadatas;
+import org.talend.sdk.component.studio.service.ComponentService;
 
 // TODO: finish the impl
 public class ComponentModel extends AbstractBasicComponent {
@@ -325,19 +323,14 @@ public class ComponentModel extends AbstractBasicComponent {
         if (modulesNeeded == null) {
             synchronized (this) {
                 if (modulesNeeded == null) {
+                    final ComponentService.Dependencies dependencies = Lookups.service().getDependencies();
+
                     modulesNeeded = new ArrayList<>(20);
-                    try (final BufferedReader reader = new BufferedReader(
-                            new InputStreamReader(ComponentModel.class.getClassLoader().getResourceAsStream(
-                                    "TALEND-INF/tacokit.dependencies")))) {
-                        modulesNeeded.addAll(reader
-                                .lines()
-                                .map(String::trim)
-                                .filter(s -> !s.isEmpty())
-                                .map(s -> new ModuleNeeded(getName(), "", true, s))
-                                .collect(toList()));
-                    } catch (final IOException e) {
-                        throw new IllegalStateException("No TALEND-INF/tacokit.dependencies found");
-                    }
+                    modulesNeeded.addAll(dependencies
+                            .getCommon()
+                            .stream()
+                            .map(s -> new ModuleNeeded(getName(), "", true, s))
+                            .collect(toList()));
                     modulesNeeded.add(new ModuleNeeded(getName(), "", true,
                             "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.VERSION));
                     modulesNeeded
@@ -349,6 +342,24 @@ public class ComponentModel extends AbstractBasicComponent {
                         modulesNeeded.add(new ModuleNeeded(getName(), "", true,
                                 "mvn:org.slf4j/slf4j-log4j12/" + GAV.SLF4J_VERSION));
                     }
+
+                    final Map<String, ?> transitiveDeps = !Lookups.configuration().isActive() ? null
+                            : Lookups.client().v1().component().dependencies(detail.getId().getId());
+                    if (transitiveDeps != null && transitiveDeps.containsKey("dependencies")) {
+                        final Collection<String> coordinates = Collection.class.cast(Map.class
+                                .cast(Map.class.cast(transitiveDeps.get("dependencies")).values().iterator().next())
+                                .get("dependencies"));
+                        if (coordinates != null && coordinates.stream().anyMatch(
+                                d -> d.contains("org.apache.beam") || d.contains(":beam-sdks-java-io"))) {
+                            modulesNeeded.addAll(dependencies
+                                    .getBeam()
+                                    .stream()
+                                    .map(s -> new ModuleNeeded(getName(), "", true, s))
+                                    .collect(toList()));
+                            // transitivity works through pom
+                        }
+                    }
+
                     // We're assuming that pluginLocation has format of groupId:artifactId:version
                     final String location = index.getId().getPluginLocation().trim();
                     modulesNeeded.add(new ModuleNeeded(getName(), "", true, locationToMvn(location)));

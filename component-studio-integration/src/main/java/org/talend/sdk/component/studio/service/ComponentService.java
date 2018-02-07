@@ -15,13 +15,19 @@
  */
 package org.talend.sdk.component.studio.service;
 
+import static java.util.stream.Collectors.toSet;
+import static lombok.AccessLevel.PRIVATE;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;
 import org.talend.commons.ui.runtime.image.EImage;
@@ -31,11 +37,14 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.ComponentModel;
 import org.talend.sdk.component.studio.model.parameter.Metadatas;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 public class ComponentService {
 
     private static final ImageDescriptor DEFAULT_IMAGE = ImageProvider.getImageDesc(EImage.COMPONENT_MISSING);
 
-    private volatile Boolean linux;
+    private volatile Dependencies dependencies;
 
     // a @ConfigurationType is directly stored into the metadata without any prefix.
     // for now whitelist the support types and ensure it works all the way along
@@ -72,14 +81,32 @@ public class ComponentService {
         }
     }
 
-    public boolean isLinux() {
-        if (linux == null) {
+    public Dependencies getDependencies() {
+        if (dependencies == null) {
             synchronized (this) {
-                if (linux == null) {
-                    linux = Platform.getOS().equals(Platform.OS_LINUX);
+                if (dependencies == null) {
+                    dependencies = new Dependencies(readDependencies("tacokit"), readDependencies("beam"));
                 }
             }
         }
-        return linux;
+        return dependencies;
+    }
+
+    private Set<String> readDependencies(final String name) {
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(
+                ComponentModel.class.getClassLoader().getResourceAsStream("TALEND-INF/" + name + ".dependencies")))) {
+            return reader.lines().map(String::trim).filter(s -> !s.isEmpty()).collect(toSet());
+        } catch (final IOException e) {
+            throw new IllegalStateException("No TALEND-INF/tacokit.dependencies found");
+        }
+    }
+
+    @Data
+    @AllArgsConstructor(access = PRIVATE)
+    public static class Dependencies {
+
+        private final Collection<String> common;
+
+        private final Collection<String> beam;
     }
 }

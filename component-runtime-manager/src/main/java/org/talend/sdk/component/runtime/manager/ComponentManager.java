@@ -177,10 +177,11 @@ public class ComponentManager implements AutoCloseable {
     // service
     // + tcomp "runtime" indeed (invisible from the components but required for the
     // runtime
-    private final Filter classesFilter =
-            Filters.prefixes("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.", "javax.annotation.",
+    private final Filter classesFilter = Filters.prefixes(Stream
+            .concat(Stream.of("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.", "javax.annotation.",
                     "javax.json.", "org.talend.sdk.component.classloader.", "org.talend.sdk.component.runtime.",
-                    "org.slf4j.", "org.apache.beam.runners.", "org.apache.beam.sdk.", "org.apache.johnzon.");
+                    "org.slf4j.", "org.apache.johnzon."), additionalContainerClasses())
+            .toArray(String[]::new));
 
     private final Filter excludeClassesFilter =
             Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.");
@@ -354,6 +355,21 @@ public class ComponentManager implements AutoCloseable {
         }
 
         return manager;
+    }
+
+    private static Stream<String> additionalContainerClasses() {
+        try { // if beam is here just skips beam sdk java core classes and load them from the container
+            ComponentManager.class.getClassLoader().loadClass("org.apache.beam.sdk.Pipeline");
+            // todo: refine to let not beam component provide their own impl
+            return Stream.of("org.apache.beam.runners.", "org.apache.beam.sdk.",
+                    "org.talend.sdk.component.runtime.beam.", "org.codehaus.jackson.",
+                    "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
+                    "com.fasterxml.jackson.databind.", "com.thoughtwors.paranamer.", "org.apache.commons.compress.",
+                    "org.tukaani.xz.", "org.objenesis.", "org.joda.time.", "org.xerial.snappy.", "avro.shaded.",
+                    "org.apache.avro.");
+        } catch (final NoClassDefFoundError | ClassNotFoundException e) {
+            return Stream.empty();
+        }
     }
 
     protected static File findM2() {

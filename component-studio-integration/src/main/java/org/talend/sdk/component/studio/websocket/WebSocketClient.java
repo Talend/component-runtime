@@ -303,6 +303,11 @@ public class WebSocketClient implements AutoCloseable {
                     true);
         }
 
+        public Map<String, ?> dependencies(final String id) {
+            return root.sendAndWait("/v1/get/component/dependencies", "/component/dependencies?identifier=" + id, null,
+                    Map.class, true);
+        }
+
         public byte[] icon(final String id) {
             return root.sendAndWait("/v1/get/component/icon/" + id, "/component/icon/" + id, null, byte[].class, true);
         }

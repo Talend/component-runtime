@@ -70,7 +70,11 @@ public class Lookups {
     }
 
     public static Configuration configuration() {
-        return lookup(Configuration.class);
+        try {
+            return lookup(Configuration.class);
+        } catch (final Exception e) { // for tests mainly
+            return new Configuration(false, 1000);
+        }
     }
 
     public static WebSocketClient client() {
@@ -78,7 +82,11 @@ public class Lookups {
     }
 
     public static ComponentService service() {
-        return lookup(ComponentService.class);
+        try {
+            return lookup(ComponentService.class);
+        } catch (final Exception e) { // for tests mainly
+            return new ComponentService();
+        }
     }
 
     public static TaCoKitCache taCoKitCache() {

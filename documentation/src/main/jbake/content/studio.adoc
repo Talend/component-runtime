@@ -38,6 +38,7 @@ The configuration goes into `$STUDIO_HOME/configuration/config.ini`.
 | component.java.coordinates | A list of comma separated GAV (groupId:artifactId:version) of components to register | -
 | component.java.registry | A properties file with values matching component GAV (groupId:artifactId:version) which are registered at startup | -
 | component.java.port | Set a port to use for the server | random
+| components.server.beam.active | Active, if set to true, beam support (_Experimental_). It requires beam sdk java core dependencies to be available. | false
 |===
 
 IMPORTANT: to activate the plugin and be able to deploy your component, don't forget to set `component.kit.skip` to `true`.

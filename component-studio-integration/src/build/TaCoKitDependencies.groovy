@@ -22,33 +22,44 @@ import org.eclipse.aether.graph.DependencyVisitor
 
 def repositorySession = session.getRepositorySession()
 def rs = session.lookup(RepositorySystem.class.getName())
-def collectResult = rs.collectDependencies(repositorySession, new CollectRequest(new Dependency(
-        new DefaultArtifact(project.getGroupId(), "component-runtime-manager", "jar", project.getVersion()),
-        "compile"), project.getRemoteProjectRepositories()))
 
-def collect = []
-collectResult.root.accept(new DependencyVisitor() {
-    @Override
-    boolean visitEnter(DependencyNode node) {
-        if (node.dependency.artifact.artifactId != 'slf4j-api') { // slf4j is managed into the studio
-            collect.add(node.dependency.artifact)
+def doCollect = { groupId, artifactId, version, output ->
+    def exclusions = [
+            'slf4j-api', // slf4j is managed into the studio and findbugs is not needed at runtime
+            'findbugs-annotations' // only static analyzis tool, not needed at runtime
+    ]
+
+    def collectResult = rs.collectDependencies(repositorySession, new CollectRequest(new Dependency(
+            new DefaultArtifact(groupId, artifactId, "jar", version), "compile"), project.getRemoteProjectRepositories()))
+
+    def collect = []
+    collectResult.root.accept(new DependencyVisitor() {
+        @Override
+        boolean visitEnter(DependencyNode node) {
+            def aId = node.dependency.artifact.artifactId
+            if (!exclusions.contains(aId)) {
+                collect.add(node.dependency.artifact)
+            }
+            return true
         }
-        return true
-    }
 
-    @Override
-    boolean visitLeave(DependencyNode node) {
-        return true
-    }
-})
+        @Override
+        boolean visitLeave(DependencyNode node) {
+            return true
+        }
+    })
 
-def dependencies = new File(project.build.outputDirectory, 'TALEND-INF/tacokit.dependencies')
-dependencies.parentFile.mkdirs()
-def dependenciesOS = dependencies.newOutputStream()
-try {
-    collect.collect { "mvn:${it.groupId}/${it.artifactId}/${it.version}" }.toSet().sort { it }.each {
-        dependenciesOS << "${it}\n"
+    def dependencies = new File(project.build.outputDirectory, output)
+    dependencies.parentFile.mkdirs()
+    def dependenciesOS = dependencies.newOutputStream()
+    try {
+        collect.collect { "mvn:${it.groupId}/${it.artifactId}/${it.version}" }.toSet().sort { it }.each {
+            dependenciesOS << "${it}\n"
+        }
+    } finally {
+        dependenciesOS.close()
     }
-} finally {
-    dependenciesOS.close()
 }
+
+doCollect(project.groupId, 'component-runtime-manager', project.version, 'TALEND-INF/tacokit.dependencies')
+doCollect(project.groupId, 'component-runtime-beam', project.version, 'TALEND-INF/beam.dependencies')

@@ -251,7 +251,8 @@
               org.apache.log4j
             </Require-Bundle>
             <Include-Resource>{maven-resources},
-              {TALEND-INF/tacokit.dependencies=${project.build.outputDirectory}/TALEND-INF/tacokit.dependencies}
+              {TALEND-INF/tacokit.dependencies=${project.build.outputDirectory}/TALEND-INF/tacokit.dependencies},
+              {TALEND-INF/beam.dependencies=${project.build.outputDirectory}/TALEND-INF/beam.dependencies}
             </Include-Resource>
             <Import-Package/>
             <Bundle-SymbolicName>${project.artifactId};singleton=true</Bundle-SymbolicName>

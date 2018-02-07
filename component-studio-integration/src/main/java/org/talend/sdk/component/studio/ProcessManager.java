@@ -428,6 +428,14 @@ public class ProcessManager implements AutoCloseable {
         // we use the Cli as main so we need it
         paths.add(resolve("commons-cli:commons-cli:jar:" + GAV.CLI_VERSION).toURI().toURL());
         paths.add(resolve("org.slf4j:slf4j-jdk14:jar:" + GAV.SLF4J_VERSION).toURI().toURL());
+        if (Boolean.getBoolean("components.server.beam.active")) {
+            try (final InputStream beamStream =
+                    ComponentModel.class.getClassLoader().getResourceAsStream("TALEND-INF/beam.dependencies")) {
+                addDependencies(paths, beamStream);
+            } catch (final IOException e) {
+                throw new IllegalStateException("No TALEND-INF/beam.dependencies found");
+            }
+        }
         return paths;
     }
 
@@ -440,7 +448,14 @@ public class ProcessManager implements AutoCloseable {
                 if (line == null) {
                     break;
                 }
-                line = line.trim();
+                line = line.trim().replace('/', ':'); // pax to our format
+                if (line.startsWith("mvn:")) {
+                    line = line.substring("mvn:".length());
+                    final String[] split = line.split(":");
+                    if (split.length == 3) {
+                        line = split[0] + ':' + split[1] + ":jar:" + split[2];
+                    }
+                }
                 if (line.isEmpty()) {
                     continue;
                 }
