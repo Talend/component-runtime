@@ -142,7 +142,7 @@ public class InternationalizationServiceFactory {
         }
 
         private String getTemplate(final Locale locale, final Method method) {
-            final ResourceBundle bundle = bundles.computeIfAbsent(locale, l -> ResourceBundle.getBundle(messages, l));
+            final ResourceBundle bundle = bundles.computeIfAbsent(locale, l -> ResourceBundle.getBundle(messages, l, Thread.currentThread().getContextClassLoader()));
             final String key = prefix + method.getName();
             return bundle.containsKey(key) ? bundle.getString(key) : method.getName();
         }
