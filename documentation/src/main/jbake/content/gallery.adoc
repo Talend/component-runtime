@@ -38,8 +38,8 @@ String config;
 | Textarea
 |[source,java]
 ----
-@Textarea
 @Option
+@Textarea
 String config;
 ----
 |image::gallery/widgets/studio/textarea.png[Studio Textarea,window="_blank",link="images/gallery/widgets/studio/textarea.png"]
@@ -87,8 +87,8 @@ String config;
 | Schema
 |[source,java]
 ----
-@Structure
 @Option
+@Structure
 List<String> config;
 ----
 |image::gallery/widgets/studio/schema.png[Studio Schema,window="_blank",link="images/gallery/widgets/studio/schema.png"]
@@ -99,7 +99,7 @@ List<String> config;
 
 == Validations
 
-[cols="1,1a,1a,1a",role="table gallery",options="header,autowidth"]
+[cols="1,3a,4a,4a",role="table gallery",options="header,autowidth"]
 |===
 | Name | Code | Studio Rendering | Web Rendering
 
@@ -107,15 +107,35 @@ List<String> config;
 |[source,java]
 ----
 /** configuration class */
-@Validable("url")
 @Option
+@Validable("url")
 String config;
 
 /** service class */
 @AsyncValidation("url")
 ValidationResult doValidate(String url) {
-//validate your property
+//validate the property
 }
 ----
-|image::gallery/widgets/studio/prop_validation.png[Studio Code,window="_blank",link="images/gallery/widgets/studio/prop_validation.png"]
-|image::gallery/widgets/web/prop_validation.png[Web Code,window="_blank",link="images/gallery/widgets/web/prop_validation.png"]
+|image::gallery/widgets/studio/validation_property.png[Studio Code,window="_blank",link="images/gallery/widgets/studio/prop_validation.png"]
+|image::gallery/widgets/web/validation_property.png[Web Code,window="_blank",link="images/gallery/widgets/web/prop_validation.png"]
+
+
+| Data store validation
+|[source,java]
+----
+@Datastore
+@Checkable
+public class config {
+/** config ...*/
+}
+
+/** service class */
+@HealthCheck
+public HealthCheckStatus testConnection(){
+
+//validate the connection
+}
+----
+|image::gallery/widgets/studio/validation_datastore.png[Studio Code,window="_blank",link="images/gallery/widgets/studio/prop_validation.png"]
+|image::gallery/widgets/web/validation_datastore.png[Web Code,window="_blank",link="images/gallery/widgets/web/prop_validation.png"]
