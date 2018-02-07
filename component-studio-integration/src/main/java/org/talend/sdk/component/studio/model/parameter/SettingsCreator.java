@@ -363,7 +363,7 @@ public class SettingsCreator implements PropertyVisitor {
 
         // add child parameters
         // defines whether schema is built-in or repository
-        final TaCoKitElementParameter childParameter1 = new TaCoKitElementParameter(getNode());
+        final ElementParameter childParameter1 = new ElementParameter(getNode());
         childParameter1.setCategory(EComponentCategory.BASIC);
         childParameter1.setContext(connectionName);
         childParameter1.setDisplayName("Schema");
@@ -379,7 +379,7 @@ public class SettingsCreator implements PropertyVisitor {
         childParameter1.setValue("BUILT_IN");
         schema.getChildParameters().put(EParameterName.SCHEMA_TYPE.getName(), childParameter1);
 
-        final TaCoKitElementParameter childParameter2 = new TaCoKitElementParameter(getNode());
+        final ElementParameter childParameter2 = new ElementParameter(getNode());
         childParameter2.setCategory(EComponentCategory.BASIC);
         childParameter2.setContext(connectionName);
         childParameter2.setDisplayName("Repository");
