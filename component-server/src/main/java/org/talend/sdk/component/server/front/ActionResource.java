@@ -50,12 +50,14 @@ import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
+import org.talend.sdk.component.server.service.httpurlconnection.IgnoreNetAuthenticator;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Path("action")
 @ApplicationScoped
+@IgnoreNetAuthenticator
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
 public class ActionResource {
