@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.beam.impl;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import org.apache.beam.sdk.io.Source;
@@ -25,8 +26,10 @@ import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
+@Slf4j
 public class BeamInput implements Input {
 
     private final Source.Reader<?> reader;
@@ -43,6 +46,8 @@ public class BeamInput implements Input {
 
     private final int chunkSize = 10; // arbitrary for now
 
+    private final long retryOnNoRecordTimeoutSec;
+
     private boolean started;
 
     private int itemCounter = 0;
@@ -56,7 +61,7 @@ public class BeamInput implements Input {
         }
         return execute(() -> {
             try {
-                final boolean hasRecord;
+                boolean hasRecord;
                 if (!started) {
                     hasRecord = reader.start();
                     if (processor != null) {
@@ -69,16 +74,35 @@ public class BeamInput implements Input {
                 if (itemCounter == 0 && processor != null) {
                     processor.beforeGroup();
                 }
+                if (!hasRecord && retryOnNoRecordTimeoutSec > 0) {
+                    final long init = System.currentTimeMillis();
+                    final long maxRetryTimestamp = init + TimeUnit.SECONDS.toMillis(retryOnNoRecordTimeoutSec);
+                    while (!hasRecord && System.currentTimeMillis() < maxRetryTimestamp) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (final InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            return null;
+                        }
+                        hasRecord = reader.advance();
+                    }
+                    if (!hasRecord) {
+                        log.warn("No record in {} seconds, quitting", retryOnNoRecordTimeoutSec);
+                    }
+                }
                 if (hasRecord) {
                     records = doTransform(reader.getCurrent());
                 }
                 if (processor != null && ++itemCounter > chunkSize) {
                     afterChunk();
                 }
-                return records.hasNext() ? records.next() : null;
+                if (records != null && records.hasNext()) {
+                    return records.next();
+                }
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
+            return null;
         });
     }
 

@@ -98,10 +98,10 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
     public Input create() {
         return execute(() -> {
             try {
-                final Source.Reader<?> reader = BoundedSource.class.isInstance(flow.source)
-                        ? BoundedSource.class.cast(flow.source).createReader(options)
+                final boolean isBounded = BoundedSource.class.isInstance(flow.source);
+                final Source.Reader<?> reader = isBounded ? BoundedSource.class.cast(flow.source).createReader(options)
                         : UnboundedSource.class.cast(flow.source).createReader(options, null);
-                return new BeamInput(reader, flow.processor, plugin, family, name, loader);
+                return new BeamInput(reader, flow.processor, plugin, family, name, loader, isBounded ? 0 : 30);
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }

@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
@@ -64,17 +65,18 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.runtime.beam.data.Sample;
 import org.talend.sdk.component.runtime.beam.impl.BeamMapperImpl;
 import org.talend.sdk.component.runtime.beam.impl.BeamProcessorChainImpl;
+import org.talend.sdk.component.runtime.beam.impl.CapturingPipeline;
 import org.talend.sdk.component.runtime.beam.transform.DelegatingTransform;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.Processor;
-import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.input.PartitionMapper;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -234,10 +236,14 @@ public class BeamIOWrappingTest implements Serializable {
         final Optional<Object> component =
                 ComponentManager.instance().createComponent("test", name, type, 1, createConfig(name));
         assertTrue(component.isPresent());
-        return component.get();
+        final Object obj = component.get();
+        if (CapturingPipeline.TransformWithCoder.class.isInstance(obj)) {
+            return CapturingPipeline.TransformWithCoder.class.cast(obj).getTransform();
+        }
+        return obj;
     }
 
-    private HashMap<String, String> createConfig(String name) {
+    private Map<String, String> createConfig(String name) {
         return new HashMap<String, String>() {
 
             {

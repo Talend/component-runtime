@@ -15,11 +15,15 @@
  */
 package org.talend.sdk.component.runtime.beam.impl;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.runners.TransformHierarchy;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -29,10 +33,12 @@ import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.POutput;
 import org.apache.beam.sdk.values.PValue;
+import org.apache.beam.sdk.values.TupleTag;
 
+import lombok.Data;
 import lombok.Getter;
 
-class CapturingPipeline extends Pipeline {
+public class CapturingPipeline extends Pipeline {
 
     @Getter
     private PTransform<? super PBegin, ?> root;
@@ -102,7 +108,7 @@ class CapturingPipeline extends Pipeline {
         private PTransform<? super PBegin, ?> transform;
 
         @Getter
-        private List<PTransform<PCollection<?>, ?>> transforms = new ArrayList<>();
+        private List<TransformWithCoder> transforms = new ArrayList<>();
 
         @Override
         public void enterPipeline(final Pipeline p) {
@@ -123,7 +129,8 @@ class CapturingPipeline extends Pipeline {
         public void visitPrimitiveTransform(final TransformHierarchy.Node node) {
             final PTransform<?, ?> transform = node.getTransform();
             if (this.transform != null) {
-                this.transforms.add((PTransform<PCollection<?>, PCollection<?>>) transform);
+                this.transforms.add(new TransformWithCoder((PTransform<PCollection<?>, PCollection<?>>) transform,
+                        findCoders(node)));
             } else {
                 this.transform = (PTransform<? super PBegin, ?>) transform;
             }
@@ -138,5 +145,25 @@ class CapturingPipeline extends Pipeline {
         public void leavePipeline(final Pipeline pipeline) {
             // no-op
         }
+
+        private Map<TupleTag<?>, Coder<?>> findCoders(final TransformHierarchy.Node node) {
+            if (node.getOutputs() == null || node.getOutputs().isEmpty()) {
+                return null;
+            }
+            return node
+                    .getOutputs()
+                    .entrySet()
+                    .stream()
+                    .filter(e -> PCollection.class.isInstance(e.getValue()))
+                    .collect(toMap(Map.Entry::getKey, e -> PCollection.class.cast(e.getValue()).getCoder()));
+        }
+    }
+
+    @Data
+    public static class TransformWithCoder {
+
+        private final PTransform<PCollection<?>, ?> transform;
+
+        private final Map<TupleTag<?>, Coder<?>> coders;
     }
 }

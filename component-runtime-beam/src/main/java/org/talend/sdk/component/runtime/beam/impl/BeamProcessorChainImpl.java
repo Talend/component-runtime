@@ -31,9 +31,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
-import org.apache.beam.sdk.coders.CannotProvideCoderException;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
@@ -41,6 +41,9 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.PCollectionTuple;
+import org.apache.beam.sdk.values.POutput;
+import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.sdk.values.WindowingStrategy;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.Lifecycle;
@@ -80,10 +83,11 @@ public class BeamProcessorChainImpl implements Processor, Serializable, Delegate
 
     public BeamProcessorChainImpl(final PTransform<PCollection<?>, ?> transform, final CoderRegistry coderRegistry,
             final String plugin, final String family, final String name) {
-        this(singletonList(transform), coderRegistry, plugin, family, name);
+        this(singletonList(new CapturingPipeline.TransformWithCoder(transform, null)), coderRegistry, plugin, family,
+                name);
     }
 
-    public BeamProcessorChainImpl(final List<PTransform<PCollection<?>, ?>> transforms,
+    public BeamProcessorChainImpl(final List<CapturingPipeline.TransformWithCoder> transforms,
             final CoderRegistry coderRegistry, final String plugin, final String family, final String name) {
         this(transforms.get(transforms.size() - 1),
                 transforms.stream().flatMap(t -> toProcessors(t, coderRegistry, plugin, family, name)).collect(
@@ -188,19 +192,19 @@ public class BeamProcessorChainImpl implements Processor, Serializable, Delegate
         return original;
     }
 
-    private static Stream<Processor> toProcessors(final PTransform<PCollection<?>, ?> transform,
+    private static Stream<Processor> toProcessors(final CapturingPipeline.TransformWithCoder transform,
             final CoderRegistry coderRegistry, final String plugin, final String family, final String name) {
         return extractDoFn(transform, coderRegistry).stream().map(
                 fn -> new BeamProcessorImpl(fn, fn, plugin, family, name));
     }
 
-    private static Collection<DoFn<?, ?>> extractDoFn(final PTransform<PCollection<?>, ?> transform,
+    private static Collection<DoFn<?, ?>> extractDoFn(final CapturingPipeline.TransformWithCoder step,
             final CoderRegistry coderRegistry) {
         final CapturingPipeline capturingPipeline = new CapturingPipeline(PipelineOptionsFactory.create());
         if (coderRegistry != null) {
             capturingPipeline.setCoderRegistry(coderRegistry);
         }
-        capturingPipeline.apply(new PTransform<PBegin, PCollection<Object>>() {
+        final POutput apply = capturingPipeline.apply(new PTransform<PBegin, PCollection<Object>>() {
 
             @Override
             public PCollection<Object> expand(final PBegin input) {
@@ -209,10 +213,21 @@ public class BeamProcessorChainImpl implements Processor, Serializable, Delegate
             }
 
             @Override
-            protected Coder<?> getDefaultOutputCoder() throws CannotProvideCoderException {
+            protected Coder<?> getDefaultOutputCoder() {
                 return TypingCoder.INSTANCE;
             }
-        }).apply(transform);
+        }).apply(step.getTransform());
+        if (PCollectionTuple.class.isInstance(apply) && step.getCoders() != null) {
+            final Map<TupleTag<?>, PCollection<?>> all = PCollectionTuple.class.cast(apply).getAll();
+            step.getCoders().forEach((k, v) -> {
+                final PCollection<?> collection = all.get(k);
+                if (collection != null) {
+                    collection.setCoder(Coder.class.cast(v));
+                }
+            });
+        } else if (PCollection.class.isInstance(apply) && step.getCoders() != null && !step.getCoders().isEmpty()) {
+            PCollection.class.cast(apply).setCoder(Coder.class.cast(step.getCoders().values().iterator().next()));
+        }
 
         final CapturingPipeline.SinkExtractor sinkExtractor = new CapturingPipeline.SinkExtractor();
         capturingPipeline.traverseTopologically(sinkExtractor);
