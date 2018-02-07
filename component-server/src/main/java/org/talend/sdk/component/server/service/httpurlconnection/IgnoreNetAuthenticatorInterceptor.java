@@ -19,6 +19,7 @@ import java.io.Serializable;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
+import javax.interceptor.AroundConstruct;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
@@ -29,7 +30,16 @@ import javax.interceptor.InvocationContext;
 public class IgnoreNetAuthenticatorInterceptor implements Serializable {
 
     @Inject
+    private NetAuthenticatorWorkaround workaround;
+
+    @Inject
     private NetAuthenticatorController controller;
+
+    @AroundConstruct
+    public void onConstruct(final InvocationContext context) throws Exception {
+        workaround.lazyInit();
+        context.proceed();
+    }
 
     @AroundInvoke
     public Object ignore(final InvocationContext context) throws Exception {

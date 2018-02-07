@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.osgi;
+package org.talend.sdk.component.server.service.httpurlconnection;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,32 +23,31 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 
-import org.talend.sdk.component.server.service.httpurlconnection.NetAuthenticatorController;
-
-// we don't want of that:
-// - org.eclipse.ui.internal.net.auth.UserValidationDialog.getAuthentication(UserValidationDialog.java:55)
-// - org.eclipse.ui.internal.net.auth.NetAuthenticator.getPasswordAuthentication(NetAuthenticator.java:41)
-@WebListener
-public class OSGiWorkarounds implements ServletContextListener {
-
-    private Authenticator original;
+@ApplicationScoped
+public class NetAuthenticatorWorkaround {
 
     @Inject
     private NetAuthenticatorController controller;
 
-    @Override
-    public void contextInitialized(final ServletContextEvent sce) {
+    private volatile Authenticator original;
+
+    @PostConstruct
+    private void init() {
         original = getAuthenticator();
         Authenticator.setDefault(new ApplicationAuthenticator(original, controller));
     }
 
-    @Override
-    public void contextDestroyed(final ServletContextEvent sce) {
+    public void lazyInit() {
+        // no-op
+    }
+
+    @PreDestroy
+    private void destroy() {
         Authenticator.setDefault(original);
     }
 
