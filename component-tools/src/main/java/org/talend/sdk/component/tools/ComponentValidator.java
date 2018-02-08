@@ -197,6 +197,10 @@ public class ComponentValidator extends BaseTask {
                 .flatMap(meta -> of(meta.getValue().split(",")))
                 .collect(toSet());
 
+        if (fieldsInGridLayout.isEmpty() && fieldsInOptionOrder.isEmpty()) {
+            return;
+        }
+
         if (!fieldsInGridLayout.isEmpty() && !fieldsInOptionOrder.isEmpty()) {
             this.log.error("Concurrent layout found for '" + config.getKey() + "', the @OptionsOrder will be ignored.");
         }
@@ -248,7 +252,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private Stream<AbstractMap.SimpleEntry<String, ParameterMeta>>
-            toFlatNonPrimitivConfig(final List<ParameterMeta> config) {
+    toFlatNonPrimitivConfig(final List<ParameterMeta> config) {
         if (config == null || config.isEmpty()) {
             return empty();
         }
@@ -278,7 +282,7 @@ public class ComponentValidator extends BaseTask {
 
         return ARRAY.equals(param.getType()) && param.getNestedParameters() != null
                 && param.getNestedParameters().stream().anyMatch(
-                        p -> OBJECT.equals(p.getType()) || ENUM.equals(p.getType()) || isArrayOfObject(p));
+                p -> OBJECT.equals(p.getType()) || ENUM.equals(p.getType()) || isArrayOfObject(p));
 
     }
 
