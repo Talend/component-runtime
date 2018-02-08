@@ -20,10 +20,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.UUID;
 import java.util.jar.JarOutputStream;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -35,8 +34,6 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class TempJars implements JUnit5InjectionSupport, AfterAllCallback {
-
-    private final Collection<File> toClean = new ArrayList<>();
 
     public File create(final String dependencies) {
         final File tmp = new File("target/tempsjars/" + UUID.randomUUID().toString() + ".jar");
@@ -50,17 +47,12 @@ public class TempJars implements JUnit5InjectionSupport, AfterAllCallback {
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
-        toClean.add(tmp);
         return tmp;
     }
 
     @Override
     public void afterAll(final ExtensionContext context) {
-        toClean.forEach(f -> {
-            if (!f.delete()) { // on win it can fail
-                f.deleteOnExit();
-            }
-        });
+        Stream.of(new File("target/tempsjars/").listFiles()).forEach(File::delete);
     }
 
     @Override

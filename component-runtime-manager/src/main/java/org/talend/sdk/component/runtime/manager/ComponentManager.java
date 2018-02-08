@@ -279,8 +279,8 @@ public class ComponentManager implements AutoCloseable {
                     }
                 });
         this.container.registerListener(new Updater());
-        ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty()).ifPresent(
-                p -> this.container.registerListener(new JmxManager(p, ManagementFactory.getPlatformMBeanServer())));
+        ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty()).ifPresent(p -> this.container
+                .registerListener(new JmxManager(container, p, ManagementFactory.getPlatformMBeanServer())));
         toStream(loadServiceProviders(ContainerListenerExtension.class, tccl)).forEach(container::registerListener);
         this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
     }

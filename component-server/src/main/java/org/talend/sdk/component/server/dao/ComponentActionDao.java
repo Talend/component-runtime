@@ -15,9 +15,9 @@
  */
 package org.talend.sdk.component.server.dao;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -26,21 +26,23 @@ import org.talend.sdk.component.runtime.manager.ServiceMeta;
 @ApplicationScoped
 public class ComponentActionDao {
 
-    private Map<ActionKey, ServiceMeta.ActionMeta> data = new HashMap<>();
+    private Map<ActionKey, ServiceMeta.ActionMeta> data = new ConcurrentHashMap<>();
 
-    public void createOrUpdate(final ServiceMeta.ActionMeta meta) {
-        data.put(new ActionKey(meta.getFamily(), meta.getType(), meta.getAction()), meta);
+    public ActionKey createOrUpdate(final ServiceMeta.ActionMeta meta) {
+        final ActionKey key = new ActionKey(meta.getFamily(), meta.getType(), meta.getAction());
+        data.put(key, meta);
+        return key;
     }
 
     public ServiceMeta.ActionMeta findBy(final String component, final String type, final String action) {
         return data.get(new ActionKey(component, type, action));
     }
 
-    public void remove(final ServiceMeta.ActionMeta meta) {
-        data.remove(new ActionKey(meta.getFamily(), meta.getType(), meta.getAction()));
+    public void removeById(final ActionKey key) {
+        data.remove(key);
     }
 
-    private class ActionKey {
+    public static class ActionKey {
 
         private final String component;
 
@@ -50,7 +52,7 @@ public class ComponentActionDao {
 
         private final int hash;
 
-        public ActionKey(final String component, final String type, final String name) {
+        private ActionKey(final String component, final String type, final String name) {
             this.component = component;
             this.name = name;
             this.type = type;

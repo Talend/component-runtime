@@ -284,6 +284,18 @@ public class ContainerManager implements Lifecycle {
     }
 
     @AllArgsConstructor(access = PRIVATE)
+    public static class Actions {
+
+        private final Container self;
+
+        public void reload() {
+            final ContainerManager.ContainerBuilder builder = self.get(ContainerManager.ContainerBuilder.class);
+            self.close();
+            builder.create();
+        }
+    }
+
+    @AllArgsConstructor(access = PRIVATE)
     public class ContainerBuilder {
 
         private final String id;
@@ -328,6 +340,8 @@ public class ContainerManager implements Lifecycle {
                     log.info("Closed container " + id);
                 }
             };
+            container.set(ContainerBuilder.class, this);
+            container.set(Actions.class, new Actions(container));
 
             final Collection<ContainerListener> calledListeners =
                     listeners.stream().filter(l -> !safeInvoke(() -> l.onCreate(container))).collect(toList());
