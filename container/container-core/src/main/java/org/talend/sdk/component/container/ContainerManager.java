@@ -89,8 +89,8 @@ public class ContainerManager implements Lifecycle {
                 .orElse("TALEND-INF/plugins.properties");
         this.classLoaderConfiguration = new ClassLoaderConfiguration(
                 ofNullable(classLoaderConfiguration.getParent()).orElseGet(ContainerManager.class::getClassLoader),
-                ofNullable(classLoaderConfiguration.getParentClassesFilter()).orElseGet(() -> name -> true),
                 ofNullable(classLoaderConfiguration.getClassesFilter()).orElseGet(() -> name -> true),
+                ofNullable(classLoaderConfiguration.getParentClassesFilter()).orElseGet(() -> name -> true),
                 classLoaderConfiguration.isSupportsResourceDependencies(), nestedPluginMappingResource);
         if (classLoaderConfiguration.isSupportsResourceDependencies()) {
             try (final InputStream mappingStream =

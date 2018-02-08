@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.manager.proxy;
 
+import static java.lang.ClassLoader.getSystemClassLoader;
+
 import java.io.Externalizable;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -39,7 +41,13 @@ public class JavaProxyEnricherFactory {
             return instanceToWrap;
         }
         final Class[] api = Stream.concat(Stream.of(Serializable.class), Stream.of(interfaces)).toArray(Class[]::new);
-        return Proxy.newProxyInstance(loader, api, new DelegatingSerializableHandler(instanceToWrap, plugin, key));
+        return Proxy.newProxyInstance(selectLoader(api, loader), api,
+                new DelegatingSerializableHandler(instanceToWrap, plugin, key));
+    }
+
+    private ClassLoader selectLoader(final Class[] api, final ClassLoader loader) {
+        return Stream.of(api).anyMatch(t -> t.getClassLoader() == loader) || loader.getParent() == null
+                || loader == getSystemClassLoader() ? loader : loader.getParent();
     }
 
     @RequiredArgsConstructor
