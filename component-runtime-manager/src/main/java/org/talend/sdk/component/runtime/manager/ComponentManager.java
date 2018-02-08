@@ -619,25 +619,31 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public String addPlugin(final String pluginRootFile) {
-        final Container container = this.container.create(pluginRootFile);
-        container.set(OriginalId.class, new OriginalId(pluginRootFile));
-        final String id = container.getId();
+        final String id = this.container
+                .builder(pluginRootFile)
+                .withCustomizer(c -> c.set(OriginalId.class, new OriginalId(pluginRootFile)))
+                .create()
+                .getId();
         log.info("Adding plugin: " + pluginRootFile + ", as " + id);
         return id;
     }
 
     public String addWithLocationPlugin(final String location, final String pluginRootFile) {
-        final Container container = this.container.create(pluginRootFile);
-        container.set(OriginalId.class, new OriginalId(location));
-        final String id = container.getId();
+        final String id = this.container
+                .builder(pluginRootFile)
+                .withCustomizer(c -> c.set(OriginalId.class, new OriginalId(location)))
+                .create()
+                .getId();
         log.info("Adding plugin: " + pluginRootFile + ", as " + id);
         return id;
     }
 
     protected String addPlugin(final String forcedId, final String pluginRootFile) {
-        final Container container = this.container.create(forcedId, pluginRootFile);
-        container.set(OriginalId.class, new OriginalId(forcedId));
-        final String id = container.getId();
+        final String id = this.container
+                .builder(forcedId, pluginRootFile)
+                .withCustomizer(c -> c.set(OriginalId.class, new OriginalId(forcedId)))
+                .create()
+                .getId();
         log.info("Adding plugin: " + pluginRootFile + ", as " + id);
         return id;
     }

@@ -61,10 +61,12 @@ public class ContainerProviderRule extends TempJars implements BeforeAllCallback
         final DependenciesTxtBuilder builder = new DependenciesTxtBuilder();
         final String[] deps = parameterContext.getParameter().getAnnotation(Instance.class).value();
         Stream.of(deps).forEach(builder::withDependency);
-        return manager.get().create(
-                extensionContext.getRequiredTestClass().getName() + "."
+        return manager
+                .get()
+                .builder(extensionContext.getRequiredTestClass().getName() + "."
                         + extensionContext.getRequiredTestMethod().getName() + "#" + manager.get().findAll().size(),
-                create(builder.build()).getAbsolutePath());
+                        create(builder.build()).getAbsolutePath())
+                .create();
     }
 
     @Override

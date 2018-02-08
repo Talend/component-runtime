@@ -308,7 +308,7 @@ class ComponentValidatorTest {
                 .forEach(c -> {
                     try {
                         Files.copy(c.toPath(), new File(classDir, c.getName()).toPath());
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         fail("cant create test plugin");
                     }
                 });

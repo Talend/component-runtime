@@ -478,7 +478,9 @@ public class BaseComponentsHandler implements ComponentsHandler {
             super(findM2(), "TALEND-INF/dependencies.txt", "org.talend.sdk.component:type=component,value=%s");
             testPlugins = addJarContaining(Thread.currentThread().getContextClassLoader(),
                     componentPackage.replace('.', '/'));
-            container.create("component-runtime-junit.jar", jarLocation(SimpleCollector.class).getAbsolutePath());
+            container
+                    .builder("component-runtime-junit.jar", jarLocation(SimpleCollector.class).getAbsolutePath())
+                    .create();
             oldInstance = CONTEXTUAL_INSTANCE.get();
             CONTEXTUAL_INSTANCE.set(this);
         }

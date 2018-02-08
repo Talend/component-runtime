@@ -48,7 +48,7 @@ class ContainerManagerTest {
         final Collection<Container> containers;
         try (final ContainerManager manager = createDefaultManager()) {
             ref = manager;
-            final Container container = manager.create("foo", createZiplockJar(jars).getAbsolutePath());
+            final Container container = manager.builder("foo", createZiplockJar(jars).getAbsolutePath()).create();
             assertNotNull(container);
             // container is not tested here but in ContainerTest. Here we just take care
             // of the manager.
@@ -59,7 +59,7 @@ class ContainerManagerTest {
             assertTrue(manager.find("foo").isPresent());
             assertEquals(container, manager.find("foo").get());
 
-            final Container xbean = manager.create("bar", createZiplockJar(jars).getAbsolutePath());
+            final Container xbean = manager.builder("bar", createZiplockJar(jars).getAbsolutePath()).create();
             assertEquals(2, manager.findAll().size());
             Stream.of(container, xbean).forEach(c -> assertTrue(manager.findAll().contains(c)));
 
@@ -80,7 +80,7 @@ class ContainerManagerTest {
                         final File module = createZiplockJar(jars);
                         final File jar = new File(module.getParentFile(), jarName);
                         assertTrue(module.renameTo(jar));
-                        final Container container = manager.create(jar.getAbsolutePath());
+                        final Container container = manager.builder(jar.getAbsolutePath()).create();
                         assertEquals("ziplock"/* no version, no .jar */, container.getId());
                     }
                 });
@@ -104,13 +104,13 @@ class ContainerManagerTest {
         try (final ContainerManager manager = createDefaultManager().registerListener(listener)) {
             assertEquals(emptyList(), states);
 
-            try (final Container container = manager.create(createZiplockJar(jars).getAbsolutePath())) {
+            try (final Container container = manager.builder(createZiplockJar(jars).getAbsolutePath()).create()) {
                 assertEquals(1, states.size());
             }
             assertEquals(2, states.size());
 
             manager.unregisterListener(listener);
-            try (final Container container = manager.create(createZiplockJar(jars).getAbsolutePath())) {
+            try (final Container container = manager.builder(createZiplockJar(jars).getAbsolutePath()).create()) {
                 assertEquals(2, states.size());
             }
             assertEquals(2, states.size());
@@ -123,7 +123,7 @@ class ContainerManagerTest {
         assertThrows(IllegalStateException.class, () -> {
             final ContainerManager manager = createDefaultManager();
             manager.close();
-            manager.create("foo", createZiplockJar(jars).getAbsolutePath());
+            manager.builder("foo", createZiplockJar(jars).getAbsolutePath()).create();
         });
     }
 

@@ -476,7 +476,7 @@ public class ReflectionService {
                     return specificConfig;
                 }, Map.Entry::getValue));
 
-        // now bind it all to the recipe and create the instance
+        // now bind it all to the recipe and builder the instance
         preparedMaps.forEach(recipe::setProperty);
         preparedLists.forEach(recipe::setProperty);
         preparedObjects.forEach(recipe::setProperty);

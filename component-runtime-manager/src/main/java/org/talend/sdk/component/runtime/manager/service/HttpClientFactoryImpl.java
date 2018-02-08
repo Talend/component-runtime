@@ -336,7 +336,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 final Codec codec = ofNullable(m.getAnnotation(Codec.class))
                         .orElseGet(() -> m.getDeclaringClass().getAnnotation(Codec.class));
 
-                // create codec instances
+                // builder codec instances
                 Stream
                         .concat(of(m.getGenericReturnType()),
                                 of(m.getParameters())

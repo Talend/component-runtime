@@ -19,6 +19,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,12 +43,16 @@ import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.lifecycle.Lifecycle;
 import org.talend.sdk.component.lifecycle.LifecycleSupport;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ContainerManager implements Lifecycle {
+
+    private static final Consumer<Container> NOOP_CUSTOMIZER = c -> {
+    };
 
     private final ConcurrentMap<String, Container> containers = new ConcurrentHashMap<>();
 
@@ -146,51 +151,8 @@ public class ContainerManager implements Lifecycle {
      * (MAVEN-INF/repository) or direct file path or m2 related path.
      * @return the newly created container.
      */
-    public Container create(final String id, final String module) {
-        if (lifecycle.isClosed()) {
-            throw new IllegalStateException("ContainerManager already closed");
-        }
-
-        final String moduleLocation = classLoaderConfiguration.isSupportsResourceDependencies()
-                ? nestedContainerMapping.getOrDefault(module, module)
-                : module;
-        final String location = resolve(moduleLocation).getAbsolutePath();
-        log.info("Creating module " + moduleLocation + " (from " + module + ", location=" + location + ")");
-        final Stream<Artifact> classpath = resolver.resolve(classLoaderConfiguration.getParent(), location);
-
-        final Container container = new Container(id, location, classpath.toArray(Artifact[]::new),
-                classLoaderConfiguration, this::resolve, containerInitializer) {
-
-            @Override
-            public void close() {
-                try {
-                    listeners.forEach(l -> safeInvoke(() -> l.onClose(this)));
-                } finally {
-                    try {
-                        super.close();
-                    } finally {
-                        containers.remove(id);
-                    }
-                }
-                log.info("Closed container " + id);
-            }
-        };
-
-        final Collection<ContainerListener> calledListeners =
-                listeners.stream().filter(l -> !safeInvoke(() -> l.onCreate(container))).collect(toList());
-        if (calledListeners.size() == listeners.size()) {
-            if (containers.putIfAbsent(id, container) != null) {
-                calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
-                throw new IllegalArgumentException("Container '" + id + "' already exists");
-            }
-        } else {
-            log.info("Failed creating container " + id);
-            calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
-            throw new IllegalArgumentException(id);
-        }
-
-        log.info("Created container " + id);
-        return container;
+    public ContainerBuilder builder(final String id, final String module) {
+        return new ContainerBuilder(id, module, null);
     }
 
     public File resolve(final String path) {
@@ -213,8 +175,8 @@ public class ContainerManager implements Lifecycle {
         return new File(rootRepositoryLocation, path);
     }
 
-    public Container create(final String module) {
-        return create(buildAutoIdFromName(module), module);
+    public ContainerBuilder builder(final String module) {
+        return builder(buildAutoIdFromName(module), module);
     }
 
     public String buildAutoIdFromName(final String module) {
@@ -319,5 +281,69 @@ public class ContainerManager implements Lifecycle {
 
         // note: we can add if needed resource filters too (to filter META-INF/services
         // for instance)
+    }
+
+    @AllArgsConstructor(access = PRIVATE)
+    public class ContainerBuilder {
+
+        private final String id;
+
+        private final String module;
+
+        private Consumer<Container> customizer;
+
+        public ContainerBuilder withCustomizer(final Consumer<Container> customizer) {
+            this.customizer = customizer;
+            return this;
+        }
+
+        public Container create() {
+            if (lifecycle.isClosed()) {
+                throw new IllegalStateException("ContainerManager already closed");
+            }
+
+            final String moduleLocation = classLoaderConfiguration.isSupportsResourceDependencies()
+                    ? nestedContainerMapping.getOrDefault(module, module)
+                    : module;
+            final String location = resolve(moduleLocation).getAbsolutePath();
+            log.info("Creating module " + moduleLocation + " (from " + module + ", location=" + location + ")");
+            final Stream<Artifact> classpath = resolver.resolve(classLoaderConfiguration.getParent(), location);
+
+            final Container container = new Container(id, location, classpath.toArray(Artifact[]::new),
+                    classLoaderConfiguration, ContainerManager.this::resolve,
+                    ofNullable(containerInitializer).orElse(NOOP_CUSTOMIZER).andThen(
+                            ofNullable(customizer).orElse(NOOP_CUSTOMIZER))) {
+
+                @Override
+                public void close() {
+                    try {
+                        listeners.forEach(l -> safeInvoke(() -> l.onClose(this)));
+                    } finally {
+                        try {
+                            super.close();
+                        } finally {
+                            containers.remove(id);
+                        }
+                    }
+                    log.info("Closed container " + id);
+                }
+            };
+
+            final Collection<ContainerListener> calledListeners =
+                    listeners.stream().filter(l -> !safeInvoke(() -> l.onCreate(container))).collect(toList());
+            if (calledListeners.size() == listeners.size()) {
+                if (containers.putIfAbsent(id, container) != null) {
+                    calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
+                    throw new IllegalArgumentException("Container '" + id + "' already exists");
+                }
+            } else {
+                log.info("Failed creating container " + id);
+                calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
+                throw new IllegalArgumentException(id);
+            }
+
+            log.info("Created container " + id);
+            return container;
+        }
     }
 }

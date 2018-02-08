@@ -109,7 +109,7 @@ public class PropertyTreeCreator {
      */
     void linkNodes(final Collection<? extends PropertyDefinitionDecorator> properties,
             final Map<String, PropertyNode> nodes) {
-        // sort to ensure to create parents before children
+        // sort to ensure to builder parents before children
         properties
                 .stream()
                 .sorted(comparing(PropertyDefinitionDecorator::getPath))
