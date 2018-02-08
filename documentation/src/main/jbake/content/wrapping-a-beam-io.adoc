@@ -122,3 +122,75 @@ public class BeamFileOutput extends DelegatingTransform<PCollection<String>, PDo
 }
 ----
 
+== Advanced
+
+In terms of classloading, when you write an IO all the Beam SDK Java core stack is assumed in Talend Component Kit runtime
+as provided so never include it in compile scope - it would be ignored anyway.
+
+=== Coder
+
+If you need a JSonCoder you can use `org.talend.sdk.component.runtime.beam.factory.service.PluginCoderFactory` service
+which gives you access the JSON-P and JSON-B coders.
+
+=== Sample
+
+Here is a sample input based on beam Kafka:
+
+[source,java]
+----
+@Version
+@Icon(Icon.IconType.KAFKA)
+@Emitter(name = "Input")
+@AllArgsConstructor
+@Documentation("Kafka Input")
+public class KafkaInput extends PTransform<PBegin, PCollection<JsonObject>> { <1>
+
+    private final InputConfiguration configuration;
+
+    private final JsonBuilderFactory builder;
+
+    private final PluginCoderFactory coderFactory;
+
+    private KafkaIO.Read<byte[], byte[]> delegate() {
+        final KafkaIO.Read<byte[], byte[]> read = KafkaIO.<byte[], byte[]> read()
+                .withBootstrapServers(configuration.getBootstrapServers())
+                .withTopics(configuration.getTopics().stream().map(InputConfiguration.Topic::getName).collect(toList()))
+                .withKeyDeserializer(ByteArrayDeserializer.class).withValueDeserializer(ByteArrayDeserializer.class);
+        if (configuration.getMaxResults() > 0) {
+            return read.withMaxNumRecords(configuration.getMaxResults());
+        }
+        return read;
+    }
+
+    @Override <2>
+    public PCollection<JsonObject> expand(final PBegin pBegin) {
+        final PCollection<KafkaRecord<byte[], byte[]>> kafkaEntries = pBegin.getPipeline().apply(delegate());
+        return kafkaEntries.apply(ParDo.of(new RecordToJson(builder))).setCoder(coderFactory.jsonp()); <3>
+    }
+
+    @AllArgsConstructor
+    private static class RecordToJson extends DoFn<KafkaRecord<byte[], byte[]>, JsonObject> {
+
+        private final JsonBuilderFactory builder;
+
+        @ProcessElement
+        public void onElement(final ProcessContext context) {
+            context.output(toJson(context.element()));
+        }
+
+        // todo: we shouldnt be typed string/string so make it evolving
+        private JsonObject toJson(final KafkaRecord<byte[], byte[]> element) {
+            return builder.createObjectBuilder().add("key", new String(element.getKV().getKey()))
+                    .add("value", new String(element.getKV().getValue())).build();
+        }
+    }
+}
+----
+
+<1> the `PTransform` generics define it is an input (`PBegin` marker)
+<2> the `expand` method chains the native IO with a custom mapper (`RecordToJson`)
+<3> the mapper uses the JSON-P coder automatically created from the contextual component
+
+Since the Beam wrapper doesn't respect the standard Kit programming Model (no `@Emitter` for instance)
+you need to set `<talend.validation.component>false</talend.validation.component>` property in your `pom.xml`
+(or equivalent for Gradle) to skip the Kit component programming model validations.
