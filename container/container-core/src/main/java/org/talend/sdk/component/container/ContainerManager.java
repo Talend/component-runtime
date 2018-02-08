@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -56,6 +57,8 @@ public class ContainerManager implements Lifecycle {
 
     private final File rootRepositoryLocation;
 
+    private final Consumer<Container> containerInitializer;
+
     private final LifecycleSupport lifecycle = new LifecycleSupport();
 
     private final Collection<ContainerListener> listeners = new CopyOnWriteArrayList<>();
@@ -66,7 +69,8 @@ public class ContainerManager implements Lifecycle {
     private final String containerId = UUID.randomUUID().toString();
 
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
-            final ClassLoaderConfiguration classLoaderConfiguration) {
+            final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer) {
+        this.containerInitializer = containerInitializer;
         this.resolver = dependenciesResolutionConfiguration.getResolver();
         this.rootRepositoryLocation = ofNullable(dependenciesResolutionConfiguration.getRootRepositoryLocation())
                 .filter(File::exists)
@@ -155,7 +159,7 @@ public class ContainerManager implements Lifecycle {
         final Stream<Artifact> classpath = resolver.resolve(classLoaderConfiguration.getParent(), location);
 
         final Container container = new Container(id, location, classpath.toArray(Artifact[]::new),
-                classLoaderConfiguration, this::resolve) {
+                classLoaderConfiguration, this::resolve, containerInitializer) {
 
             @Override
             public void close() {

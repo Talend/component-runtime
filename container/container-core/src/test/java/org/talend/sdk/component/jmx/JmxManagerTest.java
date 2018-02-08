@@ -41,7 +41,7 @@ class JmxManagerTest {
         final JmxManager manager = new JmxManager("org.talend.test:type=plugin,name=%s", mBeanServer);
         final Container container = new Container("foo.jar", new File("missing/normally").getName(), new Artifact[0],
                 ContainerManager.ClassLoaderConfiguration.builder().create(),
-                path -> new File(Constants.DEPENDENCIES_LOCATION, path));
+                path -> new File(Constants.DEPENDENCIES_LOCATION, path), null);
         manager.onCreate(container);
 
         final ObjectName name = new ObjectName("org.talend.test:name=foo.jar,type=plugin");

@@ -51,6 +51,7 @@ import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
 
+import org.apache.xbean.finder.filter.Filter;
 import org.talend.sdk.component.junit.lang.StreamDecorator;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.input.Input;
@@ -492,14 +493,9 @@ public class BaseComponentsHandler implements ComponentsHandler {
         }
 
         @Override
-        protected boolean isContainerClass(final String name) {
-            /*
-             * return super.isContainerClass(value) || value.startsWith(componentPackage) ||
-             * value.startsWith("org.junit.") ||
-             * value.startsWith("org.talend.sdk.component.junit");
-             */
-            return true; // embedded mode (no plugin structure) so just run with all classes in parent
-            // classloader
+        protected boolean isContainerClass(final Filter filter, final String name) {
+            // embedded mode (no plugin structure) so just run with all classes in parent classloader
+            return true;
         }
     }
 

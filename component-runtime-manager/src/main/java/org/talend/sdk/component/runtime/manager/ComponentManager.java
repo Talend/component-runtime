@@ -129,6 +129,7 @@ import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
+import org.talend.sdk.component.runtime.manager.xbean.FilterFactory;
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
 import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
@@ -182,6 +183,14 @@ public class ComponentManager implements AutoCloseable {
                     "javax.json.", "org.talend.sdk.component.classloader.", "org.talend.sdk.component.runtime.",
                     "org.slf4j.", "org.apache.johnzon."), additionalContainerClasses())
             .toArray(String[]::new));
+
+    private final Filter beamClassesFilter = FilterFactory.and(classesFilter,
+            Filters.prefixes("org.apache.beam.runners.", "org.apache.beam.sdk.",
+                    "org.talend.sdk.component.runtime.beam.", "org.codehaus.jackson.",
+                    "com.fasterxml.jackson.annotation.", "com.fasterxml.jackson.core.",
+                    "com.fasterxml.jackson.databind.", "com.thoughtwors.paranamer.", "org.apache.commons.compress.",
+                    "org.tukaani.xz.", "org.objenesis.", "org.joda.time.", "org.xerial.snappy.", "avro.shaded.",
+                    "org.apache.avro."));
 
     private final Filter excludeClassesFilter =
             Filters.prefixes("org.apache.beam.sdk.io.", "org.apache.beam.sdk.extensions.");
@@ -240,19 +249,35 @@ public class ComponentManager implements AutoCloseable {
         jsonpParserFactory = jsonpProvider.createParserFactory(emptyMap());
         jsonpWriterFactory = jsonpProvider.createWriterFactory(emptyMap());
 
-        this.container = new ContainerManager(
-                ContainerManager.DependenciesResolutionConfiguration
-                        .builder()
-                        .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource))
-                        .rootRepositoryLocation(m2)
-                        .create(),
+        final ContainerManager.ClassLoaderConfiguration defaultClassLoaderConfiguration =
                 ContainerManager.ClassLoaderConfiguration
                         .builder()
                         .parent(tccl)
-                        .parentClassesFilter(this::isContainerClass)
-                        .classesFilter(name -> !isContainerClass(name))
+                        .parentClassesFilter(name -> isContainerClass(beamClassesFilter, name)) // beam is desired
+                        .classesFilter(name -> !isContainerClass(classesFilter, name))
                         .supportsResourceDependencies(true)
-                        .create());
+                        .create();
+        final ContainerManager.ClassLoaderConfiguration beamClassLoaderConfiguration =
+                ContainerManager.ClassLoaderConfiguration
+                        .builder()
+                        .parent(tccl)
+                        .parentClassesFilter(name -> isContainerClass(beamClassesFilter, name))
+                        .classesFilter(name -> !isContainerClass(beamClassesFilter, name))
+                        .supportsResourceDependencies(true)
+                        .create();
+        this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
+                .builder()
+                .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource))
+                .rootRepositoryLocation(m2)
+                .create(), defaultClassLoaderConfiguration, container -> {
+                    // if a beam component then ensure to use beam specific filtering
+                    // since it becomes part of the container
+                    if (container.getDependencies() != null && Stream.of(container.getDependencies()).anyMatch(
+                            a -> a.getGroup().startsWith("org.apache.beam")
+                                    || a.getArtifact().startsWith("beam-sdks-java-"))) {
+                        container.set(ContainerManager.ClassLoaderConfiguration.class, beamClassLoaderConfiguration);
+                    }
+                });
         this.container.registerListener(new Updater());
         ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty()).ifPresent(
                 p -> this.container.registerListener(new JmxManager(p, ManagementFactory.getPlatformMBeanServer())));
@@ -622,8 +647,8 @@ public class ComponentManager implements AutoCloseable {
         log.info("Removed plugin: " + id);
     }
 
-    protected boolean isContainerClass(final String name) {
-        // workaround until beam is able to have a consistent packaging
+    protected boolean isContainerClass(final Filter filter, final String name) {
+        // workaround until beam is able to have a consistent packaging - i.e. no extensions/io in its core
         if (excludeClassesFilter.accept(name)) {
             // check if it is beam-sdks-java-core, if so then it is considered as a
             // container class
@@ -648,7 +673,7 @@ public class ComponentManager implements AutoCloseable {
             }
             return false;
         }
-        return name != null && classesFilter.accept(name);
+        return name != null && filter.accept(name);
     }
 
     @Override

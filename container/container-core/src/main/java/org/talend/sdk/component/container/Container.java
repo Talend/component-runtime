@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -76,11 +77,13 @@ public class Container implements Lifecycle {
 
     public Container(final String id, final String rootModule, final Artifact[] dependencies,
             final ContainerManager.ClassLoaderConfiguration configuration,
-            final Function<String, File> localDependencyRelativeResolver) {
+            final Function<String, File> localDependencyRelativeResolver, final Consumer<Container> initializer) {
         this.id = id;
         this.rootModule = rootModule;
         this.dependencies = dependencies;
         this.localDependencyRelativeResolver = localDependencyRelativeResolver;
+        ofNullable(initializer).ifPresent(i -> i.accept(this));
+
         this.classloaderProvider = () -> {
             final URL[] urls = findExistingClasspathFiles().map(f -> {
                 try {
@@ -89,6 +92,9 @@ public class Container implements Lifecycle {
                     throw new IllegalStateException(e);
                 }
             }).toArray(URL[]::new);
+
+            final ContainerManager.ClassLoaderConfiguration overrideClassLoaderConfig =
+                    ofNullable(get(ContainerManager.ClassLoaderConfiguration.class)).orElse(configuration);
 
             // for the jar module we test in order:
             // - if the file exists we use it
@@ -100,11 +106,12 @@ public class Container implements Lifecycle {
             final Predicate<String> resourceExists =
                     rootFile.exists() && rootFile.getName().endsWith(".jar") ? jarIndex(rootFile)
                             : s -> new File(rootFile, ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + s).exists();
-            final String[] rawNestedDependencies = configuration.isSupportsResourceDependencies()
+            final String[] rawNestedDependencies = overrideClassLoaderConfig.isSupportsResourceDependencies()
                     ? Stream.of(dependencies).map(Artifact::toPath).filter(resourceExists).toArray(String[]::new)
                     : null;
-            return new ConfigurableClassLoader(urls, configuration.getParent(), configuration.getClassesFilter(),
-                    configuration.getParentClassesFilter(), rawNestedDependencies);
+            return new ConfigurableClassLoader(urls, overrideClassLoaderConfig.getParent(),
+                    overrideClassLoaderConfig.getClassesFilter(), overrideClassLoaderConfig.getParentClassesFilter(),
+                    rawNestedDependencies);
         };
         reload();
     }

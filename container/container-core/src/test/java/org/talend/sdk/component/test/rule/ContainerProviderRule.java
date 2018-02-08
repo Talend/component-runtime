@@ -93,7 +93,8 @@ public class ContainerProviderRule extends TempJars implements BeforeAllCallback
                 ContainerManager.ClassLoaderConfiguration
                         .builder()
                         .parent(ContainerProviderRule.class.getClassLoader())
-                        .create());
+                        .create(),
+                null);
     }
 
     @Target(PARAMETER)
