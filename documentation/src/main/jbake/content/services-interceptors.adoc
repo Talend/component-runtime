@@ -1,3 +1,13 @@
+:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation
+:jbake-status: published
+
 == Services and interceptors
 
 For common concerns like caching, auditing etc, it can be fancy to use interceptor like API. It is enabled by the framework

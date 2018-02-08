@@ -13,8 +13,8 @@ include::component-definition.adoc[]
 
 include::component-configuration.adoc[]
 
+include::gallery.adoc[]
+
 include::component-registering.adoc[]
 
 include::component-internationalization.adoc[]
-
-include::gallery.adoc[]
