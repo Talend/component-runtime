@@ -16,10 +16,12 @@
 
 import componentsList from './componentsList/reducers';
 import component from './component/reducers';
+import application from './application/reducers';
 
 export default (state = {}, action) => {
-	return {
-		componentsList: componentsList(state.componentsList, action),
-		component: component(state.component, action),
-	};
+  return {
+    componentsList: componentsList(state.componentsList, action),
+    component: component(state.component, action),
+    application: application(state.application, action)
+  };
 }

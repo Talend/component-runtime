@@ -13,7 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+import { REMOVE_NOTIFICATION } from '../constants';
 
-import App from './App.connect';
-
-export default App;
+export function removeNotification(notification) {
+  return dispatch => {
+    dispatch({
+      type: REMOVE_NOTIFICATION,
+      notification
+    });
+  };
+}

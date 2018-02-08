@@ -15,33 +15,40 @@
  */
 
 import React from 'react';
-import { IconsProvider, HeaderBar, Layout } from '@talend/react-components';
+import { IconsProvider, HeaderBar, Layout, Notification, CircularProgress } from '@talend/react-components';
 
 import Menu from '../Menu';
 import Detail from '../Detail';
 
 import theme from './App.scss';
 
-export default function App() {
-	const header = (
-		<HeaderBar logo={{ isFull: true }} brand={{
-			id: 'header-brand',
-			label: 'Talend Component Kit Web Tester'
-		}}/>
-	);
-	const menu = (<Menu />);
+export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.notificationLeaveFn = this.notificationLeaveFn.bind(this);
+  }
 
-	return (
-		<div className={theme.App}>
-			<IconsProvider/>
+  notificationLeaveFn(notification) {
+    this.props.removeNotification(notification);
+  }
 
-			<Layout
-				mode={'TwoColumns'}
-			    header={header}
-			    one={menu}
-			>
-				<Detail />
-			</Layout>
-		</div>
-	);
+  render() {
+    const header = (
+      <HeaderBar logo={{ isFull: true }} brand={{
+        id: 'header-brand',
+        label: 'Talend Component Kit Web Tester'
+      }}/>
+    );
+    const menu = (<Menu />);
+
+    return (
+      <div className={theme.App}>
+        <IconsProvider/>
+        <Layout mode={'TwoColumns'} header={header} one={menu}>
+          <Detail />
+        </Layout>
+        <Notification notifications={this.props.notifications} leaveFn={this.notificationLeaveFn} />
+      </div>
+    );
+  }
 }

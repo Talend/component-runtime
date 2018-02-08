@@ -127,6 +127,10 @@ public class WebServer implements Runnable {
             args.add("--http");
             args.add(findPort());
         }
+        if (!args.contains("--use-shutdown-hook")) {
+            args.add("--use-shutdown-hook");
+            args.add("false");
+        }
         return args.toArray(new String[args.size()]);
     }
 
