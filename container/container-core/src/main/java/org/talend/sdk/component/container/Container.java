@@ -110,7 +110,7 @@ public class Container implements Lifecycle {
                     ? Stream.of(dependencies).map(Artifact::toPath).filter(resourceExists).toArray(String[]::new)
                     : null;
             return new ConfigurableClassLoader(urls, overrideClassLoaderConfig.getParent(),
-                    overrideClassLoaderConfig.getClassesFilter(), overrideClassLoaderConfig.getParentClassesFilter(),
+                    overrideClassLoaderConfig.getParentClassesFilter(), overrideClassLoaderConfig.getClassesFilter(),
                     rawNestedDependencies);
         };
         reload();
