@@ -1,0 +1,15 @@
+= Build tools
+
+:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation
+:jbake-status: published
+
+include::build-tools-maven.adoc[]
+
+include::build-tools-gradle.adoc[]

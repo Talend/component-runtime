@@ -1,0 +1,20 @@
+= Talend Components Definitions Documentation
+:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation
+:jbake-status: published
+
+include::component-definition.adoc[]
+
+include::component-configuration.adoc[]
+
+include::component-registering.adoc[]
+
+include::component-internationalization.adoc[]
+
+include::gallery.adoc[]

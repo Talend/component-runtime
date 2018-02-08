@@ -1,0 +1,473 @@
+:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation, testing
+:jbake-status: published
+
+== component-runtime-testing
+
+=== component-runtime-junit
+
+`component-runtime-junit` is a small test library allowing you to validate simple logic based on Talend Component tooling.
+
+To import it add to your project the following dependency:
+
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>component-runtime-junit</artifactId>
+  <version>${talend-component.version}</version>
+  <scope>test</scope>
+</dependency>
+----
+
+==== JUnit 4
+
+Then you can define a standard JUnit test and use the `SimpleComponentRule` rule:
+
+[source,java]
+----
+public class MyComponentTest {
+
+    @Rule <1>
+    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.sdk.component.mycomponent.");
+
+    @Test
+    public void produce() {
+        ExecutionChainBuilder.start() <2>
+                .fromInput("yourcomponentfamily", "yourcomponent", createComponentConfig())
+                .toProcessor("test", "collector", emptyMap())
+                .create(components.asManager(), p -> null, Assert::assertNotNull, (data, exception) -> {
+                    fail(exception.getMessage());
+                    return null;
+                }).get().execute();
+
+        final List<MyRecord> records = components.getCollectedData(MyRecord.class); <3>
+        doAssertRecords(records); // depending your test
+    }
+}
+----
+
+<1> the rule will create a component manager and provide two mock components: an emitter and a collector. Don't forget to set the root package of your component to enable it.
+<2> you define any chain you want to test, it generally uses the mock as source or collector
+<3> you validate your component behavior, for a source you can assert the right records were emitted in the mock collect
+
+==== JUnit 5
+
+The JUnit 5 integration is mainly the same as for JUnit 4 except it uses the new JUnit 5 extension mecanism.
+
+The entry point is the `@WithComponents` annotation you put on your test class which takes the
+component package you want to test and you can use `@Injected` to inject in a test class field an instance of `ComponentsHandler`
+which exposes the same utilities than the JUnit 4 rule:
+
+[source,java]
+----
+@WithComponents("org.talend.sdk.component.junit.component") <1>
+public class ComponentExtensionTest {
+    @Injected <2>
+    private ComponentsHandler handler;
+
+    @Test
+    public void manualMapper() {
+        final Mapper mapper = handler.createMapper(Source.class, new Source.Config() {
+
+            {
+                values = asList("a", "b");
+            }
+        });
+        assertFalse(mapper.isStream());
+        final Input input = mapper.create();
+        assertEquals("a", input.next());
+        assertEquals("b", input.next());
+        assertNull(input.next());
+    }
+}
+----
+
+<1> The annotation defines which components to register in the test context.
+<2> The field allows to get the handler to be able to orchestrate the tests.
+
+NOTE: if it is the first time you use JUnit 5, don't forget the imports changed and you must use `org.junit.jupiter.api.Test` instead of `org.junit.Test`.
+Some IDE versions and `surefire` versions can also need you to install either a plugin or a specific configuration.
+
+==== Mocking the output
+
+Using the component "test"/"collector" as in previous sample stores all records emitted by the chain (typically your source)
+in memory, you can then access them using `theSimpleComponentRule.getCollectoedRecord(type)`. Note that this method filters by type,
+if you don't care of the type just use `Object.class`.
+
+==== Mocking the input
+
+The input mocking is symmetric to the output but here you provide the data you want to inject:
+
+[source,java]
+----
+public class MyComponentTest {
+
+    @Rule
+    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.sdk.component.mycomponent.");
+
+    @Test
+    public void produce() {
+        components.setInputData(asList(createData(), createData(), createData())); <1>
+
+        ExecutionChainBuilder.start() <2>
+                .fromInput("test", "emitter", emptyMap())
+                .toProcessor("yourcomponentfamily", "myoutput", createComponentConfig())
+                .create(components.asManager(), p -> null, Assert::assertNotNull, (data, exception) -> {
+                    fail(exception.getMessage());
+                    return null;
+                }).get().execute();
+
+        assertMyOutputProcessedTheInputData();
+    }
+}
+----
+
+<1> using `setInputData` you prepare the execution(s) to have a fake input when using "test"/"emitter" component.
+
+==== Creating runtime configuration from component configuration
+
+The component configuration is a POJO (using `@Option` on fields) and the runtime configuration (`ExecutionChainBuilder`) uses
+a `Map<String, String>`. To make the conversion easier, the JUnit integration provides a `SimpleFactory.configurationByExample` utility
+to get this map instance from a configuration instance.
+
+Example:
+
+[source,java]
+----
+final MyComponentConfig componentConfig = new MyComponentConfig();
+componentConfig.setUser("....");
+// .. other inits
+
+final Map<String, String> configuration = configurationByExample(componentConfig);
+----
+
+==== Testing a Mapper
+
+The `SimpleComponentRule` also allows to test a mapper unitarly, you can get an instance from a configuration
+and you can execute this instance to collect the output. Here is a snippet doing that:
+
+[source,java]
+----
+public class MapperTest {
+
+    @ClassRule
+    public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule(
+            "org.company.talend.component");
+
+    @Test
+    public void mapper() {
+        final Mapper mapper = COMPONENT_FACTORY.createMapper(MyMapper.class, new Source.Config() {{
+            values = asList("a", "b");
+        }});
+        assertEquals(asList("a", "b"), COMPONENT_FACTORY.collectAsList(String.class, mapper));
+    }
+}
+----
+
+==== Testing a Processor
+
+As for the mapper a processor is testable unitary. The case is a bit more complex since you can have multiple
+inputs and outputs:
+
+[source,java]
+----
+public class ProcessorTest {
+
+    @ClassRule
+    public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule(
+            "org.company.talend.component");
+
+    @Test
+    public void processor() {
+        final Processor processor = COMPONENT_FACTORY.createProcessor(Transform.class, null);
+        final SimpleComponentRule.Outputs outputs = COMPONENT_FACTORY.collect(processor,
+                        new JoinInputFactory().withInput("__default__", asList(new Transform.Record("a"), new Transform.Record("bb")))
+                                              .withInput("second", asList(new Transform.Record("1"), new Transform.Record("2")))
+                );
+        assertEquals(2, outputs.size());
+        assertEquals(asList(2, 3), outputs.get(Integer.class, "size"));
+        assertEquals(asList("a1", "bb2"), outputs.get(String.class, "value"));
+    }
+}
+----
+
+Here again the rule allows you to instantiate a `Processor` from your code
+and then to `collect` the output from the inputs you pass in. There are two convenient implementation
+of the input factory:
+
+1. `MainInputFactory` for processors using only the default input.
+2. `JoinInputfactory` for processors using multiple inputs have a method `withInput(branch, data)` The first arg is the branch name
+and the second arg is the data used by the branch.
+
+TIP: you can also implement your own input representation if needed implementing `org.talend.sdk.component.junit.ControllableInputFactory`.
+
+=== component-runtime-testing-spark
+
+The folowing artifact will allow you to test against a spark cluster:
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>component-runtime-testing-spark</artifactId>
+  <version>${talend-component.version}</version>
+  <scope>test</scope>
+</dependency>
+----
+
+==== JUnit 4
+
+The usage relies on a JUnit `TestRule`. It is recommanded to use it as a `@ClassRule` to ensure
+a single instance of a spark cluster is built but you can also use it as a simple `@Rule` which means
+it will be created per method instead of per test class.
+
+It takes as parameter the spark and scala version to use. It will then fork a master and N slaves.
+Finally it will give you `submit*` method allowing you to send jobs either from the test classpath
+or from a shade if you run it as an integration test.
+
+Here is a sample:
+
+[source,java]
+----
+public class SparkClusterRuleTest {
+
+    @ClassRule
+    public static final SparkClusterRule SPARK = new SparkClusterRule("2.10", "1.6.3", 1);
+
+    @Test
+    public void classpathSubmit() throws IOException {
+        SPARK.submitClasspath(SubmittableMain.class, getMainArgs());
+
+        // do wait the test passed
+    }
+}
+----
+
+TIP: this is working with `@Parameterized` so you can submit a bunch of jobs with different args and even combine it with beam `TestPipeline` if you make it `transient`!
+
+==== JUnit 5
+
+The integration with JUnit 5 of that spark cluster logic uses `@WithSpark` marker for the extension
+and let you, optionally, inject through `@SparkInject`, the `BaseSpark<?>` handler to access te spark cluster
+meta information - like its host/port.
+
+Here is a basic test using it:
+
+[source,java]
+----
+@WithSpark
+class SparkExtensionTest {
+
+    @SparkInject
+    private BaseSpark<?> spark;
+
+    @Test
+    void classpathSubmit() throws IOException {
+        final File out = new File(jarLocation(SparkClusterRuleTest.class).getParentFile(), "classpathSubmitJunit5.out");
+        if (out.exists()) {
+            out.delete();
+        }
+        spark.submitClasspath(SparkClusterRuleTest.SubmittableMain.class, spark.getSparkMaster(), out.getAbsolutePath());
+
+        await().atMost(5, MINUTES).until(
+                () -> out.exists() ? Files.readAllLines(out.toPath()).stream().collect(joining("\n")).trim() : null,
+                equalTo("b -> 1\na -> 1"));
+    }
+}
+----
+
+==== How to know the job is done
+
+In current state, `SparkClusterRule` doesn't allow to know a job execution is done - even if it exposes the webui url so
+you can poll it to check. The best at the moment is to ensure the output of your job exists and contains the right value.
+
+`awaitability` or equivalent library can help you to write such logic.
+
+Here are the coordinates of the artifact:
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.awaitility</groupId>
+  <artifactId>awaitility</artifactId>
+  <version>3.0.0</version>
+  <scope>test</scope>
+</dependency>
+----
+
+And here is how to wait a file exists and its content (for instance) is the expected one:
+
+[source,java]
+----
+await()
+    .atMost(5, MINUTES)
+    .until(
+        () -> out.exists() ? Files.readAllLines(out.toPath()).stream().collect(joining("\n")).trim() : null,
+        equalTo("the expected content of the file"));
+----
+
+=== component-runtime-http-junit
+
+The HTTP JUnit module allows you to mock REST API very easily. Here are its coordinates:
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>component-runtime-junit</artifactId>
+  <version>${talend-component.version}</version>
+  <scope>test</scope>
+</dependency>
+----
+
+TIP: this module uses Apache Johnzon and Netty, if you have any conflict (in particular with netty) you can add the classifier `shaded`
+to the dependency and the two dependencies are shaded avoiding the conflicts with your component.
+
+It supports JUnit 4 and JUnit 5 as well but the overall concept is the exact same one: the extension/rule
+is able to serve precomputed responses saved in the classpath.
+
+You can plug your own `ResponseLocator` to map a request to a response but the default implementation - which should be sufficient
+in most cases - will look in `talend/testing/http/<class name>_<method name>.json`. Note that you can also put it
+in `talend/testing/http/<request path>.json`.
+
+==== JUnit 4
+
+JUnit 4 setup is done through two rules: `JUnit4HttpApi` which is responsible to start the server and `JUnit4HttpApiPerMethodConfigurator`
+which is responsible to configure the server per test and also handle the capture mode (see later).
+
+IMPORTANT: if you don't use the `JUnit4HttpApiPerMethodConfigurator`, the capture feature will be deactivated and the per test mocking will not be available.
+
+Most of the test will look like:
+
+[source,java]
+----
+public class MyRESTApiTest {
+    @ClassRule
+    public static final JUnit4HttpApi API = new JUnit4HttpApi();
+
+    @Rule
+    public final JUnit4HttpApiPerMethodConfigurator configurator = new JUnit4HttpApiPerMethodConfigurator(API);
+
+    @Test
+    public void direct() throws Exception {
+        // ... do your requests
+    }
+}
+----
+
+===== SSL
+
+For tests using SSL based services, you will need to use `activeSsl()` on the `JUnit4HttpApi` rule.
+
+If you need to access the server ssl socket factory you can do it from the `HttpApiHandler` (the rule):
+
+[source,java]
+[subs=+quotes]
+----
+@ClassRule
+public static final JUnit4HttpApi API = new JUnit4HttpApi()*.activeSsl()*;
+
+@Test
+public void test() throws Exception {
+    final HttpsURLConnection connection = getHttpsConnection();
+    connection.setSSLSocketFactory(API.getSslContext().getSocketFactory());
+    // ....
+}
+----
+
+==== JUnit 5
+
+JUnit 5 uses a JUnit 5 extension based on the `HttpApi` annotation you can put on your test class. You can inject
+the test handler (which has some utilities for advanced cases) through `@HttpApiInject`:
+
+[source,java]
+----
+@HttpApi
+class JUnit5HttpApiTest {
+    @HttpApiInject
+    private HttpApiHandler<?> handler;
+
+    @Test
+    void getProxy() throws Exception {
+        // .... do your requests
+    }
+}
+----
+
+NOTE: the injection is optional and the `@HttpApi` allows you to configure several behaviors of the test.
+
+===== SSL
+
+For tests using SSL based services, you will need to use `@HttpApi(useSsl = true)`.
+
+You can access the client SSL socket factory through the api handler:
+
+[source,java]
+[subs=+quotes]
+----
+@HttpApi*(useSsl = true)*
+class MyHttpsApiTest {
+    @HttpApiInject
+    private HttpApiHandler<?> handler;
+
+    @Test
+    void test() throws Exception {
+        final HttpsURLConnection connection = getHttpsConnection();
+        connection.setSSLSocketFactory(handler.getSslContext().getSocketFactory());
+        // ....
+    }
+}
+----
+
+==== Capturing mode
+
+The strength of this implementation is to run a small proxy server and auto configure the JVM:
+`http[s].proxyHost`, `http[s].proxyPort`, `HttpsURLConnection#defaultSSLSocketFactory` and `SSLContext#default`
+are auto configured to work out of the box with the proxy.
+
+It allows you to keep in your tests the native and real URLs. For instance this test is perfectlt valid:
+
+[source,java]
+----
+public class GoogleTest {
+    @ClassRule
+    public static final JUnit4HttpApi API = new JUnit4HttpApi();
+
+    @Rule
+    public final JUnit4HttpApiPerMethodConfigurator configurator = new JUnit4HttpApiPerMethodConfigurator(API);
+
+    @Test
+    public void google() throws Exception {
+        assertEquals(HttpURLConnection.HTTP_OK, get("https://google.fr?q=Talend"));
+    }
+
+    private int get(final String uri) throws Exception {
+        // do the GET request, skipped for brievity
+    }
+}
+----
+
+If you execute this test, it will fail with a HTTP 400 because the proxy doesn't find the mocked response.
+You can create it manually as seen in the introduction of the module but you can also set the property `talend.junit.http.capture`
+to the folder where to store the captures. It must be the root folder and not the folder where the json are (ie not prefixed by `talend/testing/http` by default).
+
+Generally you will want to use `src/test/resources`. If `new File("src/test/resources")` resolves to the valid folder when executing your test (Maven default),
+then you can just set the system property to true, otherwise you need to adjust accordingly the system property value.
+
+Once you ran the tests with this system property, the testing framework will have created the correct mock response files and you can
+remove the system property. The test will still pass, using `google.com`...even if you disconnect your machine from the internet.
+
+The rule (extension) is doing all the work for you :).
+
+==== Passthrough mode
+
+Setting `talend.junit.http.passthrough` system property to `true`, the server will just be a proxy and will execute each request
+to the actual server - like in capturing mode.
