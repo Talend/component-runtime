@@ -17,12 +17,15 @@ package org.talend.sdk.component.server.service;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.empty;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -34,16 +37,19 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
-import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -75,6 +81,7 @@ public class ComponentManagerService {
         System.setProperty("talend.component.manager.m2.repository", configuration.mavenRepository());
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         instance = ComponentManager.instance();
+        instance.getContainer().registerListener(new DeploymentListener(componentDao, componentFamilyDao, actionDao));
 
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
@@ -97,30 +104,8 @@ public class ComponentManagerService {
                 .map(Artifact::toPath)
                 .orElseThrow(() -> new IllegalArgumentException("Plugin GAV can't be empty"));
 
-        final String pluginID = instance.addWithLocationPlugin(pluginGAV,
+        return instance.addWithLocationPlugin(pluginGAV,
                 new File(configuration.mavenRepository(), pluginPath).getAbsolutePath());
-        final Container plugin = instance.findPlugin(pluginID).get();
-
-        plugin
-                .get(ContainerComponentRegistry.class)
-                .getComponents()
-                .values()
-                .stream()
-                .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
-                        c.getProcessors().values().stream()))
-                .forEach(meta -> componentDao.createOrUpdate(meta));
-
-        plugin
-                .get(ContainerComponentRegistry.class)
-                .getServices()
-                .stream()
-                .flatMap(c -> c.getActions().stream())
-                .forEach(e -> actionDao.createOrUpdate(e));
-
-        plugin.get(ContainerComponentRegistry.class).getComponents().values().forEach(
-                meta -> componentFamilyDao.createOrUpdate(meta));
-
-        return pluginID;
     }
 
     public void undeploy(final String pluginGAV) {
@@ -134,25 +119,69 @@ public class ComponentManagerService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No plugin found using maven GAV: " + pluginGAV));
 
-        final Container plugin = instance.findPlugin(pluginID).orElseThrow(
-                () -> new IllegalArgumentException("No plugin found using maven GAV: " + pluginGAV));
-
-        final ContainerComponentRegistry containerComponentRegistry = plugin.get(ContainerComponentRegistry.class);
-        containerComponentRegistry
-                .getComponents()
-                .values()
-                .stream()
-                .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
-                        c.getProcessors().values().stream()))
-                .forEach(meta -> componentDao.removeById(meta.getId()));
-
-        containerComponentRegistry.getServices().stream().flatMap(c -> c.getActions().stream()).forEach(
-                e -> actionDao.remove(e));
-
-        containerComponentRegistry.getComponents().values().forEach(
-                meta -> componentFamilyDao.removeById(IdGenerator.get(meta.getName())));
-
         instance.removePlugin(pluginID);
+    }
+
+    @AllArgsConstructor
+    private static class DeploymentListener implements ContainerListener {
+
+        private final ComponentDao componentDao;
+
+        private final ComponentFamilyDao componentFamilyDao;
+
+        private final ComponentActionDao actionDao;
+
+        @Override
+        public void onCreate(final Container container) {
+            final Runnable release = postDeploy(container);
+            container.set(CleanupTask.class, new CleanupTask(release));
+        }
+
+        @Override
+        public void onClose(final Container container) {
+            container.get(CleanupTask.class).getCleanup().run();
+        }
+
+        private Runnable postDeploy(final Container plugin) {
+            final Collection<String> componentIds = plugin
+                    .get(ContainerComponentRegistry.class)
+                    .getComponents()
+                    .values()
+                    .stream()
+                    .flatMap(c -> Stream.concat(c.getPartitionMappers().values().stream(),
+                            c.getProcessors().values().stream()))
+                    .peek(componentDao::createOrUpdate)
+                    .map(ComponentFamilyMeta.BaseMeta::getId)
+                    .collect(toSet());
+
+            final Collection<ComponentActionDao.ActionKey> actions = plugin
+                    .get(ContainerComponentRegistry.class)
+                    .getServices()
+                    .stream()
+                    .flatMap(c -> c.getActions().stream())
+                    .map(actionDao::createOrUpdate)
+                    .collect(toList());
+
+            final Collection<String> families = plugin
+                    .get(ContainerComponentRegistry.class)
+                    .getComponents()
+                    .values()
+                    .stream()
+                    .map(componentFamilyDao::createOrUpdate)
+                    .collect(toList());
+
+            return () -> {
+                componentIds.forEach(componentDao::removeById);
+                actions.forEach(actionDao::removeById);
+                families.forEach(componentFamilyDao::removeById);
+            };
+        }
+    }
+
+    @Data
+    private static class CleanupTask {
+
+        private final Runnable cleanup;
     }
 
     @Produces

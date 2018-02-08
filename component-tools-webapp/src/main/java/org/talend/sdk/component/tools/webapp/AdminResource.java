@@ -25,6 +25,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 import org.talend.sdk.component.server.service.ComponentManagerService;
@@ -51,7 +52,8 @@ public class AdminResource {
                 .manager()
                 .findPlugin(family.getPlugin())
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
-                .reload();// todo: move to deep reload once it is merged
+                .get(ContainerManager.Actions.class)
+                .reload();
 
         log.info("Reloaded family {}", family.getName());
     }

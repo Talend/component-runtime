@@ -28,9 +28,8 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerManager;
-import org.talend.sdk.component.dependencies.maven.Artifact;
+import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.test.Constants;
 
 class JmxManagerTest {
@@ -38,11 +37,17 @@ class JmxManagerTest {
     @Test
     void jmx() throws Exception {
         final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        final JmxManager manager = new JmxManager("org.talend.test:type=plugin,name=%s", mBeanServer);
-        final Container container = new Container("foo.jar", new File("missing/normally").getName(), new Artifact[0],
-                ContainerManager.ClassLoaderConfiguration.builder().create(),
-                path -> new File(Constants.DEPENDENCIES_LOCATION, path), null);
-        manager.onCreate(container);
+        final JmxManager jmxManager = new JmxManager(null, "org.talend.test:type=plugin,name=%s", mBeanServer);
+
+        final ContainerManager containerManager =
+                new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
+                        .builder()
+                        .resolver(
+                                new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH))
+                        .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION))
+                        .create(), ContainerManager.ClassLoaderConfiguration.builder().create(), null);
+        containerManager.registerListener(jmxManager);
+        containerManager.builder("foo.jar", new File("missing/normally").getName()).create();
 
         final ObjectName name = new ObjectName("org.talend.test:name=foo.jar,type=plugin");
 
@@ -58,7 +63,7 @@ class JmxManagerTest {
             mBeanServer.invoke(name, "reload", new Object[0], new String[0]);
             assertNotSame(created, mBeanServer.getAttribute(name, "created"));
         } finally {
-            manager.onClose(container);
+            containerManager.close();
         }
 
         assertFalse(mBeanServer.isRegistered(name));

@@ -209,7 +209,7 @@ public class Container implements Lifecycle {
         checkState();
         doClose();
         loaderRef.set(classloaderProvider.get());
-        created.set(new Date());
+        this.created.set(new Date());
     }
 
     public Date getCreated() {

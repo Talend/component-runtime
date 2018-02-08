@@ -15,8 +15,8 @@
  */
 package org.talend.sdk.component.server.dao;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -26,10 +26,12 @@ import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 @ApplicationScoped
 public class ComponentFamilyDao {
 
-    private Map<String, ComponentFamilyMeta> data = new HashMap<>();
+    private Map<String, ComponentFamilyMeta> data = new ConcurrentHashMap<>();
 
-    public void createOrUpdate(final ComponentFamilyMeta meta) {
-        data.put(IdGenerator.get(meta.getName()), meta);
+    public String createOrUpdate(final ComponentFamilyMeta meta) {
+        final String id = IdGenerator.get(meta.getName());
+        data.put(id, meta);
+        return id;
     }
 
     public ComponentFamilyMeta findById(final String id) {

@@ -27,6 +27,7 @@ import javax.management.ObjectName;
 
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
+import org.talend.sdk.component.container.ContainerManager;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class JmxManager implements ContainerListener {
+
+    private final ContainerManager manager;
 
     private final String namePattern;
 
@@ -43,7 +46,7 @@ public class JmxManager implements ContainerListener {
     public void onCreate(final Container container) {
         try {
             final ObjectName name = new ObjectName(String.format(namePattern, container.getId()));
-            server.registerMBean(new ContainerMBean(container), name);
+            server.registerMBean(new ContainerMBean(manager, container), name);
             container.set(JmxData.class, new JmxData(name));
         } catch (final InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException
                 | MalformedObjectNameException e) {

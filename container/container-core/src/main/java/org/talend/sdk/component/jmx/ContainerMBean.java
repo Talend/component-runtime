@@ -33,11 +33,14 @@ import javax.management.MBeanParameterInfo;
 import javax.management.ReflectionException;
 
 import org.talend.sdk.component.container.Container;
+import org.talend.sdk.component.container.ContainerManager;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ContainerMBean implements DynamicMBean {
+
+    private final ContainerManager manager;
 
     private final Container delegate;
 
@@ -93,7 +96,7 @@ public class ContainerMBean implements DynamicMBean {
         }
         switch (actionName) {
         case "reload":
-            delegate.reload();
+            delegate.get(ContainerManager.Actions.class).reload();
             break;
         default:
             throw new UnsupportedOperationException("Unknown action: '" + actionName + "'");
