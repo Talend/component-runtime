@@ -26,8 +26,7 @@ If you know nothing about Talend Components, the getting started is the place to
 == Learning about Talend Component features
 
 * *Core features:*
-  <<documentation.adoc#getting-started-introducing-talend-component, Overview>> |
-  <<documentation.adoc#getting-started-system-requirements, Requirements>>
+  <<documentation.adoc#_components_definitions, Overview>>
 * *Advanced:*
   <<documentation-testing.adoc#documentation-testing-start, Testing>>
 

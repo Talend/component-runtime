@@ -1,0 +1,315 @@
+:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation
+:jbake-status: published
+
+== Component loading
+
+Talend Component scanning is based on a plugin concept. To ensure plugins can be developped in parallel and avoid conflicts
+it requires to isolate plugins (components or component grouped in a single jar/plugin).
+
+Here we have multiple options which are (high level):
+
+- flat classpath: listed for completeness but rejected _by design_ because it doesn't match at all this requirement.
+- tree classloading: a shared classloader inherited by plugin classloaders but plugin classloader classes
+are not seen by the shared classloader nor by other plugins.
+- graph classloading: this one allows you to link the plugins and dependencies together dynamically in any direction.
+
+If you want to map it to concrete common examples, the tree classloading is commonly used by Servlet containers where plugins are web applications
+and the graph classloading can be illustrated by OSGi containers.
+
+In the spirit of avoiding a lot of complexity added by this layer, Talend Component relies on a tree classloading. The advantage
+is you don't need to define the relationship with other plugins/dependencies (it is built-in).
+
+Here is a representation of this solution:
+
+[ditaa, generated-classloader-layout, png]
+....
+                 /--------\
+     +---------->| Shared |<---------+
+     |           \--------/          |
+     |               ^               |
+     |               |               |
+/----+-----\    /----+-----\    /----+-----\
+| Plugin 1 |    | Plugin 2 |    | Plugin N |
+\----------/    \----------/    \----------/
+....
+
+The interesting part is the _shared_ area will contain Talend Component API which is the only (by default) shared classes accross the whole plugins.
+
+Then each plugins will be loaded in their own classloader with their dependencies.
+
+
+=== Packaging a plugin
+
+NOTE: this part explains the overall way to handle dependecnies but the Talend Maven plugin provides a shortcut for that.
+
+A plugin is just a jar which was enriched with the list of its dependencies. By default Talend Component runtime is able to
+read the output of `maven-dependency-plugin` in `TALEND-INF/dependencies.txt` location so you just need to ensure your component defines the following plugin:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-dependency-plugin</artifactId>
+  <version>3.0.2</version>
+  <executions>
+    <execution>
+      <id>create-TALEND-INF/dependencies.txt</id>
+      <phase>process-resources</phase>
+      <goals>
+        <goal>list</goal>
+      </goals>
+      <configuration>
+        <outputFile>${project.build.outputDirectory}/TALEND-INF/dependencies.txt</outputFile>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+----
+
+If you check your jar once built you will see that the file contains something like:
+
+[source,bash]
+----
+$ unzip -p target/mycomponent-1.0.0-SNAPSHOT.jar TALEND-INF/dependencies.txt
+
+The following files have been resolved:
+   org.talend.sdk.component:component-api:jar:1.0.0-SNAPSHOT:provided
+   org.apache.geronimo.specs:geronimo-annotation_1.3_spec:jar:1.0:provided
+   org.superbiz:awesome-project:jar:1.2.3:compile
+   junit:junit:jar:4.12:test
+   org.hamcrest:hamcrest-core:jar:1.3:test
+
+----
+
+What is important to see is the scope associated to the artifacts:
+
+- the API (`component-api` and `geronimo-annotation_1.3_spec`) are `provided` because you can consider them to be there when executing (it comes with the framework)
+- your specific dependencies (`awesome-project`) is `compile`: it will be included as a needed dependency by the framework (note that using `runtime` works too).
+- the other dependencies will be ignored (`test` dependencies)
+
+=== Packaging an application
+
+Even if a flat classpath deployment is possible, it is not recommanded because it would then reduce the capabilities of the components.
+
+==== Dependencies
+
+The way the framework resolves dependencies is based on a local maven repository layout. As a quick reminder it looks like:
+
+[source]
+----
+.
+├── groupId1
+│   └── artifactId1
+│       ├── version1
+│       │   └── artifactId1-version1.jar
+│       └── version2
+│           └── artifactId1-version2.jar
+└── groupId2
+    └── artifactId2
+        └── version1
+            └── artifactId2-version1.jar
+----
+
+This is all the layout the framework will use. Concretely the logic will convert the t-uple {groupId, artifactId, version, type (jar)}
+to the path in the repository.
+
+Talend Component runtime has two ways to find an artifact:
+
+- from the file system based on a configure maven 2 repository.
+- from a fatjar (uber jar) with a nested maven repository under `MAVEN-INF/repository`.
+
+The first option will use either - by default - `${user.home}/.m2/repository` or a specific path configured when creating a `ComponentManager`.
+The nested repository option will need some configuration during the packaging to ensure the repository is well created.
+
+===== Create a nested maven repository with maven-shade-plugin
+
+To create the nested `MAVEN-INF/repository` repository you can use `nested-maven-repository` extension:
+
+[source,xml,indent=0,subs="verbatim,quotes,attributes"]
+----
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-shade-plugin</artifactId>
+  <version>3.0.0</version>
+  <executions>
+    <execution>
+      <phase>package</phase>
+      <goals>
+        <goal>shade</goal>
+      </goals>
+      <configuration>
+        <transformers>
+          <transformer implementation="org.talend.sdk.component.container.maven.shade.ContainerDependenciesTransformer">
+            <session>${session}</project>
+          </transformer>
+        </transformers>
+      </configuration>
+    </execution>
+  </executions>
+  <dependencies>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>nested-maven-repository</artifactId>
+      <version>${the.plugin.version}</version>
+    </dependency>
+  </dependencies>
+</plugin>
+----
+
+==== Listing needed plugins
+
+Plugin are programmatically registered in general but if you want to make some of them automatically available you
+need to generate a `TALEND-INF/plugins.properties` which will map a plugin name to coordinates found with the maven mecanism
+we just talked about.
+
+Here again we can enrich `maven-shade-plugin` to do it:
+
+[source,xml,indent=0,subs="verbatim,quotes,attributes"]
+----
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-shade-plugin</artifactId>
+  <version>3.0.0</version>
+  <executions>
+    <execution>
+      <phase>package</phase>
+      <goals>
+        <goal>shade</goal>
+      </goals>
+      <configuration>
+        <transformers>
+          <transformer implementation="org.talend.sdk.component.container.maven.shade.PluginTransformer">
+            <session>${session}</project>
+          </transformer>
+        </transformers>
+      </configuration>
+    </execution>
+  </executions>
+  <dependencies>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>nested-maven-repository</artifactId>
+      <version>${the.plugin.version}</version>
+    </dependency>
+  </dependencies>
+</plugin>
+----
+
+==== `maven-shade-plugin` extensions
+
+Here is a final job/application bundle based on maven shade plugin:
+
+[source,xml,indent=0,subs="verbatim,quotes,attributes"]
+----
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-shade-plugin</artifactId>
+  <version>3.0.0</version>
+  <configuration>
+    <createDependencyReducedPom>false</createDependencyReducedPom>
+    <filters>
+      <filter>
+        <artifact>*:*</artifact>
+        <excludes>
+          <exclude>META-INF/*.SF</exclude>
+          <exclude>META-INF/*.DSA</exclude>
+          <exclude>META-INF/*.RSA</exclude>
+        </excludes>
+      </filter>
+    </filters>
+  </configuration>
+  <executions>
+    <execution>
+      <phase>package</phase>
+      <goals>
+        <goal>shade</goal>
+      </goals>
+      <configuration>
+        <shadedClassifierName>shaded</shadedClassifierName>
+        <transformers>
+          <transformer
+              implementation="org.talend.sdk.component.container.maven.shade.ContainerDependenciesTransformer">
+            <session>${session}</session>
+            <userArtifacts>
+              <artifact>
+                <groupId>org.talend.sdk.component</groupId>
+                <artifactId>sample-component</artifactId>
+                <version>1.0</version>
+                <type>jar</type>
+              </artifact>
+            </userArtifacts>
+          </transformer>
+          <transformer implementation="org.talend.sdk.component.container.maven.shade.PluginTransformer">
+            <session>${session}</session>
+            <userArtifacts>
+              <artifact>
+                <groupId>org.talend.sdk.component</groupId>
+                <artifactId>sample-component</artifactId>
+                <version>1.0</version>
+                <type>jar</type>
+              </artifact>
+            </userArtifacts>
+          </transformer>
+        </transformers>
+      </configuration>
+    </execution>
+  </executions>
+  <dependencies>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>nested-maven-repository-maven-plugin</artifactId>
+      <version>${the.version}</version>
+    </dependency>
+  </dependencies>
+</plugin>
+----
+
+NOTE: the configuration unrelated to transformers can depend your application.
+
+`ContainerDependenciesTransformer` is the one to embed a maven repository and `PluginTransformer` to create a file listing (one per line)
+a list of artifacts (representing plugins).
+
+Both transformers share most of their configuration:
+
+- `session`: must be set to `${session}`. This is used to retrieve dependencies.
+- `scope`: a comma separated list of scope to include in the artifact filtering (note that the default will rely on `provided` but you can replace it by `compile`, `runtime`, `runtime+compile`, `runtime+system`, `test`).
+- `include`: a comma separated list of artifact to include in the artifact filtering.
+- `exclude`: a comma separated list of artifact to exclude in the artifact filtering.
+- `userArtifacts`: a list of artifacts (groupId, artifactId, version, type - optional, file - optional for plugin transformer, scope - optional) which can be forced inline - mainly useful for `PluginTransformer`.
+- `includeTransitiveDependencies`: should transitive dependencies of the components be included, true by default.
+- `includeProjectComponentDependencies`: should project component dependencies be included, false by default (normally a job project uses isolation for components so this is not needed).
+- `userArtifacts`: set of component artifacts to include.
+
+IMPORTANT: to use with the component tooling, it is recommended to keep default locations. Also if you feel you need to use project dependencies,
+you can need to refactor your project structure to ensure you keep component isolation. Talend component let you handle that part but the recommended
+practise is to use `userArtifacts` for the components and not the project `<dependencies>`.
+
+===== ContainerDependenciesTransformer
+
+`ContainerDependenciesTransformer` specific configuration is the following one:
+
+- `repositoryBase`: base repository location (default to `MAVEN-INF/repository`).
+- `ignoredPaths`: a comma separated list of folder to not create in the output jar, this is common for the ones already created by other transformers/build parts.
+
+===== PluginTransformer
+
+`ContainerDependenciesTransformer` specific configuration is the following one:
+
+- `pluginListResource`: base repository location (default to TALEND-INF/plugins.properties`).
+
+Example: if you want to list only the plugins you use you can configure this transformer like that:
+
+[source,xml,indent=0,subs="verbatim,quotes,attributes"]
+----
+<transformer implementation="org.talend.sdk.component.container.maven.shade.PluginTransformer">
+  <session>${session}</session>
+  <include>org.talend.sdk.component:component-x,org.talend.sdk.component:component-y,org.talend.sdk.component:component-z</include>
+</transformer>
+----

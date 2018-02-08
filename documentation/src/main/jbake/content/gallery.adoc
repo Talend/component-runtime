@@ -1,4 +1,3 @@
-= Gallery
 :toc:
 :numbered:
 :icons: font
@@ -9,7 +8,9 @@
 :jbake-tags: documentation, widgets, gallery
 :jbake-status: published
 
-== Widgets
+== Gallery
+
+=== Widgets
 
 [cols="1,3a,4a,4a",role="table gallery",options="header,autowidth"]
 |===
@@ -97,7 +98,7 @@ List<String> config;
 |===
 
 
-== Validations
+=== Validations
 
 [cols="1,3a,4a,4a",role="table gallery",options="header,autowidth"]
 |===
@@ -139,3 +140,5 @@ public HealthCheckStatus testConnection(){
 ----
 |image::gallery/widgets/studio/validation_datastore.png[Studio Code,window="_blank",link="images/gallery/widgets/studio/prop_validation.png"]
 |image::gallery/widgets/web/validation_datastore.png[Web Code,window="_blank",link="images/gallery/widgets/web/prop_validation.png"]
+
+|===

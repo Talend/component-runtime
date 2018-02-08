@@ -1,0 +1,106 @@
+:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation, testing
+:jbake-status: published
+
+== Best practises
+
+NOTE: this part is mainly around tools usable with JUnit. You can use most of these techniques with TestNG
+as well, check out the documentation if you need to use TestNG.
+
+=== Parameterized tests
+
+This is a great solution to repeat the same test multiple times. Overall idea
+is to define a test scenario (`I test function F`) and to make the input/output data
+dynamic.
+
+==== JUnit 4
+
+Here is an example. Let's assume we have this test which validates the connection URI using `ConnectionService`:
+
+[source,java]
+----
+public class MyConnectionURITest {
+    @Test
+    public void checkMySQL() {
+        assertTrue(new ConnectionService().isValid("jdbc:mysql://localhost:3306/mysql"));
+    }
+
+    @Test
+    public void checkOracle() {
+        assertTrue(new ConnectionService().isValid("jdbc:oracle:thin:@//myhost:1521/oracle"));
+    }
+}
+----
+
+We clearly identify the test method is always the same except the value. It can therefore be rewritter
+using JUnit `Parameterized` runner like that:
+
+[source,java]
+----
+@RunWith(Parameterized.class) <1>
+public class MyConnectionURITest {
+
+    @Parameterized.Parameters(name = "{0}") <2>
+    public static Iterable<String> uris() { <3>
+        return asList(
+            "jdbc:mysql://localhost:3306/mysql",
+            "jdbc:oracle:thin:@//myhost:1521/oracle");
+    }
+
+    @Parameterized.Parameter <4>
+    public String uri;
+
+    @Test
+    public void isValid() { <5>
+        assertNotNull(uri);
+    }
+}
+----
+
+<1> `Parameterized` is the runner understanding `@Parameters` and how to use it. Note that you can generate random data here if desired.
+<2> by default the name of the executed test is the index of the data, here we customize it using the first parameter `toString()` value to have something more readable
+<3> the `@Parameters` method `MUST` be static and return an array or iterable of the data used by the tests
+<4> you can then inject the current data using `@Parameter` annotation, it can take a parameter if you use an array of array instead of an iterable of object in `@Parameterized` and you can select which item you want injected this way
+<5> the `@Test` method will be executed using the contextual data, in this sample we'll get executed twice with the 2 specified urls
+
+TIP: you don't have to define a single `@Test` method, if you define multiple, each of them will be executed with all the data (ie if we add a test in previous example you will get 4 tests execution - 2 per data, ie 2x2)
+
+==== JUnit 5
+
+JUnit 5 reworked this feature to make it way easier to use. The full documentation is available at http://junit.org/junit5/docs/current/user-guide/#writing-tests-parameterized-tests.
+
+The main difference is you can also define inline on the test method that it is a parameterized test and which are the values:
+
+[source,java]
+----
+@ParameterizedTest
+@ValueSource(strings = { "racecar", "radar", "able was I ere I saw elba" })
+void mytest(String currentValue) {
+    // do test
+}
+----
+
+However you can still use the previous behavior using a method binding configuration:
+
+[source,java]
+----
+@ParameterizedTest
+@MethodSource("stringProvider")
+void mytest(String currentValue) {
+    // do test
+}
+
+static Stream<String> stringProvider() {
+    return Stream.of("foo", "bar");
+}
+----
+
+This last option allows you to inject any type of value - not only primitives - which is very common to define scenarii.
+
+IMPORTANT: don't forget to add `junit-jupiter-params` dependency to benefit from this feature.
