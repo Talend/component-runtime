@@ -19,39 +19,39 @@ import flatten from './flatten';
 import defaultRegistry from './service';
 
 function extractRequestPayload(parameters = [], properties) {
-	const payload = {};
-	for (const param of parameters) {
-		const value = get(properties, param.path);
-		Object.assign(payload, flatten(value, param.key));
-	}
+  const payload = {};
+  for (const param of parameters) {
+    const value = get(properties, param.path);
+    Object.assign(payload, flatten(value, param.key));
+  }
 
-	return payload;
+  return payload;
 }
 
 export default function getDefaultTrigger({ url, customRegistry }) {
-	return function onDefaultTrigger(event, { trigger, schema, properties, errors }) {
-		const services = {
-			...defaultRegistry,
-			...customRegistry
-		};
-		const payload = extractRequestPayload(trigger.parameters, properties);
-		return fetch(
-			`${url}?action=${trigger.action}&family=${trigger.family}&type=${trigger.type}`,
-			{
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-				body: JSON.stringify(payload),
-			}
-		)
-			.then(resp => resp.json())
-			.then(body => {
-				return services[trigger.type]({
-					body,
-					errors,
-					properties,
-					schema,
-					trigger,
-				});
-			});
-	};
+  return function onDefaultTrigger(event, { trigger, schema, properties, errors }) {
+    const services = {
+      ...defaultRegistry,
+      ...customRegistry
+    };
+    const payload = extractRequestPayload(trigger.parameters, properties);
+    return fetch(
+      `${url}?action=${trigger.action}&family=${trigger.family}&type=${trigger.type}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload),
+      }
+    )
+      .then(resp => resp.json())
+      .then(body => {
+        return services[trigger.type]({
+          body,
+          errors,
+          properties,
+          schema,
+          trigger,
+        });
+      });
+  };
 };

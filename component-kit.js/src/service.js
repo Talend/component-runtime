@@ -28,12 +28,12 @@ import { removeError, addError, getError } from '@talend/react-forms/lib/UIForm/
  * @returns {object} The new errors map
  */
 function getNewErrors(errors, schema, errorMessage) {
-	if (errorMessage) {
-		return addError(errors, schema, errorMessage);
-	} else if (getError(errors, schema) !== undefined) {
-		return removeError(errors, schema);
-	}
-	return errors;
+  if (errorMessage) {
+    return addError(errors, schema, errorMessage);
+  } else if (getError(errors, schema) !== undefined) {
+    return removeError(errors, schema);
+  }
+  return errors;
 }
 
 /**
@@ -44,8 +44,8 @@ function getNewErrors(errors, schema, errorMessage) {
  * @returns {{errors: *}} The new errors map
  */
 function validation({ schema, body, errors }) {
-	const newError = body.status === 'KO' ? body.comment : undefined;
-	return { errors: getNewErrors(errors, schema, newError) };
+  const newError = body.status === 'KO' ? body.comment : undefined;
+  return { errors: getNewErrors(errors, schema, newError) };
 }
 
 /**
@@ -58,46 +58,46 @@ function validation({ schema, body, errors }) {
  * @returns {{properties: *, errors: Object}} The properties and errors map
  */
 function schema({ schema, body, properties, trigger, errors }) {
-	const newErrors = getNewErrors(errors, schema, body.error);
-	let newProperties = properties;
+  const newErrors = getNewErrors(errors, schema, body.error);
+  let newProperties = properties;
 
-	if (body.entries && trigger.options && trigger.options.length !== 0) {
-		newProperties = clonedeep(properties);
-		for (const { path, type } of trigger.options) {
-			let parentPath = path;
-			let directChildPath = path;
-			const lastDot = path.lastIndexOf('.');
-			if (lastDot > 0) {
-				parentPath = path.substring(0, lastDot);
-				directChildPath = path.substring(lastDot + 1);
-			}
+  if (body.entries && trigger.options && trigger.options.length !== 0) {
+    newProperties = clonedeep(properties);
+    for (const { path, type } of trigger.options) {
+      let parentPath = path;
+      let directChildPath = path;
+      const lastDot = path.lastIndexOf('.');
+      if (lastDot > 0) {
+        parentPath = path.substring(0, lastDot);
+        directChildPath = path.substring(lastDot + 1);
+      }
 
-			let mutable = (parentPath === path) ? newProperties : get(newProperties, parentPath);
-			if (!mutable) {
-				continue;
-			}
-			mutable[directChildPath] = (type === 'array') ?
-				body.entries.map(e => e.name) :
-				body.entries.reduce({}, (a, e) => {
-					a[e.name] = e.type;
-					return a;
-				});
-		}
-	}
-	return {
-		properties: newProperties,
-		errors: newErrors,
-	};
+      let mutable = (parentPath === path) ? newProperties : get(newProperties, parentPath);
+      if (!mutable) {
+        continue;
+      }
+      mutable[directChildPath] = (type === 'array') ?
+        body.entries.map(e => e.name) :
+        body.entries.reduce({}, (a, e) => {
+          a[e.name] = e.type;
+          return a;
+        });
+    }
+  }
+  return {
+    properties: newProperties,
+    errors: newErrors,
+  };
 }
 
 function dynamic_values({ schema, body, properties, trigger }) {
-	// for now it is set on the server side so no-op is ok
-	return { properties };
+  // for now it is set on the server side so no-op is ok
+  return { properties };
 }
 
 export default {
-	dynamic_values,
-	healthcheck: validation,
-	schema,
-	validation,
+  dynamic_values,
+  healthcheck: validation,
+  schema,
+  validation,
 };

@@ -15,23 +15,25 @@
  */
 
 export default function flatten(anything, key = '') {
-	const payload = {};
+  const payload = {};
 
-	if (Array.isArray(anything)) {
-		anything.forEach((item, index) => {
-			const itemKey = `${key}[${index}]`;
-			Object.assign(payload, flatten(item, itemKey));
-		});
-	} else if (typeof anything === 'object') {
-		Object.keys(anything).forEach(nextKey => {
-			const itemKey = key ?
-				`${key}.${nextKey}`:
-				nextKey;
-			const item = anything[nextKey];
-			Object.assign(payload, flatten(item, itemKey));
-		});
-	} else if (anything !== undefined) {
-		payload[key] = anything;
-	}
-	return payload;
+  if (Array.isArray(anything)) {
+    anything.forEach((item, index) => {
+      const itemKey = `${key}[${index}]`;
+      Object.assign(payload, flatten(item, itemKey));
+    });
+  } else if (typeof anything === 'object') {
+    Object.keys(anything).forEach(nextKey => {
+      const itemKey = key ?
+        `${key}.${nextKey}`:
+        nextKey;
+      const item = anything[nextKey];
+      Object.assign(payload, flatten(item, itemKey));
+    });
+  } else if (typeof anything === 'string') {
+      payload[key] = anything;
+    } else if (anything !== undefined) {
+      payload[key] = JSON.stringify(anything);
+    }
+  return payload;
 }
