@@ -20,6 +20,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.model.action.Action;
 import org.talend.sdk.component.studio.model.parameter.ValidationLabel;
 
@@ -39,7 +40,8 @@ public class ValidationListener extends Action implements PropertyChangeListener
             return;
         }
 
-        CompletableFuture.supplyAsync(this::validate).thenAccept(this::notify);
+        CompletableFuture.supplyAsync(this::validate, Lookups.uiActionsThreadPool().getExecutor()).thenAccept(
+                this::notify);
     }
 
     private Map<String, String> validate() {

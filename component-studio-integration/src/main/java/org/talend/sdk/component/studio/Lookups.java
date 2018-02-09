@@ -37,6 +37,7 @@ import org.talend.sdk.component.studio.debounce.DebounceManager;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.service.Configuration;
+import org.talend.sdk.component.studio.service.UiActionsThreadPool;
 import org.talend.sdk.component.studio.ui.composite.TaCoKitComposite;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
@@ -62,6 +63,14 @@ public class Lookups {
             };
         } catch (final Exception e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    public static UiActionsThreadPool uiActionsThreadPool() {
+        try {
+            return lookup(UiActionsThreadPool.class);
+        } catch (final Exception e) { // for tests
+            return new UiActionsThreadPool(command -> new Thread(command).start());
         }
     }
 
@@ -139,7 +148,7 @@ public class Lookups {
                                                                         (Element) args[1], (EComponentCategory) args[2],
                                                                         (boolean) args[3]);
                                                             } else { // it is v0 component, so call GenericWizardService
-                                                                     // original method
+                                                                // original method
                                                                 return method.invoke(service, args);
                                                             }
                                                         }

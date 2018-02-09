@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.concurrent.Executors;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.tomcat.websocket.Constants;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -33,6 +35,7 @@ import org.talend.sdk.component.studio.debounce.DebounceManager;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.service.Configuration;
+import org.talend.sdk.component.studio.service.UiActionsThreadPool;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 public class ServerManager extends AbstractUIPlugin {
@@ -47,6 +50,8 @@ public class ServerManager extends AbstractUIPlugin {
 
     private DebounceManager debounceManager;
 
+    private UiActionsThreadPool uiActionsThreadPool;
+
     @Override
     public void start(final BundleContext context) throws Exception {
         super.start(context);
@@ -57,6 +62,9 @@ public class ServerManager extends AbstractUIPlugin {
         services.add(ctx.registerService(Configuration.class.getName(), configuration, new Hashtable<>()));
         debounceManager = new DebounceManager();
         services.add(ctx.registerService(DebounceManager.class.getName(), debounceManager, new Hashtable<>()));
+        uiActionsThreadPool = new UiActionsThreadPool(Executors.newCachedThreadPool(
+                new BasicThreadFactory.Builder().namingPattern(UiActionsThreadPool.class.getName() + "-%d").build()));
+        services.add(ctx.registerService(UiActionsThreadPool.class.getName(), debounceManager, new Hashtable<>()));
         if (!configuration.isActive()) {
             return;
         }
@@ -104,6 +112,14 @@ public class ServerManager extends AbstractUIPlugin {
                 if (debounceManager != null) {
                     debounceManager.close();
                     debounceManager = null;
+                }
+            } catch (final RuntimeException re) {
+                error = re;
+            }
+            try {
+                if (uiActionsThreadPool != null) {
+                    uiActionsThreadPool.close();
+                    uiActionsThreadPool = null;
                 }
             } catch (final RuntimeException re) {
                 error = re;
