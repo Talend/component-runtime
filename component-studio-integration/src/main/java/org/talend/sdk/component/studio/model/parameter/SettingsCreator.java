@@ -83,7 +83,7 @@ public class SettingsCreator implements PropertyVisitor {
     /**
      * Defines a Form name, for which properties are built. E.g. "Main" or "Advanced"
      */
-    private final String formName;
+    private final String form;
 
     private String family;
 
@@ -102,15 +102,6 @@ public class SettingsCreator implements PropertyVisitor {
 
     private final List<ValidationResolver> actionResolvers = new ArrayList<>();
 
-    /**
-     * {@link TaCoKitElementParameter} has numRow field which stores widget relative position (row number on which it
-     * appears)
-     * If numRow = 10, this does not necessarily mean that widget will be shown on 10th line,
-     * but when 1 parameter has numRow = 8, and 2 has numRow = 10, then 2 will shown under 1
-     * It is initialized to 3, because 1 row is for repository value switch widget and 2 is for schema
-     */
-    private int lastRowNumber = 3;
-
     public SettingsCreator(final IElement iNode, final EComponentCategory category,
             final ElementParameter redrawParameter, final ConfigTypeNode config) {
         this(iNode, category, redrawParameter, config.getActions());
@@ -126,7 +117,7 @@ public class SettingsCreator implements PropertyVisitor {
         this.element = iNode;
         this.category = category;
         this.redrawParameter = redrawParameter;
-        this.formName = category == EComponentCategory.ADVANCED ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
+        this.form = category == EComponentCategory.ADVANCED ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
         this.actions = actions;
         actions.stream().findFirst().ifPresent(a -> this.family = a.getFamily());
     }
@@ -186,7 +177,7 @@ public class SettingsCreator implements PropertyVisitor {
                 settings.put(closedList.getName(), closedList);
                 break;
             case TABLE:
-                final TaCoKitElementParameter table = visitTable((TablePropertyNode) node);
+                final TaCoKitElementParameter table = visitTable((ListPropertyNode) node);
                 settings.put(table.getName(), table);
                 break;
             case SCHEMA_TYPE:
@@ -214,8 +205,9 @@ public class SettingsCreator implements PropertyVisitor {
                     .filter(a -> a.getName().equals(node.getProperty().getHealthCheckName()))
                     .findFirst()
                     .get();
-            new HealthCheckResolver(element, family, node, action, category, ++lastRowNumber)
-                    .resolveParameters(settings);
+            // TODO simplify it
+            final int position = node.getLayout(form).getPosition() + node.getLayout(form).getHeight() - 1;
+            new HealthCheckResolver(element, family, node, action, category, position).resolveParameters(settings);
         }
     }
 
@@ -301,7 +293,7 @@ public class SettingsCreator implements PropertyVisitor {
      * Sets special fields specific for Table parameter
      * Based on schema field controls whether table toolbox (buttons under table) is shown
      */
-    private TaCoKitElementParameter visitTable(final TablePropertyNode tableNode) {
+    private TaCoKitElementParameter visitTable(final ListPropertyNode tableNode) {
         final TaCoKitElementParameter parameter = createTableParameter(tableNode);
 
         final List<IElementParameter> tableParameters = createTableParameters(tableNode);
@@ -425,10 +417,7 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setFieldType(node.getFieldType());
         parameter.setName(node.getProperty().getPath());
         parameter.setRepositoryValue(node.getProperty().getPath());
-        if (!node.isColumn(formName)) {
-            lastRowNumber++;
-        } // else property should be shown on the same row
-        parameter.setNumRow(lastRowNumber);
+        parameter.setNumRow(node.getLayout(form).getPosition());
         parameter.setShow(true);
         parameter.setValue(node.getProperty().getDefaultValue());
         parameter.setRequired(node.getProperty().isRequired());
@@ -441,15 +430,22 @@ public class SettingsCreator implements PropertyVisitor {
     /**
      * Creates table parameters (columns) for Table property
      *
-     * @param tableNode {@link TablePropertyNode}
+     * @param tableNode {@link ListPropertyNode}
      * @return list of table parameters
      */
-    private List<IElementParameter> createTableParameters(final TablePropertyNode tableNode) {
+    private List<IElementParameter> createTableParameters(final ListPropertyNode tableNode) {
         final List<PropertyNode> columns = tableNode.getColumns();
         if (columns.size() == 1 && columns.get(0).getProperty().getDisplayName().endsWith("[${index}]")) {
             columns.iterator().next().getProperty().setDisplayName("Value");
         }
+        columns.forEach(c -> {
+            final Layout layout = new Layout(c.getProperty().getPath());
+            layout.setHeight(1);
+            layout.setPosition(tableNode.getLayout(form).getPosition());
+            c.addLayout(form, layout);
+        });
         final SettingsCreator creator = new SettingsCreator(new FakeElement("table"), category, redrawParameter);
+        // TODO maybe this::visit?
         columns.forEach(creator::visit);
         return creator.getSettings();
     }
@@ -474,7 +470,7 @@ public class SettingsCreator implements PropertyVisitor {
         label.setRepositoryValue(node.getProperty().getPath() + "validation");
         label.setSerialized(false);
         // it shown on the next row by default, but may be changed
-        label.setNumRow(++lastRowNumber);
+        label.setNumRow(node.getLayout(form).getPosition() + 1);
         settings.put(label.getName(), label);
 
         processConstraints(node, target, label);

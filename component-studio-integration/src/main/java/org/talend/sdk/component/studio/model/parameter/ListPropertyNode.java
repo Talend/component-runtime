@@ -22,25 +22,25 @@ import java.util.List;
 import org.talend.core.model.process.EParameterFieldType;
 
 /**
- * Property node for Table property. It stores nested properties, which represent table columns
+ * Property node, which contains nested properties. This node is used for Tables and Schema
  */
-public class TablePropertyNode extends PropertyNode {
+public class ListPropertyNode extends PropertyNode {
 
-    private List<PropertyNode> nestedProperties = new ArrayList<>();
+    private final List<PropertyNode> nestedProperties = new ArrayList<>();
 
     /**
      * @param property {@link PropertyDefinitionDecorator}
      * @param fieldType widget type, defines UI representation
      * @param root specifies whether this node is root node
      */
-    public TablePropertyNode(final PropertyDefinitionDecorator property, final EParameterFieldType fieldType,
+    public ListPropertyNode(final PropertyDefinitionDecorator property, final EParameterFieldType fieldType,
             final boolean root) {
         super(property, fieldType, root);
     }
 
     /**
      * Adds child as nested property
-     * {@link TablePropertyNode} can't have children nodes. It is leaf node.
+     * {@link ListPropertyNode} can't have children nodes. It is leaf node.
      * But it may have nested properties, which represent table columns
      * 
      * @param column {@link PropertyNode} to be added as table column

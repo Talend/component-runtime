@@ -36,6 +36,7 @@ import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
+import org.talend.sdk.component.studio.model.parameter.Metadatas;
 import org.talend.sdk.component.studio.model.parameter.PropertyNode;
 import org.talend.sdk.component.studio.model.parameter.PropertyTreeCreator;
 import org.talend.sdk.component.studio.model.parameter.SettingsCreator;
@@ -54,6 +55,8 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
     private TaCoKitConfigurationModel configurationModel;
 
     private IStatus tocokitConfigStatus;
+
+    private final String form = Metadatas.MAIN_FORM;
 
     public TaCoKitConfigurationWizardPage(final TaCoKitConfigurationRuntimeData runtimeData) {
         super(Messages.getString("WizardPage.TaCoKitConfiguration"), runtimeData); //$NON-NLS-1$
@@ -89,7 +92,7 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
         parameters.add(updateParameter);
         final SettingsCreator settingsCreator =
                 new SettingsCreator(node, EComponentCategory.BASIC, updateParameter, configTypeNode);
-        root.accept(settingsCreator);
+        root.accept(settingsCreator, form);
         parameters.addAll(settingsCreator.getSettings());
 
         element.setElementParameters(parameters);

@@ -90,11 +90,14 @@ public class ElementParameterCreator {
 
     public List<? extends IElementParameter> createParameters() {
         addCommonParameters();
-        addComponentParameters();
+        addSettings();
         return parameters;
     }
 
-    private void addComponentParameters() {
+    /**
+     * Adds Basic and Advanced settings
+     */
+    private void addSettings() {
         if (!properties.isEmpty()) {
             final PropertyNode root = new PropertyTreeCreator(new WidgetTypeMapper()).createPropertyTree(properties);
             // add main parameters
