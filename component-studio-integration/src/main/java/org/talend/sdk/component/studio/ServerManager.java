@@ -64,7 +64,7 @@ public class ServerManager extends AbstractUIPlugin {
         services.add(ctx.registerService(DebounceManager.class.getName(), debounceManager, new Hashtable<>()));
         uiActionsThreadPool = new UiActionsThreadPool(Executors.newCachedThreadPool(
                 new BasicThreadFactory.Builder().namingPattern(UiActionsThreadPool.class.getName() + "-%d").build()));
-        services.add(ctx.registerService(UiActionsThreadPool.class.getName(), debounceManager, new Hashtable<>()));
+        services.add(ctx.registerService(UiActionsThreadPool.class.getName(), uiActionsThreadPool, new Hashtable<>()));
         if (!configuration.isActive()) {
             return;
         }
