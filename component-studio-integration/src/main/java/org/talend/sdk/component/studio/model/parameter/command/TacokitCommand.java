@@ -13,25 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.studio.model.parameter;
+package org.talend.sdk.component.studio.model.parameter.command;
 
-import org.talend.core.model.process.EParameterFieldType;
-import org.talend.core.model.process.IElement;
-import org.talend.sdk.component.studio.model.parameter.command.TacokitCommand;
+import org.talend.sdk.component.studio.model.action.ActionParameter;
 
-import lombok.Data;
+public interface TacokitCommand {
 
-/**
- * ElementParameter which represents button and stores button command, which is executed on button pushed
- */
-@Data
-public class ButtonParameter extends TaCoKitElementParameter {
+    /**
+     * Execute command
+     */
+    void exec();
 
-    private TacokitCommand command;
-
-    public ButtonParameter(final IElement element) {
-        super(element);
-        setFieldType(EParameterFieldType.TACOKIT_BUTTON);
-    }
+    void addParameter(final ActionParameter parameter);
 
 }

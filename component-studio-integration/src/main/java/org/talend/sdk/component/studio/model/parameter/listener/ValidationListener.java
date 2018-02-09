@@ -18,6 +18,7 @@ package org.talend.sdk.component.studio.model.parameter.listener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.talend.sdk.component.studio.model.action.Action;
 import org.talend.sdk.component.studio.model.parameter.ValidationLabel;
@@ -37,7 +38,15 @@ public class ValidationListener extends Action implements PropertyChangeListener
         if (!parameters.areSet()) {
             return;
         }
-        final Map<String, String> validation = callback();
+
+        CompletableFuture.supplyAsync(this::validate).thenAccept(this::notify);
+    }
+
+    private Map<String, String> validate() {
+        return callback();
+    }
+
+    private void notify(final Map<String, String> validation) {
         if (OK.equals(validation.get(STATUS))) {
             label.hideValidation();
         } else {
