@@ -129,9 +129,7 @@ public class SettingsCreator implements PropertyVisitor {
         this.redrawParameter = redrawParameter;
         this.formName = category == EComponentCategory.ADVANCED ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
         this.actions = actions;
-        actions.stream().findFirst().ifPresent(a -> {
-            this.family = a.getFamily();
-        });
+        actions.stream().findFirst().ifPresent(a -> this.family = a.getFamily());
     }
 
     SettingsCreator(final IElement iNode, final EComponentCategory category, final ElementParameter redrawParameter) {
@@ -462,6 +460,9 @@ public class SettingsCreator implements PropertyVisitor {
      */
     private List<IElementParameter> createTableParameters(final TablePropertyNode tableNode) {
         final List<PropertyNode> columns = tableNode.getColumns();
+        if (columns.size() == 1 && columns.get(0).getProperty().getDisplayName().endsWith("[${index}]")) {
+            columns.iterator().next().getProperty().setDisplayName("Value");
+        }
         final SettingsCreator creator = new SettingsCreator(new FakeElement("table"), category, redrawParameter);
         columns.forEach(creator::visit);
         return creator.getSettings();

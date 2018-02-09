@@ -66,7 +66,7 @@ class ComponentManagerServiceTest {
     @Test // undeploy => deploy
     void reloadExistingPlugin() {
         // check that the plugin is deployed
-        String gav = "org.talend.test1:the-test-component:jar:1.2.6:compile";
+        final String gav = "org.talend.test1:the-test-component:jar:1.2.6:compile";
         String pluginID = getPluginId(gav);
         assertNotNull(pluginID);
         Optional<Container> plugin = componentManagerService.manager().findPlugin(pluginID);

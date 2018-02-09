@@ -30,6 +30,7 @@ import java.util.Properties;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
@@ -72,6 +73,8 @@ public class ComponentManagerService {
 
     private MvnCoordinateToFileConverter mvnCoordinateToFileConverter;
 
+    private DeploymentListener deploymentListener;
+
     void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         // we just want it to be touched
     }
@@ -81,7 +84,8 @@ public class ComponentManagerService {
         System.setProperty("talend.component.manager.m2.repository", configuration.mavenRepository());
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         instance = ComponentManager.instance();
-        instance.getContainer().registerListener(new DeploymentListener(componentDao, componentFamilyDao, actionDao));
+        deploymentListener = new DeploymentListener(componentDao, componentFamilyDao, actionDao);
+        instance.getContainer().registerListener(deploymentListener);
 
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
@@ -96,6 +100,11 @@ public class ComponentManagerService {
             }
             properties.stringPropertyNames().stream().map(properties::getProperty).forEach(this::deploy);
         });
+    }
+
+    @PreDestroy
+    private void destroy() {
+        instance.getContainer().unregisterListener(deploymentListener);
     }
 
     public String deploy(final String pluginGAV) {
@@ -133,13 +142,16 @@ public class ComponentManagerService {
 
         @Override
         public void onCreate(final Container container) {
-            final Runnable release = postDeploy(container);
-            container.set(CleanupTask.class, new CleanupTask(release));
+            container.set(CleanupTask.class, new CleanupTask(postDeploy(container)));
         }
 
         @Override
         public void onClose(final Container container) {
-            container.get(CleanupTask.class).getCleanup().run();
+            if (container.getState() == Container.State.ON_ERROR) {
+                // means it was not deployed so don't drop old state
+                return;
+            }
+            ofNullable(container.get(CleanupTask.class)).ifPresent(c -> c.getCleanup().run());
         }
 
         private Runnable postDeploy(final Container plugin) {

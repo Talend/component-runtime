@@ -20,6 +20,7 @@ import static java.util.Collections.list;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
+import static org.talend.sdk.component.container.Container.State.CREATED;
 
 import java.io.Closeable;
 import java.io.File;
@@ -74,6 +75,8 @@ public class Container implements Lifecycle {
     private final LifecycleSupport lifecycle = new LifecycleSupport();
 
     private final ConcurrentMap<Class<?>, Object> data = new ConcurrentHashMap<>();
+
+    private final AtomicReference<State> state = new AtomicReference<>(CREATED);
 
     public Container(final String id, final String rootModule, final Artifact[] dependencies,
             final ContainerManager.ClassLoaderConfiguration configuration,
@@ -192,6 +195,14 @@ public class Container implements Lifecycle {
         return loaderRef.get();
     }
 
+    public State getState() {
+        return state.get();
+    }
+
+    public void setState(final State newState) {
+        state.set(newState);
+    }
+
     @Override
     public synchronized void close() {
         lifecycle.closeIfNeeded(() -> {
@@ -243,5 +254,13 @@ public class Container implements Lifecycle {
         } finally {
             thread.setContextClassLoader(old);
         }
+    }
+
+    public enum State {
+        CREATED,
+        DEPLOYED,
+        ON_ERROR,
+        UNDEPLOYING,
+        UNDEPLOYED
     }
 }

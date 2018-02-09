@@ -252,7 +252,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private Stream<AbstractMap.SimpleEntry<String, ParameterMeta>>
-    toFlatNonPrimitivConfig(final List<ParameterMeta> config) {
+            toFlatNonPrimitivConfig(final List<ParameterMeta> config) {
         if (config == null || config.isEmpty()) {
             return empty();
         }
@@ -282,7 +282,7 @@ public class ComponentValidator extends BaseTask {
 
         return ARRAY.equals(param.getType()) && param.getNestedParameters() != null
                 && param.getNestedParameters().stream().anyMatch(
-                p -> OBJECT.equals(p.getType()) || ENUM.equals(p.getType()) || isArrayOfObject(p));
+                        p -> OBJECT.equals(p.getType()) || ENUM.equals(p.getType()) || isArrayOfObject(p));
 
     }
 

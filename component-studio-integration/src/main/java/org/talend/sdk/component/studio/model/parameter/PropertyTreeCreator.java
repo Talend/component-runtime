@@ -68,8 +68,8 @@ public class PropertyTreeCreator {
         if (properties.isEmpty()) {
             throw new IllegalArgumentException("properties should not be empty");
         }
-        PropertyNode root = createRootNode(properties);
-        HashMap<String, PropertyNode> nodes = new HashMap<>();
+        final PropertyNode root = createRootNode(properties);
+        final Map<String, PropertyNode> nodes = new HashMap<>();
         nodes.put(root.getId(), root);
 
         createRemainingNodes(properties, nodes);
@@ -85,7 +85,7 @@ public class PropertyTreeCreator {
      * @return root node of created tree: {@link PropertyNode}
      */
     public PropertyNode createPropertyTree(final ConfigTypeNode configTypeNode) {
-        Collection<PropertyDefinitionDecorator> properties =
+        final Collection<PropertyDefinitionDecorator> properties =
                 PropertyDefinitionDecorator.wrap(configTypeNode.getProperties());
         return createPropertyTree(properties);
     }
@@ -107,20 +107,17 @@ public class PropertyTreeCreator {
      * @param properties all {@link PropertyDefinitionDecorator}
      * @param nodes all {@link PropertyNode}
      */
-    void linkNodes(final Collection<? extends PropertyDefinitionDecorator> properties,
+    private void linkNodes(final Collection<? extends PropertyDefinitionDecorator> properties,
             final Map<String, PropertyNode> nodes) {
         // sort to ensure to builder parents before children
         properties
                 .stream()
                 .sorted(comparing(PropertyDefinitionDecorator::getPath))
                 .map(PropertyDefinitionDecorator::getPath)
-                .forEach(id -> {
-                    PropertyNode current = nodes.get(id);
-                    if (!current.isRoot()) {
-                        String parentId = current.getParentId();
-                        PropertyNode parent = nodes.get(parentId);
-                        parent.addChild(current);
-                    }
+                .map(nodes::get)
+                .filter(c -> !c.isRoot())
+                .forEach(current -> {
+                    nodes.get(current.getParentId()).addChild(current);
                 });
     }
 
@@ -133,7 +130,7 @@ public class PropertyTreeCreator {
      */
     PropertyNode createNode(final PropertyDefinitionDecorator property, final boolean isRoot) {
         EParameterFieldType fieldType = typeMapper.getFieldType(property);
-        PropertyNode node = null;
+        PropertyNode node;
         switch (fieldType) {
         case TABLE:
             node = new TablePropertyNode(property, fieldType, isRoot);
@@ -170,9 +167,9 @@ public class PropertyTreeCreator {
      * @return root {@link PropertyDefinitionDecorator}
      */
     PropertyDefinitionDecorator findRootProperty(final Collection<? extends PropertyDefinitionDecorator> properties) {
-        PropertyDefinitionDecorator rootProperty = Collections.min(properties, (p1, p2) -> {
-            String path1 = p1.getPath();
-            String path2 = p2.getPath();
+        return Collections.min(properties, (p1, p2) -> {
+            final String path1 = p1.getPath();
+            final String path2 = p2.getPath();
             if (path2.startsWith(path1)) {
                 return -1;
             }
@@ -181,7 +178,6 @@ public class PropertyTreeCreator {
             }
             return 0;
         });
-        return rootProperty;
     }
 
 }

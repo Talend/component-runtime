@@ -328,6 +328,7 @@ public class ContainerManager implements Lifecycle {
 
                 @Override
                 public void close() {
+                    setState(State.UNDEPLOYING);
                     try {
                         listeners.forEach(l -> safeInvoke(() -> l.onClose(this)));
                     } finally {
@@ -335,11 +336,13 @@ public class ContainerManager implements Lifecycle {
                             super.close();
                         } finally {
                             containers.remove(id);
+                            setState(State.UNDEPLOYED);
                         }
                     }
                     log.info("Closed container " + id);
                 }
             };
+            container.setState(Container.State.CREATED);
             container.set(ContainerBuilder.class, this);
             container.set(Actions.class, new Actions(container));
 
@@ -347,6 +350,7 @@ public class ContainerManager implements Lifecycle {
                     listeners.stream().filter(l -> !safeInvoke(() -> l.onCreate(container))).collect(toList());
             if (calledListeners.size() == listeners.size()) {
                 if (containers.putIfAbsent(id, container) != null) {
+                    container.setState(Container.State.ON_ERROR);
                     calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
                     throw new IllegalArgumentException("Container '" + id + "' already exists");
                 }
@@ -356,6 +360,7 @@ public class ContainerManager implements Lifecycle {
                 throw new IllegalArgumentException(id);
             }
 
+            container.setState(Container.State.DEPLOYED);
             log.info("Created container " + id);
             return container;
         }

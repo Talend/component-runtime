@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.studio.model.parameter;
 
+import static java.util.stream.Collectors.toSet;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.ACTION_HEALTHCHECK;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.ACTION_VALIDATION_NAME;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.ACTION_VALIDATION_PARAMETERS;
@@ -108,10 +109,14 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         if (!path.contains(PATH_SEPARATOR)) {
             return NO_PARENT_ID;
         }
+        if (path.endsWith(ARRAY_PATH)) {
+            return path.substring(0, path.length() - ARRAY_PATH.length());
+        }
+
+        // object case
         String parentPath = path.substring(0, path.lastIndexOf("."));
-        // following is true, when parent has type=ARRAY
         if (parentPath.endsWith(ARRAY_PATH)) {
-            parentPath = parentPath.substring(0, parentPath.lastIndexOf("[]"));
+            parentPath = parentPath.substring(0, parentPath.length());
         }
         return parentPath;
     }
@@ -130,7 +135,7 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         if (hasGridLayout(form)) {
             final String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
             final String[] names = gridLayout.split(GRIDLAYOUT_SEPARATOR);
-            return new HashSet<>(Arrays.asList(names));
+            return Stream.of(names).collect(toSet());
         }
         return Collections.emptySet();
     }

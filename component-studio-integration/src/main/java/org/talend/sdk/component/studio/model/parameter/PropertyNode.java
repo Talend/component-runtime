@@ -78,7 +78,7 @@ public class PropertyNode {
         if (isRoot()) {
             return false;
         }
-        PropertyDefinitionDecorator parentProperty = getParent().getProperty();
+        final PropertyDefinitionDecorator parentProperty = getParent().getProperty();
         if (!parentProperty.hasGridLayout(form)) {
             return getParent().isColumn(form);
         }
@@ -102,7 +102,7 @@ public class PropertyNode {
      * @param form Name of form
      */
     public void accept(final PropertyVisitor visitor, final String form) {
-        List<PropertyNode> children = getChildren(form);
+        final List<PropertyNode> children = getChildren(form);
         sortChildren(children, form);
         children.forEach(child -> child.accept(visitor, form));
         visitor.visit(this);
@@ -115,11 +115,9 @@ public class PropertyNode {
      * @return children of specified form
      */
     List<PropertyNode> getChildren(final String form) {
-        Set<String> childrenNames = getChildrenNames(form);
-        List<PropertyNode> formChildren =
-                children.stream().filter(node -> childrenNames.contains(node.property.getName())).collect(
-                        Collectors.toList());
-        return formChildren;
+        final Set<String> childrenNames = getChildrenNames(form);
+        return children.stream().filter(node -> childrenNames.contains(node.property.getName())).collect(
+                Collectors.toList());
     }
 
     /**

@@ -116,7 +116,11 @@ public class ProcessManager implements AutoCloseable {
     @Override
     public synchronized void close() {
         if (hook != null) {
-            Runtime.getRuntime().removeShutdownHook(hook);
+            try {
+                Runtime.getRuntime().removeShutdownHook(hook);
+            } catch (final IllegalStateException itse) {
+                // shutting down already
+            }
             hook = null;
         }
         ofNullable(instance).ifPresent(i -> {

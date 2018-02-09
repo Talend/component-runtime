@@ -26,16 +26,22 @@ final java.util.Map<String, String> configuration_<%=cid%> = new java.util.HashM
 				java.util.List<java.util.Map<String, String>> tableValues = ElementParameterParser.createTableValues((java.util.List<java.util.Map<String, Object>>) p.getValue(), p);
                 String[] items = p.getListItemsDisplayCodeName();
                 String tableName = p.getName().replace('$', '.');
-                String tableNamePrefix = tableName + "[].";
+                boolean primitiveTable = items.length == 1 && items[0].equals(tableName + "[]");
+                String tableNamePrefix = tableName + "[]" + (primitiveTable ? "" : ".");
                 for (int i = 0; i < tableValues.size(); i++) {
                     java.util.Map<String, String> lineValues = tableValues.get(i);
                     for (int j = 0; j < items.length; j++) {
-                        String columnName = items[j].substring(tableNamePrefix.length(), items[j].length());
-                        String currentValue = lineValues.get(items[j]);
-                        %>
-                        configuration_<%=cid%>.put("<%=tableName%>[<%=i%>].<%=columnName%>",
-                        "<%=currentValue%>");
-                        <%
+                        String currentValue = org.talend.core.model.utils.TalendTextUtils.removeQuotes(lineValues.get(items[j]));
+                        if (primitiveTable) {
+                            %>
+                            configuration_<%=cid%>.put("<%=tableName%>[<%=i%>]", "<%=currentValue%>");
+                            <%
+                        } else {
+                            String columnName = items[j].substring(tableNamePrefix.length() - 1, items[j].length());
+                            %>
+                            configuration_<%=cid%>.put("<%=tableName%>[<%=i%>].<%=columnName%>", "<%=currentValue%>");
+                            <%
+                        }
                     }
                 }
             } else if(p.getFieldType() == EParameterFieldType.SCHEMA_TYPE) {
