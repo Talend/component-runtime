@@ -68,7 +68,7 @@ final org.talend.sdk.component.runtime.di.InputsHandler inputsHandler_<%=cid%> =
 <%
 for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
 %>
-inputsHandler_<%=cid%>.addConnection("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>.getClass());
+inputsHandler_<%=cid%>.addConnection("<%= connection.getConnectorName().toLowerCase(java.util.Locale.ROOT) %>", <%= connection.getName() %>.getClass());
 <% } %>
 
 final org.talend.sdk.component.runtime.di.OutputsHandler outputHandler_<%=cid%> = new org.talend.sdk.component.runtime.di.OutputsHandler(jsonb_<%=cid%>);
@@ -78,7 +78,7 @@ for (final IConnection connection : node.getOutgoingSortedConnections()) {
         continue;
     }
 %>
-outputHandler_<%=cid%>.addConnection("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>.getClass());
+outputHandler_<%=cid%>.addConnection("<%= connection.getConnectorName().toLowerCase(java.util.Locale.ROOT) %>", <%= connection.getName() %>.getClass());
 <% } %>
 
 final org.talend.sdk.component.runtime.output.InputFactory inputs_<%=cid%> = inputsHandler_<%=cid%>.asInputFactory();
