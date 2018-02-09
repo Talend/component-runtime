@@ -77,6 +77,8 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
     @Delegate
     private final SimplePropertyDefinition delegate;
 
+    private volatile String parentPath;
+
     /**
      * Creates instance by wrapping existing {@link SimplePropertyDefinition} instance
      * All calls to {@link SimplePropertyDefinition} API will be delegated to wrapped instance
@@ -105,20 +107,29 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
      * @return parent path
      */
     String getParentPath() {
-        final String path = delegate.getPath();
-        if (!path.contains(PATH_SEPARATOR)) {
-            return NO_PARENT_ID;
+        if (parentPath != null) {
+            return parentPath;
         }
-        if (path.endsWith(ARRAY_PATH)) {
-            return path.substring(0, path.length() - ARRAY_PATH.length());
-        }
+        synchronized (this) {
+            if (parentPath != null) {
+                return parentPath;
+            }
+            String path = delegate.getPath();
+            if (!path.contains(PATH_SEPARATOR)) {
+                return NO_PARENT_ID;
+            }
+            if (path.endsWith(ARRAY_PATH)) {
+                return path.substring(0, path.length() - ARRAY_PATH.length());
+            }
 
-        // object case
-        String parentPath = path.substring(0, path.lastIndexOf("."));
-        if (parentPath.endsWith(ARRAY_PATH)) {
-            parentPath = parentPath.substring(0, parentPath.length());
+            // object case
+            path = path.substring(0, path.lastIndexOf('.'));
+            if (path.endsWith(ARRAY_PATH)) {
+                path = path.substring(0, path.length() - ARRAY_PATH.length());
+            }
+            parentPath = path;
+            return parentPath;
         }
-        return parentPath;
     }
 
     /**

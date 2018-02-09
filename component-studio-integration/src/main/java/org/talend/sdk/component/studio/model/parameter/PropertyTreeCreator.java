@@ -117,7 +117,8 @@ public class PropertyTreeCreator {
                 .map(nodes::get)
                 .filter(c -> !c.isRoot())
                 .forEach(current -> {
-                    nodes.get(current.getParentId()).addChild(current);
+                    final PropertyNode propertyNode = nodes.get(current.getParentId());
+                    propertyNode.addChild(current);
                 });
     }
 
