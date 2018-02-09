@@ -89,16 +89,7 @@ public class StudioInstaller implements Runnable {
                     .forEach(this::tryDelete);
         }
 
-        // 1. remove staled libs from the build (workspace/.Java/lib/)
-        final File javaLib = new File(studioHome, "workspace/.Java/lib");
-        if (javaLib.isDirectory()) {
-            ofNullable(javaLib.listFiles((d, n) -> artifacts.contains(n)))
-                    .map(Stream::of)
-                    .orElseGet(Stream::empty)
-                    .forEach(this::tryDelete);
-        }
-
-        // 2. install the runtime dependency tree (scope compile+runtime) in the studio m2 repo
+        // 1. install the runtime dependency tree (scope compile+runtime) in the studio m2 repo
         final File configIni = new File(studioHome, "configuration/config.ini");
         final Properties config = new Properties();
         if (configIni.exists()) {
@@ -131,7 +122,7 @@ public class StudioInstaller implements Runnable {
                     + " configured to use global maven repository, skipping artifact installation");
         }
 
-        // 3. register component adding them into the registry
+        // 2. register component adding them into the registry
         String registry = config.getProperty("component.java.registry",
                 config.getProperty("talend.component.server.component.registry"));
         if (registry == null) {
