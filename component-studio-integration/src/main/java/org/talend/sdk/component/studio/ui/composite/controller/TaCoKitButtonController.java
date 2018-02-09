@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.studio.ui.composite.controller;
 
-import org.eclipse.gef.commands.Command;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -44,7 +43,7 @@ public class TaCoKitButtonController extends AbstractTaCoKitController {
     /**
      * Creates Button control
      * Sets current row size in the end of the method. It is required to have proper position for subsequent controls
-     * 
+     *
      * @param subComposite composite which will contain created control
      * @param param ElementParameter instance
      * @param numInRow number of created control in the current row
@@ -89,18 +88,13 @@ public class TaCoKitButtonController extends AbstractTaCoKitController {
 
             @Override
             public void widgetSelected(final SelectionEvent e) {
-                Command cmd = createCommand((Button) e.getSource());
-                executeCommand(cmd);
+                ButtonParameter btn = (ButtonParameter) ((Button) e.getSource()).getData();
+                btn.getCommand().exec();
             }
         });
         Point initialSize = button.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         dynamicProperty.setCurRowSize(initialSize.y + ITabbedPropertyConstants.VSPACE);
         return button;
-    }
-
-    public Command createCommand(final Button button) {
-        final ButtonParameter parameter = (ButtonParameter) button.getData();
-        return parameter.getCommand();
     }
 
 }

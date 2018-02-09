@@ -20,8 +20,10 @@ import java.util.Map;
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.websocket.WebSocketClient.V1Action;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Getter
 @RequiredArgsConstructor
 public class Action {
 

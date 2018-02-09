@@ -16,14 +16,16 @@
 package org.talend.sdk.component.studio.model.parameter.listener;
 
 import static java.util.Collections.singletonMap;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.beans.PropertyChangeEvent;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.studio.model.action.ActionParameter;
@@ -32,34 +34,48 @@ import org.talend.sdk.component.studio.model.parameter.ValidationLabel;
 class ValidationListenerTest {
 
     @Test
-    void simple() {
-        final AtomicBoolean executed = new AtomicBoolean(false);
-        final ValidationLabel label = new ValidationLabel(null);
-        final ValidationListener listener = new ValidationListener(label, "test", "validation") {
+    void simple() throws InterruptedException {
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ActionParameter param = new ActionParameter("test", "the.test.param.url", null);
+        final ValidationLabel validationLabel = new ValidationLabel(null) {
+
+            @Override
+            public void showValidation(final String message) {
+                super.showValidation(message);
+                latch.countDown();
+            }
+
+            @Override
+            public void hideValidation() {
+                super.hideValidation();
+                latch.countDown();
+            }
+        };
+        final ValidationListener listener = new ValidationListener(validationLabel, "test", "validation") {
 
             @Override
             public Map<String, String> callback() {
-                assertTrue(executed.compareAndSet(false, true));
 
-                final String param = parameters.payload().get("the.test.param");
-                assertTrue(param != null && param.endsWith("foo"));
-                return singletonMap("status", "OK");
+                final String url = parameters.payload().get("the.test.param.url");
+                try {
+                    new URL(url);
+                    return singletonMap("status", "OK");
+                } catch (final MalformedURLException e) {
+                    return new HashMap<String, String>() {
+
+                        {
+                            put("status", "KO");
+                            put("comment", "invalid url");
+                        }
+                    };
+                }
             }
         };
-        listener.addParameter(new ActionParameter("test", "the.test.param", null));
+        listener.addParameter(param);
 
-        // normal
-        listener.propertyChange(new PropertyChangeEvent(new Object(), "test", null, "foo"));
-        assertTrue(executed.get());
-
-        // quoted string
-        executed.set(false);
-        listener.propertyChange(new PropertyChangeEvent(new Object(), "test", null, "\"foo\""));
-        assertTrue(executed.get());
-
-        // context value -> skip the execution
-        executed.set(false);
-        listener.propertyChange(new PropertyChangeEvent(new Object(), "test", null, "context.foo"));
-        assertFalse(executed.get());
+        listener.propertyChange(new PropertyChangeEvent(new Object(), "test", null, "htt://gateway/api"));
+        latch.await(1, MINUTES);
+        assertEquals("invalid url", String.valueOf(validationLabel.getValue()));
     }
 }

@@ -17,6 +17,7 @@ package org.talend.sdk.component.studio.model.parameter;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
+import static org.talend.sdk.component.studio.model.action.Action.HEALTH_CHECK;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_TYPE;
 import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_VALUE;
 
@@ -46,8 +47,6 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.studio.Lookups;
-import org.talend.sdk.component.studio.i18n.Messages;
-import org.talend.sdk.component.studio.model.command.HealthCheckCommand;
 import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivator;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidationListener;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidatorFactory;
@@ -209,32 +208,19 @@ public class SettingsCreator implements PropertyVisitor {
                 break;
             }
         } else if (node.getProperty().isCheckable()) {
-            final TaCoKitElementParameter button = visitCheckable(node);
-            settings.put(button.getName(), button);
+            final ActionReference action = actions
+                    .stream()
+                    .filter(a -> HEALTH_CHECK.equals(a.getType()))
+                    .filter(a -> a.getName().equals(node.getProperty().getHealthCheckName()))
+                    .findFirst()
+                    .get();
+            new HealthCheckResolver(element, family, node, action, category, ++lastRowNumber)
+                    .resolveParameters(settings);
         }
     }
 
     IElement getNode() {
         return this.element;
-    }
-
-    private TaCoKitElementParameter visitCheckable(final PropertyNode node) {
-        final ButtonParameter button = createTestConnectionButton(node);
-        final HealthCheckCommand command = new HealthCheckCommand(node.getProperty().getHealthCheckName(), family);
-        final HealthCheckResolver resolver = new HealthCheckResolver(node, button, command, actions);
-        resolver.resolveParameters(settings);
-        return button;
-    }
-
-    private ButtonParameter createTestConnectionButton(final PropertyNode node) {
-        final ButtonParameter button = new ButtonParameter(element);
-        button.setCategory(category);
-        button.setDisplayName(Messages.getString("healthCheck.button"));
-        button.setName(node.getProperty().getPath() + ".testConnection");
-        lastRowNumber++;
-        button.setNumRow(lastRowNumber);
-        button.setShow(true);
-        return button;
     }
 
     /**

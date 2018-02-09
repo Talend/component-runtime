@@ -21,42 +21,49 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
+import org.talend.core.model.process.EComponentCategory;
+import org.talend.core.model.process.IElement;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.sdk.component.server.front.model.ActionReference;
+import org.talend.sdk.component.studio.i18n.Messages;
+import org.talend.sdk.component.studio.model.action.Action;
 import org.talend.sdk.component.studio.model.action.SettingsActionParameter;
-import org.talend.sdk.component.studio.model.command.HealthCheckCommand;
+import org.talend.sdk.component.studio.model.parameter.command.AsyncAction;
+
+import lombok.AllArgsConstructor;
 
 /**
  * Binds together things required for HealthCheck callback
  */
+@AllArgsConstructor
 public class HealthCheckResolver {
 
-    private final ButtonParameter button;
+    private final IElement element;
 
-    private final PropertyNode checkableNode;
+    private String family;
 
-    private final HealthCheckCommand command;
+    private final PropertyNode node;
 
     private final ActionReference action;
 
-    public HealthCheckResolver(final PropertyNode checkableNode, final ButtonParameter button,
-            final HealthCheckCommand command, final Collection<ActionReference> actions) {
-        this.button = button;
-        this.command = command;
-        this.checkableNode = checkableNode;
-        this.action = actions
-                .stream()
-                .filter(a -> HEALTH_CHECK.equals(a.getType()))
-                .filter(a -> a.getName().equals(checkableNode.getProperty().getHealthCheckName()))
-                .findFirst()
-                .get();
-    }
+    private final EComponentCategory category;
+
+    private final int rowNumber;
 
     public void resolveParameters(final Map<String, IElementParameter> settings) {
-        final String basePath = checkableNode.getProperty().getPath();
+        final ButtonParameter button = new ButtonParameter(element);
+        button.setCategory(category);
+        button.setDisplayName(Messages.getString("healthCheck.button"));
+        button.setName(node.getProperty().getPath() + ".testConnection");
+        button.setNumRow(rowNumber);
+        button.setShow(true);
+
+        final String basePath = node.getProperty().getPath();
         final String alias = getParameterAlias();
         final PathCollector collector = new PathCollector();
-        checkableNode.accept(collector);
+        node.accept(collector);
+        final AsyncAction command =
+                new AsyncAction(new Action(node.getProperty().getHealthCheckName(), family, HEALTH_CHECK));
         collector
                 .getPaths()
                 .stream()
@@ -69,12 +76,13 @@ public class HealthCheckResolver {
                     command.addParameter(actionParameter);
                 });
         button.setCommand(command);
+        settings.put(button.getName(), button);
     }
 
     /**
      * Finds parameter alias (which is value of Option annotation in HealthCheck method)
      * This method builds property tree and assumes that root node path is a required alias
-     * 
+     *
      * @return parameter alias
      */
     private String getParameterAlias() {

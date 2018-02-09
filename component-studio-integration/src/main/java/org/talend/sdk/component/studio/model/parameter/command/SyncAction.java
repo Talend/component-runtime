@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.studio.model.command;
+package org.talend.sdk.component.studio.model.parameter.command;
 
-import static org.talend.sdk.component.studio.model.action.Action.HEALTH_CHECK;
 import static org.talend.sdk.component.studio.model.action.Action.MESSAGE;
 import static org.talend.sdk.component.studio.model.action.Action.OK;
 import static org.talend.sdk.component.studio.model.action.Action.STATUS;
@@ -29,31 +28,37 @@ import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.model.action.Action;
 import org.talend.sdk.component.studio.model.action.ActionParameter;
 
+import lombok.Getter;
+
 /**
- * Command which is executed when "Test Connection" button is pushed
+ * Synchronous action
  */
-public class HealthCheckCommand extends Command {
+public class SyncAction extends Command implements TacokitCommand {
 
-    private final Action healthCheckAction;
+    @Getter
+    private final Action action;
 
-    public HealthCheckCommand(final String name, final String family) {
-        this.healthCheckAction = new Action(name, family, HEALTH_CHECK);
+    public SyncAction(final Action action) {
+        this.action = action;
     }
 
     @Override
     public void execute() {
-        final Map<String, String> result = healthCheckAction.callback();
+        final Map<String, String> result = action.callback();
+        final String dialogTitle = Messages.getString("action.result.title");
         if (OK.equals(result.get(STATUS))) {
-            MessageDialog.openInformation(new Shell(), Messages.getString("healthCheck.connection.ok.title"),
-                    result.get(MESSAGE));
+            MessageDialog.openInformation(new Shell(), dialogTitle, result.get(MESSAGE));
         } else {
-            MessageDialog.openError(new Shell(), Messages.getString("healthCheck.connection.fail.title"),
-                    result.get(MESSAGE));
+            MessageDialog.openError(new Shell(), dialogTitle, result.get(MESSAGE));
         }
     }
 
     public void addParameter(final ActionParameter parameter) {
-        healthCheckAction.addParameter(parameter);
+        action.addParameter(parameter);
     }
 
+    @Override
+    public void exec() {
+        execute();
+    }
 }
