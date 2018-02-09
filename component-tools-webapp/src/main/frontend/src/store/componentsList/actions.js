@@ -24,6 +24,20 @@ import {
   FAMILY_RELOADED_ERROR
 } from '../constants';
 
+function nameComparator() {
+  return (a, b) => {
+    const v1 = a.name.toLowerCase();
+    const v2 = b.name.toLowerCase();
+    if (v1 < v2) {
+      return -1;
+    }
+    if (v1 > v2) {
+      return 1;
+    }
+    return 0;
+  };
+}
+
 function createComponentNode(familyNode, component) {
   const { customIconType, icon } = component.icon;
   const componentId = component.id.id;
@@ -58,6 +72,7 @@ function getOrCreateCategoryNode(categories, categoryId) {
       $$type: 'category',
     };
     categories.push(categoryNode);
+    categories.sort(nameComparator());
   }
 
   return categoryNode;
@@ -94,6 +109,7 @@ function getOrCreateFamilyNode(categoryNode, component, dispatch) {
       ]
     };
     families.push(familyNode);
+    families.sort(nameComparator());
   }
 
   return familyNode;
@@ -107,6 +123,7 @@ function createTree(components, dispatch) {
 
       const node = createComponentNode(familyNode, component);
       familyNode.children.push(node);
+      familyNode.children.sort(nameComparator());
     });
 
     return accu;
@@ -149,7 +166,7 @@ function onFamilyReload(family) {
       id: `family-reloading-success_family_${new Date().getTime()}`,
       type: 'info',
       title: `Reloaded family ${family}`,
-      message: `Family ${family} successfully reloaded`
+      message: `Family ${family} successfully reloaded, refresh the page when you want.`
     }
   };
 }
