@@ -22,6 +22,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
@@ -61,7 +62,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -320,12 +323,11 @@ public class ComponentManager implements AutoCloseable {
 
                             // common for studio until job generation is updated to build a tcomp friendly
                             // bundle
-                            final String componentClasspath = System.getProperty("component.manager.classpath",
-                                    System.getProperty("java.class.path"));
+                            final String componentClasspath = findClasspath().replace(File.separatorChar, ':');
                             // alternatively we could capture based on TALEND-INF/dependencies.txt jars
                             if (!Boolean.getBoolean("component.manager.classpath.skip")) {
-                                if (componentClasspath != null) {
-                                    final String[] jars = componentClasspath.split(File.pathSeparator);
+                                if (!componentClasspath.isEmpty()) {
+                                    final String[] jars = componentClasspath.split(":");
                                     if (jars.length > 1) {
                                         Stream
                                                 .of(jars)
@@ -380,6 +382,39 @@ public class ComponentManager implements AutoCloseable {
         }
 
         return manager;
+    }
+
+    private static String findClasspath() { // alternative is to use getResources("") and parse urls
+        return ofNullable(System.getProperty("component.manager.classpath")).orElseGet(() -> Stream
+                .of(System.getProperty("java.class.path"), findManifestClassPath())
+                .filter(Objects::nonNull)
+                .map(s -> s.replace(File.pathSeparatorChar, ':'))
+                .collect(joining(File.pathSeparator)));
+    }
+
+    // studio specific (launching from the interface)
+    private static String findManifestClassPath() {
+        return ofNullable(System.getProperty("java.class.path"))
+                .flatMap(cp -> Stream
+                        .of(cp.split(File.pathSeparator))
+                        .map(File::new)
+                        .filter(f -> f.getName().equals("classpath.jar"))
+                        .map(f -> {
+                            try (final JarFile file = new JarFile(f)) {
+                                return ofNullable(file.getManifest())
+                                        .map(Manifest::getMainAttributes)
+                                        .map(a -> a.getValue("Class-Path"))
+                                        .orElse(null);
+                            } catch (final IOException e) {
+                                log.warn(e.getMessage());
+                                log.debug(e.getMessage(), e);
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .map(String::trim)
+                        .findFirst())
+                .orElse(null);
     }
 
     private static Stream<String> additionalContainerClasses() {
