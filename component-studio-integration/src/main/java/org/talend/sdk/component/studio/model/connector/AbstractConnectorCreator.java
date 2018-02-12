@@ -96,12 +96,12 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
 
     protected static INodeConnector createConnector(final EConnectionType type, final String name, final INode node,
             final EConnectionType defaultConnectionType) {
-        final NodeConnector connector = new NodeConnector(node);
-        connector.setName(type.getName());
+        final NodeConnector connector = new TaCoKitNodeConnector(node);
+        connector.setName(name);
         connector.setBaseSchema(type.getName());
         connector.setDefaultConnectionType(defaultConnectionType);
-        connector.setLinkName(type.getDefaultLinkName());
-        connector.setMenuName(type.getDefaultMenuName());
+        connector.setLinkName(name);
+        connector.setMenuName(name);
         connector.addConnectionProperty(type, type.getRGB(), type.getDefaultLineStyle());
         connector.setMinLinkInput(0);
         connector.setMaxLinkInput(0);
