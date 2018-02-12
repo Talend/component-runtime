@@ -85,6 +85,19 @@ for more advanced cases.
 TIP: the number before the configuration (map) is the version of this configuration, it allows to automatically migrate
 from a version to the currently available one when needed.
 
+==== String based DSL
+
+`ExecutionChainDsl` exposes a way to define pipeline based on URI instead of previous syntax:
+
+[source,java]
+----
+from("chain://list?__version=1&values[0]=a&values[1]=bb&values[2]=ccc")
+    .to("chain://count?__version=1")
+    .to("chain://file?__version=1&file=" + output.getAbsolutePath())
+    .create()
+    .execute();
+----
+
 === Beam case
 
 For beam case, you need to rely on beam pipeline definition and use `component-runtime-beam` dependency which provides Beam bridges.
