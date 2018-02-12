@@ -16,21 +16,42 @@
 package org.talend.sdk.component.gradle;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.ResolvedArtifact;
+import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 
 public class TaCoKitTask extends DefaultTask {
 
     protected boolean needsWeb() {
         return false;
+    }
+
+    protected Map<String, File> artifacts() {
+        final Map<String, File> artifacts = getProject()
+                .getConfigurations()
+                .getByName("runtime")
+                .getResolvedConfiguration()
+                .getResolvedArtifacts()
+                .stream()
+                .collect(toMap(this::toGav, ResolvedArtifact::getFile));
+
+        artifacts.putIfAbsent(mainGav(),
+                AbstractArchiveTask.class.cast(getProject().getTasks().getAt("jar")).getArchivePath());
+        return artifacts;
+    }
+
+    protected String mainGav() {
+        return String.format("%s:%s:%s", getProject().getGroup(), getProject().getName(), getProject().getVersion());
     }
 
     protected String toGav(final ResolvedArtifact a) {

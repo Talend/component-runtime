@@ -98,7 +98,12 @@ public class ComponentManagerService {
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }
-            properties.stringPropertyNames().stream().map(properties::getProperty).forEach(this::deploy);
+            properties
+                    .stringPropertyNames()
+                    .stream()
+                    .map(properties::getProperty)
+                    .filter(gav -> !configuration.componentCoordinates().contains(gav))
+                    .forEach(this::deploy);
         });
     }
 

@@ -119,5 +119,15 @@ public class TaCoKitPlugin implements Plugin<Project> {
                         "Starts a web server allowing you to browse your components (requires the component to be installed before).");
             }
         }, "talendComponentKitWebServer");
+
+        // car
+        project.task(new HashMap<String, Object>() {
+
+            {
+                put("type", CarTask.class);
+                put("group", group);
+                put("description", "Creates a Component ARchive (.car) based on current project.");
+            }
+        }, "talendComponentKitComponentArchive");
     }
 }

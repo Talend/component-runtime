@@ -15,12 +15,14 @@
  */
 package org.talend.sdk.component.gradle;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.File;
 import java.util.Map;
 
 import org.gradle.api.tasks.TaskAction;
 
-public class DeployInStudioTask extends TaCoKitTask {
+public class CarTask extends TaCoKitTask {
 
     @TaskAction
     public void deployInStudio() {
@@ -41,16 +43,20 @@ public class DeployInStudioTask extends TaCoKitTask {
             return;
         }
 
-        getLogger().warn("Experimental feature");
-
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
-        final Class<?> impl = tccl.loadClass("org.talend.sdk.component.tools.StudioInstaller");
-        final Map<String, File> artifacts = artifacts();
-        final String mainGav = mainGav();
-        final Runnable runnable =
-                Runnable.class.cast(impl.getConstructor(String.class, File.class, Map.class, Object.class).newInstance(
-                        mainGav, extension.getStudioHome(), artifacts, getLogger()));
-        runnable.run();
+        final Class<?> configImpl = tccl.loadClass("org.talend.sdk.component.tools.CarBundler$Configuration");
+        final Class<?> impl = tccl.loadClass("org.talend.sdk.component.tools.CarBundler");
+
+        final Object config = configImpl.getConstructor().newInstance();
+        config.getClass().getMethod("setMainGav", String.class).invoke(config, mainGav());
+        config.getClass().getMethod("setVersion", String.class).invoke(config,
+                String.valueOf(getProject().getVersion()));
+        config.getClass().getMethod("setArtifacts", Map.class).invoke(config, artifacts());
+        config.getClass().getMethod("setCustomMetadata", Map.class).invoke(config, extension.getCarMetadata());
+        config.getClass().getMethod("setOutput", File.class).invoke(config, ofNullable(extension.getCarOutput())
+                .orElseGet(() -> new File(getProject().getBuildDir(), "libs/" + getProject().getName() + ".car")));
+
+        Runnable.class.cast(impl.getConstructor(configImpl, Object.class).newInstance(config, getLogger())).run();
     }
 }

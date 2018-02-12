@@ -101,4 +101,11 @@ public class TaCoKitExtension {
     private Collection<String> serverArguments;
 
     private Integer serverPort;
+
+    //
+    // car bundling
+    //
+    private File carOutput;
+
+    private Map<String, String> carMetadata;
 }

@@ -66,5 +66,9 @@ talendComponentKit {
     // web
     serverArguments = []
     serverPort = 8080
+
+    // car
+    carOutput = new File(....)
+    carMetadata = [:] // custom meta (string key-value pairs)
 }
 ----

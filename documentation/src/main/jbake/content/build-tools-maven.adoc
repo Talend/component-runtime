@@ -380,3 +380,24 @@ For this command to work you will need to just register the plugin:
   <version>${talend-component.version}</version>
 </plugin>
 ----
+
+=== Talend Component Archive
+
+Component ARchive (`.car`) is the way to bundle a component to share it in Talend ecosystem. It is a plain Java ARchive (`.jar`)
+containing a metadata file and a nested maven repository containing the component and its depenencies.
+
+[source]
+----
+mvn talend-component:car
+----
+
+It will create a `.car` in your build directory which is shareable on Talend platforms.
+
+Note that this CAR is executable and exposes the command `studio-deploy` which takes as parameter
+a Talend Studio home location. Executed it will install the dependencies into the studio and register the component
+in your instance. Here is a sample launch command:
+
+[source,sh]
+----
+java -jar mycomponent.car studio-deploy /path/to/my/studio
+----
