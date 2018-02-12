@@ -1,3 +1,4 @@
+= Internationalization
 :toc:
 :numbered:
 :icons: font
@@ -8,15 +9,13 @@
 :jbake-tags: documentation
 :jbake-status: published
 
-== Internationalization
-
 Recommanded practise for internationalization are:
 
 * store messages using `ResourceBundle` properties file in your component module
 * the location of the properties are in the same package than the related component(s) and is named `Messages` (ex: `org.talend.demo.MyComponent` will use `org.talend.demo.Messages[locale].properties`)
 * for your own messages use the internationalization API
 
-=== Internationalization API
+== Internationalization API
 
 Overal idea is to design its messages as methods returning `String` values
 and back the template by a `ResourceBundle` located in the same package than the interface

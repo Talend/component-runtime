@@ -9,4 +9,4 @@
 :jbake-tags: documentation
 :jbake-status: published
 
-include::component-loading.adoc[]
+include::component-loading.adoc[leveloffset=1]

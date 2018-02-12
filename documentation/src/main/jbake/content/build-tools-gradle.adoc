@@ -1,14 +1,13 @@
+= Gradle Plugin
+:jbake-type: page
+:jbake-tags: gradle
+:jbake-status: published
 :toc:
 :numbered:
 :icons: font
 :hide-uri-scheme:
 :imagesdir: images
 :outdir: ../assets
-:jbake-type: page
-:jbake-tags: documentation
-:jbake-status: published
-
-== Gradle Plugin
 
 `gradle-talend-component` intends to help you to write components
 validating components match best practices. It is inspired from the Maven plugin

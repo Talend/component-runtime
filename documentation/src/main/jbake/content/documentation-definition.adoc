@@ -9,12 +9,12 @@
 :jbake-tags: documentation
 :jbake-status: published
 
-include::component-definition.adoc[]
+include::component-definition.adoc[leveloffset=1]
 
-include::component-configuration.adoc[]
+include::component-configuration.adoc[leveloffset=1]
 
-include::gallery.adoc[]
+include::gallery.adoc[leveloffset=1]
 
-include::component-registering.adoc[]
+include::component-registering.adoc[leveloffset=1]
 
-include::component-internationalization.adoc[]
+include::component-internationalization.adoc[leveloffset=1]

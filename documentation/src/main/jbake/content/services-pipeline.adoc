@@ -1,3 +1,4 @@
+= Creating an execution chain or pipeline
 :toc:
 :numbered:
 :icons: font
@@ -8,14 +9,12 @@
 :jbake-tags: documentation
 :jbake-status: published
 
-== Creating an execution chain or pipeline
-
 There are two kind of chains the framework supports:
 
 1. standalone chains
 2. link:https://beam.apache.org/[Beam] chains
 
-=== Standalone chains
+== Standalone chains
 
 For now the standalone chains only support linear flows (more to come) and are built based on a `ExecutionChainBuilder`.
 
@@ -85,7 +84,7 @@ for more advanced cases.
 TIP: the number before the configuration (map) is the version of this configuration, it allows to automatically migrate
 from a version to the currently available one when needed.
 
-==== String based DSL
+=== String based DSL
 
 `ExecutionChainDsl` exposes a way to define pipeline based on URI instead of previous syntax:
 
@@ -98,11 +97,11 @@ from("chain://list?__version=1&values[0]=a&values[1]=bb&values[2]=ccc")
     .execute();
 ----
 
-=== Beam case
+== Beam case
 
 For beam case, you need to rely on beam pipeline definition and use `component-runtime-beam` dependency which provides Beam bridges.
 
-==== I/O
+=== I/O
 
 `org.talend.sdk.component.runtime.beam.TalendIO` provides a way to convert a partition mapper or a processor to an input or processor
 using the `read` or `write` methods.
@@ -128,7 +127,7 @@ public class Main {
 }
 ----
 
-==== Processors
+=== Processors
 
 `org.talend.sdk.component.runtime.beam.TalendFn` provides the way to wrap a processor in a Beam `PTransform` and integrate it in the pipeline.
 
@@ -152,12 +151,12 @@ TIP: you can use `ViewsMappingTransform` or `CoGroupByKeyResultMappingTransform`
 format to the record format representing the multiple inputs/output, so a kind of `Map<String, List<?>>`,
 but materialized as a `JsonObject`. Input data must be of type `JsonObject` in this case.
 
-==== Deployment
+=== Deployment
 
 IMPORTANT: Beam serializing components it is crucial to add `component-runtime-standalone` dependency to the project. It will take
 care of providing an implicit and lazy `ComponentManager` managing the component in a fatjar case.
 
-==== Convert a Beam.io in a component I/O
+=== Convert a Beam.io in a component I/O
 
 For simple I/O you can get automatic conversion of the Beam.io to a component I/O transparently if you decorated your `PTransform`
 with `@PartitionMapper` or `@Processor`.

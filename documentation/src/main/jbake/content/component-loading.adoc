@@ -1,14 +1,13 @@
+= Component Loading
+:jbake-type: page
+:jbake-tags: loading, classloader
+:jbake-status: published
 :toc:
 :numbered:
 :icons: font
 :hide-uri-scheme:
 :imagesdir: images
 :outdir: ../assets
-:jbake-type: page
-:jbake-tags: documentation
-:jbake-status: published
-
-== Component loading
 
 Talend Component scanning is based on a plugin concept. To ensure plugins can be developped in parallel and avoid conflicts
 it requires to isolate plugins (components or component grouped in a single jar/plugin).
@@ -45,7 +44,7 @@ The interesting part is the _shared_ area will contain Talend Component API whic
 Then each plugins will be loaded in their own classloader with their dependencies.
 
 
-=== Packaging a plugin
+== Packaging a plugin
 
 NOTE: this part explains the overall way to handle dependecnies but the Talend Maven plugin provides a shortcut for that.
 
@@ -94,11 +93,11 @@ What is important to see is the scope associated to the artifacts:
 - your specific dependencies (`awesome-project`) is `compile`: it will be included as a needed dependency by the framework (note that using `runtime` works too).
 - the other dependencies will be ignored (`test` dependencies)
 
-=== Packaging an application
+== Packaging an application
 
 Even if a flat classpath deployment is possible, it is not recommanded because it would then reduce the capabilities of the components.
 
-==== Dependencies
+=== Dependencies
 
 The way the framework resolves dependencies is based on a local maven repository layout. As a quick reminder it looks like:
 
@@ -128,7 +127,7 @@ Talend Component runtime has two ways to find an artifact:
 The first option will use either - by default - `${user.home}/.m2/repository` or a specific path configured when creating a `ComponentManager`.
 The nested repository option will need some configuration during the packaging to ensure the repository is well created.
 
-===== Create a nested maven repository with maven-shade-plugin
+==== Create a nested maven repository with maven-shade-plugin
 
 To create the nested `MAVEN-INF/repository` repository you can use `nested-maven-repository` extension:
 
@@ -163,7 +162,7 @@ To create the nested `MAVEN-INF/repository` repository you can use `nested-maven
 </plugin>
 ----
 
-==== Listing needed plugins
+=== Listing needed plugins
 
 Plugin are programmatically registered in general but if you want to make some of them automatically available you
 need to generate a `TALEND-INF/plugins.properties` which will map a plugin name to coordinates found with the maven mecanism
@@ -202,7 +201,7 @@ Here again we can enrich `maven-shade-plugin` to do it:
 </plugin>
 ----
 
-==== `maven-shade-plugin` extensions
+=== `maven-shade-plugin` extensions
 
 Here is a final job/application bundle based on maven shade plugin:
 
@@ -291,14 +290,14 @@ IMPORTANT: to use with the component tooling, it is recommended to keep default 
 you can need to refactor your project structure to ensure you keep component isolation. Talend component let you handle that part but the recommended
 practise is to use `userArtifacts` for the components and not the project `<dependencies>`.
 
-===== ContainerDependenciesTransformer
+==== ContainerDependenciesTransformer
 
 `ContainerDependenciesTransformer` specific configuration is the following one:
 
 - `repositoryBase`: base repository location (default to `MAVEN-INF/repository`).
 - `ignoredPaths`: a comma separated list of folder to not create in the output jar, this is common for the ones already created by other transformers/build parts.
 
-===== PluginTransformer
+==== PluginTransformer
 
 `ContainerDependenciesTransformer` specific configuration is the following one:
 

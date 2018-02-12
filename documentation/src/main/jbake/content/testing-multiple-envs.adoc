@@ -1,3 +1,4 @@
+= Multiple environments for the same tests
 :toc:
 :numbered:
 :icons: font
@@ -7,8 +8,6 @@
 :jbake-type: page
 :jbake-tags: documentation
 :jbake-status: published
-
-== Multiple environments for the same tests
 
 JUnit (4 or 5) already provides some ways to parameterized tests and execute the same "test logic"
 against several data. However it is not that convenient to test multiple environments.
@@ -21,7 +20,7 @@ To simplify such cases, the framework provides you a multi-environment support f
 
 It is in the junit module and is usable with JUnit 4 and JUnit 5.
 
-=== JUnit 4
+== JUnit 4
 
 [source,java]
 ----
@@ -42,7 +41,7 @@ run `test1` for `Env1` and `Env2` in previous example.
 By default `JUnit4` runner will be used to execute the tests in one environment but you can use `@DelegateRunWith`
 to use another runner.
 
-=== JUnit 5
+== JUnit 5
 
 JUnit 5 configuration is close to JUnit 4 one:
 
@@ -65,7 +64,7 @@ IMPORTANT: the main difference with JUnit 4 integration is that the tests are ex
 instead of running all tests in each environments sequentially. It means, for instance, that `@BeforeAll` and `@AfterAll` are executed
 once for all runners.
 
-=== Provided environments
+== Provided environments
 
 The provided environment setup the contextual classloader to load the related runner of Apache Beam.
 
@@ -73,7 +72,7 @@ Package: `org.talend.sdk.component.junit.environment.builtin.beam`
 
 include::{generated_adoc}/junit-environments.adoc[]
 
-=== Configuring environments
+== Configuring environments
 
 If the environment extends `BaseEnvironmentProvider` and therefore defines an environment name - which is the case of the default ones, you can use `EnvironmentConfiguration`
 to customize the system properties used for that environment:

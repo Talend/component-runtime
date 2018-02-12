@@ -1,3 +1,4 @@
+= Best practises
 :toc:
 :numbered:
 :icons: font
@@ -8,18 +9,16 @@
 :jbake-tags: documentation, testing
 :jbake-status: published
 
-== Best practises
-
 NOTE: this part is mainly around tools usable with JUnit. You can use most of these techniques with TestNG
 as well, check out the documentation if you need to use TestNG.
 
-=== Parameterized tests
+== Parameterized tests
 
 This is a great solution to repeat the same test multiple times. Overall idea
 is to define a test scenario (`I test function F`) and to make the input/output data
 dynamic.
 
-==== JUnit 4
+=== JUnit 4
 
 Here is an example. Let's assume we have this test which validates the connection URI using `ConnectionService`:
 
@@ -71,7 +70,7 @@ public class MyConnectionURITest {
 
 TIP: you don't have to define a single `@Test` method, if you define multiple, each of them will be executed with all the data (ie if we add a test in previous example you will get 4 tests execution - 2 per data, ie 2x2)
 
-==== JUnit 5
+=== JUnit 5
 
 JUnit 5 reworked this feature to make it way easier to use. The full documentation is available at http://junit.org/junit5/docs/current/user-guide/#writing-tests-parameterized-tests.
 

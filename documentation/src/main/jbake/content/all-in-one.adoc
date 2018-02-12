@@ -14,20 +14,20 @@ Romain Manni-Bucau
 
 Version: {project_version}
 
-include::design.adoc[]
+include::design.adoc[leveloffset=1]
 
-include::documentation-overview.adoc[]
+include::documentation-overview.adoc[leveloffset=1]
 
-include::getting-started.adoc[]
+include::getting-started.adoc[leveloffset=1]
 
-include::documentation.adoc[]
+include::documentation.adoc[leveloffset=1]
 
-include::documentation-testing.adoc[]
+include::documentation-testing.adoc[leveloffset=1]
 
-include::best-practices.adoc[]
+include::best-practices.adoc[leveloffset=1]
 
-include::documentation-rest.adoc[]
+include::documentation-rest.adoc[leveloffset=1]
 
-include::wrapping-a-beam-io.adoc[]
+include::wrapping-a-beam-io.adoc[leveloffset=1]
 
-include::appendix.adoc[]
+include::appendix.adoc[leveloffset=1]

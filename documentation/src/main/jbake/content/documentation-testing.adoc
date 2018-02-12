@@ -11,14 +11,14 @@
 
 [[documentation-testing-start]]
 
-include::testing-best-practices.adoc[]
+include::testing-best-practices.adoc[leveloffset=1]
 
-include::testing-runtime.adoc[]
+include::testing-runtime.adoc[leveloffset=1]
 
-include::testing-beam.adoc[]
+include::testing-beam.adoc[leveloffset=1]
 
-include::testing-multiple-envs.adoc[]
+include::testing-multiple-envs.adoc[leveloffset=1]
 
-include::testing-maven-passwords.adoc[]
+include::testing-maven-passwords.adoc[leveloffset=1]
 
-include::testing-generating-data.adoc[]
+include::testing-generating-data.adoc[leveloffset=1]

@@ -11,12 +11,12 @@
 :jbake-tags: documentation
 :jbake-status: published
 
-include::documentation-definition.adoc[]
+include::documentation-definition.adoc[leveloffset=1]
 
-include::documentation-packaging.adoc[]
+include::documentation-packaging.adoc[leveloffset=1]
 
-include::documentation-build-tools.adoc[]
+include::documentation-build-tools.adoc[leveloffset=1]
 
-include::documentation-services.adoc[]
+include::documentation-services.adoc[leveloffset=1]
 
-include::documentation-testing.adoc[]
+include::documentation-testing.adoc[leveloffset=1]

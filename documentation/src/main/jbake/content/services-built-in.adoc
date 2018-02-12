@@ -1,3 +1,4 @@
+= Built in services
 :toc:
 :numbered:
 :icons: font
@@ -7,8 +8,6 @@
 :jbake-type: page
 :jbake-tags: documentation
 :jbake-status: published
-
-== Built in services
 
 The framework provides some built-in services you can inject by type in components and actions out of the box.
 
@@ -39,7 +38,7 @@ TIP: See the <<_httpclient_usage>> for details.
 
 |===
 
-=== HttpClient usage
+== HttpClient usage
 
 Let assume that we have a REST API defined like below, and that it requires a basic authentication header.
 
@@ -103,7 +102,7 @@ public class MyService {
 
 Note: by default `*/*+json` are mapped to JSON-P and `*/*+xml` to JAX-B if the model has a `@XmlRootElement` annotation.
 
-==== Advanced HTTP client request customization
+=== Advanced HTTP client request customization
 
 For advanced cases you can customize the `Connection` directly using `@UseConfigurer` on the method.
 It will call your custom instance of `Configurer`. Note that you can use some `@ConfigurerOption` in the method

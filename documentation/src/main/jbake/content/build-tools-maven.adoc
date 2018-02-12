@@ -1,14 +1,13 @@
+= Maven Plugin
+:jbake-type: page
+:jbake-tags: maven
+:jbake-status: published
 :toc:
 :numbered:
 :icons: font
 :hide-uri-scheme:
 :imagesdir: images
 :outdir: ../assets
-:jbake-type: page
-:jbake-tags: documentation
-:jbake-status: published
-
-== Maven Plugin
 
 `talend-component-maven-plugin` intends to help you to write components
 validating components match best practices and also generating transparently metadata used by Talend Studio.
@@ -37,7 +36,7 @@ Note that this plugin is also an extension so you can declare it in your `build/
 
 Used as an extension, `dependencies`, `validate` and `documentation` goals will be set up.
 
-=== Dependencies
+== Dependencies
 
 The first goal is a shortcut for the `maven-dependency-plugin`, it will create the `TALEND-INF/dependencies.txt` file
 with the `compile` and `runtime` dependencies to let the component use it at runtime:
@@ -59,7 +58,7 @@ with the `compile` and `runtime` dependencies to let the component use it at run
 </plugin>
 ----
 
-=== Validate
+== Validate
 
 The most important goal is here to help you to validate the common programming model of the component. Here is the execution definition to activate it:
 
@@ -97,7 +96,7 @@ adding the corresponding flags to `false` in the `<configuration>` block of the 
 |validateDocumentation|Ensure all 1. components and 2. `@Option` properties have a documentation using `@Documentation`|true
 |===
 
-=== Documentation
+== Documentation
 
 This goal generates an Asciidoc file documenting your component from the configuration model (`@Option`) and
 `@Documentation` you can put on options and the component itself.
@@ -154,9 +153,9 @@ a|`${classes}/TALEND-INF/documentation.adoc`
 TIP: if you use the extension you can add the property `talend.documentation.htmlAndPdf` and set it to `true` in your project
 to automatically get a html and PDF rendering of the documentation.
 
-==== Render your documentation
+=== Render your documentation
 
-===== HTML
+==== HTML
 
 To render the generated documentation you can use the Asciidoctor Maven plugin (or Gradle equivalent):
 
@@ -203,7 +202,7 @@ To render the generated documentation you can use the Asciidoctor Maven plugin (
 
 TIP: ensure to execute it after the documentation generation.
 
-===== PDF
+==== PDF
 
 If you prefer a PDF rendering you can configure the following execution
 in the asciidoctor plugin (note that you can configure both executions if you want
@@ -240,7 +239,7 @@ both HTML and PDF rendering):
 </plugin>
 ----
 
-===== Include the documentation into a document
+==== Include the documentation into a document
 
 If you want to add some more content or add a title, you can include the generated document into
 another document using Asciidoc `include` directive.
@@ -293,11 +292,11 @@ This assumes you pass to the plugin the attribute `generated_doc`, this can be d
 
 This is optional but allows to reuse maven placeholders to pass paths which is quite convenient in an automated build.
 
-===== More
+==== More
 
 You can find more customizations on Asciidoctor link:http://asciidoctor.org/docs/asciidoctor-maven-plugin/[website].
 
-=== Web
+== Web
 
 Testing the rendering of your component(s) configuration into the Studio is just a matter of deploying a component
 in Talend Studio (you can have a look to link::studio.html[Studio Documentation] page. But don't forget
@@ -316,7 +315,7 @@ The two available configurations of the plugin are `serverPort` which is a short
 of the embedded server and `serverArguments` to pass Meecrowave options to the server. More on that configuration
 is available at http://openwebbeans.apache.org/meecrowave/meecrowave-core/cli.html.
 
-=== Generate inputs or outputs
+== Generate inputs or outputs
 
 The Mojo `generate` (maven plugin goal) of the same plugin also embeds a generator you can use to bootstrap any input or output component:
 
@@ -381,7 +380,7 @@ For this command to work you will need to just register the plugin:
 </plugin>
 ----
 
-=== Talend Component Archive
+== Talend Component Archive
 
 Component ARchive (`.car`) is the way to bundle a component to share it in Talend ecosystem. It is a plain Java ARchive (`.jar`)
 containing a metadata file and a nested maven repository containing the component and its depenencies.

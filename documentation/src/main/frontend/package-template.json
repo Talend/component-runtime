@@ -1,0 +1,8 @@
+{
+  "name": "local",
+  "version": "ignored",
+  "private": true,
+  "dependencies": {
+    "js-search": "1.4.2"
+  }
+}

@@ -1,3 +1,4 @@
+= Generating data?
 :toc:
 :numbered:
 :icons: font
@@ -7,8 +8,6 @@
 :jbake-type: page
 :jbake-tags: documentation
 :jbake-status: published
-
-== Generating data?
 
 Several data generator exists if you want to populate objects with a semantic a bit more evolved than a plain random string
 like `commons-lang3`:

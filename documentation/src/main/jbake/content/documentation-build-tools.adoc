@@ -9,6 +9,6 @@
 :jbake-tags: documentation
 :jbake-status: published
 
-include::build-tools-maven.adoc[]
+include::build-tools-maven.adoc[leveloffset=1]
 
-include::build-tools-gradle.adoc[]
+include::build-tools-gradle.adoc[leveloffset=1]

@@ -1,3 +1,4 @@
+= Internationalization
 :toc:
 :numbered:
 :icons: font
@@ -8,12 +9,10 @@
 :jbake-tags: documentation
 :jbake-status: published
 
-== Internationalization
-
 In the simplest case you should store messages using `ResourceBundle` properties file in your component module to use internationalization.
 The location of the properties file should be in the same package as the related component(s) and is named `Messages` (ex: `org.talend.demo.MyComponent` will use `org.talend.demo.Messages[locale].properties`).
 
-=== Default components keys
+== Default components keys
 
 Out of the box components are internationalized using the same location logic for the resource bundle and here is the list
 of supported keys:

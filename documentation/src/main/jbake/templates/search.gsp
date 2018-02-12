@@ -16,7 +16,28 @@
 	<%include "menu.gsp"%>
 
     <div class="container section-padded">
-        <gcse:searchresults-only linktarget="_parent">Search results...</gcse:searchresults-only>
+      <form>
+        <div class="form-group" action="search.html">
+          <label for="searchInput">
+            Search
+            <span id="resultCounter" class="badge"></span>
+          </label>
+          <input class="form-control" type="search" name="q" id="searchInput" placeholder="Search...">
+        </div>
+      </form>
+      <table id="resultTable" class="table table-striped table-condensed hidden">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Content</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
     </div>
 
+    <script type="text/javascript" src="js/js-search.min.js"></script>
+    <script type="text/javascript" src="js/search.js"></script>
 <%include "footer.gsp"%>

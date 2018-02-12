@@ -9,14 +9,14 @@
 :jbake-tags: documentation
 :jbake-status: published
 
-include::services-internationalization.adoc[]
+include::services-internationalization.adoc[leveloffset=1]
 
-include::services-actions.adoc[]
+include::services-actions.adoc[leveloffset=1]
 
-include::services-built-in.adoc[]
+include::services-built-in.adoc[leveloffset=1]
 
-include::services-interceptors.adoc[]
+include::services-interceptors.adoc[leveloffset=1]
 
-include::services-pipeline.adoc[]
+include::services-pipeline.adoc[leveloffset=1]
 
-include::services-custom-api.adoc[]
+include::services-custom-api.adoc[leveloffset=1]

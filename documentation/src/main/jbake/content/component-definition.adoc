@@ -1,3 +1,4 @@
+= Components Definition
 :toc:
 :numbered:
 :icons: font
@@ -7,8 +8,6 @@
 :jbake-type: page
 :jbake-tags: documentation
 :jbake-status: published
-
-== Components Definitions
 
 Talend Component framework relies on several primitive components.
 
@@ -114,7 +113,7 @@ IMPORTANT: all framework managed methods `MUST` be public too. Private methods a
 NOTE: in term of design the framework tries to be as declarative as possible but also to stay extensible
 not using fixed interfaces or method signatures. This will allow to add incrementally new features of the underlying implementations.
 
-=== PartitionMapper
+== PartitionMapper
 
 ____
 A `PartitionMapper` is a component able to split itself to
@@ -132,7 +131,7 @@ The process is the following:
 
 IMPORTANT: this kind of component `MUST` be `Serializable` to be distributable.
 
-==== Definition
+== Definition
 
 A partition mapper requires 3 methods marked with specific annotations:
 
@@ -140,7 +139,7 @@ A partition mapper requires 3 methods marked with specific annotations:
 2. `@Split` for the dividing method
 3. `@Emitter` for the `Producer` factory
 
-===== @Assessor
+=== @Assessor
 
 The assessor method will return the estimated size of the data related to the component (depending its configuration).
 It `MUST` return a `Number` and `MUST` not take any parameter.
@@ -155,7 +154,7 @@ public long estimateDataSetByteSize() {
 }
 ----
 
-===== @Split
+=== @Split
 
 The split method will return a collection of partition mappers and can take optionally a `@PartitionSize` long
 value which is the requested size of the dataset per sub partition mapper.
@@ -170,7 +169,7 @@ public List<MyMapper> split(@PartitionSize final long desiredSize) {
 }
 ----
 
-===== @Emitter
+=== @Emitter
 
 The emitter method `MUST` not have any parameter and `MUST` return a producer. It generally uses the partition mapper configuration
 to instantiate/configure the producer.
@@ -185,7 +184,7 @@ public MyProducer create() {
 }
 ----
 
-=== Producer
+== Producer
 
 ____
 A `Producer` is the component interacting with a physical source. It produces input data for the processing flow.
@@ -201,7 +200,7 @@ public MyData produces() {
 }
 ----
 
-=== Processor
+== Processor
 
 ____
 A `Processor` is a component responsible to convert an incoming data to another model.
@@ -275,7 +274,7 @@ public void endBatch() {
 IMPORTANT: it is a good practise to support a `maxBatchSize` here and potentially commit before the end of the group in case
 of a computed size which is way too big for your backend.
 
-=== Multiple outputs
+== Multiple outputs
 
 In some case you may want to split the output of a processor in two. A common example is "main" and "reject" branches
 where part of the incoming data are put in a specific bucket to be processed later.
@@ -318,7 +317,7 @@ public MyNewData map(final MyData data,
 }
 ----
 
-=== Multiple inputs
+== Multiple inputs
 
 Having multiple inputs is closeto the output case excep it doesn't require a wrapper `OutputEmitter`:
 
@@ -335,7 +334,7 @@ public MyNewData map(@Input final MyData data, @Input("input2") final MyData2 da
 IMPORTANT: due to the work required to not use the default branch it is recommanded to use it when possible and not
 name its branches depending on the component semantic.
 
-==== Output
+== Output
 
 ____
 An `Output` is a `Processor` returning no data.
@@ -352,7 +351,7 @@ public void store(final MyData data) {
 }
 ----
 
-=== Combiners?
+== Combiners?
 
 For now Talend Component doesn't enable you to define a `Combiner`. It would be the symmetric part of the partition mapper
 and allow to aggregate results in a single one.

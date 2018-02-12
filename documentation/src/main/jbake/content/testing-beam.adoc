@@ -1,3 +1,4 @@
+= Beam testing
 :toc:
 :numbered:
 :icons: font
@@ -7,8 +8,6 @@
 :jbake-type: page
 :jbake-tags: documentation
 :jbake-status: published
-
-== Beam testing
 
 If you want to ensure your component works in Beam the minimum to do is to try with the direct runner (if you don't want to use spark).
 

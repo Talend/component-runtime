@@ -1,3 +1,4 @@
+= Providing some actions for consumers/clients
 :toc:
 :numbered:
 :icons: font
@@ -7,8 +8,6 @@
 :jbake-type: page
 :jbake-tags: documentation
 :jbake-status: published
-
-== Providing some actions for consumers/clients
 
 In some cases you will desire to add some actions unrelated to the runtime. A simple example
 is to enable clients - the users of the plugin/library - to test if a connection works. Even more concretely: _does my database is up?_.
@@ -55,7 +54,7 @@ public class PersonReader implements Serializable {
 
 TIP: service is passed to constructor automatically, it can be used as a bean. Only call of service's method is required.
 
-=== Particular action types
+== Particular action types
 
 Some actions are that common and need a clear contract so they are defined as API first citizen, this is the case for wizards or healthchecks
 for instance. Here is the list of all actions:

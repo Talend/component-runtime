@@ -1,16 +1,15 @@
+= Gallery
+:jbake-type: page
+:jbake-tags: documentation, widgets, gallery
+:jbake-status: published
 :toc:
 :numbered:
 :icons: font
 :hide-uri-scheme:
 :imagesdir: images
 :outdir: ../assets
-:jbake-type: page
-:jbake-tags: documentation, widgets, gallery
-:jbake-status: published
 
-== Gallery
-
-=== Widgets
+== Widgets
 
 [cols="1,3a,4a,4a",role="table gallery",options="header,autowidth"]
 |===
@@ -98,7 +97,7 @@ List<String> config;
 |===
 
 
-=== Validations
+== Validations
 
 [cols="1,3a,4a,4a",role="table gallery",options="header,autowidth"]
 |===

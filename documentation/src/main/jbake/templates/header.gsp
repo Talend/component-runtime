@@ -22,7 +22,6 @@
       gtag('js', new Date());
       gtag('config', 'GTM-PSBN');
     </script>
-    <script async type="text/javascript" src="https://cse.google.com/cse.js?cx=005944347463368867332:ghrpamlmyqy"></script>
 
     <meta charset="utf-8">
     <title>Talend Component Documentation</title>
