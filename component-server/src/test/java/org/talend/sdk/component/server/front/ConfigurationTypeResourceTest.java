@@ -81,6 +81,7 @@ class ConfigurationTypeResourceTest {
 
         final ConfigTypeNode jdbcDataSet = index.getNodes().get("amRiYyNkYXRhc2V0I2pkYmM");
         assertNotNull(jdbcDataSet);
+        assertEquals(-1, jdbcDataSet.getVersion());
         assertEquals("jdbc", jdbcDataSet.getName());
         assertEquals("JDBC DataSet", jdbcDataSet.getDisplayName());
         assertEquals("dataset", jdbcDataSet.getConfigurationType());

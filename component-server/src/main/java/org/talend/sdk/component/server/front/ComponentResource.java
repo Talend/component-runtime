@@ -298,7 +298,13 @@ public class ComponentResource {
     @Documentation("Allows to migrate a component configuration without calling any component execution.")
     public Map<String, String> migrate(@PathParam("id") final String id,
             @PathParam("configurationVersion") final int version, final Map<String, String> config) {
-        return componentDao.findById(id).getMigrationHandler().migrate(version, config);
+        return ofNullable(componentDao.findById(id))
+                .orElseThrow(() -> new WebApplicationException(Response
+                        .status(Response.Status.NOT_FOUND)
+                        .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "Didn't find component " + id))
+                        .build()))
+                .getMigrationHandler()
+                .migrate(version, config);
     }
 
     @GET // TODO: max ids.length

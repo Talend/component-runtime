@@ -32,6 +32,8 @@ public class ConfigTypeNode {
 
     private String id;
 
+    private int version;
+
     private String parentId;
 
     private String configurationType;

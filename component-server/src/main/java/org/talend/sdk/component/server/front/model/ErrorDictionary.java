@@ -18,6 +18,7 @@ package org.talend.sdk.component.server.front.model;
 public enum ErrorDictionary {
     PLUGIN_MISSING,
     COMPONENT_MISSING,
+    CONFIGURATION_MISSING,
     ICON_MISSING,
     ACTION_MISSING,
     ACTION_ERROR,

@@ -41,6 +41,7 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
+import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
@@ -48,6 +49,7 @@ import org.talend.sdk.component.server.configuration.ComponentServerConfiguratio
 import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
+import org.talend.sdk.component.server.dao.ConfigurationDao;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -69,6 +71,9 @@ public class ComponentManagerService {
     @Inject
     private ComponentActionDao actionDao;
 
+    @Inject
+    private ConfigurationDao configurationDao;
+
     private ComponentManager instance;
 
     private MvnCoordinateToFileConverter mvnCoordinateToFileConverter;
@@ -84,7 +89,7 @@ public class ComponentManagerService {
         System.setProperty("talend.component.manager.m2.repository", configuration.mavenRepository());
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         instance = ComponentManager.instance();
-        deploymentListener = new DeploymentListener(componentDao, componentFamilyDao, actionDao);
+        deploymentListener = new DeploymentListener(componentDao, componentFamilyDao, actionDao, configurationDao);
         instance.getContainer().registerListener(deploymentListener);
 
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
@@ -145,6 +150,8 @@ public class ComponentManagerService {
 
         private final ComponentActionDao actionDao;
 
+        private final ConfigurationDao configurationDao;
+
         @Override
         public void onCreate(final Container container) {
             container.set(CleanupTask.class, new CleanupTask(postDeploy(container)));
@@ -187,10 +194,18 @@ public class ComponentManagerService {
                     .map(componentFamilyDao::createOrUpdate)
                     .collect(toList());
 
+            final Collection<String> configs = ofNullable(plugin.get(RepositoryModel.class))
+                    .map(r -> r.getFamilies().stream().flatMap(f -> f.getConfigs().stream()).collect(toList()))
+                    .orElse(emptyList())
+                    .stream()
+                    .map(configurationDao::createOrUpdate)
+                    .collect(toList());
+
             return () -> {
                 componentIds.forEach(componentDao::removeById);
                 actions.forEach(actionDao::removeById);
                 families.forEach(componentFamilyDao::removeById);
+                configs.forEach(configurationDao::removeById);
             };
         }
     }

@@ -18,6 +18,7 @@ package org.talend.sdk.component.design.extension.repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 import lombok.AllArgsConstructor;
@@ -32,6 +33,10 @@ import lombok.ToString;
 public class Config {
 
     private String id;
+
+    private int version;
+
+    private MigrationHandler migrationHandler;
 
     private ConfigKey key;
 

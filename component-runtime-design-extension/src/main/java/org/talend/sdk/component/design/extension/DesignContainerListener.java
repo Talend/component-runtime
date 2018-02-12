@@ -22,6 +22,7 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.flows.FlowsFactory;
 import org.talend.sdk.component.design.extension.repository.RepositoryModelBuilder;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 
@@ -62,7 +63,8 @@ public class DesignContainerListener implements ContainerListenerExtension {
                 });
 
         // Create Repository Model
-        container.set(RepositoryModel.class, repositoryModelBuilder.create(componentFamilyMetas));
+        container.set(RepositoryModel.class,
+                repositoryModelBuilder.create(container.get(ComponentManager.AllServices.class), componentFamilyMetas));
     }
 
     /**

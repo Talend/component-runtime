@@ -85,9 +85,6 @@ public class ExecutionResource {
 
     private static final byte[] EOL = "\n".getBytes(StandardCharsets.UTF_8);
 
-    // requires to not be a valid java field/parameter value
-    private static final String CONFIGURATION_VERSION = "tcomp::family::version";
-
     @Inject
     private ExecutorService executorService;
 
@@ -270,6 +267,6 @@ public class ExecutionResource {
     }
 
     private int getConfigComponentVersion(final Map<String, String> config) {
-        return Integer.parseInt(config.getOrDefault(CONFIGURATION_VERSION, "1"));
+        return Integer.parseInt(config.getOrDefault("tcomp::version", config.getOrDefault("__version", "1")));
     }
 }
