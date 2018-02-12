@@ -14,10 +14,13 @@
 */%>
 <%@ jet
     imports="
+        org.talend.core.model.components.IComponent
         org.talend.core.model.process.INode
         org.talend.designer.codegen.config.CodeGeneratorArgument
-        org.talend.core.model.process.ElementParameterParser
+        org.talend.designer.core.model.components.EParameterName
+        org.talend.designer.core.model.components.ElementParameter
         org.talend.core.model.process.IElementParameter
+        org.talend.core.model.process.ElementParameterParser
         org.talend.core.model.process.EParameterFieldType
         org.talend.core.model.metadata.IMetadataColumn
         org.talend.core.model.metadata.IMetadataTable
@@ -28,6 +31,13 @@
         java.util.List
         java.util.Locale
     "
+%>
+<%
+    final CodeGeneratorArgument codeGenArgument = CodeGeneratorArgument.class.cast(argument);
+    final INode node = INode.class.cast(codeGenArgument.getArgument());
+    final String cid = node.getUniqueName();
+    final IComponent component = node.getComponent();
+    final boolean useLookup = component.useLookup();
 %>
 
 <%
@@ -51,26 +61,29 @@
     }
 %>
 
-    java.util.Iterator<Object> rowIter = null;
-    Object rowObj = null;
 <%
-    for (final IConnection connection : node.getIncomingConnections()) {
-        String row_name = connection.getName();
-        if (rowsInCurrentProcess.contains(row_name)) {
+    if (!useLookup) {
+        // nothing to do
+    } else {
 %>
-            inputsHandler_<%=cid%>.setInputValue("<%= row_name.toLowerCase(Locale.ROOT) %>", <%= row_name %>);
-<%
-        } else {
-%>
-            rowIter = (java.util.Iterator<Object>)inputIterMap.get("<%= row_name.toLowerCase(Locale.ROOT) %>");
-            rowObj = null;
-            if (rowIter != null && rowIter.hasNext()) {
-                rowObj = rowIter.next();
+        boolean continueLoop = true;
+        while(continueLoop) {
+            continueLoop = false;
+            for (Object value : inputIterMap.values()) {
+                java.util.Iterator<Object> loopIter = (java.util.Iterator<Object>) value;
+                if (loopIter.hasNext()) {
+                    continueLoop = true;
+                    break;
+                }
             }
-            inputsHandler_<%=cid%>.setInputValue("<%= row_name.toLowerCase(Locale.ROOT) %>", rowObj);
+            if (!continueLoop) {
+                break;
+            }
 <%
-        }
+            for (String curRow : rowsInCurrentProcess) {
 %>
+                <%=curRow %> = null;
 <%
+            }
     }
 %>
