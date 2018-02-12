@@ -56,9 +56,11 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
 
     private IStatus tocokitConfigStatus;
 
-    private final String form = Metadatas.MAIN_FORM;
+    private final String form;
 
-    public TaCoKitConfigurationWizardPage(final TaCoKitConfigurationRuntimeData runtimeData) {
+    private final EComponentCategory category;
+
+    public TaCoKitConfigurationWizardPage(final TaCoKitConfigurationRuntimeData runtimeData, final String form) {
         super(Messages.getString("WizardPage.TaCoKitConfiguration"), runtimeData); //$NON-NLS-1$
         final ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
         setTitle(Messages.getString("TaCoKitConfiguration.wizard.title", configTypeNode.getConfigurationType(),
@@ -66,6 +68,8 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
                 configTypeNode.getDisplayName()));
         setDescription(Messages.getString("TaCoKitConfiguration.wizard.description.edit", //$NON-NLS-1$
                 configTypeNode.getConfigurationType(), configTypeNode.getDisplayName()));
+        this.form = form;
+        this.category = Metadatas.MAIN_FORM.equals(form) ? EComponentCategory.BASIC : EComponentCategory.ADVANCED;
     }
 
     @Override
@@ -90,15 +94,14 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
         final ElementParameter updateParameter = createUpdateComponentsParameter(element);
         final List<IElementParameter> parameters = new ArrayList<>();
         parameters.add(updateParameter);
-        final SettingsCreator settingsCreator =
-                new SettingsCreator(node, EComponentCategory.BASIC, updateParameter, configTypeNode);
+        final SettingsCreator settingsCreator = new SettingsCreator(node, category, updateParameter, configTypeNode);
         root.accept(settingsCreator, form);
         parameters.addAll(settingsCreator.getSettings());
 
         element.setElementParameters(parameters);
 
-        tacokitComposite = new TaCoKitWizardComposite(container, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS,
-                EComponentCategory.BASIC, element, configurationModel, true, container.getBackground());
+        tacokitComposite = new TaCoKitWizardComposite(container, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS, category,
+                element, configurationModel, true, container.getBackground());
         tacokitComposite.setLayoutData(createMainFormData(addContextFields));
 
         if (addContextFields) {

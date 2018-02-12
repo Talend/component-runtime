@@ -30,6 +30,7 @@ import org.talend.repository.model.RepositoryNodeUtilities;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
+import org.talend.sdk.component.studio.model.parameter.Metadatas;
 import org.talend.sdk.component.studio.ui.wizard.page.TaCoKitConfigurationWizardPage;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
 
@@ -45,7 +46,9 @@ public abstract class TaCoKitConfigurationWizard extends CheckLastVersionReposit
 
     private Step0WizardPage wizardPropertiesPage;
 
-    private TaCoKitConfigurationWizardPage configurationPage;
+    private TaCoKitConfigurationWizardPage mainPage;
+
+    private TaCoKitConfigurationWizardPage advancedPage;
 
     public TaCoKitConfigurationWizard(final IWorkbench workbench, final TaCoKitConfigurationRuntimeData runtimeData) {
         super(workbench, runtimeData.isCreation(), runtimeData.isReadonly());
@@ -121,14 +124,16 @@ public abstract class TaCoKitConfigurationWizard extends CheckLastVersionReposit
         wizardPropertiesPage.setDescription(""); //$NON-NLS-1$
         addPage(wizardPropertiesPage);
 
-        configurationPage = new TaCoKitConfigurationWizardPage(runtimeData);
-        addPage(configurationPage);
+        mainPage = new TaCoKitConfigurationWizardPage(runtimeData, Metadatas.MAIN_FORM);
+        addPage(mainPage);
 
+        advancedPage = new TaCoKitConfigurationWizardPage(runtimeData, Metadatas.ADVANCED_FORM);
+        addPage(advancedPage);
     }
 
     @Override
     public boolean performFinish() {
-        if (configurationPage.isPageComplete()) {
+        if (mainPage.isPageComplete()) {
             try {
                 IWorkspace workspace = ResourcesPlugin.getWorkspace();
                 IWorkspaceRunnable operation = createFinishOperation();
