@@ -430,8 +430,8 @@
               <scripts>
                 <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
                 <script>${project.basedir}/src/build/PrepareWebResources.groovy</script>
-                <script>${project.basedir}/src/build/GithubPages.groovy</script>
                 <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
+                <script>${project.basedir}/src/build/GithubPages.groovy</script>
               </scripts>
             </configuration>
             <dependencies>
