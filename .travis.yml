@@ -51,7 +51,7 @@ jobs:
       env:
       - STEP=Deploy Maven artifacts
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-      script: node .travis/heartbeat.js mvn clean deploy -e -q -Dhub-detect.skip=true $DEPLOY_OPTS   # Deploy artefacts to sonatype
+      script: node .travis/heartbeat.js mvn clean deploy -e -q -Dhub-detect.skip=true $DEPLOY_OPTS   # Deploy artifacts to sonatype
 
     - stage: master_build
       env:
