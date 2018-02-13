@@ -97,6 +97,8 @@ from("chain://list?__version=1&values[0]=a&values[1]=bb&values[2]=ccc")
     .execute();
 ----
 
+IMPORTANT: query parameters must be URI/URL encoded.
+
 == Beam case
 
 For beam case, you need to rely on beam pipeline definition and use `component-runtime-beam` dependency which provides Beam bridges.
