@@ -345,9 +345,9 @@ public class ComponentManager implements AutoCloseable {
                             // bundle
                             // alternatively we could capture based on TALEND-INF/dependencies.txt jars
                             if (!Boolean.getBoolean("component.manager.classpath.skip")) {
-                                final String componentClasspath = findClasspath().replace(File.pathSeparatorChar, ':');
+                                final String componentClasspath = findClasspath().replace(File.pathSeparatorChar, ';');
                                 if (!componentClasspath.isEmpty()) {
-                                    final String[] jars = componentClasspath.split(":");
+                                    final String[] jars = componentClasspath.split(";");
                                     if (jars.length > 1) {
                                         Stream
                                                 .of(jars)
@@ -438,7 +438,7 @@ public class ComponentManager implements AutoCloseable {
                         return ofNullable(file.getManifest())
                                 .map(Manifest::getMainAttributes)
                                 .map(a -> a.getValue(Attributes.Name.CLASS_PATH))
-                                .map(value -> value.replace(' ', ':'))
+                                .map(value -> value.replace(' ', ';'))
                                 .orElse(null);
                     } catch (final IOException e) {
                         log.warn(e.getMessage());
