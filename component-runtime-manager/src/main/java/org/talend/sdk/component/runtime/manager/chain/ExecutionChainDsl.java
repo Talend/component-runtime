@@ -17,6 +17,9 @@ package org.talend.sdk.component.runtime.manager.chain;
 
 import static java.util.Optional.ofNullable;
 
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.chain.internal.DSLParser;
 
@@ -28,7 +31,9 @@ public interface ExecutionChainDsl {
 
     default ConfigurableExecutionChainFluentDsl from(final String uri) {
         final DSLParser.Step inStep = DSLParser.parse(uri);
-        return new ConfigurableExecutionChainFluentDsl() {
+        final Iterator<ConfigurableExecutionChainFluentDsl> iterator =
+                ServiceLoader.load(ConfigurableExecutionChainFluentDsl.class).iterator();
+        return iterator.hasNext() ? iterator.next() : new ConfigurableExecutionChainFluentDsl() {
 
             private ChainConfiguration configuration;
 
@@ -62,15 +67,16 @@ public interface ExecutionChainDsl {
             }
 
             @Override
-            public ExecutionChain create() {
+            public Execution create() {
                 if (in == null) {
                     throw new IllegalArgumentException("No processor in the Job, this is an invalid chain.");
                 }
                 final ComponentManager manager = ComponentManager.instance();
-                return processor
+                final ExecutionChain chainSupplier = processor
                         .create(manager, manager.getContainer()::resolve, configuration.getSuccessListener(),
                                 configuration.getErrorHandler())
                         .get();
+                return chainSupplier::execute;
             }
         };
     }
@@ -84,7 +90,13 @@ public interface ExecutionChainDsl {
 
         ExecutionChainFluentDsl to(String uri);
 
-        ExecutionChain create();
+        Execution create();
+    }
+
+    @FunctionalInterface
+    interface Execution {
+
+        void execute();
     }
 
     @Data

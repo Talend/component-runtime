@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,7 +69,8 @@ class ExecutionChainDslTest implements ExecutionChainDsl {
         assertEquals(asList("data >> 1", "data >> 3", "data >> 6"), tracker);
     }
 
-    private void doJob(final String testName, final Collection<String> tracker, final File output) {
+    private void doJob(final String testName, final Collection<String> tracker, final File output)
+            throws UnsupportedEncodingException {
         from("chain://list?__version=1&values[0]=a&values[1]=bb&values[2]=ccc")
                 .configure(new ChainConfiguration(testName, true, data -> tracker.add("data >> " + data),
                         (data, exception) -> {
@@ -76,7 +79,7 @@ class ExecutionChainDslTest implements ExecutionChainDsl {
                             return ExecutionChain.Skip.INSTANCE;
                         }))
                 .to("chain://count?__version=1")
-                .to("chain://file?__version=1&file=" + output.getAbsolutePath())
+                .to("chain://file?__version=1&file=" + URLEncoder.encode(output.getAbsolutePath(), "UTF-8"))
                 .create()
                 .execute();
     }
