@@ -52,6 +52,7 @@ import org.talend.core.runtime.IAdditionalInfo;
 import org.talend.core.runtime.util.ComponentReturnVariableUtils;
 import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.NodeReturn;
+import org.talend.designer.core.model.process.DataNode;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -91,7 +92,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
 
     private Map<String, Object> additionalInfoMap = new HashMap<>();
 
-    private boolean useLookup = false;
+    private Boolean useLookup = null;
 
     public ComponentModel(final ComponentIndex component, final ComponentDetail detail, final ImageDescriptor image32) {
         setPaletteType(ComponentCategory.CATEGORY_4_DI.getName());
@@ -145,8 +146,11 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
     private List<ECodePart> createCodePartList() {
         return (detail.getType().equalsIgnoreCase("input")) //$NON-NLS-1$
                 ? Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.END, ECodePart.FINALLY))
-                : Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END_HEAD,
-                        ECodePart.END_BODY, ECodePart.END_TAIL, ECodePart.FINALLY));
+                : (useLookup()
+                        ? Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN,
+                                ECodePart.END_HEAD, ECodePart.END_BODY, ECodePart.END_TAIL, ECodePart.FINALLY))
+                        : Collections.unmodifiableList(
+                                Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY)));
     }
 
     /**
@@ -294,18 +298,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
      */
     @Override
     public List<? extends INodeConnector> createConnectors(final INode node) {
-        List<INodeConnector> connectors = ConnectorCreatorFactory.create(detail, node).createConnectors();
-        if (connectors != null) {
-            for (INodeConnector connector : connectors) {
-                if (EConnectionType.FLOW_MAIN.equals(connector.getDefaultConnectionType())) {
-                    if (1 < connector.getMaxLinkInput()) {
-                        useLookup = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return connectors;
+        return ConnectorCreatorFactory.create(detail, node).createConnectors();
     }
 
     /**
@@ -490,28 +483,43 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
 
     @Override
     public boolean useLookup() {
+        if (useLookup != null) {
+            return useLookup;
+        }
+        useLookup = Boolean.FALSE;
+        List<? extends INodeConnector> connectors = createConnectors(new DataNode(this, "checkLookup"));
+        if (connectors != null) {
+            for (INodeConnector connector : connectors) {
+                if (EConnectionType.FLOW_MAIN.equals(connector.getDefaultConnectionType())) {
+                    if (1 < connector.getMaxLinkInput()) {
+                        useLookup = Boolean.TRUE;
+                        break;
+                    }
+                }
+            }
+        }
         return useLookup;
     }
 
     @Override
-    public Object getInfo(String key) {
+    public Object getInfo(final String key) {
         return additionalInfoMap.get(key);
     }
 
     @Override
-    public void setInfo(String key, Object value) {
+    public void putInfo(final String key, final Object value) {
         additionalInfoMap.put(key, value);
     }
 
     @Override
-    public void onEvent(String event, Object... parameters) {
+    public void onEvent(final String event, final Object... parameters) {
         if (event == null) {
             return;
         }
         try {
             switch (event) {
             case IConnection.EVENT_UPDATE_INPUT_CONNECTION:
-                onUpdateConnection(parameters);
+                onUpdateInputConnection(parameters);
                 break;
             default:
                 break;
@@ -521,25 +529,32 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
         }
     }
 
-    private void onUpdateConnection(Object... parameters) {
+    private void onUpdateInputConnection(final Object... parameters) {
         if (parameters == null || parameters.length < 2) {
-            throw new IllegalArgumentException("Can only accept one node and one connection, please adapt it if needed.");
+            throw new IllegalArgumentException(
+                    "Can only accept one node and one connection, please adapt it if needed.");
         }
         if (parameters[0] == null || parameters[1] == null) {
             return;
         }
         if (!INode.class.isInstance(parameters[0]) || !IConnection.class.isInstance(parameters[1])) {
-            throw new IllegalArgumentException("Can only accept one node and one connection, please adapt it if needed.");
+            throw new IllegalArgumentException(
+                    "Can only accept one node and one connection, please adapt it if needed.");
         }
-        final String param_input_name = "INPUT_NAME"; //$NON-NLS-1$
+        final String paramInputName = "INPUT_NAME"; //$NON-NLS-1$
         INode node = (INode) parameters[0];
         IConnection connection = (IConnection) parameters[1];
-        EConnectionType lineStyle = connection.getLineStyle();
+        // EConnectionType lineStyle = connection.getLineStyle();
         // if (EConnectionType.FLOW_MAIN == lineStyle) {
         // return;
         // }
 
         if (connection instanceof IAdditionalInfo) {
+            String inputName = (String) IAdditionalInfo.class.cast(connection).getInfo(paramInputName);
+            if (inputName != null && !inputName.trim().isEmpty()) {
+                // if already set, just return
+                return;
+            }
             Set<String> usedInputSet = new HashSet<>();
             List<? extends IConnection> incomingConnections = node.getIncomingConnections();
             if (incomingConnections != null) {
@@ -549,7 +564,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
                     if (connType != null && connType.hasConnectionCategory(IConnectionCategory.FLOW)) {
                         if (IAdditionalInfo.class.isInstance(incomingConnection)) {
                             IAdditionalInfo inconnInfo = (IAdditionalInfo) incomingConnection;
-                            Object info = inconnInfo.getInfo(param_input_name);
+                            Object info = inconnInfo.getInfo(paramInputName);
                             if (info != null) {
                                 usedInputSet.add(info.toString());
                             }
@@ -572,8 +587,18 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
             availableInputs.removeAll(usedInputSet);
             Collections.sort(availableInputs);
             if (!availableInputs.isEmpty()) {
-                IAdditionalInfo.class.cast(connection).setInfo(param_input_name, availableInputs.get(0));
+                IAdditionalInfo.class.cast(connection).putInfo(paramInputName, availableInputs.get(0));
             }
+        }
+    }
+
+    @Override
+    public void cloneAddionalInfoTo(final IAdditionalInfo targetAdditionalInfo) {
+        if (targetAdditionalInfo == null) {
+            return;
+        }
+        for (Map.Entry<String, Object> entry : additionalInfoMap.entrySet()) {
+            targetAdditionalInfo.putInfo(entry.getKey(), entry.getValue());
         }
     }
 

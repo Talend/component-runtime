@@ -18,19 +18,18 @@ package org.talend.sdk.component.studio.model.connector;
 import org.talend.core.model.process.INode;
 import org.talend.designer.core.model.components.NodeConnector;
 
-
 /**
- * DOC cmeng  class global comment. Detailled comment
+ * DOC cmeng class global comment. Detailled comment
  */
 public class TaCoKitNodeConnector extends NodeConnector {
 
     private boolean isInput = false;
 
-    public TaCoKitNodeConnector(INode parentNode) {
+    public TaCoKitNodeConnector(final INode parentNode) {
         super(parentNode);
     }
 
-    public void setInput(boolean isInput) {
+    public void setInput(final boolean isInput) {
         this.isInput = isInput;
     }
 

@@ -15,6 +15,7 @@
 <%@ jet
     imports="
         org.talend.core.model.process.INode
+        org.talend.core.runtime.IAdditionalInfo
         org.talend.designer.codegen.config.CodeGeneratorArgument
         java.util.Locale
     "

@@ -22,6 +22,7 @@ import static org.talend.core.model.process.EConnectionType.FLOW_REF;
 import static org.talend.core.model.process.EConnectionType.ITERATE;
 import static org.talend.core.model.process.EConnectionType.REJECT;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,49 +54,68 @@ class ProcessorConnectorCreator extends AbstractConnectorCreator {
                 rowCount.incrementAndGet();
             }
         });
-        // List<INodeConnector> inputConnectors = new ArrayList<>();
-        // if (0 < rowCount.get()) {
-        // String inputConnectorName = "main";
-        // final INodeConnector main = createConnector(getType(inputConnectorName), getName(inputConnectorName), node);
-        // main.setMaxLinkInput(rowCount.get());
-        // main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
-        // main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
-        // existingTypes.add(FLOW_MAIN);
-        // inputConnectors.add(main);
-        // }
+        final String mainConnectorName = MAIN_CONNECTOR_NAME;
+        final INodeConnector main = createConnector(EConnectionType.FLOW_MAIN, mainConnectorName, node);
+        main.setMaxLinkInput(rowCount.get());
+        if (main instanceof TaCoKitNodeConnector) {
+            ((TaCoKitNodeConnector) main).setInput(false);
+        }
+        main.addConnectionProperty(FLOW_MAIN, FLOW_MAIN.getRGB(), FLOW_MAIN.getDefaultLineStyle());
+        main.addConnectionProperty(FLOW_REF, FLOW_MAIN.getRGB(), FLOW_MAIN.getDefaultLineStyle());
+        main.addConnectionProperty(FLOW_MERGE, FLOW_MAIN.getRGB(), FLOW_MAIN.getDefaultLineStyle());
+        existingTypes.add(EConnectionType.FLOW_MAIN);
 
-        return Stream
-                .concat(detail.getInputFlows().stream() //
-                        .filter(input -> FLOW_MAIN.equals(getType(input))) //
+        List<INodeConnector> connectors = new ArrayList<>();
+        connectors.add(main);
+
+        List<INodeConnector> generatedConnectors = Stream
+                .concat(detail
+                        .getInputFlows()
+                        .stream() //
+                        .filter(input -> {
+                            if (!FLOW_MAIN.equals(getType(input))) {
+                                return false;
+                            }
+                            if (mainConnectorName.equalsIgnoreCase(getName(input))) {
+                                return false;
+                            }
+                            return true;
+                        }) //
                         .map(input -> { //
                             String name = getName(input);
-                            final INodeConnector main = createConnector(getType(input), name, node);
-                            if ("main".equalsIgnoreCase(name)) {
-                                main.setMaxLinkInput(rowCount.get());
-                            } else {
-                                main.setMaxLinkInput(1);
+                            final INodeConnector inputConnector = createConnector(getType(input), name, node);
+                            inputConnector.setMaxLinkInput(1);
+                            if (inputConnector instanceof TaCoKitNodeConnector) {
+                                ((TaCoKitNodeConnector) inputConnector).setInput(true);
                             }
-                            if (main instanceof TaCoKitNodeConnector) {
-                                ((TaCoKitNodeConnector) main).setInput(true);
-                            }
-                            main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
-                            main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(), FLOW_MERGE.getDefaultLineStyle());
+                            inputConnector.addConnectionProperty(FLOW_MAIN, FLOW_MAIN.getRGB(),
+                                    FLOW_MAIN.getDefaultLineStyle());
+                            inputConnector.addConnectionProperty(FLOW_REF, FLOW_MAIN.getRGB(),
+                                    FLOW_MAIN.getDefaultLineStyle());
+                            inputConnector.addConnectionProperty(FLOW_MERGE, FLOW_MAIN.getRGB(),
+                                    FLOW_MAIN.getDefaultLineStyle());
                             existingTypes.add(getType(input));
-                            return main;
+                            return inputConnector;
                         }), detail
-                        .getOutputFlows()
-                        .stream() //
-                        .filter(output -> FLOW_MAIN.equals(getType(output))) //
-                        .map(output -> { //
-                            final INodeConnector main = createConnector(getType(output), getName(output), node);
-                            main.setMaxLinkOutput(1);
-                            main.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(), FLOW_REF.getDefaultLineStyle());
-                            main.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(),
-                                    FLOW_MERGE.getDefaultLineStyle());
-                            existingTypes.add(getType(output));
-                            return main;
-                        }))
+                                .getOutputFlows()
+                                .stream() //
+                                .filter(output -> FLOW_MAIN.equals(getType(output))) //
+                                .map(output -> { //
+                                    final INodeConnector outputConnector =
+                                            createConnector(getType(output), getName(output), node);
+                                    outputConnector.setMaxLinkOutput(1);
+                                    outputConnector.addConnectionProperty(FLOW_REF, FLOW_REF.getRGB(),
+                                            FLOW_REF.getDefaultLineStyle());
+                                    outputConnector.addConnectionProperty(FLOW_MERGE, FLOW_MERGE.getRGB(),
+                                            FLOW_MERGE.getDefaultLineStyle());
+                                    existingTypes.add(getType(output));
+                                    return outputConnector;
+                                }))
                 .collect(toList());
+
+        connectors.addAll(generatedConnectors);
+
+        return connectors;
     }
 
     /**
