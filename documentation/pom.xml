@@ -124,35 +124,6 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.codehaus.gmavenplus</groupId>
-            <artifactId>gmavenplus-plugin</artifactId>
-            <version>${gmavenplus.version}</version>
-            <executions>
-              <execution>
-                <id>decrypt-password</id>
-                <phase>compile</phase> <!-- before exec plugin -->
-                <goals>
-                  <goal>execute</goal>
-                </goals>
-                <configuration>
-                  <allowSystemExits>true</allowSystemExits>
-                  <scripts>
-                    <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
-                    <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
-                    <script>${project.basedir}/src/build/PrepareWebResources.groovy</script>
-                  </scripts>
-                </configuration>
-              </execution>
-            </executions>
-            <dependencies>
-              <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
-                <version>${groovy.version}</version>
-              </dependency>
-            </dependencies>
-          </plugin>
-          <plugin>
             <groupId>com.github.eirslett</groupId>
             <artifactId>frontend-maven-plugin</artifactId>
             <version>${frontend.version}</version>
@@ -183,6 +154,35 @@
               <installDirectory>${project.basedir}/.node</installDirectory>
               <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
             </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <version>${gmavenplus.version}</version>
+            <executions>
+              <execution>
+                <id>decrypt-password</id>
+                <phase>compile</phase> <!-- before exec plugin -->
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <allowSystemExits>true</allowSystemExits>
+                  <scripts>
+                    <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
+                    <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
+                    <script>${project.basedir}/src/build/PrepareWebResources.groovy</script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>${groovy.version}</version>
+              </dependency>
+            </dependencies>
           </plugin>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
@@ -429,6 +429,7 @@
               <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
+                <script>${project.basedir}/src/build/PrepareWebResources.groovy</script>
                 <script>${project.basedir}/src/build/GithubPages.groovy</script>
                 <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
               </scripts>
