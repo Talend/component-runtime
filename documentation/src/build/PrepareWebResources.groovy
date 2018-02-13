@@ -17,6 +17,9 @@ import groovy.json.JsonOutput
 
 // add js-search resource
 def source = new File(project.basedir, 'src/main/frontend/node_modules/js-search/dist/umd/js-search.min.js')
+if (!source.exists()) {
+    return
+}
 def target = new File(project.build.directory, "${project.build.finalName}/js/js-search.min.js")
 target.parentFile.mkdirs()
 target.text = source.text
