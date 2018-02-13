@@ -28,6 +28,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.test.Constants;
@@ -40,12 +41,14 @@ class JmxManagerTest {
         final JmxManager jmxManager = new JmxManager(null, "org.talend.test:type=plugin,name=%s", mBeanServer);
 
         final ContainerManager containerManager =
-                new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
-                        .builder()
-                        .resolver(
-                                new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH))
-                        .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION))
-                        .create(), ContainerManager.ClassLoaderConfiguration.builder().create(), null);
+                new ContainerManager(
+                        ContainerManager.DependenciesResolutionConfiguration
+                                .builder()
+                                .resolver(new MvnDependencyListLocalRepositoryResolver(
+                                        Constants.DEPENDENCIES_LIST_RESOURCE_PATH))
+                                .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION))
+                                .create(),
+                        ContainerManager.ClassLoaderConfiguration.builder().create(), null, Level.INFO);
         containerManager.registerListener(jmxManager);
         containerManager.builder("foo.jar", new File("missing/normally").getName()).create();
 

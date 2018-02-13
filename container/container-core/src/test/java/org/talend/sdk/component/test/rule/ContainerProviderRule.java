@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.slf4j.event.Level;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
@@ -96,7 +97,7 @@ public class ContainerProviderRule extends TempJars implements BeforeAllCallback
                         .builder()
                         .parent(ContainerProviderRule.class.getClassLoader())
                         .create(),
-                null);
+                null, Level.INFO);
     }
 
     @Target(PARAMETER)

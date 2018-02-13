@@ -38,6 +38,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.slf4j.event.Level;
 import org.talend.sdk.component.dependencies.Resolver;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.lifecycle.Lifecycle;
@@ -73,8 +74,12 @@ public class ContainerManager implements Lifecycle {
     @Getter
     private final String containerId = UUID.randomUUID().toString();
 
+    private final Level logInfoLevelMapping;
+
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
-            final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer) {
+            final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer,
+            final Level logInfoLevelMapping) {
+        this.logInfoLevelMapping = logInfoLevelMapping;
         this.containerInitializer = containerInitializer;
         this.resolver = dependenciesResolutionConfiguration.getResolver();
         this.rootRepositoryLocation = ofNullable(dependenciesResolutionConfiguration.getRootRepositoryLocation())
@@ -99,21 +104,32 @@ public class ContainerManager implements Lifecycle {
                     final Properties properties = new Properties() {
 
                         {
-                            log.info("Loading " + nestedPluginMappingResource);
+                            info("Loading " + nestedPluginMappingResource);
                             load(mappingStream);
                         }
                     };
                     nestedContainerMapping.putAll(properties.stringPropertyNames().stream().collect(
                             toMap(identity(), properties::getProperty)));
-                    log.info("Mapped " + getDefinedNestedPlugin() + " plugins");
+                    info("Mapped " + getDefinedNestedPlugin() + " plugins");
                 } else {
-                    log.info("No " + nestedPluginMappingResource + " found, will use file resolution");
+                    info("No " + nestedPluginMappingResource + " found, will use file resolution");
                 }
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
         } else {
-            log.info("Container " + containerId + " not supporting nested plugin loading, skipping");
+            info("Container " + containerId + " not supporting nested plugin loading, skipping");
+        }
+    }
+
+    private void info(final String msg) {
+        switch (logInfoLevelMapping) {
+        case DEBUG:
+            log.debug(msg);
+            break;
+        case INFO:
+        default:
+            log.info(msg);
         }
     }
 
@@ -318,7 +334,7 @@ public class ContainerManager implements Lifecycle {
                     ? nestedContainerMapping.getOrDefault(module, module)
                     : module;
             final String location = resolve(moduleLocation).getAbsolutePath();
-            log.info("Creating module " + moduleLocation + " (from " + module + ", location=" + location + ")");
+            info("Creating module " + moduleLocation + " (from " + module + ", location=" + location + ")");
             final Stream<Artifact> classpath = resolver.resolve(classLoaderConfiguration.getParent(), location);
 
             final Container container = new Container(id, location, classpath.toArray(Artifact[]::new),
@@ -339,7 +355,7 @@ public class ContainerManager implements Lifecycle {
                             setState(State.UNDEPLOYED);
                         }
                     }
-                    log.info("Closed container " + id);
+                    info("Closed container " + id);
                 }
             };
             container.setState(Container.State.CREATED);
@@ -355,13 +371,13 @@ public class ContainerManager implements Lifecycle {
                     throw new IllegalArgumentException("Container '" + id + "' already exists");
                 }
             } else {
-                log.info("Failed creating container " + id);
+                info("Failed creating container " + id);
                 calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
                 throw new IllegalArgumentException(id);
             }
 
             container.setState(Container.State.DEPLOYED);
-            log.info("Created container " + id);
+            info("Created container " + id);
             return container;
         }
     }

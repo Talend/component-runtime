@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.event.Level;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.container.ContainerManager;
@@ -136,6 +137,6 @@ class ContainerManagerTest {
                 .builder()
                 .resolver(new MvnDependencyListLocalRepositoryResolver(Constants.DEPENDENCIES_LIST_RESOURCE_PATH))
                 .rootRepositoryLocation(new File(Constants.DEPENDENCIES_LOCATION))
-                .create(), ContainerManager.ClassLoaderConfiguration.builder().create(), null);
+                .create(), ContainerManager.ClassLoaderConfiguration.builder().create(), null, Level.INFO);
     }
 }

@@ -96,6 +96,7 @@ import org.apache.xbean.finder.archive.JarArchive;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
+import org.slf4j.event.Level;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.MigrationHandler;
@@ -237,6 +238,8 @@ public class ComponentManager implements AutoCloseable {
 
     private final Collection<ComponentExtension> extensions;
 
+    private final Level logInfoLevelMapping;
+
     /**
      * @param m2 the maven repository location if on the file system.
      * @param dependenciesResource the resource path containing dependencies.
@@ -254,6 +257,8 @@ public class ComponentManager implements AutoCloseable {
         jsonpBuilderFactory = jsonpProvider.createBuilderFactory(emptyMap());
         jsonpParserFactory = jsonpProvider.createParserFactory(emptyMap());
         jsonpWriterFactory = jsonpProvider.createWriterFactory(emptyMap());
+
+        logInfoLevelMapping = findLogInfoLevel();
 
         final ContainerManager.ClassLoaderConfiguration defaultClassLoaderConfiguration =
                 ContainerManager.ClassLoaderConfiguration
@@ -283,12 +288,24 @@ public class ComponentManager implements AutoCloseable {
                                     || a.getArtifact().startsWith("beam-sdks-java-"))) {
                         container.set(ContainerManager.ClassLoaderConfiguration.class, beamClassLoaderConfiguration);
                     }
-                });
+                }, logInfoLevelMapping);
         this.container.registerListener(new Updater());
         ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty()).ifPresent(p -> this.container
                 .registerListener(new JmxManager(container, p, ManagementFactory.getPlatformMBeanServer())));
         toStream(loadServiceProviders(ContainerListenerExtension.class, tccl)).forEach(container::registerListener);
         this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
+    }
+
+    private Level findLogInfoLevel() {
+        if (Boolean.getBoolean("talend.component.manager.log.info")) {
+            return Level.INFO;
+        }
+        try {
+            ComponentManager.class.getClassLoader().loadClass("routines.TalendString");
+            return Level.DEBUG;
+        } catch (final NoClassDefFoundError | ClassNotFoundException e) {
+            return Level.INFO;
+        }
     }
 
     /**
@@ -319,7 +336,7 @@ public class ComponentManager implements AutoCloseable {
 
                         {
 
-                            log.info("Creating the contextual ComponentManager instance " + getIdentifiers());
+                            info("Creating the contextual ComponentManager instance " + getIdentifiers());
                             if (!Boolean.getBoolean("component.manager.callers.skip")) {
                                 addCallerAsPlugin();
                             }
@@ -347,7 +364,7 @@ public class ComponentManager implements AutoCloseable {
 
                             container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)).forEach(
                                     this::addPlugin);
-                            log.info("Components: " + availablePlugins());
+                            info("Components: " + availablePlugins());
                         }
 
                         @Override
@@ -367,7 +384,7 @@ public class ComponentManager implements AutoCloseable {
                                 }
                             } finally {
                                 super.close();
-                                log.info("Released the contextual ComponentManager instance " + getIdentifiers());
+                                info("Released the contextual ComponentManager instance " + getIdentifiers());
                             }
                         }
 
@@ -377,7 +394,7 @@ public class ComponentManager implements AutoCloseable {
                     };
 
                     Runtime.getRuntime().addShutdownHook(shutdownHook);
-                    log.info("Created the contextual ComponentManager instance " + getIdentifiers());
+                    manager.info("Created the contextual ComponentManager instance " + getIdentifiers());
                     if (!CONTEXTUAL_INSTANCE.compareAndSet(null, manager)) { // unlikely it fails in a synch block
                         manager = CONTEXTUAL_INSTANCE.get();
                     }
@@ -386,6 +403,17 @@ public class ComponentManager implements AutoCloseable {
         }
 
         return manager;
+    }
+
+    protected void info(final String msg) {
+        switch (logInfoLevelMapping) {
+        case DEBUG:
+            log.debug(msg);
+            break;
+        case INFO:
+        default:
+            log.info(msg);
+        }
     }
 
     private static String findClasspath() { // alternative is to use getResources("") and parse urls
@@ -664,7 +692,7 @@ public class ComponentManager implements AutoCloseable {
                 .withCustomizer(c -> c.set(OriginalId.class, new OriginalId(pluginRootFile)))
                 .create()
                 .getId();
-        log.info("Adding plugin: " + pluginRootFile + ", as " + id);
+        info("Adding plugin: " + pluginRootFile + ", as " + id);
         return id;
     }
 
@@ -674,7 +702,7 @@ public class ComponentManager implements AutoCloseable {
                 .withCustomizer(c -> c.set(OriginalId.class, new OriginalId(location)))
                 .create()
                 .getId();
-        log.info("Adding plugin: " + pluginRootFile + ", as " + id);
+        info("Adding plugin: " + pluginRootFile + ", as " + id);
         return id;
     }
 
@@ -684,13 +712,13 @@ public class ComponentManager implements AutoCloseable {
                 .withCustomizer(c -> c.set(OriginalId.class, new OriginalId(forcedId)))
                 .create()
                 .getId();
-        log.info("Adding plugin: " + pluginRootFile + ", as " + id);
+        info("Adding plugin: " + pluginRootFile + ", as " + id);
         return id;
     }
 
     public void removePlugin(final String id) {
         container.find(id).ifPresent(Container::close);
-        log.info("Removed plugin: " + id);
+        info("Removed plugin: " + id);
     }
 
     protected boolean isContainerClass(final Filter filter, final String name) {
@@ -1048,7 +1076,7 @@ public class ComponentManager implements AutoCloseable {
                             throw new IllegalArgumentException("No default constructor for " + service);
                         }
 
-                        log.info("Added @Service " + service + " for container-id=" + container.getId());
+                        info("Added @Service " + service + " for container-id=" + container.getId());
                     });
 
             Stream
@@ -1106,7 +1134,7 @@ public class ComponentManager implements AutoCloseable {
                             }
                         });
 
-                        log.info("Parsed component " + type + " for container-id=" + container.getId());
+                        info("Parsed component " + type + " for container-id=" + container.getId());
                     });
         }
 
@@ -1194,8 +1222,7 @@ public class ComponentManager implements AutoCloseable {
                 }
             }
 
-            log.info(container.getRootModule()
-                    + " is not a file, will try to look it up from a nested maven repository");
+            info(container.getRootModule() + " is not a file, will try to look it up from a nested maven repository");
 
             final InputStream nestedJar = loader.getParent().getResourceAsStream(
                     ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + container.getRootModule());
