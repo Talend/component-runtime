@@ -23,7 +23,6 @@ import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.talend.sdk.component.starter.server.Versions.CXF;
 import static org.talend.sdk.component.starter.server.service.Resources.resourceFileToString;
 
 import java.io.BufferedReader;
@@ -48,12 +47,12 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.model.FactoryConfiguration;
 import org.talend.sdk.component.starter.server.model.ProjectModel;
 import org.talend.sdk.component.starter.server.test.Client;
-import org.talend.sdk.component.starter.server.test.meecrowave.MonoMeecrowaveConfig;
 
 @MonoMeecrowaveConfig
 @Client.Active

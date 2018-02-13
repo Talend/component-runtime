@@ -29,12 +29,12 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
-import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
 
 import lombok.Data;
 

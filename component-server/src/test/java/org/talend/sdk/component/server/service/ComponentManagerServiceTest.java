@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
-import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;

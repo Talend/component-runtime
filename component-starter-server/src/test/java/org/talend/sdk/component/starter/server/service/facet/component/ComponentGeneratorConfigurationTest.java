@@ -27,12 +27,11 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.Test;
+import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
-import org.talend.sdk.component.starter.server.test.meecrowave.MonoMeecrowaveConfig;
 
 import lombok.Data;
 

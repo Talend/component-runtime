@@ -30,11 +30,11 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.facet.testing.TalendComponentKitTesting;
-import org.talend.sdk.component.starter.server.test.meecrowave.MonoMeecrowaveConfig;
 
 @MonoMeecrowaveConfig
 class TalendComponentKitTestingTest {

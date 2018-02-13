@@ -34,10 +34,10 @@ import javax.json.JsonBuilderFactory;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.talend.sdk.component.server.front.model.execution.WriteStatistics;
-import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
 @MonoMeecrowaveConfig

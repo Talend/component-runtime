@@ -26,7 +26,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 
-import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.ActionItem;
 import org.talend.sdk.component.server.front.model.ActionList;

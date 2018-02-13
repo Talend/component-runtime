@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 
-import org.talend.sdk.component.server.test.meecrowave.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.Environment;
