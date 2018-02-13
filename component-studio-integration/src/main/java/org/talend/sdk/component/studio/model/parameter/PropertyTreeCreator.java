@@ -74,6 +74,8 @@ public class PropertyTreeCreator {
 
         createRemainingNodes(properties, nodes);
         linkNodes(properties, nodes);
+        root.computePosition(Metadatas.MAIN_FORM);
+        root.computePosition(Metadatas.ADVANCED_FORM);
         return root;
     }
 
@@ -134,7 +136,8 @@ public class PropertyTreeCreator {
         PropertyNode node;
         switch (fieldType) {
         case TABLE:
-            node = new TablePropertyNode(property, fieldType, isRoot);
+        case SCHEMA_TYPE:
+            node = new ListPropertyNode(property, fieldType, isRoot);
             break;
         default:
             node = new PropertyNode(property, fieldType, isRoot);

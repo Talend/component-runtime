@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,7 @@ import org.talend.core.model.process.EParameterFieldType;
 
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -36,11 +39,15 @@ import lombok.ToString;
 @ToString(exclude = "parent")
 public class PropertyNode {
 
+    static final String CONNECTION_BUTTON = ".testConnection";
+
     @Setter(AccessLevel.PROTECTED)
     private PropertyNode parent;
 
     @Setter(AccessLevel.NONE)
     private final List<PropertyNode> children = new ArrayList<>();
+
+    private final Map<String, Layout> layouts = new HashMap<>();
 
     private final PropertyDefinitionDecorator property;
 
@@ -102,10 +109,15 @@ public class PropertyNode {
      * @param form Name of form
      */
     public void accept(final PropertyVisitor visitor, final String form) {
-        final List<PropertyNode> children = getChildren(form);
-        sortChildren(children, form);
+        final List<PropertyNode> children = sortChildren(getChildren(form), form);
         children.forEach(child -> child.accept(visitor, form));
         visitor.visit(this);
+    }
+
+    private void acceptParentFirst(final PropertyVisitor visitor, final String form) {
+        visitor.visit(this);
+        final List<PropertyNode> children = sortChildren(getChildren(form), form);
+        children.forEach(child -> child.acceptParentFirst(visitor, form));
     }
 
     /**
@@ -114,10 +126,17 @@ public class PropertyNode {
      * @param form Name of form
      * @return children of specified form
      */
-    List<PropertyNode> getChildren(final String form) {
+    public List<PropertyNode> getChildren(final String form) {
         final Set<String> childrenNames = getChildrenNames(form);
         return children.stream().filter(node -> childrenNames.contains(node.property.getName())).collect(
                 Collectors.toList());
+    }
+
+    private PropertyNode getChild(final String name, final String form) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(form);
+        return getChildren(form).stream().filter(p -> name.equals(p.getProperty().getName())).findFirst().orElseThrow(
+                () -> new IllegalArgumentException("no child with name " + name));
     }
 
     /**
@@ -126,7 +145,7 @@ public class PropertyNode {
      * @param children children node, which belongs specified form
      * @param form Name or form
      */
-    void sortChildren(final List<PropertyNode> children, final String form) {
+    private List<PropertyNode> sortChildren(final List<PropertyNode> children, final String form) {
         HashMap<String, Integer> order = property.getChildrenOrder(form);
         if (order != null) {
             children.sort((node1, node2) -> {
@@ -136,6 +155,7 @@ public class PropertyNode {
             });
         }
         // else do not sort
+        return children;
     }
 
     /**
@@ -177,6 +197,143 @@ public class PropertyNode {
         Set<String> names = new HashSet<>();
         children.forEach(node -> names.add(node.getProperty().getName()));
         return names;
+    }
+
+    public Layout getLayout(final String name) {
+        if (!layouts.containsKey(name)) {
+            throw new IllegalArgumentException("No layout " + name);
+        }
+        return layouts.get(name);
+    }
+
+    /**
+     * Creates layout for specified {@code form} and computes position for all children nodes.
+     * It traverse a tree in-depth. Children nodes are visited before parent
+     * 
+     * @param form Layout form for which node position is computed
+     */
+    void computePosition(final String form) {
+        accept(new LayoutHeightVisitor(form), form);
+        acceptParentFirst(new LayoutPositionVisitor(form), form);
+    }
+
+    void addLayout(final String name, final Layout layout) {
+        layouts.putIfAbsent(name, layout);
+    }
+
+    @RequiredArgsConstructor
+    private static class LayoutHeightVisitor implements PropertyVisitor {
+
+        private final String form;
+
+        private PropertyNode current;
+
+        @Override
+        public void visit(final PropertyNode node) {
+            this.current = node;
+            createLayout();
+            computeHeight();
+        }
+
+        private void createLayout() {
+            final Layout layout = new Layout(current.getProperty().getPath());
+            if (!current.isLeaf()) {
+                if (current.getProperty().hasGridLayout(form)) {
+                    fillGridLayout(layout);
+                } else {
+                    fillSimpleLayout(layout);
+                }
+                if (current.getProperty().isCheckable()) {
+                    addButton(layout);
+                }
+            }
+            current.addLayout(form, layout);
+        }
+
+        private void fillGridLayout(final Layout layout) {
+            final String gridLayout = current.getProperty().getGridLayout(form);
+            final String[] rows = gridLayout.split("\\|");
+            // create Level for each row
+            for (final String row : rows) {
+                final Level level = new Level();
+                layout.getLevels().add(level);
+                for (final String column : row.split(",")) {
+                    final PropertyNode child = current.getChild(column, form);
+                    level.getColumns().add(child.getLayout(form));
+                }
+            }
+        }
+
+        private void fillSimpleLayout(final Layout layout) {
+            final List<PropertyNode> children = current.sortChildren(current.getChildren(form), form);
+            children.forEach(child -> {
+                final Level level = new Level();
+                layout.getLevels().add(level);
+                // each level contains only one column, when there is no GridLayout
+                level.getColumns().add(child.getLayout(form));
+            });
+        }
+
+        /**
+         * Adds "Test Connection" button
+         * 
+         * @param layout parent node layout
+         */
+        private void addButton(final Layout layout) {
+            final Layout buttonLayout = new Layout(layout.getPath() + CONNECTION_BUTTON);
+            buttonLayout.setHeight(1);
+            final Level level = new Level();
+            level.getColumns().add(buttonLayout);
+            layout.getLevels().add(level);
+        }
+
+        private void computeHeight() {
+            final Layout layout = current.getLayout(form);
+            int height = 0;
+            if (current.isLeaf()) {
+                height = 1;
+                if (current.getProperty().hasConstraint() || current.getProperty().hasValidation()) {
+                    height++;
+                }
+            } else {
+                layout.getLevels().forEach(level -> {
+                    final int levelHeight = level.getColumns().stream().mapToInt(Layout::getHeight).max().getAsInt();
+                    level.setHeight(levelHeight);
+                });
+                height = layout.getLevels().stream().mapToInt(Level::getHeight).sum();
+            }
+            layout.setHeight(height);
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static class LayoutPositionVisitor implements PropertyVisitor {
+
+        /**
+         * First 2 position are occupied by schema and property type
+         */
+        private static final int INITIAL_POSITION = 3;
+
+        private final String form;
+
+        @Override
+        public void visit(final PropertyNode node) {
+            if (!node.isLeaf()) {
+                final Layout layout = node.getLayout(form);
+                if (node.isRoot()) {
+                    layout.setPosition(INITIAL_POSITION);
+                }
+                int position = layout.getPosition();
+                for (final Level level : layout.getLevels()) {
+                    level.setPosition(position);
+                    for (final Layout column : level.getColumns()) {
+                        column.setPosition(position);
+                    }
+                    position = position + level.getHeight();
+                }
+            } // else no-op as position is set during visiting only parent node
+        }
+
     }
 
 }

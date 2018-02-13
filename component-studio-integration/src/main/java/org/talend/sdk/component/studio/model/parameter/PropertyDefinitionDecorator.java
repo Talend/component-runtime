@@ -144,7 +144,7 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
      */
     Set<String> getChildrenNames(final String form) {
         if (hasGridLayout(form)) {
-            final String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
+            final String gridLayout = getGridLayout(form);
             final String[] names = gridLayout.split(GRIDLAYOUT_SEPARATOR);
             return Stream.of(names).collect(toSet());
         }
@@ -210,7 +210,7 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
             return null;
         }
         final HashMap<String, Integer> order = new HashMap<>();
-        final String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
+        final String gridLayout = getGridLayout(form);
         final String[] children = gridLayout.split(GRIDLAYOUT_SEPARATOR);
         for (int i = 0; i < children.length; i++) {
             order.put(children[i], i);
@@ -317,7 +317,7 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         if (!hasGridLayout(form)) {
             return false;
         }
-        final String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
+        final String gridLayout = getGridLayout(form);
         final String[] rows = gridLayout.split("\\|");
         for (final String row : rows) {
             final String[] columns = row.split(",");
@@ -328,6 +328,13 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
             }
         }
         return false;
+    }
+
+    String getGridLayout(final String form) {
+        if (!hasGridLayout(form)) {
+            throw new IllegalArgumentException("no gridlayout for form " + form);
+        }
+        return delegate.getMetadata().get(buildGridLayoutKey(form));
     }
 
     Stream<Condition> getConditions() {
