@@ -205,9 +205,11 @@ public class SettingsCreator implements PropertyVisitor {
                     .filter(a -> a.getName().equals(node.getProperty().getHealthCheckName()))
                     .findFirst()
                     .get();
-            // TODO simplify it
-            final int position = node.getLayout(form).getPosition() + node.getLayout(form).getHeight() - 1;
-            new HealthCheckResolver(element, family, node, action, category, position).resolveParameters(settings);
+            final Layout checkableLayout = node.getLayout(form);
+            final Layout buttonLayout =
+                    checkableLayout.getChildLayout(checkableLayout.getPath() + PropertyNode.CONNECTION_BUTTON);
+            new HealthCheckResolver(element, family, node, action, category, buttonLayout.getPosition())
+                    .resolveParameters(settings);
         }
     }
 

@@ -39,6 +39,8 @@ import lombok.ToString;
 @ToString(exclude = "parent")
 public class PropertyNode {
 
+    static final String CONNECTION_BUTTON = ".testConnection";
+
     @Setter(AccessLevel.PROTECTED)
     private PropertyNode parent;
 
@@ -130,8 +132,7 @@ public class PropertyNode {
                 Collectors.toList());
     }
 
-    // TODO make it package-private
-    public PropertyNode getChild(final String name, final String form) {
+    private PropertyNode getChild(final String name, final String form) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(form);
         return getChildren(form).stream().filter(p -> name.equals(p.getProperty().getName())).findFirst().orElseThrow(
@@ -144,8 +145,7 @@ public class PropertyNode {
      * @param children children node, which belongs specified form
      * @param form Name or form
      */
-    // TODO change it to return sorted children
-    public List<PropertyNode> sortChildren(final List<PropertyNode> children, final String form) {
+    private List<PropertyNode> sortChildren(final List<PropertyNode> children, final String form) {
         HashMap<String, Integer> order = property.getChildrenOrder(form);
         if (order != null) {
             children.sort((node1, node2) -> {
@@ -243,6 +243,9 @@ public class PropertyNode {
                 } else {
                     fillSimpleLayout(layout);
                 }
+                if (current.getProperty().isCheckable()) {
+                    addButton(layout);
+                }
             }
             current.addLayout(form, layout);
         }
@@ -266,9 +269,22 @@ public class PropertyNode {
             children.forEach(child -> {
                 final Level level = new Level();
                 layout.getLevels().add(level);
-                // only one column in each level when there is no GridLayout
+                // each level contains only one column, when there is no GridLayout
                 level.getColumns().add(child.getLayout(form));
             });
+        }
+
+        /**
+         * Adds "Test Connection" button
+         * 
+         * @param layout parent node layout
+         */
+        private void addButton(final Layout layout) {
+            final Layout buttonLayout = new Layout(layout.getPath() + CONNECTION_BUTTON);
+            buttonLayout.setHeight(1);
+            final Level level = new Level();
+            level.getColumns().add(buttonLayout);
+            layout.getLevels().add(level);
         }
 
         private void computeHeight() {
@@ -276,7 +292,6 @@ public class PropertyNode {
             int height = 0;
             if (current.isLeaf()) {
                 height = 1;
-                // TODO try to refactor this
                 if (current.getProperty().hasConstraint() || current.getProperty().hasValidation()) {
                     height++;
                 }
@@ -286,10 +301,6 @@ public class PropertyNode {
                     level.setHeight(levelHeight);
                 });
                 height = layout.getLevels().stream().mapToInt(Level::getHeight).sum();
-                // for Test connection button widget
-                if (current.getProperty().isCheckable()) {
-                    height++;
-                }
             }
             layout.setHeight(height);
         }
