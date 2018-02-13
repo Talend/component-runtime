@@ -16,6 +16,7 @@
     imports="
         org.talend.core.model.components.IComponent
         org.talend.core.model.process.INode
+        org.talend.core.runtime.IAdditionalInfo
         org.talend.designer.codegen.config.CodeGeneratorArgument
         org.talend.designer.core.model.components.EParameterName
         org.talend.core.model.process.ElementParameterParser

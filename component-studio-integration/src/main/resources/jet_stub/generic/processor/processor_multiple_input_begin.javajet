@@ -15,6 +15,7 @@
 <%@ jet
     imports="
         org.talend.core.model.process.INode
+        org.talend.core.runtime.IAdditionalInfo
         org.talend.designer.codegen.config.CodeGeneratorArgument
         org.talend.designer.core.model.components.EParameterName
         org.talend.designer.core.model.components.ElementParameter
@@ -51,8 +52,15 @@
 <%
     for (final IConnection connection : node.getIncomingConnections()) {
         String row_name = connection.getName();
+        String input_name = null;
+        if (connection instanceof IAdditionalInfo) {
+            input_name = (String)IAdditionalInfo.class.cast(connection).getInfo("INPUT_NAME");
+        }
+        if (input_name == null || input_name.trim().isEmpty()) {
+            input_name = row_name.toLowerCase(Locale.ROOT);
+        }
 %>
-        inputsHandler_<%=cid%>.addConnection("<%= row_name.toLowerCase(Locale.ROOT) %>", <%= row_name %>Struct.class);
+        inputsHandler_<%=cid%>.addConnection("<%= input_name %>", <%= row_name %>Struct.class);
 <%
     }
 %>

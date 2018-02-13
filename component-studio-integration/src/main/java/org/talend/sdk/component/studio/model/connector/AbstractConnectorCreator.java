@@ -46,6 +46,8 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
 
     protected final Set<EConnectionType> existingTypes = new HashSet<>();
 
+    public static final String MAIN_CONNECTOR_NAME = "Main";
+
     protected AbstractConnectorCreator(final ComponentDetail detail, final INode node) {
         this.detail = detail;
         this.node = node;
@@ -85,7 +87,7 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
             throw new IllegalArgumentException("arg should not be null");
         }
         if ("__default__".equals(connectionName)) {
-            return "Main";
+            return MAIN_CONNECTOR_NAME;
         }
         return connectionName;
     }

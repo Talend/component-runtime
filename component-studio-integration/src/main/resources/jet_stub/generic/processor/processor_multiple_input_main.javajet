@@ -66,7 +66,9 @@
         }
         if (rowsInCurrentProcess.contains(row_name)) {
 %>
-            inputsHandler_<%=cid%>.setInputValue("<%= row_name.toLowerCase(Locale.ROOT) %>", <%= row_name %>);
+            if (<%= row_name %> != null) {
+                inputsHandler_<%=cid%>.setInputValue("<%= input_name %>", <%= row_name %>);
+            }
 <%
         } else {
 %>
@@ -75,7 +77,9 @@
             if (rowIter != null && rowIter.hasNext()) {
                 rowObj = rowIter.next();
             }
-            inputsHandler_<%=cid%>.setInputValue("<%= input_name %>", rowObj);
+            if (rowObj != null) {
+                inputsHandler_<%=cid%>.setInputValue("<%= input_name %>", rowObj);
+            }
 <%
         }
 %>
