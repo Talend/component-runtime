@@ -64,6 +64,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
@@ -325,14 +326,15 @@ public class ComponentManager implements AutoCloseable {
 
                             // common for studio until job generation is updated to build a tcomp friendly
                             // bundle
-                            final String componentClasspath = findClasspath().replace(File.separatorChar, ':');
                             // alternatively we could capture based on TALEND-INF/dependencies.txt jars
                             if (!Boolean.getBoolean("component.manager.classpath.skip")) {
+                                final String componentClasspath = findClasspath().replace(File.pathSeparatorChar, ':');
                                 if (!componentClasspath.isEmpty()) {
                                     final String[] jars = componentClasspath.split(":");
                                     if (jars.length > 1) {
                                         Stream
                                                 .of(jars)
+                                                .map(FileArchive::decode)
                                                 .map(File::new)
                                                 .filter(File::exists)
                                                 .filter(f -> !f.isDirectory() && f.getName().endsWith(".jar"))
@@ -390,7 +392,7 @@ public class ComponentManager implements AutoCloseable {
         return ofNullable(System.getProperty("component.manager.classpath")).orElseGet(() -> Stream
                 .of(System.getProperty("java.class.path"), findManifestClassPath())
                 .filter(Objects::nonNull)
-                .map(s -> s.replace(File.pathSeparatorChar, ':'))
+                .map(s -> s.replace(File.separatorChar, '/'))
                 .collect(joining(File.pathSeparator)));
     }
 
@@ -401,21 +403,22 @@ public class ComponentManager implements AutoCloseable {
                         .of(cp.split(File.pathSeparator))
                         .map(File::new)
                         .filter(f -> f.getName().equals("classpath.jar"))
-                        .map(f -> {
-                            try (final JarFile file = new JarFile(f)) {
-                                return ofNullable(file.getManifest())
-                                        .map(Manifest::getMainAttributes)
-                                        .map(a -> a.getValue("Class-Path"))
-                                        .orElse(null);
-                            } catch (final IOException e) {
-                                log.warn(e.getMessage());
-                                log.debug(e.getMessage(), e);
-                                return null;
-                            }
-                        })
-                        .filter(Objects::nonNull)
-                        .map(String::trim)
                         .findFirst())
+                .map(f -> {
+                    // respect this format sun.misc.URLClassPath.JarLoader.parseClassPath()
+                    try (final JarFile file = new JarFile(f)) {
+                        return ofNullable(file.getManifest())
+                                .map(Manifest::getMainAttributes)
+                                .map(a -> a.getValue(Attributes.Name.CLASS_PATH))
+                                .map(value -> value.replace(' ', ':'))
+                                .orElse(null);
+                    } catch (final IOException e) {
+                        log.warn(e.getMessage());
+                        log.debug(e.getMessage(), e);
+                        return null;
+                    }
+                })
+                .map(String::trim)
                 .orElse(null);
     }
 
