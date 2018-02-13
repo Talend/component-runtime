@@ -22,12 +22,14 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.stream.Stream;
 
+import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependency;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class ClassLoaderEnvironment extends BaseEnvironmentProvider {
 
-    protected abstract String[] rootDependencies();
+    protected abstract MavenDependency[] rootDependencies();
 
     @Override
     protected AutoCloseable doStart(final Class<?> clazz, final Annotation[] annotations) {

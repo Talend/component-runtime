@@ -21,10 +21,13 @@ import static lombok.AccessLevel.PROTECTED;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
+import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 
 import org.apache.beam.sdk.coders.CustomCoder;
@@ -54,15 +57,18 @@ public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
     @Override
     public void encode(final JsonObject jsonObject, final OutputStream outputStream) throws IOException {
         final CountingOutputStream buffer = new CountingOutputStream();
-        writerFactory.createWriter(buffer).write(jsonObject);
+        try (final JsonWriter writer = writerFactory.createWriter(new GZIPOutputStream(buffer))) {
+            writer.write(jsonObject);
+        }
         VarInt.encode(buffer.getCounter(), outputStream);
         outputStream.write(buffer.toByteArray());
     }
 
     @Override
     public JsonObject decode(final InputStream inputStream) throws IOException {
+        final long maxBytes = VarInt.decodeLong(inputStream);
         try (final JsonReader reader =
-                readerFactory.createReader(new NoCloseInputStream(inputStream, VarInt.decodeLong(inputStream)))) {
+                readerFactory.createReader(new GZIPInputStream(new NoCloseInputStream(inputStream, maxBytes)))) {
             return reader.readObject();
         }
     }

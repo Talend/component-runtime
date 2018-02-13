@@ -16,17 +16,16 @@
 package org.talend.sdk.component.runtime.manager.chain;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.NONE;
 import static lombok.AccessLevel.PRIVATE;
+import static org.talend.sdk.component.runtime.manager.util.Overrides.override;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -52,11 +51,6 @@ public class ExecutionChainBuilder {
 
     public static Head start() {
         return new Head();
-    }
-
-    private static Map<String, String> override(final String prefix, final Map<String, String> input) {
-        return ofNullable(input).orElseGet(HashMap::new).entrySet().stream().collect(toMap(Map.Entry::getKey,
-                e -> ofNullable(System.getProperty(prefix + "." + e.getKey())).orElseGet(e::getValue)));
     }
 
     @Getter

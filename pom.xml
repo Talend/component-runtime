@@ -57,14 +57,17 @@
     <repository>
       <id>TalendOpenSourceSnapshot</id>
       <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
     </repository>
-    <repository>
-      <id>beam-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachebeam-1026/</url>
-    </repository>
+
     <repository>
       <id>asf-snapshot</id>
-      <url>http://repository.apache.org/snapshots/</url>
+      <url>http://repository.apache.org/content/groups/snapshots/</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>

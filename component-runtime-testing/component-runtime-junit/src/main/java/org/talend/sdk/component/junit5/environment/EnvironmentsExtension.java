@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
-import org.talend.sdk.component.junit.environment.BaseEnvironmentProvider;
+import org.talend.sdk.component.junit.environment.DecoratingEnvironmentProvider;
 import org.talend.sdk.component.junit.environment.EnvironmentsConfigurationParser;
 
 class EnvironmentsExtension implements TestTemplateInvocationContextProvider {
@@ -40,8 +40,6 @@ class EnvironmentsExtension implements TestTemplateInvocationContextProvider {
                 .stream()
                 .map(e -> new EnvironmentalContext(e,
                         format.replace("${displayName}", context.getDisplayName()).replace("${environment}",
-                                BaseEnvironmentProvider.class.isInstance(e)
-                                        ? BaseEnvironmentProvider.class.cast(e).getName()
-                                        : e.getClass().getSimpleName())));
+                                DecoratingEnvironmentProvider.class.cast(e).getName())));
     }
 }

@@ -33,7 +33,8 @@ public abstract class BaseEnvironmentProvider implements EnvironmentProvider {
                     final EnvironmentConfigurations configurations = EnvironmentConfigurations.class.cast(config);
                     return Stream
                             .of(configurations.value())
-                            .filter(c -> c.environment().equals(getName()))
+                            .filter(c -> c.environment().equals(getName())
+                                    || c.environment().equals(getName().replace("Environment", "")))
                             .findFirst()
                             .map(conf -> {
                                 final Collection<Runnable> releases = Stream.of(conf.systemProperties()).map(p -> {
@@ -68,7 +69,7 @@ public abstract class BaseEnvironmentProvider implements EnvironmentProvider {
     }
 
     public String getName() {
-        return getClass().getSimpleName();
+        return getClass().getSimpleName().replace("Environment", "");
     }
 
     protected abstract AutoCloseable doStart(Class<?> clazz, Annotation[] annotations);

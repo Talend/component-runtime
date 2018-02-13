@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.json.bind.Jsonb;
 
@@ -53,14 +55,16 @@ public class JsonbCoder<T> extends CustomCoder<T> {
     @Override
     public void encode(final T object, final OutputStream outputStream) throws IOException {
         final CountingOutputStream buffer = new CountingOutputStream();
-        jsonb.toJson(object, buffer);
+        try (final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(buffer)) {
+            jsonb.toJson(object, gzipOutputStream);
+        }
         VarInt.encode(buffer.getCounter(), outputStream);
         outputStream.write(buffer.toByteArray());
-        outputStream.flush();
     }
 
     @Override
     public T decode(final InputStream inputStream) throws IOException {
-        return jsonb.fromJson(new NoCloseInputStream(inputStream, VarInt.decodeLong(inputStream)), type);
+        final long maxBytes = VarInt.decodeLong(inputStream);
+        return jsonb.fromJson(new GZIPInputStream(new NoCloseInputStream(inputStream, maxBytes)), type);
     }
 }

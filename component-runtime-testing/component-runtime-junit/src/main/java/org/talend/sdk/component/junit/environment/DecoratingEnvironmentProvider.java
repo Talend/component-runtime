@@ -32,9 +32,9 @@ public class DecoratingEnvironmentProvider implements EnvironmentProvider {
     }
 
     public String getName() {
-        return BaseEnvironmentProvider.class.isInstance(provider)
+        return (BaseEnvironmentProvider.class.isInstance(provider)
                 ? BaseEnvironmentProvider.class.cast(provider).getName()
-                : provider.getClass().getSimpleName();
+                : provider.getClass().getSimpleName()).replace("Environment", "");
     }
 
     public boolean isActive() {

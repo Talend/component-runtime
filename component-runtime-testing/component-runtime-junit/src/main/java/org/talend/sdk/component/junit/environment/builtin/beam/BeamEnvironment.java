@@ -15,19 +15,45 @@
  */
 package org.talend.sdk.component.junit.environment.builtin.beam;
 
+import java.lang.annotation.Annotation;
+
+import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
+import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependencies;
+import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependency;
+import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependencyExclusion;
 import org.talend.sdk.component.junit.environment.ClassLoaderEnvironment;
 
 public abstract class BeamEnvironment extends ClassLoaderEnvironment {
 
+    private boolean skipBeamSdk;
+
+    private String beamVersion;
+
     @Override
-    protected String[] rootDependencies() {
-        return new String[] {
-                rootDependencyBase() + ':' + System.getProperty("talend.junit.beam.version", Versions.BEAM_VERSION) };
+    protected AutoCloseable doStart(final Class<?> clazz, final Annotation[] annotations) {
+        beamVersion = System.getProperty("talend.junit.beam.version", Versions.BEAM_VERSION);
+        try {
+            BeamEnvironment.class.getClassLoader().loadClass("org.talend.sdk.component.runtime.beam.TalendIO");
+            skipBeamSdk = true;
+        } catch (final NoClassDefFoundError | ClassNotFoundException e) {
+            skipBeamSdk = false;
+        }
+        return super.doStart(clazz, annotations);
+    }
+
+    @Override
+    protected MavenDependency[] rootDependencies() {
+        return new MavenDependency[] { MavenDependencies.createDependency(rootDependencyBase() + ":jar:" + beamVersion,
+                ScopeType.RUNTIME, false,
+                skipBeamSdk
+                        ? new MavenDependencyExclusion[] {
+                                MavenDependencies.createExclusion("org.apache.beam", "beam-sdks-java-core") }
+                        : new MavenDependencyExclusion[0]) };
     }
 
     @Override
     public String getName() {
-        return super.getName().replace("RunnerEnvironment", "");
+        return super.getName().replace("Runner", "");
     }
 
     protected abstract String rootDependencyBase();

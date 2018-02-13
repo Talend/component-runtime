@@ -39,7 +39,7 @@ public final class TalendFn {
         // no-op
     }
 
-    public static ProcessorTransform asFn(final Processor processor) {
+    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> asFn(final Processor processor) {
         return new ProcessorTransform(new ProcessorFn(processor));
     }
 

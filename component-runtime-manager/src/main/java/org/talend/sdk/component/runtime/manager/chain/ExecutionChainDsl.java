@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.chain;
 
 import static java.util.Optional.ofNullable;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
@@ -25,17 +26,30 @@ import org.talend.sdk.component.runtime.manager.chain.internal.DSLParser;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 // using an interface since it is easier to compose and doesn't have to host any state
 public interface ExecutionChainDsl {
 
+    @NoArgsConstructor(access = PRIVATE)
+    class Root {
+
+        public static ConfigurableExecutionChainFluentDsl from(final String uri) {
+            final Iterator<ExecutionChainDsl> iterator = ServiceLoader.load(ExecutionChainDsl.class).iterator();
+            return iterator.hasNext() ? iterator.next().from(uri) : new ExecutionChainDsl() {
+            }.from(uri);
+        }
+    }
+
     default ConfigurableExecutionChainFluentDsl from(final String uri) {
         final DSLParser.Step inStep = DSLParser.parse(uri);
-        final Iterator<ConfigurableExecutionChainFluentDsl> iterator =
-                ServiceLoader.load(ConfigurableExecutionChainFluentDsl.class).iterator();
-        return iterator.hasNext() ? iterator.next() : new ConfigurableExecutionChainFluentDsl() {
+        return new ConfigurableExecutionChainFluentDsl() {
 
-            private ChainConfiguration configuration;
+            private ChainConfiguration configuration = new ChainConfiguration("Job", true, data -> {
+                // no-op
+            }, (data, exception) -> {
+                throw exception;
+            });
 
             private ExecutionChainBuilder.InputConfigurer in;
 

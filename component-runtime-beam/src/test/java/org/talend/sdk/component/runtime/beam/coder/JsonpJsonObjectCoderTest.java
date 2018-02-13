@@ -23,15 +23,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.stream.StreamSupport;
+import java.util.zip.GZIPInputStream;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 
 import org.apache.beam.sdk.coders.IterableCoder;
+import org.apache.beam.sdk.util.VarInt;
+import org.apache.ziplock.IO;
 import org.junit.jupiter.api.Test;
 
 class JsonpJsonObjectCoderTest {
@@ -43,8 +47,14 @@ class JsonpJsonObjectCoderTest {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final JsonpJsonObjectCoder coder = JsonpJsonObjectCoder.of(PLUGIN);
         coder.encode(Json.createObjectBuilder().add("test", "foo").build(), outputStream);
-        final JsonObject jsonObject = coder.decode(new ByteArrayInputStream(outputStream.toByteArray()));
-        assertTrue(new String(outputStream.toByteArray()).endsWith("{\"test\":\"foo\"}"));
+        final byte[] output = outputStream.toByteArray();
+        final JsonObject jsonObject = coder.decode(new ByteArrayInputStream(output));
+
+        final InputStream in = new ByteArrayInputStream(output);
+        VarInt.decodeLong(in);
+        try (final InputStream stream = new GZIPInputStream(in)) {
+            assertTrue(IO.slurp(stream).endsWith("{\"test\":\"foo\"}"));
+        }
         assertEquals("foo", jsonObject.getString("test"));
         assertEquals(1, jsonObject.size());
     }

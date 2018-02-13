@@ -22,7 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 
+import org.apache.beam.sdk.util.VarInt;
+import org.apache.ziplock.IO;
 import org.junit.jupiter.api.Test;
 
 import lombok.Data;
@@ -37,7 +41,11 @@ public class JsonbCoderTest {
         model.name = "test";
         coder.encode(model, outputStream);
         final Model decoded = coder.decode(new ByteArrayInputStream(outputStream.toByteArray()));
-        assertTrue(new String(outputStream.toByteArray()).endsWith("{\"name\":\"test\"}"));
+        final InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
+        VarInt.decodeLong(in);
+        try (final InputStream stream = new GZIPInputStream(in)) {
+            assertTrue(IO.slurp(stream).endsWith("{\"name\":\"test\"}"));
+        }
         assertEquals(model.name, decoded.name);
     }
 

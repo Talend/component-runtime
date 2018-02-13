@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.beam.io;
+package org.talend.sdk.component.junit.environment.builtin;
 
-import java.io.ByteArrayOutputStream;
+import java.lang.annotation.Annotation;
 
-// todo: get rid of ByteArrayOutputStream and use a chained byte array output stream
-// to be able to overpass the 64k limit of arrays
-public class CountingOutputStream extends ByteArrayOutputStream {
+import org.talend.sdk.component.junit.environment.BaseEnvironmentProvider;
 
-    public long getCounter() {
-        return size();
+public class ContextualEnvironment extends BaseEnvironmentProvider {
+
+    @Override
+    protected AutoCloseable doStart(final Class<?> clazz, final Annotation[] annotations) {
+        return () -> {
+        };
     }
 }

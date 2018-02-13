@@ -131,6 +131,7 @@ public class ExecutionChain {
         }
     }
 
+    // todo: rework to support multiple outputs
     private void onElement(final Collection<ExecutionChainBuilder.ProcessorConfigurer<?>> procs, final Object data,
             final String branch) {
         try {

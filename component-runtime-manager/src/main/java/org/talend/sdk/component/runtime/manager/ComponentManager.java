@@ -532,6 +532,7 @@ public class ComponentManager implements AutoCloseable {
             final Class<?> jarMarker = tmpLoader.loadClass(Stream
                     .of(stackTrace)
                     .filter(c -> !c.getClassName().startsWith("org.talend.sdk.component.runtime.manager.")
+                            && !c.getClassName().startsWith("org.talend.sdk.component.runtime.beam.dsl.")
                             && !c.getClassName().startsWith("org.talend.sdk.component.runtime.standalone.")
                             && !c.getClassName().startsWith("org.talend.sdk.component.runtime.avro.")
                             && !c.getClassName().startsWith("org.talend.daikon.")

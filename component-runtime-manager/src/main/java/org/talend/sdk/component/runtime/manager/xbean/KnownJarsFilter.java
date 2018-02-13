@@ -120,6 +120,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("error_prone_annotations");
             add("expressions");
             add("FastInfoset");
+            add("findbugs-");
             add("freemarker-");
             add("j2objc-annotations");
             add("jce.jar");

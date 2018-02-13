@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.chain.internal;
 
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PRIVATE;
+import static org.talend.sdk.component.runtime.manager.util.Overrides.override;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -57,5 +58,12 @@ public class DSLParser {
         private final int version;
 
         private final Map<String, String> configuration;
+
+        public Step withOverride(final boolean override) {
+            if (override) {
+                return new Step(family, component, version, override(family + '.' + component, configuration));
+            }
+            return this;
+        }
     }
 }

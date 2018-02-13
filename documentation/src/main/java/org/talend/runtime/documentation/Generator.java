@@ -37,6 +37,7 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
@@ -86,7 +87,6 @@ import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
 import org.talend.sdk.component.api.service.schema.Type;
 import org.talend.sdk.component.junit.environment.BaseEnvironmentProvider;
-import org.talend.sdk.component.junit.environment.builtin.beam.BeamEnvironment;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
@@ -140,13 +140,14 @@ public class Generator {
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
             finder
                     .link()
-                    .findSubclasses(BeamEnvironment.class)
+                    .findSubclasses(BaseEnvironmentProvider.class)
                     .stream()
+                    .filter(c -> !Modifier.isAbstract(c.getModifiers()))
                     .sorted(Comparator.comparing(Class::getName))
                     .forEach(type -> {
-                        final BeamEnvironment environment;
+                        final BaseEnvironmentProvider environment;
                         try {
-                            environment = BeamEnvironment.class.cast(type.getConstructor().newInstance());
+                            environment = BaseEnvironmentProvider.class.cast(type.getConstructor().newInstance());
                         } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException
                                 | InvocationTargetException e) {
                             throw new IllegalStateException(e);

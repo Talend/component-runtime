@@ -103,3 +103,68 @@ class MyBeamTest {
 ----
 
 TIP: if you set the system property `<environment name>.skip=true` then the environment related executions will be skipped.
+
+=== Advanced usage
+
+WARNING: this usage assumes Beam 2.4.0 is in used and the classloader fix about the `PipelineOptions` is merged.
+
+Dependencies:
+
+[source,java]
+----
+<dependencies>
+  <dependency>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime-junit</artifactId>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter-api</artifactId>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.jboss.shrinkwrap.resolver</groupId>
+    <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+    <version>3.0.1</version>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime-beam</artifactId>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime-standalone</artifactId>
+    <scope>test</scope>
+  </dependency>
+</dependencies>
+----
+
+These dependencies brings into the test scope the JUnit testing toolkit,
+the Beam integration and the multi-environment testing toolkit for JUnit.
+
+Then using the fluent DSL to define jobs - which assumes your job is linear and
+each step sends a single value (no multi-input/multi-output), you can write this kind of test:
+
+[source,java]
+----
+@Environment(ContextualEnvironment.class)
+@Environment(DirectRunnerEnvironment.class)
+class TheComponentTest {
+    @EnvironmentalTest
+    void testWithStandaloneAndBeamEnvironments() {
+        from("myfamily://in?config=xxxx")
+            .to("myfamily://out")
+            .create()
+            .execute();
+        // add asserts on the output if needed
+    }
+}
+----
+
+It will execute the chain twice:
+
+1. with a standalone environment to simulate the studio
+2. with a beam (direct runner) environment to ensure the portability of your job
