@@ -286,6 +286,10 @@ public class PropertyNode {
                     level.setHeight(levelHeight);
                 });
                 height = layout.getLevels().stream().mapToInt(Level::getHeight).sum();
+                // for Test connection button widget
+                if (current.getProperty().isCheckable()) {
+                    height++;
+                }
             }
             layout.setHeight(height);
         }
