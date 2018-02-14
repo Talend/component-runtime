@@ -23,12 +23,13 @@ import javax.json.JsonObject;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.talend.sdk.component.runtime.beam.TalendFn;
 import org.talend.sdk.component.runtime.beam.TalendIO;
 import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
+import org.talend.sdk.component.runtime.beam.transform.service.ServiceLookup;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.chain.ExecutionChainDsl;
@@ -85,12 +86,8 @@ public class BeamConfigurableExecutionChainFluentDsl
                 .orElseThrow(() -> new IllegalArgumentException("Didn't find: " + from));
         PCollection<JsonObject> current = pipeline
                 .apply(TalendIO.read(mapper))
-                .apply(ParDo.of(new RecordNormalizer(JsonBuilderFactory.class.cast(manager
-                        .findPlugin(mapper.plugin())
-                        .get()
-                        .get(ComponentManager.AllServices.class)
-                        .getServices()
-                        .get(JsonBuilderFactory.class)))))
+                .apply(ParDo.of(
+                        new RecordNormalizer(ServiceLookup.lookup(manager, mapper.plugin(), JsonBuilderFactory.class))))
                 .setCoder(JsonpJsonObjectCoder.of(mapper.plugin()));
 
         for (int i = 1; i < chain.size() - 1; i++) {
@@ -106,27 +103,5 @@ public class BeamConfigurableExecutionChainFluentDsl
                 .orElseThrow(() -> new IllegalArgumentException("Didn't find: " + last))));
 
         return () -> pipeline.run().waitUntilFinish();
-    }
-
-    private static class RecordNormalizer extends DoFn<JsonObject, JsonObject> {
-
-        private JsonBuilderFactory factory;
-
-        protected RecordNormalizer() {
-            // no-op
-        }
-
-        private RecordNormalizer(final JsonBuilderFactory factory) {
-            this.factory = factory;
-        }
-
-        @ProcessElement
-        public void onElement(final ProcessContext context) {
-            context.output(toMap(context.element()));
-        }
-
-        private JsonObject toMap(final JsonObject element) {
-            return factory.createObjectBuilder().add("__default__", factory.createArrayBuilder().add(element)).build();
-        }
     }
 }
