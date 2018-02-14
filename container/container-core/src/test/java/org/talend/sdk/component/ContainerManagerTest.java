@@ -25,11 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.event.Level;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.container.ContainerManager;

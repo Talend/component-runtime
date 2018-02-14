@@ -68,6 +68,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -96,7 +97,6 @@ import org.apache.xbean.finder.archive.JarArchive;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
-import org.slf4j.event.Level;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.MigrationHandler;
@@ -238,6 +238,7 @@ public class ComponentManager implements AutoCloseable {
 
     private final Collection<ComponentExtension> extensions;
 
+    // org.slf4j.event but https://issues.apache.org/jira/browse/MNG-6360
     private final Level logInfoLevelMapping;
 
     /**
@@ -302,7 +303,7 @@ public class ComponentManager implements AutoCloseable {
         }
         try {
             ComponentManager.class.getClassLoader().loadClass("routines.TalendString");
-            return Level.DEBUG;
+            return Level.FINE;
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
             return Level.INFO;
         }
@@ -406,11 +407,11 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected void info(final String msg) {
-        switch (logInfoLevelMapping) {
-        case DEBUG:
+        switch (logInfoLevelMapping.intValue()) {
+        case 500: // FINE
             log.debug(msg);
             break;
-        case INFO:
+        case 800: // INFo
         default:
             log.info(msg);
         }

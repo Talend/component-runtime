@@ -22,13 +22,13 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
-import org.slf4j.event.Level;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;

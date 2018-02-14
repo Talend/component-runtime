@@ -315,6 +315,8 @@ The two available configurations of the plugin are `serverPort` which is a short
 of the embedded server and `serverArguments` to pass Meecrowave options to the server. More on that configuration
 is available at http://openwebbeans.apache.org/meecrowave/meecrowave-core/cli.html.
 
+IMPORTANT: this command reads the component jar from the local maven repository so ensure to install the artifact before using it.
+
 == Generate inputs or outputs
 
 The Mojo `generate` (maven plugin goal) of the same plugin also embeds a generator you can use to bootstrap any input or output component:

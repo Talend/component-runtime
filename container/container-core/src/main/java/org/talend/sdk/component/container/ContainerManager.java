@@ -36,9 +36,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
-import org.slf4j.event.Level;
 import org.talend.sdk.component.dependencies.Resolver;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.lifecycle.Lifecycle;
@@ -123,11 +123,11 @@ public class ContainerManager implements Lifecycle {
     }
 
     private void info(final String msg) {
-        switch (logInfoLevelMapping) {
-        case DEBUG:
+        switch (logInfoLevelMapping.intValue()) {
+        case 500: // FINE
             log.debug(msg);
             break;
-        case INFO:
+        case 800: // INFo
         default:
             log.info(msg);
         }

@@ -23,12 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.util.Date;
+import java.util.logging.Level;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.junit.jupiter.api.Test;
-import org.slf4j.event.Level;
 import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.test.Constants;
