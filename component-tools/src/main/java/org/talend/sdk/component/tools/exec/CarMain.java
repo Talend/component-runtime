@@ -57,10 +57,28 @@ public class CarMain {
         case "studio-deploy":
             deployInStudio(args[1]);
             break;
+        case "maven-deploy":
+            deployInM2(args[1]);
+            break;
         default:
             help();
             throw new IllegalArgumentException("Unknown command '" + args[0] + "'");
         }
+    }
+
+    private static void deployInM2(final String m2) {
+        final File m2File = new File(m2);
+        if (m2File.exists()) {
+            throw new IllegalArgumentException(m2 + " doesn't exist");
+        }
+        final String component = installJars(m2File);
+        System.out.println("Installed " + jarLocation(CarMain.class).getName() + " in " + m2 + ", "
+                + "you can now register '" + component + "' component in your application.");
+    }
+
+    private static File findServerM2(final String serverHome) {
+        // talend.component.server.maven.repository
+        return null;
     }
 
     private static void deployInStudio(final String studioLocation) {
@@ -80,36 +98,7 @@ public class CarMain {
         }
 
         // install jars
-        String mainGav = null;
-        try (final JarInputStream jar =
-                new JarInputStream(new BufferedInputStream(new FileInputStream(jarLocation(CarMain.class))))) {
-            JarEntry entry;
-            while ((entry = jar.getNextJarEntry()) != null) {
-                if (entry.isDirectory()) {
-                    continue;
-                }
-                if (entry.getName().startsWith("MAVEN-INF/repository/")) {
-                    final String path = entry.getName().substring("MAVEN-INF/repository/".length());
-                    final File output = new File(m2Root, path);
-                    if (output.exists()) {
-                        System.out.println(output + " already exists, skipping");
-                    } else {
-                        output.getParentFile().mkdirs();
-                        Files.copy(jar, output.toPath());
-                    }
-                } else if ("TALEND-INF/metadata.properties".equals(entry.getName())) {
-                    // mainGav
-                    final Properties properties = new Properties();
-                    properties.load(jar);
-                    mainGav = properties.getProperty("component_coordinates");
-                }
-            }
-        } catch (final IOException e) {
-            throw new IllegalArgumentException(e);
-        }
-        if (mainGav == null || mainGav.trim().isEmpty()) {
-            throw new IllegalArgumentException("Didn't find the component coordinates");
-        }
+        final String mainGav = installJars(m2Root);
 
         // register the component
         final Properties configuration = readProperties(config);
@@ -150,6 +139,40 @@ public class CarMain {
         }
     }
 
+    private static String installJars(final File m2Root) {
+        String mainGav = null;
+        try (final JarInputStream jar =
+                new JarInputStream(new BufferedInputStream(new FileInputStream(jarLocation(CarMain.class))))) {
+            JarEntry entry;
+            while ((entry = jar.getNextJarEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                if (entry.getName().startsWith("MAVEN-INF/repository/")) {
+                    final String path = entry.getName().substring("MAVEN-INF/repository/".length());
+                    final File output = new File(m2Root, path);
+                    if (output.exists()) {
+                        System.out.println(output + " already exists, skipping");
+                    } else {
+                        output.getParentFile().mkdirs();
+                        Files.copy(jar, output.toPath());
+                    }
+                } else if ("TALEND-INF/metadata.properties".equals(entry.getName())) {
+                    // mainGav
+                    final Properties properties = new Properties();
+                    properties.load(jar);
+                    mainGav = properties.getProperty("component_coordinates");
+                }
+            }
+        } catch (final IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+        if (mainGav == null || mainGav.trim().isEmpty()) {
+            throw new IllegalArgumentException("Didn't find the component coordinates");
+        }
+        return mainGav;
+    }
+
     private static Properties readProperties(final File config) {
         final Properties configuration = new Properties();
         try (final InputStream stream = new FileInputStream(config)) {
@@ -161,8 +184,8 @@ public class CarMain {
     }
 
     private static void help() {
-        System.err.println(
-                "Usage:\n\n   java -jar " + jarLocation(CarMain.class).getName() + " studio-deploy /path/to/studio");
+        System.err.println("Usage:\n\n   java -jar " + jarLocation(CarMain.class).getName()
+                + " [studio-deploy|maven-deploy] /path/to/[studio|.m2]");
     }
 
     private static File jarLocation(final Class clazz) {

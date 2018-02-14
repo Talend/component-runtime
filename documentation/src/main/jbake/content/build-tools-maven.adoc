@@ -398,5 +398,9 @@ in your instance. Here is a sample launch command:
 
 [source,sh]
 ----
+# for a studio
 java -jar mycomponent.car studio-deploy /path/to/my/studio
+
+# for a m2 provisioning
+java -jar mycomponent.car maven-deploy /path/to/.m2/repository
 ----
