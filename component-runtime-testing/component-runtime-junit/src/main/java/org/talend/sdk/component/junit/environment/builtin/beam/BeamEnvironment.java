@@ -38,7 +38,15 @@ public abstract class BeamEnvironment extends ClassLoaderEnvironment {
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
             skipBeamSdk = false;
         }
-        return super.doStart(clazz, annotations);
+        // TODO when available in beam 2.4.0: PipelineOptionsfactory.resetCache()
+        final AutoCloseable delegate = super.doStart(clazz, annotations);
+        return () -> {
+            try {
+                delegate.close();
+            } finally {
+                // TODO when available in beam 2.4.0: PipelineOptionsfactory.resetCache()
+            }
+        };
     }
 
     @Override
