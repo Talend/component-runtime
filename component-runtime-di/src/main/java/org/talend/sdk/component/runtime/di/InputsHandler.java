@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.di;
 
+import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.runtime.output.InputFactory;
@@ -34,7 +35,11 @@ public class InputsHandler extends BaseIOHandler {
             }
             Object value = ref.getValue().get();
 
-            return javax.json.JsonValue.class.isInstance(value) ? javax.json.JsonValue.class.cast(value)
+            final boolean isJsonValue = JsonValue.class.isInstance(value);
+            if (JsonValue.NULL == value) { // JsonObject cant take a JsonValue so pass null
+                return null;
+            }
+            return isJsonValue ? javax.json.JsonValue.class.cast(value)
                     : jsonb.fromJson(jsonb.toJson(value), javax.json.JsonValue.class);
         };
     }

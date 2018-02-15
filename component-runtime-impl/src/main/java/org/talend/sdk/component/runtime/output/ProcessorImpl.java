@@ -96,6 +96,9 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     }
 
     private Object doConvertInput(final Class<?> parameterType, final boolean isGeneric, final Object data) {
+        if (data == null) {
+            return null;
+        }
         if (isGeneric) {
             if (JsonObject.class.isInstance(data)) {
                 return data;
