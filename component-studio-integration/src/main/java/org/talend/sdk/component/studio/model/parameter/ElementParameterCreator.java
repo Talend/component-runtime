@@ -110,8 +110,8 @@ public class ElementParameterCreator {
                     new SettingsCreator(node, ADVANCED, updateComponentsParameter, detail);
             root.accept(advancedCreator, Metadatas.ADVANCED_FORM);
             parameters.addAll(advancedCreator.getSettings());
-            checkSchemaProperties(mainSettingsCreator);
         }
+        checkSchemaProperties(new SettingsCreator(node, BASIC, updateComponentsParameter, detail));
     }
 
     /**
@@ -136,7 +136,7 @@ public class ElementParameterCreator {
                 .map(INodeConnector::getName)
                 .collect(Collectors.toSet());
         // Create schema parameter for each connector without schema parameter
-        for (String connectorWithoutSchema : connectorNames) {
+        for (final String connectorWithoutSchema : connectorNames) {
             parameters.add(mainSettingsCreator.createSchemaParameter(connectorWithoutSchema,
                     "SCHEMA_" + connectorWithoutSchema));
         }
@@ -171,7 +171,7 @@ public class ElementParameterCreator {
      * This parameter is used during code generation to know which component runtime to use
      */
     private void addFamilyParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.FAMILY.getName());
         parameter.setValue(detail.getId().getFamily());
         parameter.setDisplayName(EParameterName.FAMILY.getDisplayName());
@@ -190,7 +190,7 @@ public class ElementParameterCreator {
      */
     private void addStartParameter() {
         if (CAN_START) {
-            ElementParameter parameter = new ElementParameter(node);
+            final ElementParameter parameter = new ElementParameter(node);
             parameter.setName(EParameterName.START.getName());
             parameter.setValue(false);
             parameter.setDisplayName(EParameterName.START.getDisplayName());
@@ -209,7 +209,7 @@ public class ElementParameterCreator {
      * See TUP-4142
      */
     private void addStartableParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.STARTABLE.getName());
         parameter.setValue(CAN_START);
         parameter.setDisplayName(EParameterName.STARTABLE.getDisplayName());
@@ -227,7 +227,7 @@ public class ElementParameterCreator {
      * See TUP-4142
      */
     private void addSubtreeStartParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.SUBTREE_START.getName());
         parameter.setValue(CAN_START);
         parameter.setDisplayName(EParameterName.SUBTREE_START.getDisplayName());
@@ -245,7 +245,7 @@ public class ElementParameterCreator {
      * See TUP-4142
      */
     private void addEndOfFlowParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.END_OF_FLOW.getName());
         parameter.setValue(CAN_START);
         parameter.setDisplayName(EParameterName.END_OF_FLOW.getDisplayName());
@@ -263,7 +263,7 @@ public class ElementParameterCreator {
      * See TUP-4142
      */
     private void addActivateParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.ACTIVATE.getName());
         parameter.setValue(true);
         parameter.setDisplayName(EParameterName.ACTIVATE.getDisplayName());
@@ -282,7 +282,7 @@ public class ElementParameterCreator {
      * See TUP-4143
      */
     private void addHelpParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.HELP.getName());
         parameter.setValue(IComponent.PROP_HELP);
         parameter.setDisplayName(EParameterName.HELP.getDisplayName());
@@ -300,7 +300,7 @@ public class ElementParameterCreator {
      * This parameter is used to decide whether UI should be redrawn during Composite refresh
      */
     private void addUpdateComponentsParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.UPDATE_COMPONENTS.getName());
         parameter.setValue(false);
         parameter.setDisplayName(EParameterName.UPDATE_COMPONENTS.getDisplayName());
@@ -318,7 +318,7 @@ public class ElementParameterCreator {
      * Creates and adds {@link EParameterName#IREPORT_PATH} parameter
      */
     private void addIReportPathParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.IREPORT_PATH.getName());
         parameter.setCategory(EComponentCategory.TECHNICAL);
         parameter.setFieldType(EParameterFieldType.DIRECTORY);
@@ -341,7 +341,7 @@ public class ElementParameterCreator {
      * This property is shown in the 1st row of component properties, before component schema
      */
     private void addPropertyParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName("PROPERTY");
         parameter.setCategory(BASIC);
         parameter.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
@@ -354,7 +354,7 @@ public class ElementParameterCreator {
         // param.setTaggedValue(IGenericConstants.IS_PROPERTY_SHOW, wizardDefinition !=
         // null);
 
-        ElementParameter propertyType = new ElementParameter(node);
+        final ElementParameter propertyType = new ElementParameter(node);
         propertyType.setCategory(EComponentCategory.BASIC);
         propertyType.setName(EParameterName.PROPERTY_TYPE.getName());
         propertyType.setDisplayName(EParameterName.PROPERTY_TYPE.getDisplayName());
@@ -376,7 +376,7 @@ public class ElementParameterCreator {
         propertyType.setSerialized(true);
         propertyType.setParentParameter(parameter);
 
-        ElementParameter repositoryType = new ElementParameter(node);
+        final ElementParameter repositoryType = new ElementParameter(node);
         repositoryType.setCategory(EComponentCategory.BASIC);
         repositoryType.setName(EParameterName.REPOSITORY_PROPERTY_TYPE.getName());
         repositoryType.setDisplayName(EParameterName.REPOSITORY_PROPERTY_TYPE.getDisplayName());
@@ -406,9 +406,9 @@ public class ElementParameterCreator {
      */
     private String computeRepositoryNodeType() {
         return findConfigurationTypes().stream().map(p -> {
-            String configName = p.getConfigurationTypeName();
-            String configType = p.getConfigurationType();
-            ConfigTypeNode configNode =
+            final String configName = p.getConfigurationTypeName();
+            final String configType = p.getConfigurationType();
+            final ConfigTypeNode configNode =
                     Lookups.taCoKitCache().getConfigTypeNode(detail.getId().getFamily(), configName, configType);
             if (configNode == null) {
                 return "";
@@ -427,9 +427,10 @@ public class ElementParameterCreator {
      */
     private void addStatCatcherParameter() {
         if (ComponentCategory.CATEGORY_4_DI.getName().equals(component.getPaletteType())) {
-            boolean isCatcherAvailable = ComponentsFactoryProvider.getInstance().get(EmfComponent.TSTATCATCHER_NAME,
-                    ComponentCategory.CATEGORY_4_DI.getName()) != null;
-            ElementParameter parameter = new ElementParameter(node);
+            final boolean isCatcherAvailable =
+                    ComponentsFactoryProvider.getInstance().get(EmfComponent.TSTATCATCHER_NAME,
+                            ComponentCategory.CATEGORY_4_DI.getName()) != null;
+            final ElementParameter parameter = new ElementParameter(node);
             parameter.setName(EParameterName.TSTATCATCHER_STATS.getName());
             parameter.setValue(Boolean.FALSE);
             parameter.setDisplayName(EParameterName.TSTATCATCHER_STATS.getDisplayName());
@@ -450,7 +451,7 @@ public class ElementParameterCreator {
      */
     private void addParallelizeParameter() {
         if (isCamelCategory()) {
-            ElementParameter parameter = new ElementParameter(node);
+            final ElementParameter parameter = new ElementParameter(node);
             parameter.setReadOnly(true);
             parameter.setName(EParameterName.PARALLELIZE.getName());
             parameter.setValue(Boolean.FALSE);
@@ -470,7 +471,7 @@ public class ElementParameterCreator {
      */
     private void addParallelizeNumberParameter() {
         if (isCamelCategory()) {
-            ElementParameter parameter = new ElementParameter(node);
+            final ElementParameter parameter = new ElementParameter(node);
             parameter.setReadOnly(true);
             parameter.setName(EParameterName.PARALLELIZE_NUMBER.getName());
             parameter.setValue(2);
@@ -490,7 +491,7 @@ public class ElementParameterCreator {
      */
     private void addParallelizeKeepEmptyParameter() {
         if (isCamelCategory()) {
-            ElementParameter parameter = new ElementParameter(node);
+            final ElementParameter parameter = new ElementParameter(node);
             parameter.setReadOnly(true);
             parameter.setName(EParameterName.PARALLELIZE_KEEP_EMPTY.getName());
             parameter.setValue(Boolean.FALSE);
@@ -517,7 +518,7 @@ public class ElementParameterCreator {
      * doesn't now how many component instances were created before
      */
     private void addUniqueNameParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.UNIQUE_NAME.getName());
         parameter.setValue("");
         parameter.setDisplayName(EParameterName.UNIQUE_NAME.getDisplayName());
@@ -534,7 +535,7 @@ public class ElementParameterCreator {
      * It is used in code generation to know which component to load for runtime
      */
     private void addComponentNameParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.COMPONENT_NAME.getName());
         parameter.setValue(detail.getId().getName());
         parameter.setDisplayName(EParameterName.COMPONENT_NAME.getDisplayName());
@@ -554,7 +555,7 @@ public class ElementParameterCreator {
      * migration is launched.
      */
     private void addVersionParameter() {
-        ElementParameter parameter = new ElementParameter(node);
+        final ElementParameter parameter = new ElementParameter(node);
         parameter.setName(EParameterName.VERSION.getName());
         parameter.setValue(String.valueOf(detail.getVersion()));
         parameter.setDisplayName(EParameterName.VERSION.getDisplayName());
