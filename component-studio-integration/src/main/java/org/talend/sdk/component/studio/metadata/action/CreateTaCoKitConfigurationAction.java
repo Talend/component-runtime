@@ -16,6 +16,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.talend.commons.utils.VersionUtils;
 import org.talend.core.CorePlugin;
@@ -50,7 +51,7 @@ public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualA
     }
 
     @Override
-    protected void init(final RepositoryNode node) {
+    public void init(final RepositoryNode node) {
         if (node instanceof TaCoKitFamilyRepositoryNode) {
             setEnabled(false);
             return;
@@ -69,9 +70,10 @@ public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualA
             if (isUserReadOnly() || !belongsToCurrentProject(node) || isDeleted(node)) {
                 setEnabled(false);
                 return;
+            } else {
+                collectChildNames(node);
+                setEnabled(true);
             }
-            collectChildNames(node);
-            setEnabled(true);
             break;
         default:
             return;
@@ -80,8 +82,12 @@ public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualA
 
     @Override
     protected WizardDialog createWizardDialog() {
-        IWizard wizard = new TaCoKitCreateWizard(PlatformUI.getWorkbench(), createRuntimeData());
+        IWizard wizard = createWizard(PlatformUI.getWorkbench());
         return new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+    }
+
+    public TaCoKitCreateWizard createWizard(final IWorkbench wb) {
+        return new TaCoKitCreateWizard(wb, createRuntimeData());
     }
 
     private TaCoKitConfigurationRuntimeData createRuntimeData() {

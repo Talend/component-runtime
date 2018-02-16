@@ -24,36 +24,46 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.talend.commons.exception.ExceptionHandler;
 import org.talend.core.PluginChecker;
 import org.talend.core.model.components.ComponentCategory;
 import org.talend.core.model.components.EComponentType;
 import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.metadata.types.JavaTypesManager;
+import org.talend.core.model.process.EConnectionType;
+import org.talend.core.model.process.IConnection;
+import org.talend.core.model.process.IConnectionCategory;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
 import org.talend.core.model.process.INodeConnector;
 import org.talend.core.model.process.INodeReturn;
 import org.talend.core.model.temp.ECodePart;
+import org.talend.core.runtime.IAdditionalInfo;
 import org.talend.core.runtime.util.ComponentReturnVariableUtils;
 import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.NodeReturn;
+import org.talend.designer.core.model.process.DataNode;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.model.connector.ConnectorCreatorFactory;
+import org.talend.sdk.component.studio.model.connector.TaCoKitNodeConnector;
 import org.talend.sdk.component.studio.model.parameter.ElementParameterCreator;
 import org.talend.sdk.component.studio.model.parameter.Metadatas;
 import org.talend.sdk.component.studio.service.ComponentService;
 
 // TODO: finish the impl
-public class ComponentModel extends AbstractBasicComponent {
+public class ComponentModel extends AbstractBasicComponent implements IAdditionalInfo {
 
     /**
      * Separator between family and component name
@@ -79,6 +89,10 @@ public class ComponentModel extends AbstractBasicComponent {
     private final String familyName;
 
     private volatile List<ModuleNeeded> modulesNeeded;
+
+    private Map<String, Object> additionalInfoMap = new HashMap<>();
+
+    private Boolean useLookup = null;
 
     public ComponentModel(final ComponentIndex component, final ComponentDetail detail, final ImageDescriptor image32) {
         setPaletteType(ComponentCategory.CATEGORY_4_DI.getName());
@@ -130,9 +144,13 @@ public class ComponentModel extends AbstractBasicComponent {
      * @return
      */
     private List<ECodePart> createCodePartList() {
-        return (detail.getType().equalsIgnoreCase("input"))
+        return (detail.getType().equalsIgnoreCase("input")) //$NON-NLS-1$
                 ? Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.END, ECodePart.FINALLY))
-                : Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.FINALLY));
+                : (useLookup()
+                        ? Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN,
+                                ECodePart.END_HEAD, ECodePart.END_BODY, ECodePart.END_TAIL, ECodePart.FINALLY))
+                        : Collections.unmodifiableList(
+                                Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY)));
     }
 
     /**
@@ -459,6 +477,127 @@ public class ComponentModel extends AbstractBasicComponent {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean useLookup() {
+        if (useLookup != null) {
+            return useLookup;
+        }
+        useLookup = Boolean.FALSE;
+        List<? extends INodeConnector> connectors = createConnectors(new DataNode(this, "checkLookup"));
+        if (connectors != null) {
+            for (INodeConnector connector : connectors) {
+                if (EConnectionType.FLOW_MAIN.equals(connector.getDefaultConnectionType())) {
+                    if (1 < connector.getMaxLinkInput()) {
+                        useLookup = Boolean.TRUE;
+                        break;
+                    }
+                }
+            }
+        }
+        return useLookup;
+    }
+
+    @Override
+    public Object getInfo(final String key) {
+        return additionalInfoMap.get(key);
+    }
+
+    @Override
+    public void putInfo(final String key, final Object value) {
+        additionalInfoMap.put(key, value);
+    }
+
+    @Override
+    public void onEvent(final String event, final Object... parameters) {
+        if (event == null) {
+            return;
+        }
+        try {
+            switch (event) {
+            case IConnection.EVENT_UPDATE_INPUT_CONNECTION:
+                onUpdateInputConnection(parameters);
+                break;
+            default:
+                break;
+            }
+        } catch (Exception e) {
+            ExceptionHandler.process(e);
+        }
+    }
+
+    private void onUpdateInputConnection(final Object... parameters) {
+        if (parameters == null || parameters.length < 2) {
+            throw new IllegalArgumentException(
+                    "Can only accept one node and one connection, please adapt it if needed.");
+        }
+        if (parameters[0] == null || parameters[1] == null) {
+            return;
+        }
+        if (!INode.class.isInstance(parameters[0]) || !IConnection.class.isInstance(parameters[1])) {
+            throw new IllegalArgumentException(
+                    "Can only accept one node and one connection, please adapt it if needed.");
+        }
+        final String paramInputName = "INPUT_NAME"; //$NON-NLS-1$
+        INode node = (INode) parameters[0];
+        IConnection connection = (IConnection) parameters[1];
+        // EConnectionType lineStyle = connection.getLineStyle();
+        // if (EConnectionType.FLOW_MAIN == lineStyle) {
+        // return;
+        // }
+
+        if (connection instanceof IAdditionalInfo) {
+            String inputName = (String) IAdditionalInfo.class.cast(connection).getInfo(paramInputName);
+            if (inputName != null && !inputName.trim().isEmpty()) {
+                // if already set, just return
+                return;
+            }
+            Set<String> usedInputSet = new HashSet<>();
+            List<? extends IConnection> incomingConnections = node.getIncomingConnections();
+            if (incomingConnections != null) {
+                for (IConnection incomingConnection : incomingConnections) {
+                    INodeConnector connector = incomingConnection.getTargetNodeConnector();
+                    EConnectionType connType = (connector == null ? null : connector.getDefaultConnectionType());
+                    if (connType != null && connType.hasConnectionCategory(IConnectionCategory.FLOW)) {
+                        if (IAdditionalInfo.class.isInstance(incomingConnection)) {
+                            IAdditionalInfo inconnInfo = (IAdditionalInfo) incomingConnection;
+                            Object info = inconnInfo.getInfo(paramInputName);
+                            if (info != null) {
+                                usedInputSet.add(info.toString());
+                            }
+                        }
+                    }
+                }
+            }
+            List<String> availableInputs = new ArrayList<>();
+            List<? extends INodeConnector> connectors = createConnectors(node);
+            for (INodeConnector connector : connectors) {
+                if (connector instanceof TaCoKitNodeConnector) {
+                    if (((TaCoKitNodeConnector) connector).isInput()) {
+                        String connectorName = connector.getName();
+                        if (!availableInputs.contains(connectorName)) {
+                            availableInputs.add(connectorName);
+                        }
+                    }
+                }
+            }
+            availableInputs.removeAll(usedInputSet);
+            Collections.sort(availableInputs);
+            if (!availableInputs.isEmpty()) {
+                IAdditionalInfo.class.cast(connection).putInfo(paramInputName, availableInputs.get(0));
+            }
+        }
+    }
+
+    @Override
+    public void cloneAddionalInfoTo(final IAdditionalInfo targetAdditionalInfo) {
+        if (targetAdditionalInfo == null) {
+            return;
+        }
+        for (Map.Entry<String, Object> entry : additionalInfoMap.entrySet()) {
+            targetAdditionalInfo.putInfo(entry.getKey(), entry.getValue());
+        }
     }
 
 }

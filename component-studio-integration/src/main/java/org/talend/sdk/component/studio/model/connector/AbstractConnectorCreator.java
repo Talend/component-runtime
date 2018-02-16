@@ -46,6 +46,8 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
 
     protected final Set<EConnectionType> existingTypes = new HashSet<>();
 
+    public static final String MAIN_CONNECTOR_NAME = "Main";
+
     protected AbstractConnectorCreator(final ComponentDetail detail, final INode node) {
         this.detail = detail;
         this.node = node;
@@ -85,7 +87,7 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
             throw new IllegalArgumentException("arg should not be null");
         }
         if ("__default__".equals(connectionName)) {
-            return "Main";
+            return MAIN_CONNECTOR_NAME;
         }
         return connectionName;
     }
@@ -96,12 +98,12 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
 
     protected static INodeConnector createConnector(final EConnectionType type, final String name, final INode node,
             final EConnectionType defaultConnectionType) {
-        final NodeConnector connector = new NodeConnector(node);
-        connector.setName(type.getName());
+        final NodeConnector connector = new TaCoKitNodeConnector(node);
+        connector.setName(name);
         connector.setBaseSchema(type.getName());
         connector.setDefaultConnectionType(defaultConnectionType);
-        connector.setLinkName(type.getDefaultLinkName());
-        connector.setMenuName(type.getDefaultMenuName());
+        connector.setLinkName(name);
+        connector.setMenuName(name);
         connector.addConnectionProperty(type, type.getRGB(), type.getDefaultLineStyle());
         connector.setMinLinkInput(0);
         connector.setMaxLinkInput(0);

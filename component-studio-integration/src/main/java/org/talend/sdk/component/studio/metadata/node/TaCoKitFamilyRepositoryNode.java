@@ -24,6 +24,7 @@ import org.talend.commons.ui.runtime.image.IImage;
 import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.commons.ui.runtime.image.ImageUtils;
 import org.talend.commons.ui.runtime.image.ImageUtils.ICON_SIZE;
+import org.talend.core.model.repository.ERepositoryObjectType;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.model.StableRepositoryNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
@@ -57,6 +58,12 @@ public class TaCoKitFamilyRepositoryNode extends StableRepositoryNode implements
     @Override
     public ITaCoKitRepositoryNode getParentTaCoKitNode() {
         return null;
+    }
+
+    @Override
+    public void setChildrenObjectType(final ERepositoryObjectType childrenObjectType) {
+        super.setChildrenObjectType(childrenObjectType);
+        this.setProperties(EProperties.CONTENT_TYPE, childrenObjectType);
     }
 
     public static Image getTaCoKitImage(final ConfigTypeNode configTypeNode) {

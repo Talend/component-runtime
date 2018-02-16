@@ -18,8 +18,8 @@
         org.talend.core.model.process.INode
         org.talend.core.runtime.IAdditionalInfo
         org.talend.designer.codegen.config.CodeGeneratorArgument
-        org.talend.core.model.process.ElementParameterParser
         org.talend.designer.core.model.components.EParameterName
+        org.talend.core.model.process.ElementParameterParser
         org.talend.core.model.process.IElementParameter
         org.talend.core.model.process.EParameterFieldType
         org.talend.core.model.metadata.IMetadataColumn
@@ -27,7 +27,6 @@
         org.talend.core.model.process.IConnection
         org.talend.core.model.process.IConnectionCategory
         org.talend.core.model.process.EConnectionType
-        org.talend.core.model.utils.NodeUtil
         java.util.List
         java.util.Locale
     "
@@ -37,26 +36,16 @@
     final CodeGeneratorArgument codeGenArgument = CodeGeneratorArgument.class.cast(argument);
     final INode node = INode.class.cast(codeGenArgument.getArgument());
     final String cid = node.getUniqueName();
-    final String originalName = (String)node.getElementParameter(EParameterName.COMPONENT_NAME.getName()).getValue();
-    final String family = (String)node.getElementParameter(EParameterName.FAMILY.getName()).getValue();
-    final String version = (String)node.getElementParameter(EParameterName.VERSION.getName()).getValue();
     final IComponent component = node.getComponent();
     final boolean useLookup = component.useLookup();
 %>
-
-    inputsHandler_<%=cid%>.reset();
 <%
     if (useLookup) {
 %>
-        <%@include file="./processor_multiple_input_main.javajet"%>
+        <%@include file="./processor_multiple_input_end.javajet"%>
 <%
     } else {
-        for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
-%>
-          inputsHandler_<%=cid%>.setInputValue("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>);
-<%
-        }
+        // nothing to do
     }
 %>
 
-    <%@include file="./processor_output.javajet"%>

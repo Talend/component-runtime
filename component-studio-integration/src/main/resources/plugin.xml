@@ -51,6 +51,13 @@
      </RepositoryHandler>
   </extension>
   <extension
+        point="org.talend.core.repository.repositorySeeker">
+     <seeker
+           class="org.talend.sdk.component.studio.metadata.seeker.TaCoKitMetadataRepoViewSeeker"
+           name="TaCoKit Repository Seeker">
+     </seeker>
+  </extension>
+  <extension
         point="org.talend.core.repositoryContextualsActions">
      <Action
            class="org.talend.sdk.component.studio.metadata.action.EditTaCoKitConfigurationAction"

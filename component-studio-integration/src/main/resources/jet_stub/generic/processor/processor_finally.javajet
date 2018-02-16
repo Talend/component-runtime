@@ -14,19 +14,35 @@
 */%>
 <%@ jet
     imports="
+        org.talend.core.model.components.IComponent
         org.talend.core.model.process.INode
+        org.talend.core.runtime.IAdditionalInfo
         org.talend.designer.codegen.config.CodeGeneratorArgument
+        org.talend.designer.core.model.components.EParameterName
+        java.util.Locale
     "
 %>
+
 <%
-final String cid = INode.class.cast(CodeGeneratorArgument.class.cast(argument).getArgument()).getUniqueName();
+    final CodeGeneratorArgument codeGenArgument = CodeGeneratorArgument.class.cast(argument);
+    final INode node = INode.class.cast(codeGenArgument.getArgument());
+    final String cid = node.getUniqueName();
+    final IComponent component = node.getComponent();
+    final boolean useLookup = component.useLookup();
 %>
 
-final org.talend.sdk.component.runtime.di.AutoChunkProcessor processor_<%=cid%> = org.talend.sdk.component.runtime.di.AutoChunkProcessor.class.cast(globalMap.remove("processor_<%=cid%>"));
-try {
-    if (processor_<%=cid%> != null) {
-        processor_<%=cid%>.stop();
+<%
+    if (useLookup) {
+%>
+        <%@include file="./processor_multiple_input_finally.javajet"%>
+<%
     }
-} catch (final RuntimeException re) {
-    throw new TalendException(re, currentComponent, globalMap);
-}
+%>
+    final org.talend.sdk.component.runtime.di.AutoChunkProcessor processor_<%=cid%> = org.talend.sdk.component.runtime.di.AutoChunkProcessor.class.cast(globalMap.remove("processor_<%=cid%>"));
+    try {
+        if (processor_<%=cid%> != null) {
+            processor_<%=cid%>.stop();
+        }
+    } catch (final RuntimeException re) {
+        throw new TalendException(re, currentComponent, globalMap);
+    }
