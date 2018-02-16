@@ -41,6 +41,8 @@ public class PropertyNode {
 
     static final String CONNECTION_BUTTON = ".testConnection";
 
+    static final String VALIDATION = "Validation";
+
     @Setter(AccessLevel.PROTECTED)
     private PropertyNode parent;
 
@@ -146,7 +148,7 @@ public class PropertyNode {
      * @param form Name or form
      */
     private List<PropertyNode> sortChildren(final List<PropertyNode> children, final String form) {
-        HashMap<String, Integer> order = property.getChildrenOrder(form);
+        final HashMap<String, Integer> order = property.getChildrenOrder(form);
         if (order != null) {
             children.sort((node1, node2) -> {
                 Integer i1 = order.get(node1.getProperty().getName());
@@ -194,7 +196,7 @@ public class PropertyNode {
         if (property.hasOptionsOrder()) {
             return property.getOptionsOrderNames();
         }
-        Set<String> names = new HashSet<>();
+        final Set<String> names = new HashSet<>();
         children.forEach(node -> names.add(node.getProperty().getName()));
         return names;
     }
@@ -236,7 +238,12 @@ public class PropertyNode {
         }
 
         private void createLayout() {
-            final Layout layout = new Layout(current.getProperty().getPath());
+            Layout layout = null;
+            if (current.getFieldType() == EParameterFieldType.SCHEMA_TYPE) {
+                layout = new Layout(current.getProperty().getSchemaName());
+            } else {
+                layout = new Layout(current.getId());
+            }
             if (!current.isLeaf()) {
                 if (current.getProperty().hasGridLayout(form)) {
                     fillGridLayout(layout);
@@ -259,6 +266,9 @@ public class PropertyNode {
                 layout.getLevels().add(level);
                 for (final String column : row.split(",")) {
                     final PropertyNode child = current.getChild(column, form);
+                    if (child.getProperty().hasConstraint() || child.getProperty().hasValidation()) {
+                        addValidationLevel(child, layout);
+                    }
                     level.getColumns().add(child.getLayout(form));
                 }
             }
@@ -271,7 +281,17 @@ public class PropertyNode {
                 layout.getLevels().add(level);
                 // each level contains only one column, when there is no GridLayout
                 level.getColumns().add(child.getLayout(form));
+                if (child.getProperty().hasConstraint() || child.getProperty().hasValidation()) {
+                    addValidationLevel(child, layout);
+                }
             });
+        }
+
+        private void addValidationLevel(final PropertyNode node, final Layout layout) {
+            final Level level = new Level();
+            Layout validationLayout = new Layout(node.getProperty().getPath() + VALIDATION);
+            level.getColumns().add(validationLayout);
+            layout.getLevels().add(level);
         }
 
         /**

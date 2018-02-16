@@ -172,7 +172,7 @@ public class Lookups {
                 final EComponentCategory category, final boolean isCompactView) {
 
             return new TaCoKitComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS, category, element,
-                    isCompactView, null);
+                    isCompactView);
         }
     }
 

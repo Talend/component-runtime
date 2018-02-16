@@ -437,6 +437,20 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         return delegate.getMetadata().get(ACTION_HEALTHCHECK);
     }
 
+    Connection getConnection() {
+        final String type = delegate.getMetadata().get(Metadatas.UI_STRUCTURE_TYPE);
+        final String value = delegate.getMetadata().get(Metadatas.UI_STRUCTURE_VALUE);
+        if (type == null || value == null) {
+            throw new IllegalStateException("property has no structure");
+        }
+        return new Connection(Connection.Type.of(type), value);
+    }
+
+    String getSchemaName() {
+        final Connection.Type connectionType = getConnection().getType();
+        return connectionType + "$$" + getPath();
+    }
+
     @Override
     public int hashCode() {
         return delegate.hashCode();
@@ -454,4 +468,28 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
 
         private final String[] values;
     }
+
+    @Data
+    public static class Connection {
+
+        private final Type type;
+
+        private final String value;
+
+        public static enum Type {
+            IN,
+            OUT;
+
+            public static Type of(final String type) {
+                if ("IN".equals(type)) {
+                    return IN;
+                }
+                if ("OUT".equals(type)) {
+                    return OUT;
+                }
+                throw new IllegalArgumentException("wrong type " + type);
+            }
+        }
+    }
+
 }

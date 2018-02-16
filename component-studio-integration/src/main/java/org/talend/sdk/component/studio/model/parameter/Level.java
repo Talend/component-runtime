@@ -25,10 +25,10 @@ import lombok.ToString;
 /**
  * Represents a Row in GridLayout
  */
-@Getter(lombok.AccessLevel.PACKAGE)
+@Getter
 @Setter(lombok.AccessLevel.PACKAGE)
 @ToString(exclude = "columns")
-class Level {
+public class Level {
 
     private int position;
 

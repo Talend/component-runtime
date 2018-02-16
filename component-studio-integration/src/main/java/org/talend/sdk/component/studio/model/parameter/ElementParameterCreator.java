@@ -108,13 +108,22 @@ public class ElementParameterCreator {
                     new SettingsCreator(node, BASIC, updateComponentsParameter, detail);
             root.accept(mainSettingsCreator, Metadatas.MAIN_FORM);
             parameters.addAll(mainSettingsCreator.getSettings());
+            addLayoutParameter(root, Metadatas.MAIN_FORM);
             // add advanced parameters
             final SettingsCreator advancedCreator =
                     new SettingsCreator(node, ADVANCED, updateComponentsParameter, detail);
             root.accept(advancedCreator, Metadatas.ADVANCED_FORM);
             parameters.addAll(advancedCreator.getSettings());
+            addLayoutParameter(root, Metadatas.ADVANCED_FORM);
         }
         checkSchemaProperties(new SettingsCreator(node, BASIC, updateComponentsParameter, detail));
+    }
+
+    private void addLayoutParameter(final PropertyNode root, final String form) {
+        final Layout layout = root.getLayout(form);
+        final EComponentCategory category = Metadatas.MAIN_FORM.equals(form) ? BASIC : ADVANCED;
+        final LayoutParameter layoutParameter = new LayoutParameter(node, layout, category);
+        parameters.add(layoutParameter);
     }
 
     /**
@@ -352,9 +361,6 @@ public class ElementParameterCreator {
         parameter.setValue("");
         parameter.setNumRow(1);
         parameter.setShow(!findConfigurationTypes().isEmpty());
-        // TODO discover what is this used for
-        // param.setTaggedValue(IGenericConstants.IS_PROPERTY_SHOW, wizardDefinition !=
-        // null);
 
         final ElementParameter propertyType = new ElementParameter(node);
         propertyType.setCategory(EComponentCategory.BASIC);

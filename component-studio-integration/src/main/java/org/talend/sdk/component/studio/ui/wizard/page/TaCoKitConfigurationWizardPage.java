@@ -36,6 +36,8 @@ import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
+import org.talend.sdk.component.studio.model.parameter.Layout;
+import org.talend.sdk.component.studio.model.parameter.LayoutParameter;
 import org.talend.sdk.component.studio.model.parameter.Metadatas;
 import org.talend.sdk.component.studio.model.parameter.PropertyNode;
 import org.talend.sdk.component.studio.model.parameter.PropertyTreeCreator;
@@ -97,7 +99,8 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
         final SettingsCreator settingsCreator = new SettingsCreator(node, category, updateParameter, configTypeNode);
         root.accept(settingsCreator, form);
         parameters.addAll(settingsCreator.getSettings());
-
+        final ElementParameter layoutParameter = createLayoutParameter(root, form, category, element);
+        parameters.add(layoutParameter);
         element.setElementParameters(parameters);
 
         tacokitComposite = new TaCoKitWizardComposite(container, SWT.H_SCROLL | SWT.V_SCROLL | SWT.NO_FOCUS, category,
@@ -131,6 +134,7 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
      * Creates and adds {@link EParameterName#UPDATE_COMPONENTS} parameter
      * This parameter is used to decide whether UI should be redrawn during Composite refresh
      */
+    // TODO it is duplicated in ElementParameterCreator. Refactor to avoid duplication
     private ElementParameter createUpdateComponentsParameter(final Element element) {
         final ElementParameter parameter = new ElementParameter(element);
         parameter.setName(EParameterName.UPDATE_COMPONENTS.getName());
@@ -142,6 +146,14 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
         parameter.setRequired(false);
         parameter.setShow(false);
         return parameter;
+    }
+
+    // TODO it is duplicated in ElementParameterCreator. Refactor to avoid duplication
+    private ElementParameter createLayoutParameter(final PropertyNode root, final String form,
+            final EComponentCategory category, final Element element) {
+        final Layout layout = root.getLayout(form);
+        final LayoutParameter layoutParameter = new LayoutParameter(element, layout, category);
+        return layoutParameter;
     }
 
     @Override
