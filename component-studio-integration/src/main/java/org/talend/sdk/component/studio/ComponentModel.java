@@ -333,6 +333,8 @@ public class ComponentModel extends AbstractBasicComponent {
                             .collect(toList()));
                     modulesNeeded.add(new ModuleNeeded(getName(), "", true,
                             "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.VERSION));
+                    modulesNeeded.add(new ModuleNeeded(getName(), "", true,
+                            "mvn:org.talend.sdk.component/component-runtime-design-extension/" + GAV.VERSION));
                     modulesNeeded
                             .add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.SLF4J_VERSION));
                     if (!PluginChecker.isTIS()) {

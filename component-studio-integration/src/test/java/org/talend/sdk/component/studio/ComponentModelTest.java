@@ -45,7 +45,7 @@ class ComponentModelTest {
                 new ComponentDetail(id, "XML Input", null, "Processor", 1, null, null, null, null, null);
         final ComponentModel componentModel = new ComponentModel(idx, detail);
         final List<ModuleNeeded> modulesNeeded = componentModel.getModulesNeeded();
-        assertEquals(18, modulesNeeded.size());
+        assertEquals(19, modulesNeeded.size());
         // just assert a few
         assertTrue(modulesNeeded.stream().anyMatch(m -> m.getModuleName().startsWith("component-runtime-manager")));
         assertTrue(modulesNeeded.stream().anyMatch(m -> m.getModuleName().startsWith("component-runtime-impl")));

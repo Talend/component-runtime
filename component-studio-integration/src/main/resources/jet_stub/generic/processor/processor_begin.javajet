@@ -64,22 +64,9 @@ globalMap.put("processor_<%=cid%>", processor_<%=cid%>);
 
 int nbLineInput_<%=cid%> = 0;
 
+org.talend.sdk.component.runtime.output.InputFactory inputs_<%=cid%> = null;
+org.talend.sdk.component.runtime.output.OutputFactory outputs_<%=cid%> = null;
+
 final org.talend.sdk.component.runtime.di.InputsHandler inputsHandler_<%=cid%> = new org.talend.sdk.component.runtime.di.InputsHandler(jsonb_<%=cid%>);
-<%
-for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
-%>
-inputsHandler_<%=cid%>.addConnection("<%= connection.getConnectorName().toLowerCase(java.util.Locale.ROOT) %>", <%= connection.getName() %>.getClass());
-<% } %>
-
 final org.talend.sdk.component.runtime.di.OutputsHandler outputHandler_<%=cid%> = new org.talend.sdk.component.runtime.di.OutputsHandler(jsonb_<%=cid%>);
-<%
-for (final IConnection connection : node.getOutgoingSortedConnections()) {
-    if (connection.getLineStyle() != EConnectionType.FLOW_MAIN) {
-        continue;
-    }
-%>
-outputHandler_<%=cid%>.addConnection("<%= connection.getConnectorName().toLowerCase(java.util.Locale.ROOT) %>", <%= connection.getName() %>.getClass());
-<% } %>
 
-final org.talend.sdk.component.runtime.output.InputFactory inputs_<%=cid%> = inputsHandler_<%=cid%>.asInputFactory();
-final org.talend.sdk.component.runtime.output.OutputFactory outputs_<%=cid%> = outputHandler_<%=cid%>.asOutputFactory();

@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.INode;
 import org.talend.core.model.process.INodeConnector;
-import org.talend.designer.core.model.components.NodeConnector;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 
 /**
@@ -96,8 +95,9 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
 
     protected static INodeConnector createConnector(final EConnectionType type, final String name, final INode node,
             final EConnectionType defaultConnectionType) {
-        final NodeConnector connector = new NodeConnector(node);
+        final TacokitConnector connector = new TacokitConnector(node);
         connector.setName(type.getName());
+        connector.setInternalName(name);
         connector.setBaseSchema(type.getName());
         connector.setDefaultConnectionType(defaultConnectionType);
         connector.setLinkName(type.getDefaultLinkName());

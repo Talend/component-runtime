@@ -16,7 +16,7 @@
 package org.talend.sdk.component.design.extension.flows;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -43,11 +43,9 @@ class ProcessorFlowsFactory extends FlowsFactory {
      */
     @Override
     public Collection<String> getInputFlows() {
-        return getListenerParameters() //
-                .map(p -> ofNullable(p.getAnnotation(Input.class)) //
-                        .map(Input::value) //
-                        .orElse(Branches.DEFAULT_BRANCH)) //
-                .collect(toSet()); //
+        return getListenerParameters()
+                .map(p -> ofNullable(p.getAnnotation(Input.class)).map(Input::value).orElse(Branches.DEFAULT_BRANCH))
+                .collect(toList());
     }
 
     /**
@@ -56,15 +54,12 @@ class ProcessorFlowsFactory extends FlowsFactory {
     @Override
     public Collection<String> getOutputFlows() {
         Method listener = getListener();
-        return Stream //
-                .concat( //
-                        listener.getReturnType().equals(Void.TYPE) ? Stream.empty()
-                                : Stream.of(Branches.DEFAULT_BRANCH), //
-                        Stream
-                                .of(listener.getParameters())
-                                .filter(p -> p.isAnnotationPresent(Output.class)) //
-                                .map(p -> p.getAnnotation(Output.class).value())) //
-                .collect(toSet()); //
+        return Stream
+                .concat(listener.getReturnType().equals(Void.TYPE) ? Stream.empty()
+                        : Stream.of(Branches.DEFAULT_BRANCH),
+                        Stream.of(listener.getParameters()).filter(p -> p.isAnnotationPresent(Output.class)).map(
+                                p -> p.getAnnotation(Output.class).value()))
+                .collect(toList());
     }
 
     /**
@@ -74,10 +69,10 @@ class ProcessorFlowsFactory extends FlowsFactory {
      */
     private Method getListener() {
         return Stream
-                .of(type.getMethods()) //
-                .filter(m -> m.isAnnotationPresent(ElementListener.class)) //
-                .findFirst() //
-                .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + type)); //
+                .of(type.getMethods())
+                .filter(m -> m.isAnnotationPresent(ElementListener.class))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + type));
     }
 
     /**

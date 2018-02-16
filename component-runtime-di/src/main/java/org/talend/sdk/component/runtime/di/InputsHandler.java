@@ -28,13 +28,12 @@ public class InputsHandler extends BaseIOHandler {
 
     public InputFactory asInputFactory() {
         return name -> {
-            final String actualName = getActualName(name);
-            final BaseIOHandler.IO ref = connections.get(actualName);
+            final BaseIOHandler.IO ref = connections.get(name);
             if (ref == null || ref.getValue() == null || ref.getValue().get() == null) {
                 return null;
             }
-            Object value = ref.getValue().get();
 
+            final Object value = ref.getValue().get();
             final boolean isJsonValue = JsonValue.class.isInstance(value);
             if (JsonValue.NULL == value) { // JsonObject cant take a JsonValue so pass null
                 return null;
@@ -44,11 +43,15 @@ public class InputsHandler extends BaseIOHandler {
         };
     }
 
+    public <T> void initInputValue(final String name, final T value) {
+        addConnection(name, value.getClass());
+        setInputValue(value.getClass().getSimpleName(), value);
+    }
+
     public <T> void setInputValue(final String name, final T value) {
-        IO input = connections.get(getActualName(name));
+        final IO input = connections.get(name);
         if (input != null) {
             input.getValue().set(value);
         }
     }
-
 }

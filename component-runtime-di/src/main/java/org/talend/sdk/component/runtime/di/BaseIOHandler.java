@@ -15,9 +15,11 @@
  */
 package org.talend.sdk.component.runtime.di;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.json.bind.Jsonb;
@@ -31,29 +33,36 @@ public abstract class BaseIOHandler {
 
     protected final Jsonb jsonb;
 
-    protected final Map<String, IO> connections = new HashMap<>();
+    protected final Map<String, IO> connections = new TreeMap<>();
 
-    public void addConnection(final String name, final Class<?> type) {
-        connections.put(getActualName(name), new IO(new AtomicReference<>(), type));
+    public void init(final Collection<String> branchesOrder) {
+        if (branchesOrder == null) {
+            return;
+        }
+
+        final Map<String, String> mapping = new HashMap<>(); // temp structure to avoid concurrent modification
+        final Iterator<String> branches = branchesOrder.iterator();
+        for (final String rowStruct : connections.keySet()) {
+            if (!branches.hasNext()) {
+                break;
+            }
+            mapping.put(rowStruct, branches.next());
+        }
+        if (!mapping.isEmpty()) {
+            mapping.forEach((row, branch) -> connections.putIfAbsent(branch, connections.get(row)));
+        }
+    }
+
+    public void addConnection(final String connectorTypeName/* useless for now */, final Class<?> type) {
+        connections.put(type.getSimpleName(), new IO<>(new AtomicReference<>(), type, false));
     }
 
     public void reset() {
-        connections.values().forEach(r -> {
-            try {
-                r.value.set(r.type.getConstructor().newInstance());
-            } catch (Exception e) {
-                throw new IllegalStateException("Can't create an instance of " + r.type, e);
-            }
-        });
+        connections.values().forEach(IO::reset);
     }
 
-    public <T> T getValue(final String name, final Class<T> type) {
-        final String actualName = getActualName(name);
-        return type.cast(connections.get(actualName).value.get());
-    }
-
-    protected final String getActualName(final String name) {
-        return "__default__".equalsIgnoreCase(name) ? "flow" : name.toLowerCase(Locale.ROOT);
+    public <T> T getValue(final String connectorTypeName, final Class<T> type) {
+        return type.cast(connections.get(type.getSimpleName()).value.get());
     }
 
     @AllArgsConstructor
@@ -64,6 +73,15 @@ public abstract class BaseIOHandler {
 
         private final Class<T> type;
 
+        private boolean mutated;
+
+        private void reset() {
+            try {
+                value.set(type.getConstructor().newInstance());
+            } catch (Exception e) {
+                throw new IllegalStateException("Can't create an instance of " + type, e);
+            }
+        }
     }
 
 }

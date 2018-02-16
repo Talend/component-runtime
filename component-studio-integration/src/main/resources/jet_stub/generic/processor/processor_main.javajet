@@ -16,6 +16,7 @@
     imports="
         org.talend.core.model.process.INode
         org.talend.designer.codegen.config.CodeGeneratorArgument
+        org.talend.designer.core.model.components.EParameterName
         org.talend.core.model.process.ElementParameterParser
         org.talend.core.model.process.IElementParameter
         org.talend.core.model.process.EParameterFieldType
@@ -24,6 +25,7 @@
         org.talend.core.model.process.IConnection
         org.talend.core.model.process.IConnectionCategory
         org.talend.core.model.process.EConnectionType
+        java.util.Arrays
         java.util.List
     "
 %>
@@ -31,22 +33,57 @@
 final CodeGeneratorArgument codeGenArgument = CodeGeneratorArgument.class.cast(argument);
 final INode node = INode.class.cast(codeGenArgument.getArgument());
 final String cid = node.getUniqueName();
+final String originalName = (String)node.getElementParameter(EParameterName.COMPONENT_NAME.getName()).getValue();
+final String family = (String)node.getElementParameter(EParameterName.FAMILY.getName()).getValue();
 %>
 
 inputsHandler_<%=cid%>.reset();
-<%
-for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
-%>
-inputsHandler_<%=cid%>.setInputValue("<%= connection.getConnectorName().toLowerCase(java.util.Locale.ROOT) %>", <%= connection.getName() %>);
-<% } %>
+if (outputs_<%=cid%> == null) {
 
+    final org.talend.sdk.component.design.extension.DesignModel design_<%=cid%> = mgr_<%=cid%>
+        .findPlugin(processorImpl_<%=cid%>.plugin()).get()
+        .get(org.talend.sdk.component.runtime.manager.ContainerComponentRegistry.class)
+        .getComponents()
+        .get("<%=family%>")
+        .getProcessors()
+        .get("<%=originalName%>")
+        .get(org.talend.sdk.component.design.extension.DesignModel.class);
+
+    <% for (final EConnectionType type : Arrays.asList(EConnectionType.FLOW_MAIN/*, EConnectionType.FLOW_REF todo: test lookup*/)) {
+        for (final IConnection connection : node.getIncomingConnections(type)) {
+    %>
+    inputsHandler_<%=cid%>.initInputValue("<%= connection.getConnectorName().toLowerCase(java.util.Locale.ROOT) %>", <%= connection.getName() %>);
+    <%
+        }
+    }
+    %>
+    inputsHandler_<%=cid%>.init(design_<%=cid%>.getInputFlows());
+
+    <% for (final IConnection connection : node.getOutgoingConnections(EConnectionType.FLOW_MAIN)) { %>
+    outputHandler_<%=cid%>.addConnection("<%= connection.getConnectorName().toLowerCase(java.util.Locale.ROOT) %>", <%= connection.getName() %>.getClass());
+    <% } %>
+    outputHandler_<%=cid%>.init(design_<%=cid%>.getOutputFlows());
+
+    inputs_<%=cid%> = inputsHandler_<%=cid%>.asInputFactory();
+    outputs_<%=cid%> = outputHandler_<%=cid%>.asOutputFactory();
+} else {
+    <% for (final EConnectionType type : Arrays.asList(EConnectionType.FLOW_MAIN/*, EConnectionType.FLOW_REF todo: test lookup*/)) {
+        for (final IConnection connection : node.getIncomingConnections(type)) {
+        // todo: store it as var before the _main.javajet
+    %>
+    inputsHandler_<%=cid%>.setInputValue(<%= connection.getName() %>.getClass().getSimpleName(), <%= connection.getName() %>);
+    <%
+        }
+    }
+    %>
+}
 
 outputHandler_<%=cid%>.reset();
 processor_<%=cid%>.onElement(inputs_<%=cid%>, outputs_<%=cid%>);
 <%
 // once processed update all outputs
 for (final IConnection connection : node.getOutgoingSortedConnections()) {
-    if (connection.getLineStyle() != EConnectionType.FLOW_MAIN) {
+    if (connection.getLineStyle() != EConnectionType.FLOW_MAIN && connection.getLineStyle() != EConnectionType.FLOW_REF) {
         continue;
     }
 %>
