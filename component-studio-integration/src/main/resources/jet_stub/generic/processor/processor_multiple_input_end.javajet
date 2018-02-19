@@ -29,31 +29,6 @@
     "
 %>
 
-    boolean continueLoop = true;
-    while(continueLoop) {
-        continueLoop = false;
-        for (java.util.Iterator<Object> loopIter : inputIterMap.values()) {
-            if (loopIter.hasNext()) {
-                continueLoop = true;
-                break;
-            }
-        }
-        if (!continueLoop) {
-            break;
-        }
-
-        inputsHandler_<%=cid%>.reset();
-        Object loopIterObj = null;
-        for (java.util.Map.Entry<String, Object> loopEntry : inputIterMap.entrySet())
-            loopIterObj = null;
-            String loopRowName = loopEntry.getKey();
-            java.util.Iterator<Object> loopIter = loopEntry.getValue();
-            if (loopIter.hasNext()) {
-                loopIterObj = loopIter.next();
-            }
-            inputsHandler_<%=cid%>.setInputValue(loopRowName, loopIterObj);
-        }
-
-        <%@include file="./processor_output.javajet"%>
-
-    }
+<%
+        // nothing to do
+%>

@@ -26,14 +26,16 @@
         org.talend.core.model.process.IConnection
         org.talend.core.model.process.IConnectionCategory
         org.talend.core.model.process.EConnectionType
+        org.talend.core.model.utils.NodeUtil
         java.util.List
         java.util.Locale
     "
 %>
 
-    java.util.Map<String, java.util.Iterator<Object>> inputIterMap = new java.util.HashMap<String, java.util.Iterator<Object>>();
+    java.util.Map<String, Object> inputIterMap = new java.util.HashMap<String, Object>();
+
 <%
-    for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
+    for (final IConnection connection : node.getIncomingConnections()) {
         String row_name = connection.getName();
 %>
         java.util.Map<<%=row_name %>Struct, <%=row_name %>Struct> <%=row_name %>_map = (java.util.Map<<%=row_name %>Struct, <%=row_name %>Struct>)globalMap.get("tHash_<%=row_name %>");
@@ -45,10 +47,12 @@
 <%
     }
 %>
+
 <%
-    for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
+    for (final IConnection connection : node.getIncomingConnections()) {
+        String row_name = connection.getName();
 %>
-        inputsHandler_<%=cid%>.addConnection("<%= connection.getName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>.getClass());
+        inputsHandler_<%=cid%>.addConnection("<%= row_name.toLowerCase(Locale.ROOT) %>", <%= row_name %>Struct.class);
 <%
     }
 %>

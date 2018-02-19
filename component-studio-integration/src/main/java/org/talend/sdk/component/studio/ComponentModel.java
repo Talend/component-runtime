@@ -36,6 +36,7 @@ import org.talend.core.model.components.ComponentCategory;
 import org.talend.core.model.components.EComponentType;
 import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.metadata.types.JavaTypesManager;
+import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
 import org.talend.core.model.process.INodeConnector;
@@ -134,7 +135,8 @@ public class ComponentModel extends AbstractBasicComponent {
     private List<ECodePart> createCodePartList() {
         return (detail.getType().equalsIgnoreCase("input")) //$NON-NLS-1$
                 ? Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.END, ECodePart.FINALLY))
-                : Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY));
+                : Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END_HEAD,
+                        ECodePart.END_BODY, ECodePart.END_TAIL, ECodePart.FINALLY));
     }
 
     /**
@@ -282,7 +284,18 @@ public class ComponentModel extends AbstractBasicComponent {
      */
     @Override
     public List<? extends INodeConnector> createConnectors(final INode node) {
-        return ConnectorCreatorFactory.create(detail, node).createConnectors();
+        List<INodeConnector> connectors = ConnectorCreatorFactory.create(detail, node).createConnectors();
+        if (connectors != null) {
+            for (INodeConnector connector : connectors) {
+                if (EConnectionType.FLOW_MAIN.equals(connector.getDefaultConnectionType())) {
+                    if (1 < connector.getMaxLinkInput()) {
+                        useLookup = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return connectors;
     }
 
     /**
