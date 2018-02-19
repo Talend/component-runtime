@@ -23,6 +23,7 @@ import java.io.Writer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.json.JsonObject;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.processor.ElementListener;
@@ -45,8 +46,8 @@ public class FileOutput implements Serializable {
     }
 
     @ElementListener
-    public void length(final int data) throws IOException {
-        writer.write(Integer.toString(data) + System.lineSeparator());
+    public void length(final Object data) throws IOException {
+        writer.write(data + System.lineSeparator());
     }
 
     @PreDestroy
