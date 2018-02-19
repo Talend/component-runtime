@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.talend.core.CorePlugin;
 import org.talend.core.PluginChecker;
 import org.talend.core.model.components.ComponentCategory;
 import org.talend.core.model.components.IComponent;
@@ -35,12 +34,9 @@ import org.talend.core.model.process.IConnectionCategory;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
 import org.talend.core.model.process.INodeConnector;
-import org.talend.core.prefs.ITalendCorePrefConstants;
-import org.talend.core.ui.component.ComponentsFactoryProvider;
 import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
-import org.talend.designer.core.model.components.EmfComponent;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.ComponentModel;
@@ -433,9 +429,6 @@ public class ElementParameterCreator {
      */
     private void addStatCatcherParameter() {
         if (ComponentCategory.CATEGORY_4_DI.getName().equals(component.getPaletteType())) {
-            final boolean isCatcherAvailable =
-                    ComponentsFactoryProvider.getInstance().get(EmfComponent.TSTATCATCHER_NAME,
-                            ComponentCategory.CATEGORY_4_DI.getName()) != null;
             final ElementParameter parameter = new ElementParameter(node);
             parameter.setName(EParameterName.TSTATCATCHER_STATS.getName());
             parameter.setValue(Boolean.FALSE);

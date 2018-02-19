@@ -118,8 +118,8 @@ public class SettingsCreator implements PropertyVisitor {
         this.category = category;
         this.redrawParameter = redrawParameter;
         this.form = category == EComponentCategory.ADVANCED ? Metadatas.ADVANCED_FORM : Metadatas.MAIN_FORM;
-        this.actions = actions;
-        actions.stream().findFirst().ifPresent(a -> this.family = a.getFamily());
+        this.actions = ofNullable(actions).orElseGet(Collections::emptyList);
+        this.actions.stream().findFirst().ifPresent(a -> this.family = a.getFamily());
     }
 
     SettingsCreator(final IElement iNode, final EComponentCategory category, final ElementParameter redrawParameter) {
