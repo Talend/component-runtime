@@ -15,6 +15,7 @@
 <%@ jet
     imports="
         org.talend.core.model.process.INode
+        org.talend.core.runtime.IAdditionalInfo
         org.talend.designer.codegen.config.CodeGeneratorArgument
         org.talend.core.model.process.ElementParameterParser
         org.talend.core.model.process.IElementParameter
@@ -56,6 +57,13 @@
 <%
     for (final IConnection connection : node.getIncomingConnections()) {
         String row_name = connection.getName();
+        String input_name = null;
+        if (connection instanceof IAdditionalInfo) {
+            input_name = (String)IAdditionalInfo.class.cast(connection).getInfo("INPUT_NAME");
+        }
+        if (input_name == null || input_name.trim().isEmpty()) {
+            input_name = row_name.toLowerCase(Locale.ROOT);
+        }
         if (rowsInCurrentProcess.contains(row_name)) {
 %>
             inputsHandler_<%=cid%>.setInputValue("<%= row_name.toLowerCase(Locale.ROOT) %>", <%= row_name %>);
@@ -67,7 +75,7 @@
             if (rowIter != null && rowIter.hasNext()) {
                 rowObj = rowIter.next();
             }
-            inputsHandler_<%=cid%>.setInputValue("<%= row_name.toLowerCase(Locale.ROOT) %>", rowObj);
+            inputsHandler_<%=cid%>.setInputValue("<%= input_name %>", rowObj);
 <%
         }
 %>
