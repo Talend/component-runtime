@@ -19,9 +19,9 @@ import static java.util.Optional.ofNullable;
 
 import java.util.concurrent.ScheduledFuture;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j;
 
-@Slf4j
+@Log4j
 public class DebouncedAction implements Runnable {
 
     private final DebounceManager manager;

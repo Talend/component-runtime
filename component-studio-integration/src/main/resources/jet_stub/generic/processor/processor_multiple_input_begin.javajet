@@ -33,7 +33,7 @@
     "
 %>
 
-    java.util.Map<String, Object> inputIterMap = new java.util.HashMap<String, Object>();
+    java.util.Map<String, Object> inputIterMap_<%=cid%> = new java.util.HashMap<String, Object>();
 
 <%
     for (final IConnection connection : node.getIncomingConnections()) {
@@ -43,7 +43,7 @@
         java.util.Iterator<<%=row_name %>Struct> <%=row_name %>_iter = null;
         if (<%=row_name %>_map != null) {
             <%=row_name %>_iter = <%=row_name %>_map.values().iterator();
-            inputIterMap.put("<%=row_name.toLowerCase(java.util.Locale.ROOT) %>", <%=row_name %>_iter);
+            inputIterMap_<%=cid%>.put("<%=row_name.toLowerCase(java.util.Locale.ROOT) %>", <%=row_name %>_iter);
         }
 <%
     }

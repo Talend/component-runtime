@@ -72,7 +72,7 @@
 <%
         } else {
 %>
-            rowIter = (java.util.Iterator<Object>)inputIterMap.get("<%= row_name.toLowerCase(Locale.ROOT) %>");
+            rowIter = (java.util.Iterator<Object>)inputIterMap_<%=cid%>.get("<%= row_name.toLowerCase(Locale.ROOT) %>");
             rowObj = null;
             if (rowIter != null && rowIter.hasNext()) {
                 rowObj = rowIter.next();

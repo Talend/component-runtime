@@ -70,7 +70,7 @@
         boolean continueLoop = true;
         while(continueLoop) {
             continueLoop = false;
-            for (Object value : inputIterMap.values()) {
+            for (Object value : inputIterMap_<%=cid%>.values()) {
                 java.util.Iterator<Object> loopIter = (java.util.Iterator<Object>) value;
                 if (loopIter.hasNext()) {
                     continueLoop = true;
