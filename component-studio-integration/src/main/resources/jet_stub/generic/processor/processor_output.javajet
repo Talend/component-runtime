@@ -14,11 +14,9 @@
 */%>
 <%@ jet
     imports="
-        org.talend.core.model.components.IComponent
         org.talend.core.model.process.INode
         org.talend.designer.codegen.config.CodeGeneratorArgument
         org.talend.core.model.process.ElementParameterParser
-        org.talend.designer.core.model.components.EParameterName
         org.talend.core.model.process.IElementParameter
         org.talend.core.model.process.EParameterFieldType
         org.talend.core.model.metadata.IMetadataColumn
@@ -26,36 +24,24 @@
         org.talend.core.model.process.IConnection
         org.talend.core.model.process.IConnectionCategory
         org.talend.core.model.process.EConnectionType
-        java.util.Arrays
         java.util.List
         java.util.Locale
     "
 %>
 
+    outputHandler_<%=cid%>.reset();
+    processor_<%=cid%>.onElement(inputs_<%=cid%>, outputs_<%=cid%>);
 <%
-    final CodeGeneratorArgument codeGenArgument = CodeGeneratorArgument.class.cast(argument);
-    final INode node = INode.class.cast(codeGenArgument.getArgument());
-    final String cid = node.getUniqueName();
-    final String originalName = (String)node.getElementParameter(EParameterName.COMPONENT_NAME.getName()).getValue();
-    final String family = (String)node.getElementParameter(EParameterName.FAMILY.getName()).getValue();
-    final String version = (String)node.getElementParameter(EParameterName.VERSION.getName()).getValue();
-    final IComponent component = node.getComponent();
-    final boolean useLookup = component.useLookup();
-%>
-
-    inputsHandler_<%=cid%>.reset();
-<%
-    if (useLookup) {
-%>
-        <%@include file="./processor_multiple_input_main.javajet"%>
-<%
-    } else {
-        for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
-%>
-          inputsHandler_<%=cid%>.setInputValue("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>);
-<%
+    // once processed update all outputs
+    for (final IConnection connection : node.getOutgoingSortedConnections()) {
+        if (connection.getLineStyle() != EConnectionType.FLOW_MAIN) {
+            continue;
         }
+%>
+        <%= connection.getName() %> = outputHandler_<%=cid%>.getValue("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>.getClass());
+<%
     }
 %>
 
-    <%@include file="./processor_output.javajet"%>
+    nbLineInput_<%=cid%>++;
+    globalMap.put("<%=cid %>_NB_LINE", nbLineInput_<%=cid%>);
