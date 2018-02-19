@@ -237,6 +237,7 @@ public class JobImpl implements Job {
 
             } finally {
                 processors.values().forEach(Lifecycle::stop);
+                inputs.values().forEach(InputRunner::stop);
             }
 
         }
@@ -326,24 +327,33 @@ public class JobImpl implements Job {
 
     public static class InputRunner {
 
+        private final Mapper chainedMapper;
+
         private final Input input;
 
         public InputRunner(final Mapper mapper) {
-            final long totalSize = mapper.assess();
             mapper.start();
+            final long totalSize = mapper.assess();
             final Iterator<Mapper> iterator;
             try {
                 iterator = mapper.split(totalSize).iterator();
             } finally {
                 mapper.stop();
             }
-            final ChainedMapper chainedMapper = new ChainedMapper(mapper, iterator);
+
+            chainedMapper = new ChainedMapper(mapper, iterator);
+            chainedMapper.start();
             input = chainedMapper.create();
             input.start();
         }
 
         public Object next() {
             return input.next();
+        }
+
+        public void stop() {
+            chainedMapper.stop();
+            input.stop();
         }
     }
 

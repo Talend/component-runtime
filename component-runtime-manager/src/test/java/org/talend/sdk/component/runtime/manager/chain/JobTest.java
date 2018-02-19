@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.chain;
 
 import static java.net.URLEncoder.encode;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,13 +25,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
+import org.talend.sdk.component.runtime.output.ProcessorImpl;
 
 @WithTemporaryFolder
 public class JobTest {
@@ -93,6 +98,51 @@ public class JobTest {
     void validateComponentID() {
         assertThrows(IllegalStateException.class,
                 () -> Job.components().component("file", "chain://file").connections().from("list").to("file").build());
+    }
+
+    @Test
+    void validateJobLifeCycle(final TestInfo info, final TemporaryFolder temporaryFolder) {
+        final String testName = info.getTestMethod().get().getName();
+        final String plugin = testName + ".jar";
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
+        try (final ComponentManager manager =
+                new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
+
+                    {
+                        CONTEXTUAL_INSTANCE.set(this);
+                        addPlugin(jar.getAbsolutePath());
+                    }
+
+                    @Override
+                    public void close() {
+                        super.close();
+                        CONTEXTUAL_INSTANCE.set(null);
+                    }
+                }) {
+
+            Job
+                    .components()
+                    .component("countdown", "lifecycle://countdown?__version=1&start=2")
+                    .component("square", "lifecycle://square?__version=1")
+                    .connections()
+                    .from("countdown")
+                    .to("square")
+                    .build()
+                    .run();
+
+            final LocalPartitionMapper mapper =
+                    LocalPartitionMapper.class.cast(manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get());
+
+            assertEquals(asList("start", "produce(1)", "produce(0)", "produce(null)", "stop"),
+                    ((Supplier<List<String>>) mapper.getDelegate()).get());
+
+            final ProcessorImpl processor =
+                    (ProcessorImpl) manager.findProcessor("lifecycle", "square", 1, emptyMap()).get();
+
+            assertEquals(asList("start", "beforeGroup", "onNext(1)", "afterGroup", "beforeGroup", "onNext(0)",
+                    "afterGroup", "stop"), ((Supplier<List<String>>) processor.getDelegate()).get());
+
+        }
     }
 
     @Test
