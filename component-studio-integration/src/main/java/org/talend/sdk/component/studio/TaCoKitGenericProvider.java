@@ -22,10 +22,14 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.talend.core.CorePlugin;
+import org.talend.core.model.components.ComponentCategory;
 import org.talend.core.model.components.IComponent;
 import org.talend.core.model.components.IComponentsFactory;
 import org.talend.core.model.process.IGenericProvider;
+import org.talend.core.prefs.ITalendCorePrefConstants;
 import org.talend.core.ui.component.ComponentsFactoryProvider;
+import org.talend.designer.core.model.components.EmfComponent;
 import org.talend.repository.ProjectManager;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
@@ -66,10 +70,17 @@ public class TaCoKitGenericProvider implements IGenericProvider {
                 }
                 return ComponentModel.class.isInstance(component);
             });
+
+            final String reportPath =
+                    CorePlugin.getDefault().getPluginPreferences().getString(ITalendCorePrefConstants.IREPORT_PATH);
+            final boolean isCatcherAvailable =
+                    ComponentsFactoryProvider.getInstance().get(EmfComponent.TSTATCATCHER_NAME,
+                            ComponentCategory.CATEGORY_4_DI.getName()) != null;
             details.forEach(pair -> {
                 ComponentIndex index = pair.getFirst();
                 ComponentDetail detail = pair.getSecond();
-                components.add(new ComponentModel(index, detail, service.toEclipseIcon(index.getIcon())));
+                components.add(new ComponentModel(index, detail, service.toEclipseIcon(index.getIcon()), reportPath,
+                        isCatcherAvailable));
             });
         }
     }

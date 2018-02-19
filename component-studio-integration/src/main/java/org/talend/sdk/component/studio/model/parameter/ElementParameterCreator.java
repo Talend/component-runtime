@@ -65,6 +65,10 @@ public class ElementParameterCreator {
 
     private final List<IElementParameter> parameters = new ArrayList<>();
 
+    private final String reportPath;
+
+    private final boolean isCatcherAvailable;
+
     /**
      * Stores Component Property Definitions
      */
@@ -77,10 +81,13 @@ public class ElementParameterCreator {
      */
     private ElementParameter updateComponentsParameter;
 
-    public ElementParameterCreator(final ComponentModel component, final ComponentDetail detail, final INode node) {
+    public ElementParameterCreator(final ComponentModel component, final ComponentDetail detail, final INode node,
+            final String reportPath, final boolean isCatcherAvailable) {
         this.component = component;
         this.detail = detail;
         this.node = node;
+        this.isCatcherAvailable = isCatcherAvailable;
+        this.reportPath = reportPath;
         if (!detail.getProperties().isEmpty()) {
             this.properties = PropertyDefinitionDecorator.wrap(detail.getProperties());
         } else {
@@ -325,8 +332,7 @@ public class ElementParameterCreator {
         parameter.setDisplayName(EParameterName.IREPORT_PATH.getDisplayName());
         parameter.setNumRow(99);
         parameter.setShow(false);
-        parameter.setValue(
-                CorePlugin.getDefault().getPluginPreferences().getString(ITalendCorePrefConstants.IREPORT_PATH));
+        parameter.setValue(reportPath);
         parameter.setReadOnly(true);
         parameters.add(parameter);
     }

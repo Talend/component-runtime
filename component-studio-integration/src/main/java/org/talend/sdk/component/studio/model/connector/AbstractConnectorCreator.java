@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.talend.core.CorePlugin;
 import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.INode;
 import org.talend.core.model.process.INodeConnector;
@@ -104,7 +105,8 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
         connector.setDefaultConnectionType(defaultConnectionType);
         connector.setLinkName(name);
         connector.setMenuName(name);
-        connector.addConnectionProperty(type, type.getRGB(), type.getDefaultLineStyle());
+        connector.addConnectionProperty(CorePlugin.getDefault() == null ? null : type, type.getRGB(),
+                type.getDefaultLineStyle());
         connector.setMinLinkInput(0);
         connector.setMaxLinkInput(0);
         connector.setMinLinkOutput(0);

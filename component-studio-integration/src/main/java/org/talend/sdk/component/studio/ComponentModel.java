@@ -74,6 +74,10 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
 
     private final ComponentDetail detail;
 
+    private final String reportPath;
+
+    private final boolean isCatcherAvailable;
+
     private final ImageDescriptor image;
 
     private final ImageDescriptor image24;
@@ -94,17 +98,21 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
 
     private Boolean useLookup = null;
 
-    public ComponentModel(final ComponentIndex component, final ComponentDetail detail, final ImageDescriptor image32) {
+    public ComponentModel(final ComponentIndex component, final ComponentDetail detail, final ImageDescriptor image32,
+            final String reportPath, final boolean isCatcherAvailable) {
         setPaletteType(ComponentCategory.CATEGORY_4_DI.getName());
         this.index = component;
         this.detail = detail;
         this.familyName = computeFamilyName();
         this.codePartListX = createCodePartList();
+        this.reportPath = reportPath;
+        this.isCatcherAvailable = isCatcherAvailable;
         this.image = image32;
         this.image24 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(24, 24));
         this.image16 = ImageDescriptor.createFromImageData(image.getImageData().scaledTo(16, 16));
     }
 
+    @Deprecated // to drop since it is not used at all in main code
     ComponentModel(final ComponentIndex component, final ComponentDetail detail) {
         setPaletteType("DI");
         this.index = component;
@@ -114,6 +122,8 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
         this.image = null;
         this.image24 = null;
         this.image16 = null;
+        this.reportPath = null;
+        this.isCatcherAvailable = false;
         createCodePartList();
     }
 
@@ -140,17 +150,16 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
      * <li>END</li>
      * <li>FINALLYS</li>
      * </ul>
-     * 
+     *
      * @return
      */
     private List<ECodePart> createCodePartList() {
-        return (detail.getType().equalsIgnoreCase("input")) //$NON-NLS-1$
-                ? Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.END, ECodePart.FINALLY))
+        return Collections.unmodifiableList((detail.getType().equalsIgnoreCase("input")) //$NON-NLS-1$
+                ? Arrays.asList(ECodePart.BEGIN, ECodePart.END, ECodePart.FINALLY)
                 : (useLookup()
-                        ? Collections.unmodifiableList(Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN,
-                                ECodePart.END_HEAD, ECodePart.END_BODY, ECodePart.END_TAIL, ECodePart.FINALLY))
-                        : Collections.unmodifiableList(
-                                Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY)));
+                        ? Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END_HEAD, ECodePart.END_BODY,
+                                ECodePart.END_TAIL, ECodePart.FINALLY)
+                        : Arrays.asList(ECodePart.BEGIN, ECodePart.MAIN, ECodePart.END, ECodePart.FINALLY)));
     }
 
     /**
@@ -173,7 +182,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
      * Returns long component name, aka title (e.g. "Salesforce Input"). It is i18n
      * title. In v0 component it is specified by "component.{compName}.title"
      * message key
-     * 
+     *
      * @return long component name, aka title (e.g. "") or translated
      */
     @Override
@@ -185,7 +194,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
      * Returns string which is concatenation of all component palette entries
      * Component palette entry is computed as category + "/" + familyName E.g.
      * "Business/Salesforce|Cloud/Salesforce"
-     * 
+     *
      * @return all palette entries for this component
      */
     @Override
@@ -205,7 +214,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
      * Returns short component name, which is obtained in following way All capital
      * letters are picked and converted to lower case E.g. the short name for
      * "tSalesforceInput" is "si"
-     * 
+     *
      * @return short component name
      */
     @Override
@@ -253,7 +262,8 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
      */
     @Override // TODO This is dummy implementation. Correct impl should be added soon
     public List<? extends IElementParameter> createElementParameters(final INode node) {
-        ElementParameterCreator creator = new ElementParameterCreator(this, detail, node);
+        ElementParameterCreator creator =
+                new ElementParameterCreator(this, detail, node, reportPath, isCatcherAvailable);
         List<IElementParameter> parameters = (List<IElementParameter>) creator.createParameters();
         return parameters;
     }
