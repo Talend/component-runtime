@@ -42,12 +42,15 @@ import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.STRI
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
+import lombok.AllArgsConstructor;
+
 /**
  * Maps metadata retrieved from {@link SimplePropertyDefinition} to {@link EParameterFieldType}
  */
+@AllArgsConstructor
 public class WidgetTypeMapper {
 
-    private SimplePropertyDefinition property;
+    private final SimplePropertyDefinition property;
 
     /**
      * Recognizes {@link EParameterFieldType} for given {@link SimplePropertyDefinition}
@@ -55,14 +58,12 @@ public class WidgetTypeMapper {
      * All checks are implemented in separate methods
      * Only one checker method returns {@code true} for particular Property Definition
      * 
-     * @param property Property, which field type should be defined
      * @return widget type
      */
-    public EParameterFieldType getFieldType(final SimplePropertyDefinition property) {
+    public EParameterFieldType getFieldType() {
         if (property == null) {
             throw new IllegalArgumentException("property should not be null");
         }
-        this.property = property;
         if (isSchema()) {
             return getSchemaType();
         } else if (isText()) {

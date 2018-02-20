@@ -102,7 +102,7 @@ public class ElementParameterCreator {
      */
     private void addSettings() {
         if (!properties.isEmpty()) {
-            final PropertyNode root = new PropertyTreeCreator(new WidgetTypeMapper()).createPropertyTree(properties);
+            final PropertyNode root = new PropertyTreeCreator().createPropertyTree(properties);
             // add main parameters
             final SettingsCreator mainSettingsCreator =
                     new SettingsCreator(node, BASIC, updateComponentsParameter, detail);

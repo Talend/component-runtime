@@ -3,7 +3,6 @@
   "version": "ignored",
   "private": true,
   "dependencies": {
-    "js-search": "1.4.2",
-    "bower": "1.8.2"
+    "popcorn-js": "1.5.11"
   }
 }

@@ -88,7 +88,7 @@ public class HealthCheckResolver {
     private String getParameterAlias() {
         final Collection<PropertyDefinitionDecorator> properties =
                 PropertyDefinitionDecorator.wrap(action.getProperties());
-        final PropertyNode root = new PropertyTreeCreator(new WidgetTypeMapper()).createPropertyTree(properties);
+        final PropertyNode root = new PropertyTreeCreator().createPropertyTree(properties);
         return root.getProperty().getPath();
     }
 }

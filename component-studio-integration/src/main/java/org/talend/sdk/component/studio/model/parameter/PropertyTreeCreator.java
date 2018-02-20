@@ -34,11 +34,6 @@ import lombok.AllArgsConstructor;
 public class PropertyTreeCreator {
 
     /**
-     * Maps widget types to Parameter field type
-     */
-    private final WidgetTypeMapper typeMapper;
-
-    /**
      * Creates tree representation of {@link PropertyDefinitionDecorator}.
      * Not all definitions represent Component property, which may store User setting.
      * Some of them are holders for other definitions (like Forms or Properties in v0 integration)
@@ -132,7 +127,7 @@ public class PropertyTreeCreator {
      * @return {@link PropertyNode} implementation
      */
     PropertyNode createNode(final PropertyDefinitionDecorator property, final boolean isRoot) {
-        EParameterFieldType fieldType = typeMapper.getFieldType(property);
+        EParameterFieldType fieldType = new WidgetTypeMapper(property).getFieldType();
         PropertyNode node;
         switch (fieldType) {
         case TABLE:

@@ -149,6 +149,16 @@
                   <arguments>install</arguments>
                 </configuration>
               </execution>
+              <execution>
+                <id>bower-install</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>bower</goal>
+                </goals>
+                <configuration>
+                  <arguments>install</arguments>
+                </configuration>
+              </execution>
             </executions>
             <configuration>
               <installDirectory>${project.basedir}/.node</installDirectory>

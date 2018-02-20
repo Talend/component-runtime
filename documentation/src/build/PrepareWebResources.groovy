@@ -15,12 +15,23 @@
  */
 import groovy.json.JsonOutput
 
-// add js-search resource
-def source = new File(project.basedir, 'src/main/frontend/node_modules/js-search/dist/umd/js-search.min.js')
-def target = new File(project.build.directory, "${project.build.finalName}/js/js-search.min.js")
-target.parentFile.mkdirs()
-target.text = source.text
-log.info("Imported js-search")
+def copyJsResource = { source, output ->
+    def target = new File(project.build.directory, "${project.build.finalName}/${output}")
+    target.parentFile.mkdirs()
+    target.text = source.text
+    log.info("Imported ${target.name}")
+}
+
+// add js resources resource
+copyJsResource(
+    new File(project.basedir, 'src/main/frontend/node_modules/js-search/dist/umd/js-search.min.js').toURI().toURL(),
+    'js/js-search.min.js')
+copyJsResource(
+        new File(project.basedir, 'src/main/frontend/bower_components/popcorn-js/popcorn.js').toURI().toURL(),
+    'js/popcorn.js')
+copyJsResource(
+        new File(project.basedir, 'src/main/frontend/bower_components/popcorn-js/plugins/footnote/popcorn.footnote.js').toURI().toURL(),
+    'js/popcorn.footnote.js')
 
 // populate index
 class Document {
