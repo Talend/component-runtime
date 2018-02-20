@@ -25,34 +25,35 @@ import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 import org.talend.sdk.component.runtime.beam.transform.service.ServiceLookup;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 
+import lombok.AllArgsConstructor;
+
 /**
- * Allows to convert an input to a normal output wrapping the value in a __default__ container.
+ * Extract the value of a branch if exists (unwrap).
  */
-public class RecordNormalizer extends DoFn<JsonObject, JsonObject> {
+@AllArgsConstructor
+public class RecordBranchUnwrapper extends DoFn<JsonObject, JsonObject> {
 
     private JsonBuilderFactory factory;
 
-    protected RecordNormalizer() {
-        // no-op
-    }
+    private String branch;
 
-    public RecordNormalizer(final JsonBuilderFactory factory) {
-        this.factory = factory;
+    protected RecordBranchUnwrapper() {
+        // no-op
     }
 
     @ProcessElement
     public void onElement(final ProcessContext context) {
-        context.output(toMap(context.element()));
+        final JsonObject aggregate = context.element();
+        if (aggregate.containsKey(branch)) {
+            context.output(aggregate.getJsonObject(branch));
+        }
     }
 
-    private JsonObject toMap(final JsonObject element) {
-        return factory.createObjectBuilder().add("__default__", factory.createArrayBuilder().add(element)).build();
-    }
-
-    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin) {
+    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin,
+            final String branchSelector) {
         final JsonBuilderFactory lookup =
                 ServiceLookup.lookup(ComponentManager.instance(), plugin, JsonBuilderFactory.class);
         return new JsonObjectParDoTransformCoderProvider<>(JsonpJsonObjectCoder.of(plugin),
-                new RecordNormalizer(lookup));
+                new RecordBranchUnwrapper(lookup, branchSelector));
     }
 }

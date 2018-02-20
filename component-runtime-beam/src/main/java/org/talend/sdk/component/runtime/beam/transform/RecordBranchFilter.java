@@ -25,34 +25,39 @@ import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 import org.talend.sdk.component.runtime.beam.transform.service.ServiceLookup;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 
+import lombok.AllArgsConstructor;
+
 /**
- * Allows to convert an input to a normal output wrapping the value in a __default__ container.
+ * Filters a record by branch, output is a record containing only the selected branch
+ * or no record is emitted if the branch is missing.
  */
-public class RecordNormalizer extends DoFn<JsonObject, JsonObject> {
+@AllArgsConstructor
+public class RecordBranchFilter extends DoFn<JsonObject, JsonObject> {
 
     private JsonBuilderFactory factory;
 
-    protected RecordNormalizer() {
-        // no-op
-    }
+    private String branch;
 
-    public RecordNormalizer(final JsonBuilderFactory factory) {
-        this.factory = factory;
+    protected RecordBranchFilter() {
+        // no-op
     }
 
     @ProcessElement
     public void onElement(final ProcessContext context) {
-        context.output(toMap(context.element()));
+        final JsonObject aggregate = context.element();
+        if (aggregate.containsKey(branch)) {
+            context.output(factory
+                    .createObjectBuilder()
+                    .add(branch, factory.createArrayBuilder().add(aggregate.getJsonObject(branch)))
+                    .build());
+        }
     }
 
-    private JsonObject toMap(final JsonObject element) {
-        return factory.createObjectBuilder().add("__default__", factory.createArrayBuilder().add(element)).build();
-    }
-
-    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin) {
+    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin,
+            final String branchSelector) {
         final JsonBuilderFactory lookup =
                 ServiceLookup.lookup(ComponentManager.instance(), plugin, JsonBuilderFactory.class);
         return new JsonObjectParDoTransformCoderProvider<>(JsonpJsonObjectCoder.of(plugin),
-                new RecordNormalizer(lookup));
+                new RecordBranchFilter(lookup, branchSelector));
     }
 }

@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.beam.transform;
 
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -25,34 +26,41 @@ import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 import org.talend.sdk.component.runtime.beam.transform.service.ServiceLookup;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 
+import lombok.AllArgsConstructor;
+
 /**
- * Allows to convert an input to a normal output wrapping the value in a __default__ container.
+ * Redirects a branch on another branch without modifying the other ones.
  */
-public class RecordNormalizer extends DoFn<JsonObject, JsonObject> {
+@AllArgsConstructor
+public class RecordBranchMapper extends DoFn<JsonObject, JsonObject> {
 
     private JsonBuilderFactory factory;
 
-    protected RecordNormalizer() {
-        // no-op
-    }
+    private String sourceBranch;
 
-    public RecordNormalizer(final JsonBuilderFactory factory) {
-        this.factory = factory;
+    private String targetBranch;
+
+    protected RecordBranchMapper() {
+        // no-op
     }
 
     @ProcessElement
     public void onElement(final ProcessContext context) {
-        context.output(toMap(context.element()));
+        final JsonObject aggregate = context.element();
+        if (aggregate.containsKey(sourceBranch)) {
+            context.output(aggregate.entrySet().stream().collect(factory::createObjectBuilder, (a, e) -> {
+                a.add(e.getKey().equals(sourceBranch) ? targetBranch : e.getKey(), e.getValue());
+            }, JsonObjectBuilder::addAll).build());
+        } else {
+            context.output(aggregate);
+        }
     }
 
-    private JsonObject toMap(final JsonObject element) {
-        return factory.createObjectBuilder().add("__default__", factory.createArrayBuilder().add(element)).build();
-    }
-
-    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin) {
+    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin,
+            final String fromBranch, final String toBranch) {
         final JsonBuilderFactory lookup =
                 ServiceLookup.lookup(ComponentManager.instance(), plugin, JsonBuilderFactory.class);
         return new JsonObjectParDoTransformCoderProvider<>(JsonpJsonObjectCoder.of(plugin),
-                new RecordNormalizer(lookup));
+                new RecordBranchMapper(lookup, fromBranch, toBranch));
     }
 }
