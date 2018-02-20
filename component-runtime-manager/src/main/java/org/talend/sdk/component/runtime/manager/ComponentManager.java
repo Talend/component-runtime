@@ -253,11 +253,11 @@ public class ComponentManager implements AutoCloseable {
         jsonpProvider = JsonProvider.provider();
         jsonbProvider = JsonbProvider.provider();
         // these factories have memory caches so ensure we reuse them properly
-        jsonpGeneratorFactory = jsonpProvider.createGeneratorFactory(emptyMap());
-        jsonpReaderFactory = jsonpProvider.createReaderFactory(emptyMap());
-        jsonpBuilderFactory = jsonpProvider.createBuilderFactory(emptyMap());
-        jsonpParserFactory = jsonpProvider.createParserFactory(emptyMap());
-        jsonpWriterFactory = jsonpProvider.createWriterFactory(emptyMap());
+        jsonpGeneratorFactory = JsonGeneratorFactory.class.cast(javaProxyEnricherFactory.asSerializable(tccl, null, JsonGeneratorFactory.class.getName(), jsonpProvider.createGeneratorFactory(emptyMap())));
+        jsonpReaderFactory = JsonReaderFactory.class.cast(javaProxyEnricherFactory.asSerializable(tccl, null, JsonReaderFactory.class.getName(), jsonpProvider.createReaderFactory(emptyMap())));
+        jsonpBuilderFactory = JsonBuilderFactory.class.cast(javaProxyEnricherFactory.asSerializable(tccl, null, JsonBuilderFactory.class.getName(), jsonpProvider.createBuilderFactory(emptyMap())));
+        jsonpParserFactory = JsonParserFactory.class.cast(javaProxyEnricherFactory.asSerializable(tccl, null, JsonParserFactory.class.getName(), jsonpProvider.createParserFactory(emptyMap())));
+        jsonpWriterFactory = JsonWriterFactory.class.cast(javaProxyEnricherFactory.asSerializable(tccl, null, JsonWriterFactory.class.getName(), jsonpProvider.createWriterFactory(emptyMap())));
 
         logInfoLevelMapping = findLogInfoLevel();
 
@@ -384,6 +384,7 @@ public class ComponentManager implements AutoCloseable {
                                     }
                                 }
                             } finally {
+                                CONTEXTUAL_INSTANCE.set(null);
                                 super.close();
                                 info("Released the contextual ComponentManager instance " + getIdentifiers());
                             }

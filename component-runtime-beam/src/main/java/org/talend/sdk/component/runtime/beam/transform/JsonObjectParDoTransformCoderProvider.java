@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import javax.json.JsonObject;
 
 import org.apache.beam.sdk.coders.Coder;
@@ -24,7 +26,9 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor
 class JsonObjectParDoTransformCoderProvider<T> extends PTransform<PCollection<JsonObject>, PCollection<T>> {
 

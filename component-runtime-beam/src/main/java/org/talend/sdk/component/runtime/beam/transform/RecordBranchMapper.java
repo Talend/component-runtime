@@ -48,18 +48,19 @@ public class RecordBranchMapper extends DoFn<JsonObject, JsonObject> {
     public void onElement(final ProcessContext context) {
         final JsonObject aggregate = context.element();
         if (aggregate.containsKey(sourceBranch)) {
-            context.output(aggregate.entrySet().stream().collect(factory::createObjectBuilder, (a, e) -> {
-                a.add(e.getKey().equals(sourceBranch) ? targetBranch : e.getKey(), e.getValue());
-            }, JsonObjectBuilder::addAll).build());
+            context.output(aggregate.entrySet().stream()
+                    .collect(factory::createObjectBuilder,
+                            (a, e) -> a.add(e.getKey().equals(sourceBranch) ? targetBranch : e.getKey(), e.getValue()),
+                            JsonObjectBuilder::addAll)
+                    .build());
         } else {
             context.output(aggregate);
         }
     }
 
-    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin,
-            final String fromBranch, final String toBranch) {
-        final JsonBuilderFactory lookup =
-                ServiceLookup.lookup(ComponentManager.instance(), plugin, JsonBuilderFactory.class);
+    public static PTransform<PCollection<JsonObject>, PCollection<JsonObject>> of(final String plugin, final String fromBranch,
+            final String toBranch) {
+        final JsonBuilderFactory lookup = ServiceLookup.lookup(ComponentManager.instance(), plugin, JsonBuilderFactory.class);
         return new JsonObjectParDoTransformCoderProvider<>(JsonpJsonObjectCoder.of(plugin),
                 new RecordBranchMapper(lookup, fromBranch, toBranch));
     }

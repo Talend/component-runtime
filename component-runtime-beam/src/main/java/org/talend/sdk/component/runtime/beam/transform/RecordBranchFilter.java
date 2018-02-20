@@ -48,7 +48,7 @@ public class RecordBranchFilter extends DoFn<JsonObject, JsonObject> {
         if (aggregate.containsKey(branch)) {
             context.output(factory
                     .createObjectBuilder()
-                    .add(branch, factory.createArrayBuilder().add(aggregate.getJsonObject(branch)))
+                    .add(branch, factory.createArrayBuilder().add(aggregate.getJsonArray(branch)))
                     .build());
         }
     }

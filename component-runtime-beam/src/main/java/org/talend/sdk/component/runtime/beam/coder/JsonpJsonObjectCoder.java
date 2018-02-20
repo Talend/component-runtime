@@ -34,6 +34,7 @@ import org.apache.beam.sdk.coders.CustomCoder;
 import org.apache.beam.sdk.util.VarInt;
 import org.talend.sdk.component.runtime.beam.io.CountingOutputStream;
 import org.talend.sdk.component.runtime.beam.io.NoCloseInputStream;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
@@ -45,6 +46,12 @@ import lombok.NoArgsConstructor;
 public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
 
     public static JsonpJsonObjectCoder of(final String plugin) {
+        if (plugin == null) {
+            final ComponentManager instance = ComponentManager.instance();
+            return new JsonpJsonObjectCoder(instance.getJsonpReaderFactory(),
+                    instance.getJsonpWriterFactory()yep
+            );
+        }
         final LightContainer container = ContainerFinder.Instance.get().find(plugin);
         return new JsonpJsonObjectCoder(container.findService(JsonReaderFactory.class),
                 container.findService(JsonWriterFactory.class));

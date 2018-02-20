@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
+import javax.json.JsonArray;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
@@ -45,7 +46,10 @@ public class RecordBranchUnwrapper extends DoFn<JsonObject, JsonObject> {
     public void onElement(final ProcessContext context) {
         final JsonObject aggregate = context.element();
         if (aggregate.containsKey(branch)) {
-            context.output(aggregate.getJsonObject(branch));
+            final JsonArray jsonArray = aggregate.getJsonArray(branch);
+            if (!jsonArray.isEmpty()) {
+                context.output(jsonArray.iterator().next().asJsonObject());
+            }
         }
     }
 
