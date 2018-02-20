@@ -19,13 +19,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonReaderFactory;
-import javax.json.JsonWriterFactory;
-import javax.json.stream.JsonGeneratorFactory;
-import javax.json.stream.JsonParserFactory;
-
-import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.service.DefaultServices;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.RequiredArgsConstructor;
@@ -43,22 +37,7 @@ public class SerializationHandlerReplacer implements Serializable {
 
     private Object findProxy() throws ObjectStreamException {
         if (plugin == null) {
-            if (type.equals(JsonBuilderFactory.class.getName())) {
-                return ComponentManager.instance().getJsonpBuilderFactory();
-            }
-            if (type.equals(JsonReaderFactory.class.getName())) {
-                return ComponentManager.instance().getJsonpReaderFactory();
-            }
-            if (type.equals(JsonGeneratorFactory.class.getName())) {
-                return ComponentManager.instance().getJsonpGeneratorFactory();
-            }
-            if (type.equals(JsonParserFactory.class.getName())) {
-                return ComponentManager.instance().getJsonpParserFactory();
-            }
-            if (type.equals(JsonWriterFactory.class.getName())) {
-                return ComponentManager.instance().getJsonpWriterFactory();
-            }
-            throw new IllegalArgumentException(type + " can't be a global service, didn't you pass a null plugin?");
+            return DefaultServices.lookup(type);
         }
         return new SerializableService(plugin, type).readResolve();
     }

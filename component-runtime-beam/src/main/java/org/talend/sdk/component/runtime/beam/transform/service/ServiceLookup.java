@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.beam.transform.service;
 import static lombok.AccessLevel.PRIVATE;
 
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.service.DefaultServices;
 
 import lombok.NoArgsConstructor;
 
@@ -25,6 +26,9 @@ import lombok.NoArgsConstructor;
 public class ServiceLookup {
 
     public static <T> T lookup(final ComponentManager manager, final String plugin, final Class<T> type) {
+        if (plugin == null) {
+            return type.cast(DefaultServices.lookup(type.getName()));
+        }
         return type
                 .cast(manager.findPlugin(plugin).get().get(ComponentManager.AllServices.class).getServices().get(type));
     }

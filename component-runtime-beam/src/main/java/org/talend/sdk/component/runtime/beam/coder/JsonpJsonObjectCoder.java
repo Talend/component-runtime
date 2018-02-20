@@ -48,9 +48,7 @@ public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
     public static JsonpJsonObjectCoder of(final String plugin) {
         if (plugin == null) {
             final ComponentManager instance = ComponentManager.instance();
-            return new JsonpJsonObjectCoder(instance.getJsonpReaderFactory(),
-                    instance.getJsonpWriterFactory()yep
-            );
+            return new JsonpJsonObjectCoder(instance.getJsonpReaderFactory(), instance.getJsonpWriterFactory());
         }
         final LightContainer container = ContainerFinder.Instance.get().find(plugin);
         return new JsonpJsonObjectCoder(container.findService(JsonReaderFactory.class),
