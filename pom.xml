@@ -477,6 +477,8 @@
             <exclude>**/src/main/resources/generator/**/*</exclude>
             <exclude>**/src/test/resources/generated/**/*</exclude>
             <exclude>**/src/main/jbake/generated-assets/*</exclude>
+            <exclude>**/antora/**/*</exclude>
+            <exclude>**/.antora-cache/**/*</exclude>
           </excludes>
         </configuration>
       </plugin>
