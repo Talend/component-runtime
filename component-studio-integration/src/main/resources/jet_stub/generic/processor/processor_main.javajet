@@ -54,7 +54,7 @@
     } else {
         for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
 %>
-          inputsHandler_<%=cid%>.setInputValue("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>);
+          inputsHandler_<%=cid%>.setInputValue("<%= connection.getConnectorName() %>", <%= connection.getName() %>);
 <%
         }
     }

@@ -28,8 +28,8 @@ public class OutputsHandler extends BaseIOHandler {
 
     public OutputFactory asOutputFactory() {
         return name -> value -> {
-            final BaseIOHandler.IO ref = connections.get(name);
-            if (ref != null) {
+            final BaseIOHandler.IO ref = connections.get(getActualName(name));
+            if (ref != null && value != null) {
                 final String jsonValue = JsonValue.class.isInstance(value) ? JsonValue.class.cast(value).toString()
                         : jsonb.toJson(value);
                 ref.getValue().set(jsonb.fromJson(jsonValue, ref.getType()));

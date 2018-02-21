@@ -53,16 +53,20 @@ public abstract class BaseIOHandler {
         }
     }
 
-    public void addConnection(final String connectorTypeName/* useless for now */, final Class<?> type) {
-        connections.put(type.getSimpleName(), new IO<>(new AtomicReference<>(), type, false));
+    public void addConnection(final String connectorName, final Class<?> type) {
+        connections.put(connectorName, new IO<>(new AtomicReference<>(), type, false));
     }
 
     public void reset() {
         connections.values().forEach(IO::reset);
     }
 
-    public <T> T getValue(final String connectorTypeName, final Class<T> type) {
-        return type.cast(connections.get(type.getSimpleName()).value.get());
+    public <T> T getValue(final String connectorName, final Class<T> type) {
+        return type.cast(connections.get(connectorName).value.get());
+    }
+
+    protected String getActualName(final String name) {
+        return "__default__".equals(name) ? "FLOW" : name;
     }
 
     @AllArgsConstructor

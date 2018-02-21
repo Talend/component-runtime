@@ -79,7 +79,7 @@
     } else {
         for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
 %>
-            inputsHandler_<%=cid%>.addConnection("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>.getClass());
+            inputsHandler_<%=cid%>.addConnection("<%= connection.getConnectorName() %>", <%= connection.getName() %>.getClass());
 <%
         }
     }
@@ -92,7 +92,7 @@
             continue;
         }
 %>
-        outputHandler_<%=cid%>.addConnection("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>.getClass());
+        outputHandler_<%=cid%>.addConnection("<%= connection.getConnectorName() %>", <%= connection.getName() %>.getClass());
 <%
     }
 %>
