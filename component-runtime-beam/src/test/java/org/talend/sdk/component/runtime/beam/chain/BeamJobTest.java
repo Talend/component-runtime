@@ -19,6 +19,7 @@ import static java.net.URLEncoder.encode;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,6 +96,11 @@ public class BeamJobTest {
                     .property(GroupKeyExtractor.class.getName(),
                             (GroupKeyExtractor) object -> object.getJsonObject("$$internal").getString("key"))
                     .run();
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                fail(e.getMessage(), e);
+            }
 
             assertTrue(out.isFile());
             assertEquals(Stream
