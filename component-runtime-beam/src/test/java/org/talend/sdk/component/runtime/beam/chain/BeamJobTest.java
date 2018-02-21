@@ -1,0 +1,106 @@
+/**
+ * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.talend.sdk.component.runtime.beam.chain;
+
+import static java.net.URLEncoder.encode;
+import static java.util.stream.Collectors.toSet;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashSet;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
+import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.talend.sdk.component.runtime.beam.PluginGenerator;
+import org.talend.sdk.component.runtime.beam.chain.impl.GroupKeyExtractor;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.chain.Job;
+
+@WithTemporaryFolder
+public class BeamJobTest {
+
+    private final PluginGenerator pluginGenerator = new PluginGenerator();
+
+    @Test
+    void complex(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
+        final String testName = info.getTestMethod().get().getName();
+        final String plugin = testName + ".jar";
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
+        final File out = new File(temporaryFolder.getRoot(), testName + "-out.txt");
+
+        try (final ComponentManager manager =
+                new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
+
+                    {
+                        CONTEXTUAL_INSTANCE.set(this);
+                        addPlugin(jar.getAbsolutePath());
+                    }
+
+                    @Override
+                    public void close() {
+                        super.close();
+                        CONTEXTUAL_INSTANCE.set(null);
+                    }
+                }) {
+
+            Job
+                    .components()
+                    .component("formatter", "chain://formatter?__version=1")
+                    .component("concat", "chain://concat?__version=1")
+                    .component("concat_2", "chain://concat?__version=1")
+                    .component("firstNames-dataset",
+                            "chain://list?__version=1" + "&values[0]=noha" + "&values[1]=Emma" + "&values[2]=liam"
+                                    + "&values[3]=Olivia")
+                    .component("lastNames-dataset",
+                            "chain://list?__version=1" + "&values[0]=manson" + "&values[1]=Sophia" + "&values[2]=jacob")
+                    .component("address",
+                            "chain://list?__version=1" + "&values[0]=Paris" + "&values[1]=Strasbourg"
+                                    + "&values[2]=Bordeaux" + "&values[3]=Nantes")
+                    .component("outFile", "chain://file?__version=1&file=" + encode(out.getAbsolutePath(), "utf-8"))
+                    .connections()
+                    .from("firstNames-dataset")
+                    .to("formatter", "firstName")
+                    .from("lastNames-dataset")
+                    .to("formatter", "lastName")
+                    .from("formatter", "formatted-lastName")
+                    .to("concat", "str1")
+                    .from("formatter", "formatted-firstName")
+                    .to("concat", "str2")
+                    .from("concat")
+                    .to("concat_2", "str1")
+                    .from("address")
+                    .to("concat_2", "str2")
+                    .from("concat_2")
+                    .to("outFile")
+                    .build()
+                    .property(GroupKeyExtractor.class.getName(),
+                            (GroupKeyExtractor) object -> object.getJsonObject("$$internal").getString("key"))
+                    .run();
+
+            assertTrue(out.isFile());
+            assertEquals(Stream
+                    .of("MANSON noha Paris", "SOPHIA emma Strasbourg", "JACOB liam Bordeaux", "null olivia Nantes")
+                    .collect(toSet()), new HashSet<>(Files.readAllLines(out.toPath())));
+        }
+
+    }
+}

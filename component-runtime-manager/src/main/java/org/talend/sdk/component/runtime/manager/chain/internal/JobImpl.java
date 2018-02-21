@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.chain.internal;
 
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -28,8 +29,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
@@ -48,6 +49,7 @@ import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,15 +69,22 @@ public class JobImpl implements Job {
         public LinkBuilder connections() {
             return new LinkBuilder(nodes);
         }
+
+        public List<Component> getNodes() {
+            return nodes;
+        }
     }
 
     @Slf4j
+    @Getter
     @RequiredArgsConstructor
-    private static class LinkBuilder implements Job.FromBuilder, Builder {
+    public static class LinkBuilder implements Job.FromBuilder, Builder {
 
         private final List<Component> nodes;
 
         private final List<Edge> edges = new ArrayList<>();
+
+        private final Map<Integer, Set<Component>> levels = new TreeMap<>();
 
         @Override
         public ToBuilder from(final String id, final String branch) {
@@ -95,9 +104,7 @@ public class JobImpl implements Job {
             return new To(nodes, edges, new Connection(from, branch), this);
         }
 
-        @Override
-        public ExecutorBuilder build() {
-            // remove orphan nodes & log them
+        public void doBuild() {
             final List<Component> orphans = nodes
                     .stream()
                     .filter(n -> edges.stream().noneMatch(
@@ -106,51 +113,49 @@ public class JobImpl implements Job {
             orphans.forEach(o -> log.warn("component '" + o + "' is orphan in this graph. it will be ignored."));
             nodes.removeAll(orphans);
 
-            // find startNodes - nodes that defined with a from link and no to
-            final List<Component> startNodes = nodes
+            // set up sources
+            nodes.stream().filter(node -> edges.stream().noneMatch(l -> l.getTo().getNode().equals(node))).forEach(
+                    component -> component.setSource(true));
+            calculateGraphOrder(0, new HashSet<>(nodes), new ArrayList<>(edges), levels);
+        }
+
+        private void calculateGraphOrder(final int order, final Set<Component> nodes, final List<Edge> edges,
+                final Map<Integer, Set<Component>> orderedGraph) {
+            if (edges.isEmpty()) {
+                orderedGraph.put(order, nodes); // last nodes
+                return;
+            }
+            final Set<Component> startingNodes = nodes
                     .stream()
                     .filter(node -> edges.stream().noneMatch(l -> l.getTo().getNode().equals(node)))
-                    .collect(toList());
-            if (startNodes.isEmpty()) {
+                    .collect(toSet());
+            if (order == 0 && startingNodes.isEmpty()) {
                 throw new IllegalStateException("There is no starting component in this graph.");
             }
-
-            nodes.removeAll(startNodes);
-            hasCyclicConnection(startNodes, edges, new HashSet<>(startNodes));
-            return new ExecutorBuilder(startNodes, nodes, edges);
+            final List<Edge> level = edges
+                    .stream()
+                    .filter(edge -> startingNodes.contains(edge.getFrom().getNode()))
+                    .filter(edge -> edges
+                            .stream()
+                            .filter(others -> edge.getTo().getNode().equals(others.getTo().getNode()))
+                            .map(others -> others.getFrom().getNode())
+                            .allMatch(startingNodes::contains))
+                    .collect(toList());
+            if (level.isEmpty()) {
+                throw new IllegalStateException("the job pipeline has cyclic connection");
+            }
+            final Set<Component> components = level.stream().map(edge -> edge.getFrom().getNode()).collect(toSet());
+            orderedGraph.put(order, components);
+            edges.removeAll(level);
+            nodes.removeAll(components);
+            calculateGraphOrder(order + 1, nodes, edges, orderedGraph);
         }
 
-        private boolean hasCyclicConnection(final Collection<Component> startNodes, final List<Edge> edges,
-                final Set<Component> parsedNodes) {
-
-            Set<Component> next = new HashSet<>();
-            startNodes.forEach(startNode -> {
-                edges
-                        .stream()
-                        .filter(e -> e.getFrom().getNode().getId().equals(startNode.getId()))
-                        .map(Edge::getTo)
-                        .forEach(to -> {
-                            final Edge cyclic = edges
-                                    .stream()
-                                    .filter(e -> e.getFrom().getNode().getId().equals(to.getNode().getId()))
-                                    .filter(e -> parsedNodes.contains(e.getTo().getNode()))
-                                    .findFirst()
-                                    .orElseGet(() -> {
-                                        next.add(to.getNode());
-                                        return null;
-                                    });
-
-                            if (cyclic != null) {
-                                throw new IllegalStateException("The job have cyclic connection: " + cyclic);
-                            }
-                        });
-
-            });
-
-            parsedNodes.addAll(startNodes);
-            return !next.isEmpty() && hasCyclicConnection(next, edges, parsedNodes);
+        @Override
+        public JobExecutor build() {
+            doBuild();
+            return new JobExecutor(levels, edges);
         }
-
     }
 
     @RequiredArgsConstructor
@@ -184,253 +189,216 @@ public class JobImpl implements Job {
     }
 
     @Slf4j
+    @Getter
     @RequiredArgsConstructor
-    private static class ExecutorBuilder implements Job.ExecutorBuilder {
+    public static class JobExecutor implements Job.ExecutorBuilder {
 
-        private final List<Component> startNodes;
-
-        private final List<Component> nodes;
+        private final Map<Integer, Set<Component>> levels;
 
         private final List<Edge> edges;
+
+        protected final Map<String, Object> properties = new HashMap<>();
 
         private final ComponentManager manager = ComponentManager.instance();
 
         @Override
+        public ExecutorBuilder property(final String name, final Object value) {
+            properties.put(name, value);
+            return this;
+        }
+
+        @Override
         public void run() {
-            final Map<String, InputRunner> inputs = startNodes
+            final Map<String, InputRunner> inputs = levels
+                    .values()
                     .stream()
+                    .flatMap(Collection::stream)
+                    .filter(Component::isSource)
                     .map(n -> new AbstractMap.SimpleEntry<>(n.getId(), new InputRunner(manager
                             .findMapper(n.getNode().getFamily(), n.getNode().getComponent(), n.getNode().getVersion(),
                                     n.getNode().getConfiguration())
                             .orElseThrow(() -> new IllegalStateException("No mapper found for: " + n.getNode())))))
                     .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
-            final Map<String, Processor> processors = nodes
+            final Map<String, Processor> processors = levels
+                    .values()
                     .stream()
-                    .map(n -> new AbstractMap.SimpleEntry<>(n.getId(), manager
-                            .findProcessor(n.getNode().getFamily(), n.getNode().getComponent(),
-                                    n.getNode().getVersion(), n.getNode().getConfiguration())
-                            .orElseThrow(() -> new IllegalStateException("No processor found for:" + n.getNode()))))
+                    .flatMap(Collection::stream)
+                    .filter(component -> !component.isSource())
+                    .map(component -> new AbstractMap.SimpleEntry<>(component.getId(), manager
+                            .findProcessor(component.getNode().getFamily(), component.getNode().getComponent(),
+                                    component.getNode().getVersion(), component.getNode().getConfiguration())
+                            .orElseThrow(
+                                    () -> new IllegalStateException("No processor found for:" + component.getNode()))))
                     .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
             try {
                 processors.values().forEach(Lifecycle::start); // start processor
                 do {
-                    // prepare inputs data (inputs support only one output branch for now)
-                    final Map<String, Map<String, Object>> inputsData = inputs
-                            .entrySet()
-                            .stream()
-                            .map(in -> new AbstractMap.SimpleEntry<>(in.getKey(), new HashMap<String, Object>() {
-
-                                {
-                                    put("__default__", in.getValue().next());
+                    Map<String, Map<String, Object>> flowData = new HashMap<>();
+                    levels.values().stream().flatMap(Collection::stream).forEach(component -> {
+                        if (component.isSource()) {
+                            final InputRunner source = inputs.get(component.getId());
+                            final Object data = source.next();
+                            if (data == null) {
+                                return;
+                            }
+                            edges
+                                    .stream()
+                                    .filter(edge -> edge.getFrom().getNode().equals(component))
+                                    .map(Edge::getTo)
+                                    .forEach(connection -> {
+                                        flowData.put(component.getId(), singletonMap("__default__", data));
+                                    });
+                        } else if (!flowData.isEmpty()) {
+                            final DataInputFactory dataInputFactory = new DataInputFactory();
+                            final Set<Edge> connections =
+                                    edges.stream().filter(edge -> edge.getTo().getNode().equals(component)).collect(
+                                            toSet());
+                            connections.forEach(edge -> {
+                                final String fromId = edge.getFrom().getNode().getId();
+                                final String fromBranch = edge.getFrom().getBranch();
+                                final String toBranch = edge.getTo().getBranch();
+                                final Object data =
+                                        flowData.get(fromId) == null ? null : flowData.get(fromId).get(fromBranch);
+                                if (data != null) {
+                                    dataInputFactory.withInput(toBranch, singletonList(data));
                                 }
-                            }))
-                            .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+                            });
+                            if (dataInputFactory.inputs.isEmpty()) {
+                                return;
+                            }
+                            final Processor processor = processors.get(component.getId());
+                            DataOutputFactory dataOutputFactory = new DataOutputFactory();
+                            processor.beforeGroup();
+                            processor.onNext(dataInputFactory, dataOutputFactory);
+                            processor.afterGroup(dataOutputFactory);
+                            connections.forEach(edge -> {
+                                final String toId = edge.getTo().getNode().getId();
+                                flowData.put(toId, dataOutputFactory.getOutputs());
+                            });
+                        }
+                    });
 
-                    if (endOfFlow(inputsData)) {
-                        break; // if no more inputs data stop reading
+                    if (flowData.isEmpty()) {
+                        break;
                     }
-
-                    doRun(getNextComponents(inputs.keySet(), edges), inputsData, edges, processors);
                 } while (true);
 
             } finally {
                 processors.values().forEach(Lifecycle::stop);
                 inputs.values().forEach(InputRunner::stop);
             }
-
         }
 
-        private void doRun(final Set<Component> step, final Map<String, Map<String, Object>> inputsData,
-                final List<Edge> edges, final Map<String, Processor> processors) {
+        @Slf4j
+        public static class InputRunner {
 
-            if (step.isEmpty() || inputsData.isEmpty()
-                    || inputsData.values().stream().flatMap(in -> in.values().stream()).allMatch(Objects::isNull)) {
+            private final Mapper chainedMapper;
 
-                return;
-            }
+            private final Input input;
 
-            final Map<String, Map<String, Object>> nextInputData = new HashMap<>();
-            step.forEach(component -> {
-
-                final List<Edge> connections =
-                        edges.stream().filter(edge -> edge.getTo().getNode().getId().equals(component.getId())).collect(
-                                toList());
-
-                final DataInputFactory inputFactory = new DataInputFactory();
-                final Boolean[] hasData = { false };
-                connections.forEach(connection -> {
-                    final String fromId = connection.getFrom().getNode().getId();
-                    final String fromBranch = connection.getFrom().getBranch();
-
-                    final String toBranch = connection.getTo().getBranch();
-
-                    final Object data = inputsData.get(fromId).get(fromBranch);
-                    inputsData.get(fromId).remove(fromBranch);
-                    if (data != null) {
-                        inputFactory.withInput(toBranch, singletonList(data));
-                        hasData[0] = true;
-                    }
-
-                });
-
-                if (!hasData[0]) {
-                    return;
-                }
-
-                final Processor processor = processors.get(component.getId());
-                DataOutputFactory outputFactory = new DataOutputFactory();
-                processor.beforeGroup();
-                processor.onNext(inputFactory, outputFactory);
-                processor.afterGroup(outputFactory);
-
-                if (outputFactory.getOutputs().isEmpty()
-                        || outputFactory.getOutputs().values().stream().allMatch(Objects::isNull)) {
-                    return;
-                }
-                nextInputData.put(component.getId(), outputFactory.getOutputs());
-            });
-
-            inputsData
-                    .entrySet()
-                    .stream()
-                    .filter(e -> e.getValue().isEmpty())
-                    .map(Map.Entry::getKey)
-                    .collect(toList())
-                    .forEach(inputsData::remove);
-            nextInputData.putAll(inputsData);// merge non used data with processor outputs
-            final List<String> inputs = step.stream().map(Component::getId).collect(toList());
-            inputs.addAll(inputsData.keySet());
-
-            doRun(getNextComponents(inputs, edges), nextInputData, edges, processors);
-        }
-
-        private Set<Component> getNextComponents(final Collection<String> inputsIds, final List<Edge> edges) {
-            return edges
-                    .stream()
-                    .filter(edge -> inputsIds.contains(edge.getFrom().getNode().getId()))
-                    .map(Edge::getTo)
-                    .filter(to -> edges
-                            .stream()
-                            .filter(edge -> to.getNode().getId().equals(edge.getTo().getNode().getId()))
-                            .allMatch(edge -> inputsIds.contains(edge.getFrom().getNode().getId())))
-                    .map(Connection::getNode)
-                    .collect(toSet());
-        }
-
-        private boolean endOfFlow(final Map<String, Map<String, Object>> flowValues) {
-            return flowValues.isEmpty() || flowValues.values().isEmpty()
-                    || flowValues.values().stream().flatMap(e -> e.values().stream()).allMatch(Objects::isNull);
-        }
-    }
-
-    public static class InputRunner {
-
-        private final Mapper chainedMapper;
-
-        private final Input input;
-
-        public InputRunner(final Mapper mapper) {
-            mapper.start();
-            final long totalSize = mapper.assess();
-            final Iterator<Mapper> iterator;
-            try {
-                iterator = mapper.split(totalSize).iterator();
-            } finally {
-                mapper.stop();
-            }
-
-            chainedMapper = new ChainedMapper(mapper, iterator);
-            chainedMapper.start();
-            input = chainedMapper.create();
-            input.start();
-        }
-
-        public Object next() {
-            return input.next();
-        }
-
-        public void stop() {
-            chainedMapper.stop();
-            input.stop();
-        }
-    }
-
-    @Data
-    private static class Component {
-
-        private final String id;
-
-        private final DSLParser.Step node;
-
-    }
-
-    @Data
-    private static class Connection {
-
-        private final Component node;
-
-        private final String branch;
-    }
-
-    @Data
-    private static class Edge {
-
-        private final Connection from;
-
-        private final Connection to;
-    }
-
-    @Data
-    private static class DataOutputFactory implements OutputFactory {
-
-        private final Map<String, Object> outputs = new HashMap<>();
-
-        @Override
-        public OutputEmitter create(final String name) {
-            return value -> outputs.put(name, value);
-        }
-    }
-
-    private static class DataInputFactory implements InputFactory {
-
-        private final Map<String, Iterator<Object>> inputs = new HashMap<>();
-
-        private volatile Jsonb jsonb;
-
-        public DataInputFactory withInput(final String branch, final Collection<Object> branchData) {
-            inputs.put(branch, branchData.iterator());
-            return this;
-        }
-
-        @Override
-        public Object read(final String name) {
-            final Iterator<?> iterator = inputs.get(name);
-            if (iterator != null && iterator.hasNext()) {
-                return map(iterator.next());
-            }
-            return null;
-        }
-
-        private Object map(final Object next) {
-            if (next == null || JsonObject.class.isInstance(next)) {
-                return next;
-            }
-            if (jsonb == null) {
-                synchronized (this) {
-                    if (jsonb == null) {
-                        jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
+            public InputRunner(final Mapper mapper) {
+                RuntimeException error = null;
+                try {
+                    mapper.start();
+                    chainedMapper = new ChainedMapper(mapper, mapper.split(mapper.assess()).iterator());
+                    chainedMapper.start();
+                    input = chainedMapper.create();
+                    input.start();
+                } catch (final RuntimeException re) {
+                    error = re;
+                    throw re;
+                } finally {
+                    try {
+                        mapper.stop();
+                    } catch (final RuntimeException re) {
+                        if (error == null) {
+                            throw re;
+                        }
+                        log.error(re.getMessage(), re);
                     }
                 }
             }
-            final String str = jsonb.toJson(next);
-            // primitives mainly, not that accurate in main code but for now not forbidden
-            if (str.equals(next.toString())) {
-                return next;
+
+            public Object next() {
+                return input.next();
             }
-            // pojo
-            return jsonb.fromJson(str, JsonObject.class);
+
+            public void stop() {
+                RuntimeException error = null;
+                try {
+                    if (input != null) {
+                        input.stop();
+                    }
+                } catch (final RuntimeException re) {
+                    error = re;
+                    throw re;
+                } finally {
+                    try {
+                        if (chainedMapper != null) {
+                            chainedMapper.stop();
+                        }
+                    } catch (final RuntimeException re) {
+                        if (error == null) {
+                            throw re;
+                        }
+                        log.error(re.getMessage(), re);
+                    }
+                }
+            }
+        }
+
+        @Data
+        private static class DataOutputFactory implements OutputFactory {
+
+            private final Map<String, Object> outputs = new HashMap<>();
+
+            @Override
+            public OutputEmitter create(final String name) {
+                return value -> outputs.put(name, value);
+            }
+        }
+
+        private static class DataInputFactory implements InputFactory {
+
+            private final Map<String, Iterator<Object>> inputs = new HashMap<>();
+
+            private volatile Jsonb jsonb;
+
+            public DataInputFactory withInput(final String branch, final Collection<Object> branchData) {
+                inputs.put(branch, branchData.iterator());
+                return this;
+            }
+
+            @Override
+            public Object read(final String name) {
+                final Iterator<?> iterator = inputs.get(name);
+                if (iterator != null && iterator.hasNext()) {
+                    return map(iterator.next());
+                }
+                return null;
+            }
+
+            private Object map(final Object next) {
+                if (next == null || JsonObject.class.isInstance(next)) {
+                    return next;
+                }
+                if (jsonb == null) {
+                    synchronized (this) {
+                        if (jsonb == null) {
+                            jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
+                        }
+                    }
+                }
+                final String str = jsonb.toJson(next);
+                // primitives mainly, not that accurate in main code but for now not forbidden
+                if (str.equals(next.toString())) {
+                    return next;
+                }
+                // pojo
+                return jsonb.fromJson(str, JsonObject.class);
+            }
         }
     }
 

@@ -47,7 +47,8 @@ public class AutoKVWrapper extends DoFn<JsonObject, KV<String, JsonObject>> {
     @ProcessElement
     public void onElement(final ProcessContext context) {
         final JsonObject jsonObject = context.element();
-        context.output(KV.of(idGenerator.apply(jsonObject), jsonObject));
+        final KV<String, JsonObject> kv = KV.of(idGenerator.apply(jsonObject), jsonObject);
+        context.output(kv);
     }
 
     public static PTransform<PCollection<JsonObject>, PCollection<KV<String, JsonObject>>> of(final String plugin,

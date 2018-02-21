@@ -15,11 +15,21 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
+import org.talend.sdk.component.runtime.manager.chain.internal.DSLParser;
 import org.talend.sdk.component.runtime.manager.chain.internal.JobImpl;
+
+import lombok.Data;
 
 public interface Job {
 
     static ComponentBuilder components() {
+        final Iterator<ComponentBuilder> builder = ServiceLoader.load(ComponentBuilder.class).iterator();
+        if (builder.hasNext()) {
+            return builder.next();
+        }
         return new JobImpl.NodeBuilderImpl();
     }
 
@@ -59,7 +69,35 @@ public interface Job {
 
     interface ExecutorBuilder {
 
+        ExecutorBuilder property(String name, Object value);
+
         void run();
+    }
+
+    @Data
+    class Component {
+
+        private final String id;
+
+        private boolean isSource = false;
+
+        private final DSLParser.Step node;
+    }
+
+    @Data
+    class Connection {
+
+        private final Component node;
+
+        private final String branch;
+    }
+
+    @Data
+    class Edge {
+
+        private final Connection from;
+
+        private final Connection to;
     }
 
 }
