@@ -47,7 +47,11 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
 
     protected final Set<EConnectionType> existingTypes = new HashSet<>();
 
-    public static final String MAIN_CONNECTOR_NAME = "Main";
+    public static final String MAIN_CONNECTOR_NAME = EConnectionType.FLOW_MAIN.getName();
+
+    public static final String MAIN_CONNECTOR_DISPLAY_NAME = EConnectionType.FLOW_MAIN.getDefaultMenuName();
+
+    public static final String MAIN_CONNECTOR_LINK_NAME = EConnectionType.FLOW_MAIN.getDefaultLinkName();
 
     protected AbstractConnectorCreator(final ComponentDetail detail, final INode node) {
         this.detail = detail;
@@ -103,8 +107,8 @@ abstract class AbstractConnectorCreator implements ConnectorCreator {
         connector.setName(name);
         connector.setBaseSchema(type.getName());
         connector.setDefaultConnectionType(defaultConnectionType);
-        connector.setLinkName(name);
-        connector.setMenuName(name);
+        connector.setLinkName(name.equals(EConnectionType.FLOW_MAIN.getName()) ? MAIN_CONNECTOR_DISPLAY_NAME : name);
+        connector.setMenuName(name.equals(EConnectionType.FLOW_MAIN.getName()) ? MAIN_CONNECTOR_DISPLAY_NAME : name);
         connector.addConnectionProperty(CorePlugin.getDefault() == null ? null : type, type.getRGB(),
                 type.getDefaultLineStyle());
         connector.setMinLinkInput(0);
