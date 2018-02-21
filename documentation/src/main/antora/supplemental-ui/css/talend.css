@@ -1,0 +1,83 @@
+/**
+ *  Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+.contributors {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.contributor {
+  width: 200px !important;
+}
+.contributor:nth-child(1) {
+  text-align: center;
+}
+h3.contributor-name {
+  word-wrap: break-word;
+  font-size: 18px !important;
+}
+h3.contributor-commits {
+  font-style: italic;
+  font-size: 15px !important;
+  margin: 0.5rem !important;
+}
+.contributor-description {
+  font-size: 12px !important;
+  margin-bottom: 1rem !important;
+}
+
+.global-search {
+  line-height: 1.5;
+  padding: .5rem 1rem;
+  position: relative
+}
+.navbar-search {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem
+}
+
+.gallery td.tableblock > div.imageblock {
+  max-width: 400px;
+  max-height: 400px;
+  padding: 10px;
+}
+.gallery div.imageblock > div.content > a > img {
+  max-width: 400px;
+  max-height: 400px;
+}
+
+.popcorn {
+  display: flex;
+  flex-direction:row;
+  justify-content:flex-start;
+  align-items:stretch;
+}
+#popcorn-container {
+  flex-grow: 1;
+  width: 70%;
+}
+.popcorn-spacer {
+  width: 5%;
+}
+#popcorn-comment {
+  margin-left: 1rem;
+  width: 25%;
+}
+.global-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

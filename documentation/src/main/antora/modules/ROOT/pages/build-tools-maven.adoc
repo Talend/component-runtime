@@ -1,0 +1,399 @@
+= Maven Plugin
+
+`talend-component-maven-plugin` intends to help you to write components
+validating components match best practices and also generating transparently metadata used by Talend Studio.
+
+Here is how to use it:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${component.version}</version>
+</plugin>
+----
+
+Note that this plugin is also an extension so you can declare it in your `build/extensions` block as:
+
+[source,xml]
+----
+<extension>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${component.version}</version>
+</extension>
+----
+
+Used as an extension, `dependencies`, `validate` and `documentation` goals will be set up.
+
+== Dependencies
+
+The first goal is a shortcut for the `maven-dependency-plugin`, it will create the `TALEND-INF/dependencies.txt` file
+with the `compile` and `runtime` dependencies to let the component use it at runtime:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${component.version}</version>
+  <executions>
+    <execution>
+      <id>talend-dependencies</id>
+      <goals>
+        <goal>dependencies</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+----
+
+== Validate
+
+The most important goal is here to help you to validate the common programming model of the component. Here is the execution definition to activate it:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${component.version}</version>
+  <executions>
+    <execution>
+      <id>talend-component-validate</id>
+      <goals>
+        <goal>validate</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+----
+
+By default it will be bound to `process-classes` phase. When executing it will do several validations which can be switched off
+adding the corresponding flags to `false` in the `<configuration>` block of the execution:
+
+[options="header,autowidth"]
+|===
+|Name|Description|Default
+|validateInternationalization|Validates resource bundle are presents and contain commonly used keys (like `_displayName`)|true
+|validateModel|Ensure components pass validations of the `ComponentManager` and Talend Component runtime|true
+|validateSerializable|Ensure components are `Serializable` - note this is a sanity check, the component is not actually serialized here, if you have a doubt ensure to test it. It also checks any `@Internationalized` class is valid and has its keys.|true
+|validateMetadata|Ensure components define an `@Icon` and `@Version`.|true
+|validateDataStore|Ensure any  `@DataStore` defines a `@HealthCheck`.|true
+|validateComponent|Ensure native programming model is respected, you can disable it when using another programming model like in beam case.|true
+|validateActions|Validate actions signatures for the ones not tolerating dynamic binding (`@HealthCheck`, `@DynamicValues`, ...). It is recommanded to keep it `true`.|true
+|validateFamily|Validate the family, i.e. the package containing the `@Components` has also a `@Icon`.|true
+|validateDocumentation|Ensure all 1. components and 2. `@Option` properties have a documentation using `@Documentation`|true
+|===
+
+== Documentation
+
+This goal generates an Asciidoc file documenting your component from the configuration model (`@Option`) and
+`@Documentation` you can put on options and the component itself.
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${component.version}</version>
+  <executions>
+    <execution>
+      <id>talend-component-documentation</id>
+      <goals>
+        <goal>asciidoc</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+----
+
+[options="header,autowidth"]
+|===
+|Name|Description|Default
+|level
+|Which level are the root title
+a|2 which means `==`
+
+|output
+a|Where to store the output, it is *NOT* recommended to change it
+a|`${classes}/TALEND-INF/documentation.adoc`
+
+|formats
+|A map of the renderings to do, keys are the format (`pdf` or `html`) and values the output paths
+| -
+
+|attributes
+|A map of asciidoctor attributes when formats is set
+| -
+
+|templateDir / templateEngine
+|Template configuration for the rendering
+| -
+
+|title
+|Document title
+| ${project.name}
+
+|attachDocumentations
+|Should the documentations (`.adoc`, and `formats` keys) should be attached to the project (and deployed)
+| true
+|===
+
+TIP: if you use the extension you can add the property `talend.documentation.htmlAndPdf` and set it to `true` in your project
+to automatically get a html and PDF rendering of the documentation.
+
+=== Render your documentation
+
+==== HTML
+
+To render the generated documentation you can use the Asciidoctor Maven plugin (or Gradle equivalent):
+
+[source,xml]
+----
+<plugin> (1)
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${talend-component-kit.version}</version>
+  <executions>
+    <execution>
+      <id>documentation</id>
+      <phase>prepare-package</phase>
+      <goals>
+        <goal>asciidoc</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+<plugin> (2)
+  <groupId>org.asciidoctor</groupId>
+  <artifactId>asciidoctor-maven-plugin</artifactId>
+  <version>1.5.6</version>
+  <executions>
+    <execution>
+      <id>doc-html</id>
+      <phase>prepare-package</phase>
+      <goals>
+        <goal>process-asciidoc</goal>
+      </goals>
+      <configuration>
+        <sourceDirectory>${project.build.outputDirectory}/TALEND-INF</sourceDirectory>
+        <sourceDocumentName>documentation.adoc</sourceDocumentName>
+        <outputDirectory>${project.build.directory}/documentation</outputDirectory>
+        <backend>html5</backend>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+----
+
+1. Will generate in `target/classes/TALEND-INF/documentation.adoc` the components documentation.
+2. Will render the documenation as an html file in `target/documentation/documentation.html`.
+
+TIP: ensure to execute it after the documentation generation.
+
+==== PDF
+
+If you prefer a PDF rendering you can configure the following execution
+in the asciidoctor plugin (note that you can configure both executions if you want
+both HTML and PDF rendering):
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.asciidoctor</groupId>
+  <artifactId>asciidoctor-maven-plugin</artifactId>
+  <version>1.5.6</version>
+  <executions>
+    <execution>
+      <id>doc-html</id>
+      <phase>prepare-package</phase>
+      <goals>
+        <goal>process-asciidoc</goal>
+      </goals>
+      <configuration>
+        <sourceDirectory>${project.build.outputDirectory}/TALEND-INF</sourceDirectory>
+        <sourceDocumentName>documentation.adoc</sourceDocumentName>
+        <outputDirectory>${project.build.directory}/documentation</outputDirectory>
+        <backend>pdf</backend>
+      </configuration>
+    </execution>
+  </executions>
+  <dependencies>
+    <dependency>
+      <groupId>org.asciidoctor</groupId>
+      <artifactId>asciidoctorj-pdf</artifactId>
+      <version>1.5.0-alpha.16</version>
+    </dependency>
+  </dependencies>
+</plugin>
+----
+
+==== Include the documentation into a document
+
+If you want to add some more content or add a title, you can include the generated document into
+another document using Asciidoc `include` directive.
+
+A common example is:
+
+[source,adoc]
+----
+= Super Components
+Super Writer
+:toc:
+:toclevels: 3
+:source-highlighter: prettify
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+
+include::{generated_doc}/documentation.adoc[]
+----
+
+This assumes you pass to the plugin the attribute `generated_doc`, this can be done this way:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.asciidoctor</groupId>
+  <artifactId>asciidoctor-maven-plugin</artifactId>
+  <version>1.5.6</version>
+  <executions>
+    <execution>
+      <id>doc-html</id>
+      <phase>prepare-package</phase>
+      <goals>
+        <goal>process-asciidoc</goal>
+      </goals>
+      <configuration>
+        <sourceDirectory>${project.basedir}/src/main/asciidoc</sourceDirectory>
+        <sourceDocumentName>my-main-doc.adoc</sourceDocumentName>
+        <outputDirectory>${project.build.directory}/documentation</outputDirectory>
+        <backend>html5</backend>
+        <attributes>
+          <generated_adoc>${project.build.outputDirectory}/TALEND-INF</generated_adoc>
+        </attributes>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+----
+
+This is optional but allows to reuse maven placeholders to pass paths which is quite convenient in an automated build.
+
+==== More
+
+You can find more customizations on Asciidoctor link:http://asciidoctor.org/docs/asciidoctor-maven-plugin/[website].
+
+== Web
+
+Testing the rendering of your component(s) configuration into the Studio is just a matter of deploying a component
+in Talend Studio (you can have a look to link::studio.html[Studio Documentation] page. But don't forget
+the component can also be deployed into a Cloud (web) environment. To ease the testing of the related rendering,
+you can use the goal `web` of the plugin:
+
+[source]
+----
+mvn talend-component:web
+----
+
+Then you can test your component going on http://localhost:8080. You need to select which component form you want
+to see using the treeview on the left, then on the right the form will be displayed.
+
+The two available configurations of the plugin are `serverPort` which is a shortcut to change the default, 8080, port
+of the embedded server and `serverArguments` to pass Meecrowave options to the server. More on that configuration
+is available at http://openwebbeans.apache.org/meecrowave/meecrowave-core/cli.html.
+
+IMPORTANT: this command reads the component jar from the local maven repository so ensure to install the artifact before using it.
+
+== Generate inputs or outputs
+
+The Mojo `generate` (maven plugin goal) of the same plugin also embeds a generator you can use to bootstrap any input or output component:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${talend-component.version}</version>
+  <executions>
+    <execution> <1>
+      <id>generate-input</id>
+      <phase>generate-sources</phase>
+      <goals>
+        <goal>generate</goal>
+      </goals>
+      <configuration>
+        <type>input</type>
+      </configuration>
+    </execution>
+    <execution> <2>
+      <id>generate-output</id>
+      <phase>generate-sources</phase>
+      <goals>
+        <goal>generate</goal>
+      </goals>
+      <configuration>
+        <type>output</type>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+----
+
+<1> Generates an input (partition mapper + emitter)
+<2> Generates an output
+
+It is intended to be used from the command line (or IDE Maven integration):
+
+[source,sh]
+----
+$ mvn talend-component:generate \
+    -Dtalend.generator.type=[input|output] \ <1>
+    [-Dtalend.generator.classbase=com.test.MyComponent] \ <2>
+    [-Dtalend.generator.family=my-family] \ <3>
+    [-Dtalend.generator.pom.read-only=false] <4>
+----
+
+<1> select the type of component you want, `input` to generate a mapper and emitter and `output` to generate an output processor
+<2> set the class name base (will be suffixed by the component type), if not set the package will be guessed and classname based on the basedir name
+<3> set the component family to use, default to the base dir name removing (component[s] from the name, ex: `my-component` will lead to `my` as family if not explicitly set)
+<4> should the generator try to add `component-api` in the pom if not already here, if you added it you can set it to `false` directly in the pom
+
+For this command to work you will need to just register the plugin:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>talend-component-maven-plugin</artifactId>
+  <version>${talend-component.version}</version>
+</plugin>
+----
+
+== Talend Component Archive
+
+Component ARchive (`.car`) is the way to bundle a component to share it in Talend ecosystem. It is a plain Java ARchive (`.jar`)
+containing a metadata file and a nested maven repository containing the component and its depenencies.
+
+[source]
+----
+mvn talend-component:car
+----
+
+It will create a `.car` in your build directory which is shareable on Talend platforms.
+
+Note that this CAR is executable and exposes the command `studio-deploy` which takes as parameter
+a Talend Studio home location. Executed it will install the dependencies into the studio and register the component
+in your instance. Here is a sample launch command:
+
+[source,sh]
+----
+# for a studio
+java -jar mycomponent.car studio-deploy /path/to/my/studio
+
+# for a m2 provisioning
+java -jar mycomponent.car maven-deploy /path/to/.m2/repository
+----

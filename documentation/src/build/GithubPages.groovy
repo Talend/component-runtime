@@ -65,55 +65,8 @@ if ('skip' == profile) {
     return
 }
 def isLatest = 'latest' == profile
-def ant = new AntBuilder()
-
-def versions = new StringBuilder()
-def root = System.getProperty('jbake.site.rootpath', project.properties.getProperty('jbake.site.rootpath'))
-workDir.listFiles(new FilenameFilter() {
-    private final Collection<String> excluded = ['css', 'images', 'js', 'presentations', 'tags', 'latest', 'current', 'apidocs', 'screencasts']
-
-    @Override
-    boolean accept(File dir, String name) {
-        return !name.startsWith(".") && !name.endsWith("-SNAPSHOT") && !excluded.contains(name) && new File(dir, name).isDirectory()
-    }
-}).each {
-    versions.append("            <li><a href=\"${root}/${it.name}/index.html\">${it.name}</a></li>\n")
-}
-
-def sitemap = new File(source, 'sitemap.xml').text
-
-def copySite = { to ->
-    ant.copy(todir: to.absolutePath, overwrite: true) {
-        filterset(begintoken: "<!-- ", endtoken: ' -->') {
-            filter(token: 'VERSIONS', value: "${versions.toString()}")
-        }
-        fileset(dir: source.absolutePath) {
-            include(name: '**/*.html')
-        }
-    }
-    ant.copy(todir: to.absolutePath, overwrite: true) {
-        fileset(dir: source.absolutePath) {
-            exclude(name: '**/*.html')
-        }
-    }
-}
-
-def writeSiteMap = { dir, context ->
-    new File(dir, 'sitemap.xml').text = sitemap.replace('<loc>', "<loc>https://talend.github.io/component-runtime${context}/")
-}
-
-if (isLatest) {
-    def latestDir = new File(workDir, 'latest')
-    copySite(latestDir)
-    writeSiteMap(latestDir, '/latest')
-} else {
-    copySite(workDir)
-    writeSiteMap(workDir, '/')
-    // versionned version to keep an history - we can need to add version links later on on the main page
-    // note: this is not yet a need since we'll not break anything for now
-    def versionDir = new File(workDir, project.version)
-    copySite(versionDir)
-    writeSiteMap(versionDir, "/${project.version}")
+new AntBuilder().copy(todir: workDir.absolutePath, overwrite: true) {
+    fileset(dir: source.absolutePath)
 }
 
 def message = (isLatest ? 'Updating latest website' : "Updating the website with version ${project.version}") + new Date().toString()

@@ -1,0 +1,3 @@
+= Components Packaging
+
+include::component-loading.adoc[leveloffset=+1]

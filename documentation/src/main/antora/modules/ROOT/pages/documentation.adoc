@@ -1,0 +1,11 @@
+= Talend Component Documentation
+
+include::documentation-definition.adoc[leveloffset=+1]
+
+include::documentation-packaging.adoc[leveloffset=+1]
+
+include::documentation-build-tools.adoc[leveloffset=+1]
+
+include::documentation-services.adoc[leveloffset=+1]
+
+include::documentation-testing.adoc[leveloffset=+1]

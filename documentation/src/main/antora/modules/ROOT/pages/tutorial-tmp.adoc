@@ -1,0 +1,20 @@
+= Test Tuto (to be replaced by real one)
+:page-popcorn_video: {deploymentRoot}/_/screencasts/starter_complete.webm
+
+
+[role="time=1,15"]
+== First Comment
+
+This is cool
+
+- This
+- Too
+
+
+[role="time=16,20"]
+== Second Comment
+
+This is not bad
+
+- Yes
+- No

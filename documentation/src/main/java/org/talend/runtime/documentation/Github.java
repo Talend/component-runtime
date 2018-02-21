@@ -67,7 +67,7 @@ public class Github {
 
         final Client client = ClientBuilder.newClient().register(new JsonbJaxrsProvider<>());
         final WebTarget gravatarBase = client.target(Gravatars.GRAVATAR_BASE);
-        final ForkJoinPool pool = new ForkJoinPool(Math.max(16, Runtime.getRuntime().availableProcessors() * 8));
+        final ForkJoinPool pool = new ForkJoinPool(Math.max(4, Runtime.getRuntime().availableProcessors() * 8));
         try {
             return pool
                     .submit(() -> contributors(client, token,

@@ -1,0 +1,203 @@
+= Talend Component Getting Started
+
+[[getting-started-introducing-talend-component]]
+== Introducing Talend Component
+
+_Talend Component_ intends to simplify the development of connectors at two main levels:
+
+Runtime:: how to inject the specific component code into a job or pipeline. It should unify as much as possible the code required to run in DI and BEAM environments.
+Graphical interfaces:: unify the code required to be able to render in a browser (web) or the eclipse based Studio (SWT).
+
+[[getting-started-system-requirements]]
+== Talend Component System Requirement
+
+Talend Component requires Java 8. You can download it on http://www.oracle.com/technetwork/pt/java/javase/downloads/jdk8-downloads-2133151.html[Oracle] website.
+
+To develop a component or the project itself it is recommanded to use Apache Maven 3.5.0. you can download it on https://maven.apache.org/download.cgi?Preferred=ftp%3A%2F%2Fmirror.reverse.net%2Fpub%2Fapache%2F[Apache Maven] website.
+
+[[getting-started-first-quick-start]]
+== Quick Start
+
+For our quick start, we'll develop three components:
+
+- one reading from a file and building `Person` records
+- one converting the `Person` in a `User` based on the incoming data and conventions
+- one writing the `User`s in a file
+
+Before we start checking how to implement it, let's just have a quick look to our data structure (records):
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+include::{sample_project}/Person.java[tag=person]
+----
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+include::{sample_project}/User.java[tag=user]
+----
+
+You can note these classes are `Serializable`. This is mainly for `BEAM` case but we'll get back on this point later.
+
+=== Dependencies
+
+To code a component the only needed dependency is the API:
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>component-api</artifactId>
+  <version>${component-api.version}</version>
+</dependency>
+----
+
+=== Inputs
+
+The inputs often require to open/close a connection and then just work on that connection.
+
+Opening the connection can be done in a method decorated with `@PostConstruct`:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+include::{sample_project}/PersonReader.java[tag=open]
+----
+
+Now we have a _connection_ we can read records. For our simple case we'll just read a kind of CSV file containing per row the name and age of a `Person`.
+This is done in a method dedicated to read *next* element which is decorated with `@Producer`:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+include::{sample_project}/PersonReader.java[tag=next]
+----
+
+NOTE: if you need to rely on a buffer because you load multiple data at once you can reuse `org.talend.sdk.component.api.base.BufferizedProducerSupport` class
+to implement your producer method.
+
+Finally closing the connection once work was done (dataset was completely browsed) can be done in a method decorated with `@PreDestroy`:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+include::{sample_project}/PersonReader.java[tag=close]
+----
+
+TIP: there is another type of input called `PartitionMapper` which allows to map (in the map/reduce sense) an input but it will be tackled later.
+
+=== A Processor
+
+A processor is imply a task taking an input and converting it to another one. In our case it will just take a person and convert it to a user
+which has a name copied form the person and an id generated from the name and age of the user.
+
+Exactly as the input we just write you can use `@PostConstruct` and `@PreDestroy` if you need to do some initializations but a processor
+also has a particular pair of methods to handle the flow lifecycle: `@BeforeGroup` and `@AfterGroup`. This is the same idea but it is to mark
+smaller chunks of data. It is close to the idea we have of a batch but without any guarantee of the associated size.
+
+TIP: it is highly inspired from `BEAM` `bundles`.
+
+To get started we don't need to be so advanced and just need to take a `Person` and return a `User` in a method. This can be done decorating
+a method with `@ElementListener`:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+include::{sample_project}/PersonToUserMapper.java[tag=map]
+----
+
+=== An output
+
+Now we read our `Person`, mapped it to a `User`, we just need to write back the `User` to another file.
+
+To keep it simple we'll do the symmetric operation of our input, i.e. writing a kind of CSV file representing the users.
+
+How to implement an output then? An output is just a processor not returning any data.
+
+Same as for our reader, we'll define an open and close methods to handle the interaction with the output stream:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+include::{sample_project}/UserWriter.java[tag=open]
+----
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+include::{sample_project}/UserWriter.java[tag=close]
+----
+
+And the method handling the write will just be an `@ElementListener` method returning `void`:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+include::{sample_project}/UserWriter.java[tag=write]
+----
+
+[[getting-started-components]]
+=== Registering our components
+
+You probably noticed our components have some configuration. Typically the file related components take a `File` as configuration.
+To make it work we need to add a _factory_ for these instances which will link the user configuration to the instances.
+
+This is simply done through the component constructor themselves. To instantiate a component, the framework will
+select the constructor using the most `@Option` and if not the one with the most parameters.
+
+IMPORTANT: if your component needs to be serialized (like inputs, processors) don't forget to ensure you match the java
+serialization rules like for instance having a `protected` no-arg constructor if you have a parent which is not `Object`.
+
+Each type of component has a specific marker annotation taking the name of the component as parameter to declare
+a component and a `component` method to declare the name of the component family:
+
+- `@Emitter` for producers (inputs)
+- `@Processor` for processors (output or not)
+
+NOTE: `component` is a way to group together (logically) components, for instance `FlatFile` can be used in `component` and
+`reader`/`writer` as name to have a group of two components related to flat files.
+
+The constructor is responsible to do the link between the configuration and the instance of the component.
+The configuration is injected through its parameters. Each parameter is marked with `@Option` which enables you to define a name
+to the parameter (if not the framework will use the reflection parameter name, ie `arg0`, `arg1`, `arg2`, ... if you didn't activate the
+`-parameters` flag at compile time or it will be the actual parameter name otherwise).
+
+The instantiation mechanism will be explained in details later but for this sample we just need to know a `File` is a valid parameter type.
+
+[[getting-started-first-quick-start-run]]
+=== Run the quick start example
+
+To run the code we just created you will need the runtime dependency of the framework:
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>component-runtime-manager</artifactId>
+  <version>${talend-component-runtime.version}</version>
+</dependency>
+----
+
+Then you have access to the `ComponentManager` which handles the research of the components and their instantiation.
+We'll dig into the way it finds the plugins later but for our sample we just need to know that using the default constructor
+the calling jar (the jar containing the Main) will be considered as a plugin if it has some components.
+
+Now we have a component manager, we just need to build our execution chain. For that purpose we can use the `ExecutionChainBuilder`.
+This builder provides a DSL enforcing you to configure the job (with a name and if the system properties can override each component configuration),
+then the input and finally the chain of processors. Once we have that the builder can create a `Supplier<ExecutionChain>` you can call immediately
+using `get()` then `execute()`.
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+include::{sample_project_test}/Main.java[tag=main]
+----
+
+testl '{sample_project_test}'
+
+Now if you create a `/tmp/input.csv` containing:
+
+[source,csv]
+----
+normal;6
+marilyn;36
+----
+
+Then if you run the previous `Main` you can check there is now a `/tmp/output.csv` containing as expected:
+
+[source,csv]
+----
+a6normal;normal
+a36marilyn;marilyn
+----

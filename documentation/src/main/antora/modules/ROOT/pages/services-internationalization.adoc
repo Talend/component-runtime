@@ -1,0 +1,34 @@
+= Internationalization
+
+Recommanded practise for internationalization are:
+
+* store messages using `ResourceBundle` properties file in your component module
+* the location of the properties are in the same package than the related component(s) and is named `Messages` (ex: `org.talend.demo.MyComponent` will use `org.talend.demo.Messages[locale].properties`)
+* for your own messages use the internationalization API
+
+== Internationalization API
+
+Overal idea is to design its messages as methods returning `String` values
+and back the template by a `ResourceBundle` located in the same package than the interface
+defining these methods and named `Messages`.
+
+IMPORTANT: this is the mecanism to use to internationalize your own messages in your own components.
+
+To ensure you internationalization API is identified you need to mark it with `@Internationalized`:
+
+[source,java]
+----
+@Internationalized <1>
+public interface Translator {
+
+    String message();
+
+    String templatizedMessage(String arg0, int arg1); <2>
+
+    String localized(String arg0, @Language Locale locale); <3>
+}
+----
+
+<1> `@Internationalized` allows to mark a class as a i18n service
+<2> you can pass parameters and the message will use `MessageFormat` syntax to be resolved based on the `ResourceBundle` template
+<3> you can use `@Language` on a `Locale` parameter to specify manually the locale to use, note that a single value will be used (the first parameter tagged as such).

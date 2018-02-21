@@ -1,0 +1,137 @@
+= Registering components
+
+As seen in the <<getting-started.adoc#getting-started-first-quick-start, Getting Started>>, you need an annotation to register
+your component through `family` method. Multiple components can use the same `family` value but the pair `family`+`name`
+`MUST` be unique for the system.
+
+If you desire (recommended) to share the same component family name instead of repeating yourself in all `family` methods,
+you can use `@Components` annotation on the root package of you component, it will enable you to define the component family and
+the categories the component belongs to (default is `Misc` if not set). Here is a sample `package-info.java`:
+
+[source,java]
+----
+@Components(name = "my_component_family", categories = "My Category")
+package org.talend.sdk.component.sample;
+
+import org.talend.sdk.component.api.component.Components;
+----
+
+For an existing component it can look like:
+
+[source,java]
+----
+@Components(name = "Salesforce", categories = {"Business", "Cloud"})
+package org.talend.sdk.component.sample;
+
+import org.talend.sdk.component.api.component.Components;
+----
+
+== Components metadata
+
+Components can require a few metadata to be integrated in Talend Studio or Cloud platform. Here is how to provide these information.
+These metadata are set on the component class and belongs to `org.talend.sdk.component.api.component` package.
+
+[options="header,autowidth"]
+|====
+| API | Description
+| @Icon | Set an icon key used to represent the component. Note you can use a custom key with `custom()` method but it is not guaranteed the icon will be rendered properly.
+| @Version | Set the component version, default to 1.
+|====
+
+Example:
+
+[source,java]
+----
+@Icon(FILE_XML_O)
+@PartitionMapper(name = "jaxbInput")
+public class JaxbPartitionMapper implements Serializable {
+    // ...
+}
+----
+
+=== Management of configuration versions
+
+If some impacting changes happen on the configuration they can be manage through a migration handler at *component* level (to enable
+to support trans-model migration).
+
+The `@Version` annotation supports a `migrationHandler` method which will take the implementation migrating the incoming configuration
+to the current model.
+
+For instance if `filepath` configuration entry from v1 changed to `location` in v2 you can remap the value to the right key in your
+`MigrationHandler` implementation.
+
+TIP: it is recommanded to not manage all migrations in the handler but rather split it in services you inject in the migration handler
+(through constructor):
+
+[source,java]
+----
+// full component code structure skipped for brievity, kept only migration part
+@Version(value = 3, migrationHandler = MyComponent.Migrations.class)
+public class MyComponent {
+    // the component code...
+
+
+    private interface VersionConfigurationHandler {
+        Map<String, String> migrate(Map<String, String> incomingData);
+    }
+
+    public static class Migrations {
+        private final List<VersionConfigurationHandler> handlers;
+
+        // VersionConfigurationHandler implementations are decorated with @Service
+        public Migrations(final List<VersionConfigurationHandler> migrations) {
+            this.handlers = migrations;
+            this.handlers.sort(/*some custom logic*/);
+        }
+
+        @Override
+        public Map<String, String> migrate(int incomingVersion, Map<String, String> incomingData) {
+            Map<String, String> out = incomingData;
+            for (MigrationHandler handler : handlers) {
+                out = handler.migrate(out);
+            }
+        }
+    }
+}
+----
+
+What is important in this snippet is not much the way the code is organized but rather the fact you organize your migrations the way which fits the best
+your component. If migrations are not conflicting no need of something fancy, just apply them all but if you need to apply them in order
+you need to ensure they are sorted. Said otherwise: don't see this API as a migration API but as a migration callback
+and adjust the migration code structure you need behind the `MigrationHandler` based on your
+component requirements. The service injection enables you to do so.
+
+
+=== @PartitionMapper
+
+`@PartitionMapper` will obviously mark a partition mapper:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@PartitionMapper(family = "demo", name = "my_mapper")
+public class MyMapper {
+}
+----
+
+==== @Emitter
+
+`@Emitter` is a shortcut for `@PartitionMapper` when you don't support distribution. Said otherwise it will enforce an implicit
+partition mapper execution with an assessor size of 1 and a split returning itself.
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@Emitter(family = "demo", name = "my_input")
+public class MyInput {
+}
+----
+
+=== @Processor
+
+A method decorated with `@Processor` will be considered as a producer factory:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@Processor(family = "demo", name = "my_processor")
+public class MyProcessor {
+}
+----

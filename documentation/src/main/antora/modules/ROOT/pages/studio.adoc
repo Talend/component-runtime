@@ -1,0 +1,46 @@
+= Talend Component Studio Integration
+
+== Design
+
+The studio integration relies on Component Server (see <<documentation-rest.adoc#, Web>> for more details).
+
+When the plugin is deployed it starts a local server the Studio uses to gather data about the components.
+
+== Installation
+
+Copy `org.talend.sdk.component.studio-integration.jar` in the `$STUDIO_HOME/plugins` directory and restart the studio.
+
+Also ensure the `component-server` dependencies  and `commons-cli` 1.4 are into the Studio maven repository. If you install any component,
+ensure its dependencies are in the repository as well.
+
+TIP: you can set in `$STUDIO_HOME/configuration/config.ini` the value `maven.repository` to `global` to reuse
+your local maven repository.
+
+== Configuration
+
+The configuration goes into `$STUDIO_HOME/configuration/config.ini`.
+
+|===
+| Name | Description | Default
+| component.debounce.timeout | Specifies timeout in milliseconds before calling listeners in components Text fields | 750
+| component.kit.skip | If `true` the plugin is not active. Useful if you don't have any component develop with the framework. | false
+| component.java.arguments | Component server additional options | -
+| component.java.m2 | The maven repository the server uses to resolve components | default to global Studio configuration
+| component.java.coordinates | A list of comma separated GAV (groupId:artifactId:version) of components to register | -
+| component.java.registry | A properties file with values matching component GAV (groupId:artifactId:version) which are registered at startup | -
+| component.java.port | Set a port to use for the server | random
+| components.server.beam.active | Active, if set to true, beam support (_Experimental_). It requires beam sdk java core dependencies to be available. | false
+|===
+
+IMPORTANT: to activate the plugin and be able to deploy your component, don't forget to set `component.kit.skip` to `true`.
+
+=== Random port when running concurrent studio instances
+
+If you run multiple Studio instance automatically in parallel you can have some issues with the random port computation
+(can happen on a CI platform). For that purpose you can create the file `$HOME/.talend/locks/org.talend.sdk.component.studio-integration.lock`.
+
+When a server will start it will acquire a lock on that file and prevent another one to get a port until it is started. It ensures
+you can't get two concurrent processes getting the same allocated port.
+
+IMPORTANT: it is highly unlikely it happens on a desktop and forcing a different value through `component.java.port` in your `config.ini` is likely a better
+solution for local installations.

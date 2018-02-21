@@ -1,0 +1,5 @@
+= Talend Component Javadocs
+
+* link:{deploymentRoot}/apidocs/api/index.html[API Documentation^]
+* link:{deploymentRoot}/apidocs/junit/index.html[JUnit API Documentation^]
+* link:{deploymentRoot}/apidocs/junit-http/index.html[HTTP JUnit API Documentation^]

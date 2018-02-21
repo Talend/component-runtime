@@ -181,7 +181,7 @@
     <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
     <git-commit-id-plugin.version>2.2.4</git-commit-id-plugin.version>
     <formatter-plugin.version>2.7.0</formatter-plugin.version>
-    <common-plugin.version>1.0.5</common-plugin.version>
+    <common-plugin.version>1.0.7</common-plugin.version>
     <jgit.version>4.9.2.201712150930-r</jgit.version>
 
     <node.version>v8.4.0</node.version>

@@ -1,0 +1,3 @@
+= Talend Component Kit Changelog
+
+include::{generated_adoc}/changelog.adoc[]

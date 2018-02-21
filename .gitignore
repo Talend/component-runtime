@@ -26,12 +26,15 @@ dist
 travis_wait_*.log
 .blackduck
 yarn-error.log
-
+*.hbs
 component-form/component-form-demo/src/main/frontend/build/
-
+generated-assets
+documentation/src/main/frontend/.antora-cache
 
 # generated from the filtered version
 component-kit.js/package.json
 component-starter-server/src/main/frontend/package.json
 component-tools-webapp/src/main/frontend/package.json
 documentation/src/main/frontend/package.json
+documentation/src/main/antora/antora.yml
+documentation/src/main/antora/site.yml

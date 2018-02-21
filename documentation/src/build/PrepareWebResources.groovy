@@ -16,7 +16,7 @@
 import groovy.json.JsonOutput
 
 def copyJsResource = { source, output ->
-    def target = new File(project.build.directory, "${project.build.finalName}/${output}")
+    def target = new File(project.build.directory, "${project.build.finalName}/_/${output}")
     target.parentFile.mkdirs()
     target.text = source.text
     log.info("Imported ${target.name}")
@@ -51,8 +51,8 @@ def readContent = { file ->
     file.readLines().findAll { !it.startsWith(':') && !it.startsWith('=') && !it.trim().isEmpty() }.join(' ').replace('`', '')
 }
 
-def sourceSearchJs = new File(project.basedir, "src/main/jbake/generated-assets/search.js")
-def targetSearchJs = new File(project.build.directory, "${project.build.finalName}/js/search.js")
+def sourceSearchJs = new File(project.basedir, "src/main/antora/supplemental-ui/generated-assets/search.js")
+def targetSearchJs = new File(project.build.directory, "${project.build.finalName}/_/js/search.js")
 def index = []
 // browse all pages and create an index for them
 new File(project.basedir, 'src/main/jbake/content').listFiles()

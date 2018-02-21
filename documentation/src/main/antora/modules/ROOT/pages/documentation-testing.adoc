@@ -1,0 +1,15 @@
+= Talend Component Testing Documentation
+
+[[documentation-testing-start]]
+
+include::testing-best-practices.adoc[leveloffset=+1]
+
+include::testing-runtime.adoc[leveloffset=+1]
+
+include::testing-beam.adoc[leveloffset=+1]
+
+include::testing-multiple-envs.adoc[leveloffset=+1]
+
+include::testing-maven-passwords.adoc[leveloffset=+1]
+
+include::testing-generating-data.adoc[leveloffset=+1]
