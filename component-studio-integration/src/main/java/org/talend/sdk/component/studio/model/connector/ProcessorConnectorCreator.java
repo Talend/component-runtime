@@ -25,6 +25,7 @@ import static org.talend.core.model.process.EConnectionType.REJECT;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -49,16 +50,20 @@ class ProcessorConnectorCreator extends AbstractConnectorCreator {
     @Override
     protected List<INodeConnector> createMainConnectors() {
         AtomicInteger rowCount = new AtomicInteger(0);
+        AtomicBoolean isDefaultConnectionPresent = new AtomicBoolean(false);
         detail.getInputFlows().stream().forEach(input -> {
             if (FLOW_MAIN.equals(getType(input))) {
                 rowCount.incrementAndGet();
+                if (FLOW_MAIN.getName().equals(getName(input))) {
+                    isDefaultConnectionPresent.set(true);
+                }
             }
         });
         final String mainConnectorName = MAIN_CONNECTOR_NAME;
         final INodeConnector main = createConnector(EConnectionType.FLOW_MAIN, mainConnectorName, node);
         main.setMaxLinkInput(rowCount.get());
         if (main instanceof TaCoKitNodeConnector) {
-            ((TaCoKitNodeConnector) main).setInput(false);
+            ((TaCoKitNodeConnector) main).setInput(isDefaultConnectionPresent.get());
         }
         main.addConnectionProperty(FLOW_MAIN, FLOW_MAIN.getRGB(), FLOW_MAIN.getDefaultLineStyle());
         main.addConnectionProperty(FLOW_REF, FLOW_MAIN.getRGB(), FLOW_MAIN.getDefaultLineStyle());
