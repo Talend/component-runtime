@@ -258,9 +258,7 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
             final Control schemaControl = addWidgetIfActive(schemaComposite, schema, null);
             final String schemaName = schema.getName();
             final IElementParameter guessSchema = elem.getElementParameter(guessButtonName(schemaName));
-            if (guessSchema != null) {
-                addWidgetIfActive(schemaComposite, guessSchema, schemaControl);
-            }
+            addWidgetIfActive(schemaComposite, guessSchema, schemaControl);
         }
         return previousComposite;
     }
@@ -320,6 +318,21 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         }
     }
 
+    /**
+     * Checks whether IElementParameter is active and creates Control for it, if it is.
+     * Parameter is active when:
+     * <ol>
+     * <li>it is not null</li>
+     * <li>its category is the same for which Composite is building</li>
+     * <li>it is not TECHNICAL parameter</li>
+     * <li>its field show=true</li>
+     * </ol>
+     * 
+     * @param parent Composite on which widget will be added
+     * @param parameter ElementParameter(Model) associated with widget
+     * @param previous (optional) previous Control, which was created in the same row
+     * @return created Control
+     */
     private Control addWidgetIfActive(final Composite parent, final IElementParameter parameter,
             final Control previous) {
         if (doShow(parameter)) {
@@ -343,8 +356,8 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
     }
 
     private boolean doShow(final IElementParameter parameter) {
-        return parameter.getCategory() == section && parameter.getFieldType() != EParameterFieldType.TECHNICAL
-                && parameter.isShow(parameters);
+        return parameter != null && parameter.getCategory() == section
+                && parameter.getFieldType() != EParameterFieldType.TECHNICAL && parameter.isShow(parameters);
     }
 
 }
