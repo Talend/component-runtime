@@ -28,7 +28,7 @@ public class InputsHandler extends BaseIOHandler {
 
     public InputFactory asInputFactory() {
         return name -> {
-            final BaseIOHandler.IO ref = connections.get(name);
+            final BaseIOHandler.IO ref = connections.get(getActualName(name));
             if (ref == null || ref.getValue() == null || ref.getValue().get() == null) {
                 return null;
             }
@@ -49,7 +49,7 @@ public class InputsHandler extends BaseIOHandler {
     }
 
     public <T> void setInputValue(final String name, final T value) {
-        final IO input = connections.get(name);
+        final IO input = connections.get(getActualName(name));
         if (input != null) {
             input.getValue().set(value);
         }

@@ -58,7 +58,7 @@ class AbstractConnectorCreatorTest {
 
     @Test
     void testGetNameDefault() {
-        String expectedName = "Main";
+        String expectedName = EConnectionType.FLOW_MAIN.getName();
         String actualName = AbstractConnectorCreator.getName(DEFAULT);
         assertEquals(expectedName, actualName);
     }

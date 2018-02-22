@@ -39,7 +39,7 @@
             continue;
         }
 %>
-        <%= connection.getName() %> = outputHandler_<%=cid%>.getValue("<%= connection.getConnectorName().toLowerCase(Locale.ROOT) %>", <%= connection.getName() %>.getClass());
+        <%= connection.getName() %> = outputHandler_<%=cid%>.getValue("<%= connection.getConnectorName() %>", <%= connection.getName() %>.getClass());
 <%
     }
 %>

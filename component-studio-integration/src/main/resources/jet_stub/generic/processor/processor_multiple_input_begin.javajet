@@ -39,9 +39,16 @@
     for (final IConnection connection : node.getIncomingConnections()) {
         String row_name = connection.getName();
 %>
-        java.util.Map<<%=row_name %>Struct, <%=row_name %>Struct> <%=row_name %>_map = (java.util.Map<<%=row_name %>Struct, <%=row_name %>Struct>)globalMap.get("tHash_<%=row_name %>");
-        java.util.Iterator<<%=row_name %>Struct> <%=row_name %>_iter = null;
+        Class<?> inputsClass_<%=row_name%>_<%=cid%> = Object.class;
+        java.util.Map<Object, Object> <%=row_name %>_map = (java.util.Map<Object, Object>)globalMap.get("tHash_<%=row_name %>");
+        java.util.Iterator<Object> <%=row_name %>_iter = null;
         if (<%=row_name %>_map != null) {
+            if(<%=row_name %>_map.values().iterator().hasNext()) {
+                Object firstObj = <%=row_name %>_map.values().iterator().next();
+                if(firstObj != null) {
+                    inputsClass_<%=row_name%>_<%=cid%> = firstObj.getClass();
+                }
+            }
             <%=row_name %>_iter = <%=row_name %>_map.values().iterator();
             inputIterMap_<%=cid%>.put("<%=row_name.toLowerCase(java.util.Locale.ROOT) %>", <%=row_name %>_iter);
         }
@@ -60,7 +67,7 @@
             input_name = row_name.toLowerCase(Locale.ROOT);
         }
 %>
-        inputsHandler_<%=cid%>.addConnection("<%= input_name %>", <%= row_name %>Struct.class);
+        inputsHandler_<%=cid%>.addConnection("<%= input_name %>", inputsClass_<%=row_name%>_<%=cid%>);
 <%
     }
 %>
