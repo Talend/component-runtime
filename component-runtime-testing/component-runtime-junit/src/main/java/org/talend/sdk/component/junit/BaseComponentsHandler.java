@@ -19,6 +19,7 @@ import static java.lang.Math.abs;
 import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.Assert.fail;
@@ -59,7 +60,7 @@ import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
-import org.talend.sdk.component.runtime.manager.chain.ToleratingErrorHandler;
+import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.output.Processor;
 
@@ -109,9 +110,9 @@ public class BaseComponentsHandler implements ComponentsHandler {
     /**
      * Collects all outputs of a processor.
      *
-     * @param processor the processor to run while there are inputs.
-     * @param inputs the input factory, when an input will return null it will stop the
-     * processing.
+     * @param processor  the processor to run while there are inputs.
+     * @param inputs     the input factory, when an input will return null it will stop the
+     *                   processing.
      * @param bundleSize the bundle size to use.
      * @return a map where the key is the output name and the value a stream of the
      * output values.
@@ -147,12 +148,12 @@ public class BaseComponentsHandler implements ComponentsHandler {
      * IMPORTANT: don't forget to consume all the stream to ensure the underlying
      * { @see org.talend.sdk.component.runtime.input.Input} is closed.
      *
-     * @param recordType the record type to use to type the returned type.
-     * @param mapper the mapper to go through.
-     * @param maxRecords maximum number of records, allows to stop the source when
-     * infinite.
+     * @param recordType  the record type to use to type the returned type.
+     * @param mapper      the mapper to go through.
+     * @param maxRecords  maximum number of records, allows to stop the source when
+     *                    infinite.
      * @param concurrency requested (1 can be used instead if &lt;= 0) concurrency for the reader execution.
-     * @param <T> the returned type of the records of the mapper.
+     * @param <T>         the returned type of the records of the mapper.
      * @return all the records emitted by the mapper.
      */
     @Override
@@ -332,13 +333,13 @@ public class BaseComponentsHandler implements ComponentsHandler {
                 .getInstantiator()
                 .apply(configuration == null || meta.getParameterMetas().isEmpty() ? emptyMap()
                         : configurationByExample(configuration, meta
-                                .getParameterMetas()
-                                .stream()
-                                .filter(p -> p.getName().equals(p.getPath()))
-                                .findFirst()
-                                .map(p -> p.getName() + '.')
-                                .orElseThrow(() -> new IllegalArgumentException("Didn't find any option and therefore "
-                                        + "can't convert the configuration instance to a configuration")))));
+                        .getParameterMetas()
+                        .stream()
+                        .filter(p -> p.getName().equals(p.getPath()))
+                        .findFirst()
+                        .map(p -> p.getName() + '.')
+                        .orElseThrow(() -> new IllegalArgumentException("Didn't find any option and therefore "
+                                + "can't convert the configuration instance to a configuration")))));
     }
 
     private <T> ComponentFamilyMeta.BaseMeta<? extends Lifecycle> findMeta(final Class<T> componentType) {
@@ -354,16 +355,15 @@ public class BaseComponentsHandler implements ComponentsHandler {
     @Override
     public <T> List<T> collect(final Class<T> recordType, final String family, final String component,
             final int version, final Map<String, String> configuration) {
-        ExecutionChainBuilder
-                .start()
-                .withConfiguration("test", true)
-                .fromInput(family, component, version, configuration)
-                .toProcessor("test", "collector", 1, emptyMap())
-                .create(asManager(), file -> {
-                    throw new IllegalArgumentException();
-                }, new CountingSuccessListener(), new ToleratingErrorHandler(0))
-                .get()
-                .execute();
+        Job.components()
+                .component("in", family + "://" + component + "?__version=" + version + configuration.entrySet().stream()
+                        .map(entry -> entry.getKey() + "=" + entry.getValue()).collect(joining("&")))
+                .component("collector", "test://collector")
+                .connections()
+                .from("in").to("collector")
+                .build()
+                .run();
+
         return getCollectedData(recordType);
     }
 
@@ -371,16 +371,17 @@ public class BaseComponentsHandler implements ComponentsHandler {
     public <T> void process(final Iterable<T> inputs, final String family, final String component, final int version,
             final Map<String, String> configuration) {
         setInputData(inputs);
-        ExecutionChainBuilder
-                .start()
-                .withConfiguration("test", true)
-                .fromInput("test", "emitter", 1, emptyMap())
-                .toProcessor(family, component, version, configuration)
-                .create(asManager(), file -> {
-                    throw new IllegalArgumentException();
-                }, new CountingSuccessListener(), new ToleratingErrorHandler(0))
-                .get()
-                .execute();
+
+        Job.components()
+                .component("emitter", "test://emitter")
+                .component("out",
+                        family + "://" + component + "?__version=" + version + configuration.entrySet().stream()
+                                .map(entry -> entry.getKey() + "=" + entry.getValue()).collect(joining("&")))
+                .connections()
+                .from("emitter").to("out")
+                .build()
+                .run();
+
     }
 
     @Override
