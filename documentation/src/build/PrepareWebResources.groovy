@@ -55,9 +55,9 @@ def sourceSearchJs = new File(project.basedir, "src/main/antora/supplemental-ui/
 def targetSearchJs = new File(project.build.directory, "${project.build.finalName}/_/js/search.js")
 def index = []
 // browse all pages and create an index for them
-new File(project.basedir, 'src/main/jbake/content').listFiles()
+new File(project.basedir, 'src/main/antora/modules/ROOT/pages').listFiles()
         .findAll {
-            !it.text.contains('include::') // we skip aggregator pages
+            !it.isDirectory() && !it.text.contains('include::') // we skip aggregator pages
         }
         .each { file ->
             // todo: pre tokenize?

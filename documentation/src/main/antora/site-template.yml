@@ -34,3 +34,5 @@ asciidoc:
     deploymentRoot: ${site.rootpath}
     numbered: true
     hide-uri-scheme: true
+  extensions:
+    - ./extensions/include/index.js
