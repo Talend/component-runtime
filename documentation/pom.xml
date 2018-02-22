@@ -39,7 +39,6 @@
     <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
 
     <talend.build.name>${talend.build.name.base}.documentation</talend.build.name>
-    <talend.github.cache>false</talend.github.cache>
     <asciidoctorj-diagram.version>1.5.4.1</asciidoctorj-diagram.version>
   </properties>
 
@@ -168,7 +167,6 @@
                 <argument>offline=${settings.offline}</argument>
                 <argument>${talend.github.username}</argument>
                 <argument>${talend.github.password}</argument>
-                <argument>${talend.github.cache}</argument>
               </arguments>
             </configuration>
           </execution>
@@ -333,13 +331,6 @@
           <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
           <environmentVariables>
             <NODE_ENV>production</NODE_ENV>
-            <ANTORA_JIRA_USER>${talend.jira.username}</ANTORA_JIRA_USER>
-            <ANTORA_JIRA_PASSWORD>${talend.jira.password}</ANTORA_JIRA_PASSWORD>
-            <ANTORA_PROJECT_VERSION>${project.version}</ANTORA_PROJECT_VERSION>
-            <ANTORA_OFFLINE_MODE>offline=${settings.offline}</ANTORA_OFFLINE_MODE>
-            <ANTORA_GITHUB_USER>${talend.github.username}</ANTORA_GITHUB_USER>
-            <ANTORA_GITHUB_PASSWORD>${talend.github.password}</ANTORA_GITHUB_PASSWORD>
-            <ANTORA_GITHUB_CACHE>${talend.github.cache}</ANTORA_GITHUB_CACHE>
           </environmentVariables>
         </configuration>
       </plugin>

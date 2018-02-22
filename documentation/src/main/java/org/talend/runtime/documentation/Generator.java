@@ -44,7 +44,6 @@ import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -59,6 +58,8 @@ import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.config.PropertyOrderStrategy;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -122,7 +123,7 @@ public class Generator {
             log.info("System is offline, skipping jira changelog and github contributor generation");
             return;
         }
-        generatedContributors(generatedDir, args[5], args[6], Boolean.parseBoolean(args[7]));
+        generatedContributors(generatedDir, args[5], args[6]);
         generatedJira(generatedDir, args[1], args[2], args[3]);
     }
 
@@ -162,8 +163,8 @@ public class Generator {
         }
     }
 
-    private static void generatedContributors(final File generatedDir, final String user, final String pwd,
-            final boolean cache) throws Exception {
+    private static void generatedContributors(final File generatedDir, final String user, final String pwd)
+            throws Exception {
         final Collection<Contributor> contributors;
         if (user == null || user.trim().isEmpty() || "skip".equals(user)) {
             log.error("No Github credentials, will skip contributors generation");
@@ -177,21 +178,13 @@ public class Generator {
             }
         }
         final File file = new File(generatedDir, "generated_contributors.adoc");
-        final File cacheFile =
-                new File(System.getProperty("user.home"), "build/Talend/component-runtime/.ci-cache/contributors.adoc");
-        if (cache && contributors.isEmpty() && cacheFile.exists()) { // try to reuse the cache
-            log.info("Using cached contributors: {}", cacheFile.getAbsolutePath());
-            Files.copy(cacheFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            return;
-        }
-        try (final Jsonb jsonb = JsonbBuilder.create(); final OutputStream writer = new WriteIfDifferentStream(file)) {
+        try (final Jsonb jsonb = JsonbBuilder.create(
+                new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL).withFormatting(
+                        true));
+                final OutputStream writer = new WriteIfDifferentStream(file)) {
             writer.write("++++\n".getBytes(StandardCharsets.UTF_8));
             jsonb.toJson(contributors, writer);
             writer.write("\n++++".getBytes(StandardCharsets.UTF_8));
-        }
-        if (cache) {
-            cacheFile.getParentFile().mkdirs();
-            Files.copy(file.toPath(), cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
