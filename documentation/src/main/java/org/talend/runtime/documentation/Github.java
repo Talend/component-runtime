@@ -162,7 +162,6 @@ public class Github {
         return Stream
                 .of(client
                         .target(url)
-                        .queryParam("anon", true)
                         .request(APPLICATION_JSON_TYPE)
                         .header("Authorization", token)
                         .get())
