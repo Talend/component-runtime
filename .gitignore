@@ -26,7 +26,6 @@ dist
 travis_wait_*.log
 .blackduck
 yarn-error.log
-*.hbs
 component-form/component-form-demo/src/main/frontend/build/
 documentation/src/main/frontend/.antora-cache
 

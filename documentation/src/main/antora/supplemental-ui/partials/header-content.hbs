@@ -1,0 +1,37 @@
+<header class="header" role="banner">
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <div class="navbar-item">
+                <a href="{{or site.url (or siteRootUrl siteRootPath)}}">Talend Component Kit</a>
+                <span class="separator">//</span>
+                <a href="{{or site.url (or siteRootUrl siteRootPath)}}">Docs</a>
+            </div>
+            <button class="navbar-burger" data-target="topbar-nav">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        <div id="topbar-nav" class="navbar-menu">
+            <div class="navbar-end">
+                <div class="global-search">
+                    <form role="search" action="search.html">
+                        <div>
+                            <input type="text" placeholder="Search" name="q">
+                        </div>
+                    </form>
+                </div>
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <div class="navbar-link">Projects</div>
+                    <div class="navbar-dropdown">
+                        <div class="navbar-item"><strong>API</strong></div>
+                        <a class="navbar-item" href="https://github.com/talend/component-api">Repository</a>
+                        <hr class="navbar-divider">
+                        <div class="navbar-item"><strong>Runtime</strong></div>
+                        <a class="navbar-item" href="https://github.com/talend/component-rutime">Repository</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
