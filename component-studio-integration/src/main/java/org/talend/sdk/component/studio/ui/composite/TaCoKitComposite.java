@@ -144,21 +144,26 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         super.dispose();
     }
 
+    private static Field propertyResizedField;
+
+    static {
+        final Class<MultipleThreadDynamicComposite> clazz = MultipleThreadDynamicComposite.class;
+        try {
+            propertyResizedField = clazz.getDeclaredField("propertyResized");
+            propertyResizedField.setAccessible(true);
+        } catch (Exception e) {
+            throw new RuntimeException("propertyResized field wasn't found in MultipleThreadDynamicComposite class", e);
+        }
+    }
+
     // TODO Reuse it from parent class
     private void resizeScrolledComposite() {
         lastCompositeSize = getParent().getClientArea().height;
         // propertyResized = true;
-        final Class<MultipleThreadDynamicComposite> clazz = MultipleThreadDynamicComposite.class;
         try {
-            final Field field = clazz.getDeclaredField("propertyResized");
-            field.setAccessible(true);
-            field.set(this, true);
-        } catch (NoSuchFieldException | SecurityException e) {
-            e.printStackTrace();
-        } catch (final IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (final IllegalAccessException e) {
-            e.printStackTrace();
+            propertyResizedField.set(this, true);
+        } catch (Exception e) {
+            throw new RuntimeException("failed to set propertyResized field value with reflection", e);
         }
     }
 
