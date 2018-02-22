@@ -18,6 +18,7 @@ package org.talend.sdk.component.studio.model.parameter;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static org.talend.sdk.component.studio.model.action.Action.HEALTH_CHECK;
+import static org.talend.sdk.component.studio.model.parameter.TaCoKitElementParameter.guessButtonName;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -45,6 +46,7 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.studio.Lookups;
+import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.model.parameter.listener.ParameterActivator;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidationListener;
 import org.talend.sdk.component.studio.model.parameter.listener.ValidatorFactory;
@@ -370,23 +372,20 @@ public class SettingsCreator implements PropertyVisitor {
         schema.getChildParameters().put(EParameterName.REPOSITORY_SCHEMA_TYPE.getName(), childParameter2);
 
         if (canAddGuessSchema()) {
-            final String tacokitGuessSchema = "Guess Schema";
             final TaCoKitElementParameter guessSchemaParameter = new TaCoKitElementParameter(getNode());
             guessSchemaParameter.setCategory(EComponentCategory.BASIC);
-            guessSchemaParameter.setContext(EConnectionType.FLOW_MAIN.getName());
-            guessSchemaParameter.setDisplayName(tacokitGuessSchema);
+            guessSchemaParameter.setContext(connectionName);
+            guessSchemaParameter.setDisplayName(Messages.getString("guessSchema.button", connectionName));
             guessSchemaParameter.setFieldType(EParameterFieldType.TACOKIT_GUESS_SCHEMA);
             guessSchemaParameter.setListItemsDisplayName(new String[0]);
             guessSchemaParameter.setListItemsValue(new String[0]);
-            // We need unique names for our parameters(?)
-            guessSchemaParameter.setName(tacokitGuessSchema + "_" + schemaName);
+            guessSchemaParameter.setName(guessButtonName(schemaName));
             guessSchemaParameter.setNumRow(SCHEMA_ROW_NUMBER);
             guessSchemaParameter.setParentParameter(schema);
             guessSchemaParameter.setReadOnly(false);
             guessSchemaParameter.setRequired(false);
             guessSchemaParameter.setShow(show);
             guessSchemaParameter.setValue("");
-            guessSchemaParameter.getChildParameters().put(tacokitGuessSchema, guessSchemaParameter);
         }
 
         return schema;

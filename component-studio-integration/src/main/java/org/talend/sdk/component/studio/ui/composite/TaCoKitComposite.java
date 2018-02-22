@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.studio.ui.composite;
 
+import static org.talend.sdk.component.studio.model.parameter.TaCoKitElementParameter.guessButtonName;
+
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -27,6 +29,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.talend.commons.ui.gmf.util.DisplayUtils;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EParameterFieldType;
@@ -151,7 +154,7 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         try {
             propertyResizedField = clazz.getDeclaredField("propertyResized");
             propertyResizedField.setAccessible(true);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException("propertyResized field wasn't found in MultipleThreadDynamicComposite class", e);
         }
     }
@@ -162,7 +165,7 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         // propertyResized = true;
         try {
             propertyResizedField.set(this, true);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException("failed to set propertyResized field value with reflection", e);
         }
     }
@@ -225,8 +228,8 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         propertyComposite.setBackground(parent.getBackground());
         propertyComposite.setLayout(new FormLayout());
         propertyComposite.setLayoutData(levelLayoutData(null));
-        IElementParameter propertyType = elem.getElementParameter("PROPERTY");
-        addWidgetIfActive(propertyComposite, propertyType);
+        final IElementParameter propertyType = elem.getElementParameter("PROPERTY");
+        addWidgetIfActive(propertyComposite, propertyType, null);
         return propertyComposite;
     }
 
@@ -240,19 +243,24 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
      */
     protected Composite addSchemas(final Composite parent, final Composite previous) {
         Composite previousComposite = previous;
-        List<IElementParameter> activeSchemas = parameters
+        final List<IElementParameter> activeSchemas = parameters
                 .stream()
                 .filter(p -> p.getFieldType() == EParameterFieldType.SCHEMA_TYPE)
                 .filter(this::doShow)
                 .filter(this::isNotPresentOnLayout)
                 .collect(Collectors.toList());
-        for (IElementParameter schema : activeSchemas) {
+        for (final IElementParameter schema : activeSchemas) {
             final Composite schemaComposite = new Composite(parent, SWT.NONE);
             schemaComposite.setBackground(parent.getBackground());
             schemaComposite.setLayout(new FormLayout());
             schemaComposite.setLayoutData(levelLayoutData(previousComposite));
             previousComposite = schemaComposite;
-            addWidgetIfActive(schemaComposite, schema);
+            final Control schemaControl = addWidgetIfActive(schemaComposite, schema, null);
+            final String schemaName = schema.getName();
+            final IElementParameter guessSchema = elem.getElementParameter(guessButtonName(schemaName));
+            if (guessSchema != null) {
+                addWidgetIfActive(schemaComposite, guessSchema, schemaControl);
+            }
         }
         return previousComposite;
     }
@@ -284,7 +292,7 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         if (layout.isLeaf()) {
             final String path = layout.getPath();
             final IElementParameter current = elem.getElementParameter(path);
-            addWidgetIfActive(composite, current);
+            addWidgetIfActive(composite, current, null);
         } else {
             Composite previousLevel = previous;
             for (final Level level : layout.getLevels()) {
@@ -312,12 +320,14 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         }
     }
 
-    private void addWidgetIfActive(final Composite parent, final IElementParameter parameter) {
+    private Control addWidgetIfActive(final Composite parent, final IElementParameter parameter,
+            final Control previous) {
         if (doShow(parameter)) {
             final AbstractElementPropertySectionController controller =
                     generator.getController(parameter.getFieldType(), this);
-            controller.createControl(parent, parameter, 1, 1, 0, null);
+            return controller.createControl(parent, parameter, 1, 1, 0, previous);
         }
+        return null;
     }
 
     private FormData levelLayoutData(final Composite previousLevel) {
