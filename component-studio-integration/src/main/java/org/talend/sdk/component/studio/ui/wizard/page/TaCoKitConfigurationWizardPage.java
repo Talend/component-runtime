@@ -90,7 +90,7 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
         final ConfigTypeNode configTypeNode = runtimeData.getConfigTypeNode();
         final DummyComponent component = new DummyComponent(configTypeNode.getDisplayName());
         final DataNode node = new DataNode(component, component.getName());
-        final PropertyNode root = new PropertyTreeCreator().createPropertyTree(configTypeNode);
+        final PropertyNode root = new PropertyTreeCreator(new WizardTypeMapper()).createPropertyTree(configTypeNode);
         element = new FakeElement(runtimeData.getTaCoKitRepositoryNode().getConfigTypeNode().getDisplayName());
         element.setReadOnly(runtimeData.isReadonly());
         final ElementParameter updateParameter = createUpdateComponentsParameter(element);
