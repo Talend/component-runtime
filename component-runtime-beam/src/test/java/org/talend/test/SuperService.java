@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.manager.chain;
+package org.talend.test;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.cache.Cached;
 
-@RequiredArgsConstructor
-public class CountingSuccessListener implements ExecutionChain.SuccessListener {
+@Service
+public class SuperService {
 
-    @Getter
-    private int current;
+    private int invocations = 0;
 
-    @Override
-    public void onData(final Object data) {
-        current++;
+    @Cached(timeout = 150)
+    public String canBeLong(final int count) {
+        return "exec_" + count + "/" + (++invocations);
     }
 }

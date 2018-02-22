@@ -23,20 +23,19 @@ import java.io.Writer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.json.JsonObject;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 
-@Processor(family = "chain", name = "file")
-public class FileOutput implements Serializable {
+@Processor(family = "chain", name = "reject")
+public class RejectOutput implements Serializable {
 
     private final File file;
 
     private transient Writer writer;
 
-    public FileOutput(@Option("file") final File file) {
+    public RejectOutput(@Option("file") final File file) {
         this.file = file;
     }
 
@@ -46,7 +45,7 @@ public class FileOutput implements Serializable {
     }
 
     @ElementListener
-    public void length(final Object data) throws IOException {
+    public void length(final String data) throws IOException {
         writer.write(data + System.lineSeparator());
     }
 

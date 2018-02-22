@@ -13,24 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.manager.chain;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
-public class ToleratingErrorHandler implements ExecutionChain.ErrorHandler {
-
-    private final int maxErrors;
-
-    @Getter
-    private int current;
-
-    @Override
-    public Object onError(final Object data, final RuntimeException exception) {
-        if (maxErrors == current++) {
-            throw exception;
-        }
-        return ExecutionChain.Skip.INSTANCE;
-    }
-}
+/**
+ * This package is used to generate plugins (see PluginGenerator). Don't delete
+ * it please while the related tests exist.
+ */
+package org.talend.test;

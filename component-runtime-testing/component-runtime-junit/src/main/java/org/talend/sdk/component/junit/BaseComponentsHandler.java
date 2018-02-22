@@ -19,6 +19,7 @@ import static java.lang.Math.abs;
 import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.Assert.fail;
@@ -59,9 +60,7 @@ import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
-import org.talend.sdk.component.runtime.manager.chain.CountingSuccessListener;
-import org.talend.sdk.component.runtime.manager.chain.ExecutionChainBuilder;
-import org.talend.sdk.component.runtime.manager.chain.ToleratingErrorHandler;
+import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.output.Processor;
 
@@ -356,16 +355,22 @@ public class BaseComponentsHandler implements ComponentsHandler {
     @Override
     public <T> List<T> collect(final Class<T> recordType, final String family, final String component,
             final int version, final Map<String, String> configuration) {
-        ExecutionChainBuilder
-                .start()
-                .withConfiguration("test", true)
-                .fromInput(family, component, version, configuration)
-                .toProcessor("test", "collector", 1, emptyMap())
-                .create(asManager(), file -> {
-                    throw new IllegalArgumentException();
-                }, new CountingSuccessListener(), new ToleratingErrorHandler(0))
-                .get()
-                .execute();
+        Job
+                .components()
+                .component("in",
+                        family + "://" + component + "?__version=" + version
+                                + configuration
+                                        .entrySet()
+                                        .stream()
+                                        .map(entry -> entry.getKey() + "=" + entry.getValue())
+                                        .collect(joining("&")))
+                .component("collector", "test://collector")
+                .connections()
+                .from("in")
+                .to("collector")
+                .build()
+                .run();
+
         return getCollectedData(recordType);
     }
 
@@ -373,16 +378,23 @@ public class BaseComponentsHandler implements ComponentsHandler {
     public <T> void process(final Iterable<T> inputs, final String family, final String component, final int version,
             final Map<String, String> configuration) {
         setInputData(inputs);
-        ExecutionChainBuilder
-                .start()
-                .withConfiguration("test", true)
-                .fromInput("test", "emitter", 1, emptyMap())
-                .toProcessor(family, component, version, configuration)
-                .create(asManager(), file -> {
-                    throw new IllegalArgumentException();
-                }, new CountingSuccessListener(), new ToleratingErrorHandler(0))
-                .get()
-                .execute();
+
+        Job
+                .components()
+                .component("emitter", "test://emitter")
+                .component("out",
+                        family + "://" + component + "?__version=" + version
+                                + configuration
+                                        .entrySet()
+                                        .stream()
+                                        .map(entry -> entry.getKey() + "=" + entry.getValue())
+                                        .collect(joining("&")))
+                .connections()
+                .from("emitter")
+                .to("out")
+                .build()
+                .run();
+
     }
 
     @Override

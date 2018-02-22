@@ -15,19 +15,22 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.io.Serializable;
+import java.util.function.Function;
 
-import org.junit.jupiter.api.Test;
+import javax.json.JsonObject;
 
-class CountingSuccessListenerTest {
+/**
+ * This is a key provider for a record in a job context
+ */
+public interface GroupKeyProvider extends Function<GroupKeyProvider.GroupContext, String>, Serializable {
 
-    @Test
-    void counting() {
-        final CountingSuccessListener listener = new CountingSuccessListener();
-        assertEquals(0, listener.getCurrent());
-        for (int i = 1; i < 10; i++) {
-            listener.onData(new Object());
-            assertEquals(i, listener.getCurrent());
-        }
+    interface GroupContext extends Serializable {
+
+        String getComponentId();
+
+        String getBranchName();
+
+        JsonObject getData();
     }
 }

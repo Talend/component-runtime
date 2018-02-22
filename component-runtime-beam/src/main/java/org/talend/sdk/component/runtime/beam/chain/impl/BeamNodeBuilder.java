@@ -1,0 +1,231 @@
+/**
+ * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.talend.sdk.component.runtime.beam.chain.impl;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+
+import javax.json.JsonObject;
+
+import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.options.PipelineOptions;
+import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.transforms.PTransform;
+import org.apache.beam.sdk.transforms.join.CoGroupByKey;
+import org.apache.beam.sdk.transforms.join.KeyedPCollectionTuple;
+import org.apache.beam.sdk.values.KV;
+import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.PDone;
+import org.apache.beam.sdk.values.TupleTag;
+import org.talend.sdk.component.runtime.beam.TalendFn;
+import org.talend.sdk.component.runtime.beam.TalendIO;
+import org.talend.sdk.component.runtime.beam.transform.AutoKVWrapper;
+import org.talend.sdk.component.runtime.beam.transform.CoGroupByKeyResultMappingTransform;
+import org.talend.sdk.component.runtime.beam.transform.RecordBranchFilter;
+import org.talend.sdk.component.runtime.beam.transform.RecordBranchMapper;
+import org.talend.sdk.component.runtime.beam.transform.RecordBranchUnwrapper;
+import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
+import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.manager.chain.GroupKeyProvider;
+import org.talend.sdk.component.runtime.manager.chain.Job;
+import org.talend.sdk.component.runtime.manager.chain.internal.JobImpl;
+import org.talend.sdk.component.runtime.output.Processor;
+
+import lombok.AllArgsConstructor;
+
+public class BeamNodeBuilder extends JobImpl.NodeBuilderImpl {
+
+    @Override
+    public JobImpl.LinkBuilder connections() {
+        return new BeamComponentBuilder(getNodes());
+    }
+
+    public static class BeamComponentBuilder extends JobImpl.LinkBuilder {
+
+        public BeamComponentBuilder(final List<Job.Component> nodes) {
+            super(nodes);
+        }
+
+        @Override
+        public JobImpl.JobExecutor build() {
+            doBuild();
+            return new BeamExecutor(getLevels(), getEdges());
+        }
+    }
+
+    private static class BeamExecutor extends JobImpl.JobExecutor {
+
+        private GroupKeyProvider keyProvider;
+
+        private final Collection<String> sequenceIds = new ArrayList<>();
+
+        public BeamExecutor(final Map<Integer, Set<Job.Component>> levels, final List<Job.Edge> edges) {
+            super(levels, edges);
+        }
+
+        @Override
+        public void run() {
+            try {
+                final Map<String, Mapper> mappers = getLevels()
+                        .values()
+                        .stream()
+                        .flatMap(Collection::stream)
+                        .filter(Job.Component::isSource)
+                        .collect(toMap(Job.Component::getId, e -> getManager()
+                                .findMapper(e.getNode().getFamily(), e.getNode().getComponent(),
+                                        e.getNode().getVersion(), e.getNode().getConfiguration())
+                                .orElseThrow(() -> new IllegalStateException("No mapper found for: " + e.getNode()))));
+
+                final Map<String, Processor> processors = getLevels()
+                        .values()
+                        .stream()
+                        .flatMap(Collection::stream)
+                        .filter(component -> !component.isSource())
+                        .collect(toMap(Job.Component::getId, e -> getManager()
+                                .findProcessor(e.getNode().getFamily(), e.getNode().getComponent(),
+                                        e.getNode().getVersion(), e.getNode().getConfiguration())
+                                .orElseThrow(
+                                        () -> new IllegalStateException("No processor found for:" + e.getNode()))));
+
+                final Pipeline pipeline = Pipeline.create(createPipelineOptions());
+                final Map<String, PCollection<JsonObject>> pCollections = new HashMap<>();
+                getLevels().values().stream().flatMap(Collection::stream).forEach(component -> {
+                    if (component.isSource()) {
+                        final Mapper mapper = mappers.get(component.getId());
+                        pCollections.put(component.getId(),
+                                pipeline.apply(toName("TalendIO", component), TalendIO.read(mapper)).apply(
+                                        toName("RecordNormalizer", component), RecordNormalizer.of(mapper.plugin())));
+                    } else {
+                        final Processor processor = processors.get(component.getId());
+                        final List<Job.Edge> joins = getEdges(getEdges(), component, e -> e.getTo().getNode());
+                        final Map<String, PCollection<KV<String, JsonObject>>> inputs =
+                                joins.stream().collect(toMap(e -> e.getTo().getBranch(), e -> {
+                                    final PCollection<JsonObject> pc = pCollections.get(e.getFrom().getNode().getId());
+                                    final PCollection<JsonObject> filteredInput =
+                                            pc.apply(toName("RecordBranchFilter", component, e),
+                                                    RecordBranchFilter.of(processor.plugin(), e.getFrom().getBranch()));
+                                    final PCollection<JsonObject> mappedInput;
+                                    if (e.getFrom().getBranch().equals(e.getTo().getBranch())) {
+                                        mappedInput = filteredInput;
+                                    } else {
+                                        mappedInput = filteredInput.apply(toName("RecordBranchMapper", component, e),
+                                                RecordBranchMapper.of(processor.plugin(), e.getFrom().getBranch(),
+                                                        e.getTo().getBranch()));
+                                    }
+                                    return mappedInput
+                                            .apply(toName("RecordBranchUnwrapper", component, e),
+                                                    RecordBranchUnwrapper.of(processor.plugin(), e.getTo().getBranch()))
+                                            .apply(toName("AutoKVWrapper", component, e),
+                                                    AutoKVWrapper.of(processor.plugin(), getKeyProvider(),
+                                                            component.getId(), e.getFrom().getBranch()));
+                                }));
+                        KeyedPCollectionTuple<String> join = null;
+                        for (final Map.Entry<String, PCollection<KV<String, JsonObject>>> entry : inputs.entrySet()) {
+                            final TupleTag<JsonObject> branch = new TupleTag<>(entry.getKey());
+                            join = join == null ? KeyedPCollectionTuple.of(branch, entry.getValue())
+                                    : join.and(branch, entry.getValue());
+                        }
+                        final PCollection<JsonObject> preparedInput =
+                                join.apply(toName("CoGroupByKey", component), CoGroupByKey.create()).apply(
+                                        toName("CoGroupByKeyResultMappingTransform", component),
+                                        new CoGroupByKeyResultMappingTransform<>(processor.plugin(), true));
+
+                        if (getEdges(getEdges(), component, e -> e.getFrom().getNode()).isEmpty()) {
+                            final PTransform<PCollection<JsonObject>, PDone> write = TalendIO.write(processor);
+                            preparedInput.apply(toName("Output", component), write);
+                        } else {
+                            final PTransform<PCollection<JsonObject>, PCollection<JsonObject>> process =
+                                    TalendFn.asFn(processor);
+                            pCollections.put(component.getId(),
+                                    preparedInput.apply(toName("Processor", component), process));
+                        }
+                    }
+                });
+                pipeline.run().waitUntilFinish();
+            } finally {
+                sequenceIds.forEach(AutoKVWrapper.LocalSequenceHolder::clean);
+            }
+        }
+
+        private String toName(final String transform, final Job.Component component, final Job.Edge e) {
+            return String.format(transform + "/step=%s,from=%s(%s)-to=%s(%s)", component.getId(),
+                    e.getFrom().getNode().getId(), e.getFrom().getBranch(), e.getTo().getNode().getId(),
+                    e.getTo().getBranch());
+        }
+
+        private String toName(final String transform, final Job.Component component) {
+            return String.format(transform + "/%s", component.getId());
+        }
+
+        private GroupKeyProvider getKeyProvider() {
+            if (keyProvider == null) {
+                final Object o = properties.get(GroupKeyProvider.class.getName());
+                if (GroupKeyProvider.class.isInstance(o)) {
+                    keyProvider = new GroupKeyProviderImpl(GroupKeyProvider.class.cast(o));
+                } else {
+                    final Iterator<GroupKeyProvider> extractor = ServiceLoader.load(GroupKeyProvider.class).iterator();
+                    if (!extractor.hasNext()) {
+                        final String id = UUID.randomUUID().toString();
+                        sequenceIds.add(id);
+                        keyProvider = AutoKVWrapper.LocalSequenceHolder.cleanAndGet(id);
+                    } else {
+                        keyProvider = new GroupKeyProviderImpl(extractor.next());
+                    }
+                }
+            }
+            return keyProvider;
+        }
+
+        private List<Job.Edge> getEdges(final List<Job.Edge> edges, final Job.Component step,
+                final Function<Job.Edge, Job.Component> componentMapper) {
+            return edges.stream().filter(edge -> componentMapper.apply(edge).equals(step)).collect(toList());
+        }
+
+        private PipelineOptions createPipelineOptions() {
+            return PipelineOptionsFactory
+                    .fromArgs(System
+                            .getProperties()
+                            .stringPropertyNames()
+                            .stream()
+                            .filter(p -> p.startsWith("talend.beam.job."))
+                            .map(k -> "--" + k.substring("talend.beam.job.".length()) + "=" + System.getProperty(k))
+                            .toArray(String[]::new))
+                    .create();
+        }
+    }
+
+    @AllArgsConstructor
+    private static class GroupKeyProviderImpl implements GroupKeyProvider {
+
+        private final GroupKeyProvider delegate;
+
+        @Override
+        public String apply(final GroupKeyProvider.GroupContext context) {
+            return delegate.apply(context);
+        }
+    }
+}

@@ -17,6 +17,13 @@ To import it add to your project the following dependency:
 </dependency>
 ----
 
+This dependency also provide some mocked components that you can use with your own component to create tests.
+
+The mocked components are provided under the family `test` :
+
+* `emitter`     : a mock of an input component
+* `collector`   : a mock of an output component
+
 === JUnit 4
 
 Then you can define a standard JUnit test and use the `SimpleComponentRule` rule:
@@ -30,13 +37,13 @@ public class MyComponentTest {
 
     @Test
     public void produce() {
-        ExecutionChainBuilder.start() <2>
-                .fromInput("yourcomponentfamily", "yourcomponent", createComponentConfig())
-                .toProcessor("test", "collector", emptyMap())
-                .create(components.asManager(), p -> null, Assert::assertNotNull, (data, exception) -> {
-                    fail(exception.getMessage());
-                    return null;
-                }).get().execute();
+        Job.components() <2>
+             .component("mycomponent","yourcomponentfamily://yourcomponent?"+createComponentConfig())
+             .component("collector", "test://collector")
+           .connections()
+             .from("mycomponent").to("collector")
+           .build()
+           .run();
 
         final List<MyRecord> records = components.getCollectedData(MyRecord.class); <3>
         doAssertRecords(records); // depending your test
@@ -107,13 +114,13 @@ public class MyComponentTest {
     public void produce() {
         components.setInputData(asList(createData(), createData(), createData())); <1>
 
-        ExecutionChainBuilder.start() <2>
-                .fromInput("test", "emitter", emptyMap())
-                .toProcessor("yourcomponentfamily", "myoutput", createComponentConfig())
-                .create(components.asManager(), p -> null, Assert::assertNotNull, (data, exception) -> {
-                    fail(exception.getMessage());
-                    return null;
-                }).get().execute();
+        Job.components() <2>
+             .component("emitter","test://emitter")
+             .component("out", "yourcomponentfamily://myoutput?"+createComponentConfig())
+           .connections()
+              .from("emitter").to("out")
+           .build
+           .run();
 
         assertMyOutputProcessedTheInputData();
     }

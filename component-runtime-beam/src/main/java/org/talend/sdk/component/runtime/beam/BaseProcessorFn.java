@@ -68,7 +68,7 @@ abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
         private final Map<String, Iterator<JsonValue>> objects;
 
         BeamInputFactory(final DoFn<JsonObject, ?>.ProcessContext context) {
-            objects = context.element().entrySet().stream().collect(
+            objects = context.element().entrySet().stream().filter(e -> !e.getKey().startsWith("$$internal")).collect(
                     toMap(Map.Entry::getKey, e -> e.getValue().asJsonArray().iterator()));
         }
 

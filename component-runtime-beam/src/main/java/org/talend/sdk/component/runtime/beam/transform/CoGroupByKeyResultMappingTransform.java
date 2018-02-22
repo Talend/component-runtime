@@ -23,7 +23,6 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.bind.Jsonb;
 
-import org.apache.beam.sdk.coders.CannotProvideCoderException;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -50,13 +49,15 @@ public class CoGroupByKeyResultMappingTransform<K>
 
     private String plugin;
 
+    private boolean propagateKey;
+
     @Override
     public PCollection<JsonObject> expand(final PCollection<KV<K, CoGbkResult>> input) {
-        return input.apply(ParDo.of(new CoGBKMappingFn<>(plugin, null, null)));
+        return input.apply(ParDo.of(new CoGBKMappingFn<>(plugin, propagateKey, null, null)));
     }
 
     @Override
-    protected Coder<?> getDefaultOutputCoder() throws CannotProvideCoderException {
+    protected Coder<?> getDefaultOutputCoder() {
         return JsonpJsonObjectCoder.of(plugin);
     }
 
@@ -65,6 +66,8 @@ public class CoGroupByKeyResultMappingTransform<K>
     public static class CoGBKMappingFn<K> extends DoFn<KV<K, CoGbkResult>, JsonObject> {
 
         private String plugin;
+
+        private boolean propagateKey;
 
         private volatile JsonBuilderFactory builderFactory;
 
@@ -76,18 +79,23 @@ public class CoGroupByKeyResultMappingTransform<K>
         }
 
         private JsonObject createMap(final ProcessContext context) {
-            final CoGbkResult result = context.element().getValue();
-            final JsonObjectBuilder builder = builderFactory().createObjectBuilder();
-            return result
+            final KV<K, CoGbkResult> element = context.element();
+            final CoGbkResult result = element.getValue();
+            final JsonObjectBuilder builder = result
                     .getSchema()
                     .getTupleTagList()
                     .getAll()
                     .stream()
-                    .map(key -> new Pair<>(key.getId(), JsonObject.class.cast(result.getOnly(key))))
-                    .collect(() -> builder,
+                    .map(key -> new Pair<>(key.getId(), JsonObject.class.cast(result.getOnly(key, null))))
+                    .filter(p -> p.getSecond() != null)
+                    .collect(builderFactory()::createObjectBuilder,
                             (b, p) -> b.add(p.getFirst(), builderFactory.createArrayBuilder().add(p.getSecond())),
-                            JsonObjectBuilder::addAll)
-                    .build();
+                            JsonObjectBuilder::addAll);
+            if (propagateKey) {
+                builder.add("$$internal",
+                        builderFactory.createObjectBuilder().add("key", String.valueOf(element.getKey())));
+            }
+            return builder.build();
         }
 
         private JsonBuilderFactory builderFactory() {

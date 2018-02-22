@@ -74,7 +74,8 @@ public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
         final long maxBytes = VarInt.decodeLong(inputStream);
         try (final JsonReader reader =
                 readerFactory.createReader(new GZIPInputStream(new NoCloseInputStream(inputStream, maxBytes)))) {
-            return reader.readObject();
+            final JsonObject jsonObject = reader.readObject();
+            return jsonObject;
         }
     }
 }

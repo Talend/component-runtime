@@ -1,102 +1,84 @@
-= Creating an execution chain or pipeline
+= Creating a job pipeline
+:toc:
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+:outdir: ../assets
+:jbake-type: page
+:jbake-tags: documentation
+:jbake-status: published
 
-There are two kind of chains the framework supports:
 
-1. standalone chains
-2. link:https://beam.apache.org/[Beam] chains
+== Job Builder
 
-== Standalone chains
+The `Job` builder let you create a job pipeline programmatically using Talend components
+(link:latest/component-definition.html[Producers and Processors]).
+The job pipeline is an acyclic graph, so you can built complex pipelines.
 
-For now the standalone chains only support linear flows (more to come) and are built based on a `ExecutionChainBuilder`.
-
-This one will take some metadata about the flow (which input with which configuration, which processors, which processor order and configuration...)
-and will execute it linearly:
-
-[source,java,indent=0,subs="verbatim,quotes,attributes"]
-----
-ExecutionChainBuilder.start()
-        .withConfiguration("SampleJob", true) <1>
-        .withInput("sample", "reader", 1, new HashMap<String, String>() {{ <2>
-            put("file", "/tmp/input.csv");
-        }})
-        .toProcessor(null "sample", "mapper", 2, emptyMap()) <2>
-        .toProcessor("reject", "sample", "writer", new HashMap<String, String>() {{ <2>
-            put("file", "/tmp/output.csv");
-        }}).getParent()
-        .toProcessor("reject", "sample", "writer", 1, new HashMap<String, String>() {{ <2>
-            put("file", "/tmp/output.csv");
-        }})
-        .create(manager, plugin -> null, new CountingSuccessListener(), new ToleratingErrorHandler(0)) <3>
-        .get()
-        .execute(); <4>
-----
-
-You can configure some global execution configuration, like giving it a name and if system properties can override the component configuration
-using `<component group name>.<component name>.<configuration property name>`.
-
-Each component is registered from its component name (what is passed in `family` of the component annotation),
-its own name (`name` method of the annotation) and its configuration as a map (2).
-
-Once the flow is defined (there is no more processor after), then you can create the `ExecutionChain` (3) with its success/error listeners
-to handle it in a custom manner and finally you can get it and execute the flow/pipeline (4).
-
-A chain needs a `ComponentManager` which is the manager of the plugins. The easiest is to use its default constructor to create one instance.
-
-IMPORTANT: this manager needs to be closed when no more needed so don't forget to call close.
-
-Here is a sample code for the previous chain:
+Let's take a simple use case where we will have 2 data source (employee and salary) that we will format to csv and write
+the result to a file.
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-public class Main {
-    public static void main(final String[] args) {
-        final ComponentManager manager = ComponentManager.instance()
-        ExecutionChainBuilder.start()
-                .withConfiguration("SampleJob", true)
-                .fromInput("sample", "reader", 1, new HashMap<String, String>() {{
-                    put("file", "/tmp/input.csv");
-                }})
-                .toProcessor("rejected", "sample", "mapper", 1, emptyMap())
-                .getParent()
-                .toProcessor(Branches.DEFAULT_BRANCH, "sample", "mapper", 1, emptyMap())
-                .toProcessor(Branches.DEFAULT_BRANCH, "sample", "writer", 3, new HashMap<String, String>() {{
-                    put("file", "/tmp/output.csv");
-                }})
-                .create(manager, plugin -> null, new CountingSuccessListener(), new ToleratingErrorHandler(0))
-                .get()
-                .execute();
-    }
-}
+Job.components()   <1>
+        .component("employee","db://input")
+        .component("salary", "db://input")
+        .component("concat", "transform://concat?separator=;")
+        .component("csv", "file://out?__version=2")
+    .connections()  <2>
+        .from("employee").to("concat", "string1")
+        .from("salary").to("concat", "string2")
+        .from("concat").to("csv")
+    .build()    <3>
+    .run(); <4>
 ----
+Step by step explanation :
 
-NOTE: this API is not very powerful but allows to test simple cases, you can have a look to beam direct runner and the Talend Component beam bridge
-for more advanced cases.
+(1) We define all the components that will be used in the job pipeline.
+Every component is defined by an unique `id` and an URI that identify the component.
 
-TIP: the number before the configuration (map) is the version of this configuration, it allows to automatically migrate
-from a version to the currently available one when needed.
+The URI follow the form : `[family]://[component][?version][&configuration]`
 
-=== String based DSL
+* *family*: the name of the component family
+* *component*: the name of the component
+* *version* : the version of the component, it's represented in a key=value format. where the key is `__version` and the value is a number.
+* *configuration*: here you can provide the component configuration as key=value tuple.
+where the key is the path of the configuration and the value is the configuration value in string format.
 
-`ExecutionChainDsl` exposes a way to define pipeline based on URI instead of previous syntax:
+ EXAMPLE: "job://csvFileGen?__version=1&path=/temp/result.csv&encoding=utf-8"
 
-[source,java]
-----
-from("chain://list?__version=1&values[0]=a&values[1]=bb&values[2]=ccc")
-    .to("chain://count?__version=1")
-    .to("chain://file?__version=1&file=" + output.getAbsolutePath())
-    .create()
-    .execute();
-----
+IMPORTANT: configuration parameters must be URI/URL encoded.
 
-IMPORTANT: query parameters must be URI/URL encoded.
+(2) Then, we define the connections between the components to construct the job pipeline.
+the links `from` -> `to` use the component id and the default input/output branches.
+
+You can also connect a specific branch of a component if it has multiple or named inputs/outputs branches
+using the methods `from(id, branchName)` -> `to(id, branchName)`.
+
+In the example above, the concat component have to inputs (string1 and string2).
+
+
+(3) In this step, we validate the job pipeline by asserting that :
+
+ * It has some starting components (component that don't have a from connection and that need to be of type producer).
+ * There is no cyclic connections. as the job pipeline need to be an acyclic graph.
+ * All the components used in connections are already declared.
+ * The connection is used only once. you can't connect a component input/output branch twice.
+
+(4) We run the job pipeline.
+
+IMPORTANT: In this version, the execution of the job is linear. the component are not executed in parallel even if some steps
+may be independents.
 
 == Beam case
 
-For beam case, you need to rely on beam pipeline definition and use `component-runtime-beam` dependency which provides Beam bridges.
+For link:https://beam.apache.org/[beam] case, you need to rely on beam pipeline definition and use `component-runtime-beam` dependency which provides Beam bridges.
 
 === I/O
 
-`org.talend.sdk.component.runtime.beam.TalendIO` provides a way to convert a partition mapper or a processor to an input or processor
+`org.talend.sdk.component.runtime.beam.TalendIO` provides a way to convert a partition mapper or a processor to an input
+ or processor
 using the `read` or `write` methods.
 
 [source,java]
@@ -122,7 +104,8 @@ public class Main {
 
 === Processors
 
-`org.talend.sdk.component.runtime.beam.TalendFn` provides the way to wrap a processor in a Beam `PTransform` and integrate it in the pipeline.
+`org.talend.sdk.component.runtime.beam.TalendFn` provides the way to wrap a processor in a Beam `PTransform` and integrate
+ it in the pipeline.
 
 [source,java]
 ----
