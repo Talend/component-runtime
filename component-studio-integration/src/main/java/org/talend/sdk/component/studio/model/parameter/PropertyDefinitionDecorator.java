@@ -244,7 +244,8 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         if (form == null) {
             return false;
         }
-        return delegate.getMetadata().containsKey(buildGridLayoutKey(form));
+        final String gridLayout = delegate.getMetadata().get(buildGridLayoutKey(form));
+        return gridLayout != null && !gridLayout.isEmpty();
     }
 
     /**
@@ -254,7 +255,11 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
      */
     boolean hasGridLayouts() {
         final Set<String> keys = delegate.getMetadata().keySet();
-        return keys.stream().filter(key -> key.startsWith(UI_GRIDLAYOUT_PREFIX)).count() > 0;
+        return keys
+                .stream()
+                .filter(key -> key.startsWith(UI_GRIDLAYOUT_PREFIX))
+                .map(key -> delegate.getMetadata().get(key))
+                .anyMatch(gridLayout -> gridLayout != null && !gridLayout.isEmpty());
     }
 
     /**
