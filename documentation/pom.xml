@@ -331,7 +331,6 @@
           <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
           <environmentVariables>
             <NODE_ENV>production</NODE_ENV>
-            <BUILD_ONLY>true</BUILD_ONLY>
           </environmentVariables>
         </configuration>
       </plugin>
