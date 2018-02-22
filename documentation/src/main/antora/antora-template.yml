@@ -15,4 +15,4 @@ name: main
 title: Talend Component Kit Developer Reference Guide
 version: '${versions.release}'
 nav:
-- modules/nav.adoc
+- modules/ROOT/nav.adoc
