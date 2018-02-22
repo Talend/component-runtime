@@ -28,9 +28,9 @@ import org.talend.sdk.component.studio.model.parameter.TaCoKitElementParameter.I
  */
 public class TaCoKitWizardComposite extends TaCoKitComposite {
 
-    private TaCoKitConfigurationModel configurationModel;
+    private final TaCoKitConfigurationModel configurationModel;
 
-    private IValueChangedListener configurationUpdater;
+    private final IValueChangedListener configurationUpdater;
 
     public TaCoKitWizardComposite(final Composite parentComposite, final int styles, final EComponentCategory section,
             final Element element, final TaCoKitConfigurationModel model, final boolean isCompactView,
@@ -76,6 +76,17 @@ public class TaCoKitWizardComposite extends TaCoKitComposite {
                 .map(p -> (TaCoKitElementParameter) p)
                 .forEach(p -> p.removeValueChangeListener(configurationUpdater));
         super.dispose();
+    }
+
+    /**
+     * Overrides parent method as Property Type widget should not be shown in wizard pages
+     * 
+     * @param parent parent Composite
+     * @return last Composite added
+     */
+    @Override
+    protected Composite addCommonWidgets(final Composite parent) {
+        return addSchemas(parent, null);
     }
 
     private class ConfigurationModelUpdater implements IValueChangedListener {

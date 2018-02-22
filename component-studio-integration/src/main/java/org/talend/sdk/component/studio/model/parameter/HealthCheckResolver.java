@@ -40,7 +40,7 @@ public class HealthCheckResolver {
 
     private final IElement element;
 
-    private String family;
+    private final String family;
 
     private final PropertyNode node;
 

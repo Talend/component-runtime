@@ -38,6 +38,10 @@ public class Layout {
 
     private final List<Level> levels = new ArrayList<>();
 
+    public boolean isLeaf() {
+        return levels.isEmpty();
+    }
+
     /**
      * Returns child Layout
      * 

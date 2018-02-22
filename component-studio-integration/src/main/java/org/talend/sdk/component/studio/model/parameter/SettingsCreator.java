@@ -18,8 +18,6 @@ package org.talend.sdk.component.studio.model.parameter;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static org.talend.sdk.component.studio.model.action.Action.HEALTH_CHECK;
-import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_TYPE;
-import static org.talend.sdk.component.studio.model.parameter.Metadatas.UI_STRUCTURE_VALUE;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -318,10 +316,9 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     private TaCoKitElementParameter visitSchema(final PropertyNode node) {
-        final String connectionType = node.getProperty().getMetadata().get(UI_STRUCTURE_TYPE);
-        String connectionName = node.getProperty().getMetadata().get(UI_STRUCTURE_VALUE);
+        String connectionName = node.getProperty().getConnection().getValue();
         connectionName = connectionName.equals("__default__") ? EConnectionType.FLOW_MAIN.getName() : connectionName;
-        final String schemaName = connectionType + "$$" + node.getId();
+        final String schemaName = node.getProperty().getSchemaName();
         return createSchemaParameter(connectionName, schemaName);
     }
 
@@ -467,9 +464,9 @@ public class SettingsCreator implements PropertyVisitor {
     private void createValidationLabel(final PropertyNode node, final TaCoKitElementParameter target) {
         final ValidationLabel label = new ValidationLabel(element);
         label.setCategory(category);
-        label.setName(node.getProperty().getPath() + "Validation");
+        label.setName(node.getProperty().getPath() + PropertyNode.VALIDATION);
         // TODO remove or modify it
-        label.setRepositoryValue(node.getProperty().getPath() + "validation");
+        label.setRepositoryValue(node.getProperty().getPath() + PropertyNode.VALIDATION);
         label.setSerialized(false);
         // it shown on the next row by default, but may be changed
         label.setNumRow(node.getLayout(form).getPosition() + 1);
