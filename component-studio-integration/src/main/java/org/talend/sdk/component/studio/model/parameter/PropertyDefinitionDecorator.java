@@ -443,7 +443,7 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         if (type == null || value == null) {
             throw new IllegalStateException("property has no structure");
         }
-        return new Connection(Connection.Type.of(type), value);
+        return new Connection(Connection.Type.valueOf(type), value);
     }
 
     String getSchemaName() {
@@ -479,16 +479,6 @@ class PropertyDefinitionDecorator extends SimplePropertyDefinition {
         public static enum Type {
             IN,
             OUT;
-
-            public static Type of(final String type) {
-                if ("IN".equals(type)) {
-                    return IN;
-                }
-                if ("OUT".equals(type)) {
-                    return OUT;
-                }
-                throw new IllegalArgumentException("wrong type " + type);
-            }
         }
     }
 
