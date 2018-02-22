@@ -13,13 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-const fs = require('fs');
-
-module.exports = (pathJson, options) => {
-    if (!options.data.root.contributors) {
-        options.data.root.contributors = JSON.parse(fs.readFileSync(pathJson, "utf8"));
-    }
-    return options.data.root.contributors
-                .map(i => options.fn(i))
-                .reduce((a, v) => a + v, '');
+module.exports = (text, options) => {
+  const list = text.toString('utf-8');
+  if (!options.data.root.contributors) {
+    options.data.root.contributors = JSON.parse(list.trim());
+  }
+  return options.data.root.contributors
+            .map(i => options.fn(i))
+            .reduce((a, v) => a + v, '');
 };

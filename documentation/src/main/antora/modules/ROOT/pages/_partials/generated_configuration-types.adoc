@@ -1,0 +1,8 @@
+
+[role="table-striped table-hover table-ordered",options="header,autowidth"]
+|====
+|API|Type|Description|Metadata sample
+|org.talend.sdk.component.api.configuration.type.DataSet|dataset|Mark a model (complex object) as being a dataset.|{"tcomp::configurationtype::type":"dataset","tcomp::configurationtype::name":"test"}
+|org.talend.sdk.component.api.configuration.type.DataStore|datastore|Mark a model (complex object) as being a datastore (connection to a backend).|{"tcomp::configurationtype::type":"datastore","tcomp::configurationtype::name":"test"}
+|====
+

@@ -36,5 +36,3 @@ asciidoc:
     deploymentRoot: ""
     numbered: true
     hide-uri-scheme: true
-  extensions:
-    - ./extensions/include/index.js

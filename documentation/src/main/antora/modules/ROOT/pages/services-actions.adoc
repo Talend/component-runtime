@@ -50,4 +50,4 @@ TIP: service is passed to constructor automatically, it can be used as a bean. O
 Some actions are that common and need a clear contract so they are defined as API first citizen, this is the case for wizards or healthchecks
 for instance. Here is the list of all actions:
 
-include::{generated_adoc}/actions.adoc[]
+include::{partialsdir}/generated_actions.adoc[]

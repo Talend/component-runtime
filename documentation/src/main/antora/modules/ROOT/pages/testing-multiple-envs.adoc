@@ -61,7 +61,7 @@ The provided environment setup the contextual classloader to load the related ru
 
 Package: `org.talend.sdk.component.junit.environment.builtin.beam`
 
-include::{generated_adoc}/junit-environments.adoc[]
+include::{partialsdir}/generated_junit-environments.adoc[]
 
 == Configuring environments
 

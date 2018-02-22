@@ -120,7 +120,7 @@ with an object) don't use it.
 It is common to need to add as metadata a field is required, another has a minimum size etc. This is done with the
 validation in `org.talend.sdk.component.api.configuration.constraint` package:
 
-include::{generated_adoc}/constraints.adoc[]
+include::{partialsdir}/generated_constraints.adoc[]
 
 IMPORTANT: using the programmatic API the metadata are prefixed by `tcomp::` but this prefix is stripped in the web for convenience,
 the previous table uses the web keys.
@@ -133,7 +133,7 @@ are the:
 - datastore: all the data you need to connect to the backend
 - dataset: a datastore coupled with all the data you need to execute an action
 
-include::{generated_adoc}/configuration-types.adoc[]
+include::{partialsdir}/generated_configuration-types.adoc[]
 
 IMPORTANT: the component family associated with a configuration type (datastore/dataset) is always the one related
 to the component using that configuration.
@@ -173,7 +173,7 @@ For example, a configuration type index for the above example will be:
 
 It can be needed to define a binding between properties, a set of annotations allows to do it:
 
-include::{generated_adoc}/conditions.adoc[]
+include::{partialsdir}/generated_conditions.adoc[]
 
 Target element location is specified as a relative path to current location using Unix path characters.
 Configuration class delimiter is `/`. Parent configuration class is specified by `..`.
@@ -189,7 +189,7 @@ In some case it can be needed to add some metadata about the configuration to le
 A simple example is a password value must be hidden and not a simple clear input box. For these cases - when the component developper
 wants to influence the UI rendering - you can use a particular set of annotations:
 
-include::{generated_adoc}/ui.adoc[]
+include::{partialsdir}/generated_ui.adoc[]
 
 IMPORTANT: using the programmatic API the metadata are prefixed by `tcomp::` but this prefix is stripped in the web for convenience,
 the previous table uses the web keys.

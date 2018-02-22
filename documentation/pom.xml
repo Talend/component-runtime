@@ -34,7 +34,6 @@
     <sample_project-base>${project.basedir}/../sample</sample_project-base>
     <sample_project>${sample_project-base}/src/main/java/org/talend/sdk/component/sample</sample_project>
     <sample_project_test>${sample_project-base}/src/test/java/org/talend/sdk/component/sample</sample_project_test>
-    <generated_adoc>${project.build.directory}/generated-adoc</generated_adoc>
     <site.rootpath></site.rootpath>
     <args4j.version>2.33</args4j.version>
     <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
@@ -162,7 +161,7 @@
               <mainClass>org.talend.runtime.documentation.Generator</mainClass>
               <includePluginDependencies>true</includePluginDependencies>
               <arguments>
-                <argument>${project.build.directory}</argument>
+                <argument>${project.basedir}/src/main/antora/modules/ROOT/pages</argument>
                 <argument>${talend.jira.username}</argument>
                 <argument>${talend.jira.password}</argument>
                 <argument>${project.version}</argument>
@@ -307,7 +306,7 @@
               <arguments>run antora:build</arguments>
             </configuration>
           </execution>
-          <execution> <!-- mvn frontend:yarn@yarn-dev -Pantora -->
+          <execution> <!-- mvn gplus:execute@groovy-scripts frontend:yarn@yarn-dev -->
             <id>yarn-dev</id>
             <phase />
             <goals>
@@ -324,6 +323,13 @@
           <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
           <environmentVariables>
             <NODE_ENV>production</NODE_ENV>
+            <ANTORA_JIRA_USER>${talend.jira.username}</ANTORA_JIRA_USER>
+            <ANTORA_JIRA_PASSWORD>${talend.jira.password}</ANTORA_JIRA_PASSWORD>
+            <ANTORA_PROJECT_VERSION>${project.version}</ANTORA_PROJECT_VERSION>
+            <ANTORA_OFFLINE_MODE>offline=${settings.offline}</ANTORA_OFFLINE_MODE>
+            <ANTORA_GITHUB_USER>${talend.github.username}</ANTORA_GITHUB_USER>
+            <ANTORA_GITHUB_PASSWORD>${talend.github.password}</ANTORA_GITHUB_PASSWORD>
+            <ANTORA_GITHUB_CACHE>${talend.github.cache}</ANTORA_GITHUB_CACHE>
           </environmentVariables>
         </configuration>
       </plugin>

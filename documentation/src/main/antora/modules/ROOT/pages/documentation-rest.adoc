@@ -343,4 +343,4 @@ The server module contains several configuration you can set in:
 - System properties
 - A file located based on the `--component-configuration` CLI option
 
-include::{generated_adoc}/server-configuration.adoc[]
+include::{partialsdir}/generated_server-configuration.adoc[]

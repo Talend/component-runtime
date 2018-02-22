@@ -29,14 +29,16 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
@@ -105,7 +107,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Generator {
 
     public static void main(final String[] args) throws Exception {
-        final File generatedDir = new File(args[0], "generated-adoc");
+        final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
         generatedTypes(generatedDir);
         generatedConstraints(generatedDir);
@@ -117,17 +119,16 @@ public class Generator {
 
         final boolean offline = "offline=true".equals(args[4]);
         if (offline) {
-            System.out.println("System is offline, skipping jira changelog and github contributor generation");
+            log.info("System is offline, skipping jira changelog and github contributor generation");
             return;
         }
         generatedContributors(generatedDir, args[5], args[6], Boolean.parseBoolean(args[7]));
         generatedJira(generatedDir, args[1], args[2], args[3]);
     }
 
-    private static void generatedJUnitEnvironment(final File generatedDir)
-            throws FileNotFoundException, MalformedURLException {
-        final File file = new File(generatedDir, "junit-environments.adoc");
-        try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+    private static void generatedJUnitEnvironment(final File generatedDir) throws MalformedURLException {
+        final File file = new File(generatedDir, "generated_junit-environments.adoc");
+        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println("");
             stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
             stream.println("");
@@ -159,33 +160,35 @@ public class Generator {
             stream.println();
 
         }
-        System.out.println("Generated " + file);
+        log.info("Generated " + file);
     }
 
     private static void generatedContributors(final File generatedDir, final String user, final String pwd,
             final boolean cache) throws Exception {
-        Collection<Contributor> contributors;
+        final Collection<Contributor> contributors;
         if (user == null || user.trim().isEmpty() || "skip".equals(user)) {
-            System.err.println("No Github credentials, will skip contributors generation");
-            contributors = new ArrayList<>();
+            log.error("No Github credentials, will skip contributors generation");
+            return;
         } else {
             try {
                 contributors = new Github(user, pwd).load();
             } catch (final RuntimeException re) {
                 log.error(re.getMessage(), re);
-                contributors = new ArrayList<>();
+                return;
             }
         }
-        final File file = new File(generatedDir, "contributors.json");
+        final File file = new File(generatedDir, "generated_contributors.adoc");
         final File cacheFile =
-                new File(System.getProperty("user.home"), "build/Talend/component-runtime/.ci-cache/contributors.json");
+                new File(System.getProperty("user.home"), "build/Talend/component-runtime/.ci-cache/contributors.adoc");
         if (cache && contributors.isEmpty() && cacheFile.exists()) { // try to reuse the cache
             log.info("Using cached contributors: {}", cacheFile.getAbsolutePath());
             Files.copy(cacheFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             return;
         }
-        try (final Jsonb jsonb = JsonbBuilder.create(); final Writer writer = new FileWriter(file)) {
+        try (final Jsonb jsonb = JsonbBuilder.create(); final OutputStream writer = new WriteIfDifferentStream(file)) {
+            writer.write("++++\n".getBytes(StandardCharsets.UTF_8));
             jsonb.toJson(contributors, writer);
+            writer.write("\n++++".getBytes(StandardCharsets.UTF_8));
         }
         if (cache) {
             cacheFile.getParentFile().mkdirs();
@@ -194,16 +197,16 @@ public class Generator {
     }
 
     private static void generatedJira(final File generatedDir, final String username, final String password,
-            final String version) throws FileNotFoundException {
+            final String version) {
         if (username == null || username.trim().isEmpty() || "skip".equals(username)) {
-            System.err.println("No JIRA credentials, will skip changelog generation");
+            log.error("No JIRA credentials, will skip changelog generation");
             return;
         }
 
         final String project = "TCOMP";
         final String jiraBase = "https://jira.talendforge.org";
 
-        final File file = new File(generatedDir, "changelog.adoc");
+        final File file = new File(generatedDir, "generated_changelog.adoc");
         final Client client = ClientBuilder.newClient().register(new JsonbJaxrsProvider<>());
         final String auth = "Basic "
                 + Base64.getEncoder().encodeToString((username + ':' + password).getBytes(StandardCharsets.UTF_8));
@@ -242,7 +245,7 @@ public class Generator {
                     })
                     .collect(toList());
             if (loggedVersions.isEmpty()) {
-                try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+                try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
                     stream.println("No version found.");
                 }
                 return;
@@ -317,24 +320,23 @@ public class Generator {
                     .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                     .toString();
 
-            try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+            try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
                 stream.println(changelog);
             }
         } finally {
             client.close();
         }
 
-        System.out.println("Generated " + file);
+        log.info("Generated " + file);
     }
 
     private static boolean jiraVersionMatches(final String ref, final String name) {
         return ref.equals(name) || ref.equals(name + ".0");
     }
 
-    private static void generatedServerConfiguration(final File generatedDir)
-            throws FileNotFoundException, MalformedURLException {
-        final File file = new File(generatedDir, "server-configuration.adoc");
-        try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+    private static void generatedServerConfiguration(final File generatedDir) throws MalformedURLException {
+        final File file = new File(generatedDir, "generated_server-configuration.adoc");
+        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println("");
             stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
             stream.println("");
@@ -350,11 +352,10 @@ public class Generator {
                     .stream()
                     .sorted(Comparator.comparing(t -> t.getAnnotation(Configuration.class).prefix()))
                     .flatMap(c -> Stream.of(c.getMethods()))
+                    .sorted(comparing(Generator::extractConfigName))
                     .forEach(method -> {
                         final ConfigProperty configProperty = method.getAnnotation(ConfigProperty.class);
-                        final String name = method.getDeclaringClass().getAnnotation(Configuration.class).prefix()
-                                + configProperty.name();
-
+                        final String name = extractConfigName(method);
                         stream.println("|" + name + "|" + method.getAnnotation(Documentation.class).value() + "|"
                                 + (ConfigProperty.NULL.equalsIgnoreCase(configProperty.defaultValue()) ? "-"
                                         : configProperty.defaultValue()));
@@ -363,12 +364,17 @@ public class Generator {
             stream.println();
 
         }
-        System.out.println("Generated " + file);
+        log.info("Generated " + file);
+    }
+
+    private static String extractConfigName(final Method method) {
+        return method.getDeclaringClass().getAnnotation(Configuration.class).prefix()
+                + method.getAnnotation(ConfigProperty.class).name();
     }
 
     private static void generatedActions(final File generatedDir) throws Exception {
-        final File file = new File(generatedDir, "actions.adoc");
-        try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+        final File file = new File(generatedDir, "generated_actions.adoc");
+        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println("");
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
@@ -394,12 +400,12 @@ public class Generator {
             stream.println();
 
         }
-        System.out.println("Generated " + file);
+        log.info("Generated " + file);
     }
 
     private static void generatedUi(final File generatedDir) throws Exception {
-        final File file = new File(generatedDir, "ui.adoc");
-        try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+        final File file = new File(generatedDir, "generated_ui.adoc");
+        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println("");
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
@@ -424,7 +430,7 @@ public class Generator {
             stream.println();
 
         }
-        System.out.println("Generated " + file);
+        log.info("Generated " + file);
     }
 
     private static String sample(final Class<?> returnedType) {
@@ -476,8 +482,8 @@ public class Generator {
     }
 
     private static void generatedConditions(final File generatedDir) throws Exception {
-        final File file = new File(generatedDir, "conditions.adoc");
-        try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+        final File file = new File(generatedDir, "generated_conditions.adoc");
+        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println("");
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
@@ -488,22 +494,26 @@ public class Generator {
             final Mapper mapper = new MapperBuilder().build();
             final AnnotationFinder finder = new AnnotationFinder(
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder.findAnnotatedClasses(Condition.class).forEach(type -> stream.println("|@" + type.getName() + "|"
-                    + type.getAnnotation(Condition.class).value() + "|" + extractDoc(type) + "|"
-                    + mapper
-                            .writeObjectAsString(
-                                    enricher.onParameterAnnotation("test", String.class, generateAnnotation(type)))
-                            .replace("tcomp::", "")));
+            finder
+                    .findAnnotatedClasses(Condition.class)
+                    .stream()
+                    .sorted(comparing(Class::getName))
+                    .forEach(type -> stream.println("|@" + type.getName() + "|"
+                            + type.getAnnotation(Condition.class).value() + "|" + extractDoc(type) + "|"
+                            + mapper
+                                    .writeObjectAsString(enricher.onParameterAnnotation("test", String.class,
+                                            generateAnnotation(type)))
+                                    .replace("tcomp::", "")));
             stream.println("|====");
             stream.println();
 
         }
-        System.out.println("Generated " + file);
+        log.info("Generated " + file);
     }
 
     private static void generatedTypes(final File generatedDir) throws Exception {
-        final File file = new File(generatedDir, "configuration-types.adoc");
-        try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+        final File file = new File(generatedDir, "generated_configuration-types.adoc");
+        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println("");
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
@@ -516,6 +526,8 @@ public class Generator {
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
             finder
                     .findAnnotatedClasses(ConfigurationType.class)
+                    .stream()
+                    .sorted(comparing(Class::getName))
                     .forEach(type -> stream.println("|" + type.getName() + "|"
                             + type.getAnnotation(ConfigurationType.class).value() + "|" + extractDoc(type) + "|"
                             + mapper.writeObjectAsString(
@@ -524,12 +536,12 @@ public class Generator {
             stream.println();
 
         }
-        System.out.println("Generated " + file);
+        log.info("Generated " + file);
     }
 
     private static void generatedConstraints(final File generatedDir) throws Exception {
-        final File file = new File(generatedDir, "constraints.adoc");
-        try (final PrintStream stream = new PrintStream(new FileOutputStream(file))) {
+        final File file = new File(generatedDir, "generated_constraints.adoc");
+        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println("");
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
@@ -568,7 +580,7 @@ public class Generator {
             stream.println();
 
         }
-        System.out.println("Generated " + file);
+        log.info("Generated " + file);
     }
 
     private static String sanitizeType(final String s) {
@@ -830,5 +842,52 @@ public class Generator {
     public static class Status {
 
         private String name;
+    }
+
+    private static class WriteIfDifferentStream extends FilterOutputStream {
+
+        private final File destination;
+
+        private WriteIfDifferentStream(final File destination) {
+            super(new ByteArrayOutputStream());
+            this.destination = destination;
+        }
+
+        @Override
+        public void close() throws IOException {
+            out.close();
+            final byte[] bytes = ByteArrayOutputStream.class.cast(out).toByteArray();
+            if (!destination.exists() || !Files.lines(destination.toPath()).collect(joining("\n")).equals(
+                    new String(bytes, StandardCharsets.UTF_8))) {
+                try (final OutputStream out = new FileOutputStream(destination)) {
+                    out.write(bytes);
+                }
+            }
+        }
+
+        @Override
+        public void write(final int b) throws IOException {
+            out.write(b);
+        }
+
+        @Override
+        public void write(final byte[] b, final int off, final int len) throws IOException {
+            out.write(b, off, len);
+        }
+
+        @Override
+        public String toString() {
+            return out.toString();
+        }
+
+        @Override
+        public void write(final byte[] b) throws IOException {
+            out.write(b);
+        }
+
+        @Override
+        public void flush() throws IOException {
+            out.flush();
+        }
     }
 }

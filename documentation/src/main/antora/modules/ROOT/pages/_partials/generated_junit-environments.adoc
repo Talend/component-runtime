@@ -1,0 +1,12 @@
+
+NOTE: the configuration is read from system properties, environment variables, ....
+
+[role="table-striped table-hover table-ordered",options="header,autowidth"]
+|====
+|Class|Name|Description
+|ContextualEnvironment|Contextual|Contextual runner
+|DirectRunnerEnvironment|Direct|Direct runner
+|FlinkRunnerEnvironment|Flink|Flink runner
+|SparkRunnerEnvironment|Spark|Spark runner
+|====
+

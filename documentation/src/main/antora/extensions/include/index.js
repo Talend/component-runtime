@@ -13,6 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+// this extension allows to resolve local resources
+// in antora
+// IMPORTANT: since antora is based on remote resources it shouldn't be used by can be common for tests
+// to activate it add it in asciidoc.extensions in site-dev.yml
+
 const Opal = global.Opal;
 const fs = require('fs');
 const path = require('path');

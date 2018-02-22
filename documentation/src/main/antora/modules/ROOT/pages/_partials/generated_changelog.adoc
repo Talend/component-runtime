@@ -1,0 +1,31 @@
+
+
+== Version 1.0.0
+
+=== Backlog Task
+
+- link:https://jira.talendforge.org/browse/TCOMP-653[TCOMP-653^]: Web Form metamodel service
+- link:https://jira.talendforge.org/browse/TCOMP-655[TCOMP-655^]: Catalog service
+- link:https://jira.talendforge.org/browse/TCOMP-656[TCOMP-656^]: UISpec compatibility
+- link:https://jira.talendforge.org/browse/TCOMP-664[TCOMP-664^]: Local testing server for dev
+- link:https://jira.talendforge.org/browse/TCOMP-681[TCOMP-681^]: Studio parameters form integration
+- link:https://jira.talendforge.org/browse/TCOMP-682[TCOMP-682^]: Studio Metadata integration
+- link:https://jira.talendforge.org/browse/TCOMP-683[TCOMP-683^]: Studio Runtime integration
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-446[TCOMP-446^]: Support Embedded Documentation
+- link:https://jira.talendforge.org/browse/TCOMP-650[TCOMP-650^]: Ensure component can be executed in beam pipelines
+- link:https://jira.talendforge.org/browse/TCOMP-658[TCOMP-658^]: Add test Source/Sink collectors in JUnit integration
+- link:https://jira.talendforge.org/browse/TCOMP-662[TCOMP-662^]: Validation Mojo
+- link:https://jira.talendforge.org/browse/TCOMP-680[TCOMP-680^]: Register components into the Studio Palette
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-651[TCOMP-651^]: Ensure beam components can be wrapped and used through the Talend Component Kit Framework
+- link:https://jira.talendforge.org/browse/TCOMP-659[TCOMP-659^]: Basic job builder API to simplify JUnit tests
+- link:https://jira.talendforge.org/browse/TCOMP-675[TCOMP-675^]: Select a communication solution for Talend Component Kit server
+- link:https://jira.talendforge.org/browse/TCOMP-691[TCOMP-691^]: Create context menu for Tacokit node in repository panel
+
