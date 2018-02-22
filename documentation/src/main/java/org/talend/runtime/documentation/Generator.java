@@ -160,7 +160,6 @@ public class Generator {
             stream.println();
 
         }
-        log.info("Generated " + file);
     }
 
     private static void generatedContributors(final File generatedDir, final String user, final String pwd,
@@ -326,8 +325,6 @@ public class Generator {
         } finally {
             client.close();
         }
-
-        log.info("Generated " + file);
     }
 
     private static boolean jiraVersionMatches(final String ref, final String name) {
@@ -364,7 +361,6 @@ public class Generator {
             stream.println();
 
         }
-        log.info("Generated " + file);
     }
 
     private static String extractConfigName(final Method method) {
@@ -400,7 +396,6 @@ public class Generator {
             stream.println();
 
         }
-        log.info("Generated " + file);
     }
 
     private static void generatedUi(final File generatedDir) throws Exception {
@@ -430,7 +425,6 @@ public class Generator {
             stream.println();
 
         }
-        log.info("Generated " + file);
     }
 
     private static String sample(final Class<?> returnedType) {
@@ -508,7 +502,6 @@ public class Generator {
             stream.println();
 
         }
-        log.info("Generated " + file);
     }
 
     private static void generatedTypes(final File generatedDir) throws Exception {
@@ -536,7 +529,6 @@ public class Generator {
             stream.println();
 
         }
-        log.info("Generated " + file);
     }
 
     private static void generatedConstraints(final File generatedDir) throws Exception {
@@ -580,7 +572,6 @@ public class Generator {
             stream.println();
 
         }
-        log.info("Generated " + file);
     }
 
     private static String sanitizeType(final String s) {
@@ -857,12 +848,20 @@ public class Generator {
         public void close() throws IOException {
             out.close();
             final byte[] bytes = ByteArrayOutputStream.class.cast(out).toByteArray();
-            if (!destination.exists() || !Files.lines(destination.toPath()).collect(joining("\n")).equals(
-                    new String(bytes, StandardCharsets.UTF_8))) {
+            if (!destination.exists() || isDifferent(bytes)) {
                 try (final OutputStream out = new FileOutputStream(destination)) {
                     out.write(bytes);
                 }
+                log.info(destination + " created");
+            } else {
+                log.info(destination + " didn't change, skip rewriting");
             }
+        }
+
+        private boolean isDifferent(final byte[] bytes) throws IOException {
+            final String source = Files.lines(destination.toPath()).collect(joining("\n")).trim();
+            final String target = new String(bytes, StandardCharsets.UTF_8).trim();
+            return !source.equals(target);
         }
 
         @Override
