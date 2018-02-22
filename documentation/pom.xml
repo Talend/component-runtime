@@ -247,6 +247,7 @@
         <executions>
           <execution>
             <id>filter-antora</id>
+            <phase>process-classes</phase>
             <goals>
               <goal>filter</goal>
             </goals>
@@ -257,6 +258,7 @@
           </execution>
           <execution>
             <id>filter-site</id>
+            <phase>process-classes</phase>
             <goals>
               <goal>filter</goal>
             </goals>

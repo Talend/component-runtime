@@ -69,3 +69,6 @@ new File(project.basedir, 'src/main/jbake/content').listFiles()
 
 targetSearchJs.text = sourceSearchJs.text.replace('${DOCUMENTS}', JsonOutput.toJson(index))
 log.info("Generated js-search index")
+
+// otherwise gh-pages ignore the _ folders
+new File(project.build.directory, "${project.build.finalName}/.nojekyll").text = ''

@@ -36,3 +36,6 @@ def decryptAndSet(name) {
 }
 decryptAndSet('jira')
 decryptAndSet('github')
+
+project.properties.setProperty('versions.release', project.version.replace('-SNAPSHOT', ''))
+
