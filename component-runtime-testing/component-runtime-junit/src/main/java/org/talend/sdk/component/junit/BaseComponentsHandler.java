@@ -59,8 +59,6 @@ import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
-import org.talend.sdk.component.runtime.manager.chain.CountingSuccessListener;
-import org.talend.sdk.component.runtime.manager.chain.ExecutionChainBuilder;
 import org.talend.sdk.component.runtime.manager.chain.ToleratingErrorHandler;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.output.Processor;

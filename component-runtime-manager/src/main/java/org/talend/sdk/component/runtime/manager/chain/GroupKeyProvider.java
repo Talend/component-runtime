@@ -15,17 +15,20 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import java.io.Serializable;
+import java.util.function.BiFunction;
 
-@RequiredArgsConstructor
-public class CountingSuccessListener implements ExecutionChain.SuccessListener {
+import javax.json.JsonObject;
 
-    @Getter
-    private int current;
+/**
+ * This is a key provider for a record in a job context
+ */
+public interface GroupKeyProvider extends BiFunction<JsonObject, GroupKeyProvider.GroupContext, String>, Serializable {
 
-    @Override
-    public void onData(final Object data) {
-        current++;
+    interface GroupContext extends Serializable {
+
+        String getComponentId();
+
+        String getBranchName();
     }
 }

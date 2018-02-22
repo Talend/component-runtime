@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.beam.transform;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
 
 import javax.json.JsonObject;
 
@@ -25,10 +26,10 @@ import org.apache.beam.sdk.coders.KvCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
-import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.runtime.manager.chain.GroupKeyProvider;
 
 import lombok.AllArgsConstructor;
 
@@ -38,7 +39,9 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class AutoKVWrapper extends DoFn<JsonObject, KV<String, JsonObject>> {
 
-    private SerializableFunction<JsonObject, String> idGenerator;
+    private BiFunction<JsonObject, GroupKeyProvider.GroupContext, String> idGenerator;
+
+    private GroupKeyProvider.GroupContext groupContext;
 
     protected AutoKVWrapper() {
         // no-op
@@ -47,23 +50,27 @@ public class AutoKVWrapper extends DoFn<JsonObject, KV<String, JsonObject>> {
     @ProcessElement
     public void onElement(final ProcessContext context) {
         final JsonObject jsonObject = context.element();
-        final KV<String, JsonObject> kv = KV.of(idGenerator.apply(jsonObject), jsonObject);
+        final KV<String, JsonObject> kv = KV.of(idGenerator.apply(jsonObject, this.groupContext), jsonObject);
         context.output(kv);
     }
 
-    public static PTransform<PCollection<JsonObject>, PCollection<KV<String, JsonObject>>> of(final String plugin,
-            final SerializableFunction<JsonObject, String> idGenerator) {
+    public static PTransform<PCollection<JsonObject>, PCollection<KV<String, JsonObject>>> of(
+            final String plugin,
+            final BiFunction<JsonObject, GroupKeyProvider.GroupContext, String> idGenerator,
+            final GroupKeyProvider.GroupContext groupContext) {
+
         return new JsonObjectParDoTransformCoderProvider<>(
-                KvCoder.of(StringUtf8Coder.of(), JsonpJsonObjectCoder.of(plugin)), new AutoKVWrapper(idGenerator));
+                KvCoder.of(StringUtf8Coder.of(), JsonpJsonObjectCoder.of(plugin)),
+                new AutoKVWrapper(idGenerator, groupContext));
     }
 
     public static class LocalSequenceHolder {
 
         private static final Map<String, AtomicLong> GENERATORS = new HashMap<>();
 
-        public static SerializableFunction<JsonObject, String> cleanAndGet(final String name) {
+        public static GroupKeyProvider cleanAndGet(final String name) {
             GENERATORS.put(name, new AtomicLong(0));
-            return o -> Long.toString(GENERATORS.get(name).incrementAndGet());
+            return (o, c) -> Long.toString(GENERATORS.get(name).incrementAndGet());
         }
 
         public static void clean(final String name) {

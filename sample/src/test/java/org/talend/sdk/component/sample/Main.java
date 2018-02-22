@@ -15,39 +15,27 @@
  */
 package org.talend.sdk.component.sample;
 
-import static java.util.Collections.emptyMap;
-
-import java.util.HashMap;
-
 import org.talend.sdk.component.runtime.manager.ComponentManager;
-import org.talend.sdk.component.runtime.manager.chain.CountingSuccessListener;
-import org.talend.sdk.component.runtime.manager.chain.ExecutionChainBuilder;
-import org.talend.sdk.component.runtime.manager.chain.ToleratingErrorHandler;
+import org.talend.sdk.component.runtime.manager.chain.Job;
 
 public class Main {
 
     public static void main(final String[] args) {
         // tag::main[]
         try (final ComponentManager manager = ComponentManager.instance()) {
-            ExecutionChainBuilder
-                    .start()
-                    .withConfiguration("SampleJob", true)
-                    .fromInput("sample", "reader", 2, new HashMap<String, String>() {
+            Job
+                    .components()
+                    .component("reader", "sample://reader?file=/tmp/input.csv")
+                    .component("mapper", "sample://mapper")
+                    .component("writer", "sample://writer?file=/tmp/output.csv")
+                    .connections()
+                    .from("reader")
+                    .to("mapper")
+                    .from("mapper")
+                    .to("writer")
+                    .build()
+                    .run();
 
-                        {
-                            put("file", "/tmp/input.csv");
-                        }
-                    })
-                    .toProcessor("sample", "mapper", 1, emptyMap())
-                    .toProcessor(null, "sample", "writer", 1, new HashMap<String, String>() {
-
-                        {
-                            put("file", "/tmp/output.csv");
-                        }
-                    })
-                    .create(manager, plugin -> null, new CountingSuccessListener(), new ToleratingErrorHandler(0))
-                    .get()
-                    .execute();
         }
         // end::main[]
     }

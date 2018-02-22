@@ -32,8 +32,8 @@ import org.junit.jupiter.api.TestInfo;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.runtime.beam.PluginGenerator;
-import org.talend.sdk.component.runtime.beam.chain.impl.GroupKeyExtractor;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.chain.GroupKeyProvider;
 import org.talend.sdk.component.runtime.manager.chain.Job;
 
 @WithTemporaryFolder
@@ -78,8 +78,10 @@ public class BeamJobTest {
                                     + "&values[2]=Bordeaux" + "&values[3]=Nantes")
                     .component("outFile", "chain://file?__version=1&file=" + encode(out.getAbsolutePath(), "utf-8"))
                     .connections()
-                    .from("firstNames-dataset").to("formatter", "firstName")
-                    .from("lastNames-dataset").to("formatter", "lastName")
+                    .from("firstNames-dataset")
+                    .to("formatter", "firstName")
+                    .from("lastNames-dataset")
+                    .to("formatter", "lastName")
                     .from("formatter", "formatted-lastName")
                     .to("concat", "str1")
                     .from("formatter", "formatted-firstName")
@@ -91,12 +93,12 @@ public class BeamJobTest {
                     .from("concat_2")
                     .to("outFile")
                     .build()
-                    .property(GroupKeyExtractor.class.getName(),
-                            (GroupKeyExtractor) object -> object.getJsonObject("$$internal").getString("key"))
+                    .property(GroupKeyProvider.class.getName(),
+                            (GroupKeyProvider) (object, context) -> object.getJsonObject("$$internal").getString("key"))
                     .run();
 
             try {
-                //this is a workaround to a bug in beam direct runner
+                // this is a workaround to a bug in beam direct runner
                 Thread.sleep(300L);
             } catch (InterruptedException e) {
                 fail(e.getMessage(), e);
