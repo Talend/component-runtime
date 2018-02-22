@@ -5,9 +5,9 @@
     {{#if page.attributes.talend_contributors}}
         {{>contributors page}}
     {{else if page.attributes.talend_search}}
-        {{>search page}}
+        {{>search this}}
     {{else if page.attributes.popcorn_video}}
-        {{>popcorn page}}
+        {{>popcorn this }}
     {{else}}
         {{{page.contents}}}
     {{/if}}
