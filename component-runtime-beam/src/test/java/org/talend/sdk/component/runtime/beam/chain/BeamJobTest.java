@@ -78,10 +78,8 @@ public class BeamJobTest {
                                     + "&values[2]=Bordeaux" + "&values[3]=Nantes")
                     .component("outFile", "chain://file?__version=1&file=" + encode(out.getAbsolutePath(), "utf-8"))
                     .connections()
-                    .from("firstNames-dataset")
-                    .to("formatter", "firstName")
-                    .from("lastNames-dataset")
-                    .to("formatter", "lastName")
+                    .from("firstNames-dataset").to("formatter", "firstName")
+                    .from("lastNames-dataset").to("formatter", "lastName")
                     .from("formatter", "formatted-lastName")
                     .to("concat", "str1")
                     .from("formatter", "formatted-firstName")
@@ -96,8 +94,10 @@ public class BeamJobTest {
                     .property(GroupKeyExtractor.class.getName(),
                             (GroupKeyExtractor) object -> object.getJsonObject("$$internal").getString("key"))
                     .run();
+
             try {
-                Thread.sleep(1000L);
+                //this is a workaround to a bug in beam direct runner
+                Thread.sleep(300L);
             } catch (InterruptedException e) {
                 fail(e.getMessage(), e);
             }

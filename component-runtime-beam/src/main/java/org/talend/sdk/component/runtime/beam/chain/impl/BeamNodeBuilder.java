@@ -120,10 +120,10 @@ public class BeamNodeBuilder extends JobImpl.NodeBuilderImpl {
                                 pipeline.apply(toName("TalendIO", component), TalendIO.read(mapper)).apply(
                                         toName("RecordNormalizer", component), RecordNormalizer.of(mapper.plugin())));
                     } else {
+                        final Processor processor = processors.get(component.getId());
                         final List<Job.Edge> joins = getEdges(getEdges(), component, e -> e.getTo().getNode());
                         final Map<String, PCollection<KV<String, JsonObject>>> inputs =
                                 joins.stream().collect(toMap(e -> e.getTo().getBranch(), e -> {
-                                    final Processor processor = processors.get(e.getTo().getNode().getId());
                                     final PCollection<JsonObject> pc = pCollections.get(e.getFrom().getNode().getId());
                                     final PCollection<JsonObject> filteredInput =
                                             pc.apply(toName("RecordBranchFilter", component, e),
@@ -148,7 +148,6 @@ public class BeamNodeBuilder extends JobImpl.NodeBuilderImpl {
                             join = join == null ? KeyedPCollectionTuple.of(branch, entry.getValue())
                                     : join.and(branch, entry.getValue());
                         }
-                        final Processor processor = processors.get(component.getId());
                         final PCollection<JsonObject> preparedInput =
                                 join.apply(toName("CoGroupByKey", component), CoGroupByKey.create()).apply(
                                         toName("CoGroupByKeyResultMappingTransform", component),
