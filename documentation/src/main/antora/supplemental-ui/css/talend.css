@@ -106,5 +106,17 @@ footer.footer {
   text-align: center;
   margin: 0;
   padding: .25em .5em .8em .5em;
-  color: #444;
+}
+
+.navbar,
+footer.footer,
+.footer a {
+  background-color: #236192;
+  color: white;
+}
+.navbar-end .navbar-link:hover,
+.navbar-end > a.navbar-item:hover,
+.navbar-item.has-dropdown:hover .navbar-link {
+  background-color: #53565A;
+  color: white;
 }
