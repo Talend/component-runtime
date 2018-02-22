@@ -24,6 +24,9 @@ def copyJsResource = { source, output ->
 
 // add js resources resource
 copyJsResource(
+    new File(project.basedir, 'src/main/frontend/node_modules/highlight.js/styles/idea.css').toURI().toURL(),
+    'css/idea.css')
+copyJsResource(
     new File(project.basedir, 'src/main/frontend/node_modules/js-search/dist/umd/js-search.min.js').toURI().toURL(),
     'js/js-search.min.js')
 copyJsResource(
