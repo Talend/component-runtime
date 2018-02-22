@@ -28,11 +28,6 @@ output:
 asciidoc:
   attributes:
     project_version: 1.0.0-SNAPSHOT
-    sample_project-base: /home/rmannibucau/1_dev/component-runtime/documentation/../sample
-    sample_project: /home/rmannibucau/1_dev/component-runtime/documentation/../sample/src/main/java/org/talend/sdk/component/sample
-    sample_project_test: /home/rmannibucau/1_dev/component-runtime/documentation/../sample/src/test/java/org/talend/sdk/component/sample
-    generated_adoc: /home/rmannibucau/1_dev/component-runtime/documentation/target/generated-adoc
-    component_server: /home/rmannibucau/1_dev/component-runtime/documentation/../component-server
     deploymentRoot: ""
     numbered: true
     hide-uri-scheme: true

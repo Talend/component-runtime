@@ -31,11 +31,6 @@ output:
 asciidoc:
   attributes:
     project_version: ${project.version}
-    sample_project-base: ${project.basedir}/../sample
-    sample_project: ${sample_project-base}/src/main/java/org/talend/sdk/component/sample
-    sample_project_test: ${sample_project-base}/src/test/java/org/talend/sdk/component/sample
-    generated_adoc: ${project.basedir}/target/generated-adoc
-    component_server: ${project.basedir}/../component-server
     deploymentRoot: ${site.rootpath}
     numbered: true
     hide-uri-scheme: true

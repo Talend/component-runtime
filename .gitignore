@@ -28,7 +28,6 @@ travis_wait_*.log
 yarn-error.log
 *.hbs
 component-form/component-form-demo/src/main/frontend/build/
-generated-assets
 documentation/src/main/frontend/.antora-cache
 
 # generated from the filtered version

@@ -51,7 +51,7 @@ def readContent = { file ->
     file.readLines().findAll { !it.startsWith(':') && !it.startsWith('=') && !it.trim().isEmpty() }.join(' ').replace('`', '')
 }
 
-def sourceSearchJs = new File(project.basedir, "src/main/antora/supplemental-ui/generated-assets/search.js")
+def sourceSearchJs = new File(project.basedir, "src/main/antora/supplemental-ui/generated-assets-templates/search.js")
 def targetSearchJs = new File(project.build.directory, "${project.build.finalName}/_/js/search.js")
 def index = []
 // browse all pages and create an index for them

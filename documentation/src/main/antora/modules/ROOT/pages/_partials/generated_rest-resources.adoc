@@ -1,0 +1,552 @@
+= REST resources of Component Runtime :: Server
+1.0.0-SNAPSHOT
+
+== `POST api/v1/action/execute`
+
+This endpoint will execute any UI action and serialize the response as a JSON (pojo model). It takes as input the family, type and name of the related action to identify it and its configuration as a flat key value set using the same kind of mapping than for components (option path as key).
+
+
+=== Request
+*Content-Type*: `application/json` + 
+*Request Body*: (`java.util.Map<java.lang.String, java.lang.String>`)
+*Query Param*: `action`, `java.lang.String` + 
+*Query Param*: `family`, `java.lang.String` + 
+*Query Param*: `type`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`java.lang.RuntimeException`)
+
+==== `400 Bad Request`
+*Response Body*: (`org.talend.sdk.component.server.front.model.error.ErrorPayload`)
+
+[source,javascript]
+----
+{
+    "code": "ACTION_ERROR|ACTION_MISSING|BAD_FORMAT|COMPONENT_MISSING|CONFIGURATION_MISSING|DESIGN_MODEL_MISSING|ICON_MISSING|PLUGIN_MISSING|UNAUTHORIZED|UNEXPECTED",
+    "description": "string"
+}
+----
+
+
+
+==== `404 Not Found`
+*Response Body*: (`org.talend.sdk.component.server.front.model.error.ErrorPayload`)
+
+[source,javascript]
+----
+{
+    "code": "ACTION_ERROR|ACTION_MISSING|BAD_FORMAT|COMPONENT_MISSING|CONFIGURATION_MISSING|DESIGN_MODEL_MISSING|ICON_MISSING|PLUGIN_MISSING|UNAUTHORIZED|UNEXPECTED",
+    "description": "string"
+}
+----
+
+
+
+== `GET api/v1/action/index`
+
+This endpoint returns the list of available actions for a certain falimy and potentially filters the output limiting it to some falimies and types of actions.
+
+
+=== Request
+_No body_ + 
+*Query Param*: `family`, `java.lang.String` + 
+*Query Param*: `language`, `java.lang.String` + 
+*Query Param*: `type`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`org.talend.sdk.component.server.front.model.ActionList`)
+
+[source,javascript]
+----
+{
+    "items": [
+        {
+            "component": "string",
+            "name": "string",
+            "properties": [
+                {
+                    "defaultValue": "string",
+                    "displayName": "string",
+                    "metadata": {
+                    },
+                    "name": "string",
+                    "path": "string",
+                    "placeholder": "string",
+                    "type": "string",
+                    "validation": {
+                        "enumValues": [
+                            "string"
+                        ],
+                        "max": 0,
+                        "maxItems": 0,
+                        "maxLength": 0,
+                        "min": 0,
+                        "minItems": 0,
+                        "minLength": 0,
+                        "pattern": "string",
+                        "required": false,
+                        "uniqueItems": false
+                    }
+                }
+            ],
+            "type": "string"
+        }
+    ]
+}
+----
+
+
+
+== `GET api/v1/component/dependencies`
+
+Returns a list of dependencies for the given components.
+
+IMPORTANT: don't forget to add the component itself since it will not be part of the dependencies.
+
+Then you can use /dependency/{id} to download the binary.
+
+
+=== Request
+_No body_ + 
+*Query Param*: `identifier`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`org.talend.sdk.component.server.front.model.Dependencies`)
+
+[source,javascript]
+----
+{
+    "dependencies": {
+    }
+}
+----
+
+
+
+== `GET api/v1/component/dependency/{id}`
+
+Return a binary of the dependency represented by `id`. It can be maven coordinates for dependencies or a component id.
+
+
+=== Request
+_No body_ + 
+*Path Param*: `id`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`javax.ws.rs.core.StreamingOutput`)
+
+==== `404 Not Found`
+*Response Body*: (`org.talend.sdk.component.server.front.model.error.ErrorPayload`)
+
+[source,javascript]
+----
+{
+    "code": "ACTION_ERROR|ACTION_MISSING|BAD_FORMAT|COMPONENT_MISSING|CONFIGURATION_MISSING|DESIGN_MODEL_MISSING|ICON_MISSING|PLUGIN_MISSING|UNAUTHORIZED|UNEXPECTED",
+    "description": "string"
+}
+----
+
+
+
+== `GET api/v1/component/details`
+
+Returns the set of metadata about a few components identified by their 'id'.
+
+
+=== Request
+_No body_ + 
+*Query Param*: `identifiers`, `java.lang.String` + 
+*Query Param*: `language`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`org.talend.sdk.component.server.front.model.ComponentDetailList`)
+
+[source,javascript]
+----
+{
+    "details": [
+        {
+            "actions": [
+                {
+                    "family": "string",
+                    "name": "string",
+                    "properties": [
+                        {
+                            "defaultValue": "string",
+                            "displayName": "string",
+                            "metadata": {
+                            },
+                            "name": "string",
+                            "path": "string",
+                            "placeholder": "string",
+                            "type": "string",
+                            "validation": {
+                                "enumValues": [
+                                    "string"
+                                ],
+                                "max": 0,
+                                "maxItems": 0,
+                                "maxLength": 0,
+                                "min": 0,
+                                "minItems": 0,
+                                "minLength": 0,
+                                "pattern": "string",
+                                "required": false,
+                                "uniqueItems": false
+                            }
+                        }
+                    ],
+                    "type": "string"
+                }
+            ],
+            "displayName": "string",
+            "icon": "string",
+            "id": {
+                "family": "string",
+                "familyId": "string",
+                "id": "string",
+                "name": "string",
+                "plugin": "string",
+                "pluginLocation": "string"
+            },
+            "inputFlows": [
+                "string"
+            ],
+            "links": [
+                {
+                    "contentType": "string",
+                    "name": "string",
+                    "path": "string"
+                }
+            ],
+            "outputFlows": [
+                "string"
+            ],
+            "properties": [
+                {
+                    "defaultValue": "string",
+                    "displayName": "string",
+                    "metadata": {
+                    },
+                    "name": "string",
+                    "path": "string",
+                    "placeholder": "string",
+                    "type": "string",
+                    "validation": {
+                        "enumValues": [
+                            "string"
+                        ],
+                        "max": 0,
+                        "maxItems": 0,
+                        "maxLength": 0,
+                        "min": 0,
+                        "minItems": 0,
+                        "minLength": 0,
+                        "pattern": "string",
+                        "required": false,
+                        "uniqueItems": false
+                    }
+                }
+            ],
+            "type": "string",
+            "version": 0
+        }
+    ]
+}
+----
+
+
+
+==== `400 Bad Request`
+*Response Body*: (`java.util.Map<java.lang.String, org.talend.sdk.component.server.front.model.error.ErrorPayload>`)
+
+== `GET api/v1/component/icon/family/{id}`
+
+Returns a particular family icon in raw bytes.
+
+
+=== Request
+_No body_ + 
+*Path Param*: `id`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`byte[]`)
+
+[source,javascript]
+----
+{
+}
+----
+
+
+
+==== `404 Not Found`
+*Response Body*: (`org.talend.sdk.component.server.front.model.error.ErrorPayload`)
+
+[source,javascript]
+----
+{
+    "code": "ACTION_ERROR|ACTION_MISSING|BAD_FORMAT|COMPONENT_MISSING|CONFIGURATION_MISSING|DESIGN_MODEL_MISSING|ICON_MISSING|PLUGIN_MISSING|UNAUTHORIZED|UNEXPECTED",
+    "description": "string"
+}
+----
+
+
+
+== `GET api/v1/component/icon/{id}`
+
+Returns a particular component icon in raw bytes.
+
+
+=== Request
+_No body_ + 
+*Path Param*: `id`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`byte[]`)
+
+[source,javascript]
+----
+{
+}
+----
+
+
+
+==== `404 Not Found`
+*Response Body*: (`org.talend.sdk.component.server.front.model.error.ErrorPayload`)
+
+[source,javascript]
+----
+{
+    "code": "ACTION_ERROR|ACTION_MISSING|BAD_FORMAT|COMPONENT_MISSING|CONFIGURATION_MISSING|DESIGN_MODEL_MISSING|ICON_MISSING|PLUGIN_MISSING|UNAUTHORIZED|UNEXPECTED",
+    "description": "string"
+}
+----
+
+
+
+== `GET api/v1/component/index`
+
+Returns the list of available components.
+
+
+=== Request
+_No body_ + 
+*Query Param*: `includeIconContent`, `boolean` + 
+*Query Param*: `language`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`org.talend.sdk.component.server.front.model.ComponentIndices`)
+
+[source,javascript]
+----
+{
+    "components": [
+        {
+            "categories": [
+                "string"
+            ],
+            "displayName": "string",
+            "familyDisplayName": "string",
+            "icon": {
+                "customIcon": {
+                },
+                "customIconType": "string",
+                "icon": "string"
+            },
+            "iconFamily": {
+                "customIcon": {
+                },
+                "customIconType": "string",
+                "icon": "string"
+            },
+            "id": {
+                "family": "string",
+                "familyId": "string",
+                "id": "string",
+                "name": "string",
+                "plugin": "string",
+                "pluginLocation": "string"
+            },
+            "links": [
+                {
+                    "contentType": "string",
+                    "name": "string",
+                    "path": "string"
+                }
+            ],
+            "version": 0
+        }
+    ]
+}
+----
+
+
+
+== `POST api/v1/component/migrate/{id}/{configurationVersion}`
+
+Allows to migrate a component configuration without calling any component execution.
+
+
+=== Request
+*Content-Type*: `application/json` + 
+*Request Body*: (`java.util.Map<java.lang.String, java.lang.String>`)
+*Path Param*: `configurationVersion`, `int` + 
+*Path Param*: `id`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`java.util.Map<java.lang.String, java.lang.String>`)
+
+== `GET api/v1/configurationtype/index`
+
+Returns all available configuration type - storable models.
+
+
+=== Request
+_No body_ + 
+*Query Param*: `language`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`org.talend.sdk.component.server.front.model.ConfigTypeNodes`)
+
+[source,javascript]
+----
+{
+    "nodes": {
+    }
+}
+----
+
+
+
+== `POST api/v1/configurationtype/migrate/{id}/{configurationVersion}`
+
+Allows to migrate a configuration without calling any component execution.
+
+
+=== Request
+*Content-Type*: `application/json` + 
+*Request Body*: (`java.util.Map<java.lang.String, java.lang.String>`)
+*Path Param*: `configurationVersion`, `int` + 
+*Path Param*: `id`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`java.util.Map<java.lang.String, java.lang.String>`)
+
+== `GET api/v1/documentation/component/{id}`
+
+Returns an asciidoctor version of the documentation for the component represented by its identifier `id`.
+
+
+=== Request
+_No body_ + 
+*Path Param*: `id`, `java.lang.String` + 
+*Query Param*: `language`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`org.talend.sdk.component.server.front.model.DocumentationContent`)
+
+[source,javascript]
+----
+{
+    "source": "string",
+    "type": "string"
+}
+----
+
+
+
+== `GET api/v1/environment`
+
+=== Request
+_No body_ + 
+
+=== Response
+*Content-Type*: `\*/*`
+
+==== `200 OK`
+*Response Body*: (`org.talend.sdk.component.server.front.model.Environment`)
+
+[source,javascript]
+----
+{
+    "commit": "string",
+    "latestApiVersion": 0,
+    "time": "string",
+    "version": "string"
+}
+----
+
+
+
+== `POST api/v1/execution/read/{family}/{component}`
+
+Read inputs from an instance of mapper. The number of returned records if enforced to be limited to 1000. The format is a JSON based format where each like is a json record.
+
+
+=== Request
+*Content-Type*: `application/json` + 
+*Request Body*: (`java.util.Map<java.lang.String, java.lang.String>`)
+*Path Param*: `component`, `java.lang.String` + 
+*Path Param*: `family`, `java.lang.String` + 
+*Query Param*: `size`, `long` + 
+
+=== Response
+*Content-Type*: `talend/stream`
+
+==== `204 No Content`
+
+== `POST api/v1/execution/write/{family}/{component}`
+
+Sends records using a processor instance. Note that the processor should have only an input. Behavior for other processors is undefined. The input format is a JSON based format where each like is a json record - same as for the symmetric endpoint.
+
+
+=== Request
+*Content-Type*: `talend/stream` + 
+*Request Body*: (`java.io.InputStream`)
+*Path Param*: `component`, `java.lang.String` + 
+*Path Param*: `family`, `java.lang.String` + 
+*Query Param*: `group-size`, `long` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `204 No Content`
+

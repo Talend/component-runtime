@@ -28,12 +28,12 @@ Before we start checking how to implement it, let's just have a quick look to ou
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-include::{sample_project}/Person.java[tag=person]
+include::{partialsdir}/java/Person.java[tag=person]
 ----
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-include::{sample_project}/User.java[tag=user]
+include::{partialsdir}/java/User.java[tag=user]
 ----
 
 You can note these classes are `Serializable`. This is mainly for `BEAM` case but we'll get back on this point later.
@@ -59,7 +59,7 @@ Opening the connection can be done in a method decorated with `@PostConstruct`:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-include::{sample_project}/PersonReader.java[tag=open]
+include::{partialsdir}/java/PersonReader.java[tag=open]
 ----
 
 Now we have a _connection_ we can read records. For our simple case we'll just read a kind of CSV file containing per row the name and age of a `Person`.
@@ -67,7 +67,7 @@ This is done in a method dedicated to read *next* element which is decorated wit
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-include::{sample_project}/PersonReader.java[tag=next]
+include::{partialsdir}/java/PersonReader.java[tag=next]
 ----
 
 NOTE: if you need to rely on a buffer because you load multiple data at once you can reuse `org.talend.sdk.component.api.base.BufferizedProducerSupport` class
@@ -77,7 +77,7 @@ Finally closing the connection once work was done (dataset was completely browse
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-include::{sample_project}/PersonReader.java[tag=close]
+include::{partialsdir}/java/PersonReader.java[tag=close]
 ----
 
 TIP: there is another type of input called `PartitionMapper` which allows to map (in the map/reduce sense) an input but it will be tackled later.
@@ -98,7 +98,7 @@ a method with `@ElementListener`:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-include::{sample_project}/PersonToUserMapper.java[tag=map]
+include::{partialsdir}/java/PersonToUserMapper.java[tag=map]
 ----
 
 === An output
@@ -113,19 +113,19 @@ Same as for our reader, we'll define an open and close methods to handle the int
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-include::{sample_project}/UserWriter.java[tag=open]
+include::{partialsdir}/java/UserWriter.java[tag=open]
 ----
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-include::{sample_project}/UserWriter.java[tag=close]
+include::{partialsdir}/java/UserWriter.java[tag=close]
 ----
 
 And the method handling the write will just be an `@ElementListener` method returning `void`:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-include::{sample_project}/UserWriter.java[tag=write]
+include::{partialsdir}/java/UserWriter.java[tag=write]
 ----
 
 [[getting-started-components]]
@@ -181,10 +181,8 @@ using `get()` then `execute()`.
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-include::{sample_project_test}/Main.java[tag=main]
+include::{partialsdir}/java/Main.java[tag=main]
 ----
-
-testl '{sample_project_test}'
 
 Now if you create a `/tmp/input.csv` containing:
 

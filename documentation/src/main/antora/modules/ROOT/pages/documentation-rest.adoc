@@ -8,7 +8,7 @@ TIP: WebSocket protocol is activated for the endpoints as well, instead of `/api
 
 Here is the API:
 
-include::{component_server}/target/jaxrs-analyzer/rest-resources.adoc[leveloffset=+2]
+include::{partialsdir}/generated_rest-resources.adoc[leveloffset=+2]
 
 IMPORTANT: to ensure the migration can be activated you need to set in the execution configuration you send to the server
 the version it was created with (component version, it is in component detail endpoint) with the key `tcomp::component::version`.

@@ -278,6 +278,12 @@
                     }
                   }
                   doc.text = content
+
+                  // copy for the doc
+                  def docCopy = new File(project.basedir, '../documentation/src/main/antora/modules/ROOT/pages/_partials/generated_rest-resources.adoc')
+                  if (!docCopy.exists() || !docCopy.text.trim() != content.trim()) {
+                    docCopy.text = content
+                  }
                 ]]></script>
               </scripts>
             </configuration>
