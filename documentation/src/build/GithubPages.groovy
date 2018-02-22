@@ -24,7 +24,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 import static java.util.Collections.singleton
 
-if (!new File(project.build.directory, 'generated-adoc/contributors.json').exists()) {
+if (!new File(project.build.directory, "${project.build.finalName}/_/js/search.js").exists()) {
     log.debug('Not yet in deploy phase, should generate the site before')
     return
 }
@@ -64,12 +64,11 @@ if ('skip' == profile) {
     log.info("Skipping as requested")
     return
 }
-def isLatest = 'latest' == profile
 new AntBuilder().copy(todir: workDir.absolutePath, overwrite: true) {
     fileset(dir: source.absolutePath)
 }
 
-def message = (isLatest ? 'Updating latest website' : "Updating the website with version ${project.version}") + new Date().toString()
+def message = "Updating the website with version ${project.version} // " + new Date().toString()
 git.add().addFilepattern(".").call()
 if (Boolean.getBoolean("component.gh-page.debug")) {
     def status = git.status().call()
