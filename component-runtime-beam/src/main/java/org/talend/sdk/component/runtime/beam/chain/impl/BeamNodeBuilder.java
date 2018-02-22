@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.beam.chain.impl;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,7 +27,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import javax.json.JsonObject;
@@ -58,7 +56,6 @@ import org.talend.sdk.component.runtime.manager.chain.internal.JobImpl;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 
 public class BeamNodeBuilder extends JobImpl.NodeBuilderImpl {
 
@@ -82,7 +79,7 @@ public class BeamNodeBuilder extends JobImpl.NodeBuilderImpl {
 
     private static class BeamExecutor extends JobImpl.JobExecutor {
 
-        private BiFunction<JsonObject, GroupKeyProvider.GroupContext, String> keyProvider;
+        private GroupKeyProvider keyProvider;
 
         private final Collection<String> sequenceIds = new ArrayList<>();
 
@@ -142,9 +139,9 @@ public class BeamNodeBuilder extends JobImpl.NodeBuilderImpl {
                                     return mappedInput
                                             .apply(toName("RecordBranchUnwrapper", component, e),
                                                     RecordBranchUnwrapper.of(processor.plugin(), e.getTo().getBranch()))
-                                            .apply(toName("AutoKVWrapper", component, e), AutoKVWrapper.of(
-                                                    processor.plugin(), getKeyProvider(),
-                                                    new GroupContext(component.getId(), e.getFrom().getBranch())));
+                                            .apply(toName("AutoKVWrapper", component, e),
+                                                    AutoKVWrapper.of(processor.plugin(), getKeyProvider(),
+                                                            component.getId(), e.getFrom().getBranch()));
                                 }));
                         KeyedPCollectionTuple<String> join = null;
                         for (final Map.Entry<String, PCollection<KV<String, JsonObject>>> entry : inputs.entrySet()) {
@@ -184,7 +181,7 @@ public class BeamNodeBuilder extends JobImpl.NodeBuilderImpl {
             return String.format(transform + "/%s", component.getId());
         }
 
-        private BiFunction<JsonObject, GroupKeyProvider.GroupContext, String> getKeyProvider() {
+        private GroupKeyProvider getKeyProvider() {
             if (keyProvider == null) {
                 final Object o = properties.get(GroupKeyProvider.class.getName());
                 if (GroupKeyProvider.class.isInstance(o)) {
@@ -222,22 +219,13 @@ public class BeamNodeBuilder extends JobImpl.NodeBuilderImpl {
     }
 
     @AllArgsConstructor
-    private static class GroupKeyProviderImpl
-            implements BiFunction<JsonObject, GroupKeyProvider.GroupContext, String>, Serializable {
+    private static class GroupKeyProviderImpl implements GroupKeyProvider {
 
         private final GroupKeyProvider delegate;
 
         @Override
-        public String apply(final JsonObject object, final GroupKeyProvider.GroupContext groupContext) {
-            return delegate.apply(object, groupContext);
+        public String apply(final GroupKeyProvider.GroupContext context) {
+            return delegate.apply(context);
         }
-    }
-
-    @Data
-    private static class GroupContext implements GroupKeyProvider.GroupContext {
-
-        private final String componentId;
-
-        private final String branchName;
     }
 }

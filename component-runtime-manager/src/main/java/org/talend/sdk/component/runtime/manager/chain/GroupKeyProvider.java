@@ -16,19 +16,21 @@
 package org.talend.sdk.component.runtime.manager.chain;
 
 import java.io.Serializable;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import javax.json.JsonObject;
 
 /**
  * This is a key provider for a record in a job context
  */
-public interface GroupKeyProvider extends BiFunction<JsonObject, GroupKeyProvider.GroupContext, String>, Serializable {
+public interface GroupKeyProvider extends Function<GroupKeyProvider.GroupContext, String>, Serializable {
 
     interface GroupContext extends Serializable {
 
         String getComponentId();
 
         String getBranchName();
+
+        JsonObject getData();
     }
 }

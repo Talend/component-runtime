@@ -94,7 +94,8 @@ public class BeamJobTest {
                     .to("outFile")
                     .build()
                     .property(GroupKeyProvider.class.getName(),
-                            (GroupKeyProvider) (object, context) -> object.getJsonObject("$$internal").getString("key"))
+                            (GroupKeyProvider) (context) -> context.getData().getJsonObject("$$internal").getString(
+                                    "key"))
                     .run();
 
             try {
