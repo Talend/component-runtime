@@ -406,7 +406,6 @@
         <github.global.server>github</github.global.server> <!-- matches a server in your settings.xml -->
         <content.rootpath>/component-runtime</content.rootpath>
         <site.rootpath>/component-runtime</site.rootpath>
-        <github.site.profile>release</github.site.profile>
       </properties>
 
       <build>

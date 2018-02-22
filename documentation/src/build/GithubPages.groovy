@@ -29,7 +29,7 @@ if (!new File(project.build.directory, "${project.build.finalName}/_/js/search.j
     return
 }
 
-def profile = System.getProperty('github.site.profile', project.properties.getProperty('github.site.profile', 'latest'))
+def profile = System.getProperty('github.site.profile', project.properties.getProperty('github.site.profile', 'deploy'))
 log.info("Site deployment profile: ${profile}")
 
 def source = new File(project.build.directory, project.build.finalName)
