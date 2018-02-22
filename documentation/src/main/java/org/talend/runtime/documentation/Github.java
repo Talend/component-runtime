@@ -98,9 +98,11 @@ public class Github {
                                                         Gravatars.url(contributor.email), contributor.contributions);
                                             }
                                         }
-                                        final GithubUser user =
-                                                client.target(contributor.url).request(APPLICATION_JSON_TYPE).get(
-                                                        GithubUser.class);
+                                        final GithubUser user = client
+                                                .target(contributor.url)
+                                                .request(APPLICATION_JSON_TYPE)
+                                                .header("Authorization", token)
+                                                .get(GithubUser.class);
                                         return Contributor
                                                 .builder()
                                                 .id(contributor.login)
@@ -160,11 +162,7 @@ public class Github {
 
     private Stream<GithubContributor> contributors(final Client client, final String token, final String url) {
         return Stream
-                .of(client
-                        .target(url)
-                        .request(APPLICATION_JSON_TYPE)
-                        .header("Authorization", token)
-                        .get())
+                .of(client.target(url).request(APPLICATION_JSON_TYPE).header("Authorization", token).get())
                 .flatMap(response -> {
                     final String link = response.getHeaderString("Link");
                     if (response.getStatus() > 299) {
