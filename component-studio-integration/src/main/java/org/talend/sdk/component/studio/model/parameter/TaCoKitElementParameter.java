@@ -132,7 +132,8 @@ public class TaCoKitElementParameter extends ElementParameter {
     /**
      * Creates name for Guess Schema button ElementParameter
      * 
-     * @schemaName a name of schema, which is guessed by the button
+     * @param schemaName a name of schema, which is guessed by the button
+     * @return name for Guess Schema button ElementParameter
      */
     public static String guessButtonName(final String schemaName) {
         return GUESS_BUTTON_PREFIX + schemaName;

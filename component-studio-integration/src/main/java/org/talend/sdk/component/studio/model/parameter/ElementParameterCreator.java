@@ -130,7 +130,7 @@ public class ElementParameterCreator {
      * Check whether all required schema settings are created and create ones we still need depending on connectors we
      * have.
      * 
-     * @param mainSettingsCreator
+     * @param mainSettingsCreator SettingsCreator for Basic settings
      */
     protected void checkSchemaProperties(final SettingsCreator mainSettingsCreator) {
         // Get all schema parameters created for current component
