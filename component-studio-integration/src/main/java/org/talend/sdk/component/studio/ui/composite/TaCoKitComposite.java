@@ -19,6 +19,7 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -196,10 +197,7 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         parameters = elem.getElementParametersWithChildrens();
         generator.initController(this);
         final Composite previousComposite = addCommonWidgets(composite);
-        final LayoutParameter layoutParameter =
-                (LayoutParameter) elem.getElementParameter(LayoutParameter.name(section));
-        final Layout layout = layoutParameter.getLayout();
-        fillComposite(composite, layout, previousComposite);
+        fillComposite(composite, getFormLayout(), previousComposite);
         resizeScrolledComposite();
     }
 
@@ -227,12 +225,21 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         return propertyComposite;
     }
 
+    /**
+     * Adds activated schemas (show = true), which are not present on layout
+     * 
+     * @param parent Composite on which schema will be located
+     * @param previous Composite which is located above this schema. Schema will be attached to the bottom of prev
+     * Composite
+     * @return Schema Composite
+     */
     protected Composite addSchemas(final Composite parent, final Composite previous) {
         Composite previousComposite = previous;
         List<IElementParameter> activeSchemas = parameters
                 .stream()
                 .filter(p -> p.getFieldType() == EParameterFieldType.SCHEMA_TYPE)
                 .filter(this::doShow)
+                .filter(this::isNotPresentOnLayout)
                 .collect(Collectors.toList());
         for (IElementParameter schema : activeSchemas) {
             final Composite schemaComposite = new Composite(parent, SWT.NONE);
@@ -243,6 +250,23 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
             addWidgetIfActive(schemaComposite, schema);
         }
         return previousComposite;
+    }
+
+    private boolean isNotPresentOnLayout(final IElementParameter schema) {
+        final Layout rootLayout = getFormLayout();
+        final String path = schema.getName();
+        return toStream(rootLayout).noneMatch(l -> path.equals(l.getPath()));
+    }
+
+    private Stream<Layout> toStream(final Layout layout) {
+        return Stream.concat(Stream.of(layout),
+                layout.getLevels().stream().flatMap(l -> l.getColumns().stream()).flatMap(this::toStream));
+    }
+
+    private Layout getFormLayout() {
+        final LayoutParameter layoutParameter =
+                (LayoutParameter) elem.getElementParameter(LayoutParameter.name(section));
+        return layoutParameter.getLayout();
     }
 
     /**
