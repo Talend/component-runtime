@@ -27,6 +27,8 @@ import lombok.Setter;
  */
 public class TaCoKitElementParameter extends ElementParameter {
 
+    private static final String GUESS_BUTTON_PREFIX = "Guess Schema_";
+
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     private final List<IValueChangedListener> valueChangeListeners = new ArrayList<>();
@@ -125,6 +127,15 @@ public class TaCoKitElementParameter extends ElementParameter {
 
         void onValueChanged(final TaCoKitElementParameter elementParameter, final Object oldValue,
                 final Object newValue);
+    }
+
+    /**
+     * Creates name for Guess Schema button ElementParameter
+     * 
+     * @schemaName a name of schema, which is guessed by the button
+     */
+    public static String guessButtonName(final String schemaName) {
+        return GUESS_BUTTON_PREFIX + schemaName;
     }
 
 }
