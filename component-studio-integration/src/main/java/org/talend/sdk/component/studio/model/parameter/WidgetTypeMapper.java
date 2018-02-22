@@ -42,15 +42,10 @@ import static org.talend.sdk.component.studio.model.parameter.PropertyTypes.STRI
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-import lombok.AllArgsConstructor;
-
 /**
  * Maps metadata retrieved from {@link SimplePropertyDefinition} to {@link EParameterFieldType}
  */
-@AllArgsConstructor
 public class WidgetTypeMapper {
-
-    private final SimplePropertyDefinition property;
 
     /**
      * Recognizes {@link EParameterFieldType} for given {@link SimplePropertyDefinition}
@@ -58,29 +53,30 @@ public class WidgetTypeMapper {
      * All checks are implemented in separate methods
      * Only one checker method returns {@code true} for particular Property Definition
      * 
+     * @param property Property, which field type should be defined
      * @return widget type
      */
-    public EParameterFieldType getFieldType() {
+    public EParameterFieldType getFieldType(final SimplePropertyDefinition property) {
         if (property == null) {
             throw new IllegalArgumentException("property should not be null");
         }
-        if (isSchema()) {
+        if (isSchema(property)) {
             return getSchemaType();
-        } else if (isText()) {
+        } else if (isText(property)) {
             return getTextType();
-        } else if (isCredential()) {
+        } else if (isCredential(property)) {
             return getCredentialType();
-        } else if (isTextArea()) {
+        } else if (isTextArea(property)) {
             return getTextAreaType();
-        } else if (isCheck()) {
+        } else if (isCheck(property)) {
             return getCheckType();
-        } else if (isClosedList()) {
+        } else if (isClosedList(property)) {
             return getClosedListType();
-        } else if (isOpenedList()) {
+        } else if (isOpenedList(property)) {
             return getOpenedListType();
-        } else if (isFile()) {
+        } else if (isFile(property)) {
             return getFileType();
-        } else if (isTable()) {
+        } else if (isTable(property)) {
             return getTableType();
         }
         final String codeStyle = property.getMetadata().get(UI_CODE);
@@ -90,7 +86,13 @@ public class WidgetTypeMapper {
         return getTextType();
     }
 
-    private boolean isSchema() {
+    /**
+     * Checks whether widget type is {@link EParameterFieldType#SCHEMA_TYPE}
+     * 
+     * @param property SimplePropertyDefinition to test
+     * @return check result
+     */
+    private boolean isSchema(final SimplePropertyDefinition property) {
         return property.getMetadata().containsKey(UI_STRUCTURE_TYPE)
                 || property.getMetadata().containsKey(UI_STRUCTURE_VALUE);
     }
@@ -114,8 +116,11 @@ public class WidgetTypeMapper {
 
     /**
      * Checks whether widget type is {@link EParameterFieldType#TEXT}
+     * 
+     * @param property SimplePropertyDefinition to test
+     * @return check result
      */
-    private boolean isText() {
+    private boolean isText(final SimplePropertyDefinition property) {
         return STRING.equals(property.getType()) && property.getMetadata().isEmpty();
     }
 
@@ -125,8 +130,11 @@ public class WidgetTypeMapper {
 
     /**
      * Checks whether widget type is {@link EParameterFieldType#TEXT_AREA}
+     * 
+     * @param property SimplePropertyDefinition to test
+     * @return check result
      */
-    private boolean isTextArea() {
+    private boolean isTextArea(final SimplePropertyDefinition property) {
         return property.getMetadata().containsKey(UI_TEXTAREA);
     }
 
@@ -136,8 +144,11 @@ public class WidgetTypeMapper {
 
     /**
      * Checks whether widget type is {@link EParameterFieldType#PASSWORD}
+     * 
+     * @param property SimplePropertyDefinition to test
+     * @return check result
      */
-    private boolean isCredential() {
+    private boolean isCredential(final SimplePropertyDefinition property) {
         return property.getMetadata().containsKey(UI_CREDENTIAL);
     }
 
@@ -147,8 +158,11 @@ public class WidgetTypeMapper {
 
     /**
      * Checks whether widget type is {@link EParameterFieldType#CHECK}
+     * 
+     * @param property SimplePropertyDefinition to test
+     * @return check result
      */
-    private boolean isCheck() {
+    private boolean isCheck(final SimplePropertyDefinition property) {
         return BOOLEAN.equals(property.getType());
     }
 
@@ -158,8 +172,11 @@ public class WidgetTypeMapper {
 
     /**
      * Checks whether widget type is {@link EParameterFieldType#CLOSED_LIST}
+     * 
+     * @param property SimplePropertyDefinition to test
+     * @return check result
      */
-    private boolean isClosedList() {
+    private boolean isClosedList(final SimplePropertyDefinition property) {
         return ENUM.equals(property.getType()) || property.getMetadata().containsKey(Metadatas.ACTION_DYNAMIC_VALUES);
     }
 
@@ -170,8 +187,11 @@ public class WidgetTypeMapper {
     /**
      * Checks whether widget type is {@link EParameterFieldType#OPENED_LIST}
      * TODO
+     * 
+     * @param property SimplePropertyDefinition to test
+     * @return check result
      */
-    private boolean isOpenedList() {
+    private boolean isOpenedList(final SimplePropertyDefinition property) {
         return false;
     }
 
@@ -182,8 +202,11 @@ public class WidgetTypeMapper {
     /**
      * Checks whether widget type is {@link EParameterFieldType#FILE}
      * TODO decide and implement it
+     * 
+     * @param property SimplePropertyDefinition to test
+     * @return check result
      */
-    private boolean isFile() {
+    private boolean isFile(final SimplePropertyDefinition property) {
         return false;
     }
 
@@ -193,8 +216,11 @@ public class WidgetTypeMapper {
 
     /**
      * Checks whether widget type is {@link EParameterFieldType#TABLE}
+     * 
+     * @param property SimplePropertyDefinition to test
+     * @return check result
      */
-    private boolean isTable() {
+    private boolean isTable(final SimplePropertyDefinition property) {
         return ARRAY.equals(property.getType());
     }
 
