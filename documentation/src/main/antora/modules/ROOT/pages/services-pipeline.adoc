@@ -28,7 +28,7 @@ Job.components()   <1>
         .component("csv", "file://out?__version=2")
     .connections()  <2>
         .from("employee").to("concat", "string1")
-        .from("address").to("concat", "string2")
+        .from("salary").to("concat", "string2")
         .from("concat").to("csv")
     .build()    <3>
     .run(); <4>

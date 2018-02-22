@@ -110,9 +110,9 @@ public class BaseComponentsHandler implements ComponentsHandler {
     /**
      * Collects all outputs of a processor.
      *
-     * @param processor  the processor to run while there are inputs.
-     * @param inputs     the input factory, when an input will return null it will stop the
-     *                   processing.
+     * @param processor the processor to run while there are inputs.
+     * @param inputs the input factory, when an input will return null it will stop the
+     * processing.
      * @param bundleSize the bundle size to use.
      * @return a map where the key is the output name and the value a stream of the
      * output values.
@@ -148,12 +148,12 @@ public class BaseComponentsHandler implements ComponentsHandler {
      * IMPORTANT: don't forget to consume all the stream to ensure the underlying
      * { @see org.talend.sdk.component.runtime.input.Input} is closed.
      *
-     * @param recordType  the record type to use to type the returned type.
-     * @param mapper      the mapper to go through.
-     * @param maxRecords  maximum number of records, allows to stop the source when
-     *                    infinite.
+     * @param recordType the record type to use to type the returned type.
+     * @param mapper the mapper to go through.
+     * @param maxRecords maximum number of records, allows to stop the source when
+     * infinite.
      * @param concurrency requested (1 can be used instead if &lt;= 0) concurrency for the reader execution.
-     * @param <T>         the returned type of the records of the mapper.
+     * @param <T> the returned type of the records of the mapper.
      * @return all the records emitted by the mapper.
      */
     @Override
@@ -333,13 +333,13 @@ public class BaseComponentsHandler implements ComponentsHandler {
                 .getInstantiator()
                 .apply(configuration == null || meta.getParameterMetas().isEmpty() ? emptyMap()
                         : configurationByExample(configuration, meta
-                        .getParameterMetas()
-                        .stream()
-                        .filter(p -> p.getName().equals(p.getPath()))
-                        .findFirst()
-                        .map(p -> p.getName() + '.')
-                        .orElseThrow(() -> new IllegalArgumentException("Didn't find any option and therefore "
-                                + "can't convert the configuration instance to a configuration")))));
+                                .getParameterMetas()
+                                .stream()
+                                .filter(p -> p.getName().equals(p.getPath()))
+                                .findFirst()
+                                .map(p -> p.getName() + '.')
+                                .orElseThrow(() -> new IllegalArgumentException("Didn't find any option and therefore "
+                                        + "can't convert the configuration instance to a configuration")))));
     }
 
     private <T> ComponentFamilyMeta.BaseMeta<? extends Lifecycle> findMeta(final Class<T> componentType) {
@@ -355,12 +355,19 @@ public class BaseComponentsHandler implements ComponentsHandler {
     @Override
     public <T> List<T> collect(final Class<T> recordType, final String family, final String component,
             final int version, final Map<String, String> configuration) {
-        Job.components()
-                .component("in", family + "://" + component + "?__version=" + version + configuration.entrySet().stream()
-                        .map(entry -> entry.getKey() + "=" + entry.getValue()).collect(joining("&")))
+        Job
+                .components()
+                .component("in",
+                        family + "://" + component + "?__version=" + version
+                                + configuration
+                                        .entrySet()
+                                        .stream()
+                                        .map(entry -> entry.getKey() + "=" + entry.getValue())
+                                        .collect(joining("&")))
                 .component("collector", "test://collector")
                 .connections()
-                .from("in").to("collector")
+                .from("in")
+                .to("collector")
                 .build()
                 .run();
 
@@ -372,13 +379,19 @@ public class BaseComponentsHandler implements ComponentsHandler {
             final Map<String, String> configuration) {
         setInputData(inputs);
 
-        Job.components()
+        Job
+                .components()
                 .component("emitter", "test://emitter")
                 .component("out",
-                        family + "://" + component + "?__version=" + version + configuration.entrySet().stream()
-                                .map(entry -> entry.getKey() + "=" + entry.getValue()).collect(joining("&")))
+                        family + "://" + component + "?__version=" + version
+                                + configuration
+                                        .entrySet()
+                                        .stream()
+                                        .map(entry -> entry.getKey() + "=" + entry.getValue())
+                                        .collect(joining("&")))
                 .connections()
-                .from("emitter").to("out")
+                .from("emitter")
+                .to("out")
                 .build()
                 .run();
 

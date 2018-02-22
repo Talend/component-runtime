@@ -54,8 +54,7 @@ public class AutoKVWrapper extends DoFn<JsonObject, KV<String, JsonObject>> {
         context.output(kv);
     }
 
-    public static PTransform<PCollection<JsonObject>, PCollection<KV<String, JsonObject>>> of(
-            final String plugin,
+    public static PTransform<PCollection<JsonObject>, PCollection<KV<String, JsonObject>>> of(final String plugin,
             final BiFunction<JsonObject, GroupKeyProvider.GroupContext, String> idGenerator,
             final GroupKeyProvider.GroupContext groupContext) {
 
