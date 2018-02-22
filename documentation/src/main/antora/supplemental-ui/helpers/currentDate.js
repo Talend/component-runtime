@@ -14,5 +14,5 @@
  *  limitations under the License.
  */
 module.exports = (ignored, options) => {
-  return options.fn(new Date().toISOString());
+  return new Date().toISOString();
 };
