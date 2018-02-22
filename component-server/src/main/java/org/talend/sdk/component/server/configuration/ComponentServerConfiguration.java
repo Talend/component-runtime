@@ -99,7 +99,7 @@ public interface ComponentServerConfiguration {
 
     @Documentation("When using url or kafka reporter, you can configure the async reporter with properties passed to this configuration entry."
             + "Ex: `messageTimeout=5000,closeTimeout=5000`.")
-    @ConfigProperty(name = "monitoring.brave.reporter.type", defaultValue = "console")
+    @ConfigProperty(name = "monitoring.brave.reporter.async", defaultValue = "console")
     String reporterAsyncConfiguration();
 
     @Documentation("Should the /documentation endpoint be activated.")

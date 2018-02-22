@@ -11,7 +11,7 @@ NOTE: the configuration is read from system properties, environment variables, .
 |talend.component.server.execution.pool.wait|How long the application waits during shutdown for the execution tasks to complete|PT10S
 |talend.component.server.jaxrs.exceptionhandler.defaultMessage|If set it will replace any message for exceptions. Set to `false` to use the actual exception message.|false
 |talend.component.server.maven.repository|The local maven repository used to locate components and their dependencies|${user.home}/.m2/repository
-|talend.component.server.monitoring.brave.reporter.type|When using url or kafka reporter, you can configure the async reporter with properties passed to this configuration entry.Ex: `messageTimeout=5000,closeTimeout=5000`.|console
+|talend.component.server.monitoring.brave.reporter.async|When using url or kafka reporter, you can configure the async reporter with properties passed to this configuration entry.Ex: `messageTimeout=5000,closeTimeout=5000`.|console
 |talend.component.server.monitoring.brave.reporter.type|The brave reporter to use to send the spans. Supported values are [auto, console, noop, url]. When configuration is needed,you can use this syntax to configure the repoter if needed: `<name>(config1=value1, config2=value2)`, for example: `url(endpoint=http://brave.company.com`.
 
 In `auto` mode, if environment variable `TRACING_ON` doesn't exist or is set to `false`, `noop` will be selected, and is set to `true`, `TRACING_KAFKA_URL`, `TRACING_KAFKA_TOPIC` and `TRACING_SAMPLING_RATE` will configure `kafka` reporter..|auto

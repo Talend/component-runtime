@@ -38,7 +38,6 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
@@ -340,25 +339,21 @@ public class Generator {
             finder
                     .findAnnotatedClasses(Configuration.class)
                     .stream()
-                    .sorted(Comparator.comparing(t -> t.getAnnotation(Configuration.class).prefix()))
                     .flatMap(c -> Stream.of(c.getMethods()))
-                    .sorted(comparing(Generator::extractConfigName))
-                    .forEach(method -> {
+                    .map(method -> {
                         final ConfigProperty configProperty = method.getAnnotation(ConfigProperty.class);
-                        final String name = extractConfigName(method);
-                        stream.println("|" + name + "|" + method.getAnnotation(Documentation.class).value() + "|"
+                        final String name = method.getDeclaringClass().getAnnotation(Configuration.class).prefix()
+                                + method.getAnnotation(ConfigProperty.class).name();
+                        return "|" + name + "|" + method.getAnnotation(Documentation.class).value() + "|"
                                 + (ConfigProperty.NULL.equalsIgnoreCase(configProperty.defaultValue()) ? "-"
-                                        : configProperty.defaultValue()));
-                    });
+                                        : configProperty.defaultValue());
+                    })
+                    .sorted()
+                    .forEach(stream::println);
             stream.println("|====");
             stream.println();
 
         }
-    }
-
-    private static String extractConfigName(final Method method) {
-        return method.getDeclaringClass().getAnnotation(Configuration.class).prefix()
-                + method.getAnnotation(ConfigProperty.class).name();
     }
 
     private static void generatedActions(final File generatedDir) throws Exception {
