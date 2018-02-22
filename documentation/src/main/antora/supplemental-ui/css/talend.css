@@ -48,6 +48,16 @@ h3.contributor-commits {
   padding-left: 1.5rem;
   padding-right: 1.5rem
 }
+input.rounded {
+  border: 1px solid #ccc;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  font-size: 13px;
+  padding: 2px 4px;
+  outline: 0;
+  -webkit-appearance: none;
+}
 
 .gallery td.tableblock > div.imageblock {
   max-width: 400px;
