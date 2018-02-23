@@ -18,7 +18,6 @@ package org.talend.sdk.component.studio.ui.composite;
 import static org.talend.sdk.component.studio.model.parameter.TaCoKitElementParameter.guessButtonName;
 
 import java.beans.PropertyChangeListener;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,7 +36,6 @@ import org.talend.core.model.process.Element;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.ui.editor.properties.controllers.AbstractElementPropertySectionController;
-import org.talend.designer.core.ui.views.properties.MultipleThreadDynamicComposite;
 import org.talend.designer.core.ui.views.properties.composites.MissingSettingsMultiThreadDynamicComposite;
 import org.talend.sdk.component.studio.model.parameter.Layout;
 import org.talend.sdk.component.studio.model.parameter.LayoutParameter;
@@ -146,36 +144,6 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
                 .forEach(p -> p.unregisterListener(p.getName(), refresher));
         super.dispose();
     }
-
-    private static Field propertyResizedField;
-
-    static {
-        final Class<MultipleThreadDynamicComposite> clazz = MultipleThreadDynamicComposite.class;
-        try {
-            propertyResizedField = clazz.getDeclaredField("propertyResized");
-            propertyResizedField.setAccessible(true);
-        } catch (final Exception e) {
-            throw new RuntimeException("propertyResized field wasn't found in MultipleThreadDynamicComposite class", e);
-        }
-    }
-
-    // TODO Reuse it from parent class
-    private void resizeScrolledComposite() {
-        lastCompositeSize = getParent().getClientArea().height;
-        // propertyResized = true;
-        try {
-            propertyResizedField.set(this, true);
-        } catch (final Exception e) {
-            throw new RuntimeException("failed to set propertyResized field value with reflection", e);
-        }
-    }
-
-    @Override
-    public int getLastCompositeSize() {
-        return this.lastCompositeSize;
-    }
-
-    private int lastCompositeSize = 0;
 
     /**
      * Initialize all components for the defined section for this node.
