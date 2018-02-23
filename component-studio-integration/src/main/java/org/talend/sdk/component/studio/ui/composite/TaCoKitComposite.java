@@ -160,7 +160,7 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
     }
 
     // TODO Reuse it from parent class
-    private void resizeScrolledComposite() {
+    protected void resizeScrolledComposite() {
         lastCompositeSize = getParent().getClientArea().height;
         // propertyResized = true;
         try {
