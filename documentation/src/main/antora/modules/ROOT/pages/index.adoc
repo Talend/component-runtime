@@ -6,7 +6,7 @@ IMPORTANT: this is a version under development which has not yet been deployed.
 You can however use it using the `-SNAPSHOT` version and Sonatype snapshot https://oss.sonatype.org/content/repositories/snapshots/[repository].
 
 TIP: if you want a PDF version of that page you can find it in our snapshots:
-https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/documentation/{project_version}/[link].
+https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/documentation/{project_version}-SNAPSHOT/[link].
 endif::[]
 
 ifeval::["{git_branch}" != "HEAD"]
