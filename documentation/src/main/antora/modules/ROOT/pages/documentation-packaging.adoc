@@ -1,3 +1,4 @@
 = Components Packaging
+:page-partial:
 
 include::component-loading.adoc[leveloffset=+1]

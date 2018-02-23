@@ -1,4 +1,5 @@
 = Talend Component Studio Integration
+:page-partial:
 
 == Design
 

@@ -1,4 +1,5 @@
 = Talend Component REST API Documentation
+:page-partial:
 
 == HTTP API
 

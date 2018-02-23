@@ -1,4 +1,5 @@
 = Advanced: define a custom API
+:page-partial:
 
 It is possible to extend the Component API for custom front features.
 

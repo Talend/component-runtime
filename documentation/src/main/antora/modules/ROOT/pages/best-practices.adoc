@@ -1,4 +1,5 @@
 = Talend Component Best Practices
+:page-partial:
 
 == Organize your code
 

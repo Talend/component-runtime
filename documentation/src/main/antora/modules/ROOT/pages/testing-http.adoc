@@ -1,4 +1,5 @@
 == component-runtime-http-junit
+:page-partial:
 
 The HTTP JUnit module allows you to mock REST API very easily. Here are its coordinates:
 

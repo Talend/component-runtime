@@ -27,9 +27,8 @@ output:
  dir: ../../../target/documentation-1.0.0-SNAPSHOT
 asciidoc:
   attributes:
-    project_version: 1.0.0-SNAPSHOT
+    project_version: 1.0.0
     deploymentRoot: ""
     numbered: true
     hide-uri-scheme: true
-  extensions:
-    - ./extensions/include/index.js
+    git_branch: test

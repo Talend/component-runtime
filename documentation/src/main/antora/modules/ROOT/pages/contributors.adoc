@@ -1,4 +1,5 @@
 = Wall of Fame
+:page-partial:
 :page-talend_contributors: true
 
 include::{partialsdir}/generated_contributors.adoc[]

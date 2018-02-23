@@ -1,4 +1,5 @@
 = Built in services
+:page-partial:
 
 The framework provides some built-in services you can inject by type in components and actions out of the box.
 

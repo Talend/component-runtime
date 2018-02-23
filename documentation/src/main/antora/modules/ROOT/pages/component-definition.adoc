@@ -1,4 +1,5 @@
 = Components Definition
+:page-partial:
 
 Talend Component framework relies on several primitive components.
 

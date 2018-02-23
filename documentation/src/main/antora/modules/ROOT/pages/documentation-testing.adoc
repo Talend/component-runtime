@@ -1,4 +1,5 @@
 = Talend Component Testing Documentation
+:page-partial:
 
 [[documentation-testing-start]]
 

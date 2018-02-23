@@ -1,3 +1,4 @@
 = Talend Component Kit Changelog
+:page-partial:
 
 include::{partialsdir}/generated_changelog.adoc[]

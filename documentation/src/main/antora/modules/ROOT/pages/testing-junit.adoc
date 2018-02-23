@@ -1,4 +1,5 @@
 == component-runtime-junit
+:page-partial:
 
 `component-runtime-junit` is a small test library allowing you to validate simple logic based on Talend Component tooling.
 

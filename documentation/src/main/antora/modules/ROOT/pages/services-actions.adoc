@@ -1,4 +1,5 @@
 = Providing some actions for consumers/clients
+:page-partial:
 
 In some cases you will desire to add some actions unrelated to the runtime. A simple example
 is to enable clients - the users of the plugin/library - to test if a connection works. Even more concretely: _does my database is up?_.

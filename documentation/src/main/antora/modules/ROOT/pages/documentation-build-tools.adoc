@@ -1,4 +1,5 @@
 = Build tools
+:page-partial:
 
 include::build-tools-maven.adoc[leveloffset=+1]
 

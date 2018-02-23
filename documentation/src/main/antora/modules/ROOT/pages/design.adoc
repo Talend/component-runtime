@@ -1,4 +1,5 @@
 = Talend Component Design Choices
+:page-partial:
 
 == Component API
 

@@ -1,4 +1,5 @@
 = Multiple environments for the same tests
+:page-partial:
 
 JUnit (4 or 5) already provides some ways to parameterized tests and execute the same "test logic"
 against several data. However it is not that convenient to test multiple environments.

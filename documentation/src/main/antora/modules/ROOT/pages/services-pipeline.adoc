@@ -1,13 +1,5 @@
 = Creating a job pipeline
-:toc:
-:numbered:
-:icons: font
-:hide-uri-scheme:
-:imagesdir: images
-:outdir: ../assets
-:jbake-type: page
-:jbake-tags: documentation
-:jbake-status: published
+:page-partial:
 
 
 == Job Builder

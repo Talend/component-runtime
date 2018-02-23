@@ -32,7 +32,6 @@ asciidoc:
   attributes:
     project_version: ${versions.release}
     deploymentRoot: ${site.rootpath}
+    git_branch: ${git.branch}
     numbered: true
     hide-uri-scheme: true
-  extensions:
-    - ./extensions/include/index.js

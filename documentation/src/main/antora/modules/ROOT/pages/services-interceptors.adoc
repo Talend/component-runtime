@@ -1,4 +1,5 @@
 = Services and interceptors
+:page-partial:
 
 For common concerns like caching, auditing etc, it can be fancy to use interceptor like API. It is enabled by the framework
 on services.

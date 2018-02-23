@@ -1,4 +1,5 @@
 = Registering components
+:page-partial:
 
 As seen in the <<getting-started.adoc#getting-started-first-quick-start, Getting Started>>, you need an annotation to register
 your component through `family` method. Multiple components can use the same `family` value but the pair `family`+`name`

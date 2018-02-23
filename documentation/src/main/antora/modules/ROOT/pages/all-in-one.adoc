@@ -1,7 +1,5 @@
 = Talend Component Kit Developer Reference Guide
-Romain Manni-Bucau
-
-Version: {project_version}
+{project_version}
 
 include::design.adoc[leveloffset=+1]
 

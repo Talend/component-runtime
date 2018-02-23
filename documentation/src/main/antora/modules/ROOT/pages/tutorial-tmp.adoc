@@ -1,4 +1,5 @@
 = Test Tuto (to be replaced by real one)
+:page-partial:
 :page-popcorn_video: {deploymentRoot}/_/screencasts/starter_complete.webm
 
 

@@ -1,3 +1,4 @@
 = Search
+:page-partial:
 :page-talend_search: true
 

@@ -1,4 +1,5 @@
 = Component Loading
+:page-partial:
 
 Talend Component scanning is based on a plugin concept. To ensure plugins can be developped in parallel and avoid conflicts
 it requires to isolate plugins (components or component grouped in a single jar/plugin).

@@ -1,4 +1,5 @@
 = Internationalization
+:page-partial:
 
 Recommanded practise for internationalization are:
 

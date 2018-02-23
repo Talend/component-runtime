@@ -1,4 +1,5 @@
 == component-runtime-testing-spark
+:page-partial:
 
 The folowing artifact will allow you to test against a spark cluster:
 

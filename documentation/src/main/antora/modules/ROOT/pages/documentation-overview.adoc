@@ -1,4 +1,5 @@
 = Talend Component Documentation Overview
+:page-partial:
 
 == Getting help
 

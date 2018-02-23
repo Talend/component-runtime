@@ -1,4 +1,5 @@
 = Services
+:page-partial:
 
 include::services-internationalization.adoc[leveloffset=+1]
 

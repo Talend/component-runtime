@@ -1,4 +1,5 @@
 = Generating data?
+:page-partial:
 
 Several data generator exists if you want to populate objects with a semantic a bit more evolved than a plain random string
 like `commons-lang3`:

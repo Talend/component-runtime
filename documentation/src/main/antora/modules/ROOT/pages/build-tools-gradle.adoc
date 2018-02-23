@@ -1,4 +1,5 @@
 = Gradle Plugin
+:page-partial:
 
 `gradle-talend-component` intends to help you to write components
 validating components match best practices. It is inspired from the Maven plugin

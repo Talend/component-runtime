@@ -11,11 +11,43 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+font:
+  catalog:
+    # Noto Serif supports Latin, Latin-1 Supplement, Latin Extended-A, Greek, Cyrillic, Vietnamese & an assortment of symbols
+    Noto Serif:
+      normal: notoserif-regular-subset.ttf
+      bold: notoserif-bold-subset.ttf
+      italic: notoserif-italic-subset.ttf
+      bold_italic: notoserif-bold_italic-subset.ttf
+    # M+ 1mn supports ASCII and the circled numbers used for conums
+    M+ 1mn:
+      normal: mplus1mn-regular-ascii-conums.ttf
+      bold: mplus1mn-bold-ascii.ttf
+      italic: mplus1mn-italic-ascii.ttf
+      bold_italic: mplus1mn-bold_italic-ascii.ttf
+    # M+ 1p supports Latin, Latin-1 Supplement, Latin Extended, Greek, Cyrillic, Vietnamese, Japanese & an assortment of symbols
+    # It also provides arrows for ->, <-, => and <= replacements in case these glyphs are missing from font
+    M+ 1p Fallback:
+      normal: mplus1p-regular-fallback.ttf
+      bold: mplus1p-regular-fallback.ttf
+      italic: mplus1p-regular-fallback.ttf
+      bold_italic: mplus1p-regular-fallback.ttf
+  fallbacks:
+    - M+ 1p Fallback
+page:
+  layout: portrait
+  margin: [0.75in, 1in, 0.75in, 1in]
+  size: A4
+base:
+  align: justify
+  font_family: Noto Serif
+  font_color: 535353
+  line_height_length: 17
+  line_height: $base_line_height_length / $base_font_size
 title_page:
   align: right
-  background_color: #1A496E
-  font_color: #fff
+  background_color: 1A496E
+  font_color: fff
   font_size: 15
   title:
     top: 65%
@@ -37,24 +69,11 @@ title_page:
     image: image:logo.png[pdfwidth=50%]
     top: 15%
     align: left
-
-page:
-  layout: portrait
-  margin: [0.75in, 1in, 0.75in, 1in]
-  size: A4
-base:
-  font_color: #535353
-  line_height_length: 17
-  line_height: $base_line_height_length / $base_font_size
-vertical_rhythm: $base_line_height_length
-heading:
-  font_color: #1A496E
-  font_size: 17
-  font_style: bold
-  line_height: 1.2
-  margin_bottom: $vertical_rhythm
+literal:
+  font_color: b12146
+  font_family: M+ 1mn
 link:
-  font_color: #236192
+  font_color: 236192
 outline_list:
   indent: $base_font_size * 1.5
 header:
@@ -75,5 +94,7 @@ image:
   align: center
 caption:
   align: center
-  font_color: #FF0000
+  font_color: FF0000
   font_size: 10
+conum:
+  font_family: M+ 1mn

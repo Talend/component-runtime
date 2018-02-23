@@ -1,4 +1,5 @@
 = Maven Plugin
+:page-partial:
 
 `talend-component-maven-plugin` intends to help you to write components
 validating components match best practices and also generating transparently metadata used by Talend Studio.

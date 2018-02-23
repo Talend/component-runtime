@@ -1,4 +1,5 @@
 = Talend Component Kit Release Process
+:page-partial:
 
 Version: {project_version}
 

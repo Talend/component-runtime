@@ -1,4 +1,5 @@
 = Talend Component Getting Started
+:page-partial:
 
 [[getting-started-introducing-talend-component]]
 == Introducing Talend Component

@@ -22,7 +22,7 @@ def copyJsResource = { source, output ->
     log.info("Imported ${target.name}")
 }
 
-// add js resources resource
+// add web resources
 copyJsResource(
     new File(project.basedir, 'src/main/frontend/node_modules/highlight.js/styles/idea.css').toURI().toURL(),
     'css/idea.css')

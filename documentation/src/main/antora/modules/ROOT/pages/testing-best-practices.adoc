@@ -1,4 +1,5 @@
 = Best practises
+:page-partial:
 
 NOTE: this part is mainly around tools usable with JUnit. You can use most of these techniques with TestNG
 as well, check out the documentation if you need to use TestNG.

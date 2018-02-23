@@ -1,4 +1,5 @@
 = Gallery
+:page-partial:
 
 == Widgets
 

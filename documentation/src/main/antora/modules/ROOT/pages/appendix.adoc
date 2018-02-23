@@ -1,4 +1,5 @@
 = Talend Component Appendix
+:page-partial:
 
 == ContainerManager or the classloader manager
 
