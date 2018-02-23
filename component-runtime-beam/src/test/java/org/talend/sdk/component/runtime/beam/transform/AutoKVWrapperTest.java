@@ -54,9 +54,10 @@ public class AutoKVWrapperTest implements Serializable {
                         .apply(AutoKVWrapper.of(null,
                                 JobImpl.LocalSequenceHolder.cleanAndGet(getClass().getName() + ".test"), "", "")))
                 .satisfies(values -> {
-                    final List<KV<String, JsonObject>> items =
-                            StreamSupport.stream(values.spliterator(), false).collect(toList());
-                    items.sort(comparing(k -> k.getValue().getJsonArray("b1").getJsonObject(0).getString("foo")));
+                    final List<KV<String, JsonObject>> items = StreamSupport
+                            .stream(values.spliterator(), false)
+                            .sorted(comparing(k -> k.getValue().getJsonArray("b1").getJsonObject(0).getString("foo")))
+                            .collect(toList());
                     assertEquals(2, items.size());
                     assertEquals(2, new HashSet<>(items).size()); // ensure we got 2 ids
                     assertEquals(asList("a", "b"),
