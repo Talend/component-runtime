@@ -157,7 +157,7 @@ public class BeamExecutor implements Job.ExecutorBuilder {
 
         } finally {
             delegate.getLevels().values().stream().flatMap(Collection::stream).map(Job.Component::getId).forEach(
-                    JobImpl.JobExecutor.LocalSequenceHolder::clean);
+                    JobImpl.LocalSequenceHolder::clean);
         }
     }
 

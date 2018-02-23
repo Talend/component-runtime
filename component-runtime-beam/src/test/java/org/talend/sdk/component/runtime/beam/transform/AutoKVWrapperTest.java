@@ -52,8 +52,7 @@ public class AutoKVWrapperTest implements Serializable {
                 .that(buildBaseJsonPipeline(pipeline, factory)
                         .setCoder(JsonpJsonObjectCoder.of(null))
                         .apply(AutoKVWrapper.of(null,
-                                JobImpl.JobExecutor.LocalSequenceHolder.cleanAndGet(getClass().getName() + ".test"), "",
-                                "")))
+                                JobImpl.LocalSequenceHolder.cleanAndGet(getClass().getName() + ".test"), "", "")))
                 .satisfies(values -> {
                     final List<KV<String, JsonObject>> items =
                             StreamSupport.stream(values.spliterator(), false).collect(toList());

@@ -341,8 +341,8 @@ public class JobImpl implements Job {
                         .map(component -> new AbstractMap.SimpleEntry<>(component.getId(), new AtomicBoolean(true)))
                         .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
                 processors.values().forEach(Lifecycle::start); // start processor
-                Map<String, Map<String, TreeMap<String, JsonObject>>> flowData = new HashMap<>();
-                AtomicBoolean running = new AtomicBoolean(true);
+                final Map<String, Map<String, TreeMap<String, JsonObject>>> flowData = new HashMap<>();
+                final AtomicBoolean running = new AtomicBoolean(true);
                 do {
                     levels.forEach((level, components) -> components.forEach((Component component) -> {
                         if (component.isSource()) {
@@ -373,7 +373,7 @@ public class JobImpl implements Job {
                                     dataInputFactory.withInput(toBranch, singletonList(data));
                                 }
                             } else { // need grouping
-                                Map<String, Map<String, JsonObject>> availableDataForStep = new HashMap<>();
+                                final Map<String, Map<String, JsonObject>> availableDataForStep = new HashMap<>();
                                 connections.forEach(edge -> {
                                     final String fromId = edge.getFrom().getNode().getId();
                                     final String fromBranch = edge.getFrom().getBranch();
@@ -448,16 +448,6 @@ public class JobImpl implements Job {
             return data == null || data.isEmpty() ? null : data.remove(data.firstKey());
         }
 
-        @Data
-        private static class GroupContextImpl implements GroupKeyProvider.GroupContext {
-
-            private final JsonObject data;
-
-            private final String componentId;
-
-            private final String branchName;
-        }
-
         private List<Job.Edge> getConnections(final List<Job.Edge> edges, final Job.Component step,
                 final Function<Edge, Component> direction) {
             return edges.stream().filter(edge -> direction.apply(edge).equals(step)).collect(toList());
@@ -483,152 +473,161 @@ public class JobImpl implements Job {
 
             return LocalSequenceHolder.cleanAndGet(componentId);
         }
+    }
 
-        public static class LocalSequenceHolder {
+    @Data
+    private static class GroupContextImpl implements GroupKeyProvider.GroupContext {
 
-            private static final Map<String, AtomicLong> GENERATORS = new HashMap<>();
+        private final JsonObject data;
 
-            public static GroupKeyProvider cleanAndGet(final String name) {
-                GENERATORS.put(name, new AtomicLong(0));
-                return c -> Long.toString(GENERATORS.get(name).incrementAndGet());
-            }
+        private final String componentId;
 
-            public static void clean(final String name) {
-                GENERATORS.remove(name);
-            }
+        private final String branchName;
+    }
+
+    public static class LocalSequenceHolder {
+
+        private static final Map<String, AtomicLong> GENERATORS = new HashMap<>();
+
+        public static GroupKeyProvider cleanAndGet(final String name) {
+            GENERATORS.put(name, new AtomicLong(0));
+            return c -> Long.toString(GENERATORS.get(name).incrementAndGet());
         }
 
-        @Slf4j
-        public static class InputRunner {
+        public static void clean(final String name) {
+            GENERATORS.remove(name);
+        }
+    }
 
-            private final Mapper chainedMapper;
+    @Slf4j
+    private static class InputRunner {
 
-            private final Input input;
+        private final Mapper chainedMapper;
 
-            private final Jsonb jsonb;
+        private final Input input;
 
-            public InputRunner(final Mapper mapper, final Jsonb jsonb) {
-                this.jsonb = jsonb;
-                RuntimeException error = null;
+        private final Jsonb jsonb;
+
+        private InputRunner(final Mapper mapper, final Jsonb jsonb) {
+            this.jsonb = jsonb;
+            RuntimeException error = null;
+            try {
+                mapper.start();
+                chainedMapper = new ChainedMapper(mapper, mapper.split(mapper.assess()).iterator());
+                chainedMapper.start();
+                input = chainedMapper.create();
+                input.start();
+            } catch (final RuntimeException re) {
+                error = re;
+                throw re;
+            } finally {
                 try {
-                    mapper.start();
-                    chainedMapper = new ChainedMapper(mapper, mapper.split(mapper.assess()).iterator());
-                    chainedMapper.start();
-                    input = chainedMapper.create();
-                    input.start();
+                    mapper.stop();
                 } catch (final RuntimeException re) {
-                    error = re;
-                    throw re;
-                } finally {
-                    try {
-                        mapper.stop();
-                    } catch (final RuntimeException re) {
-                        if (error == null) {
-                            throw re;
-                        }
-                        log.error(re.getMessage(), re);
+                    if (error == null) {
+                        throw re;
                     }
-                }
-            }
-
-            public JsonObject next() {
-                final Object next = input.next();
-                if (next == null) {
-                    return null;
-                }
-
-                if (JsonObject.class.isInstance(next)) {
-                    return JsonObject.class.cast(next);
-                }
-                return jsonb.fromJson(jsonb.toJson(next), JsonObject.class);
-            }
-
-            public void stop() {
-                RuntimeException error = null;
-                try {
-                    if (input != null) {
-                        input.stop();
-                    }
-                } catch (final RuntimeException re) {
-                    error = re;
-                    throw re;
-                } finally {
-                    try {
-                        if (chainedMapper != null) {
-                            chainedMapper.stop();
-                        }
-                    } catch (final RuntimeException re) {
-                        if (error == null) {
-                            throw re;
-                        }
-                        log.error(re.getMessage(), re);
-                    }
+                    log.error(re.getMessage(), re);
                 }
             }
         }
 
-        @Data
-        private static class DataOutputFactory implements OutputFactory {
-
-            private final Map<String, JsonObject> outputs = new HashMap<>();
-
-            @Override
-            public OutputEmitter create(final String name) {
-                return value -> outputs.put(name, (JsonObject) value);
-            }
-        }
-
-        private static class DataInputFactory implements InputFactory {
-
-            private final Map<String, Iterator<Object>> inputs = new HashMap<>();
-
-            private volatile Jsonb jsonb;
-
-            public DataInputFactory withInput(final String branch, final Collection<Object> branchData) {
-                inputs.put(branch, branchData.iterator());
-                return this;
-            }
-
-            @Override
-            public Object read(final String name) {
-                final Iterator<?> iterator = inputs.get(name);
-                if (iterator != null && iterator.hasNext()) {
-                    return map(iterator.next());
-                }
+        public JsonObject next() {
+            final Object next = input.next();
+            if (next == null) {
                 return null;
             }
 
-            private Object map(final Object next) {
-                if (next == null || JsonObject.class.isInstance(next)) {
-                    return next;
-                }
-                if (jsonb == null) {
-                    synchronized (this) {
-                        if (jsonb == null) {
-                            jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
-                        }
-                    }
-                }
-                final String str = jsonb.toJson(next);
-                // primitives mainly, not that accurate in main code but for now not forbidden
-                if (str.equals(next.toString())) {
-                    return next;
-                }
-                // pojo
-                return jsonb.fromJson(str, JsonObject.class);
+            if (JsonObject.class.isInstance(next)) {
+                return JsonObject.class.cast(next);
             }
+            return jsonb.fromJson(jsonb.toJson(next), JsonObject.class);
         }
 
-        @AllArgsConstructor
-        protected static class GroupKeyProviderImpl implements GroupKeyProvider {
-
-            private final GroupKeyProvider delegate;
-
-            @Override
-            public String apply(final GroupKeyProvider.GroupContext context) {
-                return delegate.apply(context);
+        public void stop() {
+            RuntimeException error = null;
+            try {
+                if (input != null) {
+                    input.stop();
+                }
+            } catch (final RuntimeException re) {
+                error = re;
+                throw re;
+            } finally {
+                try {
+                    if (chainedMapper != null) {
+                        chainedMapper.stop();
+                    }
+                } catch (final RuntimeException re) {
+                    if (error == null) {
+                        throw re;
+                    }
+                    log.error(re.getMessage(), re);
+                }
             }
         }
     }
 
+    @Data
+    private static class DataOutputFactory implements OutputFactory {
+
+        private final Map<String, JsonObject> outputs = new HashMap<>();
+
+        @Override
+        public OutputEmitter create(final String name) {
+            return value -> outputs.put(name, (JsonObject) value);
+        }
+    }
+
+    private static class DataInputFactory implements InputFactory {
+
+        private final Map<String, Iterator<Object>> inputs = new HashMap<>();
+
+        private volatile Jsonb jsonb;
+
+        private DataInputFactory withInput(final String branch, final Collection<Object> branchData) {
+            inputs.put(branch, branchData.iterator());
+            return this;
+        }
+
+        @Override
+        public Object read(final String name) {
+            final Iterator<?> iterator = inputs.get(name);
+            if (iterator != null && iterator.hasNext()) {
+                return map(iterator.next());
+            }
+            return null;
+        }
+
+        private Object map(final Object next) {
+            if (next == null || JsonObject.class.isInstance(next)) {
+                return next;
+            }
+            if (jsonb == null) {
+                synchronized (this) {
+                    if (jsonb == null) {
+                        jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
+                    }
+                }
+            }
+            final String str = jsonb.toJson(next);
+            // primitives mainly, not that accurate in main code but for now not forbidden
+            if (str.equals(next.toString())) {
+                return next;
+            }
+            // pojo
+            return jsonb.fromJson(str, JsonObject.class);
+        }
+    }
+
+    @AllArgsConstructor
+    protected static class GroupKeyProviderImpl implements GroupKeyProvider {
+
+        private final GroupKeyProvider delegate;
+
+        @Override
+        public String apply(final GroupKeyProvider.GroupContext context) {
+            return delegate.apply(context);
+        }
+    }
 }
