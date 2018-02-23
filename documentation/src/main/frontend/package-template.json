@@ -10,7 +10,7 @@
     "highlight.js": "9.12.0 "
   },
   "scripts": {
-    "antora:build": "antora --stacktrace '${project.basedir}/src/main/antora/site.yml'",
-    "antora:dev": "antora --stacktrace '${project.basedir}/src/main/antora/site-dev.yml'"
+    "antora:build": "antora --stacktrace ../antora/site.yml",
+    "antora:dev": "antora --stacktrace ../antora/site-dev.yml"
   }
 }

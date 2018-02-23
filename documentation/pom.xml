@@ -459,6 +459,12 @@
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctorj</artifactId>
             <version>1.6.0-alpha.6</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.jruby</groupId>
+                <artifactId>jruby</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
           <dependency>
             <groupId>org.asciidoctor</groupId>
@@ -468,7 +474,7 @@
           <dependency>
             <groupId>org.jruby</groupId>
             <artifactId>jruby-complete</artifactId>
-            <version>9.1.12.0</version>
+            <version>9.1.14.0</version>
           </dependency>
           <!-- until antora supports it we don't use that
           <dependency>
