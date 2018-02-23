@@ -78,8 +78,15 @@
 <%
     } else {
         for (final IConnection connection : node.getIncomingConnections(EConnectionType.FLOW_MAIN)) {
+            String connName = connection.getConnectorName();
+            if(connection instanceof IAdditionalInfo) {
+                String additionalName = (String)IAdditionalInfo.class.cast(connection).getInfo("INPUT_NAME");
+                if(additionalName != null && !additionalName.isEmpty()) {
+                    connName = additionalName;
+                }
+            }
 %>
-            inputsHandler_<%=cid%>.addConnection("<%= connection.getConnectorName() %>", <%= connection.getName() %>.getClass());
+            inputsHandler_<%=cid%>.addConnection("<%= connName %>", <%= connection.getName() %>.getClass());
 <%
         }
     }
