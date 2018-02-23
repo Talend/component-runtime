@@ -15,9 +15,6 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
-import java.util.Iterator;
-import java.util.ServiceLoader;
-
 import org.talend.sdk.component.runtime.manager.chain.internal.DSLParser;
 import org.talend.sdk.component.runtime.manager.chain.internal.JobImpl;
 
@@ -26,21 +23,19 @@ import lombok.Data;
 public interface Job {
 
     static ComponentBuilder components() {
-        final Iterator<ComponentBuilder> builder = ServiceLoader.load(ComponentBuilder.class).iterator();
-        if (builder.hasNext()) {
-            return builder.next();
-        }
         return new JobImpl.NodeBuilderImpl();
-    }
-
-    interface NodeBuilder extends ComponentBuilder {
-
-        FromBuilder connections();
     }
 
     interface ComponentBuilder {
 
         NodeBuilder component(final String id, String uri);
+    }
+
+    interface NodeBuilder extends ComponentBuilder {
+
+        NodeBuilder property(String name, Object value);
+
+        FromBuilder connections();
     }
 
     interface FromBuilder {

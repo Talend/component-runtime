@@ -15,46 +15,48 @@
  */
 package org.talend.test;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
+import java.util.Locale;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.json.JsonObject;
 
-import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 
-@Processor(family = "chain", name = "file")
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
+@Processor(family = "file", name = "out")
 public class FileOutput implements Serializable {
 
     private final File file;
 
-    private transient Writer writer;
-
-    public FileOutput(@Option("file") final File file) {
-        this.file = file;
-    }
-
-    @PostConstruct
-    public void init() throws IOException {
-        writer = new FileWriter(file);
-    }
+    private final FileService service;
 
     @ElementListener
-    public void length(final Object data) throws IOException {
-        writer.write(data + System.lineSeparator());
+    public void length(final JsonObject data) throws IOException {
+        final Writer writer = service.writerFor(file.getAbsolutePath());
+        synchronized (writer) {
+            writer.write(data
+                    .keySet()
+                    .stream()
+                    .filter(k -> !k.toLowerCase(Locale.ROOT).contains("id"))
+                    .map(data::getString)
+                    .collect(joining(" ")) + System.lineSeparator());
+        }
     }
 
     @PreDestroy
     public void close() throws IOException {
-        if (writer == null) {
-            return;
+        final Writer writer = service.writerFor(file.getAbsolutePath());
+        synchronized (writer) {
+            writer.close();
         }
-        writer.close();
     }
 }

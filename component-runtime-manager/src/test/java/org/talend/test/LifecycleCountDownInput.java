@@ -27,6 +27,8 @@ import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Emitter;
@@ -41,8 +43,11 @@ public class LifecycleCountDownInput implements Serializable, Supplier<List<Stri
 
     private static final List<String> lifecycle = new ArrayList<>();
 
-    public LifecycleCountDownInput(@Option("start") final Integer start) {
+    private final JsonBuilderFactory factory;
+
+    public LifecycleCountDownInput(@Option("start") final Integer start, final JsonBuilderFactory factory) {
         this.start = start;
+        this.factory = factory;
     }
 
     @PostConstruct
@@ -56,7 +61,7 @@ public class LifecycleCountDownInput implements Serializable, Supplier<List<Stri
     }
 
     @Producer
-    public Integer data() {
+    public JsonObject data() {
         if (iterator == null) {
             List<Integer> data = IntStream.range(0, start).boxed().collect(toList());
             Collections.reverse(data);
@@ -65,7 +70,7 @@ public class LifecycleCountDownInput implements Serializable, Supplier<List<Stri
 
         final Integer produce = iterator.hasNext() ? iterator.next() : null;
         lifecycle.add("produce(" + produce + ")");
-        return produce;
+        return produce == null ? null : this.factory.createObjectBuilder().add("data", produce).build();
     }
 
     @Override

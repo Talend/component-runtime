@@ -17,20 +17,40 @@ package org.talend.test;
 
 import java.io.Serializable;
 
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 
-@Processor(family = "chain", name = "concat")
+@Processor(family = "processor", name = "concat")
 public class ConcatProcessor implements Serializable {
 
+    private final JsonBuilderFactory factory;
+
+    public ConcatProcessor(JsonBuilderFactory factory) {
+        this.factory = factory;
+    }
+
     @ElementListener
-    public void length(@Input("str1") final String str1, @Input("str2") final String str2,
-            @Output final OutputEmitter<String> concat) {
+    public void cat(@Input("str1") final JsonObject str1, @Input("str2") final JsonObject str2,
+            @Output final OutputEmitter<JsonObject> concat) {
 
-        concat.emit(str1 + " " + str2);
+        if (str1 == null && str2 == null)
+            return;
 
+        final JsonObjectBuilder builder = factory.createObjectBuilder();
+        if (str1 != null) {
+            str1.keySet().forEach(k -> builder.add(k, str1.get(k)));
+        }
+        if (str2 != null) {
+            str2.keySet().forEach(k -> builder.add(k, str2.get(k)));
+        }
+
+        concat.emit(builder.build());
     }
 }
