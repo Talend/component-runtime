@@ -36,7 +36,7 @@ page:
   size: A4
 base:
   align: justify
-  font_color: 535353
+  font_color: 0c2d4d
   font_family: Noto Serif
   font_size: 10.5
   line_height_length: 12
@@ -52,7 +52,7 @@ vertical_rhythm: $base_line_height_length
 horizontal_rhythm: $base_line_height_length
 vertical_spacing: $vertical_rhythm
 link:
-  font_color: 236192
+  font_color: 0675c1
 literal:
   font_color: b12146
   font_family: M+ 1mn
@@ -73,7 +73,7 @@ heading:
   margin_bottom: $vertical_rhythm * 0.9
 title_page:
   align: right
-  background_color: 1A496E
+  background_color: 0093c9
   font_color: fff
   title:
     top: 65%
@@ -199,7 +199,7 @@ toc:
   indent: $horizontal_rhythm
   line_height: 1.4
   dot_leader:
-    font_color: a9a9a9
+    font_color: 0c2d4d
 header:
   line_height: 1
   recto:

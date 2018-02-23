@@ -121,12 +121,19 @@ footer.footer {
 .navbar,
 footer.footer,
 .footer a {
-  background-color: #236192;
+  background-color: #0675c1;
   color: white;
 }
 .navbar-end .navbar-link:hover,
 .navbar-end > a.navbar-item:hover,
 .navbar-item.has-dropdown:hover .navbar-link {
-  background-color: #53565A;
+  background-color: #0093c9;
   color: white;
+}
+
+nav.navbar {
+  border-bottom: solid 3px #82bd41;
+}
+footer.footer {
+  border-top: solid 2px #82bd41;
 }
