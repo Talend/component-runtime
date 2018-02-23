@@ -16,22 +16,44 @@
 package org.talend.test;
 
 import java.io.Serializable;
+import java.util.Locale;
 
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 
-@Processor(family = "chain", name = "formatter")
+@Processor(family = "processor", name = "formatter")
 public class FormatterProcessor implements Serializable {
 
-    @ElementListener
-    public void length(@Input("firstName") final String firstName, @Input("lastName") final String lastName,
-            @Output("firstName") final OutputEmitter<String> lowerCase,
-            @Output("lastName") final OutputEmitter<String> upperCase) {
+    private final JsonBuilderFactory factory;
 
-        lowerCase.emit(firstName == null ? null : firstName.toLowerCase());
-        upperCase.emit(lastName == null ? null : lastName.toUpperCase());
+    private final boolean lowerCase;
+
+    public FormatterProcessor(@Option("lowerCase") boolean lowerCase, JsonBuilderFactory factory) {
+        this.factory = factory;
+        this.lowerCase = lowerCase;
+    }
+
+    @ElementListener
+    public void format(final JsonObject data, @Output("formatted") final OutputEmitter<JsonObject> formatted) {
+
+        if (data == null) {
+            return;
+        }
+
+        final JsonObjectBuilder builder = factory.createObjectBuilder();
+        if (lowerCase) {
+            data.keySet().forEach(k -> builder.add(k, data.getString(k).toLowerCase(Locale.ROOT)));
+        } else {
+            data.keySet().forEach(k -> builder.add(k, data.getString(k).toUpperCase(Locale.ROOT)));
+        }
+        formatted.emit(builder.build());
     }
 }

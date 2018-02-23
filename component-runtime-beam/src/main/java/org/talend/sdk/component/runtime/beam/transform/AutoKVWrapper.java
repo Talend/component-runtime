@@ -15,9 +15,6 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 import javax.json.JsonObject;
@@ -65,20 +62,6 @@ public class AutoKVWrapper extends DoFn<JsonObject, KV<String, JsonObject>> {
         return new JsonObjectParDoTransformCoderProvider<>(
                 KvCoder.of(StringUtf8Coder.of(), JsonpJsonObjectCoder.of(plugin)),
                 new AutoKVWrapper(idGenerator, component, branch));
-    }
-
-    public static class LocalSequenceHolder {
-
-        private static final Map<String, AtomicLong> GENERATORS = new HashMap<>();
-
-        public static GroupKeyProvider cleanAndGet(final String name) {
-            GENERATORS.put(name, new AtomicLong(0));
-            return c -> Long.toString(GENERATORS.get(name).incrementAndGet());
-        }
-
-        public static void clean(final String name) {
-            GENERATORS.remove(name);
-        }
     }
 
     @Data

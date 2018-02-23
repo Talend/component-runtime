@@ -5,7 +5,7 @@
 == Job Builder
 
 The `Job` builder let you create a job pipeline programmatically using Talend components
-(link:latest/component-definition.html[Producers and Processors]).
+(xref:component-definition.html[Producers and Processors]).
 The job pipeline is an acyclic graph, so you can built complex pipelines.
 
 Let's take a simple use case where we will have 2 data source (employee and salary) that we will format to csv and write
@@ -25,9 +25,7 @@ Job.components()   <1>
     .build()    <3>
     .run(); <4>
 ----
-Step by step explanation :
-
-(1) We define all the components that will be used in the job pipeline.
+<1> We define all the components that will be used in the job pipeline.
 Every component is defined by an unique `id` and an URI that identify the component.
 
 The URI follow the form : `[family]://[component][?version][&configuration]`
@@ -42,7 +40,7 @@ where the key is the path of the configuration and the value is the configuratio
 
 IMPORTANT: configuration parameters must be URI/URL encoded.
 
-(2) Then, we define the connections between the components to construct the job pipeline.
+<2> Then, we define the connections between the components to construct the job pipeline.
 the links `from` -> `to` use the component id and the default input/output branches.
 
 You can also connect a specific branch of a component if it has multiple or named inputs/outputs branches
@@ -51,18 +49,56 @@ using the methods `from(id, branchName)` -> `to(id, branchName)`.
 In the example above, the concat component have to inputs (string1 and string2).
 
 
-(3) In this step, we validate the job pipeline by asserting that :
+<3> In this step, we validate the job pipeline by asserting that :
 
  * It has some starting components (component that don't have a from connection and that need to be of type producer).
  * There is no cyclic connections. as the job pipeline need to be an acyclic graph.
  * All the components used in connections are already declared.
  * The connection is used only once. you can't connect a component input/output branch twice.
 
-(4) We run the job pipeline.
+<4> We run the job pipeline.
 
 IMPORTANT: In this version, the execution of the job is linear. the component are not executed in parallel even if some steps
 may be independents.
 
+The job builder let you provide some job properties :
+
+==== Key Provider
+
+The job builder let you set a key provider to join your data when a component has multiple inputs.
+The key provider can be set contextually to a component or globally to the job
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+Job.components()
+        .component("employee","db://input")
+            .property(GroupKeyProvider.class.getName(),
+                 (GroupKeyProvider) context -> context.getData().getString("id")) <1>
+        .component("salary", "db://input")
+        .component("concat", "transform://concat?separator=;")
+    .connections()
+        .from("employee").to("concat", "string1")
+        .from("salary").to("concat", "string2")
+    .build()
+    .property(GroupKeyProvider.class.getName(), <2>
+                 (GroupKeyProvider) context -> context.getData().getString("employee_id"))
+    .run();
+----
+<1> Here we have defined a key provider for the data produced by the component `employee`
+<2> Here we have defined a key provider for all the data manipulated in this job.
+
+If the incoming data has different ids you can provide a complex global key provider relaying on the context that give you the `component id`
+and the `branch Name`.
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+GroupKeyProvider keyProvider = (GroupKeyProvider) context -> {
+            if ("employee".equals(context.getComponentId())) {
+                return context.getData().getString("id");
+            }
+
+            return context.getData().getString("employee_id");
+          };
+----
 == Beam case
 
 For link:https://beam.apache.org/[beam] case, you need to rely on beam pipeline definition and use `component-runtime-beam` dependency which provides Beam bridges.

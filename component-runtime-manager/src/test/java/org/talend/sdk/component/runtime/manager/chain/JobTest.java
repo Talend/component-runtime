@@ -146,101 +146,7 @@ public class JobTest {
     }
 
     @Test
-    void multiOutput(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
-        final String testName = info.getTestMethod().get().getName();
-        final String plugin = testName + ".jar";
-        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
-        final File output = new File(temporaryFolder.getRoot(), testName + "-out.txt");
-        final File reject = new File(temporaryFolder.getRoot(), testName + "-reject.txt");
-
-        try (final ComponentManager manager =
-                new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
-
-                    {
-                        CONTEXTUAL_INSTANCE.set(this);
-                        addPlugin(jar.getAbsolutePath());
-                    }
-
-                    @Override
-                    public void close() {
-                        super.close();
-                        CONTEXTUAL_INSTANCE.set(null);
-                    }
-                }) {
-
-            Job
-                    .components()
-                    .component("list",
-                            "chain://list?__version=1&values[0]=a&values[1]=bb-reject&values[2]=ccc&values[3]=rejectccc")
-                    .component("file", "chain://file?__version=1&file=" + encode(output.getAbsolutePath(), "utf-8"))
-                    .component("count", "chain://count?__version=1")
-                    .component("reject", "chain://reject?__version=1&file=" + encode(reject.getAbsolutePath(), "utf-8"))
-                    .connections()
-                    .from("list")
-                    .to("count")
-                    .from("count")
-                    .to("file")
-                    .from("count", "rejected")
-                    .to("reject")
-                    .build()
-                    .run();
-
-            assertTrue(output.isFile());
-            assertTrue(reject.isFile());
-            assertEquals(asList("1", "4"), Files.readAllLines(output.toPath()));
-            assertEquals(asList("bb-reject", "rejectccc"), Files.readAllLines(reject.toPath()));
-        }
-
-    }
-
-    @Test
-    void multiInOut(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
-        final String testName = info.getTestMethod().get().getName();
-        final String plugin = testName + ".jar";
-        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
-        final File file = new File(temporaryFolder.getRoot(), testName + "-out.txt");
-
-        try (final ComponentManager manager =
-                new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
-
-                    {
-                        CONTEXTUAL_INSTANCE.set(this);
-                        addPlugin(jar.getAbsolutePath());
-                    }
-
-                    @Override
-                    public void close() {
-                        super.close();
-                        CONTEXTUAL_INSTANCE.set(null);
-                    }
-                }) {
-
-            Job
-                    .components()
-                    .component("firstNames",
-                            "chain://list?__version=1&values[0]=noha&values[1]=Emma&values[2]=liam&values[3]=Olivia")
-                    .component("lastNames",
-                            "chain://list?__version=1&values[0]=manson&values[1]=Sophia&values[2]=jacob")
-                    .component("concat", "chain://concat?__version=1")
-                    .component("outFile", "chain://file?__version=1&file=" + encode(file.getAbsolutePath(), "utf-8"))
-                    .connections()
-                    .from("firstNames")
-                    .to("concat", "str1")
-                    .from("lastNames")
-                    .to("concat", "str2")
-                    .from("concat")
-                    .to("outFile")
-                    .build()
-                    .run();
-
-            assertTrue(file.isFile());
-            assertEquals(asList("noha manson", "Emma Sophia", "liam jacob", "Olivia null"),
-                    Files.readAllLines(file.toPath()));
-        }
-    }
-
-    @Test
-    void complex(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
+    void defaultKeyProvider(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
         final String testName = info.getTestMethod().get().getName();
         final String plugin = testName + ".jar";
         final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
@@ -263,30 +169,20 @@ public class JobTest {
 
             Job
                     .components()
-                    .component("formatter", "chain://formatter?__version=1")
-                    .component("concat", "chain://concat?__version=1")
-                    .component("concat_2", "chain://concat?__version=1")
-                    .component("firstNames",
-                            "chain://list?__version=1" + "&values[0]=noha" + "&values[1]=Emma" + "&values[2]=liam"
-                                    + "&values[3]=Olivia")
-                    .component("lastNames",
-                            "chain://list?__version=1" + "&values[0]=manson" + "&values[1]=Sophia" + "&values[2]=jacob")
-                    .component("address",
-                            "chain://list?__version=1" + "&values[0]=Paris" + "&values[1]=Strasbourg"
-                                    + "&values[2]=Bordeaux" + "&values[3]=Nantes")
-                    .component("outFile", "chain://file?__version=1&file=" + encode(out.getAbsolutePath(), "utf-8"))
+                    .component("users", "db://input?__version=1&tableName=users")
+                    .component("address", "db://input?__version=1&tableName=address")
+                    .component("salary", "db://input?__version=1&tableName=salary")
+                    .component("concat", "processor://concat?__version=1")
+                    .component("concat_2", "processor://concat?__version=1")
+                    .component("outFile", "file://out?__version=1&file=" + encode(out.getAbsolutePath(), "utf-8"))
                     .connections()
-                    .from("firstNames")
-                    .to("formatter", "firstName")
-                    .from("lastNames")
-                    .to("formatter", "lastName")
-                    .from("formatter", "lastName")
+                    .from("users")
                     .to("concat", "str1")
-                    .from("formatter", "firstName")
+                    .from("address")
                     .to("concat", "str2")
                     .from("concat")
                     .to("concat_2", "str1")
-                    .from("address")
+                    .from("salary")
                     .to("concat_2", "str2")
                     .from("concat_2")
                     .to("outFile")
@@ -294,8 +190,122 @@ public class JobTest {
                     .run();
 
             assertTrue(out.isFile());
-            assertEquals(
-                    asList("MANSON noha Paris", "SOPHIA emma Strasbourg", "JACOB liam Bordeaux", "null olivia Nantes"),
+            assertEquals(asList("sophia paris 1900", "emma nantes 3055", "liam strasbourg 2600.30", "ava lyon 2000.5"),
+                    Files.readAllLines(out.toPath()));
+        }
+    }
+
+    @Test
+    void jobKeyProvider(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
+        final String testName = info.getTestMethod().get().getName();
+        final String plugin = testName + ".jar";
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
+        final File out = new File(temporaryFolder.getRoot(), testName + "-out.txt");
+
+        try (final ComponentManager manager =
+                new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
+
+                    {
+                        CONTEXTUAL_INSTANCE.set(this);
+                        addPlugin(jar.getAbsolutePath());
+                    }
+
+                    @Override
+                    public void close() {
+                        super.close();
+                        CONTEXTUAL_INSTANCE.set(null);
+                    }
+                }) {
+
+            Job
+                    .components()
+                    .component("users", "db://input?__version=1&tableName=users")
+                    .component("address", "db://input?__version=1&tableName=address")
+                    .component("salary", "db://input?__version=1&tableName=salary")
+                    .component("concat", "processor://concat?__version=1")
+                    .component("concat_2", "processor://concat?__version=1")
+                    .component("outFile", "file://out?__version=1&file=" + encode(out.getAbsolutePath(), "utf-8"))
+                    .connections()
+                    .from("users")
+                    .to("concat", "str1")
+                    .from("address")
+                    .to("concat", "str2")
+                    .from("concat")
+                    .to("concat_2", "str1")
+                    .from("salary")
+                    .to("concat_2", "str2")
+                    .from("concat_2")
+                    .to("outFile")
+                    .build()
+                    .property(GroupKeyProvider.class.getName(), (GroupKeyProvider) context -> {
+                        if (context.getComponentId().equals("users")) {
+                            return context.getData().getString("id");
+                        }
+
+                        return context.getData().getString("userId");
+                    })
+                    .run();
+
+            assertTrue(out.isFile());
+            assertEquals(asList("emma strasbourg 1900", "sophia nantes 2000.5", "liam lyon 3055", "ava paris 2600.30"),
+                    Files.readAllLines(out.toPath()));
+        }
+    }
+
+    @Test
+    void contextualKeyProvider(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
+        final String testName = info.getTestMethod().get().getName();
+        final String plugin = testName + ".jar";
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
+        final File out = new File(temporaryFolder.getRoot(), testName + "-out.txt");
+
+        try (final ComponentManager manager =
+                new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
+
+                    {
+                        CONTEXTUAL_INSTANCE.set(this);
+                        addPlugin(jar.getAbsolutePath());
+                    }
+
+                    @Override
+                    public void close() {
+                        super.close();
+                        CONTEXTUAL_INSTANCE.set(null);
+                    }
+                }) {
+
+            final GroupKeyProvider foreignKeyProvider =
+                    (GroupKeyProvider) context -> context.getData().getString("userId");
+
+            Job
+                    .components()
+                    .component("users", "db://input?__version=1&tableName=users")
+                    .property(GroupKeyProvider.class.getName(),
+                            (GroupKeyProvider) context -> context.getData().getString("id"))
+                    .component("address", "db://input?__version=1&tableName=address")
+                    .property(GroupKeyProvider.class.getName(), foreignKeyProvider)
+                    .component("salary", "db://input?__version=1&tableName=salary")
+                    .property(GroupKeyProvider.class.getName(), foreignKeyProvider)
+                    .component("concat", "processor://concat?__version=1")
+                    .property(GroupKeyProvider.class.getName(), foreignKeyProvider)
+                    .component("concat_2", "processor://concat?__version=1")
+                    .component("outFile", "file://out?__version=1&file=" + encode(out.getAbsolutePath(), "utf-8"))
+                    .connections()
+                    .from("users")
+                    .to("concat", "str1")
+                    .from("address")
+                    .to("concat", "str2")
+                    .from("concat")
+                    .to("concat_2", "str1")
+                    .from("salary")
+                    .to("concat_2", "str2")
+                    .from("concat_2")
+                    .to("outFile")
+                    .build()
+                    .run();
+
+            assertTrue(out.isFile());
+            assertEquals(asList("emma strasbourg 1900", "sophia nantes 2000.5", "liam lyon 3055", "ava paris 2600.30"),
                     Files.readAllLines(out.toPath()));
         }
     }

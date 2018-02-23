@@ -22,6 +22,8 @@ import java.util.function.Supplier;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
@@ -31,10 +33,15 @@ import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Processor(family = "lifecycle", name = "square")
 public class LifecycleSquareProcessor implements Serializable, Supplier<List<String>> {
 
     private static final List<String> lifecycle = new ArrayList<>();
+
+    private final JsonBuilderFactory factory;
 
     @PostConstruct
     public void start() {
@@ -57,10 +64,10 @@ public class LifecycleSquareProcessor implements Serializable, Supplier<List<Str
     }
 
     @ElementListener
-    public void onNext(@Input final Integer value, @Output final OutputEmitter<Integer> result) {
-
-        lifecycle.add("onNext(" + value + ")");
-        result.emit(value * value);
+    public void onNext(@Input final JsonObject value, @Output final OutputEmitter<JsonObject> result) {
+        final int number = value.getInt("data");
+        lifecycle.add("onNext(" + number + ")");
+        result.emit(factory.createObjectBuilder().add("data", number * number).build());
     }
 
     @Override
