@@ -36,6 +36,14 @@ copyJsResource(
         new File(project.basedir, 'src/main/frontend/bower_components/popcorn-js/plugins/footnote/popcorn.footnote.js').toURI().toURL(),
     'js/popcorn.footnote.js')
 
+// temp antora patch to add the branch
+def antoraLoadAdoc = new File(project.basedir, '/src/main/frontend/node_modules/@antora/asciidoc-loader/lib/load-asciidoc.js')
+if (!antoraLoadAdoc.text.contains('docbranch')) {
+    antoraLoadAdoc.text = antoraLoadAdoc.text.replace(
+            'const intrinsicAttrs = {',
+            'const intrinsicAttrs = {docbranch: (file.origin || (file.src || {}).origin || { branch: \'unknown\' }).branch,')
+}
+
 // populate index
 class Document {
     String title

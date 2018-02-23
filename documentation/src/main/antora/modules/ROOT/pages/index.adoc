@@ -1,20 +1,20 @@
 = Talend Component Kit Developer Reference Guide
 :page-partial:
 
-////
-ifeval::["{backend}{git_branch}" == "html5master"]
+ifeval::["{backend}" == "html5"]
+ifeval::["{docbranch}" == "master"]
 IMPORTANT: this is a version under development which has not yet been deployed.
 You can however use it using the `-SNAPSHOT` version and Sonatype snapshot https://oss.sonatype.org/content/repositories/snapshots/[repository].
 
 TIP: if you want a PDF version of that page you can find it in our snapshots:
-https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/documentation/{project_version}-SNAPSHOT/[link].
+https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation&v={project_version}-SNAPSHOT&e=pdf&c=all-in-one[link].
 endif::[]
 
-ifeval::["{git_branch}" != "master"]
+ifeval::["{docbranch}" != "master"]
 NOTE: if you want a PDF version of that page just click on
 this http://repo.apache.maven.org/maven2/org/talend/sdk/component/documentation/{project_version}/documentation-{project_version}-all-in-one.pdf[link].
 endif::[]
-////
+endif::[]
 
 NOTE: if you prefer you can use the <<all-in-one.adoc#, single page>> documentation.
 
