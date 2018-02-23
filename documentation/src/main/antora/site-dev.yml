@@ -31,4 +31,3 @@ asciidoc:
     deploymentRoot: ""
     numbered: true
     hide-uri-scheme: true
-    git_branch: HEAD
