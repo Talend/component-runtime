@@ -13,7 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import groovy.json.JsonOutput
+package org.talend.sdk.component.build
+
+import javax.json.bind.JsonbBuilder
+import javax.json.bind.JsonbConfig
+import javax.json.bind.config.PropertyOrderStrategy
 
 def copyJsResource = { source, output ->
     def target = new File(project.build.directory, "${project.build.finalName}/_/${output}")
@@ -62,13 +66,12 @@ def readContent = { file ->
     file.readLines().findAll { !it.startsWith(':') && !it.startsWith('=') && !it.trim().isEmpty() }.join(' ').replace('`', '')
 }
 
-def sourceSearchJs = new File(project.basedir, "src/main/antora/supplemental-ui/generated-assets-templates/search.js")
-def targetSearchJs = new File(project.build.directory, "${project.build.finalName}/_/js/search.js")
+def sourceSearchJs = new File(project.basedir, 'src/main/antora/modules/ROOT/pages/search.adoc')
 def index = []
 // browse all pages and create an index for them
 new File(project.basedir, 'src/main/antora/modules/ROOT/pages').listFiles()
         .findAll {
-            !it.isDirectory() && !it.text.contains('include::') // we skip aggregator pages
+            !it.isDirectory() && !it.name.equals('search.adoc') && !it.text.contains('include::') // we skip aggregator pages
         }
         .each { file ->
             // todo: pre tokenize?
@@ -77,9 +80,23 @@ new File(project.basedir, 'src/main/antora/modules/ROOT/pages').listFiles()
                     content: readContent(file),
                     link: file.name.replace('.adoc', '.html')))
         }
+// as any generated source we ensure it is deterministic
+index.sort { it.link.compareTo(it.link) }
 
-targetSearchJs.text = sourceSearchJs.text.replace('${DOCUMENTS}', JsonOutput.toJson(index))
-log.info("Generated js-search index")
+def jsonb = JsonbBuilder.create(new JsonbConfig().withFormatting(true).withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))
+def output = '= Search\n' +
+        ':page-partial:\n' +
+        ':page-talend_search: true\n\n++++\n' +
+        jsonb.toJson(index) +
+        '\n++++\n'
+jsonb.close()
+if (!sourceSearchJs.exists() || sourceSearchJs.text != output) {
+    sourceSearchJs.parentFile.mkdirs()
+    sourceSearchJs.text = output
+    log.info("Generated search index ${sourceSearchJs}")
+} else {
+    log.info('search index already up to date')
+}
 
 // otherwise gh-pages ignore the _ folders
 new File(project.build.directory, "${project.build.finalName}/.nojekyll").text = ''

@@ -145,6 +145,11 @@
             <artifactId>groovy-all</artifactId>
             <version>${groovy.version}</version>
           </dependency>
+          <dependency>
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-jsonb</artifactId>
+            <version>${johnzon.version}</version>
+          </dependency>
         </dependencies>
       </plugin>
       <plugin>
@@ -560,6 +565,11 @@
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
                 <version>${jgit.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.johnzon</groupId>
+                <artifactId>johnzon-jsonb</artifactId>
+                <version>${johnzon.version}</version>
               </dependency>
             </dependencies>
           </plugin>
