@@ -32,6 +32,6 @@ asciidoc:
   attributes:
     project_version: ${versions.release}
     deploymentRoot: ${site.rootpath}
-    git_branch: ${git.branch}
+    git_branch: ${project.scm.tag}
     numbered: true
     hide-uri-scheme: true

@@ -821,6 +821,7 @@
     <connection>scm:git:https://github.com/Talend/component-runtime.git</connection>
     <developerConnection>scm:git:https://github.com/Talend/component-runtime.git</developerConnection>
     <url>https://github.com/Talend/component-runtime</url>
+    <tag>HEAD</tag>
   </scm>
 
   <developers>

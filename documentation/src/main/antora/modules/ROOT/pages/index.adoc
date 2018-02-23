@@ -1,7 +1,7 @@
 = Talend Component Kit Developer Reference Guide
 :page-partial:
 
-ifeval::["{backend}{git_branch}" == "html5master"]
+ifeval::["{backend}{git_branch}" == "html5HEAD"]
 IMPORTANT: this is a version under development which has not yet been deployed.
 You can however use it using the `-SNAPSHOT` version and Sonatype snapshot https://oss.sonatype.org/content/repositories/snapshots/[repository].
 
@@ -9,7 +9,7 @@ TIP: if you want a PDF version of that page you can find it in our snapshots:
 https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/documentation/{project_version}/[link].
 endif::[]
 
-ifeval::["{git_branch}" != "master"]
+ifeval::["{git_branch}" != "HEAD"]
 NOTE: if you want a PDF version of that page just click on
 this http://repo.apache.maven.org/maven2/org/talend/sdk/component/documentation/{project_version}/documentation-{project_version}-all-in-one.pdf[link].
 endif::[]
