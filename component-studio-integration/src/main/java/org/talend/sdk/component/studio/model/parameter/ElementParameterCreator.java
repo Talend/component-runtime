@@ -29,6 +29,7 @@ import org.talend.core.PluginChecker;
 import org.talend.core.model.components.ComponentCategory;
 import org.talend.core.model.components.IComponent;
 import org.talend.core.model.process.EComponentCategory;
+import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IConnectionCategory;
 import org.talend.core.model.process.IElementParameter;
@@ -140,18 +141,25 @@ public class ElementParameterCreator {
                 .map(IElementParameter::getContext)
                 .collect(Collectors.toSet());
         // Get all connectors without schema parameter for them
-        final Set<String> connectorNames = component
-                .createConnectors(node)
+        final Set<? extends INodeConnector> connectorNames = component
+                // Use null instead of node here, because connector.getMaxLinkOutput() would try to retrieve
+                // element parameters list from non-null node, which will be null.
+                .createConnectors(null)
                 .stream()
                 .filter(c -> c.getDefaultConnectionType().hasConnectionCategory(IConnectionCategory.FLOW)
                         && !schemasPresent.contains(c.getName()))
-                .map(INodeConnector::getName)
                 .collect(Collectors.toSet());
         // Create schema parameter for each connector without schema parameter
-        for (final String connectorWithoutSchema : connectorNames) {
-            parameters.add(mainSettingsCreator.createSchemaParameter(connectorWithoutSchema,
-                    "SCHEMA_" + connectorWithoutSchema));
+        for (final INodeConnector connectorWithoutSchema : connectorNames) {
+            parameters.add(mainSettingsCreator.createSchemaParameter(connectorWithoutSchema.getName(),
+                    "SCHEMA_" + connectorWithoutSchema.getName(), showSchema(connectorWithoutSchema)));
         }
+    }
+
+    private boolean showSchema(final INodeConnector connector) {
+        return (connector.getDefaultConnectionType() == EConnectionType.FLOW_MAIN
+                || connector.getDefaultConnectionType() == EConnectionType.REJECT)
+                && (connector.getMaxLinkInput() != 0 || connector.getMaxLinkOutput() != 0);
     }
 
     /**

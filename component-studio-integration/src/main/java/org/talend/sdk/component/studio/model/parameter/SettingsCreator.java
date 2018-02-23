@@ -321,12 +321,12 @@ public class SettingsCreator implements PropertyVisitor {
         String connectionName = node.getProperty().getConnection().getValue();
         connectionName = connectionName.equals("__default__") ? EConnectionType.FLOW_MAIN.getName() : connectionName;
         final String schemaName = node.getProperty().getSchemaName();
-        return createSchemaParameter(connectionName, schemaName);
+        return createSchemaParameter(connectionName, schemaName, true);
     }
 
-    protected TaCoKitElementParameter createSchemaParameter(final String connectionName, final String schemaName) {
+    protected TaCoKitElementParameter createSchemaParameter(final String connectionName, final String schemaName,
+            final boolean show) {
         // Maybe need to find some other condition. this way we will show schema widget for main flow only.
-        final boolean show = EConnectionType.FLOW_MAIN.getName().equalsIgnoreCase(connectionName);
         final TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
         schema.setName(schemaName);
         schema.setDisplayName("!!!SCHEMA.NAME!!!");
