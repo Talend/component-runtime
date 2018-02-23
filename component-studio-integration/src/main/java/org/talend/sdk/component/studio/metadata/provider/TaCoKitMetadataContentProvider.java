@@ -123,6 +123,12 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
         return EMPTY_ARRAY;
     }
 
+    @Override
+    public Set<RepositoryNode> getTopLevelNodes() {
+        final ProjectRepositoryNode rootNode = ProjectRepositoryNode.getInstance();
+        return getTopLevelNodes(rootNode);
+    }
+
     public Set<RepositoryNode> getTopLevelNodes(final ProjectRepositoryNode rootNode) {
         try {
             RepositoryNode tacokitNode = rootNode.getRootRepositoryNode(TaCoKitConst.METADATA_TACOKIT);
