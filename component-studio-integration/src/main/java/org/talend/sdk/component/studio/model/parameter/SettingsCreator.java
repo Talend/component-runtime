@@ -324,6 +324,23 @@ public class SettingsCreator implements PropertyVisitor {
         return createSchemaParameter(connectionName, schemaName, true);
     }
 
+    // TODO i18n it
+    private String schemaDisplayName(final String connectionName, final String schemaName) {
+        if ("REJECT".equalsIgnoreCase(connectionName)) {
+            return "Reject Schema";
+        }
+        if (schemaName.contains("$$")) {
+            final String type = schemaName.substring(0, schemaName.indexOf("$$"));
+            if ("OUT".equalsIgnoreCase(type)) {
+                return "Output Schema";
+            }
+            if ("IN".equalsIgnoreCase(type)) {
+                return "Input Schema";
+            }
+        }
+        return "Schema";
+    }
+
     protected TaCoKitElementParameter createSchemaParameter(final String connectionName, final String schemaName,
             final boolean show) {
         // Maybe need to find some other condition. this way we will show schema widget for main flow only.
@@ -343,7 +360,7 @@ public class SettingsCreator implements PropertyVisitor {
         final ElementParameter childParameter1 = new ElementParameter(getNode());
         childParameter1.setCategory(EComponentCategory.BASIC);
         childParameter1.setContext(connectionName);
-        childParameter1.setDisplayName("Schema");
+        childParameter1.setDisplayName(schemaDisplayName(connectionName, schemaName));
         childParameter1.setFieldType(EParameterFieldType.TECHNICAL);
         childParameter1.setListItemsDisplayCodeName(new String[] { "BUILT_IN", "REPOSITORY" });
         childParameter1.setListItemsDisplayName(new String[] { "Built-In", "Repository" });
