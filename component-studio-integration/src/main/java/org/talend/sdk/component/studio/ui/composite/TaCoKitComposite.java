@@ -19,6 +19,7 @@ import static org.talend.sdk.component.studio.model.parameter.TaCoKitElementPara
 
 import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -173,7 +174,8 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
         parameters = elem.getElementParametersWithChildrens();
         generator.initController(this);
         final Composite previousComposite = addCommonWidgets(composite);
-        fillComposite(composite, getFormLayout(), previousComposite);
+        final Optional<Layout> layout = getFormLayout();
+        layout.ifPresent(l -> fillComposite(composite, l, previousComposite));
         resizeScrolledComposite();
     }
 
@@ -232,9 +234,13 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
     }
 
     private boolean isNotPresentOnLayout(final IElementParameter schema) {
-        final Layout rootLayout = getFormLayout();
-        final String path = schema.getName();
-        return toStream(rootLayout).noneMatch(l -> path.equals(l.getPath()));
+        final Optional<Layout> rootLayout = getFormLayout();
+        if (rootLayout.isPresent()) {
+            final String path = schema.getName();
+            return toStream(rootLayout.get()).noneMatch(l -> path.equals(l.getPath()));
+        } else {
+            return true;
+        }
     }
 
     private Stream<Layout> toStream(final Layout layout) {
@@ -242,10 +248,10 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
                 layout.getLevels().stream().flatMap(l -> l.getColumns().stream()).flatMap(this::toStream));
     }
 
-    private Layout getFormLayout() {
+    private Optional<Layout> getFormLayout() {
         final LayoutParameter layoutParameter =
                 (LayoutParameter) elem.getElementParameter(LayoutParameter.name(section));
-        return layoutParameter.getLayout();
+        return Optional.of(layoutParameter.getLayout());
     }
 
     /**
