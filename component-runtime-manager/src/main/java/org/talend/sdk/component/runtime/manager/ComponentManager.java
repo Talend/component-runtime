@@ -331,7 +331,7 @@ public class ComponentManager implements AutoCloseable {
 
                                 @Override
                                 public void run() {
-                                    CONTEXTUAL_INSTANCE.get().close();
+                                    ofNullable(CONTEXTUAL_INSTANCE.get()).ifPresent(ComponentManager::close);
                                 }
                             };
 
