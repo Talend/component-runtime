@@ -49,6 +49,7 @@ import org.talend.core.model.process.INodeConnector;
 import org.talend.core.model.process.INodeReturn;
 import org.talend.core.model.temp.ECodePart;
 import org.talend.core.runtime.IAdditionalInfo;
+import org.talend.core.runtime.maven.MavenConstants;
 import org.talend.core.runtime.util.ComponentReturnVariableUtils;
 import org.talend.designer.core.model.components.AbstractBasicComponent;
 import org.talend.designer.core.model.components.NodeReturn;
@@ -393,7 +394,8 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
 
                     // We're assuming that pluginLocation has format of groupId:artifactId:version
                     final String location = index.getId().getPluginLocation().trim();
-                    modulesNeeded.add(new ModuleNeeded(getName(), "", true, Mvn.locationToMvn(location)));
+                    modulesNeeded.add(new ModuleNeeded(getName(), "", true,
+                            Mvn.locationToMvn(location).replace(MavenConstants.LOCAL_RESOLUTION_URL + '!', "")));
                 }
             }
         }

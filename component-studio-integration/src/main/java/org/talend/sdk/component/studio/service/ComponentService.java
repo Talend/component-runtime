@@ -34,6 +34,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;
 import org.talend.commons.ui.runtime.image.EImage;
 import org.talend.commons.ui.runtime.image.ImageProvider;
+import org.talend.core.runtime.maven.MavenConstants;
 import org.talend.sdk.component.server.front.model.Icon;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.ComponentModel;
@@ -43,7 +44,9 @@ import org.talend.sdk.component.studio.mvn.Mvn;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.log4j.Log4j;
 
+@Log4j
 public class ComponentService {
 
     private static final ImageDescriptor DEFAULT_IMAGE = ImageProvider.getImageDesc(EImage.COMPONENT_MISSING);
@@ -111,6 +114,7 @@ public class ComponentService {
                 return emptySet();
             }
         } catch (final IllegalArgumentException iae) {
+            log.debug(iae.getMessage(), iae);
             return emptySet();
         }
         try {
@@ -118,6 +122,7 @@ public class ComponentService {
                     .concat(Stream.of(Mvn.locationToMvn(gav)),
                             Mvn.withDependencies(module, "TALEND-INF/" + name + ".dependencies", acceptProvided,
                                     identity()))
+                    .map(mvn -> mvn.replace(MavenConstants.LOCAL_RESOLUTION_URL + '!', ""))
                     .collect(toSet());
         } catch (final IOException e) {
             throw new IllegalStateException("No TALEND-INF/" + name + ".dependencies found in " + gav, e);

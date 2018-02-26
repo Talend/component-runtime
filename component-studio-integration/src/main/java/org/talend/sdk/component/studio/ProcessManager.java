@@ -37,7 +37,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.stream.Stream;
 
 import org.eclipse.m2e.core.MavenPlugin;
@@ -315,6 +317,11 @@ public class ProcessManager implements AutoCloseable {
             global.addHandler(new JULToOsgiHandler());
         } else if (Boolean.getBoolean("component.server.jul.appendOSGiHandler")) {
             Logger.getLogger("").addHandler(new JULToOsgiHandler());
+        }
+        if (Boolean.getBoolean("component.server.jul.forceConsole")) {
+            final ConsoleHandler handler = new ConsoleHandler();
+            handler.setFormatter(new SimpleFormatter());
+            Logger.getLogger("").addHandler(handler);
         }
     }
 

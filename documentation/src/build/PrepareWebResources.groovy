@@ -35,7 +35,7 @@ copyJsResource(
     'js/js-search.min.js')
 
 // temp antora patch to add the branch
-def antoraLoadAdoc = new File(project.basedir, '/src/main/frontend/node_modules/@antora/asciidoc-loader/lib/load-asciidoc.js')
+def antoraLoadAdoc = new File(project.basedir, 'src/main/frontend/node_modules/@antora/asciidoc-loader/lib/load-asciidoc.js')
 if (!antoraLoadAdoc.text.contains('docbranch')) {
     antoraLoadAdoc.text = antoraLoadAdoc.text.replace(
             'const intrinsicAttrs = {',

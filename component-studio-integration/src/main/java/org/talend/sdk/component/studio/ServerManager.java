@@ -32,10 +32,10 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.talend.core.runtime.maven.MavenConstants;
 import org.talend.osgi.hook.maven.MavenResolver;
 import org.talend.sdk.component.studio.debounce.DebounceManager;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
+import org.talend.sdk.component.studio.mvn.Mvn;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.service.Configuration;
 import org.talend.sdk.component.studio.service.UiActionsThreadPool;
@@ -79,10 +79,7 @@ public class ServerManager extends AbstractUIPlugin {
         final MavenResolver mavenResolver = findMavenResolver();
         final Function<String, File> mvnResolverImpl = gav -> {
             try { // convert to pax-url syntax
-                final String[] split = gav.split("\\:"); // assuming we dont use classifiers for now
-                final String paxUrl =
-                        "mvn:" + MavenConstants.LOCAL_RESOLUTION_URL + '!' + split[0] + '/' + split[1] + '/' + split[3];
-                return mavenResolver.resolve(paxUrl);
+                return mavenResolver.resolve(Mvn.locationToMvn(gav));
             } catch (final IOException e) {
                 throw new IllegalArgumentException(
                         "can't resolve '" + gav + "', " + "in development ensure you are using maven"

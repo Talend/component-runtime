@@ -31,9 +31,37 @@ The configuration goes into `$STUDIO_HOME/configuration/config.ini`.
 | component.java.registry | A properties file with values matching component GAV (groupId:artifactId:version) which are registered at startup | -
 | component.java.port | Set a port to use for the server | random
 | components.server.beam.active | Active, if set to true, beam support (_Experimental_). It requires beam sdk java core dependencies to be available. | false
+
+| component.server.jul.forceConsole
+a| Adds a console handler to JUL to see logs in the console. This can be helpful in dev since the formatting will be better than the OSGi one in `workspace/.metadata/.log`.
+
+NOTE: it uses `java.util.logging.SimpleFormatter.format` property to define its format. Default
+is `%1$tb %1$td, %1$tY %1$tl:%1$tM:%1$tS %1$Tp %2$s%n%4$s: %5$s%6$s%n` but for development purposes
+`[%4$s] %5$s%6$s%n` is simpler and more readable.
+
+| false
 |===
 
 IMPORTANT: to activate the plugin and be able to deploy your component, don't forget to set `component.kit.skip` to `true`.
+
+A common developer `configuration/config.ini` will use the following specific entries:
+
+.configuration/config.ini
+[source,properties]
+----
+# use local .m2 instead of embedded studio one
+maven.repository = global
+
+# log into the console the component interactions
+component.server.jul.forceConsole = true
+java.util.logging.SimpleFormatter.format = [%4$s] %5$s%6$s%n
+
+# load these component modules
+component.java.coordinates = \
+    group1:artifact1:0.0.1,\
+    group2:artifact2:0.2.1
+
+----
 
 === Random port when running concurrent studio instances
 
