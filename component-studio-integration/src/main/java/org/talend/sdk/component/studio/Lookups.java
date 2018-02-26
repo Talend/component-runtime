@@ -94,7 +94,7 @@ public class Lookups {
         try {
             return lookup(ComponentService.class);
         } catch (final Exception e) { // for tests mainly
-            return new ComponentService();
+            return new ComponentService(s -> null);
         }
     }
 

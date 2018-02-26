@@ -24,7 +24,6 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>component-runtime-manager</artifactId>
-  <packaging>bundle</packaging>
   <name>Component Runtime :: Manager</name>
   <description>Core of the framework, the manager allows to access components and instantiate them.</description>
 
@@ -126,6 +125,18 @@
                   <destFileName>arquillian-tomee-codi-tests-${ziplock.version}.jar</destFileName>
                 </artifactItem>
               </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
+            <id>create-TALEND-INF/dependencies.txt</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>list</goal>
+            </goals>
+            <configuration>
+              <includeScope>runtime</includeScope>
+              <outputFile>${project.build.outputDirectory}/TALEND-INF/manager.dependencies</outputFile>
+              <excludeArtifactIds>slf4j-api</excludeArtifactIds>
             </configuration>
           </execution>
         </executions>

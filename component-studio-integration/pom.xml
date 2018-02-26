@@ -251,10 +251,7 @@
               org.talend.utils,
               org.apache.log4j
             </Require-Bundle>
-            <Include-Resource>{maven-resources},
-              {TALEND-INF/tacokit.dependencies=${project.build.outputDirectory}/TALEND-INF/tacokit.dependencies},
-              {TALEND-INF/beam.dependencies=${project.build.outputDirectory}/TALEND-INF/beam.dependencies}
-            </Include-Resource>
+            <Include-Resource>{maven-resources}</Include-Resource>
             <Import-Package/>
             <Bundle-SymbolicName>${project.artifactId};singleton=true</Bundle-SymbolicName>
             <Bundle-Vendor>.Talend SA.</Bundle-Vendor>
@@ -280,19 +277,6 @@
               <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script>${project.basedir}/src/build/StudioDependencies.groovy</script>
-              </scripts>
-            </configuration>
-          </execution>
-          <execution>
-            <id>compute-framework-dependencies</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <allowSystemExits>true</allowSystemExits>
-              <scripts>
-                <script>${project.basedir}/src/build/TaCoKitDependencies.groovy</script>
               </scripts>
             </configuration>
           </execution>

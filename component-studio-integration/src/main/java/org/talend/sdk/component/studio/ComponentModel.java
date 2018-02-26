@@ -60,6 +60,7 @@ import org.talend.sdk.component.studio.model.connector.ConnectorCreatorFactory;
 import org.talend.sdk.component.studio.model.connector.TaCoKitNodeConnector;
 import org.talend.sdk.component.studio.model.parameter.ElementParameterCreator;
 import org.talend.sdk.component.studio.model.parameter.Metadatas;
+import org.talend.sdk.component.studio.mvn.Mvn;
 import org.talend.sdk.component.studio.service.ComponentService;
 
 // TODO: finish the impl
@@ -351,7 +352,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
         if (modulesNeeded == null) {
             synchronized (this) {
                 if (modulesNeeded == null) {
-                    final ComponentService.Dependencies dependencies = Lookups.service().getDependencies();
+                    final ComponentService.Dependencies dependencies = getDependencies();
 
                     modulesNeeded = new ArrayList<>(20);
                     modulesNeeded.addAll(dependencies
@@ -392,33 +393,15 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
 
                     // We're assuming that pluginLocation has format of groupId:artifactId:version
                     final String location = index.getId().getPluginLocation().trim();
-                    modulesNeeded.add(new ModuleNeeded(getName(), "", true, locationToMvn(location)));
+                    modulesNeeded.add(new ModuleNeeded(getName(), "", true, Mvn.locationToMvn(location)));
                 }
             }
         }
         return modulesNeeded;
     }
 
-    private String locationToMvn(final String location) {
-        String[] segments = location.split(":");
-        if (segments.length < 3) {
-            throw new IllegalArgumentException("Invalid coordinate: " + location);
-        }
-
-        switch (segments.length) { // support some optional values 3: g:a:v, 4: g:a:t:v
-        case 3:
-            segments = new String[] { segments[0], segments[1], "jar", segments[2], "compile" };
-            break;
-        case 4:
-            segments = (location + ":compile").split(":");
-            break;
-        default:
-        }
-
-        // mvn:group/artifact/version/type[/classifier]
-        final int classifierOffset = segments.length == 5 ? 0 : 1;
-        return "mvn:" + segments[0] + "/" + segments[1] + "/" + segments[3 + classifierOffset] + "/" + segments[2]
-                + ((classifierOffset == 0) ? "" : "/" + segments[3]);
+    protected ComponentService.Dependencies getDependencies() {
+        return Lookups.service().getDependencies();
     }
 
     /**

@@ -17,14 +17,17 @@ package org.talend.sdk.component.studio;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
+import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.eclipse.osgi.container.Module;
@@ -50,9 +53,11 @@ import org.talend.core.model.temp.ECodePart;
 import org.talend.designer.core.DesignerCoreService;
 import org.talend.designer.core.DesignerPlugin;
 import org.talend.designer.core.IDesignerCoreService;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentId;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
+import org.talend.sdk.component.studio.service.ComponentService;
 
 /**
  * Unit-tests for {@link ComponentModel}
@@ -140,7 +145,15 @@ class ComponentModelTest {
                 new ComponentIndex(id, "XML Input", null, null, null, 1, Arrays.asList("Local", "File"), null);
         final ComponentDetail detail = new ComponentDetail(id, "XML Input", null, "Processor", 1, emptyList(), null,
                 emptyList(), emptyList(), null);
-        final ComponentModel componentModel = new ComponentModel(idx, detail);
+        final ComponentModel componentModel = new ComponentModel(idx, detail) {
+
+            @Override
+            protected ComponentService.Dependencies getDependencies() {
+                return new ComponentService(s -> s.startsWith("org.talend.sdk.component:component-runtime-manager:")
+                        ? jarLocation(ComponentManager.class)
+                        : null).getDependencies();
+            }
+        };
         final List<ModuleNeeded> modulesNeeded = componentModel.getModulesNeeded();
         assertEquals(19, modulesNeeded.size());
         // just assert a few

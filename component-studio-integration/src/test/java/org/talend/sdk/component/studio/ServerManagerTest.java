@@ -65,6 +65,7 @@ import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.studio.mvn.Mvn;
 import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 import lombok.extern.slf4j.Slf4j;
@@ -102,7 +103,8 @@ class ServerManagerTest {
                 return super.getResourceAsStream(name);
             }
         }; final ProcessManager mgr = new ProcessManager(org.talend.sdk.component.studio.GAV.GROUP_ID, gav -> {
-            final String[] segments = gav.substring(gav.lastIndexOf('!') + 1).split("/");
+            final String normalizedGav = Mvn.locationToMvn(gav);
+            final String[] segments = normalizedGav.substring(normalizedGav.lastIndexOf('!') + 1).split("/");
             if (segments[1].startsWith("component-")) { // try in the project
                 final File[] root =
                         jarLocation(ServerManagerTest.class).getParentFile().getParentFile().getParentFile().listFiles(
@@ -116,10 +118,12 @@ class ServerManagerTest {
                     }
                 }
             }
-            return new File(
+            final File file = new File(
                     System.getProperty("test.m2.repository", System.getProperty("user.home") + "/.m2/repository"),
                     segments[0].replace('.', '/') + '/' + segments[1] + '/' + segments[2] + '/' + segments[1] + '-'
-                            + segments[2] + ".jar");
+                            + segments[2] + "" + ".jar");
+            assertTrue(file.exists(), file.getAbsolutePath());
+            return file;
         })) {
             thread.setContextClassLoader(buildLoader);
             mgr.start();

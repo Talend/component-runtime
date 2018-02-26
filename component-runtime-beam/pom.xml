@@ -129,6 +129,25 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>${dependency-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>create-TALEND-INF/dependencies.txt</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>list</goal>
+            </goals>
+            <configuration>
+              <includeScope>provided</includeScope>
+              <outputFile>${project.build.outputDirectory}/TALEND-INF/beam.dependencies</outputFile>
+              <excludeArtifactIds>slf4j-api,findbugs-annotations</excludeArtifactIds>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>

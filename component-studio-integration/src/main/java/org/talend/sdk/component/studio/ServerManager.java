@@ -17,11 +17,13 @@ package org.talend.sdk.component.studio;
 
 import static org.talend.sdk.component.studio.GAV.GROUP_ID;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.tomcat.websocket.Constants;
@@ -30,6 +32,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.talend.core.runtime.maven.MavenConstants;
 import org.talend.osgi.hook.maven.MavenResolver;
 import org.talend.sdk.component.studio.debounce.DebounceManager;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
@@ -73,7 +76,22 @@ public class ServerManager extends AbstractUIPlugin {
 
         reset = Lookups.init();
 
-        manager = new ProcessManager(GROUP_ID, findMavenResolver());
+        final MavenResolver mavenResolver = findMavenResolver();
+        final Function<String, File> mvnResolverImpl = gav -> {
+            try { // convert to pax-url syntax
+                final String[] split = gav.split("\\:"); // assuming we dont use classifiers for now
+                final String paxUrl =
+                        "mvn:" + MavenConstants.LOCAL_RESOLUTION_URL + '!' + split[0] + '/' + split[1] + '/' + split[3];
+                return mavenResolver.resolve(paxUrl);
+            } catch (final IOException e) {
+                throw new IllegalArgumentException(
+                        "can't resolve '" + gav + "', " + "in development ensure you are using maven"
+                                + ".repository=global in configuration/config.ini, " + "in a standalone installation, "
+                                + "ensure the studio maven repository contains this dependency",
+                        e);
+            }
+        };
+        manager = new ProcessManager(GROUP_ID, mvnResolverImpl);
         manager.start();
 
         client = new WebSocketClient("ws://localhost:" + manager.getPort() + "/websocket/v1",
@@ -82,7 +100,8 @@ public class ServerManager extends AbstractUIPlugin {
 
         services.add(ctx.registerService(ProcessManager.class.getName(), manager, new Hashtable<>()));
         services.add(ctx.registerService(WebSocketClient.class.getName(), client, new Hashtable<>()));
-        services.add(ctx.registerService(ComponentService.class.getName(), new ComponentService(), new Hashtable<>()));
+        services.add(ctx.registerService(ComponentService.class.getName(), new ComponentService(mvnResolverImpl),
+                new Hashtable<>()));
         services.add(ctx.registerService(TaCoKitCache.class.getName(), new TaCoKitCache(), new Hashtable<>()));
     }
 

@@ -15,17 +15,19 @@
  */
 package org.talend.sdk.component.studio.service;
 
+import static java.util.Collections.emptySet;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PRIVATE;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -35,7 +37,9 @@ import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.sdk.component.server.front.model.Icon;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.ComponentModel;
+import org.talend.sdk.component.studio.GAV;
 import org.talend.sdk.component.studio.model.parameter.Metadatas;
+import org.talend.sdk.component.studio.mvn.Mvn;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,7 +48,13 @@ public class ComponentService {
 
     private static final ImageDescriptor DEFAULT_IMAGE = ImageProvider.getImageDesc(EImage.COMPONENT_MISSING);
 
+    private final Function<String, File> mvnResolver;
+
     private volatile Dependencies dependencies;
+
+    public ComponentService(final Function<String, File> mvnResolver) {
+        this.mvnResolver = mvnResolver;
+    }
 
     // a @ConfigurationType is directly stored into the metadata without any prefix.
     // for now whitelist the support types and ensure it works all the way along
@@ -85,19 +95,32 @@ public class ComponentService {
         if (dependencies == null) {
             synchronized (this) {
                 if (dependencies == null) {
-                    dependencies = new Dependencies(readDependencies("tacokit"), readDependencies("beam"));
+                    dependencies = new Dependencies(readDependencies("manager", false), readDependencies("beam", true));
                 }
             }
         }
         return dependencies;
     }
 
-    private Set<String> readDependencies(final String name) {
-        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(
-                ComponentModel.class.getClassLoader().getResourceAsStream("TALEND-INF/" + name + ".dependencies")))) {
-            return reader.lines().map(String::trim).filter(s -> !s.isEmpty()).collect(toSet());
+    private Set<String> readDependencies(final String name, final boolean acceptProvided) {
+        final String gav = GAV.GROUP_ID + ":component-runtime-" + name + ":" + GAV.VERSION;
+        final File module;
+        try {
+            module = mvnResolver.apply(gav);
+            if (module == null) {
+                return emptySet();
+            }
+        } catch (final IllegalArgumentException iae) {
+            return emptySet();
+        }
+        try {
+            return Stream
+                    .concat(Stream.of(Mvn.locationToMvn(gav)),
+                            Mvn.withDependencies(module, "TALEND-INF/" + name + ".dependencies", acceptProvided,
+                                    identity()))
+                    .collect(toSet());
         } catch (final IOException e) {
-            throw new IllegalStateException("No TALEND-INF/tacokit.dependencies found");
+            throw new IllegalStateException("No TALEND-INF/" + name + ".dependencies found in " + gav, e);
         }
     }
 

@@ -18,16 +18,13 @@ package org.talend.sdk.component.studio;
 import static java.lang.ClassLoader.getSystemClassLoader;
 import static java.lang.Thread.sleep;
 import static java.util.Collections.emptyEnumeration;
-import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
@@ -39,17 +36,15 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
-import java.util.jar.JarFile;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
 
 import org.eclipse.m2e.core.MavenPlugin;
-import org.talend.core.runtime.maven.MavenConstants;
-import org.talend.osgi.hook.maven.MavenResolver;
 import org.talend.sdk.component.studio.lang.LocalLock;
 import org.talend.sdk.component.studio.lang.StringPropertiesTokenizer;
 import org.talend.sdk.component.studio.logging.JULToOsgiHandler;
+import org.talend.sdk.component.studio.mvn.Mvn;
 
 import lombok.Getter;
 
@@ -57,7 +52,7 @@ public class ProcessManager implements AutoCloseable {
 
     private final String groupId;
 
-    private MavenResolver mavenResolver;
+    private final Function<String, File> mvnResolver;
 
     @Getter
     private int port;
@@ -72,9 +67,9 @@ public class ProcessManager implements AutoCloseable {
 
     private Thread serverThread;
 
-    public ProcessManager(final String groupId, final MavenResolver resolver) {
+    public ProcessManager(final String groupId, final Function<String, File> resolver) {
         this.groupId = groupId;
-        this.mavenResolver = resolver;
+        this.mvnResolver = resolver;
     }
 
     public void waitForServer(final Runnable healthcheck) { // useful for the client, to ensure we are ready
@@ -411,92 +406,45 @@ public class ProcessManager implements AutoCloseable {
     }
 
     private Collection<URL> createClasspath() throws IOException {
-        final File serverJar = resolve(groupId + ":component-server:jar:" + GAV.VERSION);
+        final File serverJar = mvnResolver.apply(groupId + ":component-server:jar:" + GAV.VERSION);
         if (!serverJar.exists()) {
             throw new IllegalArgumentException(serverJar + " doesn't exist");
         }
 
-        final Collection<URL> paths = new HashSet<>(singleton(serverJar.toURI().toURL()));
-        if (serverJar.isDirectory()) {
-            try (final InputStream deps = new FileInputStream(new File(serverJar, "TALEND-INF/dependencies.txt"))) {
-                addDependencies(paths, deps);
-            }
-        } else {
-            try (final JarFile jar = new JarFile(serverJar)) {
-                final ZipEntry entry = jar.getEntry("TALEND-INF/dependencies.txt");
-                try (final InputStream deps = jar.getInputStream(entry)) {
-                    addDependencies(paths, deps);
-                }
-            }
-        }
+        final Collection<URL> paths = new HashSet<>(32);
+
         // we use the Cli as main so we need it
-        paths.add(resolve("commons-cli:commons-cli:jar:" + GAV.CLI_VERSION).toURI().toURL());
-        paths.add(resolve("org.slf4j:slf4j-jdk14:jar:" + GAV.SLF4J_VERSION).toURI().toURL());
+        paths.add(mvnResolver.apply("commons-cli:commons-cli:jar:" + GAV.CLI_VERSION).toURI().toURL());
+        paths.add(mvnResolver.apply("org.slf4j:slf4j-jdk14:jar:" + GAV.SLF4J_VERSION).toURI().toURL());
+
+        // server
+        paths.add(serverJar.toURI().toURL());
+        Mvn.withDependencies(serverJar, "TALEND-INF/dependencies.txt", false, deps -> {
+            aggregateDeps(paths, deps);
+            return null;
+        });
+
+        // beam if needed
         if (Boolean.getBoolean("components.server.beam.active")) {
-            try (final InputStream beamStream =
-                    ComponentModel.class.getClassLoader().getResourceAsStream("TALEND-INF/beam.dependencies")) {
-                addDependencies(paths, beamStream);
-            } catch (final IOException e) {
-                throw new IllegalStateException("No TALEND-INF/beam.dependencies found");
-            }
+            final File beamModule = mvnResolver.apply(groupId + ":component-runtime-beam:" + GAV.VERSION);
+            paths.add(beamModule.toURI().toURL());
+            Mvn.withDependencies(beamModule, "TALEND-INF/beam.dependencies", true, deps -> {
+                aggregateDeps(paths, deps);
+                return null;
+            });
         }
+
         return paths;
     }
 
-    private void addDependencies(final Collection<URL> paths, final InputStream deps) {
-        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(deps))) {
-            String line;
-
-            do {
-                line = reader.readLine();
-                if (line == null) {
-                    break;
-                }
-                line = line.trim().replace('/', ':'); // pax to our format
-                if (line.startsWith("mvn:")) {
-                    line = line.substring("mvn:".length());
-                    final String[] split = line.split(":");
-                    if (split.length == 3) {
-                        line = split[0] + ':' + split[1] + ":jar:" + split[2];
-                    }
-                }
-                if (line.isEmpty()) {
-                    continue;
-                }
-
-                if (line.split(":").length < 4) {
-                    continue;
-                }
-                if (line.endsWith(":test") || line.endsWith(":provided")) {
-                    continue;
-                }
-                if (line.contains("log4j")) {
-                    continue;
-                }
-
-                final String[] segments = line.split(":");
-                if (segments.length < 4) {
-                    throw new IllegalArgumentException("Invalid coordinate: " + line);
-                }
-
-                paths.add(resolve(line).toURI().toURL());
-            } while (true);
-        } catch (final IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private File resolve(final String gav) {
-        try { // convert to pax-url syntax
-            final String[] split = gav.split("\\:"); // assuming we dont use classifiers for now
-            final String paxUrl =
-                    "mvn:" + MavenConstants.LOCAL_RESOLUTION_URL + '!' + split[0] + '/' + split[1] + '/' + split[3];
-            return mavenResolver.resolve(paxUrl);
-        } catch (final IOException e) {
-            throw new IllegalArgumentException("can't resolve '" + gav + "', "
-                    + "in development ensure you are using maven.repository=global in configuration/config.ini, "
-                    + "in a standalone installation, ensure the studio maven repository contains this dependency", e);
-        }
+    private void aggregateDeps(final Collection<URL> paths, final Stream<String> deps) {
+        paths.addAll(deps.map(it -> {
+            try {
+                return mvnResolver.apply(it).toURI().toURL();
+            } catch (final MalformedURLException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }).collect(toSet()));
     }
 
     private Integer newPort() {
