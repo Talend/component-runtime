@@ -90,6 +90,10 @@
       <id>gradle-libs-releases-local</id>
       <url>http://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
+    <repository>
+      <id>johnzon-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1025</url>
+    </repository>
   </repositories>
 
 
@@ -122,6 +126,10 @@
       <id>asf-snapshot</id>
       <url>http://repository.apache.org/snapshots</url>
     </pluginRepository>
+    <pluginRepository>
+      <id>johnzon-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1025</url>
+    </pluginRepository>
   </pluginRepositories>
 
   <properties>
@@ -141,7 +149,7 @@
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
     <ziplock.version>7.0.4</ziplock.version>
-    <johnzon.version>1.1.6</johnzon.version>
+    <johnzon.version>1.1.7</johnzon.version>
     <meecrowave.version>1.2.1-SNAPSHOT</meecrowave.version>
     <tomcat.version>9.0.5</tomcat.version>
     <cxf.version>3.2.2</cxf.version>
