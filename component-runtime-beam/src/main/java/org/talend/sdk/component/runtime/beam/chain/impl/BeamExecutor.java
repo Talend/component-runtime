@@ -150,7 +150,7 @@ public class BeamExecutor implements Job.ExecutorBuilder {
             while (PipelineResult.State.RUNNING.equals(result.getState())) {
                 try {
                     Thread.sleep(100L);
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     throw new IllegalStateException("the job was aborted", e);
                 }
             }

@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.chain;
 
+import static java.lang.Thread.sleep;
 import static java.net.URLEncoder.encode;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -97,10 +98,25 @@ public class BeamJobTest {
                                     "key"))
                     .run();
 
-            assertTrue(out.isFile());
-            assertEquals(Stream
-                    .of("MANSON noha Paris", "SOPHIA emma Strasbourg", "JACOB liam Bordeaux", "null olivia Nantes")
-                    .collect(toSet()), new HashSet<>(Files.readAllLines(out.toPath())));
+            final int maxRetries = 120;
+            for (int i = 0; i < maxRetries; i++) { // https://github.com/apache/beam/pull/4372
+                try {
+                    assertTrue(out.isFile());
+                    assertEquals(Stream
+                            .of("MANSON noha Paris", "SOPHIA emma Strasbourg", "JACOB liam Bordeaux",
+                                    "null olivia Nantes")
+                            .collect(toSet()), new HashSet<>(Files.readAllLines(out.toPath())));
+                } catch (final AssertionError ae) {
+                    if (i == maxRetries - 1) {
+                        throw ae;
+                    }
+                    try {
+                        sleep(500);
+                    } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
         }
 
     }
