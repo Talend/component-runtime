@@ -367,12 +367,15 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
                             "mvn:org.talend.sdk.component/component-runtime-design-extension/" + GAV.VERSION));
                     modulesNeeded
                             .add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.SLF4J_VERSION));
-                    if (!PluginChecker.isTIS()) {
-                        modulesNeeded.add(new ModuleNeeded(getName(), "", true,
-                                "mvn:" + GAV.GROUP_ID + "/slf4j-standard/" + GAV.VERSION));
-                    } else {
-                        modulesNeeded.add(new ModuleNeeded(getName(), "", true,
-                                "mvn:org.slf4j/slf4j-log4j12/" + GAV.SLF4J_VERSION));
+
+                    if (!hasTcomp0Component(iNode)) {
+                        if (!PluginChecker.isTIS()) {
+                            modulesNeeded.add(new ModuleNeeded(getName(), "", true,
+                                    "mvn:" + GAV.GROUP_ID + "/slf4j-standard/" + GAV.VERSION));
+                        } else {
+                            modulesNeeded.add(new ModuleNeeded(getName(), "", true,
+                                    "mvn:org.slf4j/slf4j-log4j12/" + GAV.SLF4J_VERSION));
+                        }
                     }
 
                     final Map<String, ?> transitiveDeps = !Lookups.configuration().isActive() ? null
@@ -400,6 +403,12 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
             }
         }
         return modulesNeeded;
+    }
+
+    protected boolean hasTcomp0Component(final INode iNode) {
+        return iNode.getProcess() != null && new ArrayList<>(iNode.getProcess().getGraphicalNodes()).stream().anyMatch(
+                node -> node.getComponent().getComponentType() == EComponentType.GENERIC
+                        && !getClass().isInstance(node.getComponent()));
     }
 
     protected ComponentService.Dependencies getDependencies() {

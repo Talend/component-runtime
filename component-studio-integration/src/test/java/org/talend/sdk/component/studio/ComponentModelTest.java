@@ -47,6 +47,7 @@ import org.talend.core.CorePlugin;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.IService;
 import org.talend.core.model.general.ModuleNeeded;
+import org.talend.core.model.process.INode;
 import org.talend.core.model.process.INodeConnector;
 import org.talend.core.model.process.INodeReturn;
 import org.talend.core.model.temp.ECodePart;
@@ -152,6 +153,11 @@ class ComponentModelTest {
                 return new ComponentService(s -> s.startsWith("org.talend.sdk.component:component-runtime-manager:")
                         ? jarLocation(ComponentManager.class)
                         : null).getDependencies();
+            }
+
+            @Override
+            protected boolean hasTcomp0Component(final INode iNode) {
+                return false;
             }
         };
         final List<ModuleNeeded> modulesNeeded = componentModel.getModulesNeeded();
