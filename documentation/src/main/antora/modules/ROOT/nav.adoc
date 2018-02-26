@@ -32,5 +32,8 @@
 * xref:testing-maven-passwords.adoc[Secrets/Passwords and Maven]
 * xref:testing-generating-data.adoc[Generating data?]
 
+.Web
+* xref:documentation-rest.adoc[Server]
+
 .Tutorials
 * xref:tutorial-generate-project-using-starter.adoc[Generate a project using the component starter]

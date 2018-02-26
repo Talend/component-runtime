@@ -21,9 +21,10 @@
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>0.0.1-SNAPSHOT</version>
   <name>Component Runtime</name>
   <description>Talend Component Kit Runtime</description>
+  <url>https://talend.github.io/component-runtime/</url>
 
   <modules>
     <module>container</module>
@@ -161,7 +162,7 @@
     <junit-platform-surefire-provider.version>1.1.0-RC1</junit-platform-surefire-provider.version>
 
     <talend-ui.version>0.158.0</talend-ui.version>
-    <component-api.version>1.0.0-SNAPSHOT</component-api.version>
+    <component-api.version>0.0.1</component-api.version>
 
     <!-- for the starter -->
     <gradle.version>4.4</gradle.version>
@@ -337,7 +338,7 @@
       <plugin>
         <groupId>org.talend.tools</groupId>
         <artifactId>talend-tools-maven-plugin</artifactId>
-        <version>1.0.3</version>
+        <version>1.0.4</version>
         <executions>
           <execution>
             <id>hub-detect</id>

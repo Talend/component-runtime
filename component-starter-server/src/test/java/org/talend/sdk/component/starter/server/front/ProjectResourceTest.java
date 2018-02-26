@@ -164,8 +164,9 @@ class ProjectResourceTest {
         projectModel.setBuildType("Gradle");
         projectModel.setFacets(singletonList("Talend Component Kit Testing"));
         final String buildFile = createZip(projectModel, target).get("application/build.gradle");
-        assertTrue(buildFile.contains("group: 'org.talend.sdk.component', name: 'component-runtime-junit', version: '"
-                + Versions.API_KIT + "'"), buildFile);
+        assertTrue(buildFile.contains(
+                "group: 'org.talend.sdk.component', name: 'component-runtime-junit', version: '" + Versions.KIT + "'"),
+                buildFile);
     }
 
     @Test
@@ -223,7 +224,7 @@ class ProjectResourceTest {
                         + "  repositories {\n" + "    mavenLocal()\n" + "    mavenCentral()\n" + "    maven {\n"
                         + "      url \"https://plugins.gradle.org/m2/\"\n" + "    }\n" + "  }\n" + "  dependencies {\n"
                         + "    classpath \"com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3\"\n"
-                        + "    classpath \"org.talend.sdk.component:gradle-talend-component:1.0.0-SNAPSHOT\"\n"
+                        + "    classpath \"org.talend.sdk.component:gradle-talend-component:" + Versions.KIT + "\"\n"
                         + "    classpath \"org.apache.cxf:cxf-tools-wadlto-jaxrs:3.2.2\"\n" + "  }\n" + "}\n" + "\n"
                         + "repositories {\n" + "  mavenLocal()\n" + "  mavenCentral()\n" + "}\n" + "\n"
                         + "group = 'com.component'\n"
@@ -241,7 +242,8 @@ class ProjectResourceTest {
                         + "      project.tasks.compileJava.dependsOn project.tasks.generateWadlClient\n"
                         + "      srcDir wadlGeneratedFolder\n" + "    }\n" + "  }\n" + "}\n" + "\n" + "repositories {\n"
                         + "  mavenCentral()\n" + "}\n" + "\n" + "dependencies {\n"
-                        + "  provided group: 'org.talend.sdk.component', name: 'component-api', version: '1.0.0-SNAPSHOT'\n"
+                        + "  provided group: 'org.talend.sdk.component', name: 'component-api', version: '"
+                        + Versions.API_KIT + "'\n"
                         + "  compile group: 'org.apache.cxf', name: 'cxf-rt-rs-client', version: '3.2.2'\n" + "}")
                 .forEach(string -> assertTrue(files.get("application/build.gradle").contains(string), string));
     }

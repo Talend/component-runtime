@@ -21,7 +21,7 @@
   <parent>
     <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -119,7 +119,7 @@
           <properties>
             <talend.component.server.component.coordinates>
               ${talend.component.server.component.coordinates.samples},
-              org.talend.components:widget:1.0.0-SNAPSHOT
+              org.talend.components:widget:0.0.1-SNAPSHOT
             </talend.component.server.component.coordinates>
           </properties>
         </configuration>
