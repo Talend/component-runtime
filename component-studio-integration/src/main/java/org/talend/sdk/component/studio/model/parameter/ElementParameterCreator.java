@@ -152,8 +152,7 @@ public class ElementParameterCreator {
         // Create schema parameter for each connector without schema parameter
         for (final INodeConnector connectorWithoutSchema : connectorNames) {
             parameters.add(mainSettingsCreator.createSchemaParameter(connectorWithoutSchema.getName(),
-                    "SCHEMA_" + connectorWithoutSchema.getName(), showSchema(connectorWithoutSchema),
-                    connectorWithoutSchema.getName()));
+                    "SCHEMA_" + connectorWithoutSchema.getName(), showSchema(connectorWithoutSchema)));
         }
     }
 

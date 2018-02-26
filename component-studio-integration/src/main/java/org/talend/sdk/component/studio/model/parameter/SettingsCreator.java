@@ -322,12 +322,14 @@ public class SettingsCreator implements PropertyVisitor {
         final String connectionName =
                 connectorName.equals("__default__") ? EConnectionType.FLOW_MAIN.getName() : connectorName;
         final String schemaName = node.getProperty().getSchemaName();
-        return createSchemaParameter(connectionName, schemaName, true,
-                connectorName.equals("__default__") ? EConnectionType.FLOW_MAIN.getDefaultLinkName() : connectorName);
+        return createSchemaParameter(connectionName, schemaName, true);
     }
 
     // TODO i18n it
-    private String schemaDisplayName(final String connectionName, final String schemaName, final String connectorName) {
+    private String schemaDisplayName(final String connectionName, final String schemaName) {
+        final String connectorName = connectionName.equalsIgnoreCase(EConnectionType.FLOW_MAIN.getName())
+                ? EConnectionType.FLOW_MAIN.getDefaultLinkName()
+                : connectionName;
         if ("REJECT".equalsIgnoreCase(connectionName)) {
             return "Reject Schema";
         }
@@ -344,7 +346,7 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     protected TaCoKitElementParameter createSchemaParameter(final String connectionName, final String schemaName,
-            final boolean show, final String connectorName) {
+            final boolean show) {
         // Maybe need to find some other condition. this way we will show schema widget for main flow only.
         final TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
         schema.setName(schemaName);
@@ -362,7 +364,7 @@ public class SettingsCreator implements PropertyVisitor {
         final ElementParameter childParameter1 = new ElementParameter(getNode());
         childParameter1.setCategory(EComponentCategory.BASIC);
         childParameter1.setContext(connectionName);
-        childParameter1.setDisplayName(schemaDisplayName(connectionName, schemaName, connectorName));
+        childParameter1.setDisplayName(schemaDisplayName(connectionName, schemaName));
         childParameter1.setFieldType(EParameterFieldType.TECHNICAL);
         childParameter1.setListItemsDisplayCodeName(new String[] { "BUILT_IN", "REPOSITORY" });
         childParameter1.setListItemsDisplayName(new String[] { "Built-In", "Repository" });
