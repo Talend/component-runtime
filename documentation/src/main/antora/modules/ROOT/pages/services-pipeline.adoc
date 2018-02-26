@@ -61,7 +61,18 @@ In the example above, the concat component have to inputs (string1 and string2).
 IMPORTANT: In this version, the execution of the job is linear. the component are not executed in parallel even if some steps
 may be independents.
 
-The job builder let you provide some job properties :
+==== Environment/Runner
+
+Depending the configuration you can select which environment you execute your job in.
+
+To select the environment the logic is the following one:
+
+1. if an `org.talend.sdk.component.runtime.manager.chain.Job.ExecutorBuilder` is passed through the job properties then use it (supported type are a `ExecutionBuilder` instance, a `Class` or a `String`).
+2. if an `ExecutionBuilder` SPI is present then use it (it is the case if `component-runtime-beam` is present in your classpath).
+3. else just use a local/standalone execution.
+
+In the case of a Beam execution you can customize the pipeline options using system properties. They have to be prefixed
+by `talend.beam.job.`. For instance to set `appName` option you will set `-Dtalend.beam.job.appName=mytest`.
 
 ==== Key Provider
 
@@ -99,6 +110,7 @@ GroupKeyProvider keyProvider = (GroupKeyProvider) context -> {
             return context.getData().getString("employee_id");
           };
 ----
+
 == Beam case
 
 For link:https://beam.apache.org/[beam] case, you need to rely on beam pipeline definition and use `component-runtime-beam` dependency which provides Beam bridges.
