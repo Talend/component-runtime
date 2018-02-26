@@ -318,27 +318,31 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     private TaCoKitElementParameter visitSchema(final PropertyNode node) {
-        String connectionName = node.getProperty().getConnection().getValue();
-        connectionName = connectionName.equals("__default__") ? EConnectionType.FLOW_MAIN.getName() : connectionName;
+        final String connectorName = node.getProperty().getConnection().getValue();
+        final String connectionName =
+                connectorName.equals("__default__") ? EConnectionType.FLOW_MAIN.getName() : connectorName;
         final String schemaName = node.getProperty().getSchemaName();
         return createSchemaParameter(connectionName, schemaName, true);
     }
 
     // TODO i18n it
     private String schemaDisplayName(final String connectionName, final String schemaName) {
+        final String connectorName = connectionName.equalsIgnoreCase(EConnectionType.FLOW_MAIN.getName())
+                ? EConnectionType.FLOW_MAIN.getDefaultLinkName()
+                : connectionName;
         if ("REJECT".equalsIgnoreCase(connectionName)) {
             return "Reject Schema";
         }
         if (schemaName.contains("$$")) {
             final String type = schemaName.substring(0, schemaName.indexOf("$$"));
             if ("OUT".equalsIgnoreCase(type)) {
-                return "Output Schema";
+                return "Output Schema" + "(" + connectorName + ")";
             }
             if ("IN".equalsIgnoreCase(type)) {
-                return "Input Schema";
+                return "Input Schema" + "(" + connectorName + ")";
             }
         }
-        return "Schema";
+        return "Schema" + "(" + connectorName + ")";
     }
 
     protected TaCoKitElementParameter createSchemaParameter(final String connectionName, final String schemaName,
