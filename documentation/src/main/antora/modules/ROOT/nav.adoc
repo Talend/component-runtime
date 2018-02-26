@@ -31,3 +31,6 @@
 * xref:testing-multiple-envs.adoc[Multiple environments for the same tests]
 * xref:testing-maven-passwords.adoc[Secrets/Passwords and Maven]
 * xref:testing-generating-data.adoc[Generating data?]
+
+.Tutorials
+* xref:tutorial-generate-project-using-starter.adoc[Generate a project using the component starter]
