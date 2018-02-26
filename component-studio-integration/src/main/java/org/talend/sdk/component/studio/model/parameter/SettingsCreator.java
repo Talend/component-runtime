@@ -318,31 +318,33 @@ public class SettingsCreator implements PropertyVisitor {
     }
 
     private TaCoKitElementParameter visitSchema(final PropertyNode node) {
-        String connectionName = node.getProperty().getConnection().getValue();
-        connectionName = connectionName.equals("__default__") ? EConnectionType.FLOW_MAIN.getName() : connectionName;
+        final String connectorName = node.getProperty().getConnection().getValue();
+        final String connectionName =
+                connectorName.equals("__default__") ? EConnectionType.FLOW_MAIN.getName() : connectorName;
         final String schemaName = node.getProperty().getSchemaName();
-        return createSchemaParameter(connectionName, schemaName, true);
+        return createSchemaParameter(connectionName, schemaName, true,
+                connectorName.equals("__default__") ? EConnectionType.FLOW_MAIN.getDefaultLinkName() : connectorName);
     }
 
     // TODO i18n it
-    private String schemaDisplayName(final String connectionName, final String schemaName) {
+    private String schemaDisplayName(final String connectionName, final String schemaName, final String connectorName) {
         if ("REJECT".equalsIgnoreCase(connectionName)) {
             return "Reject Schema";
         }
         if (schemaName.contains("$$")) {
             final String type = schemaName.substring(0, schemaName.indexOf("$$"));
             if ("OUT".equalsIgnoreCase(type)) {
-                return "Output Schema";
+                return "Output Schema" + "(" + connectorName + ")";
             }
             if ("IN".equalsIgnoreCase(type)) {
-                return "Input Schema";
+                return "Input Schema" + "(" + connectorName + ")";
             }
         }
-        return "Schema";
+        return "Schema" + "(" + connectorName + ")";
     }
 
     protected TaCoKitElementParameter createSchemaParameter(final String connectionName, final String schemaName,
-            final boolean show) {
+            final boolean show, final String connectorName) {
         // Maybe need to find some other condition. this way we will show schema widget for main flow only.
         final TaCoKitElementParameter schema = new TaCoKitElementParameter(getNode());
         schema.setName(schemaName);
@@ -360,7 +362,7 @@ public class SettingsCreator implements PropertyVisitor {
         final ElementParameter childParameter1 = new ElementParameter(getNode());
         childParameter1.setCategory(EComponentCategory.BASIC);
         childParameter1.setContext(connectionName);
-        childParameter1.setDisplayName(schemaDisplayName(connectionName, schemaName));
+        childParameter1.setDisplayName(schemaDisplayName(connectionName, schemaName, connectorName));
         childParameter1.setFieldType(EParameterFieldType.TECHNICAL);
         childParameter1.setListItemsDisplayCodeName(new String[] { "BUILT_IN", "REPOSITORY" });
         childParameter1.setListItemsDisplayName(new String[] { "Built-In", "Repository" });
