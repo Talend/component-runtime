@@ -251,7 +251,11 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
     private Optional<Layout> getFormLayout() {
         final LayoutParameter layoutParameter =
                 (LayoutParameter) elem.getElementParameter(LayoutParameter.name(section));
-        return Optional.of(layoutParameter.getLayout());
+        if (layoutParameter == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(layoutParameter.getLayout());
+        }
     }
 
     /**
