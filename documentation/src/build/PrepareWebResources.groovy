@@ -33,12 +33,6 @@ copyJsResource(
 copyJsResource(
     new File(project.basedir, 'src/main/frontend/node_modules/js-search/dist/umd/js-search.min.js').toURI().toURL(),
     'js/js-search.min.js')
-copyJsResource(
-        new File(project.basedir, 'src/main/frontend/bower_components/popcorn-js/popcorn.js').toURI().toURL(),
-    'js/popcorn.js')
-copyJsResource(
-        new File(project.basedir, 'src/main/frontend/bower_components/popcorn-js/plugins/footnote/popcorn.footnote.js').toURI().toURL(),
-    'js/popcorn.footnote.js')
 
 // temp antora patch to add the branch
 def antoraLoadAdoc = new File(project.basedir, '/src/main/frontend/node_modules/@antora/asciidoc-loader/lib/load-asciidoc.js')

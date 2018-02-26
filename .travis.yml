@@ -25,7 +25,6 @@ cache:
   - "$HOME/build/Talend/component-runtime/component-runtime/component-kit.js/node_modules"
   - "$HOME/build/Talend/component-runtime/component-runtime/documentation/.node"
   - "$HOME/build/Talend/component-runtime/component-runtime/documentation/src/main/frontend/node_modules"
-  - "$HOME/build/Talend/component-runtime/component-runtime/documentation/src/main/frontend/bower_components"
   - "$HOME/build/Talend/component-runtime/component-runtime/documentation/src/main/frontend/.antora-cache"
   - "$HOME/build/Talend/component-runtime/component-studio-integration/.p2localrepository"
   - "$HOME/build/Talend/component-runtime/component-starter-server/.cache"

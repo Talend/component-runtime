@@ -1,8 +1,0 @@
-{
-  "name": "local",
-  "version": "ignored",
-  "private": true,
-  "dependencies": {
-    "popcorn-js": "1.5.11"
-  }
-}

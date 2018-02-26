@@ -303,16 +303,6 @@
             </configuration>
           </execution>
           <execution>
-            <id>bower-install</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>bower</goal>
-            </goals>
-            <configuration>
-              <arguments>install</arguments>
-            </configuration>
-          </execution>
-          <execution>
             <id>yarn-build</id>
             <phase>prepare-package</phase>
             <goals>

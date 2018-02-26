@@ -19,7 +19,6 @@ work
 package-lock.json
 yarn.lock
 node_modules
-bower_components
 dist
 .p2localrepository
 .cache

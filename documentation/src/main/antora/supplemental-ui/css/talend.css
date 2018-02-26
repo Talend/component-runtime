@@ -72,23 +72,6 @@ input.rounded {
   max-height: 400px;
 }
 
-.popcorn {
-  display: flex;
-  flex-direction:row;
-  justify-content:flex-start;
-  align-items:stretch;
-}
-#popcorn-container {
-  flex-grow: 1;
-  width: 70%;
-}
-.popcorn-spacer {
-  width: 5%;
-}
-#popcorn-comment {
-  margin-left: 1rem;
-  width: 25%;
-}
 .global-search {
   display: flex;
   align-items: center;
