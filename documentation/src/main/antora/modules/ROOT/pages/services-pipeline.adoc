@@ -102,13 +102,12 @@ If the incoming data has different ids you can provide a complex global key prov
 and the `branch Name`.
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-GroupKeyProvider keyProvider = (GroupKeyProvider) context -> {
-            if ("employee".equals(context.getComponentId())) {
-                return context.getData().getString("id");
-            }
-
-            return context.getData().getString("employee_id");
-          };
+GroupKeyProvider keyProvider = context -> {
+    if ("employee".equals(context.getComponentId())) {
+        return context.getData().getString("id");
+    }
+    return context.getData().getString("employee_id");
+};
 ----
 
 == Beam case
