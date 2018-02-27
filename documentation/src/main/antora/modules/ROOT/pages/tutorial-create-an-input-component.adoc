@@ -282,7 +282,7 @@ public HazelcastSource createSource() {
 === The full implementation of the Partition Mapper
 Here is the full code source for the partition mapper to have a global view of it.
 xref:component-definition.adoc#_partitionmapper[Read more about partition mapper...]
-[source,java,indent=0,subs="verbatim,quotes,attributes"]
+[source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
 ----
 @Version(1) <1>
 @Icon(Icon.IconType.DB_INPUT) <2>
@@ -424,7 +424,7 @@ public class HazelcastMapper implements Serializable {
 Now that we have setup our component configuration and written our partition mapper that will create our producers.
 Let implement the source logic that will use the configuration provided by the mapper to read the records from the data source.
 To implement a source we need to implement the producer method that will produce a record every time it's invoked.
-[source,java,indent=0,subs="verbatim,quotes,attributes",role="collapse-source"]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 public class HazelcastSource implements Serializable {
     private final HazelcastConfiguration configuration;
@@ -511,5 +511,5 @@ In our case we are shutting down the hazelcast instance that we have created in 
 xref:component-definition.adoc#_producer[Read more about source ...]
 
 
-We have seen how to create a complete working input in this tutorial. In the next one we will explain how to create some unit
-tests for it.
+We have seen how to create a complete working input in this tutorial. xref:tutorial-test-your-components.adoc[In the next one we will explain how to create some unit
+tests for it].
