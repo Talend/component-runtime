@@ -155,7 +155,8 @@ public class TaCoKitComposite extends MissingSettingsMultiThreadDynamicComposite
      * @param height not used, but it is here, because the method is overridden
      */
     @Override
-    public synchronized void addComponents(final boolean forceRedraw, final boolean reInitialize, final int height) {
+    protected synchronized void placeComponents(final boolean forceRedraw, final boolean reInitialize,
+            final int height) {
         // achen modifed to fix feature 0005991 if composite.isDisposed return
         if (elem == null || composite.isDisposed()) {
             return;
