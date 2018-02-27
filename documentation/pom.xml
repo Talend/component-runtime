@@ -503,6 +503,18 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.meecrowave</groupId>
+        <artifactId>meecrowave-maven-plugin</artifactId>
+        <version>${meecrowave.version}</version>
+        <configuration>
+          <webResourceCached>false</webResourceCached>
+          <cdiConversation>false</cdiConversation>
+          <useClasspathDeployment>true</useClasspathDeployment>
+          <webapp>${project.build.directory}/${project.build.finalName}</webapp>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
