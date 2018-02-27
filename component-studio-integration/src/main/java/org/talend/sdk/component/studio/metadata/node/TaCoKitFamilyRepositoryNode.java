@@ -139,4 +139,8 @@ public class TaCoKitFamilyRepositoryNode extends StableRepositoryNode implements
         return false;
     }
 
+    @Override
+    public boolean shouldCollectRepositoryNode() {
+        return true;
+    }
 }

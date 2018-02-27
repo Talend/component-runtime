@@ -45,4 +45,8 @@ public class TaCoKitConfigurationRepositoryNode extends AbsTaCoKitRepositoryNode
         return true;
     }
 
+    @Override
+    public boolean shouldCollectRepositoryNode() {
+        return true;
+    }
 }
