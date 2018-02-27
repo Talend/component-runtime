@@ -37,3 +37,4 @@
 
 .Tutorials
 * xref:tutorial-generate-project-using-starter.adoc[Generate a project using the component starter]
+* xref:tutorial-create-an-input-component.adoc[Create an Input component]
