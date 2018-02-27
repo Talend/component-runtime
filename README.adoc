@@ -9,3 +9,16 @@ endif::env-github[]
 This brick provides all the integration around `component-api` to run components.
 
 Documentation is in documentation module.
+
+== Toubleshouting
+
+=== Documentation doesn't build
+
+If you encounter this error message on windows:
+
+`[ERROR] Error: failed to get server certificate: The handle is in the wrong state for the requested operation`
+
+It is due to the crypto changes on Github, you can fix it by configuring your OS properly:
+
+- https://support.microsoft.com/en-gb/help/3140245/update-to-enable-tls-1-1-and-tls-1-2-as-a-default-secure-protocols-in
+- https://developercommunity.visualstudio.com/content/problem/201457/unable-to-connect-to-github-due-to-tls-12-only-cha.html
