@@ -3,11 +3,27 @@
 
 [[tutorial-create-an-input-component]]
 In this tutorial we will create a complete working input component for xref:https://hazelcast.org/[hazelcast].
+
 This will include :
 
-1. The component configuration and the UI layout
-2. The partition mapper that let the input split it self to work in a distributed environment.
-3. The source that is responsible for connecting and reading data from the data source.
+1. The component family registration.
+2. The component configuration and the UI layout
+3. The partition mapper that let the input split it self to work in a distributed environment.
+4. The source that is responsible for connecting and reading data from the data source.
+
+NOTE: Getter and Setter methods are omitted for simplicity in this tutorial
+
+== The component family registration
+We register the component family via a the `package-info.java` file in the package of the component.
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@Icon(value = Icon.IconType.CUSTOM, custom = "hazelcast") <1>
+@Components(family = "Hazelcast", categories = "IMDG") <2>
+package org.talend.hazelcast;
+----
+<1> This define the family icon.
+<2> In this line we define the component family and the component categories.
+Those information are used in the web and studio applications to group the components.
 
 == The component configuration
 The component configuration define the configurable part of the component in addition to the configuration type and the UI layout.
@@ -16,9 +32,8 @@ Here is the configuration of our component, that we will explain in details.
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @GridLayout({ <1>
-        @GridLayout.Row({ "hazelcastXml" }),
-        @GridLayout.Row({ "mapName" }),
-        @GridLayout.Row({ "timeout", "executorService" })
+        @GridLayout.Row({ "hazelcastXml", "mapName" }),
+        @GridLayout.Row({ "executorService" }),
 })
 public class HazelcastConfiguration implements Serializable {
 
@@ -26,15 +41,12 @@ public class HazelcastConfiguration implements Serializable {
     private String hazelcastXml; <3>
 
     @Option
-    private long timeout = 60; <4>
+    private String mapName; <4>
 
     @Option
-    private String mapName; <5>
+    private String executorService = "default"; <5>
 
-    @Option
-    private String executorService = "default"; <6>
-
-    ClientConfig newConfig() throws IOException { <7>
+    ClientConfig newConfig() throws IOException { <6>
         final ClientConfig newconfig = hazelcastXml == null ? new XmlClientConfigBuilder().build() :
                 new XmlClientConfigBuilder(hazelcastXml).build();
 
@@ -49,10 +61,9 @@ This layout will be used to show and organize the configuration in the web and T
 <2> All the attributes annotated by `@Option` are known as configuration and will be bind to a default widget according to there types,
 at least a specific widget is explicitly declared xref:gallery.adoc[See widgets gallery for more details] .
 <3> The hazelcast xml configuration file path.
-<4> The timeout with a default value of 60
-<5> The name of the map to be read.
-<6> The name of the executor service with a default name: `default`.
-<7> This only a simple utility method that convert our configuration to a hazelcast client configuration object
+<4> The name of the map to be read.
+<5> The name of the executor service with a default name: `default`.
+<6> This only a simple utility method that convert our configuration to a hazelcast client configuration object
 
 xref:component-configuration.adoc[Read more about the component configuration...]
 
@@ -112,11 +123,9 @@ Now that we know what we need to implement and why. Let's start coding those met
 === The constructor
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-// We will need the list of hazecast memebers later
-// So we add a collection attribute to the mapper
-private final Collection<String> members;
+private final Collection<String> members; <1>
 
-// framework API
+<2>
 public HazelcastMapper(@Option("configuration") final HazelcastConfiguration configuration,
         final JsonBuilderFactory jsonFactory,
         final Jsonb jsonb,
@@ -124,7 +133,7 @@ public HazelcastMapper(@Option("configuration") final HazelcastConfiguration con
     this(configuration, jsonFactory, jsonb, service, emptyList());
 }
 
-// internal
+// internal <3>
 protected HazelcastMapper(final HazelcastConfiguration configuration,
         final JsonBuilderFactory jsonFactory,
         final Jsonb jsonb,
@@ -137,24 +146,27 @@ protected HazelcastMapper(final HazelcastConfiguration configuration,
     this.members = members;
 }
 ----
+<1> We will need the list of hazecast members later. So we add a collection attribute to the mapper
+<2> The component public constructor, responsible for injecting configuration and services.
+<3> An internal constructor that get a collection of members in addition to previous parameters. This will be useful later in this tutorial.
 
 === The PostConstruct method
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-//We will need Hazelcast instance. we add this as an attribute to the mapper.
-private transient HazelcastInstance instance;
+private transient HazelcastInstance instance; <1>
 
 @PostConstruct
 public void init() throws IOException {
-    // Here we create an instance of hazelcast according to the provided configuration
-    // Here you can notice that we use the injected HazelcastService instance to perform that.
-    // This service is implemented in the project. See the implementation in <1>
-    instance = service.findInstance(configuration.newConfig());
+    instance = service.findInstance(configuration.newConfig()); <2>
 }
 ----
-<1> Here is the HazelcastService implementation.
-Every class annotated with `@Service` can be injected to the component via it's constructor.
+<1> We will need Hazelcast instance. we add this as an attribute to the mapper.
+<2> Here we create an instance of hazelcast according to the provided configuration.
+You can notice that we use the injected HazelcastService instance to perform that.
+This service is implemented in the project.
 
+Here is the HazelcastService implementation.
+Every class annotated with `@Service` can be injected to the component via it's constructor.
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 import org.talend.sdk.component.api.service.Service;
@@ -162,38 +174,46 @@ import org.talend.sdk.component.api.service.Service;
 @Service
 public class HazelcastService {
     public HazelcastInstance findInstance(final ClientConfig config) {
-        return HazelcastClient.newHazelcastClient(config);
+        return HazelcastClient.newHazelcastClient(config); <1>
     }
 }
 ----
+<1> We create a new instance of hazelcast client.
 
 === The PreDestroy method
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-//This execution service will be used in our mapper. So we add it as an attribute
-private transient IExecutorService executorService;
+private transient IExecutorService executorService; <1>
 
 @PreDestroy
-public void close() {
-    // Here we shutdown the instance that we have created in the PostConstruct.
-    // and we free the executorService reference
+public void close() { <2>
     instance.getLifecycleService().shutdown();
     executorService = null;
 }
 ----
+<1> This execution service will be used in our mapper. So we add it as an attribute.
+<2> Here we shutdown the instance that we have created in the PostConstruct. and we also free the executorService reference
 
 === The Assessor method
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Assessor
 public long estimateSize() {
-    // Here we calculate the hole size of all memebers
-    return getSizeByMembers().values().stream()
-            .mapToLong(this::getFutureValue)
-            .sum();
+    return getSizeByMembers() <1>
+                    .values().stream()
+                    .mapToLong(this::getFutureValue) <2>
+                    .sum(); <3>
 }
+----
+<1> We get the size of all members by calling the method `getSizeByMembers`.
+This method submit a task to the cluster member that will calculate the member size locally and asynchronously.
+<2> We get the the size of the member from the callable task that we have submitted.
+<3> We sum the size of all the members
 
-// This method return a map of size by memeber of hazelcast cluster
+
+Here is the implementation of the two methods used above
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
 private Map<Member, Future<Long>> getSizeByMembers() {
     final IExecutorService executorService = getExecutorService();
     final SerializableTask<Long> sizeComputation = new SerializableTask<Long>() {
@@ -204,7 +224,7 @@ private Map<Member, Future<Long>> getSizeByMembers() {
             return localInstance.getMap(configuration.getMapName()).getLocalMapStats().getHeapCost();
         }
     };
-    if (members.isEmpty()) { // == if no specific memebers defined, apply on all the cluster
+    if (members.isEmpty()) { // == if no specific members defined, apply on all the cluster
         return executorService.submitToAllMembers(sizeComputation);
     }
     final Set<Member> members = instance.getCluster().getMembers().stream()
@@ -223,9 +243,9 @@ private IExecutorService getExecutorService() {
 === The Split method
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-// This method create a collection of mapper according to the requested bundleSize and the dataset size
+
 @Split
-public List<HazelcastMapper> split(@PartitionSize final long bundleSize) {
+public List<HazelcastMapper> split(@PartitionSize final long bundleSize) { <1>
     final List<HazelcastMapper> partitions = new ArrayList<>();
     final Collection<Member> members = new ArrayList<>();
     long current = 0;
@@ -251,33 +271,19 @@ public List<HazelcastMapper> split(@PartitionSize final long bundleSize) {
     }
     return partitions;
 }
-
-private Set<String> toIdentifiers(final Collection<Member> members) {
-    return members.stream().map(Member::getUuid).collect(toSet());
-}
-
-private long getFutureValue(final Future<Long> future) {
-    try {
-        return future.get(configuration.getTimeout(), SECONDS);
-    } catch (final InterruptedException e) {
-        Thread.currentThread().interrupt();
-        throw new IllegalStateException(e);
-    } catch (final ExecutionException | TimeoutException e) {
-        throw new IllegalArgumentException(e);
-    }
-}
 ----
+<1>  This method create a collection of mapper according to the requested bundleSize and the dataset size.
 
 === The Emitter method
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-//After we have splited the mapper. now every mapper will create an emitter that
-// will read the records according to the provided configuration
 @Emitter
 public HazelcastSource createSource() {
-    return new HazelcastSource(configuration, jsonFactory, jsonb, service, members);
+    return new HazelcastSource(configuration, jsonFactory, jsonb, service, members); <1>
 }
 ----
+<1> After we have split the mapper. now every mapper will create a producer
+that will read the records according to the provided configuration.
 
 === The full implementation of the Partition Mapper
 Here is the full code source for the partition mapper to have a global view of it.
@@ -435,7 +441,7 @@ public class HazelcastSource implements Serializable {
     private transient HazelcastInstance instance;
     private transient BufferizedProducerSupport<JsonObject> buffer; <1>
 
-    // The constructor omited to reduce the code
+    // The constructor was omited to reduce the code
 
     @PostConstruct <2>
     public void createInstance() throws IOException {
