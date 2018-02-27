@@ -123,3 +123,23 @@ nav.navbar {
 footer.footer {
   border-top: solid 2px #82bd41;
 }
+
+.code-handle-base {
+  position: absolute;
+  padding-left: 0.15rem;
+  padding-top: 0;
+  margin-top: -0.3rem;
+}
+.code-handle-base:before {
+  content: '▶';
+  left: 0;
+  display: inline-block;
+  color: #ddd;
+}
+.code-open-handle:before {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
+}

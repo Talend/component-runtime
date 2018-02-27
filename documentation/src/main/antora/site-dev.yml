@@ -24,10 +24,10 @@ ui:
   supplemental_files: ./supplemental-ui
 output:
  clean: false
- dir: ../../../target/documentation-1.0.0-SNAPSHOT
+ dir: ../../../target/documentation-0.0.1-SNAPSHOT
 asciidoc:
   attributes:
-    project_version: 1.0.0
+    project_version: 0.0.1
     deploymentRoot: ""
     numbered: true
     hide-uri-scheme: true

@@ -147,7 +147,7 @@ It `MUST` return a `Number` and `MUST` not take any parameter.
 
 Here is an example:
 
-[source,java,indent=0,subs="verbatim,quotes,attributes"]
+[source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
 ----
 @Assessor
 public long estimateDataSetByteSize() {
