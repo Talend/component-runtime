@@ -525,7 +525,7 @@
             <executions>
               <execution>
                 <id>deploy-site</id>
-                <phase>verify</phase>
+                <phase>pre-site</phase>
                 <goals>
                   <goal>execute</goal>
                 </goals>

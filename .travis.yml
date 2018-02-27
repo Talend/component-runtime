@@ -74,7 +74,7 @@ jobs:
       - STEP=Deploy documentation
       script:
       - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
-      - cd documentation && node ../.travis/heartbeat.js mvn verify -e -q -Pgh-pages -Dgithub.site.profile=latest -Dgpg.skip=true $DEPLOY_OPTS # Deploy the documentation
+      - cd documentation && node ../.travis/heartbeat.js mvn clean package pre-site -e -q -Pgh-pages -Dgithub.site.profile=latest -Dgpg.skip=true $DEPLOY_OPTS # Deploy the documentation
 
 stages:
   - name: master_build
