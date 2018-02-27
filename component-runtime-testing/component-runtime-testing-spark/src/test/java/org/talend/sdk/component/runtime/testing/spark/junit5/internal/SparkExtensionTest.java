@@ -54,7 +54,7 @@ class SparkExtensionTest {
         if (out.exists()) {
             out.delete();
         }
-        spark.submitClasspath(SparkClusterRuleTest.SubmittableMain.class, spark.getSparkMaster(),
+        spark.submitClasspath(SparkClusterRuleTest.SubmittableMain.class, File::isDirectory, spark.getSparkMaster(),
                 out.getAbsolutePath());
 
         await().atMost(5, MINUTES).until(

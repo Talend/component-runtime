@@ -50,6 +50,7 @@ class BeamJobTest {
 
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
+
                     private final ComponentManager contextualInstance;
 
                     {

@@ -43,7 +43,6 @@
     <module>talend-component-maven-plugin</module>
     <module>gradle-talend-component</module>
     <module>component-starter-server</module>
-    <module>component-studio-integration</module>
     <module>component-tools</module>
     <module>slf4j-standard</module>
     <module>documentation</module>

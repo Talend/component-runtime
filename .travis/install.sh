@@ -13,11 +13,6 @@ for i in component-tools-webapp component-starter-server component-tools; do
     cd -
 done
 
-# studio (p2)
-cd component-studio-integration
-    MAVEN_OPTS="-Dtalend.component.kit.build.studio.m2.forceupdate=true $MAVEN_OPTS" mvn gplus:execute@setup-deps --batch-mode -e -q
-cd -
-
 # documentation - we got some issues on travis so this is a sanity check
 cd documentation
     mvn dependency:unpack@unpack-api-javadoc --batch-mode -e -q
