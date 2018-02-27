@@ -35,6 +35,8 @@
     <sample_project>${sample_project-base}/src/main/java/org/talend/sdk/component/sample</sample_project>
     <sample_project_test>${sample_project-base}/src/test/java/org/talend/sdk/component/sample</sample_project_test>
     <site.rootpath></site.rootpath>
+    <talend.documentation.generation.skip>false</talend.documentation.generation.skip>
+
     <args4j.version>2.33</args4j.version>
     <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
 
@@ -174,6 +176,7 @@
                 <argument>offline=${settings.offline}</argument>
                 <argument>${talend.github.username}</argument>
                 <argument>${talend.github.password}</argument>
+                <argument>${talend.documentation.generation.skip}</argument>
               </arguments>
             </configuration>
           </execution>
@@ -526,6 +529,7 @@
         <github.global.server>github</github.global.server> <!-- matches a server in your settings.xml -->
         <content.rootpath>/component-runtime</content.rootpath>
         <site.rootpath>/component-runtime</site.rootpath>
+        <talend.documentation.generation.skip>true</talend.documentation.generation.skip>
       </properties>
 
       <build>
