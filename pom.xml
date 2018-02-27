@@ -94,6 +94,10 @@
       <id>johnzon-staging</id>
       <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1025</url>
     </repository>
+    <repository>
+      <id>meecrowave-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1039/</url>
+    </repository>
   </repositories>
 
 
@@ -130,6 +134,10 @@
       <id>johnzon-staging</id>
       <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1025</url>
     </pluginRepository>
+    <pluginRepository>
+      <id>meecrowave-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1039/</url>
+    </pluginRepository>
   </pluginRepositories>
 
   <properties>
@@ -150,7 +158,7 @@
     <junit.version>4.12</junit.version>
     <ziplock.version>7.0.4</ziplock.version>
     <johnzon.version>1.1.7</johnzon.version>
-    <meecrowave.version>1.2.1-SNAPSHOT</meecrowave.version>
+    <meecrowave.version>1.2.1</meecrowave.version>
     <tomcat.version>9.0.5</tomcat.version>
     <cxf.version>3.2.2</cxf.version>
     <log4j2.version>2.10.0</log4j2.version>
