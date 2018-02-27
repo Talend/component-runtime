@@ -700,6 +700,7 @@
           <localCheckout>true</localCheckout>
           <pushChanges>false</pushChanges>
           <releaseProfiles>release,gh-pages</releaseProfiles>
+          <goals>deploy pre-site</goals>
         </configuration>
       </plugin>
       <plugin>
