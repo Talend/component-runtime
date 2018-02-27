@@ -1,0 +1,63 @@
+= Test your components
+:page-partial:
+
+[[tutorial-test-your-components]]
+In a xref:tutorial-create-an-input-component.adoc[previous tutorial] we have created an input component for hazelcast. In this one we will show how to write some
+unit tests for it.
+
+In this tutorial we will cover :
+
+1. How to load components in a unit test.
+2. How to create a job pipeline.
+3. How to run the test in standalone mode.
+
+Here is our test class. let's examine it in details.
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+public class HazelcastMapperTest {
+
+    @ClassRule
+    public static final SimpleComponentRule COMPONENTS = new SimpleComponentRule(HazelcastMapperTest.class
+                                                                                    .getPackage().getName()); <1>
+
+    private static HazelcastInstance instance; <2>
+
+    @BeforeClass
+    public static void startInstanceWithData() { <3>
+        instance = Hazelcast.newHazelcastInstance();
+        final IMap<Object, Object> map = instance.getMap(HazelcastMapperTest.class.getSimpleName());
+        IntStream.range(0, 100).forEach(i -> map.put("test_" + i, "value #" + i));
+    }
+
+    @AfterClass
+    public static void stopInstance() { <4>
+        instance.getLifecycleService().shutdown();
+    }
+
+    @Test
+    public void run() { <5>
+        Job.components() <6>
+                .component("source", "Hazelcast://Input?configuration.mapName=" + HazelcastMapperTest.class.getSimpleName())
+                .component("output", "test://collector")
+            .connections()
+                .from("source").to("output")
+            .build()
+            .run();
+
+        final List<JsonObject> outputs = COMPONENTS.getCollectedData(JsonObject.class); <7>
+        assertEquals(100, outputs.size());
+    }
+}
+----
+<1> `SimpleComponentRule` is a junit rule that let you load your component from a package.
+This rule also provide some tests components like `emitter` and `collector` xref:testing-junit.adoc#_component_runtime_junit[Read more...].
+<2> An embedded hazelcast instance that we will use to test our input component.
+<3> Here we create an embedded hazelcast instance and we fill it with some test data. We create a map with the name of our test class
+and add some data to it.
+<4> We clean up the instance after the end o the tests.
+<5> This is our unit test. Here we will create a job pipeline that use our input component.
+<6> We use the `Job` xref:services-pipeline.adoc[pipeline builder] to create a job. It contains two components
+the input component and the test collector component. We connect the input component to the collector component, build the job
+and run it locally.
+<7> After the job has finished running. We simply use the COMPONENTS rule instance to get the collected data from the `collector` component.
+Then we can do some assertion on the collected data.
