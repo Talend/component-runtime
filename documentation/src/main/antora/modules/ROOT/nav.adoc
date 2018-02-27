@@ -36,6 +36,6 @@
 * xref:documentation-rest.adoc[Server]
 
 .Tutorials
-* xref:tutorial-generate-project-using-starter.adoc[Generate a project using the component starter]
+* xref:tutorial-generate-project-using-starter.adoc[Generate a component]
 * xref:tutorial-create-an-input-component.adoc[Create an Input component]
 * xref:tutorial-test-your-components.adoc[Test your components]
