@@ -37,7 +37,7 @@ import org.talend.sdk.component.runtime.manager.chain.GroupKeyProvider;
 import org.talend.sdk.component.runtime.manager.chain.Job;
 
 @WithTemporaryFolder
-public class BeamJobTest {
+class BeamJobTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
@@ -50,16 +50,19 @@ public class BeamJobTest {
 
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
+                    private final ComponentManager contextualInstance;
 
                     {
+                        contextualInstance = CONTEXTUAL_INSTANCE.get();
                         CONTEXTUAL_INSTANCE.set(this);
                         addPlugin(jar.getAbsolutePath());
                     }
 
                     @Override
                     public void close() {
+                        CONTEXTUAL_INSTANCE.set(contextualInstance);
                         super.close();
-                        CONTEXTUAL_INSTANCE.set(null);
+                        removePlugin(jar.getAbsolutePath());
                     }
                 }) {
 

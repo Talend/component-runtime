@@ -70,6 +70,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("batchee-jbatch");
             add("batik-");
             add("bcprov-");
+            add("beam-model-");
             add("beam-sdks-");
             add("beam-runners-");
             add("bootstrap.jar");
