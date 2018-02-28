@@ -61,7 +61,7 @@ public class HazelcastOutput implements Serializable {
 <4> This constructor of the processor is responsible of injecting the component configuration and services. Configuration parameter are annotated by `@Option`.
 and other parameters are considered as services and will be injected by the component framework. The service may be local services (class annotated with `@Service`)
 or some services provided by the component framework.
-<5> The method annotated with `@PostConstruct` is executed once on the driver node in a distributed environment and can be used to do some initialization.
+<5> The method annotated with `@PostConstruct` is executed once by instance and can be used to do some initialization.
 Here we will get the hazelcast instance according to the provided configuration.
 <6>  The method annotated with `@PreDestroy` is used to clean resource at the end of the execution of the output.
 here we will shutdown the hazelcast instance loaded in the post Construct method.
@@ -101,7 +101,7 @@ We will need Hazelcast instance and Hazelcast map. We add those as attributes to
 <1> Here we create an instance of hazelcast according to the provided configuration.
 Here you can notice that we use the injected HazelcastService instance to perform that.
 This service is implemented in the project. See the implementation in xref:tutorial-create-an-input-component.adoc#_the_postconstruct_method["Create an input component" tutorial].
-<2> We get the Hazelcast map according to map name from configuration. We use Hazelcast instance for that purpose.
+<2> We get the Hazelcast map according to the map name from configuration. We use Hazelcast instance for that purpose.
 
 NOTE: in production you will not want to create one instance per thread/worker but we will cover that in another coming tutorial
 
@@ -150,7 +150,7 @@ required to put data to Hazelcast map.
 === The full implementation of the Output
 Here is the full code source for the output to have a global view of it.
 xref:component-definition.adoc#_output[Read more about output...]
-[source,java,indent=0,subs="verbatim,quotes,attributes"]
+[source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
 ----
 @Version <1>
 @Icon(custom = "hazelcastOutput", value = CUSTOM) <2>
