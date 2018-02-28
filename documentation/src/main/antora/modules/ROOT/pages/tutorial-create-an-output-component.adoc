@@ -1,0 +1,221 @@
+= Write an Output component
+:page-partial:
+
+[[tutorial-create-an-output-component]]
+In this tutorial we will create a complete working output component for xref:https://hazelcast.org/[hazelcast].
+This will include :
+
+1. The component configuration and the UI layout
+2. The output that is responsible for connecting and writing data to the data source.
+
+== The component configuration
+How to create component configuration has already been described in xref:tutorial-create-an-input-component.adoc#_the_component_configuration["Create an input component" tutorial].
+For now we will use the same component configuration.
+We will only add a couple of fields required for our output component to already described configuration.
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@Option
+private String keyAttribute;
+
+@Option
+private String valueAttribute;
+----
+We will need those fields to determine key and value attributes for our Hazelcast map.
+
+== The Output
+As our output component needs to work in distributed environments it should implement Serializable interface.
+
+Let's take a look at the skeleton of our output component.
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@Version <1>
+@Icon(custom = "hazelcastOutput", value = CUSTOM) <2>
+@Processor(name = "Output") <3>
+public class HazelcastOutput implements Serializable {
+    private final HazelcastConfiguration configuration;
+    private final JsonBuilderFactory jsonFactory;
+    private final Jsonb jsonb;
+    private final HazelcastService service;
+
+
+    public HazelcastOutput(@Option("configuration") final HazelcastConfiguration configuration,
+                           final JsonBuilderFactory jsonFactory,
+                           final Jsonb jsonb,
+                           final HazelcastService service) {} <4>
+
+    @PostConstruct
+    public void init() {} <5>
+
+    @PreDestroy
+    public void release() {} <6>
+
+    @BeforeGroup
+    public void beforeGroup() {} <7>
+
+    @AfterGroup
+    public void afterGroup() {} <8>
+
+    @ElementListener
+    public void onElement(final JsonObject defaultInput) {} <9>
+
+}
+
+----
+<1> `@Version` annotation indicate the version of the component. it will be used to migrate the component configuration if needed.
+<2> `@Icon` annotation indicate the icon of the component. here we have defined a custom icon that need to be bundled in the component jar under `resources/icons`.
+<3> `@PartitionMapper` annotation indicate that this class is the partition mapper and give it's name.
+<4> This constructor of the mapper is responsible of injecting the component configuration and services. Configuration parameter are annotated by `@Option`.
+and other parameters are considered as services and will be injected by the component framework. The service may be local services (class annotated with `@Service`)
+or some services provided by the component framework.
+<5> The method annotated with `@PostConstruct` is executed once on the driver node in a distributed environment and can be used to do some initialization.
+Here we will get the hazelcast instance according to the provided configuration.
+<6>  The method annotated with `@PreDestroy` is used to clean resource at the end of the execution of the partition mapper.
+here we will shutdown the hazelcast instance loaded in the post Construct method.
+<7> The method annotated with `@BeforeGroup` is used to mark beginning of the chunk.
+<8> The method annotated with `@AfterGroup` is used to mark the end of the chunk.
+<9> Data is passed to the method annotated with `@ElementListener`. That method is responsible for data output. You can put all the related logic in this method.
+
+Let's implement all methods required for our output.
+
+=== The constructor
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+public HazelcastOutput(@Option("configuration") final HazelcastConfiguration configuration,
+                       final JsonBuilderFactory jsonFactory,
+                       final Jsonb jsonb,
+                       final HazelcastService service) {
+    this.configuration = configuration;
+    this.jsonFactory = jsonFactory;
+    this.jsonb = jsonb;
+    this.service = service;
+}
+----
+
+=== The PostConstruct method
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+//We will need Hazelcast instance and Hazelcast map. We add those as attributes to the output.
+private transient HazelcastInstance instance;
+private transient IMap<Object, Object> map;
+
+@PostConstruct
+public void init() {
+    // Here we create an instance of hazelcast according to the provided configuration
+    // Here you can notice that we use the injected HazelcastService instance to perform that.
+    // This service is implemented in the project. See the implementation in <1>
+    instance = service.findInstance(configuration.newConfig());
+    // Here we get the Hazelcast map according to map name from configuration. We use Hazelcast instance for that purpose.
+    map = instance.getMap(configuration.getMapName());
+}
+----
+<1> Here is the HazelcastService implementation.
+Every class annotated with `@Service` can be injected to the component via it's constructor.
+HazelcastService has already been introduced in xref:tutorial-create-an-input-component.adoc#_the_postconstruct_method["Create an input component" tutorial].
+
+NOTE: in production you will not want to create one instance per thread/worker but we will cover that in another coming tutorial
+
+=== The PreDestroy method
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@PreDestroy
+public void close() {
+    // Here we shutdown the instance that we have created in the PostConstruct.
+    // and we free the Hazelcast map reference
+    instance.getLifecycleService().shutdown();
+    map = null;
+}
+----
+
+=== The ElementListener method
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+// This method will be used to pass the incoming data to our output.
+// Every object passed should be a JsonObject instance.
+// This method can include any logic required to write data to the data source.
+// In our implementation we will put data to Hazelcast map.
+@ElementListener
+public void onElement(final JsonObject defaultInput) {
+    final Object key = toValue(defaultInput.get(configuration.getKeyAttribute()));
+    final Object value = toValue(defaultInput.get(configuration.getValueAttribute()));
+    map.put(key, value);
+}
+
+// This is our inner method which is used to transform incoming values in format
+// required to put data to Hazelcast map.
+private Object toValue(final JsonValue jsonValue) {
+    if (jsonValue == null) {
+        return null;
+    }
+    if (jsonValue.getValueType() == STRING) {
+        return JsonString.class.cast(jsonValue).getString();
+    }
+    if (jsonValue.getValueType() == NUMBER) {
+        return JsonNumber.class.cast(jsonValue).doubleValue();
+    }
+    return jsonValue.asJsonObject();
+}
+----
+
+=== The full implementation of the Output
+Here is the full code source for the output to have a global view of it.
+xref:component-definition.adoc#_output[Read more about output...]
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@Version <1>
+@Icon(custom = "hazelcastOutput", value = CUSTOM) <2>
+@Processor(name = "Output") <3>
+public class HazelcastOutput implements Serializable {
+    private final HazelcastConfiguration configuration;
+    private final JsonBuilderFactory jsonFactory;
+    private final Jsonb jsonb;
+    private final HazelcastService service;
+
+    private transient HazelcastInstance instance;
+    private transient IMap<Object, Object> map;
+
+    public HazelcastOutput(@Option("configuration") final HazelcastConfiguration configuration,
+                           final JsonBuilderFactory jsonFactory,
+                           final Jsonb jsonb,
+                           final HazelcastService service) {
+        this.configuration = configuration;
+        this.jsonFactory = jsonFactory;
+        this.jsonb = jsonb;
+        this.service = service;
+    }
+
+    @PostConstruct
+    public void init() {
+        instance = service.findInstance(configuration.newConfig());
+        map = instance.getMap(configuration.getMapName());
+    }
+
+    @ElementListener
+    public void onElement(final JsonObject defaultInput) {
+        final Object key = toValue(defaultInput.get(configuration.getKeyAttribute()));
+        final Object value = toValue(defaultInput.get(configuration.getValueAttribute()));
+        map.put(key, value);
+    }
+
+    @PreDestroy
+    public void release() {
+        instance.getLifecycleService().shutdown();
+        map = null;
+    }
+
+    private Object toValue(final JsonValue jsonValue) {
+        if (jsonValue == null) {
+            return null;
+        }
+        if (jsonValue.getValueType() == STRING) {
+            return JsonString.class.cast(jsonValue).getString();
+        }
+        if (jsonValue.getValueType() == NUMBER) {
+            return JsonNumber.class.cast(jsonValue).doubleValue();
+        }
+        return jsonValue.asJsonObject();
+    }
+}
+----
+
+We have seen how to create a complete working input in this tutorial. In the next one we will explain how to create some unit
+tests for it.
