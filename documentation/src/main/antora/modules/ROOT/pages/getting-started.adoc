@@ -19,8 +19,4 @@ To develop a component or the project itself it is recommanded to use Apache Mav
 [[getting-started-first-quick-start]]
 == Quick Start
 
-1. xref:tutorial-generate-project-using-starter.adoc[Generate a component project using the component kit starter]
-2. xref:tutorial-create-an-input-component.adoc[Create an input component]
-3. xref:tutorial-create-an-output-component.adoc[Create an output component]
-4. xref:tutorial-test-your-components.adoc[How to test a component]
-5. xref:tutorial-configuration-sensitive-data.adoc[Handle sensitive data in component configuration]
+include::tutorials-index.adoc[]
