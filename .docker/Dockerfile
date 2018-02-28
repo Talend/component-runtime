@@ -57,7 +57,8 @@ ENV LC_ALL en_US.UTF-8
 RUN set -xe && \
     apk add --no-cache gnupg ca-certificates openssl && \
     update-ca-certificates && \
-    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys E16448E7EC79DD12245C4ADFFA5FA52B5B7B42F0
+    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys E16448E7EC79DD12245C4ADFFA5FA52B5B7B42F0 && \
+    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys CF80A055A2AD28E9EFBF942A73129F58DE61ECBD
 
 ENV MEECROWAVE_BASE /opt/talend/component-kit
 RUN mkdir -p $MEECROWAVE_BASE
