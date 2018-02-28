@@ -36,4 +36,4 @@
 * xref:documentation-rest.adoc[Server]
 
 .Tutorials
-include::pages/tutorials-index.adoc[]
+include::{partialsdir}/tutorials-index.adoc[]

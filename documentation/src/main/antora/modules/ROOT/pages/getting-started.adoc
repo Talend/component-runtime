@@ -19,4 +19,4 @@ To develop a component or the project itself it is recommanded to use Apache Mav
 [[getting-started-first-quick-start]]
 == Quick Start
 
-include::tutorials-index.adoc[]
+include::{partialsdir}/tutorials-index.adoc[]
