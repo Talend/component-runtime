@@ -19,15 +19,18 @@ content:
   - url: ../../../..
     branches: master
     start_path: documentation/src/main/antora
+  - url: ../../../..
+    branches: component-runtime-*
+    start_path: documentation/src/main/antora
 ui:
   bundle: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/master/raw/build/ui-bundle.zip?job=bundle-stable
   supplemental_files: ./supplemental-ui
 output:
  clean: false
- dir: ../../../target/documentation-0.0.1-SNAPSHOT
+ dir: ../../../target/documentation-0.0.2-SNAPSHOT
 asciidoc:
   attributes:
-    project_version: 0.0.1
+    project_version: 0.0.2
     deploymentRoot: ""
     numbered: true
     hide-uri-scheme: true
