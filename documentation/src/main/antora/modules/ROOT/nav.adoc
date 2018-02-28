@@ -38,6 +38,6 @@
 .Tutorials
 * xref:tutorial-generate-project-using-starter.adoc[Generate a component]
 * xref:tutorial-create-an-input-component.adoc[Create an input component]
+* xref:tutorial-create-an-output-component.adoc[Create an output component]
 * xref:tutorial-test-your-components.adoc[Test your components]
 * xref:tutorial-configuration-sensitive-data.adoc[Configuration and sensitive data]
-* xref:tutorial-create-an-output-component.adoc[Create an output component]
