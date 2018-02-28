@@ -11,7 +11,7 @@
     "forms"
   ],
   "author": "Talend Component Kit <tacokit@talend.com>",
-  "homepage": "https://talend.github.io/component-runtime/latest/",
+  "homepage": "https://talend.github.io/component-runtime/",
   "bugs": {
     "url": "https://jira.talendforge.org/browse/TCOMP"
   },

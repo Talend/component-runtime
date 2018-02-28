@@ -107,83 +107,113 @@ class Npm {
             def pck = jsonb.fromJson(reader, Object.class)
             reader.close()
 
-            pck.version = version // override it since we want to use the build one
-            pck.dist = [
-                    'tarball': "${registry.replace('https://', 'http://')}/${pck.name}/-/${pck.name}-${version}.tgz".toString()
-            ]
-            pck._id = "${pck.name}@${version}"
-            pck._from = '.'
-            pck._npmVersion = '3.5.2' // whatever
-            pck._nodeVersion = '6.11.4' // whatever
-            pck._npmUser = [:]
-            pck.readme = pck.readme ?: pck.description ?: ''
-
-            // create a tar from the folder containing pckJson
-            def buffer = new ByteArrayOutputStream(8192)
-            def tarGz = new TarArchiveOutputStream(new GZIPOutputStream(buffer))
-            try {
-                tarGz.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
-                def base = json.parentFile
-                for (final String entry : base.list()) {
-                    if ('package.json' == entry) { // rewritten so updated on the fly
-                        def content = jsonb.toJson(pck).getBytes(StandardCharsets.UTF_8)
-                        def archiveEntry = new TarArchiveEntry('package/package.json');
-                        archiveEntry.setSize(content.length)
-                        tarGz.putArchiveEntry(archiveEntry)
-                        tarGz.write(content)
-                        tarGz.closeArchiveEntry()
-                    } else {
-                        doTarGz(tarGz, new File(base, entry), base.absolutePath)
+            def base = json.parentFile
+            if (!doPublish(base, pck, version, jsonb)) {
+                for (int i = 0; i < 100; i++) {
+                    if (doPublish(base, pck, "${version}-fix${i}".toString(), jsonb)) {
+                        break
                     }
                 }
-            } finally {
-                tarGz.close()
             }
 
-
-            def tar = buffer.toByteArray()
-
-            def sha = new StringWriter()
-            MessageDigest.getInstance('SHA-1').digest(tar).encodeHex().writeTo(sha)
-            pck.dist['shasum'] = sha.toString()
-            pck._shasum = sha.toString()
-
-            // send the tar
-            def request = new NpmPublishRequest(
-                    _id: pck.name,
-                    name: pck.name,
-                    description: pck.description ?: '',
-                    distTags: [
-                            "version" : version
-                    ],
-                    versions: [
-                            "${version}": pck
-                    ],
-                    readme: pck.readme,
-                    _attachments: [
-                            "${pck.name}-${version}.tgz": new NpmAttachment(
-                                    content_type: MediaType.APPLICATION_OCTET_STREAM,
-                                    data: Base64.encoder.encodeToString(tar),
-                                    length: tar.length
-                            )
-                    ]
-            )
-            def response = target.path("/${pck.name}")
-                    .request(APPLICATION_JSON_TYPE)
-                    .header('Authorization', "Bearer ${token}")
-                    .put(entity(request, APPLICATION_JSON_TYPE))
-            if (response.status != Response.Status.OK.statusCode) {
-                throw new IllegalArgumentException("Invalid NPM publish: ${response.readEntity(String.class)}")
-            }
-            def value = response.readEntity(String.class)
-            def npmResponse = jsonb.fromJson(value, NpmPublishResponse.class)
-            if (!npmResponse.success) {
-                throw new IllegalStateException("Didn't publish properly the NPM module ${pck.name}: ${npmResponse.error}")
-            }
             println("Published ${pck.name} version ${version}")
         } finally {
             jsonb.close()
         }
+    }
+
+    def doPublish(base, pck, version, jsonb) {
+        pck.version = version // override it since we want to use the build one
+        pck.dist = [
+                'tarball': "${registry.replace('https://', 'http://')}/${pck.name}/-/${pck.name}-${version}.tgz".toString()
+        ]
+        pck._id = "${pck.name}@${version}".toString()
+        pck._from = '.'
+        pck._npmVersion = '3.5.2' // whatever
+        pck._nodeVersion = '6.11.4' // whatever
+        pck._npmUser = [:]
+        pck.readme = pck.readme ?: pck.description ?: ''
+
+        // create a tar from the folder containing pckJson
+        def buffer = new ByteArrayOutputStream(8192)
+        def tarGz = new TarArchiveOutputStream(new GZIPOutputStream(buffer))
+        def exclusions = [
+                '.node', 'node_modules', 'target', 'component-kit.js.iml',
+                'package-template.json', 'package-lock.json', 'pom.xml', 'yarn.lock'
+        ]
+        try {
+            tarGz.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
+            for (final String entry : base.list()) {
+                if ('package.json' == entry) { // rewritten so updated on the fly
+                    def content = jsonb.toJson(pck).getBytes(StandardCharsets.UTF_8)
+                    def archiveEntry = new TarArchiveEntry('package/package.json');
+                    archiveEntry.setSize(content.length)
+                    tarGz.putArchiveEntry(archiveEntry)
+                    tarGz.write(content)
+                    tarGz.closeArchiveEntry()
+                } else if (!exclusions.contains(entry)) {
+                    doTarGz(tarGz, new File(base, entry), base.absolutePath)
+                }
+            }
+            def content = """Talend Component Kit Javascript Binding
+========
+
+See https://talend.github.io/component-runtime/
+""".getBytes(StandardCharsets.UTF_8)
+            def archiveEntry = new TarArchiveEntry('README.md');
+            archiveEntry.setSize(content.length)
+            tarGz.putArchiveEntry(archiveEntry)
+            tarGz.write(content)
+            tarGz.closeArchiveEntry()
+        } finally {
+            tarGz.close()
+        }
+
+        def tar = buffer.toByteArray()
+
+        def sha = new StringWriter()
+        MessageDigest.getInstance('SHA-1').digest(tar).encodeHex().writeTo(sha)
+        pck.dist['shasum'] = sha.toString()
+        pck._shasum = sha.toString()
+
+        def data = Base64.encoder.encodeToString(tar)
+
+        def request = new NpmPublishRequest(
+                _id: pck.name,
+                name: pck.name,
+                description: pck.description ?: '',
+                distTags: [
+                        "version" : version
+                ],
+                versions: [
+                        "${version}": pck
+                ],
+                readme: pck.readme,
+                _attachments: [
+                        "${pck.name}-${version}.tgz": new NpmAttachment(
+                                content_type: MediaType.APPLICATION_OCTET_STREAM,
+                                data: data,
+                                length: tar.length
+                        )
+                ]
+        )
+        def response = target.path("/${pck.name}")
+                .request(APPLICATION_JSON_TYPE)
+                .header('Authorization', "Bearer ${token}")
+                .put(entity(request, APPLICATION_JSON_TYPE))
+        if (response.status != Response.Status.OK.statusCode) {
+            def error = response.readEntity(NpmPublishResponse.class)
+            if (response.status == Response.Status.FORBIDDEN.statusCode && error.error.startsWith('You cannot publish over the previously published versions')) {
+                return false
+            }
+            throw new IllegalArgumentException("Invalid NPM publish: ${error.error}")
+        }
+        def value = response.readEntity(String.class)
+        def npmResponse = jsonb.fromJson(value, NpmPublishResponse.class)
+        if (!npmResponse.success) {
+            throw new IllegalStateException("Didn't publish properly the NPM module ${pck.name}: ${npmResponse.error}")
+        }
+        return true
     }
 
     def logout() {
