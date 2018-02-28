@@ -28,7 +28,7 @@
   <description>Actually framework documentation, generated as a website and pushed to Github pages.</description>
 
   <properties>
-    <antora.version>1.0.0-alpha.7</antora.version>
+    <antora.version>1.0.0-alpha.8</antora.version>
 
     <project_version>${project.version}</project_version>
     <sample_project-base>${project.basedir}/../sample</sample_project-base>
