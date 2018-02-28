@@ -41,6 +41,12 @@ if (!antoraLoadAdoc.text.contains('docbranch')) {
             'const intrinsicAttrs = {',
             'const intrinsicAttrs = {docbranch: (file.origin || (file.src || {}).origin || { branch: \'unknown\' }).branch,')
 }
+def aggregateContent = new File(project.basedir, 'src/main/frontend/node_modules/@antora/content-aggregator/lib/aggregate-content.js')
+if (!aggregateContent.text.contains('segments[1] === \'tags\'')) {
+    aggregateContent.text = aggregateContent.text.replace(
+            'if (segments[1] === \'heads\') {',
+            'if (segments[1] === \'heads\' || segments[1] === \'tags\') {')
+}
 
 // populate index
 class Document {
