@@ -694,7 +694,7 @@
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <localCheckout>true</localCheckout>
           <pushChanges>false</pushChanges>
-          <releaseProfiles>release,gh-pages</releaseProfiles>
+          <releaseProfiles>release</releaseProfiles>
           <goals>deploy pre-site</goals>
         </configuration>
       </plugin>
