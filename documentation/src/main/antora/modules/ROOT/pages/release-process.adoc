@@ -1,7 +1,7 @@
 = Talend Component Kit Release Process
 :page-partial:
 
-Version: {project_version}
+Version: {docversion}
 
 This page gives some hints about how to release the repository.
 

@@ -444,6 +444,7 @@
                 <partialsdir>${project.basedir}/src/main/antora/modules/ROOT/pages/_partials</partialsdir>
                 <imagesdir>${project.basedir}/src/main/antora/modules/ROOT/assets/images</imagesdir>
                 <project_version>${versions.release}</project_version>
+                <docversion>${versions.release}</docversion>
                 <deploymentRoot>https://talend.github.io/component-runtime</deploymentRoot>
                 <git_branch>${git.branch}</git_branch>
               </attributes>

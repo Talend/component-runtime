@@ -1,5 +1,5 @@
 = Talend Component Kit Developer Reference Guide
-{project_version}
+v{docversion}
 
 include::design.adoc[leveloffset=+1]
 
