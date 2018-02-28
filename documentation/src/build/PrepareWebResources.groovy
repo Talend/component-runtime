@@ -39,7 +39,7 @@ def antoraLoadAdoc = new File(project.basedir, 'src/main/frontend/node_modules/@
 if (!antoraLoadAdoc.text.contains('docbranch')) {
     antoraLoadAdoc.text = antoraLoadAdoc.text.replace(
             'const intrinsicAttrs = {',
-            'const intrinsicAttrs = {docbranch: (file.origin || (file.src || {}).origin || { branch: \'unknown\' }).branch,')
+            'const intrinsicAttrs = {docbranch: (file.origin || (file.src || {}).origin || { branch: \'unknown\' }).branch, docversion: (file.src || {}).version,')
 }
 
 // populate index
