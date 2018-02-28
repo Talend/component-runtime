@@ -13,13 +13,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -34,7 +32,7 @@
     <sample_project-base>${project.basedir}/../sample</sample_project-base>
     <sample_project>${sample_project-base}/src/main/java/org/talend/sdk/component/sample</sample_project>
     <sample_project_test>${sample_project-base}/src/test/java/org/talend/sdk/component/sample</sample_project_test>
-    <site.rootpath></site.rootpath>
+    <site.rootpath />
     <talend.documentation.generation.skip>false</talend.documentation.generation.skip>
 
     <args4j.version>2.33</args4j.version>

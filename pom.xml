@@ -13,15 +13,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
   <packaging>pom</packaging>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <name>Component Runtime</name>
   <description>Talend Component Kit Runtime</description>
   <url>https://talend.github.io/component-runtime/</url>
@@ -563,82 +561,80 @@
           <excludes>**/HelpMojo*,**/maven/legacy/model/**</excludes>
           <checkstyleRules>
             <module name="Checker">
-              <module name="SuppressionCommentFilter"/>
+              <module name="SuppressionCommentFilter" />
               <module name="FileLength">
-                <property name="max" value="3500"/>
-                <property name="fileExtensions" value="java"/>
+                <property name="max" value="3500" />
+                <property name="fileExtensions" value="java" />
               </module>
-              <module name="FileTabCharacter"/>
+              <module name="FileTabCharacter" />
               <module name="TreeWalker">
-                <module name="FinalParameters"/>
-                <module name="FileContentsHolder"/>
+                <module name="FinalParameters" />
+                <module name="FileContentsHolder" />
                 <module name="ConstantName">
-                  <property name="format"
-                            value="^_?((log)|(logger)|([a-z][a-zA-Z]*ThreadLocal)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$"/>
+                  <property name="format" value="^_?((log)|(logger)|([a-z][a-zA-Z]*ThreadLocal)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$" />
                 </module>
-                <module name="LocalVariableName"/>
+                <module name="LocalVariableName" />
                 <module name="MethodName">
-                  <property name="format" value="^_?[a-z][a-zA-Z0-9]*$"/>
+                  <property name="format" value="^_?[a-z][a-zA-Z0-9]*$" />
                 </module>
-                <module name="PackageName"/>
-                <module name="LocalFinalVariableName"/>
-                <module name="ParameterName"/>
-                <module name="StaticVariableName"/>
+                <module name="PackageName" />
+                <module name="LocalFinalVariableName" />
+                <module name="ParameterName" />
+                <module name="StaticVariableName" />
                 <module name="TypeName">
-                  <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$"/>
+                  <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$" />
                 </module>
                 <module name="AvoidStarImport">
-                  <property name="excludes"
-                            value="java.io,java.net,java.util,javax.enterprise.inject.spi,javax.enterprise.context"/>
+                  <property name="excludes" value="java.io,java.net,java.util,javax.enterprise.inject.spi,javax.enterprise.context" />
                 </module>
-                <module name="IllegalImport"/>
-                <module name="RedundantImport"/>
-                <module name="UnusedImports"/>
+                <module name="IllegalImport" />
+                <module name="RedundantImport" />
+                <module name="UnusedImports" />
                 <module name="LineLength">
-                  <property name="max" value="180"/>
-                  <property name="ignorePattern" value="@version|@see"/>
+                  <property name="max" value="180" />
+                  <property name="ignorePattern" value="@version|@see" />
                 </module>
                 <module name="MethodLength">
-                  <property name="max" value="250"/>
+                  <property name="max" value="250" />
                 </module>
                 <module name="ParameterNumber">
-                  <property name="max" value="10"/>
+                  <property name="max" value="10" />
                 </module>
                 <module name="EmptyBlock">
-                  <property name="option" value="text"/>
+                  <property name="option" value="text" />
                 </module>
-                <module name="NeedBraces"/>
+                <module name="NeedBraces" />
                 <module name="LeftCurly">
-                  <property name="option" value="EOL"/>
+                  <property name="option" value="EOL" />
                 </module>
                 <module name="RightCurly">
-                  <property name="option" value="SAME"/>
+                  <property name="option" value="SAME" />
                 </module>
-                <module name="EmptyStatement"/>
-                <module name="EqualsHashCode"/>
-                <module name="DefaultComesLast"/>
-                <module name="MissingSwitchDefault"/>
-                <module name="FallThrough"/>
-                <module name="MultipleVariableDeclarations"/>
+                <module name="EmptyStatement" />
+                <module name="EqualsHashCode" />
+                <module name="DefaultComesLast" />
+                <module name="MissingSwitchDefault" />
+                <module name="FallThrough" />
+                <module name="MultipleVariableDeclarations" />
                 <module name="com.puppycrawl.tools.checkstyle.checks.design.DesignForExtensionCheck">
-                  <property name="severity" value="ignore"/>
+                  <property name="severity" value="ignore" />
                 </module>
                 <!-- using lombok this constraint is not accurate
                 <module name="HideUtilityClassConstructor" />
                 -->
                 <module name="com.puppycrawl.tools.checkstyle.checks.design.VisibilityModifierCheck">
-                  <property name="packageAllowed" value="false"/>
-                  <property name="protectedAllowed" value="true"/>
-                  <property name="publicMemberPattern" value="^serialVersionUID"/>
-                  <property name="severity" value="warning"/>
+                  <property name="packageAllowed" value="false" />
+                  <property name="protectedAllowed" value="true" />
+                  <property name="publicMemberPattern" value="^serialVersionUID" />
+                  <property name="severity" value="warning" />
                 </module>
-                <module name="UpperEll"/>
+                <module name="UpperEll" />
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javax,com,org,orgomg,brave,freemarker,io,zipkin2,lombok"/>
-                  <property name="ordered" value="true"/>
-                  <property name="separated" value="true"/>
-                  <property name="option" value="top"/>
-                  <property name="sortStaticImportsAlphabetically" value="true"/>
+                  <property name="groups" value="*,java,javax,com,org,orgomg,brave,freemarker,io,zipkin2,lombok" />
+                  <property name="ordered" value="true" />
+                  <property name="separated" value="true" />
+                  <property name="option" value="top" />
+                  <property name="sortStaticImportsAlphabetically" value="true" />
                 </module>
               </module>
             </module>
@@ -838,7 +834,7 @@
     <connection>scm:git:https://github.com/Talend/component-runtime.git</connection>
     <developerConnection>scm:git:https://github.com/Talend/component-runtime.git</developerConnection>
     <url>https://github.com/Talend/component-runtime</url>
-    <tag>HEAD</tag>
+    <tag>component-runtime-0.0.1</tag>
   </scm>
 
   <developers>
