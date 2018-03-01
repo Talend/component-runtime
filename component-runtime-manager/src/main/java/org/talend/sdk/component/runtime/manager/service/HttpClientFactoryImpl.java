@@ -428,7 +428,9 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         currentPath = fn.apply(currentPath, params);
                     }
                     if (!queryBuilder.isEmpty()) {
-                        currentPath += "?" + queryBuilder.stream().map(b -> b.apply(params)).collect(joining("&"));
+                        currentPath +=
+                                "?" + queryBuilder.stream().map(b -> b.apply(params)).filter(v -> !v.isEmpty()).collect(
+                                        joining("&"));
                     }
                     HttpURLConnection urlConnection = null;
                     try {
