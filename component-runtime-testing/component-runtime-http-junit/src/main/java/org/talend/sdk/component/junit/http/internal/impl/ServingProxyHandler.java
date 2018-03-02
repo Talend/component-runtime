@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.closeOnFlush;
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.sendError;
 
+import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -95,7 +96,7 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
                                 + (parts.length > 1 && !"443".equals(parts[1]) ? ":" + parts[1] : ""));
                     }
                 } else {
-                    sendError(ctx,new  HttpResponseStatus(400,
+                    sendError(ctx, new HttpResponseStatus(HttpURLConnection.HTTP_BAD_REQUEST,
                             "You are in proxy mode. No response was found for the simulated request. Please ensure to capture it for next executions. "
                                     + request.method().name() + " " + request.uri()));
                     return;
