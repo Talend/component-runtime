@@ -87,14 +87,6 @@
       <id>gradle-libs-releases-local</id>
       <url>http://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
-    <repository>
-      <id>johnzon-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1025</url>
-    </repository>
-    <repository>
-      <id>meecrowave-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1039/</url>
-    </repository>
   </repositories>
 
 
@@ -126,14 +118,6 @@
     <pluginRepository>
       <id>asf-snapshot</id>
       <url>http://repository.apache.org/snapshots</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>johnzon-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1025</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>meecrowave-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1039/</url>
     </pluginRepository>
   </pluginRepositories>
 

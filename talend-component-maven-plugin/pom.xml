@@ -27,8 +27,6 @@
   <description>Provides Talend Component Kit Tools wrapped as Maven Mojos.</description>
 
   <properties>
-    <components.version>0.19.7</components.version>
-
     <invoker.streamLogs>true</invoker.streamLogs>
 
     <talend.build.name>${talend.build.name.base}.maven</talend.build.name>
