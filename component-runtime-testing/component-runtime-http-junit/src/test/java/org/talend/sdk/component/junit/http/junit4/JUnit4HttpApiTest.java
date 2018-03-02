@@ -58,6 +58,23 @@ public class JUnit4HttpApiTest {
         assertEquals("true", response.headers().get("X-Talend-Proxy-JUnit"));
     }
 
+    @Test
+    public void noSimulationFile() throws Exception {
+        final URL url = new URL("http://foo.bar.not.existing.talend.com/component/test?api=true");
+        final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection());
+        connection.setConnectTimeout(30000);
+        connection.setReadTimeout(20000);
+        connection.setRequestMethod("GET");
+        try {
+            assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, connection.getResponseCode());
+            assertEquals(
+                    "You are in proxy mode. No response was found for the simulated request. Please ensure to capture it for next executions. GET http://foo.bar.not.existing.talend.com/component/test?api=true",
+                    connection.getResponseMessage());
+        } finally {
+            connection.disconnect();
+        }
+    }
+
     private Response execute(final String method, final String uri, final String payload) throws Exception {
         final URL url = new URL(uri);
         final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection());
