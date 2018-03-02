@@ -95,7 +95,9 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
                                 + (parts.length > 1 && !"443".equals(parts[1]) ? ":" + parts[1] : ""));
                     }
                 } else {
-                    sendError(ctx, HttpResponseStatus.BAD_REQUEST);
+                    sendError(ctx,new  HttpResponseStatus(400,
+                            "You are in proxy mode. No response was found for the simulated request. Have you done a capture for it before. "
+                                    + request.method().name() + " " + request.uri()));
                     return;
                 }
             }
