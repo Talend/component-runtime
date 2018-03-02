@@ -96,7 +96,7 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
                     }
                 } else {
                     sendError(ctx,new  HttpResponseStatus(400,
-                            "You are in proxy mode. No response was found for the simulated request. Have you done a capture for it before. "
+                            "You are in proxy mode. No response was found for the simulated request. Please ensure to capture it for next executions. "
                                     + request.method().name() + " " + request.uri()));
                     return;
                 }
