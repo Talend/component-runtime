@@ -20,16 +20,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.server.front.model.ActionItem;
 import org.talend.sdk.component.server.front.model.ActionList;
+import org.talend.sdk.component.server.front.model.ErrorDictionary;
+import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 
 @MonoMeecrowaveConfig
 class ActionResourceTest {
@@ -59,6 +65,39 @@ class ActionResourceTest {
                 .request(APPLICATION_JSON_TYPE)
                 .get(ActionList.class);
         assertEquals(1, index.getItems().size());
+    }
+
+    @Test
+    void executeReturns520OnCallbackError() {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "healthcheck")
+                .queryParam("family", "chain")
+                .queryParam("action", "default")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
+        assertEquals(520, error.getStatus());
+        assertEquals(ErrorDictionary.ACTION_ERROR, error.readEntity(ErrorPayload.class).getCode());
+        assertEquals("Action execution failed with: simulating an unexpected error",
+                error.readEntity(ErrorPayload.class).getDescription());
+    }
+
+    @Test
+    void execute() {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "healthcheck")
+                .queryParam("family", "chain")
+                .queryParam("action", "default")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>() {
+
+                    {
+                        put("dataSet.urls[0]", "empty");
+                    }
+                }, APPLICATION_JSON_TYPE));
+        assertEquals(200, error.getStatus());
+        assertEquals(HealthCheckStatus.Status.OK, error.readEntity(HealthCheckStatus.class).getStatus());
     }
 
     private void assertAction(final String component, final String type, final String name, final int params,

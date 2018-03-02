@@ -100,7 +100,7 @@ public class ActionResource {
         } catch (final RuntimeException re) {
             log.warn(re.getMessage(), re);
             throw new WebApplicationException(Response
-                    .status(Response.Status.BAD_REQUEST)
+                    .status(520, "Unexpected callback error")
                     .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
                             "Action execution failed with: " + re.getMessage()))
                     .build());

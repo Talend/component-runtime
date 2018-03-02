@@ -26,6 +26,9 @@ public class MyComponentService {
 
     @HealthCheck(family = "chain")
     public HealthCheckStatus doCheck(final ListInput.MyDataSet dataSet) {
+        if (dataSet == null || dataSet.getUrls() == null) {
+            throw new IllegalStateException("simulating an unexpected error");
+        }
         return new HealthCheckStatus(HealthCheckStatus.Status.OK, "All good");
     }
 

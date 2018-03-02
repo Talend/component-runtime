@@ -20,6 +20,7 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -80,7 +81,7 @@ public class WebAppComponentProxy {
             @PathParam("id") final String id) {
         final List<ComponentDetail> details = client.details(language, id, new String[0]).getDetails();
         if (details.isEmpty()) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         return uiSpecService.convert(details.iterator().next());
     }
