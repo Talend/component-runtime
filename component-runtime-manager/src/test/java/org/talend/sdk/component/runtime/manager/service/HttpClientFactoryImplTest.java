@@ -19,6 +19,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,6 +33,8 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.json.bind.JsonbBuilder;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -230,6 +233,35 @@ public class HttpClientFactoryImplTest {
         }
     }
 
+    @Test
+    void ignoreNullQueryParam() throws IOException {
+        final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/").setHandler(httpExchange -> {
+            final String query = httpExchange.getRequestURI().getQuery();
+            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, query.getBytes("utf-8").length);
+            httpExchange.getResponseBody().write(query.getBytes("utf-8"));
+            httpExchange.close();
+        });
+        try {
+            server.start();
+            final IgnoreNullQueryParam ok = newDefaultFactory().create(IgnoreNullQueryParam.class, null);
+            ok.base("http://localhost:" + server.getAddress().getPort() + "/api");
+            String query = ok.get("value", "", null);
+            final Map<String, String> params = Stream.of(query.split("&")).map(s -> {
+                final int equal = s.indexOf('=');
+                if (equal > 0) {
+                    return new String[] { s.substring(0, equal), s.substring(equal + 1, s.length()) };
+                }
+                return new String[] { s, "true" };
+            }).collect(toMap(s -> s[0], s -> s[1]));
+            assertTrue(params.containsKey("param"));
+            assertTrue(params.containsKey("emptyParam"));
+            assertTrue(!params.containsKey("nullParam"));
+        } finally {
+            server.stop(0);
+        }
+    }
+
     private HttpClientFactoryImpl newDefaultFactory() {
         return new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
                 JsonbBuilder.create(), emptyMap());
@@ -302,6 +334,13 @@ public class HttpClientFactoryImplTest {
 
         @Request
         String main(Payload payload);
+    }
+
+    public interface IgnoreNullQueryParam extends HttpClient {
+
+        @Request
+        String get(@Query("param") String param, @Query("emptyParam") String emptyParam,
+                @Query("nullParam") String nullParam);
     }
 
     public interface DecoderWithService extends HttpClient {
