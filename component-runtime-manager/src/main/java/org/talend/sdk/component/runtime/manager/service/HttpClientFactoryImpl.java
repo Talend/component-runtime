@@ -390,7 +390,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                                 value = queryEncode(value);
                             }
                             return queryName + '=' + value;
-                        }).orElse(""));
+                        }).orElse(null));
                     } else if (parameters[i].isAnnotationPresent(Header.class)) {
                         final String headerName = parameters[i].getAnnotation(Header.class).value();
                         headerProvider
@@ -429,7 +429,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                     }
                     if (!queryBuilder.isEmpty()) {
                         currentPath +=
-                                "?" + queryBuilder.stream().map(b -> b.apply(params)).filter(v -> !v.isEmpty()).collect(
+                                "?" + queryBuilder.stream().map(b -> b.apply(params)).filter(Objects::nonNull).collect(
                                         joining("&"));
                     }
                     HttpURLConnection urlConnection = null;
