@@ -968,8 +968,7 @@ public class ComponentManager implements AutoCloseable {
                  * now, no need to scan all the world
                  */
                 archive = Optional.of(container.getRootModule()).map(f -> toArchive(container, loader, f)).orElseThrow(
-                        () -> new IllegalArgumentException("Unsupported scanning on " + container.getRootModule()
-                                + ", since it is neither a file nor a jar."));
+                        () -> new IllegalArgumentException("Missing file " + container.getRootModule()));
 
                 // undocumented scanning config for now since we would document it only if
                 // proven useful
