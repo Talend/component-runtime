@@ -517,6 +517,28 @@
           <webapp>${project.build.directory}/${project.build.finalName}</webapp>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>com.github.rmannibucau</groupId>
+        <artifactId>asciidoctor2dita</artifactId>
+        <version>0.0.1</version>
+        <executions>
+          <execution>
+            <id>adoc2dita</id>
+            <goals>
+              <goal>adoc2dita</goal>
+            </goals>
+            <configuration>
+              <source>${project.basedir}/src/main/antora/modules/ROOT/pages</source>
+              <target>${project.build.directory}/dita</target>
+              <attach>true</attach>
+              <formats>
+                <format>zip</format>
+              </formats>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
