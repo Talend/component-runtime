@@ -102,6 +102,8 @@ public class MavenDecrypter {
 
         private Server server;
 
+        private String encryptedPassword;
+
         private boolean done;
 
         private StringBuilder current;
@@ -133,6 +135,8 @@ public class MavenDecrypter {
         @Override
         public void endElement(final String uri, final String localName, final String qName) {
             if (done) {
+                //decrypt password only when the server is found
+                server.setPassword(doDecrypt(encryptedPassword, passphrase));
                 return;
             }
             if ("server".equalsIgnoreCase(qName)) {
@@ -150,7 +154,7 @@ public class MavenDecrypter {
                     server.setUsername(current.toString());
                     break;
                 case "password":
-                    server.setPassword(doDecrypt(current.toString(), passphrase));
+                    encryptedPassword = current.toString();
                     break;
                 default:
                 }
@@ -168,7 +172,7 @@ public class MavenDecrypter {
                 return value; // not encrypted, just use it
             }
 
-            if(pwd == null || pwd.isEmpty()){
+            if (pwd == null || pwd.isEmpty()) {
                 throw new IllegalArgumentException("Master password can't be null or empty.");
             }
 
