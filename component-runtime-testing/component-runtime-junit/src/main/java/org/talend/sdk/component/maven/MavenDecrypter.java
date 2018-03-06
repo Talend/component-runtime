@@ -144,6 +144,7 @@ public class MavenDecrypter {
                     done = true;
                 } else if (!done) {
                     server = null;
+                    encryptedPassword = null;
                 }
             } else if (server != null && current != null) {
                 switch (qName) {
