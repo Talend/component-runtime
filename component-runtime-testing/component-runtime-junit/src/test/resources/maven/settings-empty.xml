@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+  <servers>
+    <server>
+      <id>encrypted-empty-master</id>
+      <username>repouser</username>
+      <password>{Gz6eA6M3UIYH9ZIxJqS30R1QQqofKO4lEBaBPWbk/oE=} the password is 'encrypted'</password>
+    </server>
+  </servers>
+</settings>

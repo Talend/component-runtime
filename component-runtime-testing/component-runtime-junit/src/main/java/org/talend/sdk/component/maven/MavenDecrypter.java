@@ -159,9 +159,17 @@ public class MavenDecrypter {
         }
 
         private String doDecrypt(final String value, final String pwd) {
+            if (value == null) {
+                return null;
+            }
+
             final Matcher matcher = ENCRYPTED_PATTERN.matcher(value);
             if (!matcher.matches() && !matcher.find()) {
                 return value; // not encrypted, just use it
+            }
+
+            if(pwd == null || pwd.isEmpty()){
+                throw new IllegalArgumentException("Master password can't be null or empty.");
             }
 
             final String bare = matcher.group(1);
@@ -169,7 +177,7 @@ public class MavenDecrypter {
                 throw new IllegalArgumentException("Unsupported encryption for " + value);
             }
 
-            final byte[] allEncryptedBytes = Base64.getMimeDecoder().decode(value);
+            final byte[] allEncryptedBytes = Base64.getMimeDecoder().decode(bare);
             final int totalLen = allEncryptedBytes.length;
             final byte[] salt = new byte[8];
             System.arraycopy(allEncryptedBytes, 0, salt, 0, 8);
