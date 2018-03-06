@@ -24,6 +24,7 @@ import static lombok.AccessLevel.PRIVATE;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,14 +138,14 @@ public class ContainerManager implements Lifecycle {
      * @param task
      * @return false if no error occurred during invocation of the task, true otherwise
      */
-    private static boolean safeInvoke(final Runnable task) {
+    private static RuntimeException safeInvoke(final Runnable task) {
         try {
             task.run();
-            return false;
         } catch (final RuntimeException re) {
             log.error(re.getMessage(), re);
-            return true;
+            return re;
         }
+        return null;
     }
 
     public Set<String> getDefinedNestedPlugin() {
@@ -362,8 +363,11 @@ public class ContainerManager implements Lifecycle {
             container.set(ContainerBuilder.class, this);
             container.set(Actions.class, new Actions(container));
 
-            final Collection<ContainerListener> calledListeners =
-                    listeners.stream().filter(l -> !safeInvoke(() -> l.onCreate(container))).collect(toList());
+            final Collection<RuntimeException> re = new ArrayList<>();
+            final Collection<ContainerListener> calledListeners = listeners
+                    .stream()
+                    .filter(l -> !ofNullable(safeInvoke(() -> l.onCreate(container))).map(re::add).orElse(false))
+                    .collect(toList());
             if (calledListeners.size() == listeners.size()) {
                 if (containers.putIfAbsent(id, container) != null) {
                     container.setState(Container.State.ON_ERROR);
@@ -373,12 +377,15 @@ public class ContainerManager implements Lifecycle {
             } else {
                 info("Failed creating container " + id);
                 calledListeners.forEach(l -> safeInvoke(() -> l.onClose(container)));
-                throw new IllegalArgumentException(id);
+                final IllegalArgumentException exception = new IllegalArgumentException(id + " can't be deployed");
+                re.forEach(exception::addSuppressed);
+                throw exception;
             }
 
             container.setState(Container.State.DEPLOYED);
             info("Created container " + id);
             return container;
         }
+
     }
 }
