@@ -135,7 +135,7 @@ public class MavenDecrypter {
         @Override
         public void endElement(final String uri, final String localName, final String qName) {
             if (done) {
-                //decrypt password only when the server is found
+                // decrypt password only when the server is found
                 server.setPassword(doDecrypt(encryptedPassword, passphrase));
                 return;
             }
