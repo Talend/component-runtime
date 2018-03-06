@@ -967,8 +967,7 @@ public class ComponentManager implements AutoCloseable {
                  * container.findExistingClasspathFiles() - we just scan the root module for
                  * now, no need to scan all the world
                  */
-                archive = Optional.of(container.getRootModule()).map(f -> toArchive(container, loader, f)).orElseThrow(
-                        () -> new IllegalArgumentException("Missing file " + container.getRootModule()));
+                archive = toArchive(container.getRootModule(), loader);
 
                 // undocumented scanning config for now since we would document it only if
                 // proven useful
@@ -1213,43 +1212,67 @@ public class ComponentManager implements AutoCloseable {
                     invoker);
         }
 
-        private Archive toArchive(final Container container, final ConfigurableClassLoader loader,
-                final String module) {
-            final File file = new File(module);
-            if (file.exists()) {
-                if (file.isDirectory()) {
-                    return new FileArchive(loader, file);
-                }
-                if (file.getName().endsWith(".jar")) {
-                    try {
-                        return new JarArchive(loader, file.toURI().toURL());
-                    } catch (final MalformedURLException e) {
-                        throw new IllegalArgumentException(e);
-                    }
-                }
+        private Archive toArchive(final String module, final ConfigurableClassLoader loader) {
+            if (module == null || module.isEmpty()) {
+                throw new IllegalArgumentException("module can't be null");
             }
 
-            info(container.getRootModule() + " is not a file, will try to look it up from a nested maven repository");
-
-            final InputStream nestedJar = loader.getParent().getResourceAsStream(
-                    ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + container.getRootModule());
-            if (nestedJar != null) {
-                final JarInputStream jarStream;
+            final File file = new File(module);
+            switch (moduleType(module, loader)) {
+            case "directory":
+                return new FileArchive(loader, file);
+            case "jar":
                 try {
-                    jarStream = new JarInputStream(nestedJar);
-                    log.debug("Found a nested resource for " + container.getRootModule());
+                    return new JarArchive(loader, file.toURI().toURL());
+                } catch (final MalformedURLException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            case "nested-jar":
+                info(module + " is not a file, will try to look it up from a nested maven repository");
+                final InputStream nestedJar = loader.getParent().getResourceAsStream(
+                        ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + module);
+                try {
+                    final JarInputStream jarStream = new JarInputStream(nestedJar);
+                    log.debug("Found a nested resource for " + module);
                     return new NestedJarArchive(jarStream, loader);
-                } catch (final IOException e) {
+                } catch (IOException e) {
                     try {
                         nestedJar.close();
                     } catch (final IOException e1) {
                         // no-op
                     }
+                    throw new IllegalArgumentException(e);
+                }
+            default:
+                throw new IllegalArgumentException("Unsupported module type: '" + module + "'");
+            }
+        }
+
+        private String moduleType(final String module, final ClassLoader loader) {
+            File file = new File(module);
+            if (file.isDirectory()) {
+                return "directory";
+            }
+
+            if (file.exists()) {
+                if (file.getName().endsWith(".jar")) {
+                    return "jar";
+                }
+                throw new IllegalArgumentException("Unsupported module type: '" + module + "'");
+            }
+
+            final URL nested = loader.getParent().getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + module);
+            if (nested != null) {
+                File nestedFile = new File(nested.getPath());
+                if (nestedFile.exists()) {
+                    if (nestedFile.getName().endsWith(".jar")) {
+                        return "nested-jar";
+                    }
+                    throw new IllegalArgumentException("Unsupported module type: '" + module + "'");
                 }
             }
 
-            log.warn("Didn't find " + container.getRootModule());
-            return null;
+            throw new IllegalArgumentException("Missing file: '" + module + "'");
         }
 
         @Override
