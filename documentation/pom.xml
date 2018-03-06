@@ -532,6 +532,7 @@
               <source>${project.basedir}/src/main/antora/modules/ROOT/pages</source>
               <target>${project.build.directory}/dita</target>
               <attach>true</attach>
+              <classifier>dita</classifier>
               <formats>
                 <format>zip</format>
               </formats>
