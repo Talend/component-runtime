@@ -18,6 +18,7 @@ package org.talend.sdk.component.junit;
 import static org.junit.Assert.assertEquals;
 import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
 
+import java.net.URI;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,18 @@ class SimpleFactoryTest {
                 put("configuration.name", "Tester");
             }
         }, configurationByExample(flat));
+    }
+
+    @Test
+    void toQuery() {
+        final Flat flat = new Flat();
+        flat.age = 31;
+        flat.name = "http://u:p@foo.com?test=value";
+        final String queryString = configurationByExample().forInstance(flat).configured().toQueryString();
+        assertEquals("configuration.age=31&configuration.name=http%3A%2F%2Fu%3Ap%40foo.com%3Ftest%3Dvalue",
+                queryString);
+        assertEquals("configuration.age=31&configuration.name=http://u:p@foo.com?test=value",
+                URI.create("test://foo?" + queryString).getQuery());
     }
 
     @NoArgsConstructor

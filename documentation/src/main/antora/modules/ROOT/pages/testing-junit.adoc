@@ -145,6 +145,18 @@ componentConfig.setUser("....");
 final Map<String, String> configuration = configurationByExample(componentConfig);
 ----
 
+The same factory provides a fluent DSL to create configuration calling `configurationByExample` without any parameter.
+The advantage is to be able to convert an object as a `Map<String, String>` as seen previously or as a query string
+to use it with the `Job` DSL:
+
+[source,java]
+----
+final String uri = "family://component?" +
+    configurationByExample().forInstance(componentConfig).configured().toQueryString();
+----
+
+It handles the encoding of the URI to ensure it is correctly done.
+
 === Testing a Mapper
 
 The `SimpleComponentRule` also allows to test a mapper unitarly, you can get an instance from a configuration
