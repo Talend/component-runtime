@@ -28,6 +28,7 @@ import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.test.ComponentClient;
+import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
 @MonoMeecrowaveConfig
 class DocumentationResourceTest {
@@ -37,6 +38,20 @@ class DocumentationResourceTest {
 
     @Inject
     private ComponentClient client;
+
+    @Inject
+    private WebsocketClient ws;
+
+    @Test
+    void wsDoc() {
+        final DocumentationContent content = ws.read(DocumentationContent.class, "GET",
+                "/documentation/component/" + client.getJdbcId() + "?format=html", null);
+        assertEquals("html", content.getType());
+        assertEquals(
+                "<div class=\"sect1\">\n" + "<h2 id=\"_component\">Component</h2>\n" + "<div class=\"sectionbody\">\n"
+                        + "<div class=\"paragraph\">\n" + "<p>Something</p>\n" + "</div>\n" + "</div>\n" + "</div>",
+                content.getSource());
+    }
 
     @Test
     void getDoc() {

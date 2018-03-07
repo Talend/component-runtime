@@ -1009,8 +1009,8 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         }
 
         @Override
-        public PrintWriter getWriter() throws IOException {
-            return writer == null ? (writer = new PrintWriter(sosi)) : writer;
+        public PrintWriter getWriter() {
+            return writer == null ? (writer = new PrintWriter(getOutputStream())) : writer;
         }
 
         @Override
