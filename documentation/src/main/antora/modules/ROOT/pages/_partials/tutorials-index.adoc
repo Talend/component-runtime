@@ -4,4 +4,4 @@
 * xref:tutorial-test-your-components.adoc[Test your components]
 * xref:tutorial-configuration-sensitive-data.adoc[Configuration and sensitive data]
 * xref:tutorial-create-components-rest-api.adoc[Create components for REST API]
-* xref:tutorial-test-rest-api.adoc[How to test a component that consume a REST API]
+* xref:tutorial-test-rest-api.adoc[How to test a REST API]

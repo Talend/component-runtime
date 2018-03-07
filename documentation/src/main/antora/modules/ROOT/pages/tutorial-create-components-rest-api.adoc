@@ -6,7 +6,7 @@
 In this tutorial we will show how to create components that consume a REST API.
 
 As an example, we will develop an input component that will provide a search functionality for Zendesk using there
-xref:https://developer.zendesk.com/rest_api/docs/core/search[Search API].
+https://developer.zendesk.com/rest_api/docs/core/search[Search API].
 
 NOTE: We use lambok. to get ride of getters, setters and constructors from our classes.
 
