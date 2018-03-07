@@ -17,6 +17,8 @@ cache:
   - "$HOME/.cache/yarn"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-starter-server/.node"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-starter-server/src/main/frontend/node_modules"
+  - "$HOME/build/Talend/component-runtime/component-runtime/component-server/.node"
+  - "$HOME/build/Talend/component-runtime/component-runtime/component-server/src/main/frontend/node_modules"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-tools/.node"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-tools/src/main/frontend/node_modules"
   - "$HOME/build/Talend/component-runtime/component-runtime/component-tools-webapp/.node"

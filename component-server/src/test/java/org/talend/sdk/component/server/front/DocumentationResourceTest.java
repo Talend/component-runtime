@@ -46,7 +46,22 @@ class DocumentationResourceTest {
                 .request(APPLICATION_JSON_TYPE)
                 .get(DocumentationContent.class);
         assertEquals("asciidoc", content.getType());
-        assertEquals("= Test", content.getSource());
+        assertEquals("= Test\n\n== Component\n\nSomething", content.getSource());
+    }
+
+    @Test
+    void getDocHtml() {
+        final DocumentationContent content = base
+                .path("documentation/component/{id}")
+                .resolveTemplate("id", client.getJdbcId())
+                .queryParam("format", "html")
+                .queryParam("headerFooter", false)
+                .request(APPLICATION_JSON_TYPE)
+                .get(DocumentationContent.class);
+        assertEquals("html", content.getType());
+        assertEquals("<div class=\"sect1\">\n<h2 id=\"_component\">Component</h2>\n<div "
+                + "class=\"sectionbody\">\n<div " + "class=\"paragraph\">\n<p>Something</p>\n</div>\n</div>\n</div>",
+                content.getSource());
     }
 
     @Test

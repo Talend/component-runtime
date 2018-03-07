@@ -470,11 +470,13 @@ Allows to migrate a configuration without calling any component execution.
 == `GET api/v1/documentation/component/{id}`
 
 Returns an asciidoctor version of the documentation for the component represented by its identifier `id`.
+Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get a partial document.
 
 
 === Request
 _No body_ + 
 *Path Param*: `id`, `java.lang.String` + 
+*Query Param*: `format`, `java.lang.String` + 
 *Query Param*: `language`, `java.lang.String` + 
 
 === Response

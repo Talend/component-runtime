@@ -26,6 +26,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -47,8 +49,10 @@ import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
+import org.talend.sdk.component.server.service.AsciidoctorService;
 import org.talend.sdk.component.server.service.LocaleMapper;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -65,45 +69,96 @@ public class DocumentationResource {
     @Inject
     private ComponentManager manager;
 
+    @Inject
+    private AsciidoctorService adoc;
+
     @GET
     @Path("component/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Documentation("Returns an asciidoctor version of the documentation for the component represented by its identifier `id`.")
+    @Documentation("Returns an asciidoctor version of the documentation for the component represented by its identifier `id`.\n"
+            + "Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get "
+            + "a partial document.")
     public DocumentationContent getDocumentation(@PathParam("id") final String id,
-            @QueryParam("language") @DefaultValue("en") final String language) {
+            @QueryParam("language") @DefaultValue("en") final String language,
+            @QueryParam("format") @DefaultValue("asciidoc") final String format) {
         final Locale locale = localeMapper.mapLocale(language);
-        final String content = ofNullable(componentDao.findById(id))
+        final Container container = ofNullable(componentDao.findById(id))
                 .map(meta -> manager
                         .findPlugin(meta.getParent().getPlugin())
-                        .map(Container::getLoader)
                         .orElseThrow(() -> new WebApplicationException(Response
                                 .status(NOT_FOUND)
                                 .entity(new ErrorPayload(ErrorDictionary.PLUGIN_MISSING,
                                         "No plugin '" + meta.getParent().getPlugin() + "'"))
                                 .build())))
-                // todo: handle i18n properly, for now just fallback on not suffixed version and assume the dev put it
-                // in the comp
-                .flatMap(loader -> Stream
-                        .of("documentation_" + locale.getLanguage() + ".adoc", "documentation_" + language + ".adoc",
-                                "documentation.adoc")
-                        .map(name -> loader.getResource("TALEND-INF/" + name))
-                        .filter(Objects::nonNull)
-                        .findFirst())
-                .map(url -> {
-                    try (final BufferedReader stream =
-                            new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
-                        return stream.lines().collect(joining("\n"));
-                    } catch (final IOException e) {
-                        throw new WebApplicationException(Response
-                                .status(INTERNAL_SERVER_ERROR)
-                                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage()))
-                                .build());
-                    }
-                })
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(NOT_FOUND)
                         .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component '" + id + "'"))
                         .build()));
-        return new DocumentationContent("asciidoc", content);
+
+        // rendering to html can be slow so do it lazily and once
+        DocumentationCache cache = container.get(DocumentationCache.class);
+        if (cache == null) {
+            synchronized (container) {
+                cache = container.get(DocumentationCache.class);
+                if (cache == null) {
+                    cache = new DocumentationCache();
+                    container.set(DocumentationCache.class, cache);
+                }
+            }
+        }
+
+        return cache.documentations.computeIfAbsent(new DocKey(id, language, format), key -> {
+            // todo: handle i18n properly, for now just fallback on not suffixed version and assume the dev put it
+            // in the comp
+            final String content = Stream
+                    .of("documentation_" + locale.getLanguage() + ".adoc", "documentation_" + language + ".adoc",
+                            "documentation.adoc")
+                    .map(name -> container.getLoader().getResource("TALEND-INF/" + name))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .map(url -> {
+                        try (final BufferedReader stream =
+                                new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
+                            return stream.lines().collect(joining("\n"));
+                        } catch (final IOException e) {
+                            throw new WebApplicationException(Response
+                                    .status(INTERNAL_SERVER_ERROR)
+                                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage()))
+                                    .build());
+                        }
+                    })
+                    .map(value -> {
+                        switch (format) {
+                        case "html":
+                        case "html5":
+                            return adoc.toHtml(value);
+                        case "asciidoc":
+                        case "adoc":
+                        default:
+                            return value;
+
+                        }
+                    })
+                    .orElseThrow(() -> new WebApplicationException(Response
+                            .status(NOT_FOUND)
+                            .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No component '" + id + "'"))
+                            .build()));
+            return new DocumentationContent(format, content);
+        });
+    }
+
+    @Data
+    private static class DocKey {
+
+        private final String id;
+
+        private final String language;
+
+        private final String format;
+    }
+
+    private static class DocumentationCache {
+
+        private final ConcurrentMap<DocKey, DocumentationContent> documentations = new ConcurrentHashMap<>();
     }
 }
