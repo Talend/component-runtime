@@ -91,9 +91,9 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.finder.archive.Archive;
+import org.apache.xbean.finder.archive.ClasspathArchive;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.FilteredArchive;
-import org.apache.xbean.finder.archive.JarArchive;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
@@ -967,9 +967,8 @@ public class ComponentManager implements AutoCloseable {
                  * container.findExistingClasspathFiles() - we just scan the root module for
                  * now, no need to scan all the world
                  */
-                archive = Optional.of(container.getRootModule()).map(f -> toArchive(container, loader, f)).orElseThrow(
-                        () -> new IllegalArgumentException("Unsupported scanning on " + container.getRootModule()
-                                + ", since it is neither a file nor a jar."));
+                archive = toArchive(container.getRootModule(), OriginalId.class.cast(container.get(OriginalId.class)),
+                        loader);
 
                 // undocumented scanning config for now since we would document it only if
                 // proven useful
@@ -1214,31 +1213,25 @@ public class ComponentManager implements AutoCloseable {
                     invoker);
         }
 
-        private Archive toArchive(final Container container, final ConfigurableClassLoader loader,
-                final String module) {
+        private Archive toArchive(final String module, final OriginalId originalId,
+                final ConfigurableClassLoader loader) {
             final File file = new File(module);
             if (file.exists()) {
-                if (file.isDirectory()) {
-                    return new FileArchive(loader, file);
-                }
-                if (file.getName().endsWith(".jar")) {
-                    try {
-                        return new JarArchive(loader, file.toURI().toURL());
-                    } catch (final MalformedURLException e) {
-                        throw new IllegalArgumentException(e);
-                    }
+                try {
+                    return ClasspathArchive.archive(loader, file.toURI().toURL());
+                } catch (final MalformedURLException e) {
+                    throw new IllegalArgumentException(e);
                 }
             }
 
-            info(container.getRootModule() + " is not a file, will try to look it up from a nested maven repository");
-
-            final InputStream nestedJar = loader.getParent().getResourceAsStream(
-                    ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + container.getRootModule());
+            info(module + " is not a file, will try to look it up from a nested maven repository");
+            final InputStream nestedJar =
+                    loader.getParent().getResourceAsStream(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + module);
             if (nestedJar != null) {
                 final JarInputStream jarStream;
                 try {
                     jarStream = new JarInputStream(nestedJar);
-                    log.debug("Found a nested resource for " + container.getRootModule());
+                    log.debug("Found a nested resource for " + module);
                     return new NestedJarArchive(jarStream, loader);
                 } catch (final IOException e) {
                     try {
@@ -1249,8 +1242,8 @@ public class ComponentManager implements AutoCloseable {
                 }
             }
 
-            log.warn("Didn't find " + container.getRootModule());
-            return null;
+            throw new IllegalArgumentException("Module error: check that the module exist and is a jar or a directory. "
+                    + ofNullable(originalId.getValue()).orElse(module));
         }
 
         @Override
