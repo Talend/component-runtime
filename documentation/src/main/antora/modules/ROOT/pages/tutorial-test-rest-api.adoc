@@ -36,10 +36,10 @@ public class SearchTest {
         BasicAuth basicAuth = new BasicAuth("https://instance.zendesk.com", "username", "password");
         final SearchQuery searchQuery = new SearchQuery(basicAuth, "type:ticket status:open", "created_at", "desc");
 
-        // We convert our configuration instance to key value configuration <2>
-        final Map<String, String> kvConf = SimpleFactory.configurationByExample(searchQuery);
-        final String uriConfig = kvConf.keySet().stream()
-                .map(k -> k + "=" + uriEncode(kvConf.get(k))).collect(joining("&"));
+        // We convert our configuration instance to URI configuration <2>
+        final String uriConfig = SimpleFactory.configurationByExample()
+                        .forInstance(searchQuery)
+                        .configured().toQueryString();
 
         // We create our job test pipeline <3>
         Job.components()
@@ -56,9 +56,8 @@ public class SearchTest {
 ----
 <1> We initiate our authentication configuration using zendesk instance's url and credentials.
 We also initiate our search query configuration. We want to get all the open ticket order by the creation date in a descendant order.
-<2> Here we perform a simple conversion of our configuration to key value using `SimpleFactory` class provided by the component framework.
-Then, we use the key value configuration to create a configuration URI that we will use in the job test pipeline.
-xref:services-pipeline.adoc#_job_builder[Read more about job pipeline].
+<2> Here we perform a simple conversion of our configuration to URI format, that we will use in the job test pipeline,
+using `SimpleFactory` class provided by the component framework. xref:services-pipeline.adoc#_job_builder[Read more about job pipeline].
 <3> We create our job test pipeline. this is a simple pipeline that will execute our `search` component and redirect the result
 to the test collector component that will collect the search result.
 We execute the pipeline.
