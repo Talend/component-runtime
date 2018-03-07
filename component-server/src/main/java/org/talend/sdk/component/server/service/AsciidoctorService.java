@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.server.service;
 
+import java.util.function.Function;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.script.Bindings;
@@ -25,31 +27,35 @@ import javax.script.ScriptException;
 @ApplicationScoped
 public class AsciidoctorService {
 
-    private ScriptEngine jsEngine;
+    private ScriptEngineManager manager;
 
-    private String adocScript;
-
-    private Object asciidoctor;
+    private final ThreadLocal<Function<String, String>> engines = ThreadLocal.withInitial(() -> {
+        final ScriptEngine jsEngine = manager.getEngineByExtension("js");
+        try {
+            final Object asciidoctor =
+                    jsEngine.eval("load('classpath:talend/server/asciidoctor.js');" + "Asciidoctor();");
+            return input -> {
+                try {
+                    final Bindings bindings = jsEngine.createBindings();
+                    bindings.put("asciidoctorServiceContent", input);
+                    bindings.put("asciidoctor", asciidoctor);
+                    return String.valueOf(jsEngine
+                            .eval("asciidoctor.convert(asciidoctorServiceContent, {safe: 'server'});", bindings));
+                } catch (final ScriptException e) {
+                    throw new IllegalStateException(e);
+                }
+            };
+        } catch (final ScriptException e) {
+            throw new IllegalStateException(e);
+        }
+    });
 
     @PostConstruct
     private void loadAsciidoctor() {
-        jsEngine = new ScriptEngineManager().getEngineByExtension("js");
-        try {
-            asciidoctor = jsEngine.eval("load('classpath:talend/server/asciidoctor.js');" + "Asciidoctor();");
-        } catch (final ScriptException e) {
-            throw new IllegalStateException(e);
-        }
+        manager = new ScriptEngineManager();
     }
 
     public String toHtml(final String input) {
-        try {
-            final Bindings bindings = jsEngine.createBindings();
-            bindings.put("asciidoctorServiceContent", input);
-            bindings.put("asciidoctor", asciidoctor);
-            return String.valueOf(
-                    jsEngine.eval("asciidoctor.convert(asciidoctorServiceContent, {safe: 'server'});", bindings));
-        } catch (final ScriptException e) {
-            throw new IllegalStateException(e);
-        }
+        return engines.get().apply(input);
     }
 }
