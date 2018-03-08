@@ -73,7 +73,7 @@ public class InMemoryArgumentProvider implements DoFnInvoker.ArgumentProvider {
     }
 
     @Override
-    public RestrictionTracker<?> restrictionTracker() {
+    public RestrictionTracker<?, ?> restrictionTracker() {
         throw new UnsupportedOperationException("Unsupported restriction tracker usage");
     }
 

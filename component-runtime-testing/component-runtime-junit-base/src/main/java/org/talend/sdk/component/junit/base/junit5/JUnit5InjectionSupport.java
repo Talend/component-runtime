@@ -35,6 +35,10 @@ public interface JUnit5InjectionSupport extends ParameterResolver, TestInstanceP
         return type.isInstance(this);
     }
 
+    default Object findInstance(final ExtensionContext extensionContext, final Class<?> type, final Annotation marker) {
+        return findInstance(extensionContext, type);
+    }
+
     default Object findInstance(final ExtensionContext extensionContext, final Class<?> type) {
         return this;
     }
@@ -64,7 +68,7 @@ public interface JUnit5InjectionSupport extends ParameterResolver, TestInstanceP
                             f.setAccessible(true);
                         }
                         try {
-                            f.set(testInstance, findInstance(context, f.getType()));
+                            f.set(testInstance, findInstance(context, f.getType(), f.getAnnotation(injectionMarker())));
                         } catch (final IllegalAccessException e) {
                             throw new IllegalStateException(e);
                         }

@@ -1,8 +1,0 @@
-{
-  "name": "frontend",
-  "version": "0.0.0",
-  "private": true,
-  "dependencies": {
-    "asciidoctor.js": "1.5.6-preview.5"
-  }
-}

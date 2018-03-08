@@ -25,6 +25,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
 import brave.http.HttpTracing;
@@ -36,8 +37,9 @@ public class PoolProducer {
     @ApplicationScoped
     public ExecutorService executorService(final ComponentServerConfiguration configuration,
             final HttpTracing tracing) {
-        return tracing.tracing().currentTraceContext().executorService(
-                Executors.newFixedThreadPool(configuration.executionPoolSize()));
+        return tracing.tracing().currentTraceContext().executorService(Executors.newFixedThreadPool(
+                configuration.executionPoolSize(),
+                new BasicThreadFactory.Builder().namingPattern("talend-component-server-%d").daemon(false).build()));
     }
 
     public void release(@Disposes final ExecutorService executorService,

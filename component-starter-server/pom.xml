@@ -195,6 +195,7 @@
           <webapp>${project.basedir}/src/main/frontend/dist</webapp>
           <webResourceCached>false</webResourceCached>
           <cdiConversation>false</cdiConversation>
+          <watcherBouncing>-1</watcherBouncing>
           <properties>
             <talend.component.starter.security.csp>default-src 'self' data: http://localhost:35729/livereload.js; frame-ancestors 'none'</talend.component.starter.security.csp>
           </properties>

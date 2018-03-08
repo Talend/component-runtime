@@ -188,38 +188,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <version>${frontend.version}</version>
-        <executions>
-          <execution>
-            <id>install-node-and-yarn</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>install-node-and-yarn</goal>
-            </goals>
-            <configuration>
-              <nodeVersion>${node.version}</nodeVersion>
-              <yarnVersion>${yarn.version}</yarnVersion>
-            </configuration>
-          </execution>
-          <execution>
-            <id>yarn-install</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>yarn</goal>
-            </goals>
-            <configuration>
-              <arguments>install</arguments>
-            </configuration>
-          </execution>
-        </executions>
-        <configuration>
-          <installDirectory>${project.basedir}/.node</installDirectory>
-          <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.0.2</version>
@@ -509,6 +477,8 @@
         </executions>
         <configuration>
           <cdiConversation>false</cdiConversation>
+          <watcherBouncing>-1</watcherBouncing>
+          <scanningExcludes>apiguardian,brave,kafka,lz4,talend-icon,zipkin,container-core,component-runtime,swagger-ui,beam,paranamer,joda-time,avro,objenesis,xz,snappy,component-spi,component-api,tomcat-websocket</scanningExcludes>
           <webapp>${project.basedir}/src/dev/webapp</webapp>
           <properties>
             <talend.component.server.component.coordinates>${talend.component.server.component.coordinates.samples}</talend.component.server.component.coordinates>
@@ -526,7 +496,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.21.0</version>
+            <version>2.19.1</version>
             <configuration>
               <systemPropertyVariables>
                 <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>

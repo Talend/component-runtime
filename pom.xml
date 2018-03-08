@@ -87,6 +87,10 @@
       <id>gradle-libs-releases-local</id>
       <url>http://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
+    <repository>
+      <id>beam-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachebeam-1030/</url>
+    </repository>
   </repositories>
 
 
@@ -144,7 +148,7 @@
     <cxf.version>3.2.2</cxf.version>
     <log4j2.version>2.10.0</log4j2.version>
     <batik.version>1.9</batik.version>
-    <beam.version>2.3.0</beam.version>
+    <beam.version>2.4.0</beam.version>
     <commons-codec.version>1.11</commons-codec.version>
     <commons-compress.version>1.16.1</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
@@ -155,8 +159,8 @@
     <jsonb-api.version>1.0</jsonb-api.version>
     <jsonp-api.version>1.0</jsonp-api.version>
     <deltaspike.version>1.8.1</deltaspike.version>
-    <junit5.version>5.1.0-RC1</junit5.version>
-    <junit-platform-surefire-provider.version>1.1.0-RC1</junit-platform-surefire-provider.version>
+    <junit5.version>5.1.0</junit5.version>
+    <junit-platform-surefire-provider.version>1.1.0</junit-platform-surefire-provider.version>
 
     <talend-ui.version>0.158.0</talend-ui.version>
     <component-api.version>0.0.1</component-api.version>
@@ -468,13 +472,10 @@
             <exclude>**/META-INF/services/**/*</exclude>
             <exclude>**/test/input/**/*</exclude>
             <exclude>**/test/output/**/*</exclude>
-            <exclude>**/jbake/assets/**/*</exclude>
-            <exclude>**/jbake/content/.asciidoctor/**/*</exclude>
             <exclude>**/reveal.js/**/*</exclude>
             <exclude>**/talend-component-maven-plugin/src/it/generator/**/*</exclude>
             <exclude>**/src/main/resources/generator/**/*</exclude>
             <exclude>**/src/test/resources/generated/**/*</exclude>
-            <exclude>**/src/main/jbake/generated-assets/*</exclude>
             <exclude>**/antora/**/*</exclude>
             <exclude>**/.antora-cache/**/*</exclude>
           </excludes>
@@ -498,7 +499,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.21.0</version>
+        <version>2.19.1</version>
         <configuration>
           <forkCount>1</forkCount> <!-- never use 0, it affects too much test behavior to be accurate -->
           <trimStackTrace>false</trimStackTrace>
@@ -614,7 +615,7 @@
                 </module>
                 <module name="UpperEll" />
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javax,com,org,orgomg,brave,freemarker,io,zipkin2,lombok" />
+                  <property name="groups" value="*,java,javax,jdk,com,org,orgomg,brave,freemarker,io,zipkin2,lombok" />
                   <property name="ordered" value="true" />
                   <property name="separated" value="true" />
                   <property name="option" value="top" />

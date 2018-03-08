@@ -45,7 +45,7 @@ class MavenDecrypterTest {
         assertEquals("repopwd", encrypted.getPassword());
     }
 
-    @Test()
+    @Test
     void noMasterPassword() {
         final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
             final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings.xml");
@@ -68,5 +68,4 @@ class MavenDecrypterTest {
         });
         assertEquals("Master password can't be null or empty.", ex.getMessage());
     }
-
 }

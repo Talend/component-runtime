@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.maven;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -48,8 +50,7 @@ public class MavenDecrypter {
     private final File settingsSecurity;
 
     public MavenDecrypter() {
-        this(new File(System.getProperty("user.home"), ".m2/settings.xml"),
-                new File(System.getProperty("user.home"), ".m2/settings-security.xml"));
+        this(new File(getM2(), "settings.xml"), new File(getM2(), "settings-security.xml"));
     }
 
     public Server find(final String serverId) {
@@ -90,6 +91,11 @@ public class MavenDecrypter {
             throw new IllegalArgumentException("Didn't find " + serverId + " in " + settings);
         }
         return extractor.server;
+    }
+
+    private static File getM2() {
+        return ofNullable(System.getProperty("talend.maven.decrypter.m2.location")).map(File::new).orElseGet(
+                () -> new File(System.getProperty("user.home"), ".m2"));
     }
 
     private static class MvnServerExtractor extends DefaultHandler {

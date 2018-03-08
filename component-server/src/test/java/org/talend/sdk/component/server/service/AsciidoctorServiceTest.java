@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.inject.Inject;
 
-import org.apache.meecrowave.junit5.MeecrowaveConfig;
+import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 
-@MeecrowaveConfig
+@MonoMeecrowaveConfig
 class AsciidoctorServiceTest {
 
     @Inject
@@ -30,15 +30,36 @@ class AsciidoctorServiceTest {
 
     @Test
     void renderHtml() {
-        assertEquals("<div class=\"paragraph\">\n" + "<p>Some Text</p>\n" + "</div>\n"
-                + "<table class=\"tableblock frame-all grid-all spread\">\n" + "<colgroup>\n"
-                + "<col style=\"width: 50%;\">\n" + "<col style=\"width: 50%;\">\n" + "</colgroup>\n" + "<tbody>\n"
-                + "<tr>\n" + "<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Test</p></td>\n"
-                + "<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Table</p></td>\n" + "</tr>\n"
-                + "</tbody>\n" + "</table>", adoc.toHtml("= Test\n\nSome Text\n\n|===\n|Test|Table\n|===\n\n"));
+        assertEquals("<h1 id=\"_test\">Test</h1>\n" + "<div class=\"paragraph\">\n" + "<p>\n" + "Some Text\n" + "</p>\n"
+                + "</div>\n" + "<table class=\"tableblock frame-all grid-all spread\">\n" + "<thead>\n" + "<tr>\n"
+                + "<th class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Test</p></th>\n"
+                + "<th class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Table</p></th>\n" + "</tr>\n"
+                + "</thead>\n" + "<tbody>\n" + "</tbody>\n" + "</table>\n",
+                adoc.toHtml("= Test\n\nSome Text\n\n|===\n|Test|Table\n|===\n\n"));
+        assertEquals("<h1 id=\"_test\">Test</h1>\n" + "<h2 id=\"_comp\">Comp</h2>\n" + "<div class=\"paragraph\">\n"
+                + "<p>\n" + "Test\n" + "</p>\n" + "</div>\n", adoc.toHtml("= Test\n\n== Comp\n\nTest\n\n"));
         assertEquals(
-                "<div class=\"sect1\">\n" + "<h2 id=\"_comp\">Comp</h2>\n" + "<div class=\"sectionbody\">\n"
-                        + "<div class=\"paragraph\">\n" + "<p>Test</p>\n" + "</div>\n" + "</div>\n" + "</div>",
-                adoc.toHtml("= Test\n\n== Comp\n\nTest\n\n"));
+                "<table class=\"tableblock frame-all grid-all spread\">\n" + "<thead>\n" + "<tr>\n"
+                        + "<th class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Test</p></th>\n"
+                        + "<th class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Table</p></th>\n"
+                        + "</tr>\n" + "</thead>\n" + "<tbody>\n" + "<tr>\n"
+                        + "<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Test 2</p></td>\n"
+                        + "<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Table 2</p></td>\n"
+                        + "</tr>\n" + "<tr>\n"
+                        + "<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Test 3</p></td>\n"
+                        + "<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Table 3</p></td>\n"
+                        + "</tr>\n" + "</tbody>\n" + "</table>\n",
+                adoc.toHtml("|===\n|Test|Table\n|Test 2|Table 2\n\n|Test 3|Table 3\n|===\n\n"));
+        assertEquals("<table class=\"tableblock frame-all grid-all spread\">\n" + "<thead>\n" + "<tr>\n"
+                + "<th class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Test</p></th>\n"
+                + "<th class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Table</p></th>\n" + "</tr>\n"
+                + "</thead>\n" + "<tbody>\n" + "<tr>\n"
+                + "<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Test 2</p></td>\n"
+                + "<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Table 2</p></td>\n"
+                + "</tr>\n" + "<tr>\n"
+                + "<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Test 3</p></td>\n"
+                + "<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Table <pre>and</pre> code</p></td>\n"
+                + "</tr>\n" + "</tbody>\n" + "</table>\n",
+                adoc.toHtml("|===\n|Test|Table\n|Test 2|Table 2\n|Test 3|Table `and` code\n|===\n\n"));
     }
 }

@@ -48,8 +48,8 @@ class DocumentationResourceTest {
                 "/documentation/component/" + client.getJdbcId() + "?format=html", null);
         assertEquals("html", content.getType());
         assertEquals(
-                "<div class=\"sect1\">\n" + "<h2 id=\"_component\">Component</h2>\n" + "<div class=\"sectionbody\">\n"
-                        + "<div class=\"paragraph\">\n" + "<p>Something</p>\n" + "</div>\n" + "</div>\n" + "</div>",
+                "<h1 id=\"_test\">Test</h1>\n" + "<h2 id=\"_component\">Component</h2>\n"
+                        + "<div class=\"paragraph\">\n" + "<p>\n" + "Something\n" + "</p>\n" + "</div>\n",
                 content.getSource());
     }
 
@@ -74,8 +74,9 @@ class DocumentationResourceTest {
                 .request(APPLICATION_JSON_TYPE)
                 .get(DocumentationContent.class);
         assertEquals("html", content.getType());
-        assertEquals("<div class=\"sect1\">\n<h2 id=\"_component\">Component</h2>\n<div "
-                + "class=\"sectionbody\">\n<div " + "class=\"paragraph\">\n<p>Something</p>\n</div>\n</div>\n</div>",
+        assertEquals(
+                "<h1 id=\"_test\">Test</h1>\n" + "<h2 id=\"_component\">Component</h2>\n"
+                        + "<div class=\"paragraph\">\n" + "<p>\n" + "Something\n" + "</p>\n" + "</div>\n",
                 content.getSource());
     }
 
