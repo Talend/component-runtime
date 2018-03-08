@@ -1,0 +1,21 @@
+Dev vs CI Setup
+
+:page-partial:
+
+[[tutorial-dev-vs-ci-setup.adoc]]
+
+xref:tutorial-test-rest-api.adoc[In a previous tutorial], we have shown how to create mocked tests for our Zendesk search component.
+Those mocked tests are very useful to test on a development environment, but we still have to execute our tests with real interaction with the API,
+to be sure that everything continue to work correctly on a CI server for example.
+
+To achieve that, you will need to configure the xref:testing-http.adoc[API simulation tool] to run in the `passthrough` mode on the CI server.
+
+To configure your CI server, you will have two options:
+
+1. You can configure your CI server globally by setting `talend.junit.http.passthrough` to `true` as an environment variable.
+2. You can configure the CI build job by adding the following option to maven build command `-Dtalend.junit.http.passthrough=true`
+
+That's all you need to do, now your tests run in a simulation mode on dev and in a normal (passthrough) mode on your CI server.
+
+
+
