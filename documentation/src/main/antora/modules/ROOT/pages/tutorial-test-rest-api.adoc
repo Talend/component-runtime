@@ -53,6 +53,7 @@ public class SearchTest {
         final List<JsonObject> res = component.getCollectedData(JsonObject.class);
         assertEquals(4, res.size());
     }
+}
 ----
 <1> We initiate our authentication configuration using zendesk instance's url and credentials.
 We also initiate our search query configuration. We want to get all the open ticket order by the creation date in a descendant order.
