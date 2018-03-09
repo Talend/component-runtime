@@ -1,0 +1,169 @@
+Development vs Continuous integration Setup
+
+:page-partial:
+
+[[tutorial-dev-vs-ci-setup.adoc]]
+
+xref:tutorial-test-rest-api.adoc[In a previous tutorial], we have shown how to create a mocked test for our Zendesk search component.
+
+In the test you can notice that we have used our Zendesk credentials directly into the code to do a first capture of the API response,
+then we have switched to a fake credentials in simulation mode as we do not call the real API anymore.
+
+*But what if you want to continue to call the real API on the CI server or on a a specific environment ?*
+
+Let's make our test able to get the credentials depending on the execution mode (simulation/passthrough).
+
+== Credentials setup
+IMPORTANT: This instructions, need to be done, on the CI server or on any environment that require the real credentials.
+
+We will use https://maven.apache.org/guides/mini/guide-encryption.html[Maven servers, that support password encryption] as a credentials provider,
+and the test rule `MavenDecrypterRule` provided by the framework.
+
+This rule let you get credentials from maven settings using a server id.
+
+So let's create an encrypted server credential for our zendesk instance.
+
+1. Create a master password using the command : `mvn --encrypt-master-password <password>`
+2. Store this master password in `settings-security.xml` file  in `~/.m2` folder.
+3. Encrypt zendesk instance password using the command: `mvn --encrypt-password <zendesk-password>`
+4. Create a server entry under *servers* in maven `settings.xml` file in `~/.m2`.
+[source,xml]
+----
+    <server>
+      <id>zendesk</id>
+      <username>username@email.com</username>
+      <password>The enccrypted password {oL37x/xiSvwtlhrMQ=}</password>
+    </server>
+----
+
+NOTE: Encryption is optional but recommended.
+
+TIP: If you want to store the `settings-security.xml` and `settings.xml` files elsewhere that the default location `~/.m2`.
+You can do it by setting the path of the directory containing the files
+into the environment variable  `talend.maven.decrypter.m2.location`
+
+== Let's adapt our unit test to use the credentials from maven servers
+We start by adding `MavenDecrypterRule` rule to our test class. This rule will let us inject server information stored
+in maven settings.xml to our test. The rule will also decrypt the password if they are encrypted.
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+public class SearchTest {
+
+    @Rule
+    public final MavenDecrypterRule mavenDecrypterRule = new MavenDecrypterRule(this);
+}
+----
+Now we can inject our Zendesk server to our test. For that we add a new field to our class annotated by `@DecryptedServer`
+annotation that will holde the server id to be injected.
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+public class SearchTest {
+
+    @Rule
+    public final MavenDecrypterRule mavenDecrypterRule = new MavenDecrypterRule(this);
+
+    @DecryptedServer("zendesk")
+    private Server server;
+}
+----
+The `MavenDecrypterRule` will be able at runtime to inject the server instance into this class. the server instance contains
+the username and de decrypted password.
+
+Now we can use the `server` instance in our test to get the real credential in a secured manner.
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+    BasicAuth basicAuth = new BasicAuth("https://instance.zendesk.com",
+                                server.getUsername(),
+                                server.getPassword());
+----
+
+Here is the complete test class after modification :
+[source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
+----
+public class SearchTest {
+
+    @ClassRule
+    public static final SimpleComponentRule component = new SimpleComponentRule("component.package");
+
+    private final MavenDecrypter mavenDecrypter = new MavenDecrypter();
+
+    @ClassRule
+    public static final JUnit4HttpApi API = new JUnit4HttpApi()
+                                                        .activeSsl();
+
+    @Rule
+    public final JUnit4HttpApiPerMethodConfigurator configurator = new JUnit4HttpApiPerMethodConfigurator(API);
+
+    @Rule
+    public final MavenDecrypterRule mavenDecrypterRule = new MavenDecrypterRule(this);
+
+    @DecryptedServer("zendesk")
+    private Server server;
+
+    @Test
+    public void searchQuery() {
+        // Initiating the component test configuration
+        BasicAuth basicAuth = new BasicAuth("https://instance.zendesk.com", server.getUsername(), server.getPassword());
+        final SearchQuery searchQuery = new SearchQuery(basicAuth, "type:ticket status:open", "created_at", "desc");
+
+        // We convert our configuration instance to URI configuration
+        final String uriConfig = SimpleFactory.configurationByExample()
+                        .forInstance(searchQuery)
+                        .configured().toQueryString();
+
+        // We create our job test pipeline
+        Job.components()
+                .component("search", "zendesk://search?" + uriConfig)
+                .component("collector", "test://collector")
+                .connections()
+                .from("search").to("collector")
+                .build()
+                .run();
+
+        final List<JsonObject> res = component.getCollectedData(JsonObject.class);
+        assertEquals(4, res.size());
+    }
+}
+----
+
+*This test will continue to work in simulation mode.* as we have our API simulation proxy activated.
+
+== Set up CI server in passthrough mode
+Let's make it work in real mode on a CI server. we will use https://jenkins.io/[jenkins] in this tutorial
+
+Log in to your jenkins then : Click on *New Item* to create a new build job
+
+image::jenkins/1_jenkins_new_item.png[Create a new job]
+
+Enter an Item name (Job name) and choose the freestyle job. Then click OK.
+
+image::jenkins/2_jenkins_new_item.png[Create a new job]
+
+In *Source Code Management* section enter your project repository URL. We are using our github repository in this tutorial.
+We will build the `master` branch
+
+image::jenkins/4_jenkins_source_code.png[Source Code Management]
+
+In the *Build Section* click on *add build step*, then choose *Invoke top-level Maven targets*
+
+image::jenkins/6_jenkins_build_cmd.png[Build Section]
+
+Choose you Maven version, and enter your maven build command. we are using a simple `clean install` and click *save*.
+
+image::jenkins/6_jenkins_build_cmd_2.png[Build Section]
+
+You can notice that we have added the option `-Dtalend.junit.http.passthrough=true` to our build command.
+This Option will tell the API simulation proxy to run in `passthrough` mode. So it's will forward all the http request
+that we have maded in our test to the real API server.
+
+We also get the real credentials, thanks to our `MavenDecrypterRule` rule.
+
+TIP: You can configure the *passthrough* mode globally on your CI server by setting the environment variable `talend.junit.http.passthrough`
+to `true`.
+
+6.Test the job. click *Build now* you can notice that your job have built correctly.
+
+image::jenkins/7_jenkins_build_result.png[Test the job]
+
+
+That's all you need to do, now your tests run in a simulation mode on dev and in a (passthrough) mode on your CI server.
