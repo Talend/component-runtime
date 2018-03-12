@@ -517,60 +517,6 @@
           <webapp>${project.build.directory}/${project.build.finalName}</webapp>
         </configuration>
       </plugin>
-
-      <!--
-      <plugin>
-        <groupId>com.github.rmannibucau</groupId>
-        <artifactId>asciidoctor2dita</artifactId>
-        <version>0.0.4-SNAPSHOT</version>
-        <executions>
-          <execution>
-            <id>adoc2dita</id>
-            <goals>
-              <goal>adoc2dita</goal>
-            </goals>
-            <configuration>
-              <target>${project.build.directory}/dita/src</target>
-              <images>${project.basedir}/src/main/antora/modules/ROOT/assets/images</images>
-              <attach>false</attach>
-              <sources>
-                <source>${project.basedir}/src/main/antora/modules/ROOT/pages</source>
-                <source>${project.basedir}/src/main/antora/modules/ROOT/pages/_partials</source>
-              </sources>
-              <attributes>
-                <partialsdir>${project.basedir}/src/main/antora/modules/ROOT/pages/_partials</partialsdir>
-                <imagesdir>${project.basedir}/src/main/antora/modules/ROOT/assets/images</imagesdir>
-                <project_version>${versions.release}</project_version>
-                <docversion>${versions.release}</docversion>
-                <deploymentRoot>https://talend.github.io/component-runtime</deploymentRoot>
-                <git_branch>${git.branch}</git_branch>
-              </attributes>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>com.github.rmannibucau</groupId>
-        <artifactId>dita-maven-plugin</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
-        <executions>
-          <execution>
-            <id>dita-rendering</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>render</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <ditaDir>${project.build.directory}/dita/src</ditaDir>
-          <outputDir>${project.build.directory}/dita/target</outputDir>
-          <properties>
-            <nav-toc>partial</nav-toc>
-          </properties>
-        </configuration>
-      </plugin>
-      -->
     </plugins>
   </build>
 
