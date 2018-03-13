@@ -182,6 +182,10 @@
             </goals>
             <configuration>
               <backend>swagger</backend>
+              <swaggerSchemes>
+                <swaggerScheme>http</swaggerScheme>
+                <swaggerScheme>https</swaggerScheme>
+              </swaggerSchemes>
               <resourcesDir>classes/META-INF/resources/documentation</resourcesDir>
             </configuration>
           </execution>
