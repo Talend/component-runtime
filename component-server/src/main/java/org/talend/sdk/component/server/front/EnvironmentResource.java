@@ -65,6 +65,11 @@ public class EnvironmentResource {
         environment = new Environment(latestApiVersion, version, commit, time);
     }
 
+    /**
+     * Returns the environment of this instance. Useful to check the version or configure a healthcheck for the server.
+     *
+     * @return current environment.
+     */
     @GET
     public Environment get() {
         return environment;

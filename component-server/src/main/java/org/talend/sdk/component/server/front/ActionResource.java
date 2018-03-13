@@ -39,7 +39,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
@@ -74,12 +73,20 @@ public class ActionResource {
     @Inject
     private LocaleMapper localeMapper;
 
+    /**
+     * This endpoint will execute any UI action and serialize the response as a JSON (pojo model)
+     * It takes as input the family, type and name of the related action to identify it and its configuration
+     * as a flat key value set using the same kind of mapping than for components (option path as key).
+     *
+     * @param family the component family.
+     * @param type the type of action.
+     * @param action the action name.
+     * @param params the action parameters as a flat map of strings.
+     * @return the action result payload.
+     */
     @POST
     @Path("execute")
-    @Documentation("This endpoint will execute any UI action and serialize the response as a JSON (pojo model). "
-            + "It takes as input the family, type and name of the related action to identify it and its configuration "
-            + "as a flat key value set using the same kind of mapping than for components (option path as key).")
-    public Response execute(@QueryParam("family") final String component, @QueryParam("type") final String type,
+    public Response execute(@QueryParam("family") final String family, @QueryParam("type") final String type,
             @QueryParam("action") final String action, final Map<String, String> params) {
         if (action == null) {
             throw new WebApplicationException(Response
@@ -87,7 +94,7 @@ public class ActionResource {
                     .entity(new ErrorPayload(ErrorDictionary.ACTION_MISSING, "Action can't be null"))
                     .build());
         }
-        final ServiceMeta.ActionMeta actionMeta = actionDao.findBy(component, type, action);
+        final ServiceMeta.ActionMeta actionMeta = actionDao.findBy(family, type, action);
         if (actionMeta == null) {
             throw new WebApplicationException(Response
                     .status(Response.Status.NOT_FOUND)
@@ -107,12 +114,18 @@ public class ActionResource {
         }
     }
 
+    /**
+     * This endpoint returns the list of available actions for a certain falimy and potentially filters the "
+     * output limiting it to some families and types of actions.
+     *
+     * @param types the types of actions (optional).
+     * @param families the families (optional).
+     * @param language the language to use (optional).
+     * @return the list of actions matching the requested filters or all if none are set.
+     */
     @GET
     @Path("index") // add an index if needed or too slow
-    @Documentation("This endpoint returns the list of available actions for a certain falimy and potentially filters the "
-            + "output limiting it to some falimies and types of actions.")
-    public ActionList getIndex(@QueryParam("type") final String[] types,
-            @QueryParam("family") final String[] components,
+    public ActionList getIndex(@QueryParam("type") final String[] types, @QueryParam("family") final String[] families,
             @QueryParam("language") @DefaultValue("en") final String language) {
         final Predicate<ServiceMeta.ActionMeta> typeMatcher = new Predicate<ServiceMeta.ActionMeta>() {
 
@@ -125,7 +138,7 @@ public class ActionResource {
         };
         final Predicate<ServiceMeta.ActionMeta> componentMatcher = new Predicate<ServiceMeta.ActionMeta>() {
 
-            private final Collection<String> accepted = new HashSet<>(asList(components));
+            private final Collection<String> accepted = new HashSet<>(asList(families));
 
             @Override
             public boolean test(final ServiceMeta.ActionMeta actionMeta) {

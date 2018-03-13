@@ -24,7 +24,6 @@ import static org.talend.sdk.component.server.front.model.ErrorDictionary.BAD_FO
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -57,7 +56,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.ext.Providers;
 
-import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -66,7 +64,6 @@ import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
-import org.talend.sdk.component.server.front.filter.message.DeprecatedEndpoint;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.front.model.execution.PrimitiveWrapper;
 import org.talend.sdk.component.server.front.model.execution.WriteStatistics;
@@ -77,7 +74,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Path("execution")
 @ApplicationScoped
-@DeprecatedEndpoint
 @Consumes(MediaType.APPLICATION_JSON)
 public class ExecutionResource {
 
@@ -114,11 +110,19 @@ public class ExecutionResource {
         }
     }
 
+    /**
+     * Read inputs from an instance of mapper. The number of returned records if enforced to be limited to 1000.
+     * The format is a JSON based format where each like is a json record.
+     *
+     * @param family the component family.
+     * @param component the component name.
+     * @param size the maximum number of records to read.
+     * @param configuration the component configuration as key/values.
+     */
     @POST
+    @Deprecated
     @Produces("talend/stream")
     @Path("read/{family}/{component}")
-    @Documentation("Read inputs from an instance of mapper. The number of returned records if enforced to be limited to 1000. "
-            + "The format is a JSON based format where each like is a json record.")
     public void read(@Suspended final AsyncResponse response, @Context final Providers providers,
             @PathParam("family") final String family, @PathParam("component") final String component,
             @QueryParam("size") @DefaultValue("50") final long size, final Map<String, String> configuration) {
@@ -168,17 +172,23 @@ public class ExecutionResource {
         });
     }
 
+    /**
+     * Sends records using a processor instance. Note that the processor should have only an input.
+     * Behavior for other processors is undefined.
+     * The input format is a JSON based format where each like is a json record - same as for the symmetric endpoint.
+     *
+     * @param family the component family.
+     * @param component the component name.
+     * @param chunkSize the bundle size (chunk size).
+     */
     @POST
+    @Deprecated
     @Consumes("talend/stream")
     @Produces(MediaType.APPLICATION_JSON)
     @Path("write/{family}/{component}")
-    @Documentation("Sends records using a processor instance. Note that the processor should have only an input. "
-            + "Behavior for other processors is undefined. "
-            + "The input format is a JSON based format where each like is a json record - same as for the symmetric endpoint.")
     public void write(@Suspended final AsyncResponse response, @Context final Providers providers,
             @PathParam("family") final String family, @PathParam("component") final String component,
-            @QueryParam("group-size") @DefaultValue("50") final long chunkSize, final InputStream stream)
-            throws IOException {
+            @QueryParam("group-size") @DefaultValue("50") final long chunkSize, final InputStream stream) {
         response.setTimeoutHandler(asyncResponse -> log.warn("Timeout on dataset retrieval"));
         response.setTimeout(appConfiguration.datasetRetrieverTimeout(), SECONDS);
         executorService.submit(() -> {

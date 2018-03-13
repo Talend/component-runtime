@@ -28,8 +28,8 @@ public class MessageResponseFilter implements DynamicFeature {
 
     @Override
     public void configure(final ResourceInfo resourceInfo, final FeatureContext context) {
-        if (resourceInfo.getResourceMethod().isAnnotationPresent(DeprecatedEndpoint.class)
-                || resourceInfo.getResourceClass().isAnnotationPresent(DeprecatedEndpoint.class)) {
+        if (resourceInfo.getResourceMethod().isAnnotationPresent(Deprecated.class)
+                || resourceInfo.getResourceClass().isAnnotationPresent(Deprecated.class)) {
             context.register((ContainerResponseFilter) (requestContext,
                     responseContext) -> responseContext.getHeaders().putSingle("X-Talend-Warning",
                             "This endpoint is deprecated and will be removed without notice soon."));

@@ -42,7 +42,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.server.dao.ComponentDao;
@@ -72,12 +71,26 @@ public class DocumentationResource {
     @Inject
     private AsciidoctorService adoc;
 
+    /**
+     * Returns an asciidoctor version of the documentation for the component represented by its identifier `id`.
+     *
+     * Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get
+     * a partial document.
+     *
+     * IMPORTANT: it is recommanded to use asciidoc format and handle the conversion on your side if you can,
+     * the html flavor handdles a limited set of the asciidoc syntax only like plain arrays, paragraph and titles.
+     *
+     * The documentation will likely be the family documentation but you can use anchors to access a particular
+     * component (_componentname_inlowercase).
+     *
+     * @param id the component identifier.
+     * @param language the expected language for the documentation (default to en if not found).
+     * @param format the expected format (asciidoc or html).
+     * @return the documentation for that component.
+     */
     @GET
     @Path("component/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Documentation("Returns an asciidoctor version of the documentation for the component represented by its identifier `id`.\n"
-            + "Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get "
-            + "a partial document.")
     public DocumentationContent getDocumentation(@PathParam("id") final String id,
             @QueryParam("language") @DefaultValue("en") final String language,
             @QueryParam("format") @DefaultValue("asciidoc") final String format) {

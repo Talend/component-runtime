@@ -41,7 +41,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.design.extension.repository.Config;
@@ -80,9 +79,14 @@ public class ConfigurationTypeResource {
     @Inject
     private ConfigurationDao configurations;
 
+    /**
+     * Returns all available configuration type - storable models.
+     *
+     * @param language the language for display names.
+     * @return the list of available and storable configurations (datastore, dataset, ...).
+     */
     @GET
     @Path("index")
-    @Documentation("Returns all available configuration type - storable models.")
     public ConfigTypeNodes getRepositoryModel(@QueryParam("language") @DefaultValue("en") final String language) {
         final Locale locale = localeMapper.mapLocale(language);
         return manager
@@ -116,9 +120,16 @@ public class ConfigurationTypeResource {
                         (first, second) -> first.getNodes().putAll(second.getNodes()));
     }
 
+    /**
+     * Allows to migrate a configuration without calling any component execution.
+     *
+     * @param id the configuration identifier.
+     * @param version the sent configuration version.
+     * @param config the configuration in key/value form.
+     * @return the new configuration or the same if no migration was needed.
+     */
     @POST
     @Path("migrate/{id}/{configurationVersion}")
-    @Documentation("Allows to migrate a configuration without calling any component execution.")
     public Map<String, String> migrate(@PathParam("id") final String id,
             @PathParam("configurationVersion") final int version, final Map<String, String> config) {
         return ofNullable(configurations.findById(id))
