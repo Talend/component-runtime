@@ -103,7 +103,7 @@ public interface ComponentServerConfiguration {
     String reporterAsyncConfiguration();
 
     @Documentation("Should the /documentation endpoint be activated.")
-    @ConfigProperty(name = "monitoring.documentation.active", defaultValue = "true")
+    @ConfigProperty(name = "documentation.active", defaultValue = "true")
     boolean supportsDocumentation();
 
     // sync with org.talend.sdk.component.server.service.security.SecurityExtension.addSecurityHandlers()
