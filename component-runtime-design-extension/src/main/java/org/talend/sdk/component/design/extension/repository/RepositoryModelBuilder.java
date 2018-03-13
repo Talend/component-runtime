@@ -105,7 +105,7 @@ public class RepositoryModelBuilder {
         c.setId(IdGenerator.get(c.getKey().getFamily(), c.getKey().getConfigType(), c.getKey().getConfigName()));
 
         if (Class.class.isInstance(config.getJavaType())) {
-            Class<?> clazz = Class.class.cast(config.getJavaType());
+            final Class<?> clazz = Class.class.cast(config.getJavaType());
             final Version version = clazz.getAnnotation(Version.class);
             if (version != null) {
                 c.setVersion(version.value());
@@ -116,6 +116,7 @@ public class RepositoryModelBuilder {
                 }
             } else {
                 c.setVersion(-1);
+                c.setMigrationHandler((v, d) -> d);
             }
         }
 
