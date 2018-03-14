@@ -1,6 +1,8 @@
 = Talend Component REST API Documentation
 :page-partial:
 
+TIP: a test environment is available on Heroku and testable using on Restlet Studio/Client at https://talend-component-kit.restlet.io.
+
 == HTTP API
 
 The HTTP API intends to expose over HTTP most of Talend Component features, it is a standalone Java HTTP server.
