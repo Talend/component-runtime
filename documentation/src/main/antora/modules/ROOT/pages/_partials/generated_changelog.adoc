@@ -1,17 +1,1 @@
 
-
-== Version 0.0.2
-
-=== Bug
-
-- link:https://jira.talendforge.org/browse/TCOMP-725[TCOMP-725^]: MavenDecrypter doesn't support comments in settings.xml
-- link:https://jira.talendforge.org/browse/TCOMP-726[TCOMP-726^]: When a component is not found the error message can be misleading
-- link:https://jira.talendforge.org/browse/TCOMP-728[TCOMP-728^]: Http client doesn't ignore empty query parameters
-
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-722[TCOMP-722^]: WebSocket connection fails with a NPE when the endpoint doesn't exists
-- link:https://jira.talendforge.org/browse/TCOMP-723[TCOMP-723^]: Adding configurationByExample utility to create query string for Job DSL
-- link:https://jira.talendforge.org/browse/TCOMP-724[TCOMP-724^]: Documentation endpoint doesn't support HTML
-
