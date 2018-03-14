@@ -117,7 +117,7 @@
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>swagger-ui</artifactId>
-      <version>3.2.2</version>
+      <version>3.12.1</version>
     </dependency>
 
     <dependency>
@@ -183,8 +183,8 @@
             <configuration>
               <backend>swagger</backend>
               <swaggerSchemes>
-                <swaggerScheme>http</swaggerScheme>
                 <swaggerScheme>https</swaggerScheme>
+                <swaggerScheme>http</swaggerScheme>
               </swaggerSchemes>
               <resourcesDir>classes/META-INF/resources/documentation</resourcesDir>
             </configuration>
@@ -194,7 +194,7 @@
           <dependency>
             <groupId>com.github.rmannibucau</groupId>
             <artifactId>jaxrs-analyzer-extension</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.5</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -248,7 +248,7 @@
             </configuration>
           </execution>
           <execution>
-            <id>fix-swagger.json</id>
+            <id>swagger-customizations</id>
             <phase>prepare-package</phase>
             <goals>
               <goal>execute</goal>
@@ -256,10 +256,35 @@
             <configuration>
               <allowSystemExits>true</allowSystemExits>
               <scripts>
-                <script>
+                <script><![CDATA[
+                  import java.nio.file.Files
+                  import java.nio.file.StandardCopyOption
+                  import javax.imageio.ImageIO
+                  import net.sf.image4j.codec.ico.ICOEncoder
+                  import org.apache.maven.project.MavenProjectHelper
+
+                  // create the demo swagger.json
                   def swaggerJson = new File(project.build.outputDirectory, 'META-INF/resources/documentation/swagger.json')
                   def content = swaggerJson.text
-                  swaggerJson.text = content.replaceAll("\"basePath\": \"[^\"]+\",", '"basePath": "/api/v1",')
+
+                  def swaggerDemo = new File(project.build.directory, 'swagger-heroku.json')
+                  swaggerDemo.text = content
+                    .replace('"host": "",', '"host": "talend-component-kit-demo.herokuapp.com",')
+                    .replace("\"title\": \"${project.name}\"", '"title": "Talend Component Kit Server Demo"')
+                  // and attach it to the release
+                  session.container.lookup(MavenProjectHelper).attachArtifact(project, 'json', 'swagger-heroku', swaggerDemo);
+
+                  // copy icon (in svg) for the topbar logo
+                  def icon = Thread.currentThread().getContextClassLoader().getResourceAsStream('icons/component-kit-positive.svg')
+                  def iconTarget = new File(project.build.outputDirectory, 'META-INF/resources/documentation/logo.svg')
+                  // change color
+                  iconTarget.text = icon.text.replace('#000', '#0675c1')
+
+                  // create the favicon from the png
+                  ICOEncoder.write(
+                    ImageIO.read(new File(project.build.outputDirectory, 'icons/component-kit-positive_icon32.png')),
+                    new File(project.build.outputDirectory, 'META-INF/resources/documentation/favicon.ico'));
+                  ]]>
                 </script>
               </scripts>
             </configuration>
@@ -291,6 +316,11 @@
           </execution>
         </executions>
         <dependencies>
+          <dependency>
+            <groupId>org.jclarion</groupId>
+            <artifactId>image4j</artifactId>
+            <version>0.7</version>
+          </dependency>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>

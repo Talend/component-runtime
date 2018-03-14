@@ -18,9 +18,8 @@
     <meta charset="UTF-8">
     <title>Component Server API</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="/webjars/swagger-ui/3.2.2/swagger-ui.css" >
-    <link rel="icon" type="image/png" href="/webjars/swagger-ui/3.2.2/favicon-32x32.png" sizes="32x32" />
-    <link rel="icon" type="image/png" href="/webjars/swagger-ui/3.2.2/favicon-16x16.png" sizes="16x16" />
+    <link rel="stylesheet" type="text/css" href="/webjars/swagger-ui/3.12.1/swagger-ui.css" >
+    <link rel="icon" type="image/png" href="/documentation/favicon.icon" />
     <style>
     html
     {
@@ -34,10 +33,25 @@
     {
       box-sizing: inherit;
     }
-
     body {
       margin:0;
       background: #fafafa;
+    }
+
+    .swagger-ui .topbar {
+        background-color: #0093c9;
+    }
+    .swagger-ui .topbar .download-url-wrapper .download-url-button {
+        background: #0675c1;
+    }
+    .swagger-ui .topbar .download-url-wrapper input[type=text] {
+        border: 2px solid #0675c1;
+    }
+    .swagger-ui .topbar a {
+        max-width: 500px;
+    }
+    .swagger-ui .info {
+        margin: 30px 0
     }
   </style>
 </head>
@@ -80,11 +94,63 @@
 
 <div id="swagger-ui"></div>
 
-<script src="/webjars/swagger-ui/3.2.2/swagger-ui-bundle.js"> </script>
-<script src="/webjars/swagger-ui/3.2.2/swagger-ui-standalone-preset.js"> </script>
+<script src="/webjars/swagger-ui/3.12.1/swagger-ui-bundle.js"> </script>
+<script src="/webjars/swagger-ui/3.12.1/swagger-ui-standalone-preset.js"> </script>
 <script>
 window.onload = function() {
-  const ui = SwaggerUIBundle({
+  var initTop = function () {
+    var topWrapper = document.getElementsByClassName('topbar-wrapper')[0];
+    var logo = topWrapper.getElementsByTagName('img')[0];
+    logo.src = '/documentation/logo.svg';
+    logo.alt = 'Talend Component Kit Logo';
+    topWrapper.getElementsByTagName('span')[0].innerHTML = 'Talend Component Kit Server Demo';
+    topWrapper.removeChild(topWrapper.querySelector('form'));
+  };
+  var changeTitle = function () {
+    var title = document.querySelector('h2.title');
+    title.innerHTML = title.innerHTML.replace('Component Runtime :: Server', 'Talend Component Kit Demo Server');
+  };
+  var updateSchemes = function () {
+    var options = document.querySelectorAll('.scheme-container select option');
+    options[1].selected = true;
+  };
+  var updated = { top: false, title: false, schemes: false };
+  var postInit = function () {
+    if (!updated.top) {
+      var top = document.getElementsByClassName('topbar-wrapper');
+      if (!top || top.length == 0) {
+        setTimeout(postInit, 250);
+        return;
+      } else {
+        initTop();
+        updated.top = true;
+      }
+    }
+
+    if (!updated.title) {
+      var title = document.querySelector('h2.title');
+      if (!title) {
+          setTimeout(postInit, 250);
+          return;
+      } else {
+          changeTitle();
+          updated.title = true;
+      }
+    }
+
+    if (!updated.schemes) {
+      var options = document.querySelectorAll('.scheme-container select option');
+      if (!options || options.length < 2) {
+          setTimeout(postInit, 250);
+          return;
+      } else {
+          updateSchemes();
+          updated.schemes = true;
+      }
+    }
+  };
+
+  window.ui = SwaggerUIBundle({
     url: "/documentation/swagger.json",
     dom_id: '#swagger-ui',
     deepLinking: true,
@@ -98,7 +164,7 @@ window.onload = function() {
     layout: "StandaloneLayout"
   });
 
-  window.ui = ui
+  postInit();
 };
 </script>
 </body>
