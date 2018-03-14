@@ -1,8 +1,6 @@
 = Talend Component Testing Documentation
 :page-partial:
 
-[[documentation-testing-start]]
-
 include::testing-best-practices.adoc[leveloffset=+1]
 
 include::testing-runtime.adoc[leveloffset=+1]

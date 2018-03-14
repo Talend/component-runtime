@@ -250,7 +250,7 @@ Super Writer
 :hide-uri-scheme:
 :imagesdir: images
 
-include::{generated_doc}/documentation.adoc[]
+\include::{generated_doc}/documentation.adoc[]
 ----
 
 This assumes you pass to the plugin the attribute `generated_doc`, this can be done this way:

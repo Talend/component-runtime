@@ -455,7 +455,7 @@
           <dependency>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctorj</artifactId>
-            <version>1.6.0-alpha.6</version>
+            <version>${asciidoctorj.version}</version>
             <exclusions>
               <exclusion>
                 <groupId>org.jruby</groupId>

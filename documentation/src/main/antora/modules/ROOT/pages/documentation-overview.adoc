@@ -20,5 +20,5 @@ If you know nothing about Talend Components, the getting started is the place to
 * *Core features:*
   <<documentation.adoc#_components_definitions, Overview>>
 * *Advanced:*
-  <<documentation-testing.adoc#documentation-testing-start, Testing>>
+  <<documentation-testing.adoc, Testing>>
 

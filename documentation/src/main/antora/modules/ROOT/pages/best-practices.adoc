@@ -5,7 +5,7 @@
 
 Few recommandations apply to the way a component packages are organized:
 
-1. ensure to create a `package-info.java` with the component family/categories at the root of your component package:
+. ensure to create a `package-info.java` with the component family/categories at the root of your component package:
 
 [source,java]
 ----
@@ -16,9 +16,9 @@ import org.talend.sdk.component.api.component.Components;
 ----
 
 [start=2]
-2. create a package for the configuration
-3. create a package for the actions
-4. create a package for the component and one subpackage by type of component (input, output, processors, ...)
+. create a package for the configuration
+. create a package for the actions
+. create a package for the component and one subpackage by type of component (input, output, processors, ...)
 
 == Modelize your configuration
 
