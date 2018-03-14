@@ -194,7 +194,7 @@
           <dependency>
             <groupId>com.github.rmannibucau</groupId>
             <artifactId>jaxrs-analyzer-extension</artifactId>
-            <version>0.0.5</version>
+            <version>0.0.6</version>
           </dependency>
         </dependencies>
       </plugin>
