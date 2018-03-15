@@ -16,7 +16,10 @@
 package org.talend.sdk.component.server.test.jdbc;
 
 import java.io.Serializable;
+import java.util.Map;
 
+import org.talend.sdk.component.api.component.MigrationHandler;
+import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.constraint.Min;
 import org.talend.sdk.component.api.configuration.type.DataSet;
@@ -29,6 +32,7 @@ import lombok.NoArgsConstructor;
 @DataSet("jdbc")
 @AllArgsConstructor
 @NoArgsConstructor
+@Version(value = -1/*to not break tests*/, migrationHandler = JdbcDataSet.Migration.class)
 public class JdbcDataSet implements Serializable {
 
     @Option
@@ -45,4 +49,14 @@ public class JdbcDataSet implements Serializable {
     @Option
     @Min(1) // not 0 == infinite
     private int timeout;
+
+    public static class Migration implements MigrationHandler {
+
+        @Override
+        public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
+            incomingData.put("migrated", "true");
+            incomingData.put("size", Integer.toString(incomingData.size()));
+            return incomingData;
+        }
+    }
 }

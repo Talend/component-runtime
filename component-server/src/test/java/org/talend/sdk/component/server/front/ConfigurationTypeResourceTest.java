@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
@@ -40,6 +42,14 @@ class ConfigurationTypeResourceTest {
         final ConfigTypeNodes index = ws.read(ConfigTypeNodes.class, "get", "/configurationtype/index", "");
         assertIndex(index);
         validateJdbcHierarchy(index);
+    }
+
+    @Test
+    void migrate() {
+        final Map<String, String> config =
+                ws.read(Map.class, "post", "/configurationtype/migrate/amRiYyNkYXRhc2V0I2pkYmM/1", "{}");
+        assertEquals("true", config.get("migrated"));
+        assertEquals("1", config.get("size"));
     }
 
     private void assertIndex(final ConfigTypeNodes index) {

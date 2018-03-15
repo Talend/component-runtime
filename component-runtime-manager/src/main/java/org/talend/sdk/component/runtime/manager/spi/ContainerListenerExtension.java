@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.spi;
 
 import org.talend.sdk.component.container.ContainerListener;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
 
 /**
  * SPI which provides way to extend ContainerManager with listeners, which
@@ -23,4 +24,7 @@ import org.talend.sdk.component.container.ContainerListener;
  */
 public interface ContainerListenerExtension extends ContainerListener {
 
+    default void setComponentManager(final ComponentManager manager) {
+        // no-op
+    }
 }

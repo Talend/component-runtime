@@ -14,6 +14,7 @@ import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 
 /**
@@ -34,7 +35,7 @@ import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 public class RepositoryModelBuilder {
 
     public RepositoryModel create(final ComponentManager.AllServices services,
-            final Collection<ComponentFamilyMeta> familyMetas) {
+            final Collection<ComponentFamilyMeta> familyMetas, final MigrationHandlerFactory migrationHandlerFactory) {
         return new RepositoryModel(familyMetas
                 .stream()
                 .map(familyMeta -> Stream
@@ -43,7 +44,8 @@ public class RepositoryModelBuilder {
                         .flatMap(b -> b.getParameterMetas().stream())
                         .filter(RepositoryModelBuilder::isConfiguration)
                         .flatMap(this::toConfiguration)
-                        .map(p -> createConfig(services, p, familyMeta.getName(), familyMeta.getIcon()))
+                        .map(p -> createConfig(services, p, familyMeta.getName(), familyMeta.getIcon(),
+                                migrationHandlerFactory))
                         .collect(toMap(c -> c.getMeta().getJavaType(), identity(), (config1, config2) -> config1))
                         .values()
                         .stream()
@@ -97,7 +99,7 @@ public class RepositoryModelBuilder {
     }
 
     private Config createConfig(final ComponentManager.AllServices services, final ParameterMeta config,
-            final String familyName, final String familyIcon) {
+            final String familyName, final String familyIcon, final MigrationHandlerFactory migrationHandlerFactory) {
         final Config c = new Config();
         c.setIcon(familyIcon);
         c.setKey(getKey(familyName, config.getMetadata()));
@@ -110,14 +112,15 @@ public class RepositoryModelBuilder {
             if (version != null) {
                 c.setVersion(version.value());
                 if (version.migrationHandler() != MigrationHandler.class) {
-                    // ComponentManager already created it
-                    // otherwise it is a dead config type and we don't care to migrate it
-                    c.setMigrationHandler(MigrationHandler.class.cast(services.getServices().get(clazz)));
+                    c.setMigrationHandler(migrationHandlerFactory.findMigrationHandler(config.getNestedParameters(),
+                            clazz, services));
                 }
             } else {
                 c.setVersion(-1);
-                c.setMigrationHandler((v, d) -> d);
             }
+        }
+        if (c.getMigrationHandler() == null) {
+            c.setMigrationHandler((v, d) -> d);
         }
 
         return c;

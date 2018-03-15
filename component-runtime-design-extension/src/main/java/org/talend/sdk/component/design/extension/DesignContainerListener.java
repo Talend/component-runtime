@@ -24,6 +24,7 @@ import org.talend.sdk.component.design.extension.repository.RepositoryModelBuild
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
+import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
 
 /**
@@ -31,7 +32,14 @@ import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
  */
 public class DesignContainerListener implements ContainerListenerExtension {
 
-    private final RepositoryModelBuilder repositoryModelBuilder = new RepositoryModelBuilder();;
+    private final RepositoryModelBuilder repositoryModelBuilder = new RepositoryModelBuilder();
+
+    private MigrationHandlerFactory migrationHandlerFactory;
+
+    @Override
+    public void setComponentManager(final ComponentManager manager) {
+        migrationHandlerFactory = manager.getMigrationHandlerFactory();
+    }
 
     /**
      * Enriches {@link Container} with {@link DesignModel} and
@@ -51,20 +59,17 @@ public class DesignContainerListener implements ContainerListenerExtension {
         // Create Design Model
         componentFamilyMetas
                 .stream()
-                .flatMap(family -> Stream.concat( //
-                        family.getPartitionMappers().values().stream(), //
-                        family.getProcessors().values().stream())) //
+                .flatMap(family -> Stream.concat(family.getPartitionMappers().values().stream(),
+                        family.getProcessors().values().stream()))
                 .forEach(meta -> {
-                    FlowsFactory factory = FlowsFactory.get(meta);
-                    meta.set(DesignModel.class, new DesignModel( //
-                            meta.getId(), //
-                            factory.getInputFlows(), //
-                            factory.getOutputFlows())); //
+                    final FlowsFactory factory = FlowsFactory.get(meta);
+                    meta.set(DesignModel.class,
+                            new DesignModel(meta.getId(), factory.getInputFlows(), factory.getOutputFlows()));
                 });
 
         // Create Repository Model
-        container.set(RepositoryModel.class,
-                repositoryModelBuilder.create(container.get(ComponentManager.AllServices.class), componentFamilyMetas));
+        container.set(RepositoryModel.class, repositoryModelBuilder.create(
+                container.get(ComponentManager.AllServices.class), componentFamilyMetas, migrationHandlerFactory));
     }
 
     /**

@@ -42,6 +42,7 @@ import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
 import org.talend.sdk.component.design.extension.RepositoryModel;
+import org.talend.sdk.component.design.extension.repository.Config;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
@@ -195,7 +196,8 @@ public class ComponentManagerService {
                     .collect(toList());
 
             final Collection<String> configs = ofNullable(plugin.get(RepositoryModel.class))
-                    .map(r -> r.getFamilies().stream().flatMap(f -> f.getConfigs().stream()).collect(toList()))
+                    .map(r -> r.getFamilies().stream().flatMap(f -> configAsStream(f.getConfigs().stream())).collect(
+                            toList()))
                     .orElse(emptyList())
                     .stream()
                     .map(configurationDao::createOrUpdate)
@@ -207,6 +209,10 @@ public class ComponentManagerService {
                 families.forEach(componentFamilyDao::removeById);
                 configs.forEach(configurationDao::removeById);
             };
+        }
+
+        private Stream<Config> configAsStream(final Stream<Config> stream) {
+            return stream.flatMap(s -> Stream.concat(Stream.of(s), s.getChildConfigs().stream()));
         }
     }
 

@@ -24,7 +24,6 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
@@ -48,7 +47,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -99,7 +97,6 @@ import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
-import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -129,6 +126,7 @@ import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
+import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.service.HttpClientFactoryImpl;
@@ -157,8 +155,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ComponentManager implements AutoCloseable {
 
     protected static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
-
-    private static final MigrationHandler NO_MIGRATION = (incomingVersion, incomingData) -> incomingData;
 
     private static final Components DEFAULT_COMPONENT = new Components() {
 
@@ -236,6 +232,9 @@ public class ComponentManager implements AutoCloseable {
     // (like using a Spring/CDI context and something else than xbean)
     private final ReflectionService reflections = new ReflectionService(parameterModelService);
 
+    @Getter // for extensions
+    private final MigrationHandlerFactory migrationHandlerFactory = new MigrationHandlerFactory(reflections);
+
     private final Collection<ComponentExtension> extensions;
 
     // org.slf4j.event but https://issues.apache.org/jira/browse/MNG-6360
@@ -298,7 +297,9 @@ public class ComponentManager implements AutoCloseable {
         this.container.registerListener(new Updater());
         ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty()).ifPresent(p -> this.container
                 .registerListener(new JmxManager(container, p, ManagementFactory.getPlatformMBeanServer())));
-        toStream(loadServiceProviders(ContainerListenerExtension.class, tccl)).forEach(container::registerListener);
+        toStream(loadServiceProviders(ContainerListenerExtension.class, tccl))
+                .peek(e -> e.setComponentManager(ComponentManager.this))
+                .forEach(container::registerListener);
         this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
     }
 
@@ -1107,7 +1108,8 @@ public class ComponentManager implements AutoCloseable {
                         });
 
                         final ComponentMetaBuilder builder = new ComponentMetaBuilder(container.getId(), allServices,
-                                components, componentDefaults.get(getAnnotatedElementCacheKey(type)), context);
+                                components, componentDefaults.get(getAnnotatedElementCacheKey(type)), context,
+                                migrationHandlerFactory);
 
                         final Thread thread = Thread.currentThread();
                         final ClassLoader old = thread.getContextClassLoader();
@@ -1303,6 +1305,8 @@ public class ComponentManager implements AutoCloseable {
 
         private final ComponentContextImpl context;
 
+        private final MigrationHandlerFactory migrationHandlerFactory;
+
         private ComponentFamilyMeta component;
 
         @Override
@@ -1328,7 +1332,8 @@ public class ComponentManager implements AutoCloseable {
                     parameterModelService.buildParameterMetas(constructor, getPackage(type));
             component.getPartitionMappers().put(name,
                     new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
-                            type, parameterMetas, instantiator, findMigrationHandler(parameterMetas, type),
+                            type, parameterMetas, instantiator,
+                            migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
                             !context.isNoValidation()));
         }
 
@@ -1353,7 +1358,8 @@ public class ComponentManager implements AutoCloseable {
                     parameterModelService.buildParameterMetas(constructor, getPackage(type));
             component.getPartitionMappers().put(name,
                     new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
-                            type, parameterMetas, instantiator, findMigrationHandler(parameterMetas, type),
+                            type, parameterMetas, instantiator,
+                            migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
                             !context.isNoValidation()));
         }
 
@@ -1381,88 +1387,13 @@ public class ComponentManager implements AutoCloseable {
                     parameterModelService.buildParameterMetas(constructor, getPackage(type));
             component.getProcessors().put(name,
                     new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type), type,
-                            parameterMetas, instantiator, findMigrationHandler(parameterMetas, type),
+                            parameterMetas, instantiator,
+                            migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
                             !context.isNoValidation()));
         }
 
         private String getPackage(final Class<?> type) {
             return ofNullable(type.getPackage()).map(Package::getName).orElse("");
-        }
-
-        private MigrationHandler findMigrationHandler(final List<ParameterMeta> parameterMetas, final Class<?> type) {
-            final MigrationHandler implicitMigrationHandler = ofNullable(parameterMetas)
-                    .map(Collection::stream)
-                    .orElseGet(Stream::empty)
-                    .filter(p -> p.getMetadata().keySet().stream().anyMatch(
-                            k -> k.startsWith("tcomp::configurationtype::")))
-                    .filter(p -> Class.class.isInstance(p.getJavaType()))
-                    .map(p -> {
-                        // for now we can assume it is not in arrays
-                        final MigrationHandler handler =
-                                findMigrationHandler(emptyList(), Class.class.cast(p.getJavaType()));
-                        if (handler == NO_MIGRATION) {
-                            return null;
-                        }
-
-                        final String prefix = p.getPath();
-                        return (Function<Map<String, String>, Map<String, String>>) map -> {
-                            final String version = map.get(String.format("%s.__version", prefix));
-                            final Map<String, String> result;
-                            if (version != null) {
-                                final Map<String, String> migrated =
-                                        ofNullable(handler.migrate(Integer.parseInt(version.trim()),
-                                                map
-                                                        .entrySet()
-                                                        .stream()
-                                                        .filter(e -> e.getKey().startsWith(prefix + '.'))
-                                                        .collect(toMap(e -> e.getKey().substring(prefix.length() + 1),
-                                                                Map.Entry::getValue))))
-                                                                        .orElseGet(Collections::emptyMap);
-                                result = migrated.entrySet().stream().collect(
-                                        toMap(e -> prefix + '.' + e.getKey(), Map.Entry::getValue));
-                            } else {
-                                log.debug("No version for {} so skipping any potential migration",
-                                        p.getJavaType().toString());
-                                result = map;
-                            }
-                            return result;
-                        };
-                    })
-                    .filter(Objects::nonNull)
-                    .reduce(NO_MIGRATION,
-                            (current,
-                                    partial) -> (incomingVersion, incomingData) -> current.migrate(incomingVersion,
-                                            partial.apply(incomingData)),
-                            (migrationHandler,
-                                    migrationHandler2) -> (incomingVersion, incomingData) -> migrationHandler2.migrate(
-                                            incomingVersion, migrationHandler.migrate(incomingVersion, incomingData)));
-
-            return ofNullable(type.getAnnotation(Version.class))
-                    .map(Version::migrationHandler)
-                    .filter(t -> t != MigrationHandler.class)
-                    .flatMap(t -> Stream
-                            .of(t.getConstructors())
-                            .sorted((o1, o2) -> o2.getParameterCount() - o1.getParameterCount())
-                            .findFirst())
-                    .map(t -> services.getServices().computeIfAbsent(t.getDeclaringClass(), k -> {
-                        try {
-                            return t.newInstance(
-                                    reflections.parameterFactory(t, services.getServices()).apply(emptyMap()));
-                        } catch (final InstantiationException | IllegalAccessException e) {
-                            throw new IllegalArgumentException(e);
-                        } catch (final InvocationTargetException e) {
-                            throw toRuntimeException(e);
-                        }
-                    }))
-                    .map(MigrationHandler.class::cast)
-                    .map(h -> {
-                        if (implicitMigrationHandler == NO_MIGRATION) {
-                            return h;
-                        }
-                        return (MigrationHandler) (incomingVersion, incomingData) -> h.migrate(incomingVersion,
-                                implicitMigrationHandler.migrate(incomingVersion, incomingData));
-                    })
-                    .orElse(implicitMigrationHandler);
         }
 
         private int findVersion(final Class<?> type) {
