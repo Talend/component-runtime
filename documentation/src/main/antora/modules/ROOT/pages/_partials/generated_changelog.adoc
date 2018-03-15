@@ -15,3 +15,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-723[TCOMP-723^]: Adding configurationByExample utility to create query string for Job DSL
 - link:https://jira.talendforge.org/browse/TCOMP-724[TCOMP-724^]: Documentation endpoint doesn't support HTML
 
+
+== Version 0.0.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-731[TCOMP-731^]: Configuration Type migration handler skipped
+

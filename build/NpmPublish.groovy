@@ -22,6 +22,7 @@ import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest
 import org.apache.maven.settings.crypto.SettingsDecrypter
 
 import javax.json.bind.JsonbBuilder
+import javax.json.bind.annotation.JsonbProperty
 import javax.ws.rs.client.Client
 import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.client.WebTarget
@@ -65,6 +66,9 @@ class NpmPublishRequest {
     Map<String, NpmAttachment> _attachments
     Map<String, Object> versions
     String readme
+
+    @JsonbProperty("dist-tags")
+    Map<String, String> distTags
 }
 
 class NpmPublishResponse {
@@ -178,11 +182,9 @@ See https://talend.github.io/component-runtime/
                 _id: pck.name,
                 name: pck.name,
                 description: pck.description ?: '',
-                /* no dist-tags to ensure latest work
                 distTags: [
-                        "version" : version
+                        'version' : version
                 ],
-                */
                 versions: [
                         "${version}": pck
                 ],
