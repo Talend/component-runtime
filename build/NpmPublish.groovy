@@ -160,7 +160,7 @@ class Npm {
 
 See https://talend.github.io/component-runtime/
 """.getBytes(StandardCharsets.UTF_8)
-            def archiveEntry = new TarArchiveEntry('README.md');
+            def archiveEntry = new TarArchiveEntry('package/readme.md');
             archiveEntry.setSize(content.length)
             tarGz.putArchiveEntry(archiveEntry)
             tarGz.write(content)
@@ -183,7 +183,8 @@ See https://talend.github.io/component-runtime/
                 name: pck.name,
                 description: pck.description ?: '',
                 distTags: [
-                        'version' : version
+                        //'version' : version
+                        'latest' : version
                 ],
                 versions: [
                         "${version}": pck
