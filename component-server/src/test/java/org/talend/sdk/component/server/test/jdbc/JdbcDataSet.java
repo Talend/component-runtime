@@ -32,7 +32,7 @@ import lombok.NoArgsConstructor;
 @DataSet("jdbc")
 @AllArgsConstructor
 @NoArgsConstructor
-@Version(value = -1/*to not break tests*/, migrationHandler = JdbcDataSet.Migration.class)
+@Version(value = -1/* to not break tests */, migrationHandler = JdbcDataSet.Migration.class)
 public class JdbcDataSet implements Serializable {
 
     @Option
