@@ -183,7 +183,6 @@ See https://talend.github.io/component-runtime/
                 name: pck.name,
                 description: pck.description ?: '',
                 distTags: [
-                        //'version' : version
                         'latest' : version
                 ],
                 versions: [
