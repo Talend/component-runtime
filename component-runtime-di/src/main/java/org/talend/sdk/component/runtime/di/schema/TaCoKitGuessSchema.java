@@ -32,6 +32,7 @@ import javax.json.JsonValue;
 
 import org.talend.sdk.component.api.service.schema.Schema;
 import org.talend.sdk.component.api.service.schema.Type;
+import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -196,8 +197,11 @@ public class TaCoKitGuessSchema {
     }
 
     private boolean guessSchemaThroughResult(final StringBuilder strBuff) throws Exception {
-        Mapper mapper = componentManager.findMapper(family, componentName, 1, configuration).orElseThrow(
+        final Mapper mapper = componentManager.findMapper(family, componentName, 1, configuration).orElseThrow(
                 () -> new IllegalArgumentException("Can't find " + family + "#" + componentName));
+        if (JobStateAware.class.isInstance(mapper)) {
+            JobStateAware.class.cast(mapper).setState(new JobStateAware.State());
+        }
         Input input = null;
         try {
             mapper.start();

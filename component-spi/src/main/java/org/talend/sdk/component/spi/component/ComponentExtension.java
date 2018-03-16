@@ -65,6 +65,31 @@ public interface ComponentExtension {
     }
 
     /**
+     * The priority of the extension.
+     * Extensions are sorted by priority and the first one matching (supports) wins.
+     *
+     * @return the priority for this extension, smaller is the highest priority.
+     */
+    default int priority() {
+        return Integer.MAX_VALUE;
+    }
+
+    /**
+     * Unwrap the current instance to another type. Useful to access advanced features of some extensions.
+     *
+     * @param type the expected type.
+     * @param args optional parameters for the unwrapping.
+     * @param <T> the type to cast the extension to.
+     * @return the unwrapped instance or null if not supported.
+     */
+    default <T> T unwrap(final Class<T> type, final Object... args) {
+        if (type.isInstance(this)) {
+            return type.cast(this);
+        }
+        return null;
+    }
+
+    /**
      * This is the handle giving the extension information about the component being
      * processed and allowing to interact with the container lifecycle.
      */
@@ -109,5 +134,13 @@ public interface ComponentExtension {
          * default one.
          */
         void skipValidation();
+
+        /**
+         * Useful for extensions needing to access metadata from another programming model.
+         * Exposing the extension allows to unwrap it to access it.
+         *
+         * @return null if no extension owns the component, the extension instance otherwise.
+         */
+        ComponentExtension owningExtension();
     }
 }

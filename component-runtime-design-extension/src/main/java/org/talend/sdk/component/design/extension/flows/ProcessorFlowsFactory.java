@@ -34,7 +34,7 @@ import lombok.AllArgsConstructor;
  * Creates flows for Processor component
  */
 @AllArgsConstructor
-class ProcessorFlowsFactory extends FlowsFactory {
+class ProcessorFlowsFactory implements FlowsFactory {
 
     private final Class<?> type;
 

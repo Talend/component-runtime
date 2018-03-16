@@ -22,16 +22,33 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
+import org.talend.sdk.component.runtime.beam.design.BeamFlowFactory;
 import org.talend.sdk.component.runtime.beam.factory.service.AutoValueFluentApiFactory;
 import org.talend.sdk.component.runtime.beam.factory.service.PluginCoderFactory;
 import org.talend.sdk.component.runtime.beam.impl.BeamMapperImpl;
 import org.talend.sdk.component.runtime.beam.impl.BeamProcessorChainImpl;
 import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.spi.component.ComponentExtension;
 
 // TODO: enrich the validation set to check the from/to generics in the pTransforms
 public class BeamComponentExtension implements ComponentExtension {
+
+    @Override
+    public <T> T unwrap(final Class<T> type, final Object... args) {
+        if ("org.talend.sdk.component.design.extension.flows.FlowsFactory".equals(type.getName()) && args != null
+                && args.length == 1 && ComponentFamilyMeta.BaseMeta.class.isInstance(args[0])) {
+            if (ComponentFamilyMeta.ProcessorMeta.class.isInstance(args[0])) {
+                return type.cast(BeamFlowFactory.OUTPUT);
+            }
+            return type.cast(BeamFlowFactory.INPUT);
+        }
+        if (type.isInstance(this)) {
+            return type.cast(this);
+        }
+        return null;
+    }
 
     @Override
     public void onComponent(final ComponentContext context) {

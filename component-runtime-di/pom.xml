@@ -24,8 +24,7 @@
   <artifactId>component-runtime-di</artifactId>
   <name>Component Runtime :: DI</name>
   <description>
-    For now it is a placeholder module until we decide if we rely on javajet for the runtime
-    or the opposite. It just defines a stable dependency for the studio.
+    Helper module for javajet, it should move to tdi-studio-se at the end.
   </description>
 
   <properties>

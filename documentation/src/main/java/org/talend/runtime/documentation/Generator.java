@@ -222,23 +222,6 @@ public class Generator {
             final List<JiraVersion> loggedVersions = versions
                     .stream()
                     .filter(v -> (v.isReleased() || jiraVersionMatches(currentVersion, v.getName())))
-                    .sorted((o1, o2) -> { // reversed
-                                          // order
-                        final String[] parts1 = o1.getName().split("\\.");
-                        final String[] parts2 = o2.getName().split("\\.");
-                        for (int i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-                            try {
-                                final int major = (parts2.length > i ? Integer.parseInt(parts2[i]) : 0)
-                                        - (parts1.length > i ? Integer.parseInt(parts1[i]) : 0);
-                                if (major != 0) {
-                                    return major;
-                                }
-                            } catch (final NumberFormatException nfe) {
-                                // no-op
-                            }
-                        }
-                        return o2.getName().compareTo(o1.getId());
-                    })
                     .collect(toList());
             if (loggedVersions.isEmpty()) {
                 try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
@@ -277,7 +260,7 @@ public class Generator {
                     .filter(issue -> includeStatus
                             .contains(issue.getFields().getStatus().getName().toLowerCase(ENGLISH)))
                     .flatMap(i -> i.getFields().getFixVersions().stream().map(v -> Pair.of(v, i)))
-                    .collect(groupingBy(pair -> pair.getKey().getName(), TreeMap::new,
+                    .collect(groupingBy(pair -> pair.getKey().getName(), () -> new TreeMap<>(versionComparator()),
                             groupingBy(pair -> pair.getValue().getFields().getIssuetype().getName(), TreeMap::new,
                                     collectingAndThen(mapping(Pair::getValue, toList()), l -> {
                                         l.sort(comparing(JiraIssue::getKey));
@@ -322,6 +305,25 @@ public class Generator {
         } finally {
             client.close();
         }
+    }
+
+    private static Comparator<String> versionComparator() {
+        return (o1, o2) -> {
+            final String[] parts1 = o1.split("\\.");
+            final String[] parts2 = o2.split("\\.");
+            for (int i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+                try {
+                    final int major = (parts2.length > i ? Integer.parseInt(parts2[i]) : 0)
+                            - (parts1.length > i ? Integer.parseInt(parts1[i]) : 0);
+                    if (major != 0) {
+                        return major;
+                    }
+                } catch (final NumberFormatException nfe) {
+                    // no-op
+                }
+            }
+            return o2.compareTo(o1);
+        };
     }
 
     private static boolean jiraVersionMatches(final String ref, final String name) {

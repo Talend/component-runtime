@@ -20,126 +20,36 @@ import static java.util.Optional.ofNullable;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Queue;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbConfig;
 
 import org.apache.beam.sdk.coders.Coder;
-import org.apache.beam.sdk.io.BoundedSource;
 import org.apache.beam.sdk.io.Read;
+import org.apache.beam.sdk.io.UnboundedSource;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
+import org.joda.time.Instant;
 import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
-import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.beam.coder.NoCheckpointCoder;
 
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class InMemoryQueueIO {
 
-    private static final Map<String, LoopState> STATES = new ConcurrentHashMap<>();
-
     public static PTransform<PBegin, PCollection<JsonObject>> from(final LoopState state) {
-        return Read.from(new QueuedInput(state.id));
+        return Read.from(new UnboundedQueuedInput(state.id));
     }
 
     public static PTransform<PCollection<JsonObject>, PCollection<Void>> to(final LoopState state) {
         return new QueuedOutputTransform(state.id);
-    }
-
-    public static LoopState newTracker(final String plugin) {
-        final String id = UUID.randomUUID().toString();
-        final LoopState state = new LoopState(id, plugin);
-        STATES.putIfAbsent(id, state);
-        return state;
-    }
-
-    @RequiredArgsConstructor
-    public static class LoopState implements AutoCloseable {
-
-        private final String id;
-
-        private final AtomicInteger referenceCounting = new AtomicInteger();
-
-        private final String plugin;
-
-        private final Queue<JsonObject> queue = new ConcurrentLinkedQueue<>();
-
-        private final Semaphore semaphore = new Semaphore(0);
-
-        private volatile Jsonb jsonb;
-
-        private volatile boolean done;
-
-        public void push(final Object value) {
-            queue.add(JsonObject.class.isInstance(value) ? JsonObject.class.cast(value) : toJsonObject(value));
-            semaphore.release();
-        }
-
-        public JsonObject next() {
-            try {
-                semaphore.acquire();
-                return queue.poll();
-            } catch (final InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return null;
-            }
-        }
-
-        public synchronized void done() {
-            if (done) {
-                return;
-            }
-            done = true;
-            semaphore.release();
-        }
-
-        @Override
-        public void close() {
-            ofNullable(STATES.remove(id)).ifPresent(v -> {
-                if (!done) {
-                    done();
-                }
-                ofNullable(jsonb).ifPresent(j -> {
-                    try {
-                        j.close();
-                    } catch (final Exception e) {
-                        // no-op
-                    }
-                });
-            });
-        }
-
-        private JsonObject toJsonObject(final Object value) {
-            if (jsonb == null) {
-                synchronized (this) {
-                    if (jsonb == null) {
-                        final ComponentManager manager = ComponentManager.instance();
-                        jsonb = manager
-                                .getJsonbProvider()
-                                .create()
-                                .withProvider(manager.getJsonpProvider())
-                                .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
-                                .build();
-                    }
-                }
-            }
-            return jsonb.fromJson(jsonb.toJson(value), JsonObject.class);
-        }
     }
 
     public static class QueuedOutputTransform extends PTransform<PCollection<JsonObject>, PCollection<Void>> {
@@ -164,6 +74,8 @@ public final class InMemoryQueueIO {
 
         private String stateId;
 
+        private transient LoopState state;
+
         protected QueuedOutput() {
             // no-op
         }
@@ -174,34 +86,53 @@ public final class InMemoryQueueIO {
 
         @Setup
         public void onInit() {
-            STATES.get(stateId).referenceCounting.incrementAndGet();
+            getState().referenceCounting.incrementAndGet();
         }
 
         @ProcessElement
         public void onElement(final ProcessContext context) {
-            STATES.get(stateId).push(context.element());
+            final LoopState state = getState();
+            state.push(context.element());
+            if (state.getRecordCount().decrementAndGet() == 0 && state.isDone()) {
+                state.end();
+            }
         }
 
         @Teardown
         public void onTeardown() {
-            ofNullable(STATES.get(stateId)).filter(s -> s.referenceCounting.decrementAndGet() == 0).ifPresent(
-                    LoopState::close);
+            ofNullable(getState()).filter(s -> s.referenceCounting.decrementAndGet() == 0).ifPresent(LoopState::close);
+        }
+
+        private LoopState getState() {
+            return state == null ? state = LoopState.lookup(stateId) : state;
         }
     }
 
-    public static class QueuedInput extends BoundedSource<JsonObject> {
+    public static class UnboundedQueuedInput extends UnboundedSource<JsonObject, UnboundedSource.CheckpointMark> {
 
         private JsonpJsonObjectCoder coder;
 
         private String stateId;
 
-        protected QueuedInput() {
+        protected UnboundedQueuedInput() {
             // no-op
         }
 
-        protected QueuedInput(final String stateId) {
+        protected UnboundedQueuedInput(final String stateId) {
             this.stateId = stateId;
-            this.coder = JsonpJsonObjectCoder.of(STATES.get(stateId).plugin);
+            this.coder = JsonpJsonObjectCoder.of(LoopState.lookup(stateId).plugin);
+        }
+
+        @Override
+        public List<? extends UnboundedSource<JsonObject, CheckpointMark>> split(final int desiredNumSplits,
+                final PipelineOptions options) {
+            return singletonList(this);
+        }
+
+        @Override
+        public UnboundedReader<JsonObject> createReader(final PipelineOptions options,
+                final UnboundedSource.CheckpointMark checkpointMark) {
+            return new UnboundedQueuedReader(this);
         }
 
         @Override
@@ -210,33 +141,28 @@ public final class InMemoryQueueIO {
         }
 
         @Override
-        public List<? extends BoundedSource<JsonObject>> split(final long desiredBundleSizeBytes,
-                final PipelineOptions options) {
-            return singletonList(this);
+        public Coder<CheckpointMark> getCheckpointMarkCoder() {
+            return new NoCheckpointCoder();
         }
 
-        @Override
-        public long getEstimatedSizeBytes(final PipelineOptions options) {
-            return 1L;
-        }
+        private static class UnboundedQueuedReader extends UnboundedReader<JsonObject> {
 
-        @Override
-        public BoundedReader<JsonObject> createReader(final PipelineOptions options) {
-            return new QueuedInputReader(this);
-        }
-
-        private static class QueuedInputReader extends BoundedReader<JsonObject> {
-
-            private final QueuedInput source;
+            private final UnboundedQueuedInput source;
 
             private final LoopState state;
 
+            private volatile Supplier<Instant> waterMarkProvider;
+
             private JsonObject current;
 
-            private QueuedInputReader(final QueuedInput source) {
+            private UnboundedQueuedReader(final UnboundedQueuedInput source) {
                 this.source = source;
-                this.state = STATES.get(source.stateId);
-                this.state.referenceCounting.incrementAndGet();
+                this.state = LoopState.lookup(source.stateId);
+                if (this.state != null) {
+                    this.state.referenceCounting.incrementAndGet();
+                } else {
+                    this.waterMarkProvider = () -> BoundedWindow.TIMESTAMP_MAX_VALUE;
+                }
             }
 
             @Override
@@ -246,27 +172,48 @@ public final class InMemoryQueueIO {
 
             @Override
             public boolean advance() {
+                if (state == null) {
+                    return false;
+                }
+
                 current = state.next();
-                return current != null;
+                if (current != null) {
+                    return true;
+                }
+                this.waterMarkProvider = () -> BoundedWindow.TIMESTAMP_MAX_VALUE;
+                return false;
             }
 
             @Override
             public JsonObject getCurrent() throws NoSuchElementException {
-                if (current == null) {
-                    throw new NoSuchElementException();
-                }
                 return current;
             }
 
             @Override
-            public void close() {
-                if (this.state.referenceCounting.decrementAndGet() == 0) {
-                    this.state.close();
-                }
+            public Instant getCurrentTimestamp() throws NoSuchElementException {
+                return Instant.now();
             }
 
             @Override
-            public BoundedSource<JsonObject> getCurrentSource() {
+            public void close() {
+                // no-op
+            }
+
+            @Override
+            public Instant getWatermark() {
+                if (waterMarkProvider == null) {
+                    waterMarkProvider = Instant::now;
+                }
+                return waterMarkProvider.get();
+            }
+
+            @Override
+            public CheckpointMark getCheckpointMark() {
+                return CheckpointMark.NOOP_CHECKPOINT_MARK;
+            }
+
+            @Override
+            public UnboundedSource<JsonObject, ?> getCurrentSource() {
                 return source;
             }
         }

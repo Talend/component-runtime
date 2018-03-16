@@ -25,7 +25,7 @@ import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta.ProcessorMet
  * Strategy creates component flows according component type (either
  * {@link ProcessorMeta} or {@link PartitionMapperMeta})
  */
-public abstract class FlowsFactory {
+public interface FlowsFactory {
 
     /**
      * Creates appropriate factory according {@link BaseMeta} type (either
@@ -34,14 +34,14 @@ public abstract class FlowsFactory {
      * @param meta the meta instance to use as reference to find the right factory.
      * @return the factory to use to create a flow for this meta.
      */
-    public static FlowsFactory get(final BaseMeta<?> meta) {
+    static FlowsFactory get(final BaseMeta<?> meta) {
         if (meta == null) {
             throw new IllegalArgumentException("meta should not be null");
         }
-        if (meta instanceof PartitionMapperMeta) {
+        if (PartitionMapperMeta.class.isInstance(meta)) {
             return new PartitionMapperFlowsFactory();
         }
-        if (meta instanceof ProcessorMeta) {
+        if (ProcessorMeta.class.isInstance(meta)) {
             return new ProcessorFlowsFactory(meta.getType());
         }
         throw new IllegalArgumentException("unknown meta type " + meta.getClass().getName());
@@ -52,12 +52,12 @@ public abstract class FlowsFactory {
      * 
      * @return input flows names collection
      */
-    public abstract Collection<String> getInputFlows();
+    Collection<String> getInputFlows();
 
     /**
      * Returns a {@link Collection} of output flows names of a Component
      * 
      * @return output flows names collection
      */
-    public abstract Collection<String> getOutputFlows();
+    Collection<String> getOutputFlows();
 }

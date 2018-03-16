@@ -57,7 +57,7 @@ public class InMemoryQueueIOTest implements Serializable {
         INPUT_OUTPUTS.clear();
 
         final PipelineResult result;
-        try (final InMemoryQueueIO.LoopState state = InMemoryQueueIO.newTracker(null)) {
+        try (final LoopState state = LoopState.newTracker(null)) {
             IntStream.range(0, 2).forEach(i -> state.push(new RowStruct(i)));
 
             pipeline.apply(InMemoryQueueIO.from(state)).apply(ParDo.of(new DoFn<JsonObject, Void>() {
@@ -71,7 +71,8 @@ public class InMemoryQueueIOTest implements Serializable {
             result = pipeline.run();
 
             IntStream.range(2, 5).forEach(i -> state.push(new RowStruct(i)));
-            state.done(); // for inputs it is key to notify beam we are done
+            // for inputs it is key to notify beam we are done
+            state.end();
 
             final long end = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(2);
             while (INPUT_OUTPUTS.size() < 5 && end - System.currentTimeMillis() >= 0) {
@@ -91,7 +92,7 @@ public class InMemoryQueueIOTest implements Serializable {
     @Test(timeout = 60000)
     public void output() {
         final Collection<JsonObject> objects = new ArrayList<>();
-        try (final InMemoryQueueIO.LoopState state = InMemoryQueueIO.newTracker(null)) {
+        try (final LoopState state = LoopState.newTracker(null)) {
             pipeline
                     .apply(Create.of(IntStream.range(0, 5).mapToObj(RowStruct::new).collect(toList())))
                     .setCoder(SerializableCoder.of(RowStruct.class))

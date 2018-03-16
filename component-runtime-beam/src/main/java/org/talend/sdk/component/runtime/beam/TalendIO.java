@@ -42,6 +42,7 @@ import org.apache.beam.sdk.values.POutput;
 import org.joda.time.Instant;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.runtime.beam.coder.NoCheckpointCoder;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -223,13 +224,13 @@ public final class TalendIO {
 
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class UnBoundedSourceImpl extends UnboundedSource<JsonObject, EmptyCheckMark> {
+    private static class UnBoundedSourceImpl extends UnboundedSource<JsonObject, UnboundedSource.CheckpointMark> {
 
         private Mapper mapper;
 
         @Override
-        public List<? extends UnboundedSource<JsonObject, EmptyCheckMark>> split(final int desiredNumSplits,
-                final PipelineOptions options) throws Exception {
+        public List<? extends UnboundedSource<JsonObject, UnboundedSource.CheckpointMark>>
+                split(final int desiredNumSplits, final PipelineOptions options) {
             mapper.start();
             try {
                 return mapper.split(desiredNumSplits).stream().map(i -> new UnBoundedSourceImpl(i)).collect(toList());
@@ -240,7 +241,7 @@ public final class TalendIO {
 
         @Override
         public UnboundedReader<JsonObject> createReader(final PipelineOptions options,
-                final EmptyCheckMark checkpointMark) throws IOException {
+                final UnboundedSource.CheckpointMark checkpointMark) throws IOException {
             return new UnBoundedReaderImpl<>(this, mapper.create());
         }
 
@@ -250,8 +251,8 @@ public final class TalendIO {
         }
 
         @Override
-        public Coder getCheckpointMarkCoder() {
-            return JsonpJsonObjectCoder.of(mapper.plugin());
+        public Coder<CheckpointMark> getCheckpointMarkCoder() {
+            return new NoCheckpointCoder();
         }
     }
 
@@ -332,7 +333,7 @@ public final class TalendIO {
         }
 
         @Override
-        public boolean advance() throws IOException {
+        public boolean advance() {
             final Object next = input.next();
             if (next != null && !JsonObject.class.isInstance(next)) {
                 if (jsonb == null) {
@@ -371,30 +372,12 @@ public final class TalendIO {
 
         @Override // we can add a @Checkpoint method on the emitter if needed, let's start without
         public UnboundedSource.CheckpointMark getCheckpointMark() {
-            return new EmptyCheckMark();
+            return UnboundedSource.CheckpointMark.NOOP_CHECKPOINT_MARK;
         }
 
         @Override
         public UnboundedSource<T, ?> getCurrentSource() {
             return source;
-        }
-    }
-
-    private static final class EmptyCheckMark implements UnboundedSource.CheckpointMark {
-
-        @Override
-        public void finalizeCheckpoint() throws IOException {
-            // no-op
-        }
-
-        @Override
-        public int hashCode() {
-            return 0;
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            return EmptyCheckMark.class.isInstance(obj);
         }
     }
 }

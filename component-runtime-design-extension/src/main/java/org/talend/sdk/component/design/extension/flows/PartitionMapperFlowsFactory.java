@@ -23,13 +23,14 @@ import org.talend.sdk.component.runtime.output.Branches;
 /**
  * Creates flows for PartitionMapper component
  */
-class PartitionMapperFlowsFactory extends FlowsFactory {
+class PartitionMapperFlowsFactory implements FlowsFactory {
 
     /**
      * {@inheritDoc}
      * 
      * @return empty collection as PartitionMapper has no input flows
      */
+    @Override
     public Collection<String> getInputFlows() {
         return Collections.emptySet();
     }

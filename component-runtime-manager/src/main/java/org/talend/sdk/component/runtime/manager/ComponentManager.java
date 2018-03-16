@@ -19,6 +19,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
+import static java.util.Comparator.comparing;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
@@ -123,6 +124,7 @@ import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
 import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
+import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
 import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
@@ -300,7 +302,9 @@ public class ComponentManager implements AutoCloseable {
         toStream(loadServiceProviders(ContainerListenerExtension.class, tccl))
                 .peek(e -> e.setComponentManager(ComponentManager.this))
                 .forEach(container::registerListener);
-        this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl)).collect(toList());
+        this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl))
+                .sorted(comparing(ComponentExtension::priority))
+                .collect(toList());
     }
 
     private Level findLogInfoLevel() {
@@ -1087,6 +1091,8 @@ public class ComponentManager implements AutoCloseable {
                         info("Added @Service " + service + " for container-id=" + container.getId());
                     });
 
+            final ComponentContexts componentContexts = new ComponentContexts();
+            container.set(ComponentContexts.class, componentContexts);
             Stream
                     .of(PartitionMapper.class, Processor.class, Emitter.class)
                     .flatMap(a -> finder.findAnnotatedClasses(a).stream())
@@ -1095,6 +1101,7 @@ public class ComponentManager implements AutoCloseable {
                                 container.getLoader(), Components.class, DEFAULT_COMPONENT);
 
                         final ComponentContextImpl context = new ComponentContextImpl(type);
+                        componentContexts.getContexts().put(type, context);
                         extensions.forEach(e -> {
                             context.setCurrentExtension(e);
                             try {

@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.design.extension;
 
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
+
 import java.util.Collection;
 import java.util.stream.Stream;
 
@@ -24,8 +27,10 @@ import org.talend.sdk.component.design.extension.repository.RepositoryModelBuild
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
+import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
 import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
+import org.talend.sdk.component.spi.component.ComponentExtension;
 
 /**
  * Service provider for {@link ContainerListenerExtension} service
@@ -62,9 +67,18 @@ public class DesignContainerListener implements ContainerListenerExtension {
                 .flatMap(family -> Stream.concat(family.getPartitionMappers().values().stream(),
                         family.getProcessors().values().stream()))
                 .forEach(meta -> {
-                    final FlowsFactory factory = FlowsFactory.get(meta);
+                    final ComponentExtension.ComponentContext context =
+                            container.get(ComponentContexts.class).getContexts().get(meta.getType());
+                    final ComponentExtension owningExtension = context.owningExtension();
                     meta.set(DesignModel.class,
-                            new DesignModel(meta.getId(), factory.getInputFlows(), factory.getOutputFlows()));
+                            ofNullable(owningExtension)
+                                    .map(e -> e.unwrap(FlowsFactory.class, meta))
+                                    .map(e -> new DesignModel(meta.getId(), emptyList(), emptyList()))
+                                    .orElseGet(() -> {
+                                        final FlowsFactory factory = FlowsFactory.get(meta);
+                                        return new DesignModel(meta.getId(), factory.getInputFlows(),
+                                                factory.getOutputFlows());
+                                    }));
                 });
 
         // Create Repository Model
