@@ -15,8 +15,11 @@
  */
 package org.talend.sdk.component.spi.component;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
+import java.lang.instrument.ClassFileTransformer;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -87,6 +90,13 @@ public interface ComponentExtension {
             return type.cast(this);
         }
         return null;
+    }
+
+    /**
+     * @return a list of transformer to set on the component classloader.
+     */
+    default Collection<ClassFileTransformer> getTransformers() {
+        return emptyList();
     }
 
     /**

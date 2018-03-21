@@ -29,6 +29,12 @@ public class SimpleComponentRule extends BaseComponentsHandler implements TestRu
     }
 
     @Override
+    public SimpleComponentRule withIsolatedPackage(final String pck, final String... packages) {
+        super.withIsolatedPackage(pck, packages);
+        return this;
+    }
+
+    @Override
     public Statement apply(final Statement base, final Description description) {
         return new Statement() {
 

@@ -15,6 +15,11 @@
  */
 package org.talend.sdk.component.runtime.beam.spi;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+
+import java.lang.instrument.ClassFileTransformer;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +32,7 @@ import org.talend.sdk.component.runtime.beam.factory.service.AutoValueFluentApiF
 import org.talend.sdk.component.runtime.beam.factory.service.PluginCoderFactory;
 import org.talend.sdk.component.runtime.beam.impl.BeamMapperImpl;
 import org.talend.sdk.component.runtime.beam.impl.BeamProcessorChainImpl;
+import org.talend.sdk.component.runtime.beam.transformer.SerializationTransformer;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -48,6 +54,14 @@ public class BeamComponentExtension implements ComponentExtension {
             return type.cast(this);
         }
         return null;
+    }
+
+    @Override
+    public Collection<ClassFileTransformer> getTransformers() {
+        if (Boolean.getBoolean("talend.component.beam.transformers.skip")) {
+            return emptySet();
+        }
+        return singleton(new SerializationTransformer());
     }
 
     @Override
@@ -73,7 +87,7 @@ public class BeamComponentExtension implements ComponentExtension {
         };
     }
 
-    @Override
+    @Override // todo: should it be dropped to be able to have a passthrough mode - ie just unwrapped instance?
     public <T> T convert(final ComponentInstance instance, final Class<T> component) {
         if (Mapper.class == component) {
             return (T) new BeamMapperImpl((PTransform<PBegin, ?>) instance.instance(), instance.plugin(),

@@ -25,8 +25,11 @@ import static org.talend.sdk.component.container.Container.State.CREATED;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.lang.instrument.ClassFileTransformer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
@@ -78,6 +81,8 @@ public class Container implements Lifecycle {
 
     private final AtomicReference<State> state = new AtomicReference<>(CREATED);
 
+    private final Collection<ClassFileTransformer> transformers = new ArrayList<>();
+
     public Container(final String id, final String rootModule, final Artifact[] dependencies,
             final ContainerManager.ClassLoaderConfiguration configuration,
             final Function<String, File> localDependencyRelativeResolver, final Consumer<Container> initializer) {
@@ -112,9 +117,11 @@ public class Container implements Lifecycle {
             final String[] rawNestedDependencies = overrideClassLoaderConfig.isSupportsResourceDependencies()
                     ? Stream.of(dependencies).map(Artifact::toPath).filter(resourceExists).toArray(String[]::new)
                     : null;
-            return new ConfigurableClassLoader(urls, overrideClassLoaderConfig.getParent(),
-                    overrideClassLoaderConfig.getParentClassesFilter(), overrideClassLoaderConfig.getClassesFilter(),
-                    rawNestedDependencies);
+            final ConfigurableClassLoader loader = new ConfigurableClassLoader(urls,
+                    overrideClassLoaderConfig.getParent(), overrideClassLoaderConfig.getParentClassesFilter(),
+                    overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies);
+            transformers.forEach(loader::registerTransformer);
+            return loader;
         };
         reload();
     }
@@ -225,6 +232,10 @@ public class Container implements Lifecycle {
 
     public Date getCreated() {
         return created.get();
+    }
+
+    public void registerTransformer(final ClassFileTransformer transformer) {
+        transformers.add(transformer);
     }
 
     private void checkState() {

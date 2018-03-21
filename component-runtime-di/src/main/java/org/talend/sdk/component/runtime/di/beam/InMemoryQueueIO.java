@@ -56,10 +56,6 @@ public final class InMemoryQueueIO {
 
         private String stateId;
 
-        protected QueuedOutputTransform() {
-            // no-op
-        }
-
         protected QueuedOutputTransform(final String stateId) {
             this.stateId = stateId;
         }
@@ -75,10 +71,6 @@ public final class InMemoryQueueIO {
         private String stateId;
 
         private transient LoopState state;
-
-        protected QueuedOutput() {
-            // no-op
-        }
 
         protected QueuedOutput(final String stateId) {
             this.stateId = stateId;
@@ -113,10 +105,6 @@ public final class InMemoryQueueIO {
         private JsonpJsonObjectCoder coder;
 
         private String stateId;
-
-        protected UnboundedQueuedInput() {
-            // no-op
-        }
 
         protected UnboundedQueuedInput(final String stateId) {
             this.stateId = stateId;

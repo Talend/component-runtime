@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
+import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.beam.InMemoryQueueIO;
 import org.talend.sdk.component.runtime.di.beam.LoopState;
@@ -33,7 +34,7 @@ import org.talend.sdk.component.runtime.output.Processor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class QueueOutput implements Processor, JobStateAware, Supplier<DIPipeline> {
+public class QueueOutput implements Processor, JobStateAware, Supplier<DIPipeline>, Delegated {
 
     private final LoopState state;
 
@@ -109,6 +110,7 @@ public class QueueOutput implements Processor, JobStateAware, Supplier<DIPipelin
 
     @Override
     public void stop() {
+        PipelineInit.lazyStart(jobState, this); // empty dataset case
         state.end();
         try {
             jobState.getPipelineDone().get();
@@ -127,5 +129,10 @@ public class QueueOutput implements Processor, JobStateAware, Supplier<DIPipelin
     @Override
     public DIPipeline get() {
         return PipelineInit.ensurePipeline(requireNonNull(jobState, "jobState must be non null"));
+    }
+
+    @Override
+    public Object getDelegate() {
+        return transform;
     }
 }

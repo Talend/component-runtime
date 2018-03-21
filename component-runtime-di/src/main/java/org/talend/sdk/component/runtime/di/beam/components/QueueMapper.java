@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
+import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.beam.transform.JsonEnforcer;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.beam.InMemoryQueueIO;
@@ -35,7 +36,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class QueueMapper implements Mapper, JobStateAware, Supplier<DIPipeline> {
+public class QueueMapper implements Mapper, JobStateAware, Supplier<DIPipeline>, Delegated {
 
     private final LoopState state;
 
@@ -126,6 +127,11 @@ public class QueueMapper implements Mapper, JobStateAware, Supplier<DIPipeline> 
     @Override
     public DIPipeline get() {
         return PipelineInit.ensurePipeline(requireNonNull(jobState, "jobState must be non null"));
+    }
+
+    @Override
+    public Object getDelegate() {
+        return transform;
     }
 
     @RequiredArgsConstructor

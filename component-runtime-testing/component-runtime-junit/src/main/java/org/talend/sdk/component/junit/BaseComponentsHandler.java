@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -76,8 +77,28 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
     protected String packageName;
 
+    protected Collection<String> isolatedPackages;
+
+    public BaseComponentsHandler withIsolatedPackage(final String packageName, final String... packages) {
+        isolatedPackages =
+                Stream.concat(Stream.of(packageName), Stream.of(packages)).filter(Objects::nonNull).collect(toList());
+        if (isolatedPackages.isEmpty()) {
+            isolatedPackages = null;
+        }
+        return this;
+    }
+
     public EmbeddedComponentManager start() {
         final EmbeddedComponentManager embeddedComponentManager = new EmbeddedComponentManager(packageName) {
+
+            @Override
+            protected boolean isContainerClass(final Filter filter, final String name) {
+                if (name == null) {
+                    return super.isContainerClass(filter, null);
+                }
+                return (isolatedPackages == null || isolatedPackages.stream().noneMatch(name::startsWith))
+                        && super.isContainerClass(filter, name);
+            }
 
             @Override
             public void close() {
@@ -472,7 +493,11 @@ public class BaseComponentsHandler implements ComponentsHandler {
                         .withProvider(new PreComputedJsonpProvider("test", manager.getJsonpProvider(),
                                 manager.getJsonpParserFactory(), manager.getJsonpWriterFactory(),
                                 manager.getJsonpBuilderFactory(), manager.getJsonpGeneratorFactory(),
-                                manager.getJsonpReaderFactory())) // reuses the same memory buffering
+                                manager.getJsonpReaderFactory())) // reuses
+                                                                  // the
+                                                                  // same
+                                                                  // memory
+                                                                  // buffering
                         .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
                         .build();
             }

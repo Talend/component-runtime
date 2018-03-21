@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.design.extension;
 
-import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 
 import java.util.Collection;
@@ -73,7 +72,7 @@ public class DesignContainerListener implements ContainerListenerExtension {
                     meta.set(DesignModel.class,
                             ofNullable(owningExtension)
                                     .map(e -> e.unwrap(FlowsFactory.class, meta))
-                                    .map(e -> new DesignModel(meta.getId(), emptyList(), emptyList()))
+                                    .map(e -> new DesignModel(meta.getId(), e.getInputFlows(), e.getOutputFlows()))
                                     .orElseGet(() -> {
                                         final FlowsFactory factory = FlowsFactory.get(meta);
                                         return new DesignModel(meta.getId(), factory.getInputFlows(),

@@ -41,6 +41,9 @@ class ComponentExtension extends BaseComponentsHandler
                                 "No annotation @WithComponents on " + extensionContext.getRequiredTestClass()));
         this.packageName = element.value();
         final ExtensionContext.Store store = extensionContext.getStore(NAMESPACE);
+        if (element.isolatedPackages().length > 0) {
+            withIsolatedPackage(null, element.isolatedPackages());
+        }
         store.put(EmbeddedComponentManager.class.getName(), start());
     }
 

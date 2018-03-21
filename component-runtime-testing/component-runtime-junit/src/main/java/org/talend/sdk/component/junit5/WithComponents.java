@@ -36,4 +36,13 @@ public @interface WithComponents {
      * @return the package containing the component(s).
      */
     String value();
+
+    /**
+     * You can isolate some packages during the test.
+     * Note that in the context of a test this can have side effects so ensure to know what you
+     * are doing.
+     *
+     * @return the package laoded from their own classloader.
+     */
+    String[] isolatedPackages() default {};
 }

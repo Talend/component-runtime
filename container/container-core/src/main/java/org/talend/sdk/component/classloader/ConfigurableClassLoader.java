@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.classloader;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.enumeration;
 import static java.util.Collections.list;
 import static java.util.Optional.ofNullable;
@@ -24,11 +26,16 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.security.CodeSource;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +44,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
@@ -57,22 +65,29 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private static final ClassLoader SYSTEM_CLASS_LOADER = getSystemClassLoader();
 
+    private final URL[] creationUrls;
+
     private final Predicate<String> parentFilter;
 
     private final Predicate<String> childFirstFilter;
 
     private final Map<String, Collection<Resource>> resources = new HashMap<>();
 
+    private final Collection<ClassFileTransformer> transformers = new ArrayList<>();
+
+    private volatile URLClassLoader temporaryCopy;
+
     public ConfigurableClassLoader(final URL[] urls, final ClassLoader parent, final Predicate<String> parentFilter,
             final Predicate<String> childFirstFilter, final String[] nestedDependencies) {
-        super(urls, parent);
-        this.parentFilter = parentFilter;
-        this.childFirstFilter = childFirstFilter;
+        this(urls, parent, parentFilter, childFirstFilter, emptyMap());
         if (nestedDependencies != null) { // load all in memory to avoid perf issues - should we try offheap?
             final byte[] buffer = new byte[8192]; // should be good for most cases
             final ByteArrayOutputStream out = new ByteArrayOutputStream(buffer.length);
             Stream.of(nestedDependencies).map(d -> NESTED_MAVEN_REPOSITORY + d).forEach(resource -> {
                 final URL url = ofNullable(super.findResource(resource)).orElseGet(() -> parent.getResource(resource));
+                if (url == null) {
+                    throw new IllegalArgumentException("Didn't find " + resource + " in " + asList(nestedDependencies));
+                }
                 try (final JarInputStream jarInputStream = new JarInputStream(url.openStream())) {
                     ZipEntry entry;
                     while ((entry = jarInputStream.getNextEntry()) != null) {
@@ -93,6 +108,48 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 }
             });
         }
+    }
+
+    private ConfigurableClassLoader(final URL[] urls, final ClassLoader parent, final Predicate<String> parentFilter,
+            final Predicate<String> childFirstFilter, final Map<String, Collection<Resource>> resources) {
+        super(urls, parent);
+        this.creationUrls = urls;
+        this.parentFilter = parentFilter;
+        this.childFirstFilter = childFirstFilter;
+        this.resources.putAll(resources);
+    }
+
+    public void registerTransformer(final ClassFileTransformer transformer) {
+        transformers.add(transformer);
+    }
+
+    public synchronized URLClassLoader createTemporaryCopy() {
+        final ConfigurableClassLoader self = this;
+        return temporaryCopy == null ? temporaryCopy =
+                new ConfigurableClassLoader(creationUrls, getParent(), parentFilter, childFirstFilter, resources) {
+
+                    @Override
+                    public synchronized void close() throws IOException {
+                        super.close();
+                        synchronized (self) {
+                            self.temporaryCopy = null;
+                        }
+                    }
+                } : temporaryCopy;
+    }
+
+    @Override
+    public synchronized void close() throws IOException {
+        resources.clear();
+        if (temporaryCopy != null) {
+            try {
+                temporaryCopy.close();
+            } catch (final RuntimeException re) {
+                super.close();
+                return;
+            }
+        }
+        super.close();
     }
 
     @Override
@@ -366,15 +423,67 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private Class<?> loadInternal(final String name, final boolean resolve) {
         Class<?> clazz = null;
-        try {
-            clazz = findClass(name);
-        } catch (final ClassNotFoundException ignored) {
-            if (!resources.isEmpty()) {
-                final Collection<Resource> resources = this.resources.get(name.replace(".", "/") + ".class");
-                if (resources != null && !resources.isEmpty()) {
-                    final Resource resource = resources.iterator().next();
-                    clazz = defineClass(name, resource.resource, 0, resource.resource.length);
+        final String resourceName = name.replace('.', '/');
+        final String path = resourceName.concat(".class");
+        final URL url = super.findResource(path);
+        if (url != null) {
+            try {
+                final URLConnection connection = url.openConnection();
+
+                // package
+                final int i = name.lastIndexOf('.');
+                if (i != -1) {
+                    final String pckName = name.substring(0, i);
+                    final Package pck = super.getPackage(pckName);
+                    if (pck == null) {
+                        final Manifest manifest = JarURLConnection.class.isInstance(connection)
+                                ? JarURLConnection.class.cast(connection).getManifest()
+                                : null;
+                        if (manifest == null) {
+                            definePackage(pckName, null, null, null, null, null, null, null);
+                        } else {
+                            definePackage(pckName, manifest, JarURLConnection.class.cast(connection).getJarFileURL());
+                        }
+                    }
                 }
+
+                // read the class and transform it
+                final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int read;
+                final InputStream stream = connection.getInputStream();
+                while ((read = stream.read(buffer)) >= 0) {
+                    if (read == 0) {
+                        continue;
+                    }
+                    outputStream.write(buffer, 0, read);
+                }
+
+                final Certificate[] certificates = JarURLConnection.class.isInstance(connection)
+                        ? JarURLConnection.class.cast(connection).getCertificates()
+                        : new Certificate[0];
+
+                byte[] bytes = outputStream.toByteArray();
+                if (!transformers.isEmpty()) {
+                    for (final ClassFileTransformer transformer : transformers) {
+                        try {
+                            bytes = transformer.transform(this, resourceName, null, null, bytes);
+                        } catch (IllegalClassFormatException e) {
+                            log.error(e.getMessage() + ", will ignore the transformers", e);
+                            break;
+                        }
+                    }
+                }
+                clazz = super.defineClass(name, bytes, 0, bytes.length, new CodeSource(url, certificates));
+            } catch (final IOException e) {
+                log.warn(e.getMessage(), e);
+                return null;
+            }
+        } else if (!resources.isEmpty()) {
+            final Collection<Resource> resources = this.resources.get(name.replace(".", "/") + ".class");
+            if (resources != null && !resources.isEmpty()) {
+                final Resource resource = resources.iterator().next();
+                clazz = defineClass(name, resource.resource, 0, resource.resource.length);
             }
         }
         if (postLoad(resolve, clazz)) {

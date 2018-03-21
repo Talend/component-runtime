@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
@@ -61,6 +62,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.jar.Attributes;
@@ -239,6 +241,8 @@ public class ComponentManager implements AutoCloseable {
 
     private final Collection<ComponentExtension> extensions;
 
+    private final Collection<ClassFileTransformer> transformers;
+
     // org.slf4j.event but https://issues.apache.org/jira/browse/MNG-6360
     private final Level logInfoLevelMapping;
 
@@ -305,6 +309,7 @@ public class ComponentManager implements AutoCloseable {
         this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl))
                 .sorted(comparing(ComponentExtension::priority))
                 .collect(toList());
+        this.transformers = extensions.stream().flatMap(e -> e.getTransformers().stream()).collect(toList());
     }
 
     private Level findLogInfoLevel() {
@@ -653,8 +658,7 @@ public class ComponentManager implements AutoCloseable {
                 .findFirst()
                 .flatMap(identity())
                 // unwrap to access the actual instance which is the desired one
-                .filter(Delegated.class::isInstance)
-                .map(i -> Delegated.class.cast(i).getDelegate());
+                .map(i -> Delegated.class.isInstance(i) ? Delegated.class.cast(i).getDelegate() : i);
     }
 
     public Optional<Mapper> findMapper(final String plugin, final String name, final int version,
@@ -702,7 +706,7 @@ public class ComponentManager implements AutoCloseable {
     public String addPlugin(final String pluginRootFile) {
         final String id = this.container
                 .builder(pluginRootFile)
-                .withCustomizer(c -> c.set(OriginalId.class, new OriginalId(pluginRootFile)))
+                .withCustomizer(createContainerCustomizer(pluginRootFile))
                 .create()
                 .getId();
         info("Adding plugin: " + pluginRootFile + ", as " + id);
@@ -712,7 +716,7 @@ public class ComponentManager implements AutoCloseable {
     public String addWithLocationPlugin(final String location, final String pluginRootFile) {
         final String id = this.container
                 .builder(pluginRootFile)
-                .withCustomizer(c -> c.set(OriginalId.class, new OriginalId(location)))
+                .withCustomizer(createContainerCustomizer(location))
                 .create()
                 .getId();
         info("Adding plugin: " + pluginRootFile + ", as " + id);
@@ -722,7 +726,7 @@ public class ComponentManager implements AutoCloseable {
     protected String addPlugin(final String forcedId, final String pluginRootFile) {
         final String id = this.container
                 .builder(forcedId, pluginRootFile)
-                .withCustomizer(c -> c.set(OriginalId.class, new OriginalId(forcedId)))
+                .withCustomizer(createContainerCustomizer(forcedId))
                 .create()
                 .getId();
         info("Adding plugin: " + pluginRootFile + ", as " + id);
@@ -766,6 +770,13 @@ public class ComponentManager implements AutoCloseable {
     @Override
     public void close() {
         container.close();
+    }
+
+    private Consumer<Container> createContainerCustomizer(final String originalId) {
+        return c -> {
+            c.set(OriginalId.class, new OriginalId(originalId));
+            transformers.forEach(c::registerTransformer);
+        };
     }
 
     private <T> T executeInContainer(final String plugin, final Supplier<T> supplier) {

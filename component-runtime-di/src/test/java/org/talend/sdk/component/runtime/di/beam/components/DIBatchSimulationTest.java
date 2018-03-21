@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.di.beam.components;
 
+import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,6 +35,7 @@ import java.util.stream.IntStream;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 
+import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -42,6 +44,7 @@ import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.Producer;
@@ -68,6 +71,20 @@ import lombok.ToString;
 class DIBatchSimulationTest {
 
     @Test
+    void fromEmptyBeam() {
+        final ComponentManager manager = ComponentManager.instance();
+
+        final Collection<Object> sourceData = new ArrayList<>();
+        doDi(manager, sourceData, new ArrayList<>(),
+                manager.findProcessor("DIBatchSimulationTest", "passthroughoutput", 1, new HashMap<>()),
+                manager.findMapper("DIBatchSimulationTest", "from", 1, singletonMap("count", "0")).map(m -> {
+                    assertTrue(QueueMapper.class.isInstance(m), m.getClass().getName());
+                    return m;
+                }));
+        assertEquals(0, sourceData.size());
+    }
+
+    @Test
     void fromBeam() {
         final ComponentManager manager = ComponentManager.instance();
 
@@ -76,7 +93,7 @@ class DIBatchSimulationTest {
 
         doDi(manager, sourceData, processorData,
                 manager.findProcessor("DIBatchSimulationTest", "passthroughoutput", 1, new HashMap<>()),
-                manager.findMapper("DIBatchSimulationTest", "from", 1, new HashMap<>()).map(m -> {
+                manager.findMapper("DIBatchSimulationTest", "from", 1, singletonMap("count", "1000")).map(m -> {
                     assertTrue(QueueMapper.class.isInstance(m), m.getClass().getName());
                     return m;
                 }));
@@ -97,11 +114,24 @@ class DIBatchSimulationTest {
                 manager.findProcessor("DIBatchSimulationTest", "to", 1, new HashMap<>()).map(p -> {
                     assertTrue(QueueOutput.class.isInstance(p), p.getClass().getName());
                     return p;
-                }), manager.findMapper("DIBatchSimulationTest", "passthroughinput", 1, new HashMap<>()));
+                }), manager.findMapper("DIBatchSimulationTest", "passthroughinput", 1, singletonMap("count", "1000")));
 
         assertEquals(1000, sourceData.size());
         assertEquals(1000, processorData.size());
         assertEquals(1000, To.RECORDS.size());
+    }
+
+    @Test
+    void emptyToBeam() {
+        final ComponentManager manager = ComponentManager.instance();
+
+        final Collection<Object> sourceData = new ArrayList<>();
+        doDi(manager, sourceData, new ArrayList<>(),
+                manager.findProcessor("DIBatchSimulationTest", "to", 1, new HashMap<>()).map(p -> {
+                    assertTrue(QueueOutput.class.isInstance(p), p.getClass().getName());
+                    return p;
+                }), manager.findMapper("DIBatchSimulationTest", "passthroughinput", 1, singletonMap("count", "0")));
+        assertEquals(0, sourceData.size());
     }
 
     @Test
@@ -116,7 +146,7 @@ class DIBatchSimulationTest {
                 manager.findProcessor("DIBatchSimulationTest", "to", 1, new HashMap<>()).map(p -> {
                     assertTrue(QueueOutput.class.isInstance(p), p.getClass().getName());
                     return p;
-                }), manager.findMapper("DIBatchSimulationTest", "from", 1, new HashMap<>()));
+                }), manager.findMapper("DIBatchSimulationTest", "from", 1, singletonMap("count", "1000")));
 
         assertEquals(1000, sourceData.size());
         assertEquals(1000, processorData.size());
@@ -255,10 +285,17 @@ class DIBatchSimulationTest {
     @PartitionMapper(name = "from", family = "DIBatchSimulationTest")
     public static class From extends PTransform<PBegin, PCollection<Record>> {
 
+        private final int count;
+
+        public From(@Option("count") final int count) {
+            this.count = count;
+        }
+
         @Override
         public PCollection<Record> expand(final PBegin input) {
-            return input.apply(Create.of(
-                    IntStream.range(0, 1000).mapToObj(i -> new Record("id_" + i, "record_" + i)).collect(toList())));
+            return input.apply(Create
+                    .of(IntStream.range(0, count).mapToObj(i -> new Record("id_" + i, "record_" + i)).collect(toList()))
+                    .withCoder(SerializableCoder.of(Record.class)));
         }
     }
 
@@ -274,7 +311,11 @@ class DIBatchSimulationTest {
     @Emitter(name = "passthroughinput", family = "DIBatchSimulationTest")
     public static class PassthroughInput implements Serializable {
 
-        private final PrimitiveIterator.OfInt stream = IntStream.range(0, 1000).iterator();
+        private final PrimitiveIterator.OfInt stream;
+
+        public PassthroughInput(@Option("count") final int count) {
+            this.stream = IntStream.range(0, count).iterator();
+        }
 
         @Producer
         public Record next() {
