@@ -1,0 +1,71 @@
+
+version '0.10.0'
+
+buildscript {
+    apply plugin: 'groovy'
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+        maven {
+            url 'http://dl.bintray.com/jetbrains/intellij-plugin-service'
+        }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.2.18"
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.1'
+        classpath 'org.codehaus.groovy:groovy-all:2.4.13'
+        classpath group: 'com.vladsch.flexmark', name: 'flexmark', version: '0.28.12'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'org.junit.platform.gradle.plugin'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.16.20'
+    compile 'org.apache.commons:commons-collections4:4.1'
+    compile 'com.miguelfonseca.completely:completely-core:0.8.0'
+
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.0.1'
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.1'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.12.0'
+}
+
+String readmeXmlAsHtml() {
+
+}
+
+String changeLogAsHtml() {
+
+}
+
+intellij {
+    version 'IC-2017.2'
+    plugins = ['properties', 'yaml', 'maven', 'gradle', 'Lombook Plugin:0.16-2017.2']
+    downloadSources true
+    patchPluginXml {
+        pluginDescription readmeXmlAsHtml()
+        changeNotes changeLogAsHtml()
+    }
+    publishPlugin {
+        username System.getProperty('ij_plugin_portal_login')
+        password System.getProperty('ij_plugin_portal_password')
+        channels 'eap', 'nightly', 'default'
+    }
+    updateSinceUntilBuild false
+}
+
+
