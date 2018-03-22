@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.sdk.component.intellij.module;
 
 import static java.util.Objects.requireNonNull;
@@ -17,8 +32,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.jetbrains.annotations.NotNull;
-import org.talend.sdk.component.intellij.Configuration;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.application.ApplicationNamesInfo;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -26,8 +39,12 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 
+import org.talend.sdk.component.intellij.Configuration;
+
 public class ProjectDownloader {
+
     private final TalendModuleBuilder builder;
+
     private final ProjectCreationRequest request;
 
     public ProjectDownloader(final TalendModuleBuilder builder, final ProjectCreationRequest request) {
@@ -35,18 +52,15 @@ public class ProjectDownloader {
         this.request = request;
     }
 
-    @NotNull
     private String userAgent() {
-        return ApplicationNamesInfo.getInstance()
-                                   .getFullProductName() + "/" + ApplicationInfo.getInstance()
-                                                                                .getFullVersion();
+        return ApplicationNamesInfo.getInstance().getFullProductName() + "/"
+                + ApplicationInfo.getInstance().getFullVersion();
     }
 
-    public void download(ProgressIndicator indicator) throws IOException {
+    public void download(final ProgressIndicator indicator) throws IOException {
         indicator.setText("Downloading files ...");
-        HttpURLConnection urlConnection = null;
-        URL url = new URL(Configuration.getStarterHost() + request.getAction());
-        urlConnection = HttpURLConnection.class.cast(url.openConnection());
+        final URL url = new URL(Configuration.getStarterHost() + request.getAction());
+        final HttpURLConnection urlConnection = HttpURLConnection.class.cast(url.openConnection());
         urlConnection.setRequestMethod(request.getRequestMethod());
         urlConnection.setRequestProperty("Accept", "application/zip");
         urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -57,27 +71,26 @@ public class ProjectDownloader {
             outputStream.flush();
         }
         final int responseCode = urlConnection.getResponseCode();
-        if (responseCode == 200) {
+        if (responseCode == HttpURLConnection.HTTP_OK) {
             final String contentType = urlConnection.getHeaderField("content-type");
             if (!"application/zip".equals(contentType)) {
                 throw new IOException("Invalid project format from starter server.");
             }
             try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                 copy(urlConnection.getInputStream(), out);
-                File targetExtractionDir = new File(requireNonNull(builder.getContentEntryPath()));
+                final File targetExtractionDir = new File(requireNonNull(builder.getContentEntryPath()));
                 unzip(new ByteArrayInputStream(out.toByteArray()), targetExtractionDir, true, indicator);
                 indicator.setText("Please wait ...");
                 markAsExecutable(targetExtractionDir, "gradlew");
                 markAsExecutable(targetExtractionDir, "gradlew.bat");
                 markAsExecutable(targetExtractionDir, "mvnw");
                 markAsExecutable(targetExtractionDir, "mvnw.cmd");
-                VirtualFile targetFile = LocalFileSystem.getInstance()
-                                                        .refreshAndFindFileByIoFile(targetExtractionDir);
-                RefreshQueue.getInstance()
-                            .refresh(false, true, null, targetFile);
+                final VirtualFile targetFile =
+                        LocalFileSystem.getInstance().refreshAndFindFileByIoFile(targetExtractionDir);
+                RefreshQueue.getInstance().refresh(false, true, null, targetFile);
             }
         } else {
-            byte[] error = slurp(urlConnection.getErrorStream());
+            final byte[] error = slurp(urlConnection.getErrorStream());
             throw new IOException(new String(error, StandardCharsets.UTF_8));
         }
     }
@@ -92,10 +105,8 @@ public class ProjectDownloader {
     }
 
     private static void unzip(final InputStream read, final File destination, final boolean noparent,
-                              ProgressIndicator indicator)
-            throws IOException {
-        try {
-            final ZipInputStream in = new ZipInputStream(read);
+            final ProgressIndicator indicator) throws IOException {
+        try (final ZipInputStream in = new ZipInputStream(read)) {
             ZipEntry entry;
             while ((entry = in.getNextEntry()) != null) {
                 String path = entry.getName();
@@ -110,8 +121,7 @@ public class ProjectDownloader {
                     continue;
                 }
 
-                file.getParentFile()
-                    .mkdirs();
+                file.getParentFile().mkdirs();
                 indicator.setText("Creating file " + file.getName());
                 Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
@@ -120,15 +130,13 @@ public class ProjectDownloader {
                     file.setLastModified(lastModified);
                 }
             }
-            in.close();
-
         } catch (final IOException e) {
             throw new IOException("Unable to unzip " + read, e);
         }
     }
 
-    private static void markAsExecutable(File containingDir, String relativePath) {
-        File toFix = new File(containingDir, relativePath);
+    private static void markAsExecutable(final File containingDir, final String relativePath) {
+        final File toFix = new File(containingDir, relativePath);
         if (toFix.exists()) {
             toFix.setExecutable(true, false);
         }

@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.sdk.component.intellij.module.step;
 
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
@@ -19,26 +34,31 @@ import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+
+import com.intellij.ide.util.projectWizard.ModuleWizardStep;
+import com.intellij.openapi.Disposable;
+import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.ui.components.JBLoadingPanel;
 
 import org.talend.sdk.component.intellij.Configuration;
 import org.talend.sdk.component.intellij.module.ProjectCreationRequest;
 import org.talend.sdk.component.intellij.module.TalendModuleBuilder;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import com.intellij.ide.util.projectWizard.ModuleWizardStep;
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.ui.components.JBLoadingPanel;
 
 public class StarterStep extends ModuleWizardStep implements Disposable {
 
     private final TalendModuleBuilder builder;
 
     private StarterPanel starterPanel;
+
     private final JBLoadingPanel loadingPanel = new JBLoadingPanel(new BorderLayout(), this, 100);
+
     private final long starterLoadTimeOut = Configuration.getStarterLoadTimeOut();
+
     private ProjectCreationRequest request;
 
     public StarterStep(final TalendModuleBuilder builder) {
@@ -48,21 +68,20 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
     @Override
     public void _init() {
         super._init();
-        loadingPanel.getContentPanel()
-                    .removeAll();
+        loadingPanel.getContentPanel().removeAll();
         loadingPanel.startLoading();
         getApplication().executeOnPooledThread(() -> {
             try {
                 invokeLater(() -> loadingPanel.setLoadingText(getMessage("wizard.starter.loading")));
                 starterPanel = new StarterPanel();
-                long start = System.currentTimeMillis();
+                final long start = System.currentTimeMillis();
                 while (starterPanel.isLoading()) {
                     if (System.currentTimeMillis() - start > starterLoadTimeOut) {
                         throw new TimeoutException(getMessage("wizard.starter.loading.error"));
                     }
                 }
                 loadingPanel.add(starterPanel);
-            } catch (TimeoutException e) {
+            } catch (final TimeoutException e) {
                 invokeLater(() -> showErrorDialog(e.getMessage(), getMessage("wizard.starter.loading.error.title")));
             } finally {
                 invokeLater(() -> {
@@ -76,24 +95,16 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
     private CompletableFuture<ProjectCreationRequest> getProjectInformation() {
         final CompletableFuture<ProjectCreationRequest> result = new CompletableFuture<>();
         Platform.runLater(() -> {
-            final Element el = starterPanel.getWebEngine()
-                                           .getDocument()
-                                           .getElementById("go-to-finish-button");
-            if (el != null) {//not on finish page
-                starterPanel.getWebEngine()
-                            .executeScript("document.getElementById(\"go-to-finish-button\").click()");
+            final Element el = starterPanel.getWebEngine().getDocument().getElementById("go-to-finish-button");
+            if (el != null) {// not on finish page
+                starterPanel.getWebEngine().executeScript("document.getElementById(\"go-to-finish-button\").click()");
             }
 
-            final Element form = starterPanel.getWebEngine()
-                                             .getDocument()
-                                             .getElementById("download-zip-form");
-            final Node input = form.getElementsByTagName("input")
-                                   .item(0);//project data
+            final Element form = starterPanel.getWebEngine().getDocument().getElementById("download-zip-form");
+            final Node input = form.getElementsByTagName("input").item(0);// project data
             final String action = form.getAttribute("action");
             final String method = form.getAttribute("method");
-            final String project = input.getAttributes()
-                                        .getNamedItem("value")
-                                        .getTextContent();
+            final String project = input.getAttributes().getNamedItem("value").getTextContent();
             result.complete(new ProjectCreationRequest(action, method, project));
         });
 
@@ -110,8 +121,7 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
             request = getProjectInformation().get();
         } catch (InterruptedException | ExecutionException e) {
             if (InterruptedException.class.isInstance(e)) {
-                Thread.currentThread()
-                      .interrupt();
+                Thread.currentThread().interrupt();
             }
             throw new ConfigurationException(e.getMessage());
         }
@@ -135,9 +145,13 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
     }
 
     public static final class StarterPanel extends JPanel {
+
         private final JFXPanel jfxPanel;
+
         private WebEngine webEngine;
+
         private WebView browser;
+
         private boolean loading = true;
 
         StarterPanel() {
@@ -145,32 +159,27 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
             Platform.setImplicitExit(false);
             jfxPanel = new JFXPanel();
             add(jfxPanel, BorderLayout.CENTER);
-            final String css = Base64.getMimeEncoder()
-                                     .encodeToString(
-                                             ("div[class^=\"Finish__bigButton\"], #go-to-finish-button{display:none "
-                                                     + "!important;} " +
-                                                     "div[class^=\"Drawer__tc-drawer-container\"]" + " >" + " " +
-                                                     "div:nth-child(2) {display:block !important;}").getBytes(
-                                                     StandardCharsets.UTF_8));
+            final String css = Base64
+                    .getMimeEncoder()
+                    .encodeToString(("div[class^=\"Finish__bigButton\"], #go-to-finish-button{display:none "
+                            + "!important;} " + "div[class^=\"Drawer__tc-drawer-container\"]" + " >" + " "
+                            + "div:nth-child(2) {display:block !important;}").getBytes(StandardCharsets.UTF_8));
             Platform.runLater(() -> {
                 browser = new WebView();
                 webEngine = browser.getEngine();
-                webEngine.getLoadWorker()
-                         .stateProperty()
-                         .addListener(
-                                 (ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker
-                                         .State newValue) -> {
-                                     if (newValue != Worker.State.SUCCEEDED) {
-                                         return;
-                                     }
-                                     webEngine.setUserStyleSheetLocation("data:text/css;charset=utf-8;base64," + css);
-                                     loading = false;
-                                 });
+                webEngine.getLoadWorker().stateProperty().addListener(
+                        (ObservableValue<? extends Worker.State> observable, Worker.State oldValue,
+                                Worker.State newValue) -> {
+                            if (newValue != Worker.State.SUCCEEDED) {
+                                return;
+                            }
+                            webEngine.setUserStyleSheetLocation("data:text/css;charset=utf-8;base64," + css);
+                            loading = false;
+                        });
                 webEngine.load(Configuration.getStarterHost());
                 jfxPanel.setScene(new Scene(browser));
             });
         }
-
 
         WebEngine getWebEngine() {
             return webEngine;

@@ -36,7 +36,6 @@
     <module>component-runtime-testing</module>
     <module>component-runtime-design-extension</module>
     <module>component-server</module>
-    <module>component-kit.js</module>
     <module>component-form</module>
     <module>talend-component-maven-plugin</module>
     <module>gradle-talend-component</module>
@@ -45,6 +44,8 @@
     <module>slf4j-standard</module>
     <module>documentation</module>
     <module>component-tools-webapp</module>
+    <module>component-kit.js</module>
+    <module>talend-component-kit-intellij-plugin</module>
   </modules>
 
   <repositories>
@@ -174,7 +175,7 @@
     <dependency-plugin.version>3.0.2</dependency-plugin.version>
     <javadoc-plugin.version>3.0.0</javadoc-plugin.version>
     <clean-plugin.version>3.0.0</clean-plugin.version>
-    <download-plugin.version>1.2.1</download-plugin.version>
+    <download-plugin.version>1.4.0</download-plugin.version>
     <shade-plugin.version>3.0.0</shade-plugin.version>
     <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
     <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
@@ -445,6 +446,7 @@
           <excludes>
             <exclude>travis_wait*log</exclude>
             <exclude>**/target/**/*</exclude>
+            <exclude>**/.cache/**/*</exclude>
             <exclude>cobertura.ser</exclude>
             <exclude>.classpath</exclude>
             <exclude>.settings/**/*</exclude>

@@ -27,6 +27,7 @@ cache:
   - "$HOME/build/Talend/component-runtime/component-runtime/documentation/src/main/frontend/node_modules"
   - "$HOME/build/Talend/component-runtime/component-runtime/documentation/src/main/frontend/.antora-cache"
   - "$HOME/build/Talend/component-runtime/component-starter-server/.cache"
+  - "$HOME/build/Talend/component-runtime/talend-component-kit-intellij-plugin/.cache"
   - "$HOME/build/Talend/component-runtime/.blackduck"
   - "$HOME/build/Talend/component-runtime/.ci-cache"
 notifications:
