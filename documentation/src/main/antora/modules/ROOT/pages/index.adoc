@@ -1,4 +1,4 @@
-expect= Talend Component Kit Developer Reference Guide
+= Talend Component Kit Developer Reference Guide
 :page-partial:
 
 ifeval::["{backend}" == "html5"]
