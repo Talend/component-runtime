@@ -26,7 +26,7 @@ public interface ParameterExtensionEnricher {
 
     /**
      * Visit all annotations of an object parameter and return for each annotation
-     * the related extensions. Note it is highly recommanded even if not enforced to
+     * the related extensions. Note it is highly recommended even if not enforced to
      * use a prefix by extension type.
      *
      * @param parameterName

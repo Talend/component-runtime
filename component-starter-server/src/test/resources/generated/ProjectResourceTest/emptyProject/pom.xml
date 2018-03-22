@@ -29,7 +29,7 @@
 
     mvn package talend-component:deploy-in-studio -Dtalend.component.studioHome=/path/to/studio
 
-    TIP: it is recommanded to set this property into your settings.xml in an active by default profile.
+    TIP: it is recommended to set this property into your settings.xml in an active by default profile.
     -->
     <talend.component.studioHome />
   </properties>

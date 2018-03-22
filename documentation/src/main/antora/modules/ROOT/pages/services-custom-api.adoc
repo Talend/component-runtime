@@ -6,7 +6,7 @@ It is possible to extend the Component API for custom front features.
 What is important here is to keep in mind you should do it
 only if it targets not portable components (only used by the Studio or Beam).
 
-In term of organization it is recommanded to create a custom `xxxx-component-api` module with the new set of annotations.
+In term of organization it is recommended to create a custom `xxxx-component-api` module with the new set of annotations.
 
 == Extending the UI
 

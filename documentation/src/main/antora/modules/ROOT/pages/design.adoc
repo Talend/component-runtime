@@ -3,10 +3,12 @@
 
 == Component API
 
+The Component API is
+
 The component API has multiple strong choices:
 
 . it is declarative (through annotations) to ensure it is
-.. evolutive (it can get new fancy featrues without breaking old code)
+.. evolutive (it can get new fancy features without breaking old code)
 .. static as much as possible
 
 === Evolution

@@ -25,7 +25,7 @@ try (final ContainerManager manager = new ContainerManager( <1>
 ----
 
 <1> the `ContainerManager` is an `AutoCloseable` so you can use it in a try/finally block if desired.
-NOTE: it is recommanded to keep it running if you can reuse plugins to avoid to recreate classloaders and to
+NOTE: it is recommended to keep it running if you can reuse plugins to avoid to recreate classloaders and to
 mutualize them. This manager has two main configuration entries: how to resolve dependencies for plugins from the plugin
 file/location and how to configure the classloaders (what is the parent classloader, how to handle the parent first/last
 delegation etc...).

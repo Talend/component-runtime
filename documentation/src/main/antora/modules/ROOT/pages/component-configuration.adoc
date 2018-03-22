@@ -7,7 +7,7 @@ to not have `arg0`, `arg1`, ... as names).
 
 The parameter types can be _primitives_ or complex objects with fields decorated with `@Option` exactly like method parameters.
 
-IMPORTANT: it is recommanded to use simple models which can be serialized by components to avoid headaches when implementing serialized components.
+IMPORTANT: it is recommended to use simple models which can be serialized by components to avoid headaches when implementing serialized components.
 
 Here is an example:
 
@@ -84,7 +84,7 @@ and the elements are of  `FileOptions` type, here is how to define a list of 2 
 files[0].path = /home/user/input1.csv
 files[0].format = CSV
 files[1].path = /home/user/input2.xml
-files[2].format = EXCEL
+files[1].format = EXCEL
 ----
 
 === Map case

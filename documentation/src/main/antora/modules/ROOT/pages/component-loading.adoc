@@ -90,7 +90,7 @@ What is important to see is the scope associated to the artifacts:
 
 == Packaging an application
 
-Even if a flat classpath deployment is possible, it is not recommanded because it would then reduce the capabilities of the components.
+Even if a flat classpath deployment is possible, it is not recommended because it would then reduce the capabilities of the components.
 
 === Dependencies
 

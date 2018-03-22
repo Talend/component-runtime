@@ -61,7 +61,7 @@ to the current model.
 For instance if `filepath` configuration entry from v1 changed to `location` in v2 you can remap the value to the right key in your
 `MigrationHandler` implementation.
 
-TIP: it is recommanded to not manage all migrations in the handler but rather split it in services you inject in the migration handler
+TIP: it is recommended to not manage all migrations in the handler but rather split it in services you inject in the migration handler
 (through constructor):
 
 [source,java]

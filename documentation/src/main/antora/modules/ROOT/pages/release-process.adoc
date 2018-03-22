@@ -68,7 +68,7 @@ for the release. Here is the overall template:
 </settings>
 ----
 
-NOTE: all the environment variables should be either set in your environment or hardcoded inline. Note that it is more than highly recommanded
+NOTE: all the environment variables should be either set in your environment or hardcoded inline. Note that it is more than highly recommended
 to use maven encryption: https://maven.apache.org/guides/mini/guide-encryption.html.
 
 1. The OSSH variables are your Sonatype OSS repository credential with the permissions to deploy on org.talend.

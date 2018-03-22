@@ -15,7 +15,7 @@ The folowing artifact will allow you to test against a spark cluster:
 
 === JUnit 4
 
-The usage relies on a JUnit `TestRule`. It is recommanded to use it as a `@ClassRule` to ensure
+The usage relies on a JUnit `TestRule`. It is recommended to use it as a `@ClassRule` to ensure
 a single instance of a spark cluster is built but you can also use it as a simple `@Rule` which means
 it will be created per method instead of per test class.
 

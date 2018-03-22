@@ -48,7 +48,7 @@ as a flat key value set using the same kind of mapping than for components (opti
 
 == `GET api/v1/action/index`
 
-This endpoint returns the list of available actions for a certain falimy and potentially filters the "
+This endpoint returns the list of available actions for a certain family and potentially filters the "
 output limiting it to some families and types of actions.
 
 === Request
@@ -467,8 +467,8 @@ Returns an asciidoctor version of the documentation for the component represente
 Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get
 a partial document.
 
-IMPORTANT: it is recommanded to use asciidoc format and handle the conversion on your side if you can,
-the html flavor handdles a limited set of the asciidoc syntax only like plain arrays, paragraph and titles.
+IMPORTANT: it is recommended to use asciidoc format and handle the conversion on your side if you can,
+the html flavor handles a limited set of the asciidoc syntax only like plain arrays, paragraph and titles.
 
 The documentation will likely be the family documentation but you can use anchors to access a particular
 component (_componentname_inlowercase).

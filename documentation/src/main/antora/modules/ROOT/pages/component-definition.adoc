@@ -332,7 +332,7 @@ public MyNewData map(@Input final MyData data, @Input("input2") final MyData2 da
 
 `@Input` takes the input name as parameter, if not set it uses the main (default) input branch.
 
-IMPORTANT: due to the work required to not use the default branch it is recommanded to use it when possible and not
+IMPORTANT: due to the work required to not use the default branch it is recommended to use it when possible and not
 name its branches depending on the component semantic.
 
 == Output
