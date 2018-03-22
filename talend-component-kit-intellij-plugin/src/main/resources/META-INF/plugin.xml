@@ -1,0 +1,36 @@
+<idea-plugin>
+  <id>org.talend.sdk.component</id>
+  <name>Talend Component Kit - Intellij Plugin</name>
+  <version>1.0</version>
+  <vendor email="tacokit@talend.com" url="https://github.com/Talend/component-runtime">Talend</vendor>
+
+  <description/>
+  <change-notes/>
+
+  <idea-version since-build="172"/>
+
+  <resource-bundle>messages</resource-bundle>
+
+  <depends>org.jetbrains.idea.maven</depends>
+  <depends>org.jetbrains.plugins.gradle</depends>
+  <depends>com.intellij.properties</depends>
+  <depends>com.intellij.modules.lang</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <moduleType id="TALEND_COMPONENT_MODULE"
+                implementationClass="org.talend.sdk.component.intellij.module.TalendModuleType"/>
+
+
+    <completion.contributor language="Properties"
+                            implementationClass="org.talend.sdk.component.intellij.completion.properties.PropertiesCompletionContributor"/>
+
+    <projectService
+            serviceInterface="org.talend.sdk.component.intellij.service.SuggestionService"
+            serviceImplementation="org.talend.sdk.component.intellij.service.SuggestionServiceImpl"/>
+
+  </extensions>
+
+  <actions>
+  </actions>
+
+</idea-plugin>

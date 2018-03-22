@@ -145,7 +145,7 @@ export default class Finish extends React.Component {
         <h2>Project Summary</h2>
         <Summary project={this.state.project} />
         <div className={theme.bigButton}>
-          <form novalidate action={GENERATOR_ZIP_URL} method="POST">
+          <form id="download-zip-form" novalidate action={GENERATOR_ZIP_URL} method="POST">
             <input type="hidden" name="project" value={this.state.downloadState} />
             <Action label="Download as ZIP" bsStyle="info" icon="fa-file-archive-o" type="submit"
                     inProgress={this.state.progress === 'zip'} disabled={!!this.state.progress && this.state.progress !== 'zip'}
