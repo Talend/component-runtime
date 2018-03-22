@@ -115,7 +115,7 @@ public class ActionResource {
     }
 
     /**
-     * This endpoint returns the list of available actions for a certain falimy and potentially filters the "
+     * This endpoint returns the list of available actions for a certain family and potentially filters the "
      * output limiting it to some families and types of actions.
      *
      * @param types the types of actions (optional).

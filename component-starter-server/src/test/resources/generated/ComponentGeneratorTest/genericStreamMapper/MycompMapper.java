@@ -42,7 +42,7 @@ public class MycompMapper implements Serializable {
     @Assessor
     public long estimateSize() {
         // this method should return the estimation of the dataset size
-        // it is recommanded to return a byte value
+        // it is recommended to return a byte value
         // if you don't have the exact size you can use a rough estimation
         return 1L;
     }

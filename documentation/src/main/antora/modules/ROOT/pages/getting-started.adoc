@@ -14,7 +14,7 @@ Graphical interfaces:: unify the code required to be able to render in a browser
 
 Talend Component requires Java 8. You can download it on http://www.oracle.com/technetwork/pt/java/javase/downloads/jdk8-downloads-2133151.html[Oracle] website.
 
-To develop a component or the project itself it is recommanded to use Apache Maven 3.5.0. you can download it on https://maven.apache.org/download.cgi?Preferred=ftp%3A%2F%2Fmirror.reverse.net%2Fpub%2Fapache%2F[Apache Maven] website.
+To develop a component or the project itself it is recommended to use Apache Maven 3.5.0. you can download it on https://maven.apache.org/download.cgi?Preferred=ftp%3A%2F%2Fmirror.reverse.net%2Fpub%2Fapache%2F[Apache Maven] website.
 
 [[getting-started-first-quick-start]]
 == Quick Start

@@ -18,7 +18,7 @@ It is in the junit module and is usable with JUnit 4 and JUnit 5.
 ----
 @RunWith(MultiEnvironmentsRunner.class)
 @Environment(Env1.class)
-@Environment(Env1.class)
+@Environment(Env2.class)
 public class TheTest {
     @Test
     public void test1() {

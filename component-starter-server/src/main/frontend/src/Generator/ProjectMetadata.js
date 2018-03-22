@@ -137,7 +137,7 @@ export default class ProjectMetadata extends React.Component {
                   <span>
                     <p>The family groups multiple components altogether.</p>
                     <p>
-                    <Icon name="talend-info-circle"/> It is recommanded to use a single family name per component module. The name must be a valid
+                    <Icon name="talend-info-circle"/> It is recommended to use a single family name per component module. The name must be a valid
                                      java name (no space, special characters, ...).
                     </p>
                   </span>
@@ -150,7 +150,7 @@ export default class ProjectMetadata extends React.Component {
                 <Help title="Category" content={
                   <span>
                     <p>The category is a group used by the Studio to organize components of different families in the same bucket into the <code>Palette</code>.</p>
-                    <p>It is recommanded to use a two level category. The first level is generally very general and the second one is close to the family name.</p>
+                    <p>It is recommended to use a two level category. The first level is generally very general and the second one is close to the family name.</p>
                     <Icon name="talend-info-circle"/> The names must be valid java names (no space, special characters, ...).
                   </span>
                 } />
@@ -166,7 +166,7 @@ export default class ProjectMetadata extends React.Component {
               <Help title="Project Group" content={
                 <span>
                   <p>The project group used when deployed on a repository (like a Nexus or central).</p>
-                  <p>The best practice recommands to use the reversed commpany hostname suffixed with something specific to the project.</p>
+                  <p>The best practice recommends to use the reversed company hostname suffixed with something specific to the project.</p>
                   <p>
                   Example: <code>company.com</code> would lead to <code>com.company</code> package and for a component the used package would be,
                   for instance, <code>com.company.talend.component</code>.
@@ -182,7 +182,7 @@ export default class ProjectMetadata extends React.Component {
                 <span>
                   <p>The project artifact used when deployed on a repository (like a Nexus or central).</p>
                   <p>It must be a unique identifier in the group namespace.</p>
-                  <p>Talend recommandation is to follow the pattern <code>${'{'}component{'}'}-component</code> but you can use whatever you want.</p>
+                  <p>Talend recommendation is to follow the pattern <code>${'{'}component{'}'}-component</code> but you can use whatever you want.</p>
                 </span>
               } />
               <Input className="form-control" id="projectArtifact" type="text" placeholder="Enter the project artifact..."
@@ -193,7 +193,7 @@ export default class ProjectMetadata extends React.Component {
               <Help title="Project Root package" content={
                 <span>
                   <p>The root package represents a unique namespace in term of code.</p>
-                  <p>Talend recommandation is to align it on the selected group.</p>
+                  <p>Talend recommendation is to align it on the selected group.</p>
                 </span>
               } />
               <Input className="form-control" id="projectPackage" type="text" placeholder="Enter the project base package..."

@@ -77,8 +77,8 @@ public class DocumentationResource {
      * Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get
      * a partial document.
      *
-     * IMPORTANT: it is recommanded to use asciidoc format and handle the conversion on your side if you can,
-     * the html flavor handdles a limited set of the asciidoc syntax only like plain arrays, paragraph and titles.
+     * IMPORTANT: it is recommended to use asciidoc format and handle the conversion on your side if you can,
+     * the html flavor handles a limited set of the asciidoc syntax only like plain arrays, paragraph and titles.
      *
      * The documentation will likely be the family documentation but you can use anchors to access a particular
      * component (_componentname_inlowercase).
