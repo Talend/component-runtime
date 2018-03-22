@@ -147,7 +147,6 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
     }
 
     @Data
-    // todo: dataset/datastore? not needed for the demo
     @GridLayout({ @GridLayout.Row("driver"), @GridLayout.Row("url"), @GridLayout.Row({ "username", "password" }),
             @GridLayout.Row("query") })
     public static class Config {
