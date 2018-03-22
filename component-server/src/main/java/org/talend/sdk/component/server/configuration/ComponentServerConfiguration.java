@@ -32,7 +32,7 @@ public interface ComponentServerConfiguration {
     String defaultExceptionMessage();
 
     @Documentation("The local maven repository used to locate components and their dependencies")
-    @ConfigProperty(name = "maven.repository", defaultValue = "${user.home}/.m2/repository")
+    @ConfigProperty(name = "maven.repository")
     String mavenRepository();
 
     // property to list plugins directly by gav. This is nice to set it on the cli but not as a maintenance solution.

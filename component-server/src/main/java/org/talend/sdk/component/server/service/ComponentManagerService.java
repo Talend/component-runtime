@@ -87,7 +87,9 @@ public class ComponentManagerService {
 
     @PostConstruct
     private void init() {
-        System.setProperty("talend.component.manager.m2.repository", configuration.mavenRepository());
+        ofNullable(configuration.mavenRepository())
+                .ifPresent(repo -> System.setProperty("talend.component.manager.m2.repository", repo));
+
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         instance = ComponentManager.instance();
         deploymentListener = new DeploymentListener(componentDao, componentFamilyDao, actionDao, configurationDao);
