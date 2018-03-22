@@ -1,12 +1,5 @@
 
 
-== Version 0.0.4
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-693[TCOMP-693^]: Integrate Migration API
-
-
 == Version 0.0.3
 
 === Bug
