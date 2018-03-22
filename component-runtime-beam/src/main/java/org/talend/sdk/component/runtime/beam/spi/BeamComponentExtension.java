@@ -19,6 +19,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
+import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.beam.design.BeamFlowFactory;
 import org.talend.sdk.component.runtime.beam.factory.service.AutoValueFluentApiFactory;
 import org.talend.sdk.component.runtime.beam.factory.service.PluginCoderFactory;
@@ -87,15 +89,33 @@ public class BeamComponentExtension implements ComponentExtension {
         };
     }
 
-    @Override // todo: should it be dropped to be able to have a passthrough mode - ie just unwrapped instance?
+    @Override
     public <T> T convert(final ComponentInstance instance, final Class<T> component) {
-        if (Mapper.class == component) {
-            return (T) new BeamMapperImpl((PTransform<PBegin, ?>) instance.instance(), instance.plugin(),
-                    instance.family(), instance.name());
-        }
-        if (Processor.class == component) {
-            return (T) new BeamProcessorChainImpl((PTransform<PCollection<?>, PDone>) instance.instance(), null,
-                    instance.plugin(), instance.family(), instance.name());
+        try {
+            if (Mapper.class == component) {
+                return (T) new BeamMapperImpl((PTransform<PBegin, ?>) instance.instance(), instance.plugin(),
+                        instance.family(), instance.name());
+            }
+            if (Processor.class == component) {
+                return (T) new BeamProcessorChainImpl((PTransform<PCollection<?>, PDone>) instance.instance(), null,
+                        instance.plugin(), instance.family(), instance.name());
+            }
+        } catch (final RuntimeException re) { // create a passthrough impl to ensure it can be unwrapped
+            if (component.isInterface()) {
+                final Object actualInstance = instance.instance();
+                return (T) Proxy.newProxyInstance(component.getClassLoader(),
+                        new Class<?>[] { component, Delegated.class }, (proxy, method, args) -> {
+                            if (Object.class == method.getDeclaringClass()) {
+                                return method.invoke(actualInstance, args);
+                            }
+                            if (Delegated.class == method.getDeclaringClass()) {
+                                return actualInstance;
+                            }
+                            throw new UnsupportedOperationException("this method is not supported (" + method + ")",
+                                    re);
+                        });
+            }
+            throw re;
         }
         throw new IllegalArgumentException("unsupported " + component + " by " + getClass());
     }
