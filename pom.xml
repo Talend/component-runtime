@@ -87,10 +87,6 @@
       <id>gradle-libs-releases-local</id>
       <url>http://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
-    <repository>
-      <id>beam-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachebeam-1031/</url>
-    </repository>
   </repositories>
 
 
