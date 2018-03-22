@@ -12,10 +12,7 @@ If you know nothing about Talend Components, the getting started is the place to
   <<getting-started.adoc#getting-started-introducing-talend-component, Overview>> |
   <<getting-started.adoc#getting-started-system-requirements, Requirements>>
 * *Tutorial:*
-TODO: DEAD
-  <<getting-started.adoc#getting-started-quick-start, Code>> |
-TODO: DEAD
-  <<getting-started.adoc#getting-started-quick-start-run, Run>>
+  <<getting-started.adoc#getting-started-first-quick-start, Code>> |
 
 
 
