@@ -135,7 +135,7 @@
     <talend.build.name.base>${project.groupId}.runtime.</talend.build.name.base>
     <talend.build.name>${talend.build.name.base}${project.artifactId}</talend.build.name>
 
-    <xbean.version>4.6</xbean.version>
+    <xbean.version>4.7</xbean.version>
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
     <ziplock.version>7.0.4</ziplock.version>
