@@ -282,7 +282,7 @@ if (project.version.endsWith('-SNAPSHOT')) {
 def serverId = project.properties.getProperty('talend.npm.serverId', 'npm')
 def serverIt = session.settings.servers.findAll { it.id == serverId }.iterator()
 if (!serverIt.hasNext()) {
-    log.warn("no server '${serverId}' in your settings.xml, will skip changelog generation")
+    log.warn("no server '${serverId}' in your settings.xml, will skip npm publication")
     return
 }
 

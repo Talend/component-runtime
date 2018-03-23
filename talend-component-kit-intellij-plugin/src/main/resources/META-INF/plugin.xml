@@ -13,16 +13,20 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<idea-plugin>
-  <id>org.talend.sdk.component</id>
+<idea-plugin url="https://talend.github.io/component-runtime/">
+  <id>org.talend.sdk.component.intellij.plugin</id>
   <name>Talend Component Kit - Intellij Plugin</name>
   <version>${project.version}</version>
-  <vendor email="tacokit@talend.com" url="https://github.com/Talend/component-runtime">Talend</vendor>
-
-  <description/>
-  <change-notes/>
-
   <idea-version since-build="172"/>
+  <vendor email="contact@talend.com" url="https://www.talend.com">Talend</vendor>
+
+  <description>A plugin allowing to create new Talend Component Kit based Talend components and enables i18n completion
+    for the components.
+  </description>
+  <change-notes>
+    * Add creation of a new component project support
+    * Add i18n completion
+  </change-notes>
 
   <resource-bundle>messages</resource-bundle>
 
