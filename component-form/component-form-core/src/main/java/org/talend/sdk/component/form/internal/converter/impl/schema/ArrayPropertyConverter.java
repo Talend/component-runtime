@@ -22,6 +22,8 @@ import static java.util.stream.Collectors.toList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.json.bind.Jsonb;
 
@@ -43,25 +45,34 @@ public class ArrayPropertyConverter implements PropertyConverter {
     private final Collection<SimplePropertyDefinition> properties;
 
     @Override
-    public void convert(final PropertyContext context) {
-        jsonSchema.setType(context.getProperty().getType().toLowerCase(ROOT));
-        final String prefix = context.getProperty().getPath() + "[]";
-        final List<SimplePropertyDefinition> arrayElements =
-                properties.stream().filter(child -> child.getPath().startsWith(prefix)).collect(toList());
+    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+        return cs.thenCompose(context -> {
+            jsonSchema.setType(context.getProperty().getType().toLowerCase(ROOT));
+            final String prefix = context.getProperty().getPath() + "[]";
+            final List<SimplePropertyDefinition> arrayElements =
+                    properties.stream().filter(child -> child.getPath().startsWith(prefix)).collect(toList());
 
-        if (arrayElements.stream().anyMatch(e -> e.getPath().startsWith(prefix + '.'))) { // complex object
-            final JsonSchema items = new JsonSchema();
-            items.setType("object");
-            items.setProperties(new HashMap<>());
-            arrayElements.stream().map(PropertyContext::new).forEach(
-                    e -> new JsonSchemaConverter(jsonb, items, emptyList()).convert(e));
-            jsonSchema.setItems(items);
-        } else if (!arrayElements.isEmpty()) { // primitive
-            final String type = arrayElements.get(0).getType();
-            final JsonSchema item = new JsonSchema();
-            item.setTitle(jsonSchema.getTitle());
-            item.setType("enum".equalsIgnoreCase(type) ? "string" : type.toLowerCase(ROOT));
-            jsonSchema.setItems(item);
-        }
+            if (arrayElements.stream().anyMatch(e -> e.getPath().startsWith(prefix + '.'))) { // complex object
+                final JsonSchema items = new JsonSchema();
+                items.setType("object");
+                items.setProperties(new HashMap<>());
+                jsonSchema.setItems(items);
+                return CompletableFuture
+                        .allOf(arrayElements
+                                .stream()
+                                .map(PropertyContext::new)
+                                .map(CompletableFuture::completedFuture)
+                                .map(e -> new JsonSchemaConverter(jsonb, items, emptyList()).convert(e))
+                                .toArray(CompletableFuture[]::new))
+                        .thenApply(done -> context);
+            } else if (!arrayElements.isEmpty()) { // primitive
+                final String type = arrayElements.get(0).getType();
+                final JsonSchema item = new JsonSchema();
+                item.setTitle(jsonSchema.getTitle());
+                item.setType("enum".equalsIgnoreCase(type) ? "string" : type.toLowerCase(ROOT));
+                jsonSchema.setItems(item);
+            }
+            return CompletableFuture.completedFuture(context);
+        });
     }
 }

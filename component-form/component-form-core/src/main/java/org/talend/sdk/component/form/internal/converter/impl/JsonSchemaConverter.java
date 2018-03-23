@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.json.bind.Jsonb;
 
@@ -51,30 +53,39 @@ public class JsonSchemaConverter implements PropertyConverter {
     private final Collection<SimplePropertyDefinition> properties;
 
     @Override
-    public void convert(final PropertyContext context) {
-        final JsonSchema jsonSchema = new JsonSchema();
-        jsonSchema.setTitle(context.getProperty().getDisplayName());
-        final String type = context.getProperty().getType();
-        switch (type.toLowerCase(ROOT)) {
-        case "enum":
-            new EnumPropertyConverter(jsonSchema).convert(context);
-            break;
-        case "array":
-            new ArrayPropertyConverter(jsonb, jsonSchema, properties).convert(context);
-            break;
-        default:
-            if (context.getProperty().getPath().endsWith("[]")) {
-                return;
+    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+        return cs.thenCompose(context -> {
+            final JsonSchema jsonSchema = new JsonSchema();
+            jsonSchema.setTitle(context.getProperty().getDisplayName());
+            final String type = context.getProperty().getType();
+            switch (type.toLowerCase(ROOT)) {
+            case "enum":
+                return new EnumPropertyConverter(jsonSchema)
+                        .convert(CompletableFuture.completedFuture(context))
+                        .thenCompose(c -> postHandling(context, jsonSchema, type));
+            case "array":
+                return new ArrayPropertyConverter(jsonb, jsonSchema, properties)
+                        .convert(CompletableFuture.completedFuture(context))
+                        .thenCompose(c -> postHandling(context, jsonSchema, type));
+            default:
+                if (context.getProperty().getPath().endsWith("[]")) {
+                    return CompletableFuture.completedFuture(context);
+                }
+                jsonSchema.setType(type.toLowerCase(ROOT));
+                jsonSchema.setRequired(properties
+                        .stream()
+                        .filter(context::isDirectChild)
+                        .filter(nested -> new PropertyContext(nested).isRequired())
+                        .map(SimplePropertyDefinition::getName)
+                        .collect(toSet()));
+                return CompletableFuture.completedFuture(context).thenCompose(
+                        c -> postHandling(context, jsonSchema, type));
             }
-            jsonSchema.setType(type.toLowerCase(ROOT));
-            jsonSchema.setRequired(properties
-                    .stream()
-                    .filter(context::isDirectChild)
-                    .filter(nested -> new PropertyContext(nested).isRequired())
-                    .map(SimplePropertyDefinition::getName)
-                    .collect(toSet()));
-            break;
-        }
+        });
+    }
+
+    private CompletionStage<PropertyContext> postHandling(final PropertyContext context, final JsonSchema jsonSchema,
+            final String type) {
         final String defaultValue = context.getProperty().getMetadata().getOrDefault("ui::defaultvalue::value",
                 context.getProperty().getDefaultValue());
         convertDefaultValue(type, defaultValue).ifPresent(jsonSchema::setDefaultValue);
@@ -89,6 +100,13 @@ public class JsonSchemaConverter implements PropertyConverter {
             ofNullable(validation.getMaxLength()).ifPresent(jsonSchema::setMaxLength);
             ofNullable(validation.getUniqueItems()).ifPresent(jsonSchema::setUniqueItems);
             ofNullable(validation.getPattern()).ifPresent(jsonSchema::setPattern);
+        }
+
+        synchronized (rootJsonSchema) {
+            if (rootJsonSchema.getProperties() == null) {
+                rootJsonSchema.setProperties(new HashMap<>());
+            }
+            rootJsonSchema.getProperties().put(context.getProperty().getName(), jsonSchema);
         }
 
         if (properties.stream().anyMatch(context::isDirectChild)) { // has child
@@ -109,14 +127,18 @@ public class JsonSchemaConverter implements PropertyConverter {
             }
 
             final JsonSchemaConverter jsonSchemaConverter = new JsonSchemaConverter(jsonb, jsonSchema, properties);
-            properties.stream().filter(context::isDirectChild).map(PropertyContext::new).forEach(
-                    jsonSchemaConverter::convert);
+            return CompletableFuture
+                    .allOf(properties
+                            .stream()
+                            .filter(context::isDirectChild)
+                            .map(PropertyContext::new)
+                            .map(CompletableFuture::completedFuture)
+                            .map(jsonSchemaConverter::convert)
+                            .toArray(CompletableFuture[]::new))
+                    .thenApply(r -> context);
         }
 
-        if (rootJsonSchema.getProperties() == null) {
-            rootJsonSchema.setProperties(new HashMap<>());
-        }
-        rootJsonSchema.getProperties().put(context.getProperty().getName(), jsonSchema);
+        return CompletableFuture.completedFuture(context);
     }
 
     private Optional<Object> convertDefaultValue(final String type, final String defaultValue) {

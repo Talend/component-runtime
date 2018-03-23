@@ -19,6 +19,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
+import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
@@ -34,25 +35,28 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public void convert(final PropertyContext context) {
-        final UiSchema schema = newUiSchema(context);
-        schema.setWidget("datalist");
+    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+        return cs.thenApply(context -> {
+            final UiSchema schema = newUiSchema(context);
+            schema.setWidget("datalist");
 
-        final JsonSchema jsonSchema = new JsonSchema();
-        jsonSchema.setType("string");
-        schema.setSchema(jsonSchema);
+            final JsonSchema jsonSchema = new JsonSchema();
+            jsonSchema.setType("string");
+            schema.setSchema(jsonSchema);
 
-        if (context.getProperty().getValidation().getEnumValues() != null) {
-            schema.setTitleMap(context.getProperty().getValidation().getEnumValues().stream().sorted().map(v -> {
-                final UiSchema.NameValue nameValue = new UiSchema.NameValue();
-                nameValue.setName(v);
-                nameValue.setValue(v);
-                return nameValue;
-            }).collect(toList()));
-            jsonSchema.setEnumValues(context.getProperty().getValidation().getEnumValues());
-        } else {
-            schema.setTitleMap(emptyList());
-            jsonSchema.setEnumValues(emptyList());
-        }
+            if (context.getProperty().getValidation().getEnumValues() != null) {
+                schema.setTitleMap(context.getProperty().getValidation().getEnumValues().stream().sorted().map(v -> {
+                    final UiSchema.NameValue nameValue = new UiSchema.NameValue();
+                    nameValue.setName(v);
+                    nameValue.setValue(v);
+                    return nameValue;
+                }).collect(toList()));
+                jsonSchema.setEnumValues(context.getProperty().getValidation().getEnumValues());
+            } else {
+                schema.setTitleMap(emptyList());
+                jsonSchema.setEnumValues(emptyList());
+            }
+            return context;
+        });
     }
 }

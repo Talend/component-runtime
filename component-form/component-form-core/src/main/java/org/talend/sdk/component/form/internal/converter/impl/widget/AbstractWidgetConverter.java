@@ -113,7 +113,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
 
     protected UiSchema newUiSchema(final PropertyContext ctx) {
         final UiSchema schema = newOrphanSchema(ctx);
-        schemas.add(schema);
+        synchronized (schemas) {
+            schemas.add(schema);
+        }
         return schema;
     }
 

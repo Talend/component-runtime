@@ -20,6 +20,8 @@ import static java.util.Optional.ofNullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.json.bind.Jsonb;
 
@@ -39,30 +41,41 @@ public class PropertiesConverter implements PropertyConverter {
     private final Collection<SimplePropertyDefinition> properties;
 
     @Override
-    public void convert(final PropertyContext context) {
-        final SimplePropertyDefinition property = context.getProperty();
-        if ("object".equalsIgnoreCase(property.getType())) {
-            final Map<String, Object> childDefaults = new HashMap<>();
-            defaults.put(property.getName(), childDefaults);
-            final PropertiesConverter propertiesConverter = new PropertiesConverter(jsonb, childDefaults, properties);
-            properties.stream().filter(context::isDirectChild).map(PropertyContext::new).forEach(
-                    propertiesConverter::convert);
-            return;
-        }
+    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+        return cs.thenCompose(context -> {
+            final SimplePropertyDefinition property = context.getProperty();
+            if ("object".equalsIgnoreCase(property.getType())) {
+                final Map<String, Object> childDefaults = new HashMap<>();
+                defaults.put(property.getName(), childDefaults);
+                final PropertiesConverter propertiesConverter =
+                        new PropertiesConverter(jsonb, childDefaults, properties);
 
-        ofNullable(property.getMetadata().getOrDefault("ui::defaultvalue::value", property.getDefaultValue()))
-                .ifPresent(value -> {
-                    if ("number".equalsIgnoreCase(property.getType())) {
-                        defaults.put(property.getName(), Double.parseDouble(value));
-                    } else if ("boolean".equalsIgnoreCase(property.getType())) {
-                        defaults.put(property.getName(), Boolean.parseBoolean(value));
-                    } else if ("array".equalsIgnoreCase(property.getType())) {
-                        defaults.put(property.getName(), jsonb.fromJson(value, Object[].class));
-                    } else if ("object".equalsIgnoreCase(property.getType())) {
-                        defaults.put(property.getName(), jsonb.fromJson(value, Map.class));
-                    } else {
-                        defaults.put(property.getName(), value);
-                    }
-                });
+                return CompletableFuture
+                        .allOf(properties
+                                .stream()
+                                .filter(context::isDirectChild)
+                                .map(PropertyContext::new)
+                                .map(CompletableFuture::completedFuture)
+                                .map(propertiesConverter::convert)
+                                .toArray(CompletableFuture[]::new))
+                        .thenApply(done -> context);
+            }
+
+            ofNullable(property.getMetadata().getOrDefault("ui::defaultvalue::value", property.getDefaultValue()))
+                    .ifPresent(value -> {
+                        if ("number".equalsIgnoreCase(property.getType())) {
+                            defaults.put(property.getName(), Double.parseDouble(value));
+                        } else if ("boolean".equalsIgnoreCase(property.getType())) {
+                            defaults.put(property.getName(), Boolean.parseBoolean(value));
+                        } else if ("array".equalsIgnoreCase(property.getType())) {
+                            defaults.put(property.getName(), jsonb.fromJson(value, Object[].class));
+                        } else if ("object".equalsIgnoreCase(property.getType())) {
+                            defaults.put(property.getName(), jsonb.fromJson(value, Map.class));
+                        } else {
+                            defaults.put(property.getName(), value);
+                        }
+                    });
+            return CompletableFuture.completedFuture(context);
+        });
     }
 }

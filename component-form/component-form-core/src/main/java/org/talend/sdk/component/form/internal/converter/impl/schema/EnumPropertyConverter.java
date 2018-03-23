@@ -17,6 +17,8 @@ package org.talend.sdk.component.form.internal.converter.impl.schema;
 
 import static java.util.Collections.emptyList;
 
+import java.util.concurrent.CompletionStage;
+
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
@@ -29,13 +31,16 @@ public class EnumPropertyConverter implements PropertyConverter {
     private final JsonSchema jsonSchema;
 
     @Override
-    public void convert(final PropertyContext context) {
-        jsonSchema.setType("string");
-        if (context.getProperty().getValidation() == null
-                || context.getProperty().getValidation().getEnumValues() == null) {
-            jsonSchema.setEnumValues(emptyList());
-        } else {
-            jsonSchema.setEnumValues(context.getProperty().getValidation().getEnumValues());
-        }
+    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+        return cs.thenApply(context -> {
+            jsonSchema.setType("string");
+            if (context.getProperty().getValidation() == null
+                    || context.getProperty().getValidation().getEnumValues() == null) {
+                jsonSchema.setEnumValues(emptyList());
+            } else {
+                jsonSchema.setEnumValues(context.getProperty().getValidation().getEnumValues());
+            }
+            return context;
+        });
     }
 }

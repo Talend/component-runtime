@@ -15,8 +15,10 @@
  */
 package org.talend.sdk.component.form.internal.converter;
 
+import java.util.concurrent.CompletionStage;
+
 public interface PropertyConverter {
 
-    void convert(PropertyContext context);
+    CompletionStage<PropertyContext> convert(CompletionStage<PropertyContext> context);
 
 }

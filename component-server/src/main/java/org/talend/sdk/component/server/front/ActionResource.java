@@ -16,6 +16,7 @@
 package org.talend.sdk.component.server.front;
 
 import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -109,7 +110,9 @@ public class ActionResource {
             throw new WebApplicationException(Response
                     .status(520, "Unexpected callback error")
                     .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
-                            "Action execution failed with: " + re.getMessage()))
+                            "Action execution failed with: " + ofNullable(re.getMessage())
+                                    .orElseGet(() -> NullPointerException.class.isInstance(re) ? "unexpected null"
+                                            : "no error message")))
                     .build());
         }
     }

@@ -18,6 +18,7 @@ package org.talend.sdk.component.form.internal.converter.impl.widget;
 import static java.util.Collections.singletonMap;
 
 import java.util.Collection;
+import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
@@ -32,11 +33,14 @@ public class CodeWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public void convert(final PropertyContext context) {
-        final UiSchema schema = newUiSchema(context);
-        final String codeLang = context.getProperty().getMetadata().get("ui::code::value");
-        schema.setWidget("code");
-        schema.setOptions(singletonMap("language", codeLang));
+    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+        return cs.thenApply(context -> {
+            final UiSchema schema = newUiSchema(context);
+            final String codeLang = context.getProperty().getMetadata().get("ui::code::value");
+            schema.setWidget("code");
+            schema.setOptions(singletonMap("language", codeLang));
+            return context;
+        });
 
     }
 }

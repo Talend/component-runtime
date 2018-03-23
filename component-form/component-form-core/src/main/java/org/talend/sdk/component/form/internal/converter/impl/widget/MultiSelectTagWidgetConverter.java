@@ -23,6 +23,8 @@ import static java.util.stream.Collectors.toList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -49,42 +51,50 @@ public class MultiSelectTagWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public void convert(final PropertyContext context) {
-        final UiSchema schema = newUiSchema(context);
-        schema.setWidget("multiSelectTag");
-        schema.setRestricted(false);
-        if (client != null) {
-            try {
-                final Map<String, Object> values = client.action(family, "dynamic_values",
-                        context.getProperty().getMetadata().get("action::dynamic_values"), emptyMap());
+    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+        return cs.thenCompose(context -> {
+            final UiSchema schema = newUiSchema(context);
+            schema.setWidget("multiSelectTag");
+            schema.setRestricted(false);
+            if (client != null) {
+                return client
+                        .action(family, "dynamic_values",
+                                context.getProperty().getMetadata().get("action::dynamic_values"), emptyMap())
+                        .exceptionally(e -> {
+                            log.warn(e.getMessage(), e);
+                            return emptyMap();
+                        })
+                        .thenApply(values -> {
+                            final List<UiSchema.NameValue> namedValues = ofNullable(values)
+                                    .map(v -> v.get("items"))
+                                    .filter(Collection.class::isInstance)
+                                    .map(c -> {
+                                        final Collection<?> dynamicValues = Collection.class.cast(
 
-                final List<UiSchema.NameValue> namedValues =
-                        ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance).map(c -> {
-                            final Collection<?> dynamicValues = Collection.class.cast(
-
-                                    c);
-                            return dynamicValues
-                                    .stream()
-                                    .filter(Map.class::isInstance)
-                                    .filter(m -> Map.class.cast(m).get("id") != null
-                                            && Map.class.cast(m).get("id") instanceof String)
-                                    .map(Map.class::cast)
-                                    .map(entry -> {
-                                        final UiSchema.NameValue val = new UiSchema.NameValue();
-                                        val.setName((String) entry.get("id"));
-                                        val.setValue(entry.get("label") == null ? (String) entry.get("id")
-                                                : (String) entry.get("label"));
-                                        return val;
+                                                c);
+                                        return dynamicValues
+                                                .stream()
+                                                .filter(Map.class::isInstance)
+                                                .filter(m -> Map.class.cast(m).get("id") != null
+                                                        && Map.class.cast(m).get("id") instanceof String)
+                                                .map(Map.class::cast)
+                                                .map(entry -> {
+                                                    final UiSchema.NameValue val = new UiSchema.NameValue();
+                                                    val.setName((String) entry.get("id"));
+                                                    val.setValue(entry.get("label") == null ? (String) entry.get("id")
+                                                            : (String) entry.get("label"));
+                                                    return val;
+                                                })
+                                                .collect(toList());
                                     })
-                                    .collect(toList());
-                        }).orElse(emptyList());
-                schema.setTitleMap(namedValues);
-            } catch (final RuntimeException error) {
+                                    .orElse(emptyList());
+                            schema.setTitleMap(namedValues);
+                            return context;
+                        });
+            } else {
                 schema.setTitleMap(emptyList());
-                log.debug(error.getMessage(), error);
             }
-        } else {
-            schema.setTitleMap(emptyList());
-        }
+            return CompletableFuture.completedFuture(context);
+        });
     }
 }

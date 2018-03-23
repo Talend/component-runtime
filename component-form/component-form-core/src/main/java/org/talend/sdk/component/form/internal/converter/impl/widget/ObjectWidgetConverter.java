@@ -43,6 +43,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                 .stream()
                 .filter(p -> "OUT".equals(p.getMetadata().get("ui::structure::type")))
                 .findFirst();
+        final Collection<UiSchema> items = uiSchema.getItems();
         if (schemaBinding.isPresent()) {
             SimplePropertyDefinition bindingProp = schemaBinding.get();
             final String schemaActionName =
@@ -95,7 +96,9 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                         button.setTitle("Guess Schema");
                         button.setWidget("button");
                         button.setTriggers(singletonList(trigger));
-                        uiSchema.getItems().add(button);
+                        synchronized (items) {
+                            items.add(button);
+                        }
                     });
         }
 
@@ -122,7 +125,9 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                     button.setTitle("Validate Datastore");
                     button.setWidget("button");
                     button.setTriggers(singletonList(trigger));
-                    uiSchema.getItems().add(button);
+                    synchronized (items) {
+                        items.add(button);
+                    }
                 });
     }
 }

@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
@@ -54,7 +56,7 @@ public class UiSpecService implements AutoCloseable {
         this.jsonb = jsonb;
     }
 
-    public Ui convert(final ComponentDetail detail) {
+    public CompletionStage<Ui> convert(final ComponentDetail detail) {
         final Ui ui = new Ui();
         ui.setUiSchema(new ArrayList<>());
         ui.setProperties(new HashMap<>());
@@ -78,19 +80,19 @@ public class UiSpecService implements AutoCloseable {
         final PropertiesConverter propertiesConverter =
                 new PropertiesConverter(jsonb, Map.class.cast(ui.getProperties()), detail.getProperties());
 
-        detail
-                .getProperties()
-                .stream()
-                .filter(Objects::nonNull)
-                .filter(p -> p.getName().equals(p.getPath()))
-                .map(PropertyContext::new)
-                .forEach(p -> {
-                    jsonSchemaConverter.convert(p);
-                    uiSchemaConverter.convert(p);
-                    propertiesConverter.convert(p);
-                });
-
-        return ui;
+        return CompletableFuture
+                .allOf(detail
+                        .getProperties()
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .filter(p -> p.getName().equals(p.getPath()))
+                        .map(PropertyContext::new)
+                        .map(CompletableFuture::completedFuture)
+                        .map(jsonSchemaConverter::convert)
+                        .map(uiSchemaConverter::convert)
+                        .map(propertiesConverter::convert)
+                        .toArray(CompletableFuture[]::new))
+                .thenApply(r -> ui);
     }
 
     @Override

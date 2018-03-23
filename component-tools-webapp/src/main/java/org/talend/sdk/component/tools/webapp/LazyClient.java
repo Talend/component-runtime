@@ -57,7 +57,7 @@ public class LazyClient implements Client {
     }
 
     @Dependent
-    @WebFilter("/api/v1/*")
+    @WebFilter(value = "/api/v1/*", asyncSupported = true)
     public static class LazyInitializer implements Filter {
 
         @Inject

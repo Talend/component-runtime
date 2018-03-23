@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -62,78 +64,84 @@ public class UiSchemaConverter implements PropertyConverter {
     private Collection<ActionReference> actions;
 
     @Override
-    public void convert(final PropertyContext context) {
-        final String type = context.getProperty().getType().toLowerCase(Locale.ROOT);
-        switch (type) {
-        case "object":
-            final Map<String, String> gridLayouts = context
-                    .getProperty()
-                    .getMetadata()
-                    .entrySet()
-                    .stream()
-                    .filter(e -> e.getKey().startsWith("ui::gridlayout::") && e.getKey().endsWith("::value"))
-                    .collect(toMap(e -> e.getKey().substring("ui::gridlayout::".length(),
-                            e.getKey().length() - "::value".length()), Map.Entry::getValue, (a, b) -> {
-                                throw new IllegalArgumentException("Can't merge " + a + " and " + b);
-                            }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
-            if (!gridLayouts.isEmpty()) {
-                new GridLayoutWidgetConverter(schemas, properties, actions, client, family,
-                        gridLayoutFilter != null && gridLayouts.containsKey(gridLayoutFilter)
-                                ? singletonMap(gridLayoutFilter, gridLayouts.get(gridLayoutFilter))
-                                : gridLayouts).convert(context);
-            } else {
-                new FieldSetWidgetConverter(schemas, properties, actions, client, family).convert(context);
+    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+        return cs.thenCompose(context -> {
+            final String type = context.getProperty().getType().toLowerCase(Locale.ROOT);
+            switch (type) {
+            case "object":
+                final Map<String, String> gridLayouts =
+                        context
+                                .getProperty()
+                                .getMetadata()
+                                .entrySet()
+                                .stream()
+                                .filter(e -> e.getKey().startsWith("ui::gridlayout::")
+                                        && e.getKey().endsWith("::value"))
+                                .collect(toMap(
+                                        e -> e.getKey().substring("ui::gridlayout::".length(),
+                                                e.getKey().length() - "::value".length()),
+                                        Map.Entry::getValue, (a, b) -> {
+                                            throw new IllegalArgumentException("Can't merge " + a + " and " + b);
+                                        }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
+                if (!gridLayouts.isEmpty()) {
+                    return new GridLayoutWidgetConverter(schemas, properties, actions, client, family,
+                            gridLayoutFilter != null && gridLayouts.containsKey(gridLayoutFilter)
+                                    ? singletonMap(gridLayoutFilter, gridLayouts.get(gridLayoutFilter))
+                                    : gridLayouts).convert(CompletableFuture.completedFuture(context));
+                }
+                return new FieldSetWidgetConverter(schemas, properties, actions, client, family)
+                        .convert(CompletableFuture.completedFuture(context));
+            case "boolean":
+                includedProperties.add(context.getProperty());
+                return new ToggleWidgetConverter(schemas, properties, actions)
+                        .convert(CompletableFuture.completedFuture(context));
+            case "enum":
+                includedProperties.add(context.getProperty());
+                return new DataListWidgetConverter(schemas, properties, actions)
+                        .convert(CompletableFuture.completedFuture(context));
+            case "number":
+                includedProperties.add(context.getProperty());
+                return new NumberWidgetConverter(schemas, properties, actions)
+                        .convert(CompletableFuture.completedFuture(context));
+            case "array":
+                includedProperties.add(context.getProperty());
+                final String nestedPrefix = context.getProperty().getPath() + "[].";
+                final int from = nestedPrefix.length();
+                final Collection<SimplePropertyDefinition> nested = properties
+                        .stream()
+                        .filter(prop -> prop.getPath().startsWith(nestedPrefix)
+                                && prop.getPath().indexOf('.', from) < 0)
+                        .collect(toList());
+                if (!nested.isEmpty()) {
+                    return new ObjectArrayWidgetConverter(schemas, properties, actions, nested, family, client,
+                            gridLayoutFilter).convert(CompletableFuture.completedFuture(context));
+                }
+                return new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family)
+                        .convert(CompletableFuture.completedFuture(context));
+            case "string":
+            default:
+                if (context.getProperty().getPath().endsWith("[]")) {
+                    return CompletableFuture.completedFuture(context);
+                }
+                includedProperties.add(context.getProperty());
+                if ("true".equalsIgnoreCase(context.getProperty().getMetadata().get("ui::credential"))) {
+                    return new CredentialWidgetConverter(schemas, properties, actions)
+                            .convert(CompletableFuture.completedFuture(context));
+                } else if (context.getProperty().getMetadata().containsKey("ui::code::value")) {
+                    return new CodeWidgetConverter(schemas, properties, actions)
+                            .convert(CompletableFuture.completedFuture(context));
+                } else if (context.getProperty().getMetadata() != null
+                        && context.getProperty().getMetadata().containsKey("action::dynamic_values")) {
+                    return new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family)
+                            .convert(CompletableFuture.completedFuture(context));
+                } else if (context.getProperty().getMetadata().containsKey("ui::textarea")
+                        && Boolean.valueOf(context.getProperty().getMetadata().get("ui::textarea"))) {
+                    return new TextAreaWidgetConverter(schemas, properties, actions)
+                            .convert(CompletableFuture.completedFuture(context));
+                }
+                return new TextWidgetConverter(schemas, properties, actions)
+                        .convert(CompletableFuture.completedFuture(context));
             }
-            break;
-        case "boolean":
-            includedProperties.add(context.getProperty());
-            new ToggleWidgetConverter(schemas, properties, actions).convert(context);
-            break;
-        case "enum":
-            includedProperties.add(context.getProperty());
-            new DataListWidgetConverter(schemas, properties, actions).convert(context);
-            break;
-        case "number":
-            includedProperties.add(context.getProperty());
-            new NumberWidgetConverter(schemas, properties, actions).convert(context);
-            break;
-        case "array":
-            includedProperties.add(context.getProperty());
-            final String nestedPrefix = context.getProperty().getPath() + "[].";
-            final int from = nestedPrefix.length();
-            final Collection<SimplePropertyDefinition> nested = properties
-                    .stream()
-                    .filter(prop -> prop.getPath().startsWith(nestedPrefix) && prop.getPath().indexOf('.', from) < 0)
-                    .collect(toList());
-            if (!nested.isEmpty()) {
-                new ObjectArrayWidgetConverter(schemas, properties, actions, nested, family, client, gridLayoutFilter)
-                        .convert(context);
-            } else {
-                new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family).convert(context);
-            }
-            break;
-        case "string":
-        default:
-            if (context.getProperty().getPath().endsWith("[]")) {
-                return;
-            }
-            includedProperties.add(context.getProperty());
-            if ("true".equalsIgnoreCase(context.getProperty().getMetadata().get("ui::credential"))) {
-                new CredentialWidgetConverter(schemas, properties, actions).convert(context);
-            } else if (context.getProperty().getMetadata().containsKey("ui::code::value")) {
-                new CodeWidgetConverter(schemas, properties, actions).convert(context);
-            } else if (context.getProperty().getMetadata() != null
-                    && context.getProperty().getMetadata().containsKey("action::dynamic_values")) {
-                new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family).convert(context);
-            } else if (context.getProperty().getMetadata().containsKey("ui::textarea")
-                    && Boolean.valueOf(context.getProperty().getMetadata().get("ui::textarea"))) {
-                new TextAreaWidgetConverter(schemas, properties, actions).convert(context);
-            } else {
-                new TextWidgetConverter(schemas, properties, actions).convert(context);
-            }
-            break;
-        }
-
+        });
     }
-
 }

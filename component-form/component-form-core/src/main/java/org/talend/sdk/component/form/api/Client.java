@@ -15,8 +15,8 @@
  */
 package org.talend.sdk.component.form.api;
 
-import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
@@ -31,26 +31,27 @@ import org.talend.sdk.component.server.front.model.ComponentIndices;
  */
 public interface Client extends AutoCloseable {
 
-    Map<String, Object> action(String family, String type, String action, final Map<String, Object> params);
+    CompletionStage<Map<String, Object>> action(String family, String type, String action,
+            final Map<String, Object> params);
 
-    ComponentIndices index(String language);
+    CompletionStage<ComponentIndices> index(String language);
 
-    ComponentDetailList details(String language, String identifier, String... identifiers);
+    CompletionStage<ComponentDetailList> details(String language, String identifier, String... identifiers);
 
-    default ComponentIndices index() {
+    default CompletionStage<ComponentIndices> index() {
         return index("en");
     }
 
-    default ComponentDetailList details(final String identifier, final String... identifiers) {
+    default CompletionStage<ComponentDetailList> details(final String identifier, final String... identifiers) {
         return details("en", identifiers);
     }
 
-    default ComponentDetail detail(final String lang, final String identifier) {
-        final Iterator<ComponentDetail> iterator = details(lang, identifier, new String[0]).getDetails().iterator();
-        return iterator.hasNext() ? iterator.next() : null;
+    default CompletionStage<ComponentDetail> detail(final String lang, final String identifier) {
+        return details(lang, identifier, new String[0]).thenApply(d -> d.getDetails().iterator()).thenApply(
+                it -> it.hasNext() ? it.next() : null);
     }
 
-    default ComponentDetail detail(final String identifier) {
+    default CompletionStage<ComponentDetail> detail(final String identifier) {
         return detail("en", identifier);
     }
 

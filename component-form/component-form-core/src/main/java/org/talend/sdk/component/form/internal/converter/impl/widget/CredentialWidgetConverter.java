@@ -16,6 +16,7 @@
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import java.util.Collection;
+import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
@@ -30,9 +31,12 @@ public class CredentialWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public void convert(final PropertyContext context) {
-        final UiSchema schema = newUiSchema(context);
-        schema.setWidget("text");
-        schema.setType("password");
+    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+        return cs.thenApply(context -> {
+            final UiSchema schema = newUiSchema(context);
+            schema.setWidget("text");
+            schema.setType("password");
+            return context;
+        });
     }
 }

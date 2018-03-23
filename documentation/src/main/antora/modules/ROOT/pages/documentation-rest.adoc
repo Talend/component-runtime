@@ -83,53 +83,80 @@ A trivial facade can be:
 @Path("tacokit-facade")
 @ApplicationScoped
 public class ComponentFacade {
+    private static final String[] EMPTY_ARRAY = new String[0];
 
     @Inject
     private Client client;
 
     @Inject
-    private UiSpecService uiSpecService;
+    private ActionService actionService;
 
     @Inject
-    private ActionService actionService;
+    private UiSpecService uiSpecService;
 
     @POST
     @Path("action")
-    public UiActionResult action(@QueryParam("family") final String family, @QueryParam("type") final String type,
-            @QueryParam("action") final String action, final Map<String, Object> params) {
-        try {
-            return actionService.map(type, client.action(family, type, action, params));
-        } catch (final WebException exception) {
-            final UiActionResult payload = actionService.map(exception);
-            throw new WebApplicationException(Response.status(exception.getStatus()).entity(payload).build());
-        }
+    public void action(@Suspended final AsyncResponse response, @QueryParam("family") final String family,
+            @QueryParam("type") final String type, @QueryParam("action") final String action,
+            final Map<String, Object> params) {
+        client.action(family, type, action, params).handle((r, e) -> {
+            if (e != null) {
+                onException(response, e);
+            } else {
+                response.resume(actionService.map(type, r));
+            }
+            return null;
+        });
     }
 
     @GET
     @Path("index")
-    public ComponentIndices getIndex(@QueryParam("language") @DefaultValue("en") final String language) {
-        final ComponentIndices index = client.index(language);
-        // our mapping is a bit different so rewrite links
-        index.getComponents().stream().flatMap(c -> c.getLinks().stream()).forEach(link -> link.setPath(
-                link.getPath().replaceFirst("\\/component\\/", "\\/tcomp-facade\\/").replace("/details?identifiers=", "/detail/")));
-        return index;
+    public void getIndex(@Suspended final AsyncResponse response,
+            @QueryParam("language") @DefaultValue("en") final String language) {
+        client.index(language).handle((index, e) -> {
+            if (e != null) {
+                onException(response, e);
+            } else {
+                index.getComponents().stream().flatMap(c -> c.getLinks().stream()).forEach(
+                        link -> link.setPath(link.getPath().replaceFirst("/component/", "/application/").replace(
+                                "/details?identifiers=", "/detail/")));
+                response.resume(index);
+            }
+            return null;
+        });
     }
 
     @GET
     @Path("detail/{id}")
-    public Ui getDetail(@QueryParam("language") @DefaultValue("en") final String language,
-            @PathParam("id") final String id) {
-        final List<ComponentDetail> details = client.details(language, id, new String[0]).getDetails();
-        if (details.isEmpty()) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    public void getDetail(@Suspended final AsyncResponse response,
+            @QueryParam("language") @DefaultValue("en") final String language, @PathParam("id") final String id) {
+        client
+                .details(language, id, EMPTY_ARRAY)
+                .thenCompose(result -> uiSpecService.convert(result.getDetails().iterator().next()))
+                .handle((result, e) -> {
+                    if (e != null) {
+                        onException(response, e);
+                    } else {
+                        response.resume(result);
+                    }
+                    return null;
+                });
+    }
+
+    private void onException(final AsyncResponse response, final Throwable e) {
+        if (WebException.class.isInstance(e)) {
+            final WebException we = WebException.class.cast(e);
+            final UiActionResult payload = actionService.map(we);
+            response.resume(new WebApplicationException(Response.status(we.getStatus()).entity(payload).build()));
+        } else {
+            response.resume(new WebApplicationException(e));
         }
-        return uiSpecService.convert(details.iterator().next());
     }
 }
 ----
 
 NOTE: the `Client` can be created using `ClientFactory.createDefault(System.getProperty("app.components.base", "http://localhost:8080/api/v1"))`
-and the service can be a simple `new UiSpecService()`.
+and the service can be a simple `new UiSpecService()`. The factory uses JAX-RS if the API is available (assuming a JSON-B provider is registered) otherwise it tries to use Spring.
 
 All the conversion between component model (REST API) and uiSpec model is done through the `UiSpecService`. It is based on the object model
 which will be mapped to a ui model. The advantage to have a flat model in the component REST API is to make these layers easy to customize.

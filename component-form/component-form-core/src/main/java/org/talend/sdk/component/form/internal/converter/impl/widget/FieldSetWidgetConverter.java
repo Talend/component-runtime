@@ -18,6 +18,8 @@ package org.talend.sdk.component.form.internal.converter.impl.widget;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -41,20 +43,29 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
     }
 
     @Override
-    public void convert(final PropertyContext context) {
-        final UiSchema uiSchema = newUiSchema(context);
-        uiSchema.setWidget("fieldset");
-        uiSchema.setItems(new ArrayList<>());
+    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+        return cs.thenCompose(context -> {
+            final UiSchema uiSchema = newUiSchema(context);
+            uiSchema.setWidget("fieldset");
+            uiSchema.setItems(new ArrayList<>());
 
-        final List<SimplePropertyDefinition> properties = new ArrayList<>();
-        final UiSchemaConverter uiSchemaConverter =
-                new UiSchemaConverter(null, family, uiSchema.getItems(), properties, client, this.properties, actions);
+            final List<SimplePropertyDefinition> properties = new ArrayList<>();
+            final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, family, uiSchema.getItems(),
+                    properties, client, this.properties, actions);
 
-        // Create Nested UI Items
-        this.properties.stream().filter(context::isDirectChild).map(PropertyContext::new).forEach(
-                uiSchemaConverter::convert);
-
-        // add common actions
-        addActions(context, uiSchema, properties);
+            // Create Nested UI Items
+            return CompletableFuture
+                    .allOf(this.properties
+                            .stream()
+                            .filter(context::isDirectChild)
+                            .map(PropertyContext::new)
+                            .map(CompletableFuture::completedFuture)
+                            .map(uiSchemaConverter::convert)
+                            .toArray(CompletableFuture[]::new))
+                    .thenApply(done -> {
+                        addActions(context, uiSchema, properties);
+                        return context;
+                    });
+        });
     }
 }
