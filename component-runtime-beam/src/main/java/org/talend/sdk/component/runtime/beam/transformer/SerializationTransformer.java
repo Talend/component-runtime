@@ -36,7 +36,6 @@ import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 import java.util.Collection;
-import java.util.stream.Stream;
 
 import org.apache.xbean.asm6.ClassReader;
 import org.apache.xbean.asm6.ClassVisitor;
@@ -44,7 +43,6 @@ import org.apache.xbean.asm6.ClassWriter;
 import org.apache.xbean.asm6.MethodVisitor;
 import org.apache.xbean.asm6.Type;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
-import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
@@ -68,7 +66,7 @@ public class SerializationTransformer implements ClassFileTransformer {
         thread.setContextClassLoader(tmpLoader);
         try {
             if (shouldForceContextualSerialization(tmpLoader, className)) {
-                return rewrite(loader, className, classfileBuffer, tmpLoader);
+                return rewrite(classLoader, className, classfileBuffer, tmpLoader);
             }
         } finally {
             thread.setContextClassLoader(old);
@@ -76,14 +74,9 @@ public class SerializationTransformer implements ClassFileTransformer {
         return classfileBuffer;
     }
 
-    private byte[] rewrite(final ClassLoader loader, final String className, final byte[] classfileBuffer,
+    private byte[] rewrite(final ConfigurableClassLoader loader, final String className, final byte[] classfileBuffer,
             final ClassLoader tmpLoader) {
-        final String plugin = ComponentManager
-                .instance()
-                .find(c -> Stream.of(c).filter(it -> it.getLoader() == loader))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No container with classloader " + loader))
-                .getId();
+        final String plugin = loader.getId();
 
         final ClassReader reader = new ClassReader(classfileBuffer);
         final ComponentClassWriter writer =

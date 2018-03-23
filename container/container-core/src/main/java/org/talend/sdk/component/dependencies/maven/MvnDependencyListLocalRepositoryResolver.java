@@ -70,7 +70,7 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
 
                     if (isNested) { // we reuse ConfigurableClassLoader just to not
                                     // rewrite the logic but it is NOT a plugin!
-                        try (final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader(
+                        try (final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader("",
                                 new URL[0], rootLoader, name -> true, name -> true, new String[] { artifact })) {
                             try (final InputStream deps =
                                     configurableClassLoader.getResourceAsStream(dependenciesListFile)) {

@@ -49,7 +49,7 @@ class ConfigurableClassLoaderTest {
     void childLoading() {
         Stream.of(true, false).forEach(parentFirst -> {
             final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
-            try (final ConfigurableClassLoader loader = new ConfigurableClassLoader(
+            try (final ConfigurableClassLoader loader = new ConfigurableClassLoader("",
                     new URL[] { new File(Constants.DEPENDENCIES_LOCATION,
                             "org/apache/tomee/ziplock/7.0.4/ziplock-7.0.4.jar").toURI().toURL() },
                     parent, name -> true, name -> parentFirst, null)) {
@@ -73,7 +73,7 @@ class ConfigurableClassLoaderTest {
     @Test
     void parentFiltering() {
         final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
-        try (final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent,
+        try (final ConfigurableClassLoader loader = new ConfigurableClassLoader("", new URL[0], parent,
                 name -> !ConfigurableClassLoaderTest.class.getName().equals(name), name -> true, null)) {
             try {
                 loader.loadClass("org.talend.sdk.component.classloader.ConfigurableClassLoaderTest");
@@ -96,7 +96,7 @@ class ConfigurableClassLoaderTest {
         final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.4");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
-                final ConfigurableClassLoader loader = new ConfigurableClassLoader(new URL[0], parent, name -> true,
+                final ConfigurableClassLoader loader = new ConfigurableClassLoader("", new URL[0], parent, name -> true,
                         name -> true, new String[] { "org/apache/tomee/ziplock/7.0.4/ziplock-7.0.4.jar" })) {
             try { // classes
                 final Class<?> aClass = loader.loadClass("org.apache.ziplock.JarLocation");
@@ -144,8 +144,8 @@ class ConfigurableClassLoaderTest {
     void noNestedJarsMissingResources() throws IOException {
         try (final URLClassLoader parent =
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
-                final ConfigurableClassLoader loader =
-                        new ConfigurableClassLoader(new URL[0], parent, name -> true, name -> true, new String[0])) {
+                final ConfigurableClassLoader loader = new ConfigurableClassLoader("", new URL[0], parent, name -> true,
+                        name -> true, new String[0])) {
 
             { // missing
                 assertNull(loader.getResource("a.missing"));

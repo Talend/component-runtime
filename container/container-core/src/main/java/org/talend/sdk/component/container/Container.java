@@ -117,7 +117,7 @@ public class Container implements Lifecycle {
             final String[] rawNestedDependencies = overrideClassLoaderConfig.isSupportsResourceDependencies()
                     ? Stream.of(dependencies).map(Artifact::toPath).filter(resourceExists).toArray(String[]::new)
                     : null;
-            final ConfigurableClassLoader loader = new ConfigurableClassLoader(urls,
+            final ConfigurableClassLoader loader = new ConfigurableClassLoader(id, urls,
                     overrideClassLoaderConfig.getParent(), overrideClassLoaderConfig.getParentClassesFilter(),
                     overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies);
             transformers.forEach(loader::registerTransformer);

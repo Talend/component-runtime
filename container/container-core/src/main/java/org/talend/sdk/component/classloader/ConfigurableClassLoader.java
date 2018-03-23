@@ -48,6 +48,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,6 +66,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private static final ClassLoader SYSTEM_CLASS_LOADER = getSystemClassLoader();
 
+    @Getter
+    private final String id;
+
     private final URL[] creationUrls;
 
     private final Predicate<String> parentFilter;
@@ -77,9 +81,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private volatile URLClassLoader temporaryCopy;
 
-    public ConfigurableClassLoader(final URL[] urls, final ClassLoader parent, final Predicate<String> parentFilter,
-            final Predicate<String> childFirstFilter, final String[] nestedDependencies) {
-        this(urls, parent, parentFilter, childFirstFilter, emptyMap());
+    public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
+            final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
+            final String[] nestedDependencies) {
+        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap());
         if (nestedDependencies != null) { // load all in memory to avoid perf issues - should we try offheap?
             final byte[] buffer = new byte[8192]; // should be good for most cases
             final ByteArrayOutputStream out = new ByteArrayOutputStream(buffer.length);
@@ -110,9 +115,11 @@ public class ConfigurableClassLoader extends URLClassLoader {
         }
     }
 
-    private ConfigurableClassLoader(final URL[] urls, final ClassLoader parent, final Predicate<String> parentFilter,
-            final Predicate<String> childFirstFilter, final Map<String, Collection<Resource>> resources) {
+    private ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
+            final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
+            final Map<String, Collection<Resource>> resources) {
         super(urls, parent);
+        this.id = id;
         this.creationUrls = urls;
         this.parentFilter = parentFilter;
         this.childFirstFilter = childFirstFilter;
@@ -126,7 +133,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     public synchronized URLClassLoader createTemporaryCopy() {
         final ConfigurableClassLoader self = this;
         return temporaryCopy == null ? temporaryCopy =
-                new ConfigurableClassLoader(creationUrls, getParent(), parentFilter, childFirstFilter, resources) {
+                new ConfigurableClassLoader(id, creationUrls, getParent(), parentFilter, childFirstFilter, resources) {
 
                     @Override
                     public synchronized void close() throws IOException {
