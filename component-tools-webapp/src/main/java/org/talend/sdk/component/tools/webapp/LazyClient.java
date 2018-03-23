@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -29,9 +30,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 
 import org.talend.sdk.component.form.api.Client;
-import org.talend.sdk.component.form.api.ClientFactory;
+import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
 
 import lombok.experimental.Delegate;
 
@@ -41,11 +44,17 @@ public class LazyClient implements Client {
     @Delegate
     private volatile Client client;
 
-    public void lazyInit(final Supplier<String> base) {
+    @Produces
+    private volatile WebTarget webTarget;
+
+    void lazyInit(final Supplier<String> base) {
         if (client == null) {
             synchronized (this) {
                 if (client == null) {
-                    client = ClientFactory.createDefault(base.get());
+                    final String baseValue = base.get();
+                    final javax.ws.rs.client.Client jaxrsClient = ClientBuilder.newClient();
+                    webTarget = jaxrsClient.target(baseValue);
+                    client = new JAXRSClient(jaxrsClient, baseValue, true);
                 }
             }
         }
@@ -57,7 +66,7 @@ public class LazyClient implements Client {
     }
 
     @Dependent
-    @WebFilter(value = "/api/v1/*", asyncSupported = true)
+    @WebFilter(urlPatterns = "/api/v1/*", asyncSupported = true)
     public static class LazyInitializer implements Filter {
 
         @Inject

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -42,8 +41,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.WebException;
-import org.talend.sdk.component.server.front.model.ComponentDetailList;
-import org.talend.sdk.component.server.front.model.ComponentIndices;
 
 public class SpringRestClient implements Client {
 
@@ -56,7 +53,11 @@ public class SpringRestClient implements Client {
             };
 
     public SpringRestClient(final String base) {
-        this.delegate = new AsyncRestTemplate();
+        this(new AsyncRestTemplate(), base);
+    }
+
+    public SpringRestClient(final AsyncRestTemplate tpl, final String base) {
+        this.delegate = tpl;
         this.base = base;
     }
 
@@ -67,7 +68,14 @@ public class SpringRestClient implements Client {
 
             @Override
             public void onFailure(final Throwable throwable) {
-                result.completeExceptionally(throwable);
+                if (HttpServerErrorException.class.isInstance(throwable)) {
+                    result.completeExceptionally(toException(HttpServerErrorException.class.cast(throwable)));
+                } else if (RestClientException.class.isInstance(throwable)) {
+                    result.completeExceptionally(toException(RestClientException.class.cast(throwable)));
+                } else {
+                    result.completeExceptionally(
+                            new WebException(throwable, -1, singletonMap("error", throwable.getMessage())));
+                }
             }
 
             @Override
@@ -81,75 +89,21 @@ public class SpringRestClient implements Client {
     @Override
     public CompletableFuture<Map<String, Object>> action(final String family, final String type, final String action,
             final Map<String, Object> params) {
-        try {
-            return toCompletionStage(
-                    delegate
-                            .exchange(
-                                    UriComponentsBuilder
-                                            .fromHttpUrl(base)
-                                            .path("action/execute")
-                                            .queryParam("family", family)
-                                            .queryParam("type", type)
-                                            .queryParam("action", action)
-                                            .build()
-                                            .toUriString(),
-                                    HttpMethod.POST,
-                                    new HttpEntity<>(
-                                            params.entrySet().stream().collect(
-                                                    toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))),
-                                            json()),
+        return toCompletionStage(delegate.exchange(
+                UriComponentsBuilder
+                        .fromHttpUrl(base)
+                        .path("action/execute")
+                        .queryParam("family", family)
+                        .queryParam("type", type)
+                        .queryParam("action", action)
+                        .build()
+                        .toUriString(),
+                HttpMethod.POST,
+                new HttpEntity<>(
+                        params.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))),
+                        json()),
 
-                                    mapType));
-        } catch (final HttpServerErrorException hsee) {
-            throw toException(hsee);
-        } catch (final RestClientException rce) {
-            throw toException(rce);
-        }
-    }
-
-    @Override
-    public CompletableFuture<ComponentIndices> index(final String language) {
-        try {
-            return toCompletionStage(delegate.exchange(UriComponentsBuilder
-                    .fromHttpUrl(base)
-                    .path("component/index")
-                    .queryParam("language", language)
-                    .build()
-                    .toUriString(), HttpMethod.GET, new HttpEntity<>(json()), ComponentIndices.class));
-        } catch (final HttpServerErrorException hsee) {
-            throw toException(hsee);
-        } catch (final RestClientException rce) {
-            throw toException(rce);
-        }
-    }
-
-    @Override
-    public CompletableFuture<ComponentDetailList> details(final String language, final String identifier,
-            final String... identifiers) {
-        try {
-            final HttpHeaders headers = json();
-            return toCompletionStage(
-                    delegate
-                            .exchange(
-                                    UriComponentsBuilder
-                                            .fromHttpUrl(base)
-                                            .path("component/details")
-                                            .queryParam("language", language)
-                                            .queryParam("identifiers",
-                                                    Stream
-                                                            .concat(Stream.of(identifier),
-                                                                    identifiers == null || identifiers.length == 0
-                                                                            ? Stream.empty()
-                                                                            : Stream.of(identifiers))
-                                                            .toArray(Object[]::new))
-                                            .build()
-                                            .toUriString(),
-                                    HttpMethod.GET, new HttpEntity<>(headers), ComponentDetailList.class));
-        } catch (final HttpServerErrorException hsee) {
-            throw toException(hsee);
-        } catch (final RestClientException rce) {
-            throw toException(rce);
-        }
+                mapType));
     }
 
     @Override

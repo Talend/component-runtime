@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,8 +51,7 @@ import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
-import org.talend.sdk.component.server.front.model.ComponentDetailList;
-import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 
 class UiSpecServiceTest {
 
@@ -71,21 +70,38 @@ class UiSpecServiceTest {
         }
 
         @Override
-        public CompletionStage<ComponentIndices> index(final String language) {
-            return null;
-        }
-
-        @Override
-        public CompletionStage<ComponentDetailList> details(final String language, final String identifier,
-                final String... identifiers) {
-            return null;
-        }
-
-        @Override
         public void close() {
             // no-op
         }
     });
+
+    @Test
+    void configuration() throws Exception {
+        final ConfigTypeNodes load = load("config.json", ConfigTypeNodes.class);
+        final String family = load
+                .getNodes()
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue().getParentId() == null)
+                .map(e -> e.getValue().getId())
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No family"));
+        final Ui payload =
+                service
+                        .convert(family,
+                                load
+                                        .getNodes()
+                                        .values()
+                                        .stream()
+                                        .filter(e -> "amRiYyNkYXRhc3RvcmUjamRiYw".equals(e.getId()))
+                                        .findFirst()
+                                        .orElseThrow(() -> new IllegalArgumentException(
+                                                "No amRiYyNkYXRhc3RvcmUjamRiYw config")))
+                        .toCompletableFuture()
+                        .get();
+        assertTrue(payload.getJsonSchema().getProperties().containsKey("connection"), "connection");
+        assertEquals(4, payload.getUiSchema().iterator().next().getItems().size());
+    }
 
     @Test
     void condition() throws Exception {
@@ -376,6 +392,14 @@ class UiSpecServiceTest {
                 final InputStream stream =
                         Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)) {
             return jsonb.fromJson(stream, ComponentDetail.class);
+        }
+    }
+
+    private <T> T load(final String resource, final Class<T> type) throws Exception {
+        try (final Jsonb jsonb = JsonbBuilder.create();
+                final InputStream stream =
+                        Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)) {
+            return jsonb.fromJson(stream, type);
         }
     }
 

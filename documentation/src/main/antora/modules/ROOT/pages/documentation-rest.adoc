@@ -94,6 +94,9 @@ public class ComponentFacade {
     @Inject
     private UiSpecService uiSpecService;
 
+    @Inject // assuming it is available in your app, use any client you want
+    private WebTarget target;
+
     @POST
     @Path("action")
     public void action(@Suspended final AsyncResponse response, @QueryParam("family") final String family,
@@ -113,7 +116,14 @@ public class ComponentFacade {
     @Path("index")
     public void getIndex(@Suspended final AsyncResponse response,
             @QueryParam("language") @DefaultValue("en") final String language) {
-        client.index(language).handle((index, e) -> {
+        target
+                .path("component/index")
+                .queryParam("language", language)
+                .request(APPLICATION_JSON_TYPE)
+                .rx()
+                .get(ComponentIndices.class)
+                .toCompletableFuture()
+                .handle((index, e) -> {
             if (e != null) {
                 onException(response, e);
             } else {
@@ -130,8 +140,14 @@ public class ComponentFacade {
     @Path("detail/{id}")
     public void getDetail(@Suspended final AsyncResponse response,
             @QueryParam("language") @DefaultValue("en") final String language, @PathParam("id") final String id) {
-        client
-                .details(language, id, EMPTY_ARRAY)
+        target
+                .path("component/details")
+                .queryParam("language", language)
+                .queryParam("identifiers", id)
+                .request(APPLICATION_JSON_TYPE)
+                .rx()
+                .get(ComponentDetailList.class)
+                .toCompletableFuture()
                 .thenCompose(result -> uiSpecService.convert(result.getDetails().iterator().next()))
                 .handle((result, e) -> {
                     if (e != null) {
@@ -144,13 +160,23 @@ public class ComponentFacade {
     }
 
     private void onException(final AsyncResponse response, final Throwable e) {
+        final UiActionResult payload;
+        final int status;
         if (WebException.class.isInstance(e)) {
             final WebException we = WebException.class.cast(e);
-            final UiActionResult payload = actionService.map(we);
-            response.resume(new WebApplicationException(Response.status(we.getStatus()).entity(payload).build()));
+            status = we.getStatus();
+            payload = actionService.map(we);
+        } else if (CompletionException.class.isInstance(e)) {
+            final CompletionException actualException = CompletionException.class.cast(e);
+            log.error(actualException.getMessage(), actualException);
+            status = Response.Status.BAD_GATEWAY.getStatusCode();
+            payload = actionService.map(new WebException(actualException, -1, emptyMap()));
         } else {
-            response.resume(new WebApplicationException(e));
+            log.error(e.getMessage(), e);
+            status = Response.Status.BAD_GATEWAY.getStatusCode();
+            payload = actionService.map(new WebException(e, -1, emptyMap()));
         }
+        response.resume(new WebApplicationException(Response.status(status).entity(payload).build()));
     }
 }
 ----

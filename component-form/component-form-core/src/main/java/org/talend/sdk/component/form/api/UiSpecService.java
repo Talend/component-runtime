@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,11 +18,15 @@ package org.talend.sdk.component.form.api;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
@@ -34,7 +38,9 @@ import org.talend.sdk.component.form.internal.converter.impl.PropertiesConverter
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
+import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,36 +62,74 @@ public class UiSpecService implements AutoCloseable {
         this.jsonb = jsonb;
     }
 
+    /**
+     * Converts a configuration model to a uiSpec.
+     *
+     * @param family the family (you must browse the configuration tree to find the root parent id).
+     * @param node the configuration model to convert to a uiSpec.
+     * @return a Ui promise.
+     */
+    public CompletionStage<Ui> convert(final String family, final ConfigTypeNode node) {
+        // extract root property
+        final Collection<String> rootProperties =
+                node.getProperties().stream().map(SimplePropertyDefinition::getPath).collect(toSet());
+        final Iterator<String> it = rootProperties.iterator();
+        while (it.hasNext()) {
+            final String path = it.next() + '.';
+            if (node.getProperties().stream().noneMatch(p -> p.getPath().startsWith(path))) {
+                it.remove();
+            }
+        }
+        if (rootProperties.isEmpty()) {
+            log.warn("No root properties for configuration node {} (family={})", node.getId(), family);
+        }
+        return convert(node::getDisplayName, () -> family, node::getProperties, node::getActions,
+                p -> rootProperties.contains(p.getPath()));
+    }
+
+    /**
+     * Converts a component form to a uiSpec.
+     *
+     * @param detail the component model.
+     * @return the uiSpec corresponding to the model.
+     */
     public CompletionStage<Ui> convert(final ComponentDetail detail) {
+        return convert(detail::getDisplayName, detail.getId()::getFamily, detail::getProperties, detail::getActions,
+                p -> p.getName().equals(p.getPath()));
+    }
+
+    private CompletionStage<Ui> convert(final Supplier<String> displayName, final Supplier<String> family,
+            final Supplier<Collection<SimplePropertyDefinition>> properties,
+            final Supplier<Collection<ActionReference>> actions,
+            final Predicate<SimplePropertyDefinition> isRootProperty) {
+        final Collection<SimplePropertyDefinition> props = properties.get();
+
         final Ui ui = new Ui();
         ui.setUiSchema(new ArrayList<>());
         ui.setProperties(new HashMap<>());
         ui.setJsonSchema(new JsonSchema());
-        ui.getJsonSchema().setTitle(detail.getDisplayName());
+        ui.getJsonSchema().setTitle(displayName.get());
         ui.getJsonSchema().setType("object");
         ui
                 .getJsonSchema()
-                .setRequired(detail
-                        .getProperties()
+                .setRequired(props
                         .stream()
-                        .filter(p -> p.getName().equals(p.getPath()))
+                        .filter(isRootProperty)
                         .filter(p -> new PropertyContext(p).isRequired())
                         .map(SimplePropertyDefinition::getName)
                         .collect(toSet()));
 
-        final JsonSchemaConverter jsonSchemaConverter =
-                new JsonSchemaConverter(jsonb, ui.getJsonSchema(), detail.getProperties());
-        final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, detail.getId().getFamily(),
-                ui.getUiSchema(), new ArrayList<>(), client, detail.getProperties(), detail.getActions());
+        final JsonSchemaConverter jsonSchemaConverter = new JsonSchemaConverter(jsonb, ui.getJsonSchema(), props);
+        final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, family.get(), ui.getUiSchema(),
+                new ArrayList<>(), client, props, actions.get());
         final PropertiesConverter propertiesConverter =
-                new PropertiesConverter(jsonb, Map.class.cast(ui.getProperties()), detail.getProperties());
+                new PropertiesConverter(jsonb, Map.class.cast(ui.getProperties()), props);
 
         return CompletableFuture
-                .allOf(detail
-                        .getProperties()
+                .allOf(props
                         .stream()
                         .filter(Objects::nonNull)
-                        .filter(p -> p.getName().equals(p.getPath()))
+                        .filter(isRootProperty)
                         .map(PropertyContext::new)
                         .map(CompletableFuture::completedFuture)
                         .map(jsonSchemaConverter::convert)

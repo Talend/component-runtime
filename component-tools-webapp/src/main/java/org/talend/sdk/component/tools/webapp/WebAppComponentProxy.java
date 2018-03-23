@@ -16,6 +16,7 @@
 package org.talend.sdk.component.tools.webapp;
 
 import static java.util.Collections.emptyMap;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.util.Map;
 import java.util.concurrent.CompletionException;
@@ -29,6 +30,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
@@ -38,6 +40,8 @@ import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.api.WebException;
 import org.talend.sdk.component.form.model.UiActionResult;
+import org.talend.sdk.component.server.front.model.ComponentDetailList;
+import org.talend.sdk.component.server.front.model.ComponentIndices;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,6 +60,9 @@ public class WebAppComponentProxy {
 
     @Inject
     private UiSpecService uiSpecService;
+
+    @Inject
+    private WebTarget target;
 
     @POST
     @Path("action")
@@ -76,25 +83,42 @@ public class WebAppComponentProxy {
     @Path("index")
     public void getIndex(@Suspended final AsyncResponse response,
             @QueryParam("language") @DefaultValue("en") final String language) {
-        client.index(language).handle((index, e) -> {
-            if (e != null) {
-                onException(response, e);
-            } else {
-                index.getComponents().stream().flatMap(c -> c.getLinks().stream()).forEach(
-                        link -> link.setPath(link.getPath().replaceFirst("/component/", "/application/").replace(
-                                "/details?identifiers=", "/detail/")));
-                response.resume(index);
-            }
-            return null;
-        });
+        target
+                .path("component/index")
+                .queryParam("language", language)
+                .request(APPLICATION_JSON_TYPE)
+                .rx()
+                .get(ComponentIndices.class)
+                .toCompletableFuture()
+                .handle((index, e) -> {
+                    if (e != null) {
+                        onException(response, e);
+                    } else {
+                        index
+                                .getComponents()
+                                .stream()
+                                .flatMap(c -> c.getLinks().stream())
+                                .forEach(link -> link
+                                        .setPath(link.getPath().replaceFirst("/component/", "/application/").replace(
+                                                "/details?identifiers=", "/detail/")));
+                        response.resume(index);
+                    }
+                    return null;
+                });
     }
 
     @GET
     @Path("detail/{id}")
     public void getDetail(@Suspended final AsyncResponse response,
             @QueryParam("language") @DefaultValue("en") final String language, @PathParam("id") final String id) {
-        client
-                .details(language, id, EMPTY_ARRAY)
+        target
+                .path("component/details")
+                .queryParam("language", language)
+                .queryParam("identifiers", id)
+                .request(APPLICATION_JSON_TYPE)
+                .rx()
+                .get(ComponentDetailList.class)
+                .toCompletableFuture()
                 .thenCompose(result -> uiSpecService.convert(result.getDetails().iterator().next()))
                 .handle((result, e) -> {
                     if (e != null) {
