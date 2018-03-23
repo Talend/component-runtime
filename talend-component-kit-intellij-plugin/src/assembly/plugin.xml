@@ -24,8 +24,11 @@
   </formats>
   <fileSets>
     <fileSet>
-      <directory>${project.build.outputDirectory}</directory>
-      <outputDirectory>/${project.artifactId}</outputDirectory>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory>/${project.artifactId}/lib</outputDirectory>
+      <includes>
+        <include>${project.build.finalName}.${project.packaging}</include>
+      </includes>
     </fileSet>
   </fileSets>
 </assembly>

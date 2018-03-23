@@ -29,6 +29,11 @@
       <username>${env.NPM_USER}</username>
       <password>${env.NPM_PASS}</password>
     </server>
+    <server>
+      <id>jetbrains</id>
+      <username>${env.JETBRAINS_USER}</username>
+      <password>${env.JETBRAINS_PASS}</password>
+    </server>
   </servers>
 
   <profiles>

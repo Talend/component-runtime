@@ -1,5 +1,12 @@
 
 
+== Version 0.0.5
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-738[TCOMP-738^]: Component Server should respect ~/.m2/settings.xml local repository if it exists
+
+
 == Version 0.0.3
 
 === Bug

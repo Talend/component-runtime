@@ -35,6 +35,7 @@
 
     <idea.unpacked.folder>${project.basedir}/.cache/idea/</idea.unpacked.folder>
     <idea.version>2017.3.5</idea.version>
+    <idea.source>https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/${idea.version}/ideaIC-${idea.version}.zip</idea.source>
   </properties>
 
   <build>
@@ -56,36 +57,6 @@
     </resources>
 
     <plugins>
-      <plugin>
-        <groupId>com.googlecode.maven-download-plugin</groupId>
-        <artifactId>download-maven-plugin</artifactId>
-        <version>${download-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>download-idea</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>wget</goal>
-            </goals>
-            <configuration>
-              <url>
-                https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/${idea.version}/ideaIC-${idea.version}.zip
-              </url>
-              <overwrite>false</overwrite>
-              <checkSignature>false</checkSignature> <!-- too slow -->
-              <outputFileName>local_idea.zip</outputFileName>
-              <outputDirectory>${idea.unpacked.folder}</outputDirectory>
-              <unpack>true</unpack>
-              <cacheDirectory>${project.basedir}/.cache</cacheDirectory>
-
-              <!-- the zip is big, avoid to compute it each time -->
-              <md5>0b5dd432a16707a81cef20843e243174</md5>
-              <sha1>69a951f31e6bb7bb9ee36c3107ce120d50229f95</sha1>
-              <sha512>e5d74a63e915dd98b0e3ba12616a056871fb8c6d0a43c89b72539dd2bf3970869a92ac3d5634c4af6bddf74efdae0b2f4f3ca8a33ca86cf62cbda115461c4cda</sha512>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>

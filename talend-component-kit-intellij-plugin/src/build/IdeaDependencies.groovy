@@ -26,22 +26,48 @@ log.info 'Preparing project dependencies from idea distribution'
 log.info 'Don\'t forget to activate the "ide" profile to be able to develop it'
 
 def dependencies = [
-    'lib/openapi',
-    'lib/idea',
-    'lib/util',
-    'lib/extensions',
-    'lib/gson-2.8.2',
-    'lib/jdom',
-    'lib/jsr305',
-    'lib/swingx-core-1.6.2',
-    'lib/slf4j-api-1.7.10',
-    'plugins/properties/lib/properties',
-    'plugins/maven/lib/maven',
-    'plugins/gradle/lib/gradle'
+        'lib/openapi',
+        'lib/idea',
+        'lib/util',
+        'lib/extensions',
+        'lib/gson-2.8.2',
+        'lib/jdom',
+        'lib/jsr305',
+        'lib/swingx-core-1.6.2',
+        'lib/slf4j-api-1.7.10',
+        'plugins/properties/lib/properties',
+        'plugins/maven/lib/maven',
+        'plugins/gradle/lib/gradle'
 ]
 
 def ideaBase = project.properties['idea.unpacked.folder']
 def localRepository = new File(project.basedir, '.cache/m2/localrepository')
+
+
+def extractedZip = new File(ideaBase)
+if (!extractedZip.exists()) {
+    // ensure idea is downloaded - we dont use download plugin since it computes md5+sha1+sha512 each time and it is slowwwww
+    def ideaRemoteZip = new URL(project.properties['idea.source'])
+    def ideaLocalZip = new File(project.basedir, '.cache/download/idea.zip')
+    def ideaLocalVersion = new File(project.basedir, '.cache/download/idea.version')
+
+    ideaLocalZip.parentFile.mkdirs()
+
+    if (!ideaLocalVersion.exists() || ideaLocalVersion.text.trim() != project.properties['idea.version']) {
+        ideaLocalZip.parentFile.mkdirs()
+        def os = ideaLocalZip.newOutputStream()
+        try {
+            os << new BufferedInputStream(ideaRemoteZip.openStream())
+        } finally {
+            os.close()
+        }
+
+        ideaLocalVersion.text = project.properties['idea.version']
+
+        // extract now
+        new AntBuilder().unzip(src: ideaLocalZip.absolutePath, dest: ideaBase, overwrite: 'true')
+    }
+}
 
 def addDependency = { base, localRepo, name ->
     def artifactId = name.replace('/', '_')
