@@ -50,6 +50,7 @@ import org.talend.sdk.component.server.dao.ConfigurationDao;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.service.ActionsService;
 import org.talend.sdk.component.server.service.LocaleMapper;
@@ -158,9 +159,16 @@ public class ConfigurationTypeResource {
             node.setDisplayName(resourcesBundle
                     .configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
                     .orElse(c.getKey().getConfigName()));
-            node.setProperties(
-                    propertiesService.buildProperties(singleton(c.getMeta()), loader, locale, null).collect(toList()));
             node.setActions(actionsService.findActions(family, container, locale, c));
+
+            // force configuration as root prefix
+            final int prefixLen = c.getMeta().getPath().length();
+            node.setProperties(propertiesService
+                    .buildProperties(singleton(c.getMeta()), loader, locale, null)
+                    .map(p -> new SimplePropertyDefinition("configuration" + p.getPath().substring(prefixLen),
+                            p.getName(), p.getDisplayName(), p.getType(), p.getDefaultValue(), p.getValidation(),
+                            p.getMetadata(), p.getPlaceholder()))
+                    .collect(toList()));
 
             if (c.getChildConfigs() == null) {
                 return Stream.of(node);

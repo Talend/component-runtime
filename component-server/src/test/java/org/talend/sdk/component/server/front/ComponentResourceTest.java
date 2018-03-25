@@ -275,7 +275,7 @@ class ComponentResourceTest {
     }
 
     private void assertIndex(final ComponentIndices index) {
-        assertEquals(6, index.getComponents().size());
+        assertEquals(7, index.getComponents().size());
 
         final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
         list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));
