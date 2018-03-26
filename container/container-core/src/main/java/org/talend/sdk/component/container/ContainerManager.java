@@ -62,6 +62,7 @@ public class ContainerManager implements Lifecycle {
 
     private final Resolver resolver;
 
+    @Getter
     private final File rootRepositoryLocation;
 
     private final Consumer<Container> containerInitializer;

@@ -126,8 +126,8 @@ public class ComponentManagerService {
                 .map(Artifact::toPath)
                 .orElseThrow(() -> new IllegalArgumentException("Plugin GAV can't be empty"));
 
-        return instance.addWithLocationPlugin(pluginGAV,
-                new File(configuration.mavenRepository(), pluginPath).getAbsolutePath());
+        final File m2 = instance.getContainer().getRootRepositoryLocation();
+        return instance.addWithLocationPlugin(pluginGAV, new File(m2, pluginPath).getAbsolutePath());
     }
 
     public void undeploy(final String pluginGAV) {
