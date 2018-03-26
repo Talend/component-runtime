@@ -45,6 +45,24 @@ class ConfigurationTypeResourceTest {
     }
 
     @Test
+    void webSocketDetail() {
+        final ConfigTypeNodes index = ws.read(ConfigTypeNodes.class, "get",
+                "/configurationtype/details?identifiers=amRiYyNkYXRhc3RvcmUjamRiYw", "");
+        assertEquals(1, index.getNodes().size());
+        final ConfigTypeNode jdbcConnection = index.getNodes().get("amRiYyNkYXRhc3RvcmUjamRiYw");
+        assertNotNull(jdbcConnection);
+        assertEquals("[{\"description\":\"D1\",\"driver\":\"d1\"},{\"description\":\"D2\",\"driver\":\"d2\"}]",
+                jdbcConnection
+                        .getProperties()
+                        .stream()
+                        .filter(p -> "configuration.configurations".equals(p.getPath()))
+                        .findFirst()
+                        .get()
+                        .getDefaultValue());
+
+    }
+
+    @Test
     void migrate() {
         final Map<String, String> config =
                 ws.read(Map.class, "post", "/configurationtype/migrate/amRiYyNkYXRhc2V0I2pkYmM/1", "{}");
@@ -80,14 +98,6 @@ class ConfigurationTypeResourceTest {
         assertEquals("jdbc", jdbcConnection.getName());
         assertEquals("JDBC DataStore", jdbcConnection.getDisplayName());
         assertEquals("datastore", jdbcConnection.getConfigurationType());
-        assertEquals("[{\"description\":\"D1\",\"driver\":\"d1\"},{\"description\":\"D2\",\"driver\":\"d2\"}]",
-                jdbcConnection
-                        .getProperties()
-                        .stream()
-                        .filter(p -> "configuration.configurations".equals(p.getPath()))
-                        .findFirst()
-                        .get()
-                        .getDefaultValue());
 
         final ConfigTypeNode jdbcDataSet = index.getNodes().get("amRiYyNkYXRhc2V0I2pkYmM");
         assertNotNull(jdbcDataSet);

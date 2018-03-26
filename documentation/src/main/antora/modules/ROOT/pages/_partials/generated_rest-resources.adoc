@@ -420,13 +420,41 @@ Allows to migrate a component configuration without calling any component execut
 ==== `200 OK`
 *Response Body*: (`java.util.Map<java.lang.String, java.lang.String>`)
 
+== `GET api/v1/configurationtype/details`
+
+Returns the set of metadata about a few configurations identified by their 'id'.
+
+=== Request
+_No body_ + 
+*Query Param*: `identifiers`, `java.lang.String` + 
+*Query Param*: `language`, `java.lang.String` + 
+
+=== Response
+*Content-Type*: `application/json`
+
+==== `200 OK`
+*Response Body*: (`org.talend.sdk.component.server.front.model.ConfigTypeNodes`)
+
+[source,javascript]
+----
+{
+    "nodes": {
+    }
+}
+----
+
+
+
 == `GET api/v1/configurationtype/index`
 
 Returns all available configuration type - storable models.
+Note that the lightPayload flag allows to load all of them at once when you eagerly need
+to create a client model for all configurations.
 
 === Request
 _No body_ + 
 *Query Param*: `language`, `java.lang.String` + 
+*Query Param*: `lightPayload`, `boolean` + 
 
 === Response
 *Content-Type*: `application/json`

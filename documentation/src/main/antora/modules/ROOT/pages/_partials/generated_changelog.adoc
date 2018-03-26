@@ -10,6 +10,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-741[TCOMP-741^]: UISpecService configuration support
 - link:https://jira.talendforge.org/browse/TCOMP-742[TCOMP-742^]: Configuration Type properties should be rooted
 - link:https://jira.talendforge.org/browse/TCOMP-744[TCOMP-744^]: Ensure wrapped BeamIO uses the right TCCL
+- link:https://jira.talendforge.org/browse/TCOMP-745[TCOMP-745^]: [Dependency Upgrade] CXF 3.2.4
+- link:https://jira.talendforge.org/browse/TCOMP-746[TCOMP-746^]: [Dependency Upgrade] Tomcat 9.0.6
+- link:https://jira.talendforge.org/browse/TCOMP-747[TCOMP-747^]: [Dependency Upgrade] Log4j2 2.11.0
 
 
 == Version 0.0.4

@@ -23,9 +23,11 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -82,43 +84,42 @@ public class ConfigurationTypeResource {
 
     /**
      * Returns all available configuration type - storable models.
+     * Note that the lightPayload flag allows to load all of them at once when you eagerly need
+     * to create a client model for all configurations.
      *
      * @param language the language for display names.
+     * @param lightPaylaod should the payload skip the forms and actions associated to the configuration.
      * @return the list of available and storable configurations (datastore, dataset, ...).
      */
     @GET
     @Path("index")
-    public ConfigTypeNodes getRepositoryModel(@QueryParam("language") @DefaultValue("en") final String language) {
-        final Locale locale = localeMapper.mapLocale(language);
-        return manager
-                .find(Stream::of)
-                .filter(c -> c.get(RepositoryModel.class) != null)
-                .map(c -> c
-                        .get(RepositoryModel.class)
-                        .getFamilies()
-                        .stream()
-                        .filter(f -> !f.getConfigs().isEmpty())
-                        .flatMap(family -> {
-                            final ConfigTypeNode node = new ConfigTypeNode();
-                            node.setId(family.getId());
-                            node.setName(family.getMeta().getName());
+    public ConfigTypeNodes getRepositoryModel(@QueryParam("language") @DefaultValue("en") final String language,
+            @QueryParam("lightPayload") @DefaultValue("true") final boolean lightPaylaod) {
+        return toNodes(language, s -> true, lightPaylaod);
+    }
 
-                            final FamilyBundle resourcesBundle = family.getMeta().findBundle(c.getLoader(), locale);
-                            node.setDisplayName(resourcesBundle.displayName().orElse(family.getMeta().getName()));
-                            if (family.getConfigs() == null) {
-                                return Stream.of(node);
-                            }
-                            node.setEdges(family.getConfigs().stream().map(Config::getId).collect(toSet()));
-                            return Stream.concat(Stream.of(node), createNode(family.getId(), family.getMeta().getName(),
-                                    family.getConfigs().stream(), resourcesBundle, c, locale));
-                        }))
-                .collect(() -> {
-                    final ConfigTypeNodes nodes = new ConfigTypeNodes();
-                    nodes.setNodes(new HashMap<>());
-                    return nodes;
-                }, (root,
-                        children) -> root.getNodes().putAll(children.collect(toMap(ConfigTypeNode::getId, identity()))),
-                        (first, second) -> first.getNodes().putAll(second.getNodes()));
+    /**
+     * Returns the set of metadata about a few configurations identified by their 'id'.
+     *
+     * @param language the language for display names/placeholders/....
+     * @param ids the configuration identifiers to request.
+     * @return the list of details for the requested configurations.
+     */
+    @GET
+    @Path("details")
+    public ConfigTypeNodes getDetail(@QueryParam("language") @DefaultValue("en") final String language,
+            @QueryParam("identifiers") final String[] ids) {
+        final Predicate<String> filter = ids == null ? s -> false : new Predicate<String>() {
+
+            private final Collection<String> values = Stream.of(ids).collect(toSet());
+
+            @Override
+            public boolean test(final String s) {
+                return values.contains(s);
+            }
+        };
+
+        return toNodes(language, filter, false);
     }
 
     /**
@@ -144,39 +145,85 @@ public class ConfigurationTypeResource {
     }
 
     private Stream<ConfigTypeNode> createNode(final String parentId, final String family, final Stream<Config> configs,
-            final FamilyBundle resourcesBundle, final Container container, final Locale locale) {
+            final FamilyBundle resourcesBundle, final Container container, final Locale locale,
+            final Predicate<String> idFilter, final boolean lightPayload) {
         final ClassLoader loader = container.getLoader();
         if (configs == null) {
             return Stream.empty();
         }
         return configs.flatMap(c -> {
-            final ConfigTypeNode node = new ConfigTypeNode();
-            node.setId(c.getId());
-            node.setVersion(c.getVersion());
-            node.setConfigurationType(c.getKey().getConfigType());
-            node.setName(c.getKey().getConfigName());
-            node.setParentId(parentId);
-            node.setDisplayName(resourcesBundle
-                    .configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
-                    .orElse(c.getKey().getConfigName()));
-            node.setActions(actionsService.findActions(family, container, locale, c));
+            final Stream<ConfigTypeNode> configNode;
+            if (idFilter.test(c.getId())) {
+                final ConfigTypeNode node = new ConfigTypeNode();
+                node.setId(c.getId());
+                node.setVersion(c.getVersion());
+                node.setConfigurationType(c.getKey().getConfigType());
+                node.setName(c.getKey().getConfigName());
+                node.setParentId(parentId);
+                node.setDisplayName(resourcesBundle
+                        .configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
+                        .orElse(c.getKey().getConfigName()));
+                if (!lightPayload) {
+                    node.setActions(actionsService.findActions(family, container, locale, c));
 
-            // force configuration as root prefix
-            final int prefixLen = c.getMeta().getPath().length();
-            node.setProperties(propertiesService
-                    .buildProperties(singleton(c.getMeta()), loader, locale, null)
-                    .map(p -> new SimplePropertyDefinition("configuration" + p.getPath().substring(prefixLen),
-                            p.getName(), p.getDisplayName(), p.getType(), p.getDefaultValue(), p.getValidation(),
-                            p.getMetadata(), p.getPlaceholder()))
-                    .collect(toList()));
+                    // force configuration as root prefix
+                    final int prefixLen = c.getMeta().getPath().length();
+                    node.setProperties(propertiesService
+                            .buildProperties(singleton(c.getMeta()), loader, locale, null)
+                            .map(p -> new SimplePropertyDefinition("configuration" + p.getPath().substring(
 
-            if (c.getChildConfigs() == null) {
-                return Stream.of(node);
+                                    prefixLen), p.getName(), p.getDisplayName(), p.getType(), p.getDefaultValue(),
+                                    p.getValidation(), p.getMetadata(), p.getPlaceholder()))
+                            .collect(toList()));
+                }
+
+                node.setEdges(c.getChildConfigs().stream().map(Config::getId).collect(toSet()));
+
+                configNode = Stream.of(node);
+            } else {
+                configNode = Stream.empty();
             }
 
-            node.setEdges(c.getChildConfigs().stream().map(Config::getId).collect(toSet()));
-            return Stream.concat(Stream.of(node),
-                    createNode(c.getId(), family, c.getChildConfigs().stream(), resourcesBundle, container, locale));
+            return Stream.concat(configNode, createNode(c.getId(), family, c.getChildConfigs().stream(),
+                    resourcesBundle, container, locale, idFilter, lightPayload));
         });
+    }
+
+    private ConfigTypeNodes toNodes(final String language, final Predicate<String> filter, final boolean lightPayload) {
+        final Locale locale = localeMapper.mapLocale(language);
+        return manager
+                .find(Stream::of)
+                .filter(c -> c.get(RepositoryModel.class) != null)
+                .map(c -> c
+                        .get(RepositoryModel.class)
+                        .getFamilies()
+                        .stream()
+                        .filter(f -> !f.getConfigs().isEmpty())
+                        .flatMap(family -> {
+                            final FamilyBundle resourcesBundle = family.getMeta().findBundle(c.getLoader(), locale);
+
+                            final Stream<ConfigTypeNode> familyNode;
+                            if (filter.test(family.getId())) {
+                                final ConfigTypeNode node = new ConfigTypeNode();
+                                node.setId(family.getId());
+                                node.setName(family.getMeta().getName());
+
+                                node.setDisplayName(resourcesBundle.displayName().orElse(family.getMeta().getName()));
+
+                                node.setEdges(family.getConfigs().stream().map(Config::getId).collect(toSet()));
+                                familyNode = Stream.of(node);
+                            } else {
+                                familyNode = Stream.empty();
+                            }
+                            return Stream.concat(familyNode, createNode(family.getId(), family.getMeta().getName(),
+                                    family.getConfigs().stream(), resourcesBundle, c, locale, filter, lightPayload));
+                        }))
+                .collect(() -> {
+                    final ConfigTypeNodes nodes = new ConfigTypeNodes();
+                    nodes.setNodes(new HashMap<>());
+                    return nodes;
+                }, (root,
+                        children) -> root.getNodes().putAll(children.collect(toMap(ConfigTypeNode::getId, identity()))),
+                        (first, second) -> first.getNodes().putAll(second.getNodes()));
     }
 }
