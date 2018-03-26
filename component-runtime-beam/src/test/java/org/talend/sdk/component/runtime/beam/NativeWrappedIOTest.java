@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam;
 
+import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
@@ -48,7 +49,7 @@ public class NativeWrappedIOTest {
     public transient final TestPipeline pipeline = TestPipeline.create();
 
     @Test
-    public void run() {
+    public void dofn() {
         final JdbcSource.Config config = new JdbcSource.Config();
         config.setDriver("org.hsqldb.jdbcDriver");
         config.setUrl("jdbc:hsqldb:mem:foo");
@@ -65,6 +66,21 @@ public class NativeWrappedIOTest {
                 (SerializableFunction<Iterable<JsonObject>, Void>) input -> {
                     final JsonObject next = input.iterator().next();
                     assertEquals("PUBLIC", next.getString("TABLE_CATALOG"));
+                    return null;
+                });
+        pipeline.run().waitUntilFinish();
+    }
+
+    @Test
+    public void source() {
+        final String plugin = COMPONENTS.getTestPlugins().iterator().next();
+        final PTransform<PBegin, PCollection<JsonObject>> jdbc = PTransform.class.cast(COMPONENTS
+                .asManager()
+                .createComponent("beamtest", "source", ComponentManager.ComponentType.MAPPER, 1, emptyMap())
+                .orElseThrow(() -> new IllegalArgumentException("no beamtest#source component")));
+        PAssert.that(pipeline.apply(jdbc).setCoder(JsonpJsonObjectCoder.of(plugin))).satisfies(
+                (SerializableFunction<Iterable<JsonObject>, Void>) input -> {
+                    assertEquals("test", input.iterator().next().getString("id"));
                     return null;
                 });
         pipeline.run().waitUntilFinish();

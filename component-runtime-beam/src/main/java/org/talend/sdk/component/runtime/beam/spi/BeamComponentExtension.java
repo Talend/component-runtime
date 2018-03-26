@@ -34,7 +34,7 @@ import org.talend.sdk.component.runtime.beam.factory.service.AutoValueFluentApiF
 import org.talend.sdk.component.runtime.beam.factory.service.PluginCoderFactory;
 import org.talend.sdk.component.runtime.beam.impl.BeamMapperImpl;
 import org.talend.sdk.component.runtime.beam.impl.BeamProcessorChainImpl;
-import org.talend.sdk.component.runtime.beam.transformer.SerializationTransformer;
+import org.talend.sdk.component.runtime.beam.transformer.BeamIOTransformer;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -63,7 +63,7 @@ public class BeamComponentExtension implements ComponentExtension {
         if (Boolean.getBoolean("talend.component.beam.transformers.skip")) {
             return emptySet();
         }
-        return singleton(new SerializationTransformer());
+        return singleton(new BeamIOTransformer());
     }
 
     @Override

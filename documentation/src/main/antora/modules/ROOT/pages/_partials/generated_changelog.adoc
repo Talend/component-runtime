@@ -11,6 +11,24 @@
 - link:https://jira.talendforge.org/browse/TCOMP-742[TCOMP-742^]: Configuration Type properties should be rooted
 
 
+== Version 0.0.4
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-734[TCOMP-734^]: Add support for context and globalMap values in Tacokit component settings
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-733[TCOMP-733^]: support to use a beam pipeline under the hood for beam components in di
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-693[TCOMP-693^]: Integrate Migration API
+- link:https://jira.talendforge.org/browse/TCOMP-737[TCOMP-737^]: upgrade to beam 2.4.0
+
+
 == Version 0.0.3
 
 === Bug

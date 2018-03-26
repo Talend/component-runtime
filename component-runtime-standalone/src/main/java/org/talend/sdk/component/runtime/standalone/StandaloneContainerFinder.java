@@ -15,8 +15,9 @@
  */
 package org.talend.sdk.component.runtime.standalone;
 
-import static java.util.Optional.ofNullable;
+import java.util.Optional;
 
+import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 import org.talend.sdk.component.runtime.serialization.TCCLContainerFinder;
@@ -33,10 +34,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StandaloneContainerFinder extends TCCLContainerFinder {
 
+    // IMPORTANT: don't abuse of lambdas here, it is on the runtime codepath
     @Override
     public LightContainer find(final String plugin) {
         final ComponentManager manager = ComponentManager.instance();
-        return ofNullable(manager.findPlugin(plugin).orElseGet(() -> {
+        Optional<Container> optionalContainer = manager.findPlugin(plugin);
+        if (!optionalContainer.isPresent()) {
             log.info("Didn't find plugin " + plugin + ", had: " + manager.availablePlugins());
 
             // we assume we use a fatjar created with nested-maven-repository extensions
@@ -44,10 +47,17 @@ public class StandaloneContainerFinder extends TCCLContainerFinder {
             // so we have the plugin in TALEND-INF/plugins.properties and the jar located as
             // nested in current jar.
             try {
-                return manager.findPlugin(manager.addPlugin(plugin)).orElse(null);
+                optionalContainer = manager.findPlugin(manager.addPlugin(plugin));
             } catch (final IllegalArgumentException iae) { // concurrent request?
-                return manager.findPlugin(plugin).orElse(null);
+                optionalContainer = manager.findPlugin(plugin);
             }
-        })).map(container -> container.get(LightContainer.class)).orElseGet(() -> super.find(plugin));
+        }
+        if (optionalContainer.isPresent()) {
+            final LightContainer lightContainer = optionalContainer.get().get(LightContainer.class);
+            if (lightContainer != null) {
+                return lightContainer;
+            }
+        }
+        return super.find(plugin); // TCCL
     }
 }

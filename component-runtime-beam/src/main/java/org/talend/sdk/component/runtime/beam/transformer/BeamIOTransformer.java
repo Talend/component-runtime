@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.transformer;
 
+import static java.lang.Integer.MIN_VALUE;
 import static java.util.Arrays.asList;
 import static org.apache.xbean.asm6.Opcodes.ALOAD;
 import static org.apache.xbean.asm6.Opcodes.ARETURN;
@@ -40,8 +41,10 @@ import java.util.Collection;
 import org.apache.xbean.asm6.ClassReader;
 import org.apache.xbean.asm6.ClassVisitor;
 import org.apache.xbean.asm6.ClassWriter;
+import org.apache.xbean.asm6.Label;
 import org.apache.xbean.asm6.MethodVisitor;
 import org.apache.xbean.asm6.Type;
+import org.apache.xbean.asm6.commons.AdviceAdapter;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
@@ -50,7 +53,7 @@ import org.talend.sdk.component.runtime.serialization.LightContainer;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class SerializationTransformer implements ClassFileTransformer {
+public class BeamIOTransformer implements ClassFileTransformer {
 
     @Override
     public byte[] transform(final ClassLoader loader, final String className, final Class<?> classBeingRedefined,
@@ -93,8 +96,8 @@ public class SerializationTransformer implements ClassFileTransformer {
                 return false;
             }
 
-            return doesHierarchyContain(clazz,
-                    asList("org.apache.beam.sdk.transforms.DoFn", "org.apache.beam.sdk.io.Source"));
+            return doesHierarchyContain(clazz, asList("org.apache.beam.sdk.transforms.DoFn",
+                    "org.apache.beam.sdk.io.Source", "org.apache.beam.sdk.io.Source$Reader"));
         } catch (final NoClassDefFoundError | ClassNotFoundException e) {
             return false;
         }
@@ -188,6 +191,100 @@ public class SerializationTransformer implements ClassFileTransformer {
         }
     }
 
+    public static ClassLoader setPluginTccl(final String key) {
+        final Thread thread = Thread.currentThread();
+        final ClassLoader old = thread.getContextClassLoader();
+        thread.setContextClassLoader(ContainerFinder.Instance.get().find(key).classloader());
+        return old;
+    }
+
+    public static void resetTccl(final ClassLoader loader) {
+        Thread.currentThread().setContextClassLoader(loader);
+    }
+
+    private static class TCCLAdviceAdapter extends AdviceAdapter {
+
+        private static final Type THROWABLE_TYPE = Type.getType(Throwable.class);
+
+        private static final Type TCCL_HELPER = Type.getType(BeamIOTransformer.class);
+
+        private static final Type STRING_TYPE = Type.getType(String.class);
+
+        private static final Type CLASSLOADER_TYPE = Type.getType(ClassLoader.class);
+
+        private static final Type[] SET_TCCL_ARGS = new Type[] { STRING_TYPE };
+
+        private static final Type[] RESET_TCCL_ARGS = new Type[] { CLASSLOADER_TYPE };
+
+        private static final org.apache.xbean.asm6.commons.Method SET_METHOD =
+                new org.apache.xbean.asm6.commons.Method("setPluginTccl", CLASSLOADER_TYPE, SET_TCCL_ARGS);
+
+        private static final org.apache.xbean.asm6.commons.Method RESET_METHOD =
+                new org.apache.xbean.asm6.commons.Method("resetTccl", Type.VOID_TYPE, RESET_TCCL_ARGS);
+
+        private final String plugin;
+
+        private final String desc;
+
+        private int ctxLocal;
+
+        private final Label tryStart = new Label();
+
+        private final Label endLabel = new Label();
+
+        private TCCLAdviceAdapter(final MethodVisitor mv, final int access, final String name, final String desc,
+                final String plugin) {
+            super(ASM6, mv, access, name, desc);
+            this.plugin = plugin;
+            this.desc = desc;
+        }
+
+        @Override
+        public void onMethodEnter() {
+            push(plugin);
+            ctxLocal = newLocal(CLASSLOADER_TYPE);
+            invokeStatic(TCCL_HELPER, SET_METHOD);
+            storeLocal(ctxLocal);
+            visitLabel(tryStart);
+        }
+
+        @Override
+        public void onMethodExit(final int opCode) {
+            if (opCode == ATHROW) {
+                return;
+            }
+
+            int stateLocal = -1;
+            if (opCode != MIN_VALUE) {
+                final Type returnType = Type.getReturnType(desc);
+                final boolean isVoid = Type.VOID_TYPE.equals(returnType);
+                if (!isVoid) {
+                    stateLocal = newLocal(returnType);
+                    storeLocal(stateLocal);
+                }
+            } else {
+                stateLocal = newLocal(THROWABLE_TYPE);
+                storeLocal(stateLocal);
+            }
+
+            loadLocal(ctxLocal);
+            invokeStatic(TCCL_HELPER, RESET_METHOD);
+
+            if (stateLocal != -1) {
+                loadLocal(stateLocal);
+            }
+        }
+
+        @Override
+        public void visitMaxs(final int maxStack, final int maxLocals) {
+            visitLabel(endLabel);
+            catchException(tryStart, endLabel, THROWABLE_TYPE);
+            onMethodExit(MIN_VALUE);
+            throwException();
+            super.visitMaxs(0, 0);
+        }
+    }
+
     // todo: we probably want to rewrite some well known method (@ProcessElement) to set the TCCL properly too
     private static class ComponentClassVisitor extends ClassVisitor {
 
@@ -199,6 +296,16 @@ public class SerializationTransformer implements ClassFileTransformer {
             super(ASM6, cv);
             this.plugin = plugin;
             this.writer = cv;
+        }
+
+        @Override
+        public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature,
+                final String[] exceptions) {
+            final MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+            if (Modifier.isPublic(access) && !Modifier.isStatic(access)) {
+                return new TCCLAdviceAdapter(mv, access, name, desc, plugin);
+            }
+            return mv;
         }
 
         @Override
