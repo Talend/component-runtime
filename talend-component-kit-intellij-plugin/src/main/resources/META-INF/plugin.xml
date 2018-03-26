@@ -24,8 +24,12 @@
     for the components.
   </description>
   <change-notes>
-    * Add creation of a new component project support
-    * Add i18n completion
+  <![CDATA[
+    <ul>
+      <li>Add creation of a new component project support</li>
+      <li>Add i18n completion</li>
+    </ul>
+  ]]>
   </change-notes>
 
   <resource-bundle>messages</resource-bundle>

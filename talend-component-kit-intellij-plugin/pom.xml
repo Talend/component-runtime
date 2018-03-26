@@ -212,7 +212,7 @@
       <repositories>
         <repository>
           <id>idea-local</id>
-          <url>file:${project.basedir}/.cache/m2/localrepository</url>
+          <url>file:${project.basedir}${file.separator}.cache${file.separator}m2${file.separator}localrepository</url>
         </repository>
       </repositories>
 
