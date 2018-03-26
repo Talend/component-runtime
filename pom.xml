@@ -141,9 +141,9 @@
     <ziplock.version>7.0.4</ziplock.version>
     <johnzon.version>1.1.7</johnzon.version>
     <meecrowave.version>1.2.1</meecrowave.version>
-    <tomcat.version>9.0.5</tomcat.version>
-    <cxf.version>3.2.2</cxf.version>
-    <log4j2.version>2.10.0</log4j2.version>
+    <tomcat.version>9.0.6</tomcat.version>
+    <cxf.version>3.2.4</cxf.version>
+    <log4j2.version>2.11.0</log4j2.version>
     <batik.version>1.9</batik.version>
     <beam.version>2.4.0</beam.version>
     <commons-codec.version>1.11</commons-codec.version>
@@ -286,19 +286,68 @@
         <version>${tomcat.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-jaxrs</artifactId>
+        <version>${johnzon.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-jsonb</artifactId>
+        <version>${johnzon.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         <version>${cxf.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.ws.xmlschema</groupId>
+            <artifactId>xmlschema-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-integration-cdi</artifactId>
         <version>${cxf.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-rs-client</artifactId>
         <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${log4j2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-jul</artifactId>
+        <version>${log4j2.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -733,6 +782,77 @@
             <bottom>${project.version} - Copyright &amp;copy; 2018 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
             <use>true</use>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.meecrowave</groupId>
+          <artifactId>meecrowave-maven-plugin</artifactId>
+          <version>${meecrowave.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.johnzon</groupId>
+              <artifactId>johnzon-jaxrs</artifactId>
+              <version>${johnzon.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.johnzon</groupId>
+              <artifactId>johnzon-jsonb</artifactId>
+              <version>${johnzon.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.cxf</groupId>
+              <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+              <version>${cxf.version}</version>
+              <exclusions>
+                <exclusion>
+                  <groupId>javax.ws.rs</groupId>
+                  <artifactId>javax.ws.rs-api</artifactId>
+                </exclusion>
+                <exclusion>
+                  <groupId>javax.annotation</groupId>
+                  <artifactId>javax.annotation-api</artifactId>
+                </exclusion>
+                <exclusion>
+                  <groupId>com.fasterxml.woodstox</groupId>
+                  <artifactId>woodstox-core</artifactId>
+                </exclusion>
+                <exclusion>
+                  <groupId>org.apache.ws.xmlschema</groupId>
+                  <artifactId>xmlschema-core</artifactId>
+                </exclusion>
+              </exclusions>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.cxf</groupId>
+              <artifactId>cxf-integration-cdi</artifactId>
+              <version>${cxf.version}</version>
+              <exclusions>
+                <exclusion>
+                  <groupId>javax.enterprise</groupId>
+                  <artifactId>cdi-api</artifactId>
+                </exclusion>
+              </exclusions>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.cxf</groupId>
+              <artifactId>cxf-rt-rs-client</artifactId>
+              <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.logging.log4j</groupId>
+              <artifactId>log4j-api</artifactId>
+              <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.logging.log4j</groupId>
+              <artifactId>log4j-core</artifactId>
+              <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.logging.log4j</groupId>
+              <artifactId>log4j-jul</artifactId>
+              <version>${log4j2.version}</version>
+            </dependency>
+          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>

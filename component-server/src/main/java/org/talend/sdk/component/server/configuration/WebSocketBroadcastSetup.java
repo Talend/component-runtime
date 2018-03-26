@@ -855,8 +855,6 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         private final Session session;
 
-        private String responseString = "OK";
-
         private int code = HttpServletResponse.SC_OK;
 
         private final Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -1504,6 +1502,11 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
         @Override
         public boolean isResumed() {
             return resumed;
+        }
+
+        @Override
+        public boolean isTimeout() {
+            return false;
         }
 
         @Override
