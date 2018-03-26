@@ -5,6 +5,10 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-738[TCOMP-738^]: Component Server should respect ~/.m2/settings.xml local repository if it exists
+- link:https://jira.talendforge.org/browse/TCOMP-739[TCOMP-739^]: SerializationTransformer shouldn't use ComponentManager to avoid ClassNotFoundException
+- link:https://jira.talendforge.org/browse/TCOMP-740[TCOMP-740^]: UISpecService should be reactive and use a CompletionStage based API
+- link:https://jira.talendforge.org/browse/TCOMP-741[TCOMP-741^]: UISpecService configuration support
+- link:https://jira.talendforge.org/browse/TCOMP-742[TCOMP-742^]: Configuration Type properties should be rooted
 
 
 == Version 0.0.3
