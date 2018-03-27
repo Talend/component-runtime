@@ -20,6 +20,13 @@ import static com.intellij.openapi.ui.Messages.showErrorDialog;
 import static javax.swing.SwingUtilities.invokeLater;
 import static org.talend.sdk.component.intellij.Configuration.getMessage;
 
+import java.awt.BorderLayout;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
@@ -27,13 +34,6 @@ import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-
-import java.awt.BorderLayout;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;

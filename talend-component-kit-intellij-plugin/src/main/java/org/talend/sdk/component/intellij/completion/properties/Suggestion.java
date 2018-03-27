@@ -24,20 +24,18 @@ import com.intellij.icons.AllIcons;
 
 import org.talend.sdk.component.intellij.Icons;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
-@AllArgsConstructor
+@Data
 public class Suggestion {
 
     public static final String DISPLAY_NAME = "_displayName";
 
     public static final String PLACEHOLDER = "_placeholder";
 
-    private String key;
+    private final String key;
 
-    private Type type;
+    private final Type type;
 
     public enum Type {
         Family,

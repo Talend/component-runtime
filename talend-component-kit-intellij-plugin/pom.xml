@@ -34,9 +34,9 @@
     <talend.build.name>${talend.build.name.base}.intellij</talend.build.name>
 
     <idea.unpacked.folder>${project.basedir}/.cache/idea/</idea.unpacked.folder>
-    <idea.version>2017.3.5</idea.version>
+    <idea.build.version>2017.3.5</idea.build.version>
     <idea.source>
-      https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/${idea.version}/ideaIC-${idea.version}.zip
+      https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/${idea.build.version}/ideaIC-${idea.build.version}.zip
     </idea.source>
 
     <!-- for publish script -->
@@ -220,73 +220,73 @@
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>lib_openapi</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>lib_idea</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>lib_util</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>lib_gson-2.8.2</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>lib_jsr305</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>lib_jdom</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>lib_swingx-core-1.6.2</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>lib_slf4j-api-1.7.10</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>lib_extensions</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>plugins_properties_lib_properties</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>plugins_maven_lib_maven</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.intellij.idea</groupId>
           <artifactId>plugins_gradle_lib_gradle</artifactId>
-          <version>${idea.version}</version>
+          <version>${idea.build.version}</version>
           <scope>provided</scope>
         </dependency>
       </dependencies>
