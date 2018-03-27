@@ -78,6 +78,7 @@ public class PropertiesCompletionProvider extends CompletionProvider<CompletionP
                 .replace("/", ".")
                 .replace("\\", ".")
                 .replace("src.main.resources.", "")
+                .replace("src.test.resources.", "")
                 .replace("." + completionParameters.getOriginalFile().getName(), "");
     }
 }
