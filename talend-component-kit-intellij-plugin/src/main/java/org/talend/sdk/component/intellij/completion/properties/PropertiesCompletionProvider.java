@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.intellij.completion.properties;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.intellij.util.PsiUtil.findModule;
 import static org.talend.sdk.component.intellij.util.PsiUtil.truncateIdeaDummyIdentifier;
@@ -27,11 +28,13 @@ import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.lang.properties.IProperty;
 import com.intellij.lang.properties.psi.impl.PropertiesFileImpl;
+import com.intellij.lang.properties.psi.impl.PropertyKeyImpl;
+import com.intellij.lang.properties.psi.impl.PropertyValueImpl;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.util.ProcessingContext;
 
 import org.talend.sdk.component.intellij.service.SuggestionService;
@@ -42,30 +45,35 @@ public class PropertiesCompletionProvider extends CompletionProvider<CompletionP
     protected void addCompletions(final CompletionParameters completionParameters,
             final ProcessingContext processingContext, final CompletionResultSet resultSet) {
 
-        PsiElement element = completionParameters.getPosition();
-        if (element instanceof PsiComment) {
+        final PsiElement element = completionParameters.getPosition();
+        if (!LeafPsiElement.class.isInstance(element)) {
             return; // ignore comment
         }
 
-        Project project = element.getProject();
-        Module module = findModule(element);
-        SuggestionService service = ServiceManager.getService(project, SuggestionService.class);
+        final Project project = element.getProject();
+        final Module module = findModule(element);
+        final SuggestionService service = ServiceManager.getService(project, SuggestionService.class);
         if ((module == null || !service.isSupported(completionParameters))) { // limit suggestion to Messages
             return;
         }
 
-        final List<String> containerElements = PropertiesFileImpl.class
-                .cast(element.getContainingFile())
-                .getProperties()
-                .stream()
-                .filter(p -> !Objects.equals(p.getKey(), element.getText()))
-                .map(IProperty::getKey)
-                .collect(toList());
-
-        service
-                .computeSuggestions(project, module, getPropertiesPackage(module, completionParameters),
-                        containerElements, truncateIdeaDummyIdentifier(element))
-                .forEach(resultSet::addElement);
+        if (PropertyValueImpl.class.isInstance(element)) {
+            ofNullable(PropertyValueImpl.class.cast(element).getPrevSibling())
+                    .map(PsiElement::getPrevSibling)
+                    .map(PsiElement::getText)
+                    .ifPresent(text -> resultSet.addAllElements(service.computeValueSuggestions(text)));
+        } else if (PropertyKeyImpl.class.isInstance(element)) {
+            final List<String> containerElements = PropertiesFileImpl.class
+                    .cast(element.getContainingFile())
+                    .getProperties()
+                    .stream()
+                    .filter(p -> !Objects.equals(p.getKey(), element.getText()))
+                    .map(IProperty::getKey)
+                    .collect(toList());
+            resultSet.addAllElements(
+                    service.computeKeySuggestions(project, module, getPropertiesPackage(module, completionParameters),
+                            containerElements, truncateIdeaDummyIdentifier(element)));
+        }
     }
 
     private String getPropertiesPackage(final Module module, final CompletionParameters completionParameters) {

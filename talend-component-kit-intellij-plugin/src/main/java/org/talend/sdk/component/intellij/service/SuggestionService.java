@@ -26,7 +26,9 @@ public interface SuggestionService {
 
     boolean isSupported(CompletionParameters completionParameters);
 
-    List<LookupElement> computeSuggestions(Project project, Module module, String packageName,
+    List<LookupElement> computeValueSuggestions(final String text);
+
+    List<LookupElement> computeKeySuggestions(Project project, Module module, String packageName,
             List<String> containerElements, String query);
 
 }

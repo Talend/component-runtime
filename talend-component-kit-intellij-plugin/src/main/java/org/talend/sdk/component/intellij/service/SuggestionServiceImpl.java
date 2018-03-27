@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.intellij.service;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -68,8 +70,23 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     @Override
-    public List<LookupElement> computeSuggestions(final Project project, final Module module, final String packageName,
-            final List<String> containerElements, final String query) {
+    public List<LookupElement> computeValueSuggestions(final String text) {
+        final String[] segments = text.split("\\.");
+        switch (segments.length) {
+        case 2:
+            return singletonList(new Suggestion(toHumanString(segments[0]), null)
+                    .newLookupElement(withPriority(Suggestion.Type.Family)));
+        case 3:
+            return singletonList(new Suggestion(toHumanString(segments[1]), null)
+                    .newLookupElement(withPriority(Suggestion.Type.Configuration)));
+        default:
+            return emptyList();
+        }
+    }
+
+    @Override
+    public List<LookupElement> computeKeySuggestions(final Project project, final Module module,
+            final String packageName, final List<String> containerElements, final String query) {
         final JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(project);
         final PsiPackage pkg = javaPsiFacade.findPackage(packageName);
         if (pkg == null) {
@@ -89,8 +106,24 @@ public class SuggestionServiceImpl implements SuggestionService {
                                 .flatMap(c -> fromConfiguration(defaultFamily, c.getName(), c)))
                 .filter(s -> containerElements.isEmpty() || !containerElements.contains(s.getKey()))
                 .filter(s -> query == null || query.isEmpty() || s.getKey().startsWith(query))
-                .map(s -> s.newLookupElement(withPriority(s)))
+                .map(s -> s.newLookupElement(withPriority(s.getType())))
                 .collect(toList());
+    }
+
+    private String toHumanString(final String segment) {
+        final StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < segment.length(); i++) {
+            final char ch = segment.charAt(i);
+            if (i == 0) {
+                builder.append(Character.toUpperCase(ch));
+            } else {
+                if (Character.isUpperCase(ch)) {
+                    builder.append(" ");
+                }
+                builder.append(ch);
+            }
+        }
+        return builder.toString();
     }
 
     private Stream<PsiClass> unwrapInnerClasses(final PsiClass c) {
@@ -101,11 +134,11 @@ public class SuggestionServiceImpl implements SuggestionService {
                         .flatMap(this::unwrapInnerClasses));
     }
 
-    private int withPriority(final Suggestion suggestion) {
-        if (Suggestion.Type.Family.equals(suggestion.getType())) {
+    private int withPriority(final Suggestion.Type type) {
+        if (Suggestion.Type.Family.equals(type)) {
             return 3;
         }
-        if (Suggestion.Type.Component.equals(suggestion.getType())) {
+        if (Suggestion.Type.Component.equals(type)) {
             return 2;
         }
         return 1;

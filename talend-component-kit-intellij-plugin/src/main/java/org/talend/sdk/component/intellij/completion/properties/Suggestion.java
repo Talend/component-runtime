@@ -55,12 +55,10 @@ public class Suggestion {
                         if (Type.Family.equals(suggestion.getType())) {
                             presentation.setIcon(AllIcons.Nodes.ModuleGroup);
                             presentation.appendTailText("  Family", true);
-                        }
-                        if (Type.Component.equals(suggestion.getType())) {
+                        } else if (Type.Component.equals(suggestion.getType())) {
                             presentation.setIcon(Icons.TACOKIT);
                             presentation.appendTailText("  Component", true);
-                        }
-                        if (Type.Configuration.equals(suggestion.getType())) {
+                        } else if (Type.Configuration.equals(suggestion.getType())) {
                             presentation.setIcon(AllIcons.Hierarchy.Class);
                             presentation.appendTailText("  Configuration", true);
                         }

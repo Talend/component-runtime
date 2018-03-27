@@ -42,7 +42,7 @@
   <extensions defaultExtensionNs="com.intellij">
     <moduleType id="TALEND_COMPONENT_MODULE"
                 implementationClass="org.talend.sdk.component.intellij.module.TalendModuleType"/>
-    <completion.contributor language="Properties"
+    <completion.contributor language="Properties" order="before javaClassReference"
                             implementationClass="org.talend.sdk.component.intellij.completion.properties.PropertiesCompletionContributor"/>
     <projectService
         serviceInterface="org.talend.sdk.component.intellij.service.SuggestionService"
