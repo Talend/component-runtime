@@ -20,17 +20,25 @@ import static java.util.stream.Collectors.toMap;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.service.schema.Schema;
 import org.talend.sdk.component.api.service.schema.Type;
+import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -39,6 +47,7 @@ import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
+import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -111,22 +120,52 @@ public class TaCoKitGuessSchema {
         }
     }
 
+    public void fromOutputEmitterPojo(final Processor processor, final String outBranchName) {
+        Object o = processor;
+        while (Delegated.class.isInstance(o)) {
+            o = Delegated.class.cast(o).getDelegate();
+        }
+        final ClassLoader classLoader = o.getClass().getClassLoader();
+        final Thread thread = Thread.currentThread();
+        final ClassLoader old = thread.getContextClassLoader();
+        thread.setContextClassLoader(classLoader);
+        try {
+            final Optional<java.lang.reflect.Type> type = Stream
+                    .of(o.getClass().getMethods())
+                    .filter(m -> m.isAnnotationPresent(ElementListener.class))
+                    .flatMap(m -> IntStream
+                            .range(0, m.getParameterCount())
+                            .filter(i -> m.getParameters()[i].isAnnotationPresent(Output.class)
+                                    && outBranchName.equals(m.getParameters()[i].getAnnotation(Output.class).value()))
+                            .mapToObj(i -> m.getGenericParameterTypes()[i])
+                            .filter(t -> ParameterizedType.class.isInstance(t)
+                                    && ParameterizedType.class.cast(t).getRawType() == OutputEmitter.class
+                                    && ParameterizedType.class.cast(t).getActualTypeArguments().length == 1)
+                            .map(p -> ParameterizedType.class.cast(p).getActualTypeArguments()[0]))
+                    .findFirst();
+            if (type.isPresent() && Class.class.isInstance(type.get())) {
+                final Class<?> clazz = Class.class.cast(type.get());
+                if (clazz != JsonObject.class) {
+                    guessSchemaThroughResultClass(clazz);
+                }
+            }
+        } finally {
+            thread.setContextClassLoader(old);
+        }
+    }
+
     public void guessInputComponentSchema() throws Exception {
         try {
-            try {
-                if (guessSchemaThroughAction()) {
-                    return;
-                }
-            } catch (Exception e) {
-                log.error("Can't guess schema through action.", e);
-            }
-            if (guessInputComponentSchemaThroughResult()) {
+            if (guessSchemaThroughAction()) {
                 return;
             }
-            throw new Exception("There is no available schema found.");
-        } finally {
-            flush();
+        } catch (Exception e) {
+            log.error("Can't guess schema through action.", e);
         }
+        if (guessInputComponentSchemaThroughResult()) {
+            return;
+        }
+        throw new Exception("There is no available schema found.");
     }
 
     private Map<String, String> buildActionConfig(final ServiceMeta.ActionMeta action,
@@ -236,7 +275,7 @@ public class TaCoKitGuessSchema {
             } else if (rowObject instanceof java.util.Collection) {
                 throw new Exception("Can't guess schema from a Collection");
             } else {
-                return guessSchemaThroughResultClass(rowObject);
+                return guessSchemaThroughResultClass(rowObject.getClass());
             }
         } finally {
             if (input != null) {
@@ -256,9 +295,8 @@ public class TaCoKitGuessSchema {
     }
 
     /**
-     * 
      * Guess schema through result row
-     * 
+     *
      * @param rowObject result row
      * @return true if completed; false if one more result row is needed.
      */
@@ -268,12 +306,11 @@ public class TaCoKitGuessSchema {
         } else if (rowObject instanceof java.util.Collection) {
             throw new Exception("Can't guess schema from a Collection");
         } else {
-            return guessSchemaThroughResultClass(rowObject);
+            return guessSchemaThroughResultClass(rowObject.getClass());
         }
     }
 
-    private boolean guessSchemaThroughResultClass(final Object rowObject) {
-        Class<?> rowClass = rowObject.getClass();
+    private boolean guessSchemaThroughResultClass(final Class<?> rowClass) {
         final int originalSize = str.length();
         Field[] fields = rowClass.getDeclaredFields();
         if (fields != null && 0 < fields.length) {
@@ -310,9 +347,8 @@ public class TaCoKitGuessSchema {
     }
 
     /**
-     * 
      * Guess schema through result row
-     * 
+     *
      * @param rowObject result row
      * @return true if completed; false if one more result row is needed.
      */
@@ -360,17 +396,13 @@ public class TaCoKitGuessSchema {
         return keysNoTypeYet.isEmpty();
     }
 
-    public void flush() {
+    public synchronized void close() {
         if (str.length() != 0) {
             String lines = str.toString();
-            out.print(lines);
+            out.println(lines);
             out.flush();
             str = new StringBuilder();
         }
-    }
-
-    public void close() {
-        flush();
     }
 
     private String getTalendType(final JsonValue value) {
