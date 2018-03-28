@@ -15,10 +15,6 @@
  */
 package org.talend.sdk.component.runtime.di.beam;
 
-import org.apache.beam.sdk.transforms.PTransform;
-import org.apache.beam.sdk.values.PBegin;
-import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.PDone;
 import org.talend.sdk.component.runtime.beam.spi.BeamComponentExtension;
 import org.talend.sdk.component.runtime.di.beam.components.QueueMapper;
 import org.talend.sdk.component.runtime.di.beam.components.QueueOutput;
@@ -35,11 +31,15 @@ public class BeamDiExtension extends BeamComponentExtension {
     @Override
     public <T> T convert(final ComponentInstance instance, final Class<T> component) {
         if (Mapper.class == component) {
-            final PTransform<PBegin, PCollection<?>> begin = (PTransform<PBegin, PCollection<?>>) instance.instance();
+            final org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PBegin, org.apache.beam.sdk.values.PCollection<?>> begin =
+                    (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PBegin, org.apache.beam.sdk.values.PCollection<?>>) instance
+                            .instance();
             return component.cast(new QueueMapper(instance.plugin(), instance.family(), instance.name(), begin));
         }
         if (Processor.class == component) {
-            final PTransform<PCollection<?>, PDone> transform = (PTransform<PCollection<?>, PDone>) instance.instance();
+            final org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PCollection<?>, org.apache.beam.sdk.values.PDone> transform =
+                    (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PCollection<?>, org.apache.beam.sdk.values.PDone>) instance
+                            .instance();
             return component.cast(new QueueOutput(instance.plugin(), instance.family(), instance.name(), transform));
         }
         throw new IllegalArgumentException("unsupported " + component + " by " + getClass());

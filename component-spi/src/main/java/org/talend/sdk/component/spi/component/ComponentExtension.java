@@ -31,6 +31,13 @@ import java.util.Map;
 public interface ComponentExtension {
 
     /**
+     * @return true if the extension can be used in current environment.
+     */
+    default boolean isActive() {
+        return true;
+    }
+
+    /**
      * @param context
      * the component context allowing to interact with the container.
      */

@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.beam.spi;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
+import static java.util.Optional.ofNullable;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Proxy;
@@ -24,10 +25,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.beam.sdk.transforms.PTransform;
-import org.apache.beam.sdk.values.PBegin;
-import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.PDone;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.beam.design.BeamFlowFactory;
 import org.talend.sdk.component.runtime.beam.factory.service.AutoValueFluentApiFactory;
@@ -42,6 +39,18 @@ import org.talend.sdk.component.spi.component.ComponentExtension;
 
 // TODO: enrich the validation set to check the from/to generics in the pTransforms
 public class BeamComponentExtension implements ComponentExtension {
+
+    @Override
+    public boolean isActive() {
+        try {
+            ofNullable(Thread.currentThread().getContextClassLoader())
+                    .orElseGet(ClassLoader::getSystemClassLoader)
+                    .loadClass("org.apache.beam.sdk.transforms.PTransform");
+            return true;
+        } catch (final NoClassDefFoundError | ClassNotFoundException e) {
+            return false;
+        }
+    }
 
     @Override
     public <T> T unwrap(final Class<T> type, final Object... args) {
@@ -68,7 +77,7 @@ public class BeamComponentExtension implements ComponentExtension {
 
     @Override
     public void onComponent(final ComponentContext context) {
-        if (PTransform.class.isAssignableFrom(context.getType())) {
+        if (org.apache.beam.sdk.transforms.PTransform.class.isAssignableFrom(context.getType())) {
             context.skipValidation();
         }
     }
@@ -93,12 +102,16 @@ public class BeamComponentExtension implements ComponentExtension {
     public <T> T convert(final ComponentInstance instance, final Class<T> component) {
         try {
             if (Mapper.class == component) {
-                return (T) new BeamMapperImpl((PTransform<PBegin, ?>) instance.instance(), instance.plugin(),
-                        instance.family(), instance.name());
+                return (T) new BeamMapperImpl(
+                        (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PBegin, ?>) instance
+                                .instance(),
+                        instance.plugin(), instance.family(), instance.name());
             }
             if (Processor.class == component) {
-                return (T) new BeamProcessorChainImpl((PTransform<PCollection<?>, PDone>) instance.instance(), null,
-                        instance.plugin(), instance.family(), instance.name());
+                return (T) new BeamProcessorChainImpl(
+                        (org.apache.beam.sdk.transforms.PTransform<org.apache.beam.sdk.values.PCollection<?>, org.apache.beam.sdk.values.PDone>) instance
+                                .instance(),
+                        null, instance.plugin(), instance.family(), instance.name());
             }
         } catch (final RuntimeException re) { // create a passthrough impl to ensure it can be unwrapped
             if (component.isInterface()) {

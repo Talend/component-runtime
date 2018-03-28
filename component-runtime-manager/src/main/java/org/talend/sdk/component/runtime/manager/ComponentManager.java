@@ -307,6 +307,7 @@ public class ComponentManager implements AutoCloseable {
                 .peek(e -> e.setComponentManager(ComponentManager.this))
                 .forEach(container::registerListener);
         this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl))
+                .filter(ComponentExtension::isActive)
                 .sorted(comparing(ComponentExtension::priority))
                 .collect(toList());
         this.transformers = extensions.stream().flatMap(e -> e.getTransformers().stream()).collect(toList());
