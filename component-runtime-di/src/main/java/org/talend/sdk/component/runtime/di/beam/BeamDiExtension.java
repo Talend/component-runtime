@@ -19,7 +19,6 @@ import java.lang.instrument.ClassFileTransformer;
 import java.util.Collection;
 import java.util.Map;
 
-import org.talend.sdk.component.runtime.beam.spi.BeamComponentExtension;
 import org.talend.sdk.component.runtime.di.beam.components.QueueMapper;
 import org.talend.sdk.component.runtime.di.beam.components.QueueOutput;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -28,7 +27,7 @@ import org.talend.sdk.component.spi.component.ComponentExtension;
 
 public class BeamDiExtension implements ComponentExtension {
 
-    private BeamComponentExtension delegate;
+    private ComponentExtension delegate;
 
     @Override
     public int priority() {
@@ -38,7 +37,7 @@ public class BeamDiExtension implements ComponentExtension {
     @Override
     public boolean isActive() {
         try {
-            delegate = new BeamComponentExtension() {
+            delegate = new org.talend.sdk.component.runtime.beam.spi.BeamComponentExtension() {
 
                 @Override
                 public <T> T convert(final ComponentInstance instance, final Class<T> component) {
