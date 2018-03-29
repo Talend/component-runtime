@@ -13,6 +13,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-745[TCOMP-745^]: [Dependency Upgrade] CXF 3.2.4
 - link:https://jira.talendforge.org/browse/TCOMP-746[TCOMP-746^]: [Dependency Upgrade] Tomcat 9.0.6
 - link:https://jira.talendforge.org/browse/TCOMP-747[TCOMP-747^]: [Dependency Upgrade] Log4j2 2.11.0
+- link:https://jira.talendforge.org/browse/TCOMP-748[TCOMP-748^]: Make configurationtype index endpoint lighter OOTB
+- link:https://jira.talendforge.org/browse/TCOMP-749[TCOMP-749^]: Intellij Idea plugin
 
 
 == Version 0.0.4
