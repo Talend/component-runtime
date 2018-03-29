@@ -52,14 +52,18 @@ public class UiSpecService implements AutoCloseable {
 
     private final Jsonb jsonb;
 
+    private final boolean closeJsonb;
+
     public UiSpecService(final Client client) {
         this.client = client;
         this.jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
+        this.closeJsonb = true;
     }
 
     public UiSpecService(final Client client, final Jsonb jsonb) {
         this.client = client;
         this.jsonb = jsonb;
+        this.closeJsonb = false;
     }
 
     /**
@@ -141,6 +145,8 @@ public class UiSpecService implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        jsonb.close();
+        if (closeJsonb) {
+            jsonb.close();
+        }
     }
 }
