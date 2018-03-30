@@ -16,12 +16,15 @@
 package org.talend.sdk.component.intellij;
 
 import static java.util.ResourceBundle.getBundle;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.util.ResourceBundle;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@NoArgsConstructor(access = PRIVATE)
 public final class Configuration {
 
     private static ResourceBundle bundle;
@@ -34,8 +37,7 @@ public final class Configuration {
     }
 
     public static String getStarterHost() {
-        final String debugHost = System.getProperty("org.talend.component.starter.host", null);
-        return debugHost != null ? debugHost : "http://localhost:8080"; // todo use prod url
+        return System.getProperty("org.talend.component.starter.host", "https://start.talend.io");
     }
 
     public static long getStarterLoadTimeOut() {
@@ -49,9 +51,5 @@ public final class Configuration {
             }
         }
         return timeout;
-    }
-
-    private Configuration() {
-        // no-op
     }
 }
