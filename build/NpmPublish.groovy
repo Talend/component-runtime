@@ -132,7 +132,7 @@ class Npm {
         pck._npmVersion = '3.5.2' // whatever
         pck._nodeVersion = '6.11.4' // whatever
         pck._npmUser = [:]
-        pck.readme = pck.readme ?: pck.description ?: ''
+        pck.readme = 'README.adoc'
 
         // create a tar from the folder containing pckJson
         def buffer = new ByteArrayOutputStream(8192)

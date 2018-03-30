@@ -42,7 +42,6 @@
     <module>component-starter-server</module>
     <module>component-tools</module>
     <module>slf4j-standard</module>
-    <module>documentation</module>
     <module>component-tools-webapp</module>
     <module>component-kit.js</module>
     <module>talend-component-kit-intellij-plugin</module>
@@ -859,6 +858,15 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>documentation</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>documentation</module>
+      </modules>
+    </profile>
     <profile>
       <id>release</id>
       <build>

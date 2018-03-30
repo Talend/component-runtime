@@ -19,6 +19,9 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler
 import org.apache.maven.model.Dependency
 import org.apache.maven.model.Repository
 
+if (project.properties[project.artifactId + '.idea.dependencies.setup'] != null) {
+    return
+}
 
 // note: we can extract that logic into a small lib instead of inlining it here
 
@@ -42,9 +45,20 @@ def dependencies = [
 
 def ideaBase = project.properties['idea.unpacked.folder']
 def localRepository = new File(project.basedir, '.cache/m2/localrepository')
-
-
 def extractedZip = new File(ideaBase)
+if (!localRepository.exists()) { // in case of a release just reuse the existing cache if it exists
+    def mainCache = new File(project.basedir, "../../../${project.basedir.name}/.cache")
+    if (mainCache.exists()) {
+        def ideaCache = new File(mainCache, 'idea')
+        def mainLocalRepository = new File(mainCache, 'm2/localrepository')
+        if (ideaCache.exists() && mainLocalRepository.exists()) {
+            ideaCache = mainCache
+            extractedZip = ideaCache
+            localRepository = mainLocalRepository
+        }
+    }
+}
+
 if (!extractedZip.exists()) {
     // ensure idea is downloaded - we dont use download plugin since it computes md5+sha1+sha512 each time and it is slowwwww
     def ideaRemoteZip = new URL(project.properties['idea.source'])
@@ -53,7 +67,7 @@ if (!extractedZip.exists()) {
 
     ideaLocalZip.parentFile.mkdirs()
 
-    if (!ideaLocalVersion.exists() || ideaLocalVersion.text.trim() != project.properties['idea.version']) {
+    if (!ideaLocalVersion.exists() || ideaLocalVersion.text.trim() != project.properties['idea.build.version']) {
         ideaLocalZip.parentFile.mkdirs()
         def os = ideaLocalZip.newOutputStream()
         try {
@@ -62,7 +76,7 @@ if (!extractedZip.exists()) {
             os.close()
         }
 
-        ideaLocalVersion.text = project.properties['idea.version']
+        ideaLocalVersion.text = project.properties['idea.build.version']
 
         // extract now
         new AntBuilder().unzip(src: ideaLocalZip.absolutePath, dest: ideaBase, overwrite: 'true')
@@ -71,13 +85,13 @@ if (!extractedZip.exists()) {
 
 def addDependency = { base, localRepo, name ->
     def artifactId = name.replace('/', '_')
-    def localPathJar = new File(localRepo, "com/intellij/idea/${artifactId}/${project.properties['idea.version']}/${artifactId}-${project.properties['idea.version']}.jar")
+    def localPathJar = new File(localRepo, "com/intellij/idea/${artifactId}/${project.properties['idea.build.version']}/${artifactId}-${project.properties['idea.build.version']}.jar")
     if (!localPathJar.exists() ||
             Boolean.parseBoolean(System.getProperty('talend.component.kit.build.idea.m2.forceupdate', project.properties['talend.component.kit.build.studio.m2.forceupdate']))) {
 
         def fileSrc = new File(base, "${name}.jar")
         if (!fileSrc.exists()) {
-            throw new IllegalArgumentException("No jar ${name}")
+            throw new IllegalArgumentException("No jar ${fileSrc}")
         }
 
         localPathJar.parentFile.mkdirs()
@@ -99,7 +113,7 @@ def addDependency = { base, localRepo, name ->
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.intellij.idea</groupId>
   <artifactId>${artifactId}</artifactId>
-  <version>${project.properties['idea.version']}</version>
+  <version>${project.properties['idea.build.version']}</version>
   <description>Generated pom at build time without dependencies</description>
 </project>"""
         } finally {
@@ -139,7 +153,7 @@ dependencies.each {
     def dep = new Dependency()
     dep.groupId = 'com.intellij.idea'
     dep.artifactId = it.replace('/', '_')
-    dep.version = "${project.properties['idea.version']}"
+    dep.version = "${project.properties['idea.build.version']}"
 
     def jar = addDependency(ideaBase, localRepository, it)
 
@@ -153,5 +167,7 @@ dependencies.each {
     addArtifact(project, art)
 
     // log it to ensure it is easy to "dev"
-    println("    <dependency>\n      <groupId>${dep.groupId}</groupId>\n      <artifactId>${dep.artifactId}</artifactId>\n      <version>\${idea.version}</version>\n      <scope>provided</scope>\n    </dependency>")
+    println("    <dependency>\n      <groupId>${dep.groupId}</groupId>\n      <artifactId>${dep.artifactId}</artifactId>\n      <version>\${idea.build.version}</version>\n      <scope>provided</scope>\n    </dependency>")
 }
+
+project.properties[project.artifactId + '.idea.dependencies.setup'] = 'true'
