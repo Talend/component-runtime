@@ -26,6 +26,7 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
         if (configuration.getProperties() == null) {
             configuration.setProperties(new Properties());
         }
+        configuration.addInstanceCustomizer(tomcat -> tomcat.getConnector().setProperty("compression", "on"));
         configuration.getProperties().putAll(System.getProperties());
         configuration.getProperties().stringPropertyNames().stream().filter(k -> System.getProperty(k) == null).forEach(
                 k -> System.setProperty(k, configuration.getProperties().getProperty(k)));
