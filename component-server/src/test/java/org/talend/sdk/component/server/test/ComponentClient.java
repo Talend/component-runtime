@@ -30,8 +30,12 @@ public class ComponentClient {
     private WebTarget base;
 
     public ComponentIndices fetchIndex() {
-        return base.path("component/index").queryParam("includeIconContent", true).request(APPLICATION_JSON_TYPE)
-                .header("Accept-Encoding", "gzip").get(ComponentIndices.class);
+        return base
+                .path("component/index")
+                .queryParam("includeIconContent", true)
+                .request(APPLICATION_JSON_TYPE)
+                .header("Accept-Encoding", "gzip")
+                .get(ComponentIndices.class);
     }
 
     public String getComponentId(final String family, final String component) {
