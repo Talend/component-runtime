@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-form</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>0.0.5</version>
+    <version>0.0.6-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
