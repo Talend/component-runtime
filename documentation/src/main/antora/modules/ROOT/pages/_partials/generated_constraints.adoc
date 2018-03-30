@@ -4,7 +4,7 @@
 |API|Name|Parameter Type|Description|Supported Types|Metadata sample
 |@org.talend.sdk.component.api.configuration.constraint.Max|maxLength|double|Ensure the decorated option size is validated with a higher bound.|CharSequence|{"validation::maxLength":"12.34"}
 |@org.talend.sdk.component.api.configuration.constraint.Min|minLength|double|Ensure the decorated option size is validated with a lower bound.|CharSequence|{"validation::minLength":"12.34"}
-|@org.talend.sdk.component.api.configuration.constraint.Pattern|pattern|string|Validate the decorated string with a java pattern, you can use xregex library in javascript.|CharSequence|{"validation::pattern":"test"}
+|@org.talend.sdk.component.api.configuration.constraint.Pattern|pattern|string|Validate the decorated string with a *javascript* pattern (even into the Studio).|CharSequence|{"validation::pattern":"test"}
 |@org.talend.sdk.component.api.configuration.constraint.Max|max|double|Ensure the decorated option size is validated with a higher bound.|Number, int, short, byte, long, double, float|{"validation::max":"12.34"}
 |@org.talend.sdk.component.api.configuration.constraint.Min|min|double|Ensure the decorated option size is validated with a lower bound.|Number, int, short, byte, long, double, float|{"validation::min":"12.34"}
 |@org.talend.sdk.component.api.configuration.constraint.Required|required|-|Mark the field as being mandatory.|Object|{"validation::required":"true"}

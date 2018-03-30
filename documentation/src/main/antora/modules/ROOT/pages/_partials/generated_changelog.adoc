@@ -15,6 +15,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-747[TCOMP-747^]: [Dependency Upgrade] Log4j2 2.11.0
 - link:https://jira.talendforge.org/browse/TCOMP-748[TCOMP-748^]: Make configurationtype index endpoint lighter OOTB
 - link:https://jira.talendforge.org/browse/TCOMP-749[TCOMP-749^]: Intellij Idea plugin
+- link:https://jira.talendforge.org/browse/TCOMP-750[TCOMP-750^]: Unify @Pattern using javascript regex instead of a mixed mode
 
 
 == Version 0.0.4
