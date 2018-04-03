@@ -104,20 +104,6 @@
       <version>${meecrowave.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency> <!-- just for the order -->
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>documentation</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-      <type>pom</type>
-      <optional>true</optional>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
 
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -134,19 +120,6 @@
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
-      <resource>
-        <directory>${project.basedir}/../documentation/target/documentation-${project.version}</directory>
-        <targetPath>META-INF/resources/documentation</targetPath>
-        <excludes>
-          <exclude>**/test/**</exclude>
-        </excludes>
-      </resource>
-    </resources>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
