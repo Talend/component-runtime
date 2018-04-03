@@ -1,0 +1,100 @@
+= Installation and usage of Talend Intellij plugin
+:page-partial:
+
+[[tutorial-talend-intellij-plugin-usage]]
+
+Talend Intellij plugin is a plugin for the IDE Intellij that add some support to Talend components project.
+
+Main features:
+
+* New project generation support.
+* i18n completion for component configuration.
+
+== How to install the plugin in Intellij
+
+In the Intellij IDEA :
+
+* Go to File -> Settings...
+* On the left panel click on Plugins.
+* Click on Browse repositories...
+
+image::intellij/plugin/1-plugins.png[Plugins]
+
+* Type `Talend` in the search field then choose `Talend Component Kit - Intellij Plugin`.
+* Click on the Install button on the right.
+
+image::intellij/plugin/2-browse-talend.png[Browse talend plugin]
+
+Click on the restart Intellij IDEA button.
+
+image::intellij/plugin/3-restart.png[IDEA restart]
+
+Confirm the IDEA restart to complete the installation.
+
+image::intellij/plugin/4-restart.png[IDEA restart]
+
+The plugin is now installed into your Intellij IDEA, you can start using it.
+
+== How to generate a project using the plugin
+Once the plugin installed, you can generate Talend component project by going to File -> New -> Project.
+
+In the New Project wizard choose Talend Component then click Next.
+
+image::intellij/plugin/new-project_1.png[New Talend Project]
+
+The plugin will load the component starter and let you design your components.
+For more information about the component kit starter, you can check xref:tutorial-generate-project-using-starter.adoc[this tutorial]
+
+image::intellij/plugin/new-project_2.png[New Talend Project]
+
+When you finish designing your project Next then click Finish.
+
+image::intellij/plugin/new-project_3.png[New Talend Project]
+
+The project will be automatically imported into the IDEA using the build tool that you have chosen.
+
+== How the i18n completion works
+This feature offer auto completion for configuration i18n.
+Talend component configuration let you setup translatable, user friendly labels for you configuration using properties file.
+This plugin will provide some completion in those properties file for the configuration keys and default values.
+
+Let's say that you have simple configuration class for a basic authentication that you will use in your component.
+
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+@Checkable("basicAuth")
+@DataStore("basicAuth")
+@GridLayout({
+        @GridLayout.Row({ "url" }),
+        @GridLayout.Row({ "username", "password" }),
+})
+public class BasicAuthConfig implements Serializable {
+
+    @Option
+    private String url;
+
+    @Option
+    private String username;
+
+    @Option
+    @Credential
+    private String password;
+}
+----
+
+This configuration classs contains 3 properties that you may want to attach some user friendly labels to them.
+
+For example: You may want the `url` option to have a label like `My awesome server URL`.
+
+For this you will need to create a `Messages.properties` file in the project resources to be able to add your labels.
+
+The plugin will automatically detect you configuration and provide you with keys completion in the properties file.
+
+Click Ctrl+Space to see the keys suggestions.
+
+image::intellij/plugin/suggestion_1.png[Keys suggestion]
+
+
+
+
+
