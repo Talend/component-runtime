@@ -1,5 +1,12 @@
 
 
+== Version 0.0.6
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-751[TCOMP-751^]: Support gzip compression on component-server
+
+
 == Version 0.0.5
 
 === Work Item
