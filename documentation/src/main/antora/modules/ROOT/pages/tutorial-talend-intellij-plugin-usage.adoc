@@ -20,7 +20,7 @@ In the Intellij IDEA :
 
 image::intellij/plugin/1-plugins.png[Plugins]
 
-* Tape Talend in the search field then choose `Talend Component Kit - Intellij Plugin`.
+* Type `Talend` in the search field then choose `Talend Component Kit - Intellij Plugin`.
 * Click on the Install button on the right.
 
 image::intellij/plugin/2-browse-talend.png[Browse talend plugin]
