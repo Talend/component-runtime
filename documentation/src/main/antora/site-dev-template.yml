@@ -33,10 +33,9 @@ runtime:
   cache_dir: ../frontend/.antora-cache
 output:
  clean: false
- dir: ../../../target/documentation-0.0.2-SNAPSHOT
+ dir: ../../../target/${project.artifactId}-${project.version}
 asciidoc:
   attributes:
-    project_version: 0.0.2
     deploymentRoot: ""
     numbered: true
     hide-uri-scheme: true

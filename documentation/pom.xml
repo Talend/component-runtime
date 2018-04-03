@@ -276,6 +276,17 @@
             </configuration>
           </execution>
           <execution>
+            <id>filter-site-dev</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>filter</goal>
+            </goals>
+            <configuration>
+              <from>${project.basedir}/src/main/antora/site-dev-template.yml</from>
+              <to>${project.basedir}/src/main/antora/site-dev.yml</to>
+            </configuration>
+          </execution>
+          <execution>
             <id>filter-site</id>
             <phase>process-classes</phase>
             <goals>
