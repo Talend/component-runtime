@@ -49,13 +49,12 @@ def decryptedServer = session.container.lookup(SettingsDecrypter).decrypt(new De
 server = decryptedServer.server != null ? decryptedServer.server : server
 
 int pluginId = Integer.parseInt(project.properties['idea.plugin.id'].trim())
-String channel = project.properties['idea.intellij.channel'].trim()
-try {
-    new PluginRepositoryInstance(project.properties['idea.intellij.public.url'], server.getUsername(), server.getPassword())
-            .uploadPlugin(pluginId, pluginZip, channel)
-} catch (final Exception e) { // don't break the release for that, worse case upload it manually
-    log.error(e.message, e)
+def repositoryInstance = new PluginRepositoryInstance(project.properties['idea.intellij.public.url'], server.getUsername(), server.getPassword())
+project.properties['idea.intellij.channel'].trim().split(',').each { channel ->
+    try {
+        repositoryInstance
+                .uploadPlugin(pluginId, pluginZip, channel == 'default' ? '' : channel)
+    } catch (final Exception e) { // don't break the release for that, worse case upload it manually
+        log.error(e.message, e)
+    }
 }
-
-
-
