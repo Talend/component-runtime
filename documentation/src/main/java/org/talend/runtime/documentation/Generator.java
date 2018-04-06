@@ -414,7 +414,7 @@ public class Generator {
                                 .stream()
                                 .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue));
                         stream.println("|@" + type.getName() + "|" + extractDoc(type) + "|"
-                                + mapper.writeObjectAsString(meta));
+                                + mapper.writeObjectAsString(meta).replace("|", "\\|"));
                     });
             stream.println("|====");
             stream.println();

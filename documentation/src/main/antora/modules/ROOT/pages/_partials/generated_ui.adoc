@@ -5,8 +5,8 @@
 |@org.talend.sdk.component.api.configuration.ui.DefaultValue|Provide a default value the UI can use - only for primitive fields.|{"ui::defaultvalue::value":"test"}
 |@org.talend.sdk.component.api.configuration.ui.OptionsOrder|Allows to sort a class properties.|{"ui::optionsorder::value":"value1,value2"}
 |@org.talend.sdk.component.api.configuration.ui.layout.AutoLayout|Request the rendered to do what it thinks is best.|{"ui::autolayout":"true"}
-|@org.talend.sdk.component.api.configuration.ui.layout.GridLayout|Advanced layout to place properties by row, this is exclusive with `@OptionsOrder`.|{"ui::gridlayout::value1::value":"first|second,third","ui::gridlayout::value2::value":"first|second,third"}
-|@org.talend.sdk.component.api.configuration.ui.layout.GridLayouts|Allow to configure multiple grid layouts on the same class, qualified with a classifier (name)|{"ui::gridlayout::Advanced::value":"another","ui::gridlayout::Main::value":"first|second,third"}
+|@org.talend.sdk.component.api.configuration.ui.layout.GridLayout|Advanced layout to place properties by row, this is exclusive with `@OptionsOrder`.|{"ui::gridlayout::value1::value":"first\|second,third","ui::gridlayout::value2::value":"first\|second,third"}
+|@org.talend.sdk.component.api.configuration.ui.layout.GridLayouts|Allow to configure multiple grid layouts on the same class, qualified with a classifier (name)|{"ui::gridlayout::Advanced::value":"another","ui::gridlayout::Main::value":"first\|second,third"}
 |@org.talend.sdk.component.api.configuration.ui.layout.HorizontalLayout|Put on a configuration class it notifies the UI an horizontal layout is preferred.|{"ui::horizontallayout":"true"}
 |@org.talend.sdk.component.api.configuration.ui.layout.VerticalLayout|Put on a configuration class it notifies the UI a vertical layout is preferred.|{"ui::verticallayout":"true"}
 |@org.talend.sdk.component.api.configuration.ui.widget.Code|Mark a field as being represented by some code widget (vs textarea for instance).|{"ui::code::value":"test"}
