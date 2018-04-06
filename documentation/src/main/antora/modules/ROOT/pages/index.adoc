@@ -28,7 +28,7 @@ NOTE: if you prefer you can use the <<all-in-one.adoc#, single page>> documentat
 * <<design.adoc#, Design choices>>
 * <<wrapping-a-beam-io.adoc#, How to wrap a Beam I/O>>
 * <<documentation-rest.adoc#, Web>>
-* <<studio.adoc#, Experimental Talend Studio Integration>>
+* <<studio.adoc#, Talend Studio Integration>>
 * <<changelog.adoc#, Changelog>>
 * <<contributors.adoc#, Wall Of Fame>>
 * <<apidocs.adoc#, API Documentation>>
