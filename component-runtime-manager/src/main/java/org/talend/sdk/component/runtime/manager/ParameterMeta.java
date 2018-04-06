@@ -97,7 +97,7 @@ public class ParameterMeta {
                                 .filter(Objects::nonNull)
                                 .filter(s -> !s.isEmpty())
                                 .distinct()
-                                .map(p -> p + (!p.isEmpty() ? "." : "") + "Messages")
+                                .map(p -> p + "." + "Messages")
                                 .map(n -> {
                                     try {
                                         return ResourceBundle.getBundle(n, locale, loader);
@@ -115,9 +115,20 @@ public class ParameterMeta {
                 final Collection<String> fallbacks = new ArrayList<>(2);
                 final Class<?> declaringClass = source == null ? null : source.declaringClass();
                 if (declaringClass != null && !declaringClass.getName().startsWith("java")) {
-                    fallbacks.add(declaringClass.getSimpleName() + '.' + source.name());
+                    final String sourceName = source.name();
+                    fallbacks.add(declaringClass.getName() + '.' + sourceName);
+                    if (declaringClass.getEnclosingClass() != null) {
+                        fallbacks.add(declaringClass.getEnclosingClass().getSimpleName() + '$'
+                                + declaringClass.getSimpleName() + '.' + sourceName);
+                    }
+                    fallbacks.add(declaringClass.getSimpleName() + '.' + sourceName);
                 }
                 if (type != null) {
+                    fallbacks.add(type.getName() + '.' + name);
+                    if (type.getEnclosingClass() != null) {
+                        fallbacks.add(
+                                type.getEnclosingClass().getSimpleName() + '$' + type.getSimpleName() + '.' + name);
+                    }
                     fallbacks.add(type.getSimpleName() + '.' + name);
                 }
                 return new ParameterBundle(bundles, path + '.', fallbacks.toArray(new String[fallbacks.size()]));

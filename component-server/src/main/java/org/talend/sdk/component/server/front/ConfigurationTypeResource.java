@@ -173,7 +173,8 @@ public class ConfigurationTypeResource {
                             .map(p -> new SimplePropertyDefinition("configuration" + p.getPath().substring(
 
                                     prefixLen), p.getName(), p.getDisplayName(), p.getType(), p.getDefaultValue(),
-                                    p.getValidation(), p.getMetadata(), p.getPlaceholder()))
+                                    p.getValidation(), p.getMetadata(), p.getPlaceholder(),
+                                    p.getProposalDisplayNames()))
                             .collect(toList()));
                 }
 

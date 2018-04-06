@@ -13,48 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.test.jdbc;
+package org.talend.test.failure.enumi18n;
+
+import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
 import java.io.Serializable;
 
 import javax.json.JsonObject;
 
 import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+@Version
+@Icon(FILE_JOB_O)
+@Processor(family = "test", name = "my")
+public class MyComponent implements Serializable {
 
-@Slf4j
-@Icon(Icon.IconType.DB_INPUT)
-@Processor(family = "jdbc", name = "output")
-public class JdbcOutput implements Serializable {
+    public MyComponent(@Option("config") final MyConfig config) {
 
-    private final ConfigWrapper dataset;
-
-    public JdbcOutput(@Option("configuration") final ConfigWrapper dataset) {
-        this.dataset = dataset;
     }
 
     @ElementListener
-    public void onElement(final JsonObject object) {
-        // no-op
+    public JsonObject passthrough(final JsonObject item) {
+        return item;
     }
 
-    @Data
-    public static class ConfigWrapper {
+    public static class MyConfig {
 
         @Option
-        private JdbcDataSet dataSet;
-
-        @Option
-        private Type type;
+        private Foo foo;
     }
 
-    public enum Type {
-        FAST,
-        PRECISE
+    public enum Foo {
+        A,
+        B
     }
 }

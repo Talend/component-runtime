@@ -172,6 +172,13 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage("org.talend.test.failure.enumi18n")
+    void testFailureEnumi18n(final ExceptionSpec expectedException) {
+        expectedException.expectMessage(
+                "Missing key Foo.B._displayName in class org.talend.test.failure.enumi18n.MyComponent$Foo resource bundle");
+    }
+
+    @Test
     @ComponentPackage("org.talend.test.failure.action.dynamicvalues")
     void testFailureActionDynamicValues(final ExceptionSpec expectedException) {
         expectedException.expectMessage(

@@ -286,13 +286,6 @@ public class ComponentValidator extends BaseTask {
 
     }
 
-    private Stream<ParameterMeta> getName(final List<ParameterMeta> params) {
-        if (params == null) {
-            return empty();
-        }
-        return params.stream().flatMap(p -> concat(of(p), getName(p.getNestedParameters())));
-    }
-
     private void validateDocumentation(final AnnotationFinder finder, final List<Class<?>> components,
             final Set<String> errors) {
         errors.addAll(components
@@ -315,6 +308,24 @@ public class ComponentValidator extends BaseTask {
             final Set<String> errors) {
         errors.addAll(components.stream().map(this::validateComponentResourceBundle).filter(Objects::nonNull).collect(
                 toList()));
+        errors.addAll(finder
+                .findAnnotatedFields(Option.class)
+                .stream()
+                .map(Field::getType)
+                .filter(Class::isEnum)
+                .distinct()
+                .flatMap(enumType -> Stream
+                        .of(enumType.getFields())
+                        .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers()))
+                        .filter(f -> {
+                            final ResourceBundle bundle = ofNullable(findResourceBundle(enumType))
+                                    .orElseGet(() -> findResourceBundle(f.getDeclaringClass()));
+                            final String key = enumType.getSimpleName() + "." + f.getName() + "._displayName";
+                            return bundle == null || !bundle.containsKey(key);
+                        })
+                        .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName() + "._displayName in "
+                                + enumType + " resource bundle"))
+                .collect(toSet()));
 
         for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
             final ResourceBundle resourceBundle = findResourceBundle(i);

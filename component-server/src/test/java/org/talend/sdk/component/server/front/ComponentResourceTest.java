@@ -203,6 +203,34 @@ class ComponentResourceTest {
     }
 
     @Test
+    void enumDisplayName() {
+        final ComponentDetailList details = base
+                .path("component/details")
+                .queryParam("identifiers", client.getComponentId("jdbc", "output"))
+                .request(APPLICATION_JSON_TYPE)
+                .get(ComponentDetailList.class);
+        assertEquals(1, details.getDetails().size());
+
+        final SimplePropertyDefinition next = details
+                .getDetails()
+                .iterator()
+                .next()
+                .getProperties()
+                .stream()
+                .filter(p -> p.getPath().equals("configuration.type"))
+                .findFirst()
+                .get();
+        assertNotNull(next.getProposalDisplayNames());
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("FAST", "FAST"); // default
+                put("PRECISE", "Furious"); // configured
+            }
+        }, next.getProposalDisplayNames());
+    }
+
+    @Test
     void getDetailsMeta() {
         final ComponentDetailList details = base
                 .path("component/details")

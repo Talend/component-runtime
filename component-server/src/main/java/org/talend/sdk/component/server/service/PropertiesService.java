@@ -16,6 +16,7 @@
 package org.talend.sdk.component.server.service;
 
 import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
@@ -79,8 +80,9 @@ public class PropertiesService {
             final String path = sanitizePropertyName(p.getPath());
             final String name = sanitizePropertyName(p.getName());
             final String type = p.getType().name();
+            final boolean isEnum = p.getType() == ParameterMeta.Type.ENUM;
             PropertyValidation validation = propertyValidationService.map(p.getMetadata());
-            if (p.getType() == ParameterMeta.Type.ENUM) {
+            if (isEnum) {
                 if (validation == null) {
                     validation = new PropertyValidation();
                 }
@@ -99,7 +101,10 @@ public class PropertiesService {
             return Stream.concat(
                     Stream.of(new SimplePropertyDefinition(path, name,
                             bundle.displayName(parentBundle).orElse(p.getName()), type, toDefault(instance, p),
-                            validation, metadata, bundle.placeholder(parentBundle).orElse(p.getName()))),
+                            validation, metadata, bundle.placeholder(parentBundle).orElse(p.getName()),
+                            !isEnum ? null
+                                    : p.getProposals().stream().collect(toMap(identity(),
+                                            key -> bundle.enumDisplayName(parentBundle, key).orElse(key))))),
                     buildProperties(p.getNestedParameters(), loader, locale, instance, p));
         }).sorted(Comparator.comparing(SimplePropertyDefinition::getPath)); // important cause it is the way you want to
         // see it

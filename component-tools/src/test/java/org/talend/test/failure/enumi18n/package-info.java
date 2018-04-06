@@ -13,34 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+@Icon(Icon.IconType.FILE_JOB_O)
+@Components(family = "test")
+package org.talend.test.failure.enumi18n;
 
-import java.util.Map;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class SimplePropertyDefinition {
-
-    private String path;
-
-    private String name;
-
-    private String displayName;
-
-    private String type;
-
-    private String defaultValue;
-
-    private PropertyValidation validation;
-
-    private Map<String, String> metadata;
-
-    private String placeholder;
-
-    private Map<String, String> proposalDisplayNames;
-}
+import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.Icon;

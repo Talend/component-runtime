@@ -79,6 +79,8 @@ _No body_ +
                     "name": "string",
                     "path": "string",
                     "placeholder": "string",
+                    "proposalDisplayNames": {
+                    },
                     "type": "string",
                     "validation": {
                         "enumValues": [
@@ -193,6 +195,8 @@ _No body_ +
                             "name": "string",
                             "path": "string",
                             "placeholder": "string",
+                            "proposalDisplayNames": {
+                            },
                             "type": "string",
                             "validation": {
                                 "enumValues": [
@@ -245,6 +249,8 @@ _No body_ +
                     "name": "string",
                     "path": "string",
                     "placeholder": "string",
+                    "proposalDisplayNames": {
+                    },
                     "type": "string",
                     "validation": {
                         "enumValues": [

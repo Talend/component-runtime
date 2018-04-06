@@ -45,12 +45,19 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
             schema.setSchema(jsonSchema);
 
             if (context.getProperty().getValidation().getEnumValues() != null) {
-                schema.setTitleMap(context.getProperty().getValidation().getEnumValues().stream().sorted().map(v -> {
-                    final UiSchema.NameValue nameValue = new UiSchema.NameValue();
-                    nameValue.setName(v);
-                    nameValue.setValue(v);
-                    return nameValue;
-                }).collect(toList()));
+                schema.setTitleMap(context.getProperty().getProposalDisplayNames() != null
+                        ? context.getProperty().getProposalDisplayNames().entrySet().stream().map(v -> {
+                            final UiSchema.NameValue nameValue = new UiSchema.NameValue();
+                            nameValue.setName(v.getKey());
+                            nameValue.setValue(v.getValue());
+                            return nameValue;
+                        }).collect(toList())
+                        : context.getProperty().getValidation().getEnumValues().stream().sorted().map(v -> {
+                            final UiSchema.NameValue nameValue = new UiSchema.NameValue();
+                            nameValue.setName(v);
+                            nameValue.setValue(v);
+                            return nameValue;
+                        }).collect(toList()));
                 jsonSchema.setEnumValues(context.getProperty().getValidation().getEnumValues());
             } else {
                 schema.setTitleMap(emptyList());

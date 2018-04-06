@@ -152,12 +152,23 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         private File createJdbcPlugin(final File target) {
             return createRepackaging(target, "org/talend/sdk/component/server/test/jdbc", out -> {
                 try {
+                    // we dont set the @Components so family package is empty so config types use this one
                     out.putNextEntry(new JarEntry("Messages.properties"));
                     new Properties() {
 
                         {
                             put("jdbc.datastore.jdbc._displayName", "JDBC DataStore");
                             put("jdbc.dataset.jdbc._displayName", "JDBC DataSet");
+                        }
+                    }.store(out, "i18n for the config types");
+                    out.closeEntry();
+
+                    // enum displayname
+                    out.putNextEntry(new JarEntry("org/talend/test/generated/jdbc_component/Messages.properties"));
+                    new Properties() {
+
+                        {
+                            put("Type.PRECISE._displayName", "Furious");
                         }
                     }.store(out, "i18n for the config types");
                     out.closeEntry();

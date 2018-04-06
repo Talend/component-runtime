@@ -33,6 +33,7 @@ public class BraveFeature implements Feature {
 
     @Override
     public boolean configure(final FeatureContext context) {
+        // we don't care of the client but this is not public so let's do it this way
         TracingFeature.create(tracing).configure(context);
         return true;
     }

@@ -30,23 +30,33 @@ public class ParameterBundle extends InternalBundle {
     }
 
     public Optional<String> displayName(final ParameterBundle parent) {
-        return get(parent, "_displayName");
+        return get(parent, "_displayName", false);
+    }
+
+    public Optional<String> enumDisplayName(final ParameterBundle parent, final String enumName) {
+        return get(parent, enumName + "._displayName", true);
     }
 
     public Optional<String> placeholder(final ParameterBundle parent) {
-        return get(parent, "_placeholder");
+        return get(parent, "_placeholder", false);
     }
 
-    private Optional<String> get(final ParameterBundle parentBundle, final String suffix) {
+    private Optional<String> get(final ParameterBundle parentBundle, final String suffix,
+            final boolean stripLastSegment) {
         Optional<String> v = readValue(suffix);
         if (!v.isPresent()) {
-            v = Stream.of(simpleNames).map(s -> {
-                final String k = s + "." + suffix;
-                return readRawValue(k).orElse(parentBundle == null ? null : parentBundle.readRawValue(k).orElse(null));
-            }).filter(Objects::nonNull).findFirst();
+            v = Stream
+                    .of(simpleNames)
+                    .map(s -> !stripLastSegment || s.lastIndexOf('.') < 0 ? s : s.substring(0, s.lastIndexOf('.')))
+                    .map(s -> {
+                        final String k = s + "." + suffix;
+                        return readRawValue(k)
+                                .orElse(parentBundle == null ? null : parentBundle.readRawValue(k).orElse(null));
+                    })
+                    .filter(Objects::nonNull)
+                    .findFirst();
         }
 
         return v;
     }
-
 }

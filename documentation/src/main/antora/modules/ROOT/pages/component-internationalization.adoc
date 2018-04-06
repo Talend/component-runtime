@@ -17,6 +17,7 @@ of supported keys:
 |${family}.${component_name}._displayName|the display name of the component (used by the GUIs)
 |${property_path}._displayName|the display name of the option.
 |${simple_class_name}.${property_name}._displayName|the display name of the option using it class name.
+|${enum_simple_class_name}.${enum_name}._displayName|the display name of the `enum_name` enum value of the enum `enum_simple_class_name`.
 |${property_path}._placeholder|the placeholder of the option.
 |====
 
