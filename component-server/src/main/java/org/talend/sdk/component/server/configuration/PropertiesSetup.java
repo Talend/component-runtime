@@ -23,6 +23,7 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
 
     @Override
     public void accept(final Meecrowave.Builder configuration) {
+        configuration.loadFromProperties(System.getProperties());
         if (configuration.getProperties() == null) {
             configuration.setProperties(new Properties());
         }

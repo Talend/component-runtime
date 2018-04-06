@@ -7,6 +7,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-752[TCOMP-752^]: Fix Advanced settings and Test connection button appearance in repository wizard
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-757[TCOMP-757^]: Duplicate method name "writeReplace" with signature "()Ljava.lang.Object;" in class file
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-751[TCOMP-751^]: Support gzip compression on component-server

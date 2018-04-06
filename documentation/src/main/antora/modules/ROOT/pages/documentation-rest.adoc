@@ -72,6 +72,20 @@ Accept: application/json
 ^@
 ----
 
+== HTTPS activation
+
+Using the server zip (or https://github.com/Talend/component-runtime/blob/master/.docker/Dockerfile[Docker image])
+you can configure HTTPS adding properties to `MEECROWAVE_OPTS`. Assuming you have a certificate in `/opt/certificates/component.p12`
+(don't forget to add/mount it in the Docker image if you use it) you can activate it through:
+
+[source,sh]
+----
+# use -e for Docker
+#
+# this will skip the http port binding to only bind https on the port 8443 and setup the right certificate
+export MEECROWAVE_OPTS="-Dskip-http=true -Dssl=true -Dhttps=8443 -Dkeystore-type=PKCS12 -Dkeystore-alias=talend -Dkeystore-password=talend -Dkeystore-file=/opt/certificates/component.p12"
+----
+
 == Web forms and REST API
 
 `component-form` library provides a way to build a component REST API facade compatible with react form library.
