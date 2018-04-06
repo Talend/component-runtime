@@ -92,7 +92,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
     private boolean shouldForceContextualSerialization(final ClassLoader tmpLoader, final String className) {
         try {
             final Class<?> clazz = tmpLoader.loadClass(className.replace('/', '.'));
-            if (doesUseCustomSerialization(className, clazz)) {
+            if (doesUseCustomSerialization(clazz)) {
                 return false;
             }
 
@@ -103,10 +103,13 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
     }
 
-    private boolean doesUseCustomSerialization(final String className, final Class<?> clazz) {
-        if (Externalizable.class.isInstance(className)) {
+    private boolean doesUseCustomSerialization(final Class<?> clazz) {
+        if (Externalizable.class.isAssignableFrom(clazz)) {
             return true;
         }
+        // todo: we should check the byte[] and not the clazz since in a transformer chain
+        // and previous transformer can have done it
+        // -> for now it is enough since it is faster than re-reading the bytecode and we have 1 transformer
         try {
             clazz.getDeclaredMethod("writeReplace", ObjectOutputStream.class);
             return true;

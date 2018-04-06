@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.di.beam;
 
+import static java.util.Collections.emptyList;
+
 import java.lang.instrument.ClassFileTransformer;
 import java.util.Collection;
 import java.util.Map;
@@ -73,7 +75,7 @@ public class BeamDiExtension implements ComponentExtension {
 
     @Override
     public Collection<ClassFileTransformer> getTransformers() {
-        return delegate.getTransformers();
+        return emptyList(); // parent ones are added, if we add it back we can get corrupted bytecode
     }
 
     @Override
