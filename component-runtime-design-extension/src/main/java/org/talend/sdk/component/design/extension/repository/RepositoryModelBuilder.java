@@ -42,8 +42,8 @@ public class RepositoryModelBuilder {
                         .concat(familyMeta.getPartitionMappers().values().stream(),
                                 familyMeta.getProcessors().values().stream())
                         .flatMap(b -> b.getParameterMetas().stream())
+                        .flatMap(this::flatten)
                         .filter(RepositoryModelBuilder::isConfiguration)
-                        .flatMap(this::toConfiguration)
                         .map(p -> createConfig(services, p, familyMeta.getName(), familyMeta.getIcon(),
                                 migrationHandlerFactory))
                         .collect(toMap(c -> c.getMeta().getJavaType(), identity(), (config1, config2) -> config1))
@@ -89,13 +89,11 @@ public class RepositoryModelBuilder {
         return Stream.concat(params.stream(), params.stream().flatMap(p -> toParamStream(p.getNestedParameters())));
     }
 
-    private Stream<ParameterMeta> toConfiguration(final ParameterMeta meta) {
+    private Stream<ParameterMeta> flatten(final ParameterMeta meta) {
         if (meta.getNestedParameters() == null) {
             return Stream.of(meta);
         }
-        return Stream.concat(Stream.of(meta),
-                meta.getNestedParameters().stream().filter(RepositoryModelBuilder::isConfiguration).flatMap(
-                        this::toConfiguration));
+        return Stream.concat(Stream.of(meta), meta.getNestedParameters().stream().flatMap(this::flatten));
     }
 
     private Config createConfig(final ComponentManager.AllServices services, final ParameterMeta config,

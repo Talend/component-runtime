@@ -211,8 +211,8 @@ public class ComponentFamilyMeta {
     @EqualsAndHashCode(callSuper = true)
     public static class PartitionMapperMeta extends BaseMeta<Mapper> {
 
-        PartitionMapperMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
-                final Class<?> type, final List<ParameterMeta> parameterMetas,
+        protected PartitionMapperMeta(final ComponentFamilyMeta parent, final String name, final String icon,
+                final int version, final Class<?> type, final List<ParameterMeta> parameterMetas,
                 final Function<Map<String, String>, Mapper> instantiator, final MigrationHandler migrationHandler,
                 final boolean validated) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);
@@ -223,8 +223,8 @@ public class ComponentFamilyMeta {
     @EqualsAndHashCode(callSuper = true)
     public static class ProcessorMeta extends BaseMeta<Processor> {
 
-        ProcessorMeta(final ComponentFamilyMeta parent, final String name, final String icon, final int version,
-                final Class<?> type, final List<ParameterMeta> parameterMetas,
+        protected ProcessorMeta(final ComponentFamilyMeta parent, final String name, final String icon,
+                final int version, final Class<?> type, final List<ParameterMeta> parameterMetas,
                 final Function<Map<String, String>, Processor> instantiator, final MigrationHandler migrationHandler,
                 final boolean validated) {
             super(parent, name, icon, version, type, parameterMetas, migrationHandler, instantiator, validated);

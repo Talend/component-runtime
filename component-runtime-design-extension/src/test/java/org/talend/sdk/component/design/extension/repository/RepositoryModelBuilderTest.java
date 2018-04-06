@@ -15,7 +15,12 @@
  */
 package org.talend.sdk.component.design.extension.repository;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static org.apache.xbean.asm6.ClassReader.EXPAND_FRAMES;
 import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
 import static org.apache.ziplock.JarLocation.jarLocation;
@@ -28,6 +33,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
@@ -42,11 +49,47 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import org.talend.sdk.component.junit.base.junit5.WithTemporaryFolder;
+import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
+import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
+import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.util.IdGenerator;
+import org.talend.test.DataStore1;
+import org.talend.test.PartitionMapper1;
+import org.talend.test.WrappingStore;
 
 @WithTemporaryFolder
 class RepositoryModelBuilderTest {
+
+    @Test
+    void notRootConfig() {
+        final RepositoryModel model = new RepositoryModelBuilder().create(new ComponentManager.AllServices(emptyMap()),
+                singleton(new ComponentFamilyMeta("test", emptyList(), "noicon", "test", "test") {
+
+                    {
+                        final ParameterMeta store = new ParameterMeta(null, DataStore1.class, ParameterMeta.Type.OBJECT,
+                                "config.store", "store", new String[0], emptyList(), emptyList(),
+                                new HashMap<String, String>() {
+
+                                    {
+                                        put("tcomp::configurationtype::type", "datastore");
+                                        put("tcomp::configurationtype::name", "testDatastore");
+                                    }
+                                });
+                        final ParameterMeta wrapper =
+                                new ParameterMeta(null, WrappingStore.class, ParameterMeta.Type.OBJECT, "config",
+                                        "config", new String[0], singletonList(store), emptyList(), emptyMap());
+                        getPartitionMappers().put("test", new PartitionMapperMeta(this, "mapper", "noicon", 1,
+                                PartitionMapper1.class, singletonList(wrapper), m -> null, (a, b) -> null, true) {
+                        });
+                    }
+                }), new MigrationHandlerFactory(new ReflectionService(new ParameterModelService())));
+        final List<Config> configs =
+                model.getFamilies().stream().flatMap(f -> f.getConfigs().stream()).collect(toList());
+        assertEquals(1, configs.size());
+    }
 
     @Test
     void test(final TemporaryFolder temporaryFolder, final TestInfo testInfo) throws Exception {

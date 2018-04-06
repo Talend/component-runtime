@@ -10,6 +10,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-751[TCOMP-751^]: Support gzip compression on component-server
+- link:https://jira.talendforge.org/browse/TCOMP-753[TCOMP-753^]: Make classpath scanning to find component configurable
 
 
 == Version 0.0.5
