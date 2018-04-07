@@ -40,8 +40,11 @@ import com.intellij.psi.JavaRecursiveElementWalkingVisitor;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiPackage;
+import com.intellij.psi.PsiType;
+import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 
@@ -127,11 +130,15 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     private Stream<PsiClass> unwrapInnerClasses(final PsiClass c) {
-        return Stream.concat(Stream.of(c),
-                Stream
-                        .of(c.getAllInnerClasses())
-                        .filter(ic -> Stream.of(ic.getModifiers()).anyMatch(m -> JvmModifier.STATIC == m))
-                        .flatMap(this::unwrapInnerClasses));
+        try {
+            return Stream.concat(Stream.of(c),
+                    Stream
+                            .of(c.getAllInnerClasses())
+                            .filter(ic -> Stream.of(ic.getModifiers()).anyMatch(m -> JvmModifier.STATIC == m))
+                            .flatMap(this::unwrapInnerClasses));
+        } catch (final NoSuchMethodError nsme) {
+            return Stream.empty(); // old idea versions dont have getModifiers()
+        }
     }
 
     private int withPriority(final Suggestion.Type type) {
@@ -191,13 +198,34 @@ public class SuggestionServiceImpl implements SuggestionService {
 
                     final Suggestion displayNameSuggestion = new Suggestion(
                             configurationName + "." + fieldName + "." + DISPLAY_NAME, Suggestion.Type.Configuration);
-                    if ("java.lang.String".equals(field.getType().getCanonicalText())) {
+                    final PsiType type = field.getType();
+                    if ("java.lang.String".equals(type.getCanonicalText())) {
                         return Stream.of(displayNameSuggestion,
                                 new Suggestion(configurationName + "." + fieldName + "." + PLACEHOLDER,
                                         Suggestion.Type.Configuration));
                     }
+                    final PsiClass clazz = findClass(type);
+                    if (clazz != null && clazz.isEnum()) {
+                        return Stream.concat(Stream.of(displayNameSuggestion),
+                                Stream
+                                        .of(clazz.getFields())
+                                        .filter(PsiEnumConstant.class::isInstance)
+                                        .map(f -> clazz.getName().substring(clazz.getName().lastIndexOf('.') + 1) + '.'
+                                                + f.getName() + "._displayName")
+                                        .map(v -> new Suggestion(v, Suggestion.Type.Configuration)));
+                    }
                     return Stream.of(displayNameSuggestion);
                 }), extractConfigTypes(family, configClazz));
+    }
+
+    private PsiClass findClass(final PsiType type) {
+        if (PsiClass.class.isInstance(type)) {
+            return PsiClass.class.cast(type);
+        }
+        if (PsiClassReferenceType.class.isInstance(type)) {
+            return PsiClassReferenceType.class.cast(type).resolve();
+        }
+        return null;
     }
 
     private String getFamilyFromPackageInfo(final PsiPackage psiPackage, final Module module) {
