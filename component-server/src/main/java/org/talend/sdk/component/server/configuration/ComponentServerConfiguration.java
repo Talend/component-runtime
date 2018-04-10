@@ -115,4 +115,18 @@ public interface ComponentServerConfiguration {
     @Documentation("How to validate a command/request. Accepted values: securityNoopHandler.")
     @ConfigProperty(name = "security.command.handler", defaultValue = "securityNoopHandler")
     String securityCommandHandler();
+
+    @Documentation("Should the component extensions add required dependencies.")
+    @ConfigProperty(name = "component.extend.dependencies", defaultValue = "true")
+    boolean addExtensionDependencies();
+
+    @Documentation("Gav to locate beam sdk package.")
+    @ConfigProperty(name = "extension.beam.sdk.coordinates",
+            defaultValue = "org.apache.beam:beam-sdks-java-core:jar:2.4.0")
+    String beamSdkCoordinates();
+
+    @Documentation("Gav to locate beam runner package.")
+    @ConfigProperty(name = "extension.beam.runner.coordinates",
+            defaultValue = "org.apache.beam:beam-runners-direct-java:jar:2.4.0")
+    String beamRunnerCoordinates();
 }

@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -104,6 +105,13 @@ public interface ComponentExtension {
      */
     default Collection<ClassFileTransformer> getTransformers() {
         return emptyList();
+    }
+
+    /**
+     * @return a Stream of dependencies coordinates
+     */
+    default Collection<String> additionalDependencies() {
+        return Collections.emptyList();
     }
 
     /**

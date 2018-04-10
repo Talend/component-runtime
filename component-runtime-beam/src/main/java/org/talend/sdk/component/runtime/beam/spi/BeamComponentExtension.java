@@ -21,6 +21,7 @@ import static java.util.Optional.ofNullable;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -131,5 +132,11 @@ public class BeamComponentExtension implements ComponentExtension {
             throw re;
         }
         throw new IllegalArgumentException("unsupported " + component + " by " + getClass());
+    }
+
+    @Override
+    public Collection<String> additionalDependencies() {
+        return Arrays.asList(System.getProperty("talend.component.server.extension.beam.runner.coordinates"),
+                System.getProperty("talend.component.server.extension.beam.sdk.coordinates"));
     }
 }

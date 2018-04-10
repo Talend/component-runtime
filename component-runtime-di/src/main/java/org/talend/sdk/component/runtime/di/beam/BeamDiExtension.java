@@ -97,4 +97,9 @@ public class BeamDiExtension implements ComponentExtension {
     public <T> T convert(final ComponentInstance instance, final Class<T> component) {
         return delegate.convert(instance, component);
     }
+
+    @Override
+    public Collection<String> additionalDependencies() {
+        return delegate.additionalDependencies();
+    }
 }
