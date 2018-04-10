@@ -1,5 +1,6 @@
 = Talend Component Documentation
 :page-partial:
+:toc:
 
 include::documentation-definition.adoc[leveloffset=+1]
 
