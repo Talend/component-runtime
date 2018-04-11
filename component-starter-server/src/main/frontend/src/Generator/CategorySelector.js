@@ -24,8 +24,6 @@ function escapeRegexCharacters(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// split the config in 2: the "main" category (value) which has suggestions and the "specific" one which is
-// for this component family
 export default class CategorySelector extends React.Component {
   constructor(props) {
     super(props);
@@ -44,16 +42,9 @@ export default class CategorySelector extends React.Component {
       itemsList: theme.items,
     };
 
-    const init = props.initialValue.split('/');
-    const rootCat = init[0];
-    const specificCat = init.length >= 2 ? init[1] : 'ComponentCategory';
     this.state = {
-      previousValue: rootCat,
-      value: rootCat,
-      specific: {
-        previousValue: specificCat,
-        value: specificCat
-      },
+      previousValue: props.initialValue,
+      value: props.initialValue,
       allSuggestions: [
         {
           title: 'Business',
@@ -88,7 +79,7 @@ export default class CategorySelector extends React.Component {
   }
 
   hasChanged() {
-    return this.state.value !== this.state.previousValue || this.state.specific.value !== this.state.specific.previousValue;
+    return this.state.value !== this.state.previousValue;
   }
 
   onBlur(event) {
@@ -152,13 +143,9 @@ export default class CategorySelector extends React.Component {
 
   updateValue(value) {
     const previousValue = value;
-    this.propagateChange(value, this.state.specific.value);
-    this.setState({ value, previousValue });
-  }
-
-  propagateChange(value, specificValue) {
-    const aggregate = (value.title || (!!value && value.length > 0 ? value : 'Misc')) + (!!specificValue ? '/' + specificValue : '');
+    const aggregate = (value.title || (!!value && value.length > 0 ? value : 'Misc'));
     this.props.onChange({ value: aggregate });
+    this.setState({ value, previousValue });
   }
 
   resetValue() {
@@ -186,14 +173,6 @@ export default class CategorySelector extends React.Component {
     });
   }
 
-  onSpecificChange(value) {
-    this.setState(state => {
-      state.specific.previousValue = state.specific.value;
-      state.specific.value = value;
-      this.propagateChange(state.value, state.specific.value);
-    });
-  }
-
   render() {
     return (
       <div className={theme.CategorySelector}>
@@ -213,9 +192,6 @@ export default class CategorySelector extends React.Component {
             multiSection={false}
             autoFocus={false}
           />
-          <span className={theme.categorySeparator}>/</span>
-          <Input className="form-control" type="text" placeholder="Enter the component family specific category..."
-                 required onChange={value => this.onSpecificChange(value)} initialValue={this.state.specific.value} />
         </div>
       </div>
     );
