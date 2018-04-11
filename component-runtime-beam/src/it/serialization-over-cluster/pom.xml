@@ -38,11 +38,6 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-runtime-standalone</artifactId>
-      <version>@project.version@</version>
-    </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>
       <version>@project.version@</version>
     </dependency>

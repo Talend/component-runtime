@@ -126,11 +126,6 @@ Dependencies:
     <artifactId>component-runtime-beam</artifactId>
     <scope>test</scope>
   </dependency>
-  <dependency>
-    <groupId>org.talend.sdk.component</groupId>
-    <artifactId>component-runtime-standalone</artifactId>
-    <scope>test</scope>
-  </dependency>
 </dependencies>
 ----
 

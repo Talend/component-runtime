@@ -46,13 +46,6 @@
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-runtime-standalone</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-      <optional>true</optional>
-    </dependency>
 
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
