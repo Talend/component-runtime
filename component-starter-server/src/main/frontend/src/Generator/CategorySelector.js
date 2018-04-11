@@ -51,7 +51,7 @@ export default class CategorySelector extends React.Component {
           description: 'Category about business related components'
         },
         {
-          title: 'Database',
+          title: 'Databases',
           description: 'Category about RDBMS or SQL databases'
         },
         {
