@@ -182,6 +182,7 @@
     <formatter-plugin.version>2.7.0</formatter-plugin.version>
     <common-plugin.version>1.0.7</common-plugin.version>
     <jgit.version>4.9.2.201712150930-r</jgit.version>
+    <clirr-plugin.version>2.8</clirr-plugin.version>
 
     <node.version>v8.4.0</node.version>
     <yarn.version>v1.3.2</yarn.version>
