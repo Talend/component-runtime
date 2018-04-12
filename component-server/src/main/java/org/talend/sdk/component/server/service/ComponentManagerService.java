@@ -89,10 +89,6 @@ public class ComponentManagerService {
     private void init() {
         ofNullable(configuration.mavenRepository())
                 .ifPresent(repo -> System.setProperty("talend.component.manager.m2.repository", repo));
-        ofNullable(configuration.beamRunnerCoordinates()).ifPresent(
-                runner -> System.setProperty("talend.component.server.extension.beam.runner.coordinates", runner));
-        ofNullable(configuration.beamSdkCoordinates())
-                .ifPresent(sdk -> System.setProperty("talend.component.server.extension.beam.sdk.coordinates", sdk));
 
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         instance = ComponentManager.instance();

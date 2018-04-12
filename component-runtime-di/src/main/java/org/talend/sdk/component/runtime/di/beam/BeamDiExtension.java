@@ -99,7 +99,7 @@ public class BeamDiExtension implements ComponentExtension {
     }
 
     @Override
-    public Collection<String> additionalDependencies() {
-        return delegate.additionalDependencies();
+    public Collection<String> getAdditionalDependencies() {
+        return delegate.getAdditionalDependencies();
     }
 }

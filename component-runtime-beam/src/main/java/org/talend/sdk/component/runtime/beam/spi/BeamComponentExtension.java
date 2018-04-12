@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.sdk.component.runtime.base.Delegated;
+import org.talend.sdk.component.runtime.beam.Versions;
 import org.talend.sdk.component.runtime.beam.design.BeamFlowFactory;
 import org.talend.sdk.component.runtime.beam.factory.service.AutoValueFluentApiFactory;
 import org.talend.sdk.component.runtime.beam.factory.service.PluginCoderFactory;
@@ -135,8 +136,7 @@ public class BeamComponentExtension implements ComponentExtension {
     }
 
     @Override
-    public Collection<String> additionalDependencies() {
-        return Arrays.asList(System.getProperty("talend.component.server.extension.beam.runner.coordinates"),
-                System.getProperty("talend.component.server.extension.beam.sdk.coordinates"));
+    public Collection<String> getAdditionalDependencies() {
+        return Arrays.asList(Versions.GROUP + ":" + Versions.ARTIFACT + ":jar:" + Versions.VERSION);
     }
 }

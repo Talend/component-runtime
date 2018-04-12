@@ -153,14 +153,20 @@ public class ComponentResource {
                             ComponentExtension.ComponentContext context =
                                     c.get(ComponentContexts.class).getContexts().get(meta.getType());
                             ComponentExtension extension = context.owningExtension();
-                            Stream<String> deps = c.findDependencies().map(Artifact::toCoordinate);
+                            final Stream<Artifact> deps = c.findDependencies();
+                            Stream<Artifact> result = deps;
                             if (configuration.addExtensionDependencies() && extension != null) {
-                                Stream<String> addDeps =
-                                        extension.additionalDependencies().stream().map(Artifact::from).map(
-                                                Artifact::toCoordinate);
-                                deps = Stream.concat(deps, addDeps);
+                                Stream<Artifact> addDeps = extension
+                                        .getAdditionalDependencies()
+                                        .stream()
+                                        .map(Artifact::from)
+                                        // filter required artifacts if they are already present in the list.
+                                        .filter(extArtifact -> deps.allMatch(depsArtifact -> !(depsArtifact.getGroup()
+                                                + ":" + depsArtifact.getArtifact()).equals(
+                                                        extArtifact.getGroup() + ":" + extArtifact.getArtifact())));
+                                result = Stream.concat(deps, addDeps);
                             }
-                            return new DependencyDefinition(deps.collect(toList()));
+                            return new DependencyDefinition(result.map(Artifact::toCoordinate).collect(toList()));
                         }).orElse(new DependencyDefinition(emptyList())))));
     }
 

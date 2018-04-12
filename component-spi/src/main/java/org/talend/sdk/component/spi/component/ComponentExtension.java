@@ -110,7 +110,7 @@ public interface ComponentExtension {
     /**
      * @return a Stream of dependencies coordinates
      */
-    default Collection<String> additionalDependencies() {
+    default Collection<String> getAdditionalDependencies() {
         return Collections.emptyList();
     }
 
