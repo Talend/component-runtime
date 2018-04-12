@@ -142,7 +142,7 @@
     <tomcat.version>9.0.7</tomcat.version>
     <cxf.version>3.2.4</cxf.version>
     <log4j2.version>2.11.0</log4j2.version>
-    <batik.version>1.9</batik.version>
+    <batik.version>1.9.1</batik.version>
     <beam.version>2.4.0</beam.version>
     <commons-codec.version>1.11</commons-codec.version>
     <commons-compress.version>1.16.1</commons-compress.version>
