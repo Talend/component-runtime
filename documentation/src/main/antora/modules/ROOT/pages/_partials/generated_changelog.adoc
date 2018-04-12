@@ -1,5 +1,13 @@
 
 
+== Version 0.0.7
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-761[TCOMP-761^]: Merge component-runtime-manager and component-runtime-standalone
+- link:https://jira.talendforge.org/browse/TCOMP-764[TCOMP-764^]: Clean up component-form-core dependencies
+
+
 == Version 0.0.6
 
 === Bug
