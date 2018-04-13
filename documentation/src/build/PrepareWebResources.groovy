@@ -15,9 +15,18 @@
  */
 package org.talend.sdk.component.build
 
+import org.asciidoctor.Asciidoctor
+import org.asciidoctor.AttributesBuilder
+import org.asciidoctor.OptionsBuilder
+import org.asciidoctor.SafeMode
+
 import javax.json.bind.JsonbBuilder
 import javax.json.bind.JsonbConfig
 import javax.json.bind.config.PropertyOrderStrategy
+
+import org.jsoup.Jsoup
+
+def adoc = Asciidoctor.Factory.create()
 
 def copyJsResource = { source, output ->
     def target = new File(project.build.directory, "${project.build.finalName}/_/${output}")
@@ -59,6 +68,23 @@ def readTitle = { file ->
 def readContent = { file ->
     file.readLines().findAll { !it.startsWith(':') && !it.startsWith('=') && !it.trim().isEmpty() }.join(' ').replace('`', '')
 }
+def toText = { content ->
+    def html = adoc.render(content, OptionsBuilder.options()
+            .safe(SafeMode.UNSAFE)
+            .backend('html5')
+            .headerFooter(true)
+            .attributes(AttributesBuilder.attributes()
+            .attribute('hide-uri-scheme')
+            .attribute('idprefix')
+            .attribute('idseparator')
+            .attribute('partialsdir', new File(project.basedir, 'src/main/antora/modules/ROOT/pages/_partials').absolutePath)
+            .attribute('imagesdir', new File(project.basedir, 'src/main/antora/modules/ROOT/assets/images').absolutePath)
+            .attribute('project_version', project.properties['versions.release'])
+            .attribute('docversion', project.properties['versions.release'])
+            .attribute('git_branch', project.properties['git.branch'])
+            .attribute('deploymentRoot', 'https://talend.github.io/component-runtime')))
+    Jsoup.parse(html).body()text()
+}
 
 def sourceSearchJs = new File(project.basedir, 'src/main/antora/modules/ROOT/pages/search.adoc')
 def index = []
@@ -71,7 +97,7 @@ new File(project.basedir, 'src/main/antora/modules/ROOT/pages').listFiles()
             // todo: pre tokenize?
             index.add(new Document(
                     title: readTitle(file),
-                    content: readContent(file),
+                    content: toText(readContent(file)),
                     link: file.name.replace('.adoc', '.html')))
         }
 // as any generated source we ensure it is deterministic

@@ -42,6 +42,7 @@
     <asciidoctorj-diagram.version>1.5.4.1</asciidoctorj-diagram.version>
     <!-- alpha-16 in mvn, alpha.16 in gem -->
     <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
+    <jsoup.version>1.11.2</jsoup.version>
   </properties>
 
   <dependencies>
@@ -155,6 +156,16 @@
             <groupId>org.apache.johnzon</groupId>
             <artifactId>johnzon-jsonb</artifactId>
             <version>${johnzon.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctorj</artifactId>
+            <version>${asciidoctorj.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -597,6 +608,16 @@
                 <groupId>org.apache.johnzon</groupId>
                 <artifactId>johnzon-jsonb</artifactId>
                 <version>${johnzon.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctorj</artifactId>
+                <version>${asciidoctorj.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
               </dependency>
             </dependencies>
           </plugin>

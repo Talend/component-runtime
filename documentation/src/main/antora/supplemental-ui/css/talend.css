@@ -51,6 +51,9 @@ h3.contributor-commits {
 .search-result-container {
   padding-top: 1rem;
 }
+.search-result-container p {
+  font-size: medium;
+}
 input.rounded {
   border: 1px solid #ccc;
   -moz-border-radius: 5px;
