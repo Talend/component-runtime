@@ -16,7 +16,9 @@
 package org.talend.sdk.component.runtime.manager.asm;
 
 import static java.util.stream.Collectors.toList;
+import static org.apache.xbean.asm6.ClassReader.SKIP_CODE;
 import static org.apache.xbean.asm6.ClassReader.SKIP_DEBUG;
+import static org.apache.xbean.asm6.ClassReader.SKIP_FRAMES;
 import static org.apache.xbean.asm6.Opcodes.AALOAD;
 import static org.apache.xbean.asm6.Opcodes.AASTORE;
 import static org.apache.xbean.asm6.Opcodes.ACC_PRIVATE;
@@ -473,7 +475,7 @@ public class ProxyGenerator implements Serializable {
             }
             final ClassReader reader = new ClassReader(stream);
             final VersionVisitor visitor = new VersionVisitor();
-            reader.accept(visitor, SKIP_DEBUG);
+            reader.accept(visitor, SKIP_DEBUG + SKIP_CODE + SKIP_FRAMES);
             if (visitor.version != 0) {
                 return visitor.version;
             }
