@@ -20,10 +20,13 @@ import java.util.Set;
 
 import org.apache.xbean.finder.filter.Filter;
 
+import lombok.Getter;
+
 public class KnownClassesFilter implements Filter { // one easy and efficient solution for fatjars
 
     public static final Filter INSTANCE = new KnownClassesFilter();
 
+    @Getter
     private final Filter delegateSkip;
 
     private KnownClassesFilter() {
@@ -160,8 +163,9 @@ public class KnownClassesFilter implements Filter { // one easy and efficient so
 
     }
 
-    private static class OptimizedExclusionFilter implements Filter {
+    public static class OptimizedExclusionFilter implements Filter {
 
+        @Getter
         private final Set<String> included;
 
         private OptimizedExclusionFilter(final Set<String> exclusions) {
