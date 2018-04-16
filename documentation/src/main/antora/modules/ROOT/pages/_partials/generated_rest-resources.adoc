@@ -1,5 +1,5 @@
 = REST resources of Component Runtime :: Server
-0.0.8-SNAPSHOT
+0.0.9-SNAPSHOT
 
 == `POST api/v1/action/execute`
 
