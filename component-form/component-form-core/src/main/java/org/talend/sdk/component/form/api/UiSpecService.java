@@ -91,25 +91,18 @@ public class UiSpecService implements AutoCloseable {
 
         // [TCOMP-767] 0.0.7 -> 0.0.8 compat
         final Collection<SimplePropertyDefinition> props;
-        if (rootProperties.size() == 1 && "configuration".equals(rootProperties.iterator().next())) {
-            final SimplePropertyDefinition def = node
+        if (rootProperties.size() == 1 && rootProperties.iterator().next().startsWith("configuration.")) {
+            final String root = rootProperties.iterator().next();
+            final SimplePropertyDefinition def =
+                    node.getProperties().stream().filter(prop -> prop.getPath().equals(root)).findFirst().get();
+            props = node
                     .getProperties()
                     .stream()
-                    .filter(prop -> prop.getPath().equals("configuration"))
-                    .findFirst()
-                    .get();
-            if ("configuration".equals(def.getName())) {
-                props = node.getProperties();
-            } else {
-                props = node
-                        .getProperties()
-                        .stream()
-                        .map(prop -> new SimplePropertyDefinition(
-                                def.getName() + prop.getPath().substring("configuration".length()), prop.getName(),
-                                prop.getDisplayName(), prop.getType(), prop.getDefaultValue(), prop.getValidation(),
-                                prop.getMetadata(), prop.getPlaceholder(), prop.getProposalDisplayNames()))
-                        .collect(toList());
-            }
+                    .map(prop -> new SimplePropertyDefinition(def.getName() + prop.getPath().substring(root.length()),
+                            prop.getName(), prop.getDisplayName(), prop.getType(), prop.getDefaultValue(),
+                            prop.getValidation(), prop.getMetadata(), prop.getPlaceholder(),
+                            prop.getProposalDisplayNames()))
+                    .collect(toList());
         } else {
             props = node.getProperties();
         }
