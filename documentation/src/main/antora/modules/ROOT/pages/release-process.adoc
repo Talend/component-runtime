@@ -98,10 +98,9 @@ mvn release:perform
 
 Once these commands passed, you need to do/ensure:
 
-1. The git tag corresponding to the release was pushed upstream (on github.com/Talend/component-runtime), if not,
+1. Rebuild the project which is now on the new SNAPSHOT version (to update site metadata and versions for next iteration). Commit the diff.
+2. The git tag corresponding to the release was pushed upstream (on github.com/Talend/component-runtime), if not,
 execute `git push --follow-tags`?
-2. Close and release the staging repository on Sonatype OSS (log in on https://oss.sonatype.org/, then hit `Staging Repositories` in the left pane,
-select your repository and hit `Close` then `Release` on the top buttons).
 
 == After the release
 
