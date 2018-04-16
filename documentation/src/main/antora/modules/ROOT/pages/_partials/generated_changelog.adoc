@@ -1,5 +1,21 @@
 
 
+== Version 0.0.9
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-768[TCOMP-768^]: More tolerance of configuration prefix for implicit migration of configuration node in form core library
+
+
+== Version 0.0.8
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-756[TCOMP-756^]: Setup maven clirr plugin for component-api +testing
+- link:https://jira.talendforge.org/browse/TCOMP-762[TCOMP-762^]: Starter should only propose a single category level in the ui
+- link:https://jira.talendforge.org/browse/TCOMP-767[TCOMP-767^]: Ensure the configurationtype endpoints have matching name/path values
+
+
 == Version 0.0.7
 
 === Work Item
