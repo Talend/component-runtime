@@ -98,7 +98,7 @@ public class UiSpecService implements AutoCloseable {
                     .filter(prop -> prop.getPath().equals("configuration"))
                     .findFirst()
                     .get();
-            if ("configuration".equals(def.getPath())) {
+            if ("configuration".equals(def.getName())) {
                 props = node.getProperties();
             } else {
                 props = node
