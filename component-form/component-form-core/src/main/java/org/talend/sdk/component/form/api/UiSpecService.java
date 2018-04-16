@@ -91,6 +91,7 @@ public class UiSpecService implements AutoCloseable {
 
         // [TCOMP-767] 0.0.7 -> 0.0.8 compat
         final Collection<SimplePropertyDefinition> props;
+        final Predicate<SimplePropertyDefinition> isRootProperty;
         if (rootProperties.size() == 1 && rootProperties.iterator().next().startsWith("configuration.")) {
             final String root = rootProperties.iterator().next();
             final SimplePropertyDefinition def =
@@ -103,12 +104,13 @@ public class UiSpecService implements AutoCloseable {
                             prop.getValidation(), prop.getMetadata(), prop.getPlaceholder(),
                             prop.getProposalDisplayNames()))
                     .collect(toList());
+            isRootProperty = p -> p.getPath().equals(def.getName());
         } else {
             props = node.getProperties();
+            isRootProperty = p -> rootProperties.contains(p.getPath());
         }
 
-        return convert(node::getDisplayName, () -> family, () -> props, node::getActions,
-                p -> rootProperties.contains(p.getPath()));
+        return convert(node::getDisplayName, () -> family, () -> props, node::getActions, isRootProperty);
     }
 
     /**
