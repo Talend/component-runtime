@@ -39,6 +39,7 @@ var addResult = function (parent, result) {
 
 searchInput.oninput = function () {
     var results = search.search(searchInput.value);
+    var maxTextLen = 250;
 
     resultCounter.innerText = results.length + ' results';
 
@@ -50,7 +51,7 @@ searchInput.oninput = function () {
     for (var i = 0; i < results.length; i++) {
       addResult(resultTable, {
         title: results[i].title,
-        description: results[i].content.length < 150 ? results[i].content : (results[i].content.substring(0, 147) + '...'),
+        description: results[i].content.length < maxTextLen ? results[i].content : (results[i].content.substring(0, maxTextLen - 3) + '...'),
         link: results[i].link
       });
     }

@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-runtime-testing</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>0.0.7-SNAPSHOT</version>
+    <version>0.0.9-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -178,6 +178,26 @@
                   </excludes>
                 </filter>
               </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>clirr-maven-plugin</artifactId>
+        <version>${clirr-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>check compatibility</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <excludes>
+                <exclude>org/talend/__shade__/**</exclude>
+                <exclude>**/base/**</exclude>
+                <exclude>**/internal/**</exclude>
+              </excludes>
             </configuration>
           </execution>
         </executions>

@@ -168,11 +168,11 @@ public class ConfigurationTypeResource {
 
                     // force configuration as root prefix
                     final int prefixLen = c.getMeta().getPath().length();
+                    final String forcedPrefix = c.getMeta().getName();
                     node.setProperties(propertiesService
                             .buildProperties(singleton(c.getMeta()), loader, locale, null)
-                            .map(p -> new SimplePropertyDefinition("configuration" + p.getPath().substring(
-
-                                    prefixLen), p.getName(), p.getDisplayName(), p.getType(), p.getDefaultValue(),
+                            .map(p -> new SimplePropertyDefinition(forcedPrefix + p.getPath().substring(prefixLen),
+                                    p.getName(), p.getDisplayName(), p.getType(), p.getDefaultValue(),
                                     p.getValidation(), p.getMetadata(), p.getPlaceholder(),
                                     p.getProposalDisplayNames()))
                             .collect(toList()));

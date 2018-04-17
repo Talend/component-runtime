@@ -167,11 +167,6 @@ TIP: you can use `ViewsMappingTransform` or `CoGroupByKeyResultMappingTransform`
 format to the record format representing the multiple inputs/output, so a kind of `Map<String, List<?>>`,
 but materialized as a `JsonObject`. Input data must be of type `JsonObject` in this case.
 
-=== Deployment
-
-IMPORTANT: Beam serializing components it is crucial to add `component-runtime-standalone` dependency to the project. It will take
-care of providing an implicit and lazy `ComponentManager` managing the component in a fatjar case.
-
 === Convert a Beam.io in a component I/O
 
 For simple I/O you can get automatic conversion of the Beam.io to a component I/O transparently if you decorated your `PTransform`

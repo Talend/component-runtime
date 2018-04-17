@@ -13,8 +13,8 @@
 @Option
 String config;
 ----
-|image::gallery/widgets/studio/input.png[Studio Input,window="_blank",link="images/gallery/widgets/studio/input.png"]
-|image::gallery/widgets/web/input.png[Web Input,window="_blank",link="images/gallery/widgets/web/input.png"]
+|image::gallery/widgets/studio/input.png[Studio Input,window="_blank",link="_images/gallery/widgets/studio/input.png"]
+|image::gallery/widgets/web/input.png[Web Input,window="_blank",link="_images/gallery/widgets/web/input.png"]
 
 
 | Password
@@ -24,8 +24,8 @@ String config;
 @Credential
 String config;
 ----
-|image::gallery/widgets/studio/password.png[Studio Password,window="_blank",link="images/gallery/widgets/studio/password.png"]
-|image::gallery/widgets/web/password.png[Web Password,window="_blank",link="images/gallery/widgets/web/password.png"]
+|image::gallery/widgets/studio/password.png[Studio Password,window="_blank",link="_images/gallery/widgets/studio/password.png"]
+|image::gallery/widgets/web/password.png[Web Password,window="_blank",link="_images/gallery/widgets/web/password.png"]
 
 | Textarea
 |[source,java]
@@ -34,8 +34,8 @@ String config;
 @Textarea
 String config;
 ----
-|image::gallery/widgets/studio/textarea.png[Studio Textarea,window="_blank",link="images/gallery/widgets/studio/textarea.png"]
-|image::gallery/widgets/web/textarea.png[Web Textarea,window="_blank",link="images/gallery/widgets/web/textarea.png"]
+|image::gallery/widgets/studio/textarea.png[Studio Textarea,window="_blank",link="_images/gallery/widgets/studio/textarea.png"]
+|image::gallery/widgets/web/textarea.png[Web Textarea,window="_blank",link="_images/gallery/widgets/web/textarea.png"]
 
 | Checkbox
 |[source,java]
@@ -43,8 +43,8 @@ String config;
 @Option
 Boolean config;
 ----
-|image::gallery/widgets/studio/checkbox.png[Studio Checkbox,window="_blank",link="images/gallery/widgets/studio/checkbox.png"]
-|image::gallery/widgets/web/checkbox.png[Web Checkbox,window="_blank",link="images/gallery/widgets/web/checkbox.png"]
+|image::gallery/widgets/studio/checkbox.png[Studio Checkbox,window="_blank",link="_images/gallery/widgets/studio/checkbox.png"]
+|image::gallery/widgets/web/checkbox.png[Web Checkbox,window="_blank",link="_images/gallery/widgets/web/checkbox.png"]
 
 | List
 |[source,java]
@@ -52,8 +52,8 @@ Boolean config;
 @Option
 List<String> config;
 ----
-|image::gallery/widgets/studio/list.png[Studio List,window="_blank",link="images/gallery/widgets/studio/list.png"]
-|image::gallery/widgets/web/list.png[Web List,window="_blank",link="images/gallery/widgets/web/list.png"]
+|image::gallery/widgets/studio/list.png[Studio List,window="_blank",link="_images/gallery/widgets/studio/list.png"]
+|image::gallery/widgets/web/list.png[Web List,window="_blank",link="_images/gallery/widgets/web/list.png"]
 
 
 | Table
@@ -62,8 +62,8 @@ List<String> config;
 @Option
 Object config;
 ----
-|image::gallery/widgets/studio/table.png[Studio Table,window="_blank",link="images/gallery/widgets/studio/table.png"]
-|image::gallery/widgets/web/table.png[Web Table,window="_blank",link="images/gallery/widgets/web/table.png"]
+|image::gallery/widgets/studio/table.png[Studio Table,window="_blank",link="_images/gallery/widgets/studio/table.png"]
+|image::gallery/widgets/web/table.png[Web Table,window="_blank",link="_images/gallery/widgets/web/table.png"]
 
 
 | Code
@@ -73,8 +73,8 @@ Object config;
 @Option
 String config;
 ----
-|image::gallery/widgets/studio/javaCode.png[Studio Code,window="_blank",link="images/gallery/widgets/studio/javaCode.png"]
-|image::gallery/widgets/web/javaCode.png[Web Code,window="_blank",link="images/gallery/widgets/web/javaCode.png"]
+|image::gallery/widgets/studio/javaCode.png[Studio Code,window="_blank",link="_images/gallery/widgets/studio/javaCode.png"]
+|image::gallery/widgets/web/javaCode.png[Web Code,window="_blank",link="_images/gallery/widgets/web/javaCode.png"]
 
 | Schema
 |[source,java]
@@ -83,8 +83,8 @@ String config;
 @Structure
 List<String> config;
 ----
-|image::gallery/widgets/studio/schema.png[Studio Schema,window="_blank",link="images/gallery/widgets/studio/schema.png"]
-|image::gallery/widgets/web/schema.png[Web Schema,window="_blank",link="images/gallery/widgets/web/schema.png"]
+|image::gallery/widgets/studio/schema.png[Studio Schema,window="_blank",link="_images/gallery/widgets/studio/schema.png"]
+|image::gallery/widgets/web/schema.png[Web Schema,window="_blank",link="_images/gallery/widgets/web/schema.png"]
 
 |===
 
@@ -109,8 +109,20 @@ ValidationResult doValidate(String url) {
 //validate the property
 }
 ----
-|image::gallery/widgets/studio/validation_property.png[Studio Code,window="_blank",link="images/gallery/widgets/studio/prop_validation.png"]
-|image::gallery/widgets/web/validation_property.png[Web Code,window="_blank",link="images/gallery/widgets/web/prop_validation.png"]
+|image::gallery/widgets/studio/validation_property.png[Studio Code,window="_blank",link="_images/gallery/widgets/studio/validation_property.png"]
+|image::gallery/widgets/web/validation_property.png[Web Code,window="_blank",link="_images/gallery/widgets/web/validation_property.png"]
+
+
+| Property validation with Pattern
+|[source,java]
+----
+/** configuration class */
+@Option
+@Pattern("/^[a-zA-Z\\-]+$/")
+String username;
+----
+|image::gallery/widgets/studio/validation_pattern.png[Studio Code,window="_blank",link="_images/gallery/widgets/studio/validation_pattern.png"]
+|image::gallery/widgets/web/validation_pattern.png[Web Code,window="_blank",link="_images/gallery/widgets/web/validation_pattern.png"]
 
 
 | Data store validation
@@ -129,7 +141,13 @@ public HealthCheckStatus testConnection(){
 //validate the connection
 }
 ----
-|image::gallery/widgets/studio/validation_datastore.png[Studio Code,window="_blank",link="images/gallery/widgets/studio/prop_validation.png"]
-|image::gallery/widgets/web/validation_datastore.png[Web Code,window="_blank",link="images/gallery/widgets/web/prop_validation.png"]
+|image::gallery/widgets/studio/validation_datastore.png[Studio Code,window="_blank",link="_images/gallery/widgets/studio/prop_validation.png"]
+|image::gallery/widgets/web/validation_datastore.png[Web Code,window="_blank",link="_images/gallery/widgets/web/prop_validation.png"]
 
 |===
+
+There are also other types of validation similar to `@Pattern` that you can use :
+
+* `@Min`, `@Max` for numbers.
+* `@Unique` for collection values
+* `@Required` for required configuration

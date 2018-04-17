@@ -35,10 +35,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
@@ -52,6 +55,8 @@ import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+
+import lombok.Data;
 
 class UiSpecServiceTest {
 
@@ -86,21 +91,32 @@ class UiSpecServiceTest {
                 .map(e -> e.getValue().getId())
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No family"));
-        final Ui payload =
-                service
-                        .convert(family,
-                                load
-                                        .getNodes()
-                                        .values()
-                                        .stream()
-                                        .filter(e -> "amRiYyNkYXRhc3RvcmUjamRiYw".equals(e.getId()))
-                                        .findFirst()
-                                        .orElseThrow(() -> new IllegalArgumentException(
-                                                "No amRiYyNkYXRhc3RvcmUjamRiYw config")))
-                        .toCompletableFuture()
-                        .get();
-        assertTrue(payload.getJsonSchema().getProperties().containsKey("connection"), "connection");
-        assertEquals(4, payload.getUiSchema().iterator().next().getItems().size());
+        final Ui payload = service
+                .convert(family,
+                        load
+                                .getNodes()
+                                .values()
+                                .stream()
+                                .filter(e -> "U2VydmljZU5vdyNkYXRhc3RvcmUjYmFzaWNBdXRo".equals(e.getId()))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                        "No U2VydmljZU5vdyNkYXRhc3RvcmUjYmFzaWNBdXRo config")))
+                .toCompletableFuture()
+                .get();
+        assertTrue(payload.getJsonSchema().getProperties().containsKey("dataStore"), "dataStore");
+        assertEquals(3, payload.getUiSchema().iterator().next().getItems().size());
+
+        final Set<String> uiSchemaKeys = flattenUiSchema(payload.getUiSchema().stream())
+                .map(UiSchema::getKey)
+                .filter(it -> Stream.of("dataStore", "button_healthcheck_dataStore").noneMatch(
+                        ignored -> ignored.equals(it)))
+                .filter(Objects::nonNull)
+                .collect(toSet());
+        final Set<String> jsonSchemaKeys = flattenJsonSchema(Stream.of(new Pair("", payload.getJsonSchema())))
+                .map(it -> it.prefix)
+                .filter(it -> Stream.of("", "dataStore").noneMatch(ignored -> ignored.equals(it)))
+                .collect(toSet());
+        assertEquals(uiSchemaKeys, jsonSchemaKeys);
     }
 
     @Test
@@ -415,5 +431,24 @@ class UiSpecServiceTest {
             current = Map.class.cast(current.get(split[i]));
         }
         return current.get(split[split.length - 1]);
+    }
+
+    private Stream<UiSchema> flattenUiSchema(final Stream<UiSchema> uiSchema) {
+        return uiSchema.flatMap(u -> u.getItems() == null ? Stream.of(u)
+                : Stream.concat(Stream.of(u), flattenUiSchema(u.getItems().stream())));
+    }
+
+    private Stream<Pair> flattenJsonSchema(final Stream<Pair> jsonSchemaStream) {
+        return jsonSchemaStream.flatMap(u -> u.schema.getProperties() == null ? Stream.of(u)
+                : Stream.concat(Stream.of(u), flattenJsonSchema(u.schema.getProperties().entrySet().stream().map(
+                        it -> new Pair(u.prefix + (u.prefix.isEmpty() ? "" : ".") + it.getKey(), it.getValue())))));
+    }
+
+    @Data
+    private static class Pair {
+
+        private final String prefix;
+
+        private final JsonSchema schema;
     }
 }

@@ -45,6 +45,13 @@ class ConfigurationTypeResourceTest {
     }
 
     @Test
+    void ensureConsistencyBetweenPathsAndNames() {
+        final ConfigTypeNodes index =
+                ws.read(ConfigTypeNodes.class, "get", "/configurationtype/index?lightPayload=false", "");
+        validateConsistencyBetweenNamesAndKeys(index.getNodes().get("amRiYyNkYXRhc3RvcmUjamRiYw"));
+    }
+
+    @Test
     void webSocketDetail() {
         final ConfigTypeNodes index = ws.read(ConfigTypeNodes.class, "get",
                 "/configurationtype/details?identifiers=amRiYyNkYXRhc3RvcmUjamRiYw", "");
@@ -55,7 +62,7 @@ class ConfigurationTypeResourceTest {
                 jdbcConnection
                         .getProperties()
                         .stream()
-                        .filter(p -> "configuration.configurations".equals(p.getPath()))
+                        .filter(p -> "connection.configurations".equals(p.getPath()))
                         .findFirst()
                         .get()
                         .getDefaultValue());
@@ -107,4 +114,8 @@ class ConfigurationTypeResourceTest {
         assertEquals("dataset", jdbcDataSet.getConfigurationType());
     }
 
+    private void validateConsistencyBetweenNamesAndKeys(final ConfigTypeNode node) {
+        // we had a bug where the paths were not rebased and therefore this test was failing
+        assertTrue(node.getProperties().stream().anyMatch(it -> it.getName().equals(it.getPath())));
+    }
 }

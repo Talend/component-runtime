@@ -307,3 +307,12 @@ Example: if you want to list only the plugins you use you can configure this tra
   <include>org.talend.sdk.component:component-x,org.talend.sdk.component:component-y,org.talend.sdk.component:component-z</include>
 </transformer>
 ----
+
+== Component scanning rules and default exclusions
+
+The framework uses two kind of filtering when scanning your component. One based on the jar name
+and one based on the package name. Ensure your component definitions (including services)
+are in a scanned module if not registered manually using `ComponentManager.instance().addPlugin()`
+and that its package is not excluded.
+
+include::{partialsdir}/generated_scanning-exclusions.adoc[leveloffset=+2]

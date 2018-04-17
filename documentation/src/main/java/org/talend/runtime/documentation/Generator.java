@@ -93,6 +93,8 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.Condit
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
+import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
+import org.talend.sdk.component.runtime.manager.xbean.KnownJarsFilter;
 import org.talend.sdk.component.runtime.reflect.Defaults;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
@@ -121,6 +123,7 @@ public class Generator {
         generatedUi(generatedDir);
         generatedServerConfiguration(generatedDir);
         generatedJUnitEnvironment(generatedDir);
+        generatedScanningExclusions(generatedDir);
 
         final boolean offline = "offline=true".equals(args[4]);
         if (offline) {
@@ -129,6 +132,48 @@ public class Generator {
         }
         generatedContributors(generatedDir, args[5], args[6]);
         generatedJira(generatedDir, args[1], args[2], args[3]);
+    }
+
+    private static void generatedScanningExclusions(final File generatedDir) {
+        final File file = new File(generatedDir, "generated_scanning-exclusions.adoc");
+        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
+            stream.println("= Jars Scanning");
+            stream.println();
+            stream.println("To find components the framework can scan the classpath but in this case,");
+            stream.println("to avoid to scan the whole classpath which can be really huge");
+            stream.println("an impacts a lot the startup time, several jars are excluded out of the box.");
+            stream.println();
+            stream.println("These jars use the following prefix:");
+            stream.println();
+            new KnownJarsFilter().getExcludes().stream().sorted().distinct().map(prefix -> "- " + prefix).forEach(
+                    stream::println);
+            stream.println();
+            stream.println();
+            stream.println("= Package Scanning");
+            stream.println();
+            stream.println("Since the framework can be used in the case of __fatjars__ or __shades__,");
+            stream.println("and because it still uses scanning,");
+            stream.println("it is important to ensure we don't scan the whole classes for performances reason.");
+            stream.println();
+            stream.println("Therefore, the following packages are ignored:");
+            stream.println();
+            KnownClassesFilter.OptimizedExclusionFilter.class
+                    .cast(KnownClassesFilter.class.cast(KnownClassesFilter.INSTANCE).getDelegateSkip())
+                    .getIncluded()
+                    .stream()
+                    .sorted()
+                    .distinct()
+                    .map(prefix -> "- " + prefix)
+                    .forEach(stream::println);
+            stream.println();
+            stream.println();
+            stream.println("NOTE: it is not recommanded but possible to add in your plugin module a");
+            stream.println("`TALEND-INF/scanning.properties` file with `classloader.includes` and");
+            stream.println("`classloader.excludes` entries to refine the scanning with custom rules.");
+            stream.println("In such a case, exclusions win over inclusions.");
+            stream.println();
+            stream.println();
+        }
     }
 
     private static void generatedJUnitEnvironment(final File generatedDir) throws MalformedURLException {
@@ -163,7 +208,6 @@ public class Generator {
                     });
             stream.println("|====");
             stream.println();
-
         }
     }
 

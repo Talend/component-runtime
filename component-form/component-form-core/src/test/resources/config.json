@@ -1,101 +1,49 @@
 {
   "nodes": {
-    "amRiYyNkYXRhc3RvcmUjamRiYw": {
-      "actions": [
-      ],
-      "configurationType": "datastore",
-      "displayName": "JDBC DataStore",
+    "U2VydmljZU5vdw": {
+      "displayName": "Service Now",
       "edges": [
-        "amRiYyNkYXRhc2V0I2pkYmM"
+        "U2VydmljZU5vdyNkYXRhc3RvcmUjYmFzaWNBdXRo"
       ],
-      "id": "amRiYyNkYXRhc3RvcmUjamRiYw",
-      "name": "jdbc",
-      "parentId": "amRiYw",
-      "properties": [
-        {
-          "displayName": "connection",
-          "metadata": {
-            "configurationtype::type": "datastore",
-            "configurationtype::name": "jdbc"
-          },
-          "name": "connection",
-          "path": "configuration.connection",
-          "placeholder": "connection",
-          "type": "OBJECT"
-        },
-        {
-          "defaultValue": "[{\"description\":\"D1\",\"driver\":\"d1\"},{\"description\":\"D2\",\"driver\":\"d2\"}]",
-          "displayName": "configurations",
-          "metadata": {
-          },
-          "name": "configurations",
-          "path": "configuration.connection.configurations",
-          "placeholder": "configurations",
-          "type": "ARRAY"
-        },
-        {
-          "defaultValue": "D1",
-          "displayName": "description",
-          "metadata": {
-          },
-          "name": "description",
-          "path": "configuration.connection.configurations[].description",
-          "placeholder": "description",
-          "type": "STRING"
-        },
-        {
-          "defaultValue": "d1",
-          "displayName": "driver",
-          "metadata": {
-          },
-          "name": "driver",
-          "path": "configuration.connection.configurations[].driver",
-          "placeholder": "driver",
-          "type": "STRING"
-        },
-        {
-          "displayName": "password",
-          "metadata": {
-            "ui::credential": "true"
-          },
-          "name": "password",
-          "path": "configuration.connection.password",
-          "placeholder": "password",
-          "type": "STRING"
-        },
-        {
-          "displayName": "url",
-          "metadata": {
-          },
-          "name": "url",
-          "path": "configuration.connection.url",
-          "placeholder": "url",
-          "type": "STRING"
-        },
-        {
-          "displayName": "username",
-          "metadata": {
-          },
-          "name": "username",
-          "path": "configuration.connection.username",
-          "placeholder": "username",
-          "type": "STRING"
-        }
-      ],
-      "version": -1
+      "id": "U2VydmljZU5vdw",
+      "name": "ServiceNow",
+      "properties": [],
+      "version": 0
     },
-    "Y2hhaW4jZGF0YXNldCN0aGVjaGFpbmRhdGFzZXQ": {
+    "U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl": {
       "actions": [
         {
-          "family": "chain",
-          "name": "default",
+          "family": "ServiceNow",
+          "name": "urlValidation",
+          "properties": [
+            {
+              "displayName": "arg0",
+              "metadata": {},
+              "name": "arg0",
+              "path": "arg0",
+              "placeholder": "arg0",
+              "type": "STRING"
+            }
+          ],
+          "type": "validation"
+        },
+        {
+          "family": "ServiceNow",
+          "name": "GetTableFields",
+          "properties": [],
+          "type": "dynamic_values"
+        },
+        {
+          "family": "ServiceNow",
+          "name": "guessTableSchema",
           "properties": [
             {
               "displayName": "arg0",
               "metadata": {
-                "action::healthcheck": "default",
+                "ui::gridlayout::Advanced::value": "limit|maxRecords|commonConfig",
                 "configurationtype::type": "dataset",
-                "configurationtype::name": "thechaindataset"
+                "configurationtype::name": "table",
+                "ui::gridlayout::Main::value": "dataStore|commonConfig|queryBuilder|ordered|orderBuilder"
               },
               "name": "arg0",
               "path": "arg0",
@@ -103,293 +51,1106 @@
               "type": "OBJECT"
             },
             {
-              "displayName": "urls",
+              "displayName": "commonConfig",
               "metadata": {
+                "ui::gridlayout::Advanced::value": "fields",
+                "ui::gridlayout::Main::value": "tableName"
               },
-              "name": "urls",
-              "path": "arg0.urls",
-              "placeholder": "urls",
-              "type": "ARRAY",
-              "validation": {
-                "minItems": 1,
-                "uniqueItems": true
-              }
-            },
-            {
-              "displayName": "urls[${index}]",
-              "metadata": {
-              },
-              "name": "urls[]",
-              "path": "arg0.urls[]",
-              "placeholder": "urls[${index}]",
-              "type": "STRING"
-            },
-            {
-              "displayName": "user",
-              "metadata": {
-              },
-              "name": "user",
-              "path": "arg0.user",
-              "placeholder": "user",
+              "name": "commonConfig",
+              "path": "arg0.commonConfig",
+              "placeholder": "commonConfig",
               "type": "OBJECT"
             },
             {
-              "displayName": "password",
+              "defaultValue": "[]",
+              "displayName": "Fields",
               "metadata": {
+                "action::dynamic_values": "GetTableFields",
+                "action::schema": "guessTableSchema",
+                "ui::structure::type": "OUT",
+                "ui::structure::discoverSchema": "guessTableSchema",
+                "ui::structure::value": "__default__"
               },
-              "name": "password",
-              "path": "arg0.user.password",
-              "placeholder": "password",
-              "type": "STRING",
+              "name": "fields",
+              "path": "arg0.commonConfig.fields",
+              "placeholder": "fields",
+              "type": "ARRAY"
+            },
+            {
+              "displayName": "fields[${index}]",
+              "metadata": {},
+              "name": "fields[]",
+              "path": "arg0.commonConfig.fields[]",
+              "placeholder": "fields[${index}]",
+              "type": "STRING"
+            },
+            {
+              "defaultValue": "incident",
+              "displayName": "Table Name",
+              "metadata": {},
+              "name": "tableName",
+              "path": "arg0.commonConfig.tableName",
+              "placeholder": "tableName",
+              "proposalDisplayNames": {
+                "sc_request": "sc_request",
+                "problem": "problem",
+                "sc_cat_item": "sc_cat_item",
+                "incident": "incident",
+                "change_request": "change_request"
+              },
+              "type": "ENUM",
               "validation": {
-                "maxLength": 8,
-                "required": true
+                "enumValues": [
+                  "change_request",
+                  "incident",
+                  "problem",
+                  "sc_cat_item",
+                  "sc_request"
+                ]
               }
             },
             {
-              "displayName": "user",
+              "displayName": "dataStore",
               "metadata": {
+                "action::healthcheck": "basicAuth",
+                "configurationtype::type": "datastore",
+                "configurationtype::name": "basicAuth",
+                "ui::gridlayout::Main::value": "url|username,password"
               },
-              "name": "user",
-              "path": "arg0.user.user",
-              "placeholder": "user",
-              "type": "STRING",
+              "name": "dataStore",
+              "path": "arg0.dataStore",
+              "placeholder": "dataStore",
+              "type": "OBJECT"
+            },
+            {
+              "displayName": "Password",
+              "metadata": {
+                "ui::credential": "true"
+              },
+              "name": "password",
+              "path": "arg0.dataStore.password",
+              "placeholder": "password",
+              "type": "STRING"
+            },
+            {
+              "displayName": "API URL",
+              "metadata": {
+                "action::validation": "urlValidation",
+                "action::validation::parameters": "."
+              },
+              "name": "url",
+              "path": "arg0.dataStore.url",
+              "placeholder": "ServiceNow instance url...",
+              "type": "STRING"
+            },
+            {
+              "displayName": "Username",
+              "metadata": {},
+              "name": "username",
+              "path": "arg0.dataStore.username",
+              "placeholder": "username",
+              "type": "STRING"
+            },
+            {
+              "defaultValue": "10000",
+              "displayName": "Limit Per Request",
+              "metadata": {},
+              "name": "limit",
+              "path": "arg0.limit",
+              "placeholder": "limit",
+              "type": "NUMBER"
+            },
+            {
+              "defaultValue": "-1",
+              "displayName": "Max Records",
+              "metadata": {},
+              "name": "maxRecords",
+              "path": "arg0.maxRecords",
+              "placeholder": "The maximum number of records to retrieve...",
+              "type": "NUMBER"
+            },
+            {
+              "displayName": "Order",
+              "metadata": {
+                "condition::if::value": "true",
+                "condition::if::target": "ordered",
+                "ui::gridlayout::Main::value": "field|order"
+              },
+              "name": "orderBuilder",
+              "path": "arg0.orderBuilder",
+              "placeholder": "orderBuilder",
+              "type": "ARRAY"
+            },
+            {
+              "displayName": "Field",
+              "metadata": {},
+              "name": "field",
+              "path": "arg0.orderBuilder[].field",
+              "placeholder": "field",
+              "proposalDisplayNames": {
+                "parent": "parent",
+                "made_sla": "made_sla",
+                "watch_list": "watch_list",
+                "upon_reject": "upon_reject",
+                "sys_updated_on": "sys_updated_on",
+                "approval_history": "approval_history",
+                "number": "number",
+                "user_input": "user_input",
+                "sys_created_on": "sys_created_on",
+                "delivery_plan": "delivery_plan",
+                "impact": "impact",
+                "work_notes_list": "work_notes_list",
+                "active": "active",
+                "business_service": "business_service",
+                "sys_domain_path": "sys_domain_path",
+                "priority": "priority",
+                "time_worked": "time_worked",
+                "rejection_goto": "rejection_goto",
+                "expected_start": "expected_start",
+                "opened_at": "opened_at",
+                "group_list": "group_list",
+                "business_duration": "business_duration",
+                "work_end": "work_end",
+                "approval_set": "approval_set",
+                "work_notes": "work_notes",
+                "wf_activity": "wf_activity",
+                "short_description": "short_description",
+                "work_start": "work_start",
+                "delivery_task": "delivery_task",
+                "correlation_display": "correlation_display",
+                "assignment_group": "assignment_group",
+                "additional_assignee_list": "additional_assignee_list",
+                "description": "description",
+                "calendar_duration": "calendar_duration",
+                "sys_class_name": "sys_class_name",
+                "close_notes": "close_notes",
+                "follow_up": "follow_up",
+                "closed_by": "closed_by",
+                "contact_type": "contact_type",
+                "urgency": "urgency",
+                "company": "company",
+                "reassignment_count": "reassignment_count",
+                "activity_due": "activity_due",
+                "assigned_to": "assigned_to",
+                "comments": "comments",
+                "sla_due": "sla_due",
+                "approval": "approval",
+                "sys_mod_count": "sys_mod_count",
+                "due_date": "due_date",
+                "comments_and_work_notes": "comments_and_work_notes",
+                "sys_tags": "sys_tags",
+                "upon_approval": "upon_approval",
+                "escalation": "escalation",
+                "correlation_id": "correlation_id",
+                "location": "location",
+                "category": "category"
+              },
+              "type": "ENUM",
               "validation": {
-                "minLength": 2
+                "enumValues": [
+                  "active",
+                  "activity_due",
+                  "additional_assignee_list",
+                  "approval",
+                  "approval_history",
+                  "approval_set",
+                  "assigned_to",
+                  "assignment_group",
+                  "business_duration",
+                  "business_service",
+                  "calendar_duration",
+                  "category",
+                  "close_notes",
+                  "closed_by",
+                  "comments",
+                  "comments_and_work_notes",
+                  "company",
+                  "contact_type",
+                  "correlation_display",
+                  "correlation_id",
+                  "delivery_plan",
+                  "delivery_task",
+                  "description",
+                  "due_date",
+                  "escalation",
+                  "expected_start",
+                  "follow_up",
+                  "group_list",
+                  "impact",
+                  "location",
+                  "made_sla",
+                  "number",
+                  "opened_at",
+                  "parent",
+                  "priority",
+                  "reassignment_count",
+                  "rejection_goto",
+                  "short_description",
+                  "sla_due",
+                  "sys_class_name",
+                  "sys_created_on",
+                  "sys_domain_path",
+                  "sys_mod_count",
+                  "sys_tags",
+                  "sys_updated_on",
+                  "time_worked",
+                  "upon_approval",
+                  "upon_reject",
+                  "urgency",
+                  "user_input",
+                  "watch_list",
+                  "wf_activity",
+                  "work_end",
+                  "work_notes",
+                  "work_notes_list",
+                  "work_start"
+                ]
               }
+            },
+            {
+              "displayName": "Order",
+              "metadata": {},
+              "name": "order",
+              "path": "arg0.orderBuilder[].order",
+              "placeholder": "order",
+              "proposalDisplayNames": {
+                "ASC": "ASC",
+                "DESC": "DESC"
+              },
+              "type": "ENUM",
+              "validation": {
+                "enumValues": [
+                  "ASC",
+                  "DESC"
+                ]
+              }
+            },
+            {
+              "defaultValue": "false",
+              "displayName": "Ordered",
+              "metadata": {},
+              "name": "ordered",
+              "path": "arg0.ordered",
+              "placeholder": "ordered",
+              "type": "BOOLEAN"
+            },
+            {
+              "displayName": "Query",
+              "metadata": {
+                "ui::gridlayout::Main::value": "field|operation|value"
+              },
+              "name": "queryBuilder",
+              "path": "arg0.queryBuilder",
+              "placeholder": "queryBuilder",
+              "type": "ARRAY"
+            },
+            {
+              "displayName": "Filed",
+              "metadata": {},
+              "name": "field",
+              "path": "arg0.queryBuilder[].field",
+              "placeholder": "field",
+              "proposalDisplayNames": {
+                "parent": "parent",
+                "made_sla": "made_sla",
+                "watch_list": "watch_list",
+                "upon_reject": "upon_reject",
+                "sys_updated_on": "sys_updated_on",
+                "approval_history": "approval_history",
+                "number": "number",
+                "user_input": "user_input",
+                "sys_created_on": "sys_created_on",
+                "delivery_plan": "delivery_plan",
+                "impact": "impact",
+                "work_notes_list": "work_notes_list",
+                "active": "active",
+                "business_service": "business_service",
+                "sys_domain_path": "sys_domain_path",
+                "priority": "priority",
+                "time_worked": "time_worked",
+                "rejection_goto": "rejection_goto",
+                "expected_start": "expected_start",
+                "opened_at": "opened_at",
+                "group_list": "group_list",
+                "business_duration": "business_duration",
+                "work_end": "work_end",
+                "approval_set": "approval_set",
+                "work_notes": "work_notes",
+                "wf_activity": "wf_activity",
+                "short_description": "short_description",
+                "work_start": "work_start",
+                "delivery_task": "delivery_task",
+                "correlation_display": "correlation_display",
+                "assignment_group": "assignment_group",
+                "additional_assignee_list": "additional_assignee_list",
+                "description": "description",
+                "calendar_duration": "calendar_duration",
+                "sys_class_name": "sys_class_name",
+                "close_notes": "close_notes",
+                "follow_up": "follow_up",
+                "closed_by": "closed_by",
+                "contact_type": "contact_type",
+                "urgency": "urgency",
+                "company": "company",
+                "reassignment_count": "reassignment_count",
+                "activity_due": "activity_due",
+                "assigned_to": "assigned_to",
+                "comments": "comments",
+                "sla_due": "sla_due",
+                "approval": "approval",
+                "sys_mod_count": "sys_mod_count",
+                "due_date": "due_date",
+                "comments_and_work_notes": "comments_and_work_notes",
+                "sys_tags": "sys_tags",
+                "upon_approval": "upon_approval",
+                "escalation": "escalation",
+                "correlation_id": "correlation_id",
+                "location": "location",
+                "category": "category"
+              },
+              "type": "ENUM",
+              "validation": {
+                "enumValues": [
+                  "active",
+                  "activity_due",
+                  "additional_assignee_list",
+                  "approval",
+                  "approval_history",
+                  "approval_set",
+                  "assigned_to",
+                  "assignment_group",
+                  "business_duration",
+                  "business_service",
+                  "calendar_duration",
+                  "category",
+                  "close_notes",
+                  "closed_by",
+                  "comments",
+                  "comments_and_work_notes",
+                  "company",
+                  "contact_type",
+                  "correlation_display",
+                  "correlation_id",
+                  "delivery_plan",
+                  "delivery_task",
+                  "description",
+                  "due_date",
+                  "escalation",
+                  "expected_start",
+                  "follow_up",
+                  "group_list",
+                  "impact",
+                  "location",
+                  "made_sla",
+                  "number",
+                  "opened_at",
+                  "parent",
+                  "priority",
+                  "reassignment_count",
+                  "rejection_goto",
+                  "short_description",
+                  "sla_due",
+                  "sys_class_name",
+                  "sys_created_on",
+                  "sys_domain_path",
+                  "sys_mod_count",
+                  "sys_tags",
+                  "sys_updated_on",
+                  "time_worked",
+                  "upon_approval",
+                  "upon_reject",
+                  "urgency",
+                  "user_input",
+                  "watch_list",
+                  "wf_activity",
+                  "work_end",
+                  "work_notes",
+                  "work_notes_list",
+                  "work_start"
+                ]
+              }
+            },
+            {
+              "displayName": "Operation",
+              "metadata": {},
+              "name": "operation",
+              "path": "arg0.queryBuilder[].operation",
+              "placeholder": "operation",
+              "proposalDisplayNames": {
+                "Equals": "Equals",
+                "Less_Than": "Less_Than",
+                "Not_Equals": "Not_Equals",
+                "Greater_Than": "Greater_Than",
+                "Greater_Than_OR_Equals": "Greater_Than_OR_Equals",
+                "Less_Than_Or_Equals": "Less_Than_Or_Equals"
+              },
+              "type": "ENUM",
+              "validation": {
+                "enumValues": [
+                  "Equals",
+                  "Greater_Than",
+                  "Greater_Than_OR_Equals",
+                  "Less_Than",
+                  "Less_Than_Or_Equals",
+                  "Not_Equals"
+                ]
+              }
+            },
+            {
+              "displayName": "Value",
+              "metadata": {},
+              "name": "value",
+              "path": "arg0.queryBuilder[].value",
+              "placeholder": "value",
+              "type": "STRING"
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "family": "ServiceNow",
+          "name": "basicAuth",
+          "properties": [
+            {
+              "displayName": "basicAuth",
+              "metadata": {
+                "action::healthcheck": "basicAuth",
+                "configurationtype::type": "datastore",
+                "configurationtype::name": "basicAuth",
+                "ui::gridlayout::Main::value": "url|username,password"
+              },
+              "name": "basicAuth",
+              "path": "basicAuth",
+              "placeholder": "basicAuth",
+              "type": "OBJECT"
+            },
+            {
+              "displayName": "Password",
+              "metadata": {
+                "ui::credential": "true"
+              },
+              "name": "password",
+              "path": "basicAuth.password",
+              "placeholder": "password",
+              "type": "STRING"
+            },
+            {
+              "displayName": "API URL",
+              "metadata": {
+                "action::validation": "urlValidation",
+                "action::validation::parameters": "."
+              },
+              "name": "url",
+              "path": "basicAuth.url",
+              "placeholder": "ServiceNow instance url...",
+              "type": "STRING"
+            },
+            {
+              "displayName": "Username",
+              "metadata": {},
+              "name": "username",
+              "path": "basicAuth.username",
+              "placeholder": "username",
+              "type": "STRING"
             }
           ],
           "type": "healthcheck"
         }
       ],
       "configurationType": "dataset",
-      "displayName": "thechaindataset",
-      "edges": [
-      ],
-      "id": "Y2hhaW4jZGF0YXNldCN0aGVjaGFpbmRhdGFzZXQ",
-      "name": "thechaindataset",
-      "parentId": "Y2hhaW4",
+      "displayName": "Table",
+      "edges": [],
+      "id": "U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl",
+      "name": "table",
+      "parentId": "U2VydmljZU5vdyNkYXRhc3RvcmUjYmFzaWNBdXRo",
       "properties": [
         {
-          "displayName": "remote",
+          "displayName": "tableDataSet",
           "metadata": {
-            "action::healthcheck": "default",
+            "ui::gridlayout::Advanced::value": "limit|maxRecords|commonConfig",
             "configurationtype::type": "dataset",
-            "configurationtype::name": "thechaindataset"
+            "configurationtype::name": "table",
+            "ui::gridlayout::Main::value": "dataStore|commonConfig|queryBuilder|ordered|orderBuilder"
           },
-          "name": "remote",
-          "path": "remote",
-          "placeholder": "remote",
-          "type": "OBJECT"
-        },
-        {
-          "displayName": "urls",
-          "metadata": {
-          },
-          "name": "urls",
-          "path": "remote.urls",
-          "placeholder": "urls",
-          "type": "ARRAY",
-          "validation": {
-            "minItems": 1,
-            "uniqueItems": true
-          }
-        },
-        {
-          "displayName": "urls[${index}]",
-          "metadata": {
-          },
-          "name": "urls[]",
-          "path": "remote.urls[]",
-          "placeholder": "urls[${index}]",
-          "type": "STRING"
-        },
-        {
-          "displayName": "user",
-          "metadata": {
-          },
-          "name": "user",
-          "path": "remote.user",
-          "placeholder": "user",
-          "type": "OBJECT"
-        },
-        {
-          "displayName": "password",
-          "metadata": {
-          },
-          "name": "password",
-          "path": "remote.user.password",
-          "placeholder": "password",
-          "type": "STRING",
-          "validation": {
-            "maxLength": 8,
-            "required": true
-          }
-        },
-        {
-          "displayName": "user",
-          "metadata": {
-          },
-          "name": "user",
-          "path": "remote.user.user",
-          "placeholder": "user",
-          "type": "STRING",
-          "validation": {
-            "minLength": 2
-          }
-        }
-      ],
-      "version": -1
-    },
-    "Y2hhaW4": {
-      "displayName": "chain",
-      "edges": [
-        "Y2hhaW4jZGF0YXNldCN0aGVjaGFpbmRhdGFzZXQ"
-      ],
-      "id": "Y2hhaW4",
-      "name": "chain",
-      "properties": [
-      ],
-      "version": 0
-    },
-    "amRiYw": {
-      "displayName": "jdbc",
-      "edges": [
-        "amRiYyNkYXRhc3RvcmUjamRiYw"
-      ],
-      "id": "amRiYw",
-      "name": "jdbc",
-      "properties": [
-      ],
-      "version": 0
-    },
-    "amRiYyNkYXRhc2V0I2pkYmM": {
-      "actions": [
-      ],
-      "configurationType": "dataset",
-      "displayName": "JDBC DataSet",
-      "edges": [
-      ],
-      "id": "amRiYyNkYXRhc2V0I2pkYmM",
-      "name": "jdbc",
-      "parentId": "amRiYyNkYXRhc3RvcmUjamRiYw",
-      "properties": [
-        {
-          "displayName": "configuration",
-          "metadata": {
-            "configurationtype::type": "dataset",
-            "configurationtype::name": "jdbc"
-          },
-          "name": "configuration",
+          "name": "tableDataSet",
           "path": "configuration",
-          "placeholder": "configuration",
+          "placeholder": "tableDataSet",
           "type": "OBJECT"
         },
         {
-          "displayName": "connection",
+          "displayName": "commonConfig",
           "metadata": {
-            "configurationtype::type": "datastore",
-            "configurationtype::name": "jdbc"
+            "ui::gridlayout::Advanced::value": "fields",
+            "ui::gridlayout::Main::value": "tableName"
           },
-          "name": "connection",
-          "path": "configuration.connection",
-          "placeholder": "connection",
+          "name": "commonConfig",
+          "path": "configuration.commonConfig",
+          "placeholder": "commonConfig",
           "type": "OBJECT"
         },
         {
-          "defaultValue": "[{\"description\":\"D1\",\"driver\":\"d1\"},{\"description\":\"D2\",\"driver\":\"d2\"}]",
-          "displayName": "configurations",
+          "defaultValue": "[]",
+          "displayName": "Fields",
           "metadata": {
+            "action::dynamic_values": "GetTableFields",
+            "action::schema": "guessTableSchema",
+            "ui::structure::type": "OUT",
+            "ui::structure::discoverSchema": "guessTableSchema",
+            "ui::structure::value": "__default__"
           },
-          "name": "configurations",
-          "path": "configuration.connection.configurations",
-          "placeholder": "configurations",
+          "name": "fields",
+          "path": "configuration.commonConfig.fields",
+          "placeholder": "fields",
           "type": "ARRAY"
         },
         {
-          "defaultValue": "D1",
-          "displayName": "description",
-          "metadata": {
-          },
-          "name": "description",
-          "path": "configuration.connection.configurations[].description",
-          "placeholder": "description",
+          "displayName": "fields[${index}]",
+          "metadata": {},
+          "name": "fields[]",
+          "path": "configuration.commonConfig.fields[]",
+          "placeholder": "fields[${index}]",
           "type": "STRING"
         },
         {
-          "defaultValue": "d1",
-          "displayName": "driver",
-          "metadata": {
+          "defaultValue": "incident",
+          "displayName": "Table Name",
+          "metadata": {},
+          "name": "tableName",
+          "path": "configuration.commonConfig.tableName",
+          "placeholder": "tableName",
+          "proposalDisplayNames": {
+            "sc_request": "sc_request",
+            "problem": "problem",
+            "sc_cat_item": "sc_cat_item",
+            "incident": "incident",
+            "change_request": "change_request"
           },
-          "name": "driver",
-          "path": "configuration.connection.configurations[].driver",
-          "placeholder": "driver",
-          "type": "STRING"
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "change_request",
+              "incident",
+              "problem",
+              "sc_cat_item",
+              "sc_request"
+            ]
+          }
         },
         {
-          "displayName": "password",
+          "displayName": "dataStore",
+          "metadata": {
+            "action::healthcheck": "basicAuth",
+            "configurationtype::type": "datastore",
+            "configurationtype::name": "basicAuth",
+            "ui::gridlayout::Main::value": "url|username,password"
+          },
+          "name": "dataStore",
+          "path": "dataStore",
+          "placeholder": "dataStore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Password",
           "metadata": {
             "ui::credential": "true"
           },
           "name": "password",
-          "path": "configuration.connection.password",
+          "path": "dataStore.password",
           "placeholder": "password",
           "type": "STRING"
         },
         {
-          "displayName": "url",
+          "displayName": "API URL",
           "metadata": {
+            "action::validation": "urlValidation",
+            "action::validation::parameters": "."
           },
           "name": "url",
-          "path": "configuration.connection.url",
-          "placeholder": "url",
+          "path": "dataStore.url",
+          "placeholder": "ServiceNow instance url...",
           "type": "STRING"
         },
         {
-          "displayName": "username",
-          "metadata": {
-          },
+          "displayName": "Username",
+          "metadata": {},
           "name": "username",
-          "path": "configuration.connection.username",
+          "path": "dataStore.username",
           "placeholder": "username",
           "type": "STRING"
         },
         {
-          "displayName": "driver",
+          "defaultValue": "10000",
+          "displayName": "Limit Per Request",
+          "metadata": {},
+          "name": "limit",
+          "path": "configuration.limit",
+          "placeholder": "limit",
+          "type": "NUMBER"
+        },
+        {
+          "defaultValue": "-1",
+          "displayName": "Max Records",
+          "metadata": {},
+          "name": "maxRecords",
+          "path": "configuration.maxRecords",
+          "placeholder": "The maximum number of records to retrieve...",
+          "type": "NUMBER"
+        },
+        {
+          "displayName": "Order",
           "metadata": {
+            "condition::if::value": "true",
+            "condition::if::target": "ordered",
+            "ui::gridlayout::Main::value": "field|order"
           },
-          "name": "driver",
-          "path": "configuration.driver",
-          "placeholder": "driver",
-          "type": "STRING",
+          "name": "orderBuilder",
+          "path": "configuration.orderBuilder",
+          "placeholder": "orderBuilder",
+          "type": "ARRAY"
+        },
+        {
+          "displayName": "Field",
+          "metadata": {},
+          "name": "field",
+          "path": "configuration.orderBuilder[].field",
+          "placeholder": "field",
+          "proposalDisplayNames": {
+            "parent": "parent",
+            "made_sla": "made_sla",
+            "watch_list": "watch_list",
+            "upon_reject": "upon_reject",
+            "sys_updated_on": "sys_updated_on",
+            "approval_history": "approval_history",
+            "number": "number",
+            "user_input": "user_input",
+            "sys_created_on": "sys_created_on",
+            "delivery_plan": "delivery_plan",
+            "impact": "impact",
+            "work_notes_list": "work_notes_list",
+            "active": "active",
+            "business_service": "business_service",
+            "sys_domain_path": "sys_domain_path",
+            "priority": "priority",
+            "time_worked": "time_worked",
+            "rejection_goto": "rejection_goto",
+            "expected_start": "expected_start",
+            "opened_at": "opened_at",
+            "group_list": "group_list",
+            "business_duration": "business_duration",
+            "work_end": "work_end",
+            "approval_set": "approval_set",
+            "work_notes": "work_notes",
+            "wf_activity": "wf_activity",
+            "short_description": "short_description",
+            "work_start": "work_start",
+            "delivery_task": "delivery_task",
+            "correlation_display": "correlation_display",
+            "assignment_group": "assignment_group",
+            "additional_assignee_list": "additional_assignee_list",
+            "description": "description",
+            "calendar_duration": "calendar_duration",
+            "sys_class_name": "sys_class_name",
+            "close_notes": "close_notes",
+            "follow_up": "follow_up",
+            "closed_by": "closed_by",
+            "contact_type": "contact_type",
+            "urgency": "urgency",
+            "company": "company",
+            "reassignment_count": "reassignment_count",
+            "activity_due": "activity_due",
+            "assigned_to": "assigned_to",
+            "comments": "comments",
+            "sla_due": "sla_due",
+            "approval": "approval",
+            "sys_mod_count": "sys_mod_count",
+            "due_date": "due_date",
+            "comments_and_work_notes": "comments_and_work_notes",
+            "sys_tags": "sys_tags",
+            "upon_approval": "upon_approval",
+            "escalation": "escalation",
+            "correlation_id": "correlation_id",
+            "location": "location",
+            "category": "category"
+          },
+          "type": "ENUM",
           "validation": {
-            "minLength": 1
+            "enumValues": [
+              "active",
+              "activity_due",
+              "additional_assignee_list",
+              "approval",
+              "approval_history",
+              "approval_set",
+              "assigned_to",
+              "assignment_group",
+              "business_duration",
+              "business_service",
+              "calendar_duration",
+              "category",
+              "close_notes",
+              "closed_by",
+              "comments",
+              "comments_and_work_notes",
+              "company",
+              "contact_type",
+              "correlation_display",
+              "correlation_id",
+              "delivery_plan",
+              "delivery_task",
+              "description",
+              "due_date",
+              "escalation",
+              "expected_start",
+              "follow_up",
+              "group_list",
+              "impact",
+              "location",
+              "made_sla",
+              "number",
+              "opened_at",
+              "parent",
+              "priority",
+              "reassignment_count",
+              "rejection_goto",
+              "short_description",
+              "sla_due",
+              "sys_class_name",
+              "sys_created_on",
+              "sys_domain_path",
+              "sys_mod_count",
+              "sys_tags",
+              "sys_updated_on",
+              "time_worked",
+              "upon_approval",
+              "upon_reject",
+              "urgency",
+              "user_input",
+              "watch_list",
+              "wf_activity",
+              "work_end",
+              "work_notes",
+              "work_notes_list",
+              "work_start"
+            ]
           }
         },
         {
-          "displayName": "query",
-          "metadata": {
+          "displayName": "Order",
+          "metadata": {},
+          "name": "order",
+          "path": "configuration.orderBuilder[].order",
+          "placeholder": "order",
+          "proposalDisplayNames": {
+            "ASC": "ASC",
+            "DESC": "DESC"
           },
-          "name": "query",
-          "path": "configuration.query",
-          "placeholder": "query",
-          "type": "STRING",
+          "type": "ENUM",
           "validation": {
-            "minLength": 1
+            "enumValues": [
+              "ASC",
+              "DESC"
+            ]
           }
         },
         {
-          "defaultValue": "0",
-          "displayName": "timeout",
+          "defaultValue": "false",
+          "displayName": "Ordered",
+          "metadata": {},
+          "name": "ordered",
+          "path": "configuration.ordered",
+          "placeholder": "ordered",
+          "type": "BOOLEAN"
+        },
+        {
+          "displayName": "Query",
           "metadata": {
+            "ui::gridlayout::Main::value": "field|operation|value"
           },
-          "name": "timeout",
-          "path": "configuration.timeout",
-          "placeholder": "timeout",
-          "type": "NUMBER",
+          "name": "queryBuilder",
+          "path": "configuration.queryBuilder",
+          "placeholder": "queryBuilder",
+          "type": "ARRAY"
+        },
+        {
+          "displayName": "Filed",
+          "metadata": {},
+          "name": "field",
+          "path": "configuration.queryBuilder[].field",
+          "placeholder": "field",
+          "proposalDisplayNames": {
+            "parent": "parent",
+            "made_sla": "made_sla",
+            "watch_list": "watch_list",
+            "upon_reject": "upon_reject",
+            "sys_updated_on": "sys_updated_on",
+            "approval_history": "approval_history",
+            "number": "number",
+            "user_input": "user_input",
+            "sys_created_on": "sys_created_on",
+            "delivery_plan": "delivery_plan",
+            "impact": "impact",
+            "work_notes_list": "work_notes_list",
+            "active": "active",
+            "business_service": "business_service",
+            "sys_domain_path": "sys_domain_path",
+            "priority": "priority",
+            "time_worked": "time_worked",
+            "rejection_goto": "rejection_goto",
+            "expected_start": "expected_start",
+            "opened_at": "opened_at",
+            "group_list": "group_list",
+            "business_duration": "business_duration",
+            "work_end": "work_end",
+            "approval_set": "approval_set",
+            "work_notes": "work_notes",
+            "wf_activity": "wf_activity",
+            "short_description": "short_description",
+            "work_start": "work_start",
+            "delivery_task": "delivery_task",
+            "correlation_display": "correlation_display",
+            "assignment_group": "assignment_group",
+            "additional_assignee_list": "additional_assignee_list",
+            "description": "description",
+            "calendar_duration": "calendar_duration",
+            "sys_class_name": "sys_class_name",
+            "close_notes": "close_notes",
+            "follow_up": "follow_up",
+            "closed_by": "closed_by",
+            "contact_type": "contact_type",
+            "urgency": "urgency",
+            "company": "company",
+            "reassignment_count": "reassignment_count",
+            "activity_due": "activity_due",
+            "assigned_to": "assigned_to",
+            "comments": "comments",
+            "sla_due": "sla_due",
+            "approval": "approval",
+            "sys_mod_count": "sys_mod_count",
+            "due_date": "due_date",
+            "comments_and_work_notes": "comments_and_work_notes",
+            "sys_tags": "sys_tags",
+            "upon_approval": "upon_approval",
+            "escalation": "escalation",
+            "correlation_id": "correlation_id",
+            "location": "location",
+            "category": "category"
+          },
+          "type": "ENUM",
           "validation": {
-            "min": 1
+            "enumValues": [
+              "active",
+              "activity_due",
+              "additional_assignee_list",
+              "approval",
+              "approval_history",
+              "approval_set",
+              "assigned_to",
+              "assignment_group",
+              "business_duration",
+              "business_service",
+              "calendar_duration",
+              "category",
+              "close_notes",
+              "closed_by",
+              "comments",
+              "comments_and_work_notes",
+              "company",
+              "contact_type",
+              "correlation_display",
+              "correlation_id",
+              "delivery_plan",
+              "delivery_task",
+              "description",
+              "due_date",
+              "escalation",
+              "expected_start",
+              "follow_up",
+              "group_list",
+              "impact",
+              "location",
+              "made_sla",
+              "number",
+              "opened_at",
+              "parent",
+              "priority",
+              "reassignment_count",
+              "rejection_goto",
+              "short_description",
+              "sla_due",
+              "sys_class_name",
+              "sys_created_on",
+              "sys_domain_path",
+              "sys_mod_count",
+              "sys_tags",
+              "sys_updated_on",
+              "time_worked",
+              "upon_approval",
+              "upon_reject",
+              "urgency",
+              "user_input",
+              "watch_list",
+              "wf_activity",
+              "work_end",
+              "work_notes",
+              "work_notes_list",
+              "work_start"
+            ]
           }
+        },
+        {
+          "displayName": "Operation",
+          "metadata": {},
+          "name": "operation",
+          "path": "configuration.queryBuilder[].operation",
+          "placeholder": "operation",
+          "proposalDisplayNames": {
+            "Equals": "Equals",
+            "Less_Than": "Less_Than",
+            "Not_Equals": "Not_Equals",
+            "Greater_Than": "Greater_Than",
+            "Greater_Than_OR_Equals": "Greater_Than_OR_Equals",
+            "Less_Than_Or_Equals": "Less_Than_Or_Equals"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "Equals",
+              "Greater_Than",
+              "Greater_Than_OR_Equals",
+              "Less_Than",
+              "Less_Than_Or_Equals",
+              "Not_Equals"
+            ]
+          }
+        },
+        {
+          "displayName": "Value",
+          "metadata": {},
+          "name": "value",
+          "path": "configuration.queryBuilder[].value",
+          "placeholder": "value",
+          "type": "STRING"
+        }
+      ],
+      "version": -1
+    },
+    "U2VydmljZU5vdyNkYXRhc3RvcmUjYmFzaWNBdXRo": {
+      "actions": [
+        {
+          "family": "ServiceNow",
+          "name": "urlValidation",
+          "properties": [
+            {
+              "displayName": "arg0",
+              "metadata": {},
+              "name": "arg0",
+              "path": "arg0",
+              "placeholder": "arg0",
+              "type": "STRING"
+            }
+          ],
+          "type": "validation"
+        },
+        {
+          "family": "ServiceNow",
+          "name": "basicAuth",
+          "properties": [
+            {
+              "displayName": "basicAuth",
+              "metadata": {
+                "action::healthcheck": "basicAuth",
+                "configurationtype::type": "datastore",
+                "configurationtype::name": "basicAuth",
+                "ui::gridlayout::Main::value": "url|username,password"
+              },
+              "name": "basicAuth",
+              "path": "basicAuth",
+              "placeholder": "basicAuth",
+              "type": "OBJECT"
+            },
+            {
+              "displayName": "Password",
+              "metadata": {
+                "ui::credential": "true"
+              },
+              "name": "password",
+              "path": "basicAuth.password",
+              "placeholder": "password",
+              "type": "STRING"
+            },
+            {
+              "displayName": "API URL",
+              "metadata": {
+                "action::validation": "urlValidation",
+                "action::validation::parameters": "."
+              },
+              "name": "url",
+              "path": "basicAuth.url",
+              "placeholder": "ServiceNow instance url...",
+              "type": "STRING"
+            },
+            {
+              "displayName": "Username",
+              "metadata": {},
+              "name": "username",
+              "path": "basicAuth.username",
+              "placeholder": "username",
+              "type": "STRING"
+            }
+          ],
+          "type": "healthcheck"
+        }
+      ],
+      "configurationType": "datastore",
+      "displayName": "Basic Auth",
+      "edges": [
+        "U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl"
+      ],
+      "id": "U2VydmljZU5vdyNkYXRhc3RvcmUjYmFzaWNBdXRo",
+      "name": "basicAuth",
+      "parentId": "U2VydmljZU5vdw",
+      "properties": [
+        {
+          "displayName": "dataStore",
+          "metadata": {
+            "action::healthcheck": "basicAuth",
+            "configurationtype::type": "datastore",
+            "configurationtype::name": "basicAuth",
+            "ui::gridlayout::Main::value": "url|username,password"
+          },
+          "name": "dataStore",
+          "path": "dataStore",
+          "placeholder": "dataStore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Password",
+          "metadata": {
+            "ui::credential": "true"
+          },
+          "name": "password",
+          "path": "dataStore.password",
+          "placeholder": "password",
+          "type": "STRING"
+        },
+        {
+          "displayName": "API URL",
+          "metadata": {
+            "action::validation": "urlValidation",
+            "action::validation::parameters": "."
+          },
+          "name": "url",
+          "path": "dataStore.url",
+          "placeholder": "ServiceNow instance url...",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Username",
+          "metadata": {},
+          "name": "username",
+          "path": "dataStore.username",
+          "placeholder": "username",
+          "type": "STRING"
         }
       ],
       "version": -1

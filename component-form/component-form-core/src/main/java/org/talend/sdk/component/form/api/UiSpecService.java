@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.form.api;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
@@ -87,8 +88,29 @@ public class UiSpecService implements AutoCloseable {
         if (rootProperties.isEmpty()) {
             log.warn("No root properties for configuration node {} (family={})", node.getId(), family);
         }
-        return convert(node::getDisplayName, () -> family, node::getProperties, node::getActions,
-                p -> rootProperties.contains(p.getPath()));
+
+        // [TCOMP-767] 0.0.7 -> 0.0.8 compat
+        final Collection<SimplePropertyDefinition> props;
+        final Predicate<SimplePropertyDefinition> isRootProperty;
+        if (rootProperties.size() == 1 && rootProperties.iterator().next().startsWith("configuration.")) {
+            final String root = rootProperties.iterator().next();
+            final SimplePropertyDefinition def =
+                    node.getProperties().stream().filter(prop -> prop.getPath().equals(root)).findFirst().get();
+            props = node
+                    .getProperties()
+                    .stream()
+                    .map(prop -> new SimplePropertyDefinition(def.getName() + prop.getPath().substring(root.length()),
+                            prop.getName(), prop.getDisplayName(), prop.getType(), prop.getDefaultValue(),
+                            prop.getValidation(), prop.getMetadata(), prop.getPlaceholder(),
+                            prop.getProposalDisplayNames()))
+                    .collect(toList());
+            isRootProperty = p -> p.getPath().equals(def.getName());
+        } else {
+            props = node.getProperties();
+            isRootProperty = p -> rootProperties.contains(p.getPath());
+        }
+
+        return convert(node::getDisplayName, () -> family, () -> props, node::getActions, isRootProperty);
     }
 
     /**
