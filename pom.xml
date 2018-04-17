@@ -154,8 +154,8 @@
     <jsonb-api.version>1.0</jsonb-api.version>
     <jsonp-api.version>1.0</jsonp-api.version>
     <deltaspike.version>1.8.1</deltaspike.version>
-    <junit5.version>5.1.0</junit5.version>
-    <junit-platform-surefire-provider.version>1.1.0</junit-platform-surefire-provider.version>
+    <junit5.version>5.2.0-M1</junit5.version>
+    <junit-platform-surefire-provider.version>1.2.0-M1</junit-platform-surefire-provider.version>
     <hamcrest.version>1.3</hamcrest.version>
 
     <talend-ui.version>0.172.0</talend-ui.version>
@@ -550,7 +550,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.19.1</version>
+        <version>2.21.0</version>
         <configuration>
           <forkCount>1</forkCount> <!-- never use 0, it affects too much test behavior to be accurate -->
           <trimStackTrace>false</trimStackTrace>
