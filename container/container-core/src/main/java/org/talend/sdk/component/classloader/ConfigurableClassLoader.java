@@ -208,7 +208,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 }
             }
 
-            if (isJvmJavax(name)) {
+            if (shouldFallbackOnJvmLoading(name)) {
                 clazz = loadFromJvm(name, resolve);
                 if (clazz != null) {
                     return clazz;
@@ -313,7 +313,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     // this is a weird way to write it and it could be inlined but it is slower and
     // since loadClass is called a tons of times it is better this way
-    private boolean isJvmJavax(final String name) {
+    private boolean shouldFallbackOnJvmLoading(final String name) {
         if (name.startsWith("javax.")) {
             final String sub = name.substring("javax.".length());
             if (sub.startsWith("accessibility.")) {
@@ -385,6 +385,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
             if (sub.startsWith("crypto.")) {
                 return true;
             }
+        }
+        if (name.startsWith("scala.")) {
+            return true;
         }
         return false;
     }
