@@ -30,7 +30,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -154,25 +153,25 @@ public class ComponentResource {
                             ComponentExtension.ComponentContext context =
                                     c.get(ComponentContexts.class).getContexts().get(meta.getType());
                             ComponentExtension extension = context.owningExtension();
-                            final List<Artifact> deps = c.findDependencies().collect(toList());
+                            final Stream<Artifact> deps = c.findDependencies();
+                            final Stream<Artifact> artifacts;
                             if (configuration.addExtensionDependencies() && extension != null) {
-                                Collection<String> additionalDeps = extension.getAdditionalDependencies();
-                                Stream<Artifact> addDeps = extension
+                                final List<Artifact> dependencies = deps.collect(toList());
+                                final Stream<Artifact> addDeps = extension
                                         .getAdditionalDependencies()
                                         .stream()
                                         .map(Artifact::from)
                                         // filter required artifacts if they are already present in the list.
-                                        .filter(extArtifact -> deps
+                                        .filter(extArtifact -> dependencies
                                                 .stream()
                                                 .map(d -> d.getGroup() + ":" + d.getArtifact())
-                                                .allMatch(ga -> !ga.equals(
+                                                .noneMatch(ga -> ga.equals(
                                                         extArtifact.getGroup() + ":" + extArtifact.getArtifact())));
-                                return new DependencyDefinition(
-                                        Stream.concat(deps.stream(), addDeps).map(Artifact::toCoordinate).collect(
-                                                toList()));
+                                artifacts = Stream.concat(dependencies.stream(), addDeps);
+                            } else {
+                                artifacts = deps;
                             }
-                            return new DependencyDefinition(
-                                    deps.stream().map(Artifact::toCoordinate).collect(toList()));
+                            return new DependencyDefinition(artifacts.map(Artifact::toCoordinate).collect(toList()));
                         }).orElse(new DependencyDefinition(emptyList())))));
     }
 

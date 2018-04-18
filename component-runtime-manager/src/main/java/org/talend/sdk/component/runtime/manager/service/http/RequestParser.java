@@ -192,8 +192,8 @@ public class RequestParser {
 
         return new ExecutionContext(
                 new HttpRequestCreator(httpMethodProvider, urlProvider, pathTemplate, pathProvider, queryParamsProvider,
-                        headersProvider, payloadProvider, configurerInstance, configurerOptionsProvider), responseType,
-                isResponse, decoders);
+                        headersProvider, payloadProvider, configurerInstance, configurerOptionsProvider),
+                responseType, isResponse, decoders);
     }
 
     private BiFunction<String, Object[], Optional<byte[]>> buildPayloadProvider(final Map<String, Encoder> encoders,
@@ -304,19 +304,19 @@ public class RequestParser {
                     .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
                             ? encoder.getAnnotation(ContentType.class).value()
                             : "*/*", encoder -> {
-                        try {
-                            final Constructor<?> constructor = Constructors.findConstructor(encoder);
-                            final Function<Map<String, String>, Object[]> paramFactory =
-                                    reflections.parameterFactory(constructor, services);
-                            return Encoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                        } catch (final InstantiationException | IllegalAccessException e) {
-                            throw new IllegalArgumentException(e);
-                        } catch (final InvocationTargetException e) {
-                            throw toRuntimeException(e);
-                        }
-                    }, (k, v) -> {
-                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                    })));
+                                try {
+                                    final Constructor<?> constructor = Constructors.findConstructor(encoder);
+                                    final Function<Map<String, String>, Object[]> paramFactory =
+                                            reflections.parameterFactory(constructor, services);
+                                    return Encoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                } catch (final InstantiationException | IllegalAccessException e) {
+                                    throw new IllegalArgumentException(e);
+                                } catch (final InvocationTargetException e) {
+                                    throw toRuntimeException(e);
+                                }
+                            }, (k, v) -> {
+                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                            })));
         }
 
         // keep the put order
@@ -343,19 +343,19 @@ public class RequestParser {
                     .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
                             ? decoder.getAnnotation(ContentType.class).value()
                             : "*/*", decoder -> {
-                        try {
-                            final Constructor<?> constructor = Constructors.findConstructor(decoder);
-                            final Function<Map<String, String>, Object[]> paramFactory =
-                                    reflections.parameterFactory(constructor, services);
-                            return Decoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                        } catch (final InstantiationException | IllegalAccessException e) {
-                            throw new IllegalArgumentException(e);
-                        } catch (final InvocationTargetException e) {
-                            throw toRuntimeException(e);
-                        }
-                    }, (k, v) -> {
-                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                    })));
+                                try {
+                                    final Constructor<?> constructor = Constructors.findConstructor(decoder);
+                                    final Function<Map<String, String>, Object[]> paramFactory =
+                                            reflections.parameterFactory(constructor, services);
+                                    return Decoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                                } catch (final InstantiationException | IllegalAccessException e) {
+                                    throw new IllegalArgumentException(e);
+                                } catch (final InvocationTargetException e) {
+                                    throw toRuntimeException(e);
+                                }
+                            }, (k, v) -> {
+                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                            })));
         }
         // add default decoders if not override by the user
         // keep the put order
@@ -396,8 +396,8 @@ public class RequestParser {
 
             return queries.entrySet().stream().flatMap(entry -> {
                 if (entry.getValue().name.isEmpty()) {
-                    final Map<String, String> queryParams = args[entry.getKey()] == null ?
-                            emptyMap() : (Map) args[entry.getKey()];
+                    final Map<String, String> queryParams =
+                            args[entry.getKey()] == null ? emptyMap() : (Map) args[entry.getKey()];
                     if (entry.getValue().encode) {
                         return queryParams.entrySet().stream().filter(q -> q.getValue() != null).map(
                                 e -> new AbstractMap.SimpleEntry<>(e.getKey(), queryEncode(e.getValue())));
@@ -446,10 +446,10 @@ public class RequestParser {
         private final Map<Integer, Encodable> pathParams = new HashMap<>();
 
         /**
-         * @param original    : string with placeholders
+         * @param original : string with placeholders
          * @param placeholder the placeholder to be replaced
-         * @param value       the replacement value
-         * @param encode      true if the value need to be encoded
+         * @param value the replacement value
+         * @param encode true if the value need to be encoded
          * @return a new string with the placeholder replaced by value
          */
         private String replacePlaceholder(final String original, final String placeholder, final String value,
@@ -492,8 +492,8 @@ public class RequestParser {
                 path = path.substring(1);
             }
             for (final Map.Entry<Integer, Encodable> param : pathParams.entrySet()) {
-                path = replacePlaceholder(path, '{' + param.getValue().name + '}',
-                        String.valueOf(args[param.getKey()]), param.getValue().encode);
+                path = replacePlaceholder(path, '{' + param.getValue().name + '}', String.valueOf(args[param.getKey()]),
+                        param.getValue().encode);
             }
             return path;
         }
