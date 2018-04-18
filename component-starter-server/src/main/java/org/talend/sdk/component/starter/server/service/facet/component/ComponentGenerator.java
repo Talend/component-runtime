@@ -135,13 +135,12 @@ public class ComponentGenerator {
                             .stream()
                             .map(source -> Pair.of(family + "." + source.getName(), source.getName()))
                             .collect(toMap(Pair::getKey, Pair::getValue)));
-
-                    put("configuration", "configuration");
                     putAll(sources
                             .stream()
                             .filter(source -> source.getConfiguration() != null
                                     && source.getConfiguration().getEntries() != null)
-                            .flatMap(source -> toProperties(source.getName(), source.getConfiguration().getEntries()))
+                            .flatMap(source -> toProperties(names.toMapperName(source.getName()),
+                                    source.getConfiguration().getEntries()))
                             .collect(toMap(Pair::getKey, Pair::getValue, (k1, k2) -> k1)));
                 }
             });
@@ -157,13 +156,12 @@ public class ComponentGenerator {
                             .filter(ComponentGenerator::isOutput)
                             .map(processor -> Pair.of(family + "." + processor.getName(), processor.getName()))
                             .collect(toMap(Pair::getKey, Pair::getValue)));
-                    put("configuration", "configuration");
                     putAll(processors
                             .stream()
                             .filter(processor -> processor.getConfiguration() != null
                                     && processor.getConfiguration().getEntries() != null)
                             .filter(ComponentGenerator::isOutput)
-                            .flatMap(p -> toProperties(p.getName(), p.getConfiguration().getEntries()))
+                            .flatMap(p -> toProperties(names.toProcessorName(p), p.getConfiguration().getEntries()))
                             .collect(toMap(Pair::getKey, Pair::getValue, (k1, k2) -> k1)));
                 }
             });
@@ -171,7 +169,6 @@ public class ComponentGenerator {
             messageProperties.put(packageBase + ".processor", new TreeMap<String, String>() {
 
                 {
-                    put("configuration", "configuration");
                     putAll(processors
                             .stream()
                             .filter(ComponentGenerator::isProcessor)
@@ -182,21 +179,19 @@ public class ComponentGenerator {
                             .filter(processor -> processor.getConfiguration() != null
                                     && processor.getConfiguration().getEntries() != null)
                             .filter(ComponentGenerator::isProcessor)
-                            .flatMap(p -> toProperties(p.getName(), p.getConfiguration().getEntries()))
+                            .flatMap(p -> toProperties(names.toProcessorName(p), p.getConfiguration().getEntries()))
                             .collect(toMap(Pair::getKey, Pair::getValue, (k1, k2) -> k1)));
                 }
             });
         }
-
         files.addAll(generateProperties(build.getMainResourcesDirectory(), messageProperties).collect(toList()));
-
         return files.stream();
     }
 
-    private Stream<Pair<String, String>> toProperties(final String configName,
+    private Stream<Pair<String, String>> toProperties(final String componentName,
             final Collection<ProjectRequest.Entry> structure) {
         return structure.stream().flatMap(e -> {
-            final String prop = names.toConfigurationName(configName) + "." + e.getName();
+            final String prop = names.toConfigurationName(componentName) + "." + e.getName();
 
             final Pair<String, String> pair = Pair.of(prop, e.getName());
             if (e.getNestedType() != null) {
