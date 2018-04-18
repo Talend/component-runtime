@@ -30,6 +30,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -62,6 +63,8 @@ import org.talend.sdk.component.design.extension.DesignModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
+import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
+import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 import org.talend.sdk.component.server.front.base.internal.RequestKey;
@@ -81,6 +84,7 @@ import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.component.server.service.IconResolver;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
+import org.talend.sdk.component.spi.component.ComponentExtension;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -117,6 +121,9 @@ public class ComponentResource {
     @Inject
     private IconResolver iconResolver;
 
+    @Inject
+    private ComponentServerConfiguration configuration;
+
     @PostConstruct
     private void setupRuntime() {
         log.info("Initializing " + getClass());
@@ -141,16 +148,32 @@ public class ComponentResource {
         if (ids.length == 0) {
             return new Dependencies(emptyMap());
         }
-        return new Dependencies(Stream
-                .of(ids)
-                .map(id -> componentDao.findById(id))
-                .collect(toMap(ComponentFamilyMeta.BaseMeta::getId,
-                        meta -> componentManagerService
-                                .manager()
-                                .findPlugin(meta.getParent().getPlugin())
-                                .map(c -> new DependencyDefinition(
-                                        c.findDependencies().map(Artifact::toCoordinate).collect(toList())))
-                                .orElse(new DependencyDefinition(emptyList())))));
+        return new Dependencies(
+                Stream.of(ids).map(id -> componentDao.findById(id)).collect(toMap(ComponentFamilyMeta.BaseMeta::getId,
+                        meta -> componentManagerService.manager().findPlugin(meta.getParent().getPlugin()).map(c -> {
+                            ComponentExtension.ComponentContext context =
+                                    c.get(ComponentContexts.class).getContexts().get(meta.getType());
+                            ComponentExtension extension = context.owningExtension();
+                            final List<Artifact> deps = c.findDependencies().collect(toList());
+                            if (configuration.addExtensionDependencies() && extension != null) {
+                                Collection<String> additionalDeps = extension.getAdditionalDependencies();
+                                Stream<Artifact> addDeps = extension
+                                        .getAdditionalDependencies()
+                                        .stream()
+                                        .map(Artifact::from)
+                                        // filter required artifacts if they are already present in the list.
+                                        .filter(extArtifact -> deps
+                                                .stream()
+                                                .map(d -> d.getGroup() + ":" + d.getArtifact())
+                                                .allMatch(ga -> !ga.equals(
+                                                        extArtifact.getGroup() + ":" + extArtifact.getArtifact())));
+                                return new DependencyDefinition(
+                                        Stream.concat(deps.stream(), addDeps).map(Artifact::toCoordinate).collect(
+                                                toList()));
+                            }
+                            return new DependencyDefinition(
+                                    deps.stream().map(Artifact::toCoordinate).collect(toList()));
+                        }).orElse(new DependencyDefinition(emptyList())))));
     }
 
     /**

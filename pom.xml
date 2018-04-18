@@ -27,7 +27,7 @@
   <modules>
     <module>container</module>
     <module>component-spi</module>
-    <module>sample</module>
+    <module>sample-parent</module>
     <module>component-runtime-di</module>
     <module>component-runtime-beam</module>
     <module>component-runtime-impl</module>
@@ -159,7 +159,7 @@
     <hamcrest.version>1.3</hamcrest.version>
 
     <talend-ui.version>0.179.0</talend-ui.version>
-    <component-api.version>0.0.4</component-api.version>
+    <component-api.version>0.0.5</component-api.version>
 
     <!-- for the starter -->
     <gradle.version>4.4</gradle.version>

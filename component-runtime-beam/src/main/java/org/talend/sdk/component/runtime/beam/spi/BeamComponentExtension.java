@@ -21,11 +21,13 @@ import static java.util.Optional.ofNullable;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.sdk.component.runtime.base.Delegated;
+import org.talend.sdk.component.runtime.beam.Versions;
 import org.talend.sdk.component.runtime.beam.design.BeamFlowFactory;
 import org.talend.sdk.component.runtime.beam.factory.service.AutoValueFluentApiFactory;
 import org.talend.sdk.component.runtime.beam.factory.service.PluginCoderFactory;
@@ -131,5 +133,10 @@ public class BeamComponentExtension implements ComponentExtension {
             throw re;
         }
         throw new IllegalArgumentException("unsupported " + component + " by " + getClass());
+    }
+
+    @Override
+    public Collection<String> getAdditionalDependencies() {
+        return Arrays.asList(Versions.GROUP + ":" + Versions.ARTIFACT + ":jar:" + Versions.VERSION);
     }
 }

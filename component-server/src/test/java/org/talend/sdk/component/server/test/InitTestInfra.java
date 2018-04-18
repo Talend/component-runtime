@@ -103,6 +103,27 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             final String version = "0.0.1";
             createComponent(m2, groupId, artifactId, version, generator::createFilePlugin);
         }
+        if (Boolean.getBoolean("components.server.beam.active")) {
+            final String groupId = System.getProperty("components.sample.beam.groupId");
+            final String artifactId = System.getProperty("components.sample.beam.artifactId");
+            final String version = System.getProperty("components.sample.beam.version");
+            createComponent(m2, groupId, artifactId, version, file -> {
+                final File libDir = new File(System.getProperty("components.sample.beam.location"));
+                File libFile = null;
+                for (String f : libDir.list()) {
+                    if (f.startsWith(artifactId)) {
+                        libFile = new File(libDir, f);
+                        break;
+                    }
+                }
+                try (final InputStream from = new FileInputStream(libFile);
+                        final OutputStream to = new FileOutputStream(file)) {
+                    IO.copy(from, to);
+                } catch (final IOException e) {
+                    fail(e.getMessage());
+                }
+            });
+        }
 
         final File ziplock = new File(m2, "org/apache/tomee/ziplock/7.0.4/ziplock-7.0.4.jar");
         ziplock.getParentFile().mkdirs();

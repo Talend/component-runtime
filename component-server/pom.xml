@@ -28,6 +28,9 @@
   <properties>
     <talend.icon.output>${project.build.outputDirectory}</talend.icon.output>
     <talend.build.name>${talend.build.name.base}.server</talend.build.name>
+    <sample.beam.groupId>org.talend.sdk.components</sample.beam.groupId>
+    <sample.beam.artifactId>sample-beam</sample.beam.artifactId>
+    <sample.beam.location>${project.build.directory}/lib</sample.beam.location>
   </properties>
 
   <dependencies>
@@ -429,6 +432,38 @@
               <outputFile>${project.build.outputDirectory}/TALEND-INF/dependencies.txt</outputFile>
             </configuration>
           </execution>
+          <execution>
+            <id>copy-beam-sample</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifact>
+                  <groupId>org.talend.sdk.component</groupId>
+                  <artifactId>sample-beam</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${sample.beam.location}</outputDirectory>
+                </artifact>
+                <artifact>
+                  <groupId>org.talend.sdk.component</groupId>
+                  <artifactId>component-runtime-beam</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${sample.beam.location}/deps</outputDirectory>
+                </artifact>
+                <artifact>
+                  <groupId>org.apache.beam</groupId>
+                  <artifactId>beam-sdks-java-core</artifactId>
+                  <version>${beam.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${sample.beam.location}/deps</outputDirectory>
+                </artifact>
+              </artifactItems>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -493,6 +528,47 @@
             <talend.component.server.component.coordinates>${talend.component.server.component.coordinates.samples}</talend.component.server.component.coordinates>
           </properties>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <excludes>
+                <exclude>**/beam/*Test.java</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>beam-sample-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>**/beam/*Test.java</include>
+              </includes>
+              <systemPropertyVariables>
+                <components.server.beam.active>true</components.server.beam.active>
+                <components.sample.beam.groupId>${sample.beam.groupId}</components.sample.beam.groupId>
+                <components.sample.beam.artifactId>${sample.beam.artifactId}</components.sample.beam.artifactId>
+                <components.sample.beam.version>${project.version}</components.sample.beam.version>
+                <components.sample.beam.location>${sample.beam.location}</components.sample.beam.location>
+              </systemPropertyVariables>
+              <additionalClasspathElements>
+                <additionalClasspathElement>${sample.beam.location}/deps/beam-sdks-java-core-${beam.version}.jar</additionalClasspathElement>
+                <additionalClasspathElement>${sample.beam.location}/deps/component-runtime-beam-${project.version}.jar</additionalClasspathElement>
+              </additionalClasspathElements>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

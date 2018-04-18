@@ -29,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.http.ContentType;
 import org.talend.sdk.component.api.service.http.Encoder;
+import org.talend.sdk.component.runtime.manager.service.http.codec.CodecMatcher;
 
 class CodecMatcherTest {
 
