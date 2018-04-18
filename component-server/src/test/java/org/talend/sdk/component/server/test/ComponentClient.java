@@ -52,4 +52,8 @@ public class ComponentClient {
     public String getJdbcId() {
         return getComponentId("jdbc", "input");
     }
+    
+    public String getBeamSampleId() {
+        return getComponentId("beamsample", "Input");
+    }
 }
