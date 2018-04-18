@@ -17,6 +17,9 @@ package org.talend.sdk.component.sample.beam;
 
 import java.io.Serializable;
 
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -33,35 +36,49 @@ import org.talend.sdk.component.api.meta.Documentation;
 @Version(1)
 @PartitionMapper(family = "beamsample", name = "Input")
 @Documentation("Sample beam input component")
-public class BeamSampleSource extends PTransform<PBegin, PCollection<String>> {
+public class BeamSampleSource extends PTransform<PBegin, PCollection<JsonObject>> {
+
+    private final JsonBuilderFactory jsonBuilderFactory;
 
     private final Configuration configuration;
 
-    public BeamSampleSource(@Option("configuration") final Configuration configuration) {
+    public BeamSampleSource(@Option("configuration") final Configuration configuration,
+            final JsonBuilderFactory jsonBuilderFactory) {
         this.configuration = configuration;
+        this.jsonBuilderFactory = jsonBuilderFactory;
     }
 
     @Override
-    public PCollection<String> expand(final PBegin input) {
-        return input.apply(Create.of((Void) null)).apply(ParDo.of(new DoFn<Void, String>() {
+    public PCollection<JsonObject> expand(final PBegin input) {
+        return input.apply(Create.of((Void) null)).apply(ParDo.of(new DoFn<Void, JsonObject>() {
 
             @ProcessElement
             public void processElement(final ProcessContext context) throws Exception {
-                context.output(configuration.getValue());
+                context.output(jsonBuilderFactory
+                        .createObjectBuilder()
+                        .add(configuration.getColumnName(), configuration.getValue())
+                        .build());
             }
         }));
     }
 
     public static class Configuration implements Serializable {
 
+        private final String columnName;
+
         private final String value;
 
-        public Configuration(final String value) {
+        public Configuration(final String columnName, final String value) {
             this.value = value;
+            this.columnName = columnName;
         }
 
         public String getValue() {
             return value;
+        }
+
+        public String getColumnName() {
+            return columnName;
         }
 
     }
