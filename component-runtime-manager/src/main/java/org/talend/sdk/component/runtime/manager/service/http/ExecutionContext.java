@@ -40,11 +40,10 @@ import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.runtime.manager.service.http.codec.CodecMatcher;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class ExecutionContext implements BiFunction<String, Object[], Object> {
 
     private final HttpRequestCreator requestCreator;

@@ -24,11 +24,11 @@ import java.util.function.Function;
 
 import org.talend.sdk.component.api.service.http.Configurer;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class HttpRequest {
 
     private static final Object[] EMPTY_ARRAY = new Object[0];
@@ -59,13 +59,9 @@ public class HttpRequest {
 
     private final Map<String, Function<Object[], Object>> configurerOptions;
 
-    private final Object[] params;
-
     private final BiFunction<String, Object[], Optional<byte[]>> payloadProvider;
 
-    public String getUrl() {
-        return url;
-    }
+    private final Object[] params;
 
     /**
      * encode payload only when requested
@@ -77,10 +73,6 @@ public class HttpRequest {
             return Optional.empty();
         }
         return payloadProvider.apply(headers.get("content-type"), params);
-    }
-
-    public Configurer getConfigurer() {
-        return configurer;
     }
 
     public Configurer.ConfigurerConfiguration getConfigurationOptions() {

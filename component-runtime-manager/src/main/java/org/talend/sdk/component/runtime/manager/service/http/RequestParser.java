@@ -25,7 +25,6 @@ import static java.util.stream.Stream.of;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -77,6 +76,7 @@ import org.talend.sdk.component.runtime.manager.service.http.codec.JAXBEncoder;
 import org.talend.sdk.component.runtime.manager.service.http.codec.JsonpDecoder;
 import org.talend.sdk.component.runtime.manager.service.http.codec.JsonpEncoder;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 public class RequestParser {
@@ -123,12 +123,12 @@ public class RequestParser {
                 .orElseGet(() -> method.getDeclaringClass().getAnnotation(Codec.class));
         final Map<String, Encoder> encoders = createEncoder(codec);
         final Map<String, Decoder> decoders = createDecoder(codec);
-        final PathProvide pathProvide = new PathProvide();
-        final QueryParamsProvide queryParamsProvide = new QueryParamsProvide();
-        final HeadersProvide headersProvide = new HeadersProvide();
-        final Map<String, Function<Object[], Object>> configurerOptions = new HashMap<>();
+        final PathProvider pathProvider = new PathProvider();
+        final QueryParamsProvider queryParamsProvider = new QueryParamsProvider();
+        final HeadersProvider headersProvider = new HeadersProvider();
+        final Map<String, Function<Object[], Object>> configurerOptionsProvider = new HashMap<>();
         Integer httpMethod = null;
-        Function<Object[], String> urlProvide = null;
+        Function<Object[], String> urlProvider = null;
         BiFunction<String, Object[], Optional<byte[]>> payloadProvider = null;
         // preCompute the execution (kind of compile phase)
         final Parameter[] parameters = method.getParameters();
@@ -140,12 +140,13 @@ public class RequestParser {
                 }
                 httpMethod = index;
             } else if (parameters[i].isAnnotationPresent(Path.class)) {
-                pathProvide.getPathParams().put(i, parameters[i].getAnnotation(Path.class));
+                final Path path = parameters[i].getAnnotation(Path.class);
+                pathProvider.pathParams.put(i, new Encodable(path.value(), path.encode()));
             } else if (parameters[i].isAnnotationPresent(Url.class)) {
-                if (urlProvide != null) {
+                if (urlProvider != null) {
                     throw new IllegalStateException(method + "has two Url parameters");
                 }
-                urlProvide = params -> {
+                urlProvider = params -> {
                     String url = String.valueOf(params[index]);
                     if (url != null && url.endsWith("/")) {
                         url = url.substring(0, url.length() - 1);
@@ -153,15 +154,17 @@ public class RequestParser {
                     return url;
                 };
             } else if (parameters[i].isAnnotationPresent(QueryParams.class)) {
-                queryParamsProvide.getQueries().put(i, parameters[i].getAnnotation(QueryParams.class));
+                queryParamsProvider.queries.put(i,
+                        new Encodable("", parameters[i].getAnnotation(QueryParams.class).encode()));
             } else if (parameters[i].isAnnotationPresent(Query.class)) {
-                queryParamsProvide.getQueries().put(i, parameters[i].getAnnotation(Query.class));
+                final Query query = parameters[i].getAnnotation(Query.class);
+                queryParamsProvider.queries.put(i, new Encodable(query.value(), query.encode()));
             } else if (parameters[i].isAnnotationPresent(Headers.class)) {
-                headersProvide.getHeaders().put(i, parameters[i].getAnnotation(Headers.class));
+                headersProvider.headers.put(i, "");
             } else if (parameters[i].isAnnotationPresent(Header.class)) {
-                headersProvide.getHeaders().put(i, parameters[i].getAnnotation(Header.class));
+                headersProvider.headers.put(i, parameters[i].getAnnotation(Header.class).value());
             } else if (parameters[i].isAnnotationPresent(ConfigurerOption.class)) {
-                configurerOptions.putIfAbsent(parameters[i].getAnnotation(ConfigurerOption.class).value(),
+                configurerOptionsProvider.putIfAbsent(parameters[i].getAnnotation(ConfigurerOption.class).value(),
                         params -> params[index]);
             } else { // payload
                 if (payloadProvider != null) {
@@ -187,24 +190,10 @@ public class RequestParser {
             pathTemplate = pathTemplate.substring(0, pathTemplate.length() - 1);
         }
 
-        return ExecutionContext
-                .builder()
-                .isResponse(isResponse)
-                .responseType(responseType)
-                .decoders(decoders)
-                .requestCreator(HttpRequestCreator
-                        .builder()
-                        .pathTemplate(pathTemplate)
-                        .httpMethodProvider(httpMethodProvider)
-                        .urlProvide(urlProvide)
-                        .pathProvider(pathProvide)
-                        .headersProvider(headersProvide)
-                        .queryParamsProvider(queryParamsProvide)
-                        .payloadProvider(payloadProvider)
-                        .configurer(configurerInstance)
-                        .configurerOptions(configurerOptions)
-                        .build())
-                .build();
+        return new ExecutionContext(
+                new HttpRequestCreator(httpMethodProvider, urlProvider, pathTemplate, pathProvider, queryParamsProvider,
+                        headersProvider, payloadProvider, configurerInstance, configurerOptionsProvider), responseType,
+                isResponse, decoders);
     }
 
     private BiFunction<String, Object[], Optional<byte[]>> buildPayloadProvider(final Map<String, Encoder> encoders,
@@ -215,7 +204,7 @@ public class RequestParser {
             if (payload == null) {
                 return Optional.empty();
             }
-            if (byte[].class == payload) {
+            if (byte[].class.isInstance(payload)) {
                 return Optional.of(byte[].class.cast(payload));
             }
             if (encoders.size() == 1) {
@@ -315,19 +304,19 @@ public class RequestParser {
                     .collect(toMap(encoder -> encoder.getAnnotation(ContentType.class) != null
                             ? encoder.getAnnotation(ContentType.class).value()
                             : "*/*", encoder -> {
-                                try {
-                                    final Constructor<?> constructor = Constructors.findConstructor(encoder);
-                                    final Function<Map<String, String>, Object[]> paramFactory =
-                                            reflections.parameterFactory(constructor, services);
-                                    return Encoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                                } catch (final InstantiationException | IllegalAccessException e) {
-                                    throw new IllegalArgumentException(e);
-                                } catch (final InvocationTargetException e) {
-                                    throw toRuntimeException(e);
-                                }
-                            }, (k, v) -> {
-                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                            })));
+                        try {
+                            final Constructor<?> constructor = Constructors.findConstructor(encoder);
+                            final Function<Map<String, String>, Object[]> paramFactory =
+                                    reflections.parameterFactory(constructor, services);
+                            return Encoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                        } catch (final InstantiationException | IllegalAccessException e) {
+                            throw new IllegalArgumentException(e);
+                        } catch (final InvocationTargetException e) {
+                            throw toRuntimeException(e);
+                        }
+                    }, (k, v) -> {
+                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                    })));
         }
 
         // keep the put order
@@ -354,19 +343,19 @@ public class RequestParser {
                     .collect(toMap(decoder -> decoder.getAnnotation(ContentType.class) != null
                             ? decoder.getAnnotation(ContentType.class).value()
                             : "*/*", decoder -> {
-                                try {
-                                    final Constructor<?> constructor = Constructors.findConstructor(decoder);
-                                    final Function<Map<String, String>, Object[]> paramFactory =
-                                            reflections.parameterFactory(constructor, services);
-                                    return Decoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
-                                } catch (final InstantiationException | IllegalAccessException e) {
-                                    throw new IllegalArgumentException(e);
-                                } catch (final InvocationTargetException e) {
-                                    throw toRuntimeException(e);
-                                }
-                            }, (k, v) -> {
-                                throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
-                            })));
+                        try {
+                            final Constructor<?> constructor = Constructors.findConstructor(decoder);
+                            final Function<Map<String, String>, Object[]> paramFactory =
+                                    reflections.parameterFactory(constructor, services);
+                            return Decoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
+                        } catch (final InstantiationException | IllegalAccessException e) {
+                            throw new IllegalArgumentException(e);
+                        } catch (final InvocationTargetException e) {
+                            throw toRuntimeException(e);
+                        }
+                    }, (k, v) -> {
+                        throw new IllegalArgumentException("Ambiguous key for: '" + k + "'");
+                    })));
         }
         // add default decoders if not override by the user
         // keep the put order
@@ -390,84 +379,77 @@ public class RequestParser {
         }, LinkedHashMap::new));
     }
 
-    protected static class QueryParamsProvide implements Function<Object[], Map<String, String>> {
+    @Data
+    private static class Encodable {
 
-        private final Map<Integer, Annotation> queries = new HashMap<>();
+        private final String name;
+
+        private final boolean encode;
+    }
+
+    private static class QueryParamsProvider implements Function<Object[], Map<String, String>> {
+
+        private final Map<Integer, Encodable> queries = new HashMap<>();
 
         @Override
         public Map<String, String> apply(final Object[] args) {
 
             return queries.entrySet().stream().flatMap(entry -> {
-                if (QueryParams.class.isInstance(entry.getValue()) && Map.class.isInstance(args[entry.getKey()])) {
-                    final Map<String, String> queryParams =
-                            args[entry.getKey()] == null ? emptyMap() : (Map) args[entry.getKey()];
-                    if (QueryParams.class.cast(entry.getValue()).encode()) {
+                if (entry.getValue().name.isEmpty()) {
+                    final Map<String, String> queryParams = args[entry.getKey()] == null ?
+                            emptyMap() : (Map) args[entry.getKey()];
+                    if (entry.getValue().encode) {
                         return queryParams.entrySet().stream().filter(q -> q.getValue() != null).map(
                                 e -> new AbstractMap.SimpleEntry<>(e.getKey(), queryEncode(e.getValue())));
                     }
-
                     return queryParams.entrySet().stream();
                 }
-                final Query query = Query.class.cast(entry.getValue());
                 return ofNullable(args[entry.getKey()]).map(v -> {
                     String value = String.valueOf(v);
-                    if (query.encode()) {
+                    if (entry.getValue().encode) {
                         value = queryEncode(value);
                     }
-                    return of(new AbstractMap.SimpleEntry<>(query.value(), value));
+                    return of(new AbstractMap.SimpleEntry<>(entry.getValue().name, value));
                 }).orElse(null);
             })
                     .filter(Objects::nonNull)
                     .filter(e -> e.getValue() != null) // ignore null values
                     .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
-
-        public Map<Integer, Annotation> getQueries() {
-            return queries;
-        }
     }
 
-    protected static class HeadersProvide implements Function<Object[], Map<String, String>> {
+    private static class HeadersProvider implements Function<Object[], Map<String, String>> {
 
-        private final Map<Integer, Annotation> headers = new HashMap<>();
+        private final Map<Integer, String> headers = new HashMap<>();
 
         @Override
         public Map<String, String> apply(final Object[] args) {
 
             return headers.entrySet().stream().flatMap(entry -> {
-                if (Headers.class.isInstance(entry.getValue()) && Map.class.isInstance(args[entry.getKey()])) {
+                if (entry.getValue().isEmpty()) {
                     return args[entry.getKey()] == null ? empty()
                             : ((Map<String, String>) args[entry.getKey()]).entrySet().stream();
                 }
-                final Header header = Header.class.cast(entry.getValue());
                 return ofNullable(args[entry.getKey()])
-                        .map(v -> of(new AbstractMap.SimpleEntry<>(header.value(), String.valueOf(v))))
+                        .map(v -> of(new AbstractMap.SimpleEntry<>(entry.getValue(), String.valueOf(v))))
                         .orElse(null);
             })
                     .filter(Objects::nonNull)
                     .filter(e -> e.getValue() != null) // ignore null values
                     .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
-
-        public Map<Integer, Annotation> getHeaders() {
-            return headers;
-        }
     }
 
     @RequiredArgsConstructor
-    protected static class PathProvide implements BiFunction<String, Object[], String> {
+    private static class PathProvider implements BiFunction<String, Object[], String> {
 
-        private final Map<Integer, Path> pathParams = new HashMap<>();
-
-        public Map<Integer, Path> getPathParams() {
-            return pathParams;
-        }
+        private final Map<Integer, Encodable> pathParams = new HashMap<>();
 
         /**
-         * @param original : string with placeholders
+         * @param original    : string with placeholders
          * @param placeholder the placeholder to be replaced
-         * @param value the replacement value
-         * @param encode true if the value need to be encoded
+         * @param value       the replacement value
+         * @param encode      true if the value need to be encoded
          * @return a new string with the placeholder replaced by value
          */
         private String replacePlaceholder(final String original, final String placeholder, final String value,
@@ -509,9 +491,9 @@ public class RequestParser {
             if (path.startsWith("/")) {
                 path = path.substring(1);
             }
-            for (Map.Entry<Integer, Path> param : pathParams.entrySet()) {
-                path = replacePlaceholder(path, '{' + param.getValue().value() + '}',
-                        String.valueOf(args[param.getKey()]), param.getValue().encode());
+            for (final Map.Entry<Integer, Encodable> param : pathParams.entrySet()) {
+                path = replacePlaceholder(path, '{' + param.getValue().name + '}',
+                        String.valueOf(args[param.getKey()]), param.getValue().encode);
             }
             return path;
         }

@@ -269,6 +269,26 @@ public class HttpClientFactoryImplTest {
         }
     }
 
+    interface SimpleClient extends HttpClient {
+
+        @Request(path = "/api/{userId}")
+        Response<byte[]> doRequest(@Path(value = "userId") String id);
+    }
+
+    @Test
+    void pathPlaceholder() throws IOException {
+        final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
+        try {
+            server.start();
+            final SimpleClient httpClient = newDefaultFactory().create(SimpleClient.class, null);
+            httpClient.base("http://localhost:" + server.getAddress().getPort());
+            Response<byte[]> response = httpClient.doRequest("ABC123");
+            assertEquals("GET@Connection=keep-alive@/api/ABC123@", new String(response.body()));
+        } finally {
+            server.stop(0);
+        }
+    }
+
     @Test
     void requestGeneric() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
@@ -283,7 +303,7 @@ public class HttpClientFactoryImplTest {
             HashMap<String, String> queries = new HashMap<String, String>() {
 
                 {
-                    put("param", "value");
+                    put("param", "value to be encoded");
                     put("emptyParam", "");
                     put("nullParam", null);
                 }
@@ -295,9 +315,43 @@ public class HttpClientFactoryImplTest {
                     httpClient.execute(2000, 2000, "http://localhost:" + server.getAddress().getPort() + "/api", "POST",
                             headers, queries, "body data");
             assertEquals(
-                    "POST@Authorization=Basic ABCD/Connection=keep-alive/Content-length=9/Content-type=application/json@/api?emptyParam=&param=value@body data",
+                    "POST@Authorization=Basic ABCD/Connection=keep-alive/Content-length=9/Content-type=application/json@/api?emptyParam=&param=value+to+be+encoded@body data",
                     new String(response.body()));
 
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void requestGenericWithNullPayload() throws IOException {
+        final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
+        try {
+            server.start();
+            final GenericClient httpClient = newDefaultFactory().create(GenericClient.class, null);
+            Response<byte[]> response = httpClient.execute(2000, 2000,
+                    "http://localhost:" + server.getAddress().getPort() + "/api/", "POST", null, null, null);
+            assertEquals("POST@Authorization=Basic ABCD/Connection=keep-alive@/api@", new String(response.body()));
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void requestGenericIgnorePath() throws IOException {
+        final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
+        try {
+            server.start();
+            HashMap<String, String> queries = new HashMap<String, String>() {
+
+                {
+                    put("param", "value v2");
+                }
+            };
+            final GenericClient httpClient = newDefaultFactory().create(GenericClient.class, null);
+            Response<byte[]> response = httpClient
+                    .doNotEncodeQueryParams("http://localhost:" + server.getAddress().getPort() + "/api/", queries);
+            assertEquals("PUT@Connection=keep-alive@/api?param=value@", new String(response.body()));
         } finally {
             server.stop(0);
         }
@@ -312,6 +366,10 @@ public class HttpClientFactoryImplTest {
                 @HttpMethod String method,
                 @org.talend.sdk.component.api.service.http.Headers Map<String, String> headers,
                 @QueryParams Map<String, String> queryParams, String payload);
+
+        @Request(method = "PUT", path = "/ignored")
+        Response<byte[]> doNotEncodeQueryParams(@Url String url,
+                @QueryParams(encode = false) Map<String, String> queryParams);
 
         class MonConfigurer implements Configurer {
 

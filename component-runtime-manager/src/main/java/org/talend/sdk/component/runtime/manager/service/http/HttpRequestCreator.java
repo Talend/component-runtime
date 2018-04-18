@@ -22,9 +22,9 @@ import java.util.function.Function;
 
 import org.talend.sdk.component.api.service.http.Configurer;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 
-@Builder
+@AllArgsConstructor
 public class HttpRequestCreator implements BiFunction<String, Object[], HttpRequest> {
 
     private final Function<Object[], String> httpMethodProvider;
@@ -33,11 +33,11 @@ public class HttpRequestCreator implements BiFunction<String, Object[], HttpRequ
 
     private final String pathTemplate;
 
-    private final RequestParser.PathProvide pathProvider;
+    private final BiFunction<String, Object[], String> pathProvider;
 
-    private final RequestParser.QueryParamsProvide queryParamsProvider;
+    private final Function<Object[], Map<String, String>> queryParamsProvider;
 
-    private final RequestParser.HeadersProvide headersProvider;
+    private final Function<Object[], Map<String, String>> headersProvider;
 
     private final BiFunction<String, Object[], Optional<byte[]>> payloadProvider;
 
@@ -47,17 +47,9 @@ public class HttpRequestCreator implements BiFunction<String, Object[], HttpRequ
 
     @Override
     public HttpRequest apply(final String base, final Object[] params) {
-        return HttpRequest
-                .builder()
-                .methodType(httpMethodProvider.apply(params))
-                .url(buildUrl(base, params))
-                .headers(headersProvider.apply(params))
-                .queryParams(queryParamsProvider.apply(params))
-                .payloadProvider(payloadProvider)
-                .configurer(configurer)
-                .configurerOptions(configurerOptions)
-                .params(params)
-                .build();
+        return new HttpRequest(buildUrl(base, params), httpMethodProvider.apply(params),
+                queryParamsProvider.apply(params), headersProvider.apply(params), configurer, configurerOptions,
+                payloadProvider, params);
     }
 
     private String buildUrl(final String base, final Object[] params) {
