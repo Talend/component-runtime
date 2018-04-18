@@ -46,17 +46,24 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.http.Codec;
+import org.talend.sdk.component.api.service.http.Configurer;
+import org.talend.sdk.component.api.service.http.ConfigurerOption;
 import org.talend.sdk.component.api.service.http.Decoder;
 import org.talend.sdk.component.api.service.http.Encoder;
 import org.talend.sdk.component.api.service.http.Header;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.HttpException;
+import org.talend.sdk.component.api.service.http.HttpMethod;
 import org.talend.sdk.component.api.service.http.Path;
 import org.talend.sdk.component.api.service.http.Query;
+import org.talend.sdk.component.api.service.http.QueryParams;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
+import org.talend.sdk.component.api.service.http.Url;
+import org.talend.sdk.component.api.service.http.UseConfigurer;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
+import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -97,7 +104,7 @@ public class HttpClientFactoryImplTest {
             final String result = ok.main4(new Payload("test"), "token", 1, "search yes").value;
             assertEquals(
                     "POST@" + "Authorization=token/" + "Connection=keep-alive/" + "Content-length=4/"
-                            + "Content-type=application/x-www-form-urlencoded@" + "/api/?q=search+yes@" + "test",
+                            + "Content-type=application/x-www-form-urlencoded@" + "/api?q=search+yes@" + "test",
                     result);
         } finally {
             server.stop(0);
@@ -115,16 +122,16 @@ public class HttpClientFactoryImplTest {
             final String result = ok.defaultMain1(new Payload("test"), "search yes").value;
             assertEquals(
                     "POST@" + "Authorization=token/" + "Connection=keep-alive/" + "Content-length=4/"
-                            + "Content-type=application/x-www-form-urlencoded@" + "/api/?q=search+yes@" + "test",
+                            + "Content-type=application/x-www-form-urlencoded@" + "/api?q=search+yes@" + "test",
                     result);
 
             final Response<Payload> response = ok.main4Response(new Payload("test"), "token", 1, "search yes");
             assertEquals(
                     "POST@" + "Authorization=token/" + "Connection=keep-alive/" + "Content-length=4/"
-                            + "Content-type=application/x-www-form-urlencoded@" + "/api/?q=search+yes@" + "test",
+                            + "Content-type=application/x-www-form-urlencoded@" + "/api?q=search+yes@" + "test",
                     response.body().value);
             assertEquals(HttpURLConnection.HTTP_OK, response.status());
-            assertEquals("134", response.headers().get("content-length").iterator().next());
+            assertEquals("133", response.headers().get("content-length").iterator().next());
         } finally {
             server.stop(0);
         }
@@ -226,7 +233,7 @@ public class HttpClientFactoryImplTest {
         } catch (final HttpException e) {
             assertEquals(HttpURLConnection.HTTP_FORBIDDEN, e.getResponse().status());
             assertEquals(
-                    "POST@Connection=keep-alive/Content-length=10/Content-type=application/x-www-form-urlencoded@/api/@search yes",
+                    "POST@Connection=keep-alive/Content-length=10/Content-type=application/x-www-form-urlencoded@/api@search yes",
                     e.getResponse().error(String.class));
         } finally {
             server.stop(0);
@@ -259,6 +266,61 @@ public class HttpClientFactoryImplTest {
             assertTrue(!params.containsKey("nullParam"));
         } finally {
             server.stop(0);
+        }
+    }
+
+    @Test
+    void requestGeneric() throws IOException {
+        final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
+        try {
+            HashMap<String, String> headers = new HashMap<String, String>() {
+
+                {
+                    put("Content-type", "application/json");
+                }
+            };
+
+            HashMap<String, String> queries = new HashMap<String, String>() {
+
+                {
+                    put("param", "value");
+                    put("emptyParam", "");
+                    put("nullParam", null);
+                }
+            };
+
+            server.start();
+            final GenericClient httpClient = newDefaultFactory().create(GenericClient.class, null);
+            Response<byte[]> response =
+                    httpClient.execute(2000, 2000, "http://localhost:" + server.getAddress().getPort() + "/api", "POST",
+                            headers, queries, "body data");
+            assertEquals(
+                    "POST@Authorization=Basic ABCD/Connection=keep-alive/Content-length=9/Content-type=application/json@/api?emptyParam=&param=value@body data",
+                    new String(response.body()));
+
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    private interface GenericClient extends HttpClient {
+
+        @Request
+        @UseConfigurer(value = MonConfigurer.class)
+        Response<byte[]> execute(@ConfigurerOption("readTimeout") Integer readTimeout,
+                @ConfigurerOption("connectionTimeout") Integer connectionTimeout, @Url String url,
+                @HttpMethod String method,
+                @org.talend.sdk.component.api.service.http.Headers Map<String, String> headers,
+                @QueryParams Map<String, String> queryParams, String payload);
+
+        class MonConfigurer implements Configurer {
+
+            @Override
+            public void configure(final Connection connection, final ConfigurerConfiguration configuration) {
+                connection.withHeader("Authorization", "Basic ABCD");
+                connection.withReadTimeout(configuration.get("readTimeout", Integer.class));
+                connection.withConnectionTimeout(configuration.get("connectionTimeout", Integer.class));
+            }
         }
     }
 

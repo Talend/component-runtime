@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.manager.service;
+package org.talend.sdk.component.runtime.manager.service.http.codec;
 
 import static java.util.Locale.ROOT;
 
