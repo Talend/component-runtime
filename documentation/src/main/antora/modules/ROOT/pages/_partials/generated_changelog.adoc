@@ -1,5 +1,12 @@
 
 
+== Version 0.0.10
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-771[TCOMP-771^]: ConfigurableClassLoader should skip scala.* classes
+
+
 == Version 0.0.9
 
 === Work Item

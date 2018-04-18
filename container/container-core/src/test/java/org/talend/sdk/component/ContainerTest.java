@@ -43,8 +43,8 @@ public class ContainerTest {
 
     @Test
     void findDependencies(
-            @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.6:runtime") final Container xbeanFinder) {
-        assertEquals(singletonList("org.apache.xbean:xbean-finder:jar:4.6"),
+            @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.8:runtime") final Container xbeanFinder) {
+        assertEquals(singletonList("org.apache.xbean:xbean-finder:jar:4.8"),
                 xbeanFinder.findDependencies().map(Artifact::toCoordinate).collect(toList()));
     }
 
@@ -74,7 +74,7 @@ public class ContainerTest {
 
     @Test
     void proxying(
-            @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.7:runtime") final Container xbeanFinder) {
+            @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.8:runtime") final Container xbeanFinder) {
         final Supplier<Filter> supplier = () -> xbeanFinder.executeAndContextualize(() -> {
             try {
                 return Thread
