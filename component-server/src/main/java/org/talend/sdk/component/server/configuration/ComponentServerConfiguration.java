@@ -115,4 +115,8 @@ public interface ComponentServerConfiguration {
     @Documentation("How to validate a command/request. Accepted values: securityNoopHandler.")
     @ConfigProperty(name = "security.command.handler", defaultValue = "securityNoopHandler")
     String securityCommandHandler();
+
+    @Documentation("Should the component extensions add required dependencies.")
+    @ConfigProperty(name = "component.extend.dependencies", defaultValue = "true")
+    boolean addExtensionDependencies();
 }
