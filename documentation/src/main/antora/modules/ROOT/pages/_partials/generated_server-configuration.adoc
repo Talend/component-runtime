@@ -5,6 +5,7 @@ NOTE: the configuration is read from system properties, environment variables, .
 |====
 |Key|Description|Default
 |talend.component.server.component.coordinates|A comma separated list of gav to locate the components|-
+|talend.component.server.component.extend.dependencies|Should the component extensions add required dependencies.|true
 |talend.component.server.component.registry|A property file where the value is a gav of a component to register (complementary with `coordinates`)|-
 |talend.component.server.documentation.active|Should the /documentation endpoint be activated.|true
 |talend.component.server.execution.dataset.retriever.timeout|How long the read execution endpoint can last (max)|180

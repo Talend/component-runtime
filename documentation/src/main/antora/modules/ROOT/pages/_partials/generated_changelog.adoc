@@ -2,9 +2,21 @@
 
 == Version 0.0.10
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-775[TCOMP-775^]: Starter - Fix properties keys generation
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-773[TCOMP-773^]: Extend the http client api to handle more generic use cases
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-771[TCOMP-771^]: ConfigurableClassLoader should skip scala.* classes
+- link:https://jira.talendforge.org/browse/TCOMP-772[TCOMP-772^]: Upgrade icon set to ui/icons 0.179.0
+- link:https://jira.talendforge.org/browse/TCOMP-774[TCOMP-774^]: Upgrade xbean to 4.8
 
 
 == Version 0.0.9
