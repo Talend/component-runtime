@@ -26,7 +26,7 @@
 # $ docker build --build-arg SERVER_VERSION=1.0.0-SNAPSHOT --tag talend-component-kit:1.0.0-snapshot .
 #
 # Note: for another "server" of the project you can also set ARTIFACT_ID=xxx, for instance:
-# $ docker build --build-arg SERVER_VERSION=1.0.0-SNAPSHOT ARTIFACT_ID=component-starter-server --tag talend-component-kit-starter:1.0.0-snapshot .
+# $ docker build --build-arg SERVER_VERSION=1.0.0-SNAPSHOT --build-arg ARTIFACT_ID=component-starter-server --tag talend-component-kit-starter:1.0.0-snapshot .
 #
 
 # Sample run command once built (assuming previous command name)
@@ -50,6 +50,9 @@
 # FROM anapsix/alpine-java:8_server-jre_unlimited
 FROM openjdk:8-jre-alpine
 
+ARG SERVER_VERSION
+ARG ARTIFACT_ID=component-server
+
 MAINTAINER tacokit@talend.com
 
 ENV LC_ALL en_US.UTF-8
@@ -57,19 +60,22 @@ ENV LC_ALL en_US.UTF-8
 RUN set -xe && \
     apk add --no-cache gnupg ca-certificates openssl && \
     update-ca-certificates && \
-    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys E16448E7EC79DD12245C4ADFFA5FA52B5B7B42F0 && \
-    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys CF80A055A2AD28E9EFBF942A73129F58DE61ECBD
+    for key in E16448E7EC79DD12245C4ADFFA5FA52B5B7B42F0 CF80A055A2AD28E9EFBF942A73129F58DE61ECBD; do \
+        gpg --keyserver keyserver.ubuntu.com --recv-keys $key || \
+        gpg --keyserver ha.pool.sks-keyservers.net --recv-keys $key || \
+        gpg --keyserver pgp.mit.edu --recv-keys $key || \
+        gpg --keyserver keyserver.pgp.com --recv-keys $key; \
+    done
 
 ENV MEECROWAVE_BASE /opt/talend/component-kit
 RUN mkdir -p $MEECROWAVE_BASE
 WORKDIR $MEECROWAVE_BASE
 
-ARG SERVER_VERSION
 RUN set -ex && \
+    echo "Preparing $ARTIFACT_ID v$SERVER_VERSION" && \
     [ -n "$SERVER_VERSION" ] || { echo "[ERROR] No version defined, set environment variable SERVER_VERSION when launching the image"; exit 1; } && \
     export NEXUS_BASE=${NEXUS_BASE:-https://oss.sonatype.org} && \
     export GROUP_ID=${GROUP_ID:-org.talend.sdk.component} && \
-    export ARTIFACT_ID=${ARTIFACT_ID:-component-server} && \
     export REPOSITORY=$([[ "${SERVER_VERSION%-SNAPSHOT}" != "$SERVER_VERSION" ]] && echo 'snapshots' || echo 'releases') && \
     export DOWNLOAD_URL="$NEXUS_BASE/service/local/artifact/maven/content?r=$REPOSITORY&g=$GROUP_ID&a=$ARTIFACT_ID&v=$SERVER_VERSION&e=zip" && \
     echo "Using artifact $GROUP_ID:$ARTIFACT_ID:zip:$SERVER_VERSION" && \
@@ -83,7 +89,7 @@ RUN set -ex && \
     echo "$GROUP_ID:$ARTIFACT_ID:zip:$SERVER_VERSION" > conf/build.gav && \
     date > conf/build.date
 COPY conf/* $MEECROWAVE_BASE/conf/
-COPY conf/log4j2-${ARTIFACT_ID:-component-server} $MEECROWAVE_BASE/conf/log4j2.xml
+COPY conf/log4j2-$ARTIFACT_ID.xml $MEECROWAVE_BASE/conf/log4j2.xml
 COPY bin/* $MEECROWAVE_BASE/bin/
 RUN chmod +x bin/*.sh
 
