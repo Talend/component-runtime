@@ -83,6 +83,7 @@ RUN set -ex && \
     echo "$GROUP_ID:$ARTIFACT_ID:zip:$SERVER_VERSION" > conf/build.gav && \
     date > conf/build.date
 COPY conf/* $MEECROWAVE_BASE/conf/
+COPY conf/log4j2-${ARTIFACT_ID:-component-server} $MEECROWAVE_BASE/conf/log4j2.xml
 COPY bin/* $MEECROWAVE_BASE/bin/
 RUN chmod +x bin/*.sh
 
