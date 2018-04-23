@@ -15,8 +15,8 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
+    <artifactId>sample-parent</artifactId>
     <version>0.0.10-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -30,18 +30,6 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-jdk14</artifactId>
-      <version>${slf4j.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
     <dependency> <!-- just to show a specific dependency usage, not that required for that sample by itself -->
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
