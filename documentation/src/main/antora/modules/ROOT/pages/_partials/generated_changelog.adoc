@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-775[TCOMP-775^]: Starter - Fix properties keys generation
+- link:https://jira.talendforge.org/browse/TCOMP-776[TCOMP-776^]: component-kit.js ignore credentials
 
 
 === New Feature
