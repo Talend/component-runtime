@@ -99,7 +99,7 @@ export default class Generator extends React.Component {
 
   deleteComponent(index) {
     this.setState(state => {
-   	  var comp = state.steps.splice(index, 1);
+      var comp = state.steps.splice(index, 1);
       var idx = state.components.indexOf(comp[0].component.props.component);
       if(idx >= 0) {
         state.components.splice(idx, 1);
