@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -109,15 +110,32 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                 .ifPresent(ref -> {
                     final UiSchema.Trigger trigger = toTrigger(properties, root.getProperty(), ref);
                     if (trigger.getParameters() == null || trigger.getParameters().isEmpty()) {
-                        // find the matching dataset
+                        // find the matching datastore
                         properties
                                 .stream()
                                 .filter(nested -> "datastore"
                                         .equals(nested.getMetadata().get("configurationtype::type"))
                                         && ref.getName().equals(nested.getMetadata().get("configurationtype::name")))
                                 .findFirst()
-                                .ifPresent(datastore -> trigger
-                                        .setParameters(toParams(properties, datastore, ref, datastore.getPath())));
+                                .ifPresent(datastore -> {
+                                    final List<UiSchema.Parameter> parameters =
+                                            toParams(properties, datastore, ref, datastore.getPath());
+                                    if (parameters != null && !parameters.isEmpty()) {
+                                        trigger.setParameters(parameters);
+                                    } else {
+                                        final UiSchema.Parameter parameter = new UiSchema.Parameter();
+                                        parameter.setKey(ofNullable(ref.getProperties())
+                                                .orElse(Collections.emptyList())
+                                                .stream()
+                                                .filter(p -> !p.getPath().contains("."))
+                                                .findFirst()
+                                                .map(SimplePropertyDefinition::getName)
+                                                .orElse("datastore"));
+                                        parameter.setPath(datastore.getPath());
+                                        trigger.setParameters(
+                                                toParams(properties, datastore, ref, datastore.getPath()));
+                                    }
+                                });
                     }
 
                     final UiSchema button = new UiSchema();
