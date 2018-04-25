@@ -19,7 +19,7 @@
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
   <packaging>pom</packaging>
-  <version>0.0.10-SNAPSHOT</version>
+  <version>0.0.10</version>
   <name>Component Runtime</name>
   <description>Talend Component Kit Runtime</description>
   <url>https://talend.github.io/component-runtime/</url>
@@ -950,7 +950,7 @@
     <connection>scm:git:https://github.com/Talend/component-runtime.git</connection>
     <developerConnection>scm:git:https://github.com/Talend/component-runtime.git</developerConnection>
     <url>https://github.com/Talend/component-runtime</url>
-    <tag>HEAD</tag>
+    <tag>component-runtime-0.0.10</tag>
   </scm>
 
   <developers>
