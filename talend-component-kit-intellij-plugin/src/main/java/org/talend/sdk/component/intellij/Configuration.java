@@ -37,7 +37,7 @@ public final class Configuration {
     }
 
     public static String getStarterHost() {
-        return System.getProperty("org.talend.component.starter.host", "https://start.talend.io");
+        return System.getProperty("org.talend.component.starter.host", "http://starter-toolkit.talend.io");
     }
 
     public static long getStarterLoadTimeOut() {
