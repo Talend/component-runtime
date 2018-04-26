@@ -4,8 +4,11 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-770[TCOMP-770^]: Removing component from web UI causes wrong number of components in summary
 - link:https://jira.talendforge.org/browse/TCOMP-775[TCOMP-775^]: Starter - Fix properties keys generation
 - link:https://jira.talendforge.org/browse/TCOMP-776[TCOMP-776^]: component-kit.js ignore credentials
+- link:https://jira.talendforge.org/browse/TCOMP-783[TCOMP-783^]: ActiveIfs doesn't make option visible 
+- link:https://jira.talendforge.org/browse/TCOMP-796[TCOMP-796^]: Datastore check (@Checkable) should default meta parameters to "datastore" if none is found
 
 
 === New Feature
