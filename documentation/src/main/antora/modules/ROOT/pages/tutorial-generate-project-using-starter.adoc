@@ -6,6 +6,8 @@ The component starter let you design your components configuration and generate 
 
 NOTE: In this tutorial, we will use the component starter to generate some components for MySQL database.
 
+The starter is available at http://starter-toolkit.talend.io.
+
 == Project configuration
 image::starter/starter_project-config.png[Project configuration]
 1. Choose your favorite build tool. we will use maven in this tutorial but you can select gradle if you prefer.
