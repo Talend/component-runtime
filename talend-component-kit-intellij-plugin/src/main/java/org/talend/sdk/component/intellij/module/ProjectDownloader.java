@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -67,14 +68,15 @@ public class ProjectDownloader {
         urlConnection.setRequestProperty("User-Agent", userAgent());
         urlConnection.setDoOutput(true);
         try (final BufferedOutputStream outputStream = new BufferedOutputStream(urlConnection.getOutputStream())) {
-            outputStream.write(("project=" + request.getProject()).getBytes("utf-8"));
+            outputStream.write(("project=" + URLEncoder.encode(request.getProject(), StandardCharsets.UTF_8.name()))
+                    .getBytes("utf-8"));
             outputStream.flush();
         }
         final int responseCode = urlConnection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             final String contentType = urlConnection.getHeaderField("content-type");
             if (!"application/zip".equals(contentType)) {
-                throw new IOException("Invalid project format from starter server.");
+                throw new IOException("Invalid project format from starter server, content-type='" + contentType + "'");
             }
             try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                 copy(urlConnection.getInputStream(), out);

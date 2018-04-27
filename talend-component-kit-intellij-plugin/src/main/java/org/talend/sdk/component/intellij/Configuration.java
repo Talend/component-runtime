@@ -39,17 +39,4 @@ public final class Configuration {
     public static String getStarterHost() {
         return System.getProperty("org.talend.component.starter.host", "http://starter-toolkit.talend.io");
     }
-
-    public static long getStarterLoadTimeOut() {
-        final String timeoutValue = System.getProperty("org.talend.component.starter.timeout");
-        long timeout = 40 * 1000;
-        if (timeoutValue != null && !timeoutValue.isEmpty()) {
-            try {
-                timeout = Long.parseLong(timeoutValue);
-            } catch (final NumberFormatException e) {
-                log.error(e.getLocalizedMessage(), e); // no-op
-            }
-        }
-        return timeout;
-    }
 }
