@@ -32,7 +32,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.FileAttribute;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,9 +76,9 @@ public class CarMain {
             break;
         case "deploy-to-nexus":
             if (args.length == 5) {
-                deployToNexus(args[1], args[2], args[3], args[4]);
+                deployToNexus(args[1], args[2], args[3], args[4], Runtime.getRuntime().availableProcessors(), null);
             } else if (args.length == 6) {
-                deployToNexus(args[1], args[2], args[3], args[4], Integer.parseInt(args[5]));
+                deployToNexus(args[1], args[2], args[3], args[4], Integer.parseInt(args[5]), null);
             } else if (args.length == 7) {
                 deployToNexus(args[1], args[2], args[3], args[4], Integer.parseInt(args[5]), args[6]);
             }
@@ -298,16 +298,6 @@ public class CarMain {
         return result.toString();
     }
 
-    private static void deployToNexus(final String url, final String repositoryName, final String username,
-            final String password) {
-        deployToNexus(url, repositoryName, username, password, Runtime.getRuntime().availableProcessors());
-    }
-
-    private static void deployToNexus(final String serverUrl, final String repositoryName, final String username,
-            final String password, final int parallelThreads) {
-        deployToNexus(serverUrl, repositoryName, username, password, parallelThreads, null);
-    }
-
     private static void deployToNexus(final String serverUrl, final String repositoryName, final String username,
             final String password, final int parallelThreads, final String tempDirLocation) {
         String mainGav = null;
@@ -344,24 +334,26 @@ public class CarMain {
     private static void uploadEntries(final String serverUrl, final String repositoryName, final String username,
             final String password, final List<JarEntry> entriesToProcess, final JarFile jar, final int parallelThreads,
             final String tempDirLocation) {
-        if (entriesToProcess.size() == 0) {
+        if (entriesToProcess.isEmpty()) {
             return;
         }
         final File tempDirectory;
         if (tempDirLocation == null || tempDirLocation.isEmpty()) {
+            System.out.println("No temporary directory is set. Creating a new one...");
             try {
-                tempDirectory = Files.createTempDirectory("car-deploy-to-nexus", new FileAttribute[0]).toFile();
-                tempDirectory.deleteOnExit();
+                tempDirectory = Files.createTempDirectory("car-deploy-to-nexus").toFile();
             } catch (IOException e1) {
                 String message = "Could not create temp directory: " + e1.getMessage();
                 throw new UnsupportedOperationException(message, e1);
             }
         } else {
-            tempDirectory = new File(tempDirLocation);
+            tempDirectory = new File(tempDirLocation, "car-deploy-to-nexus-" + UUID.randomUUID().toString());
+            tempDirectory.mkdir();
             if (!tempDirectory.exists() || !(tempDirectory.canWrite() && tempDirectory.canRead())) {
                 throw new IllegalArgumentException("Cannot access temporary directory " + tempDirLocation);
             }
         }
+        System.out.println(tempDirectory.getPath() + " will be used as temporary directory.");
         final String nexusVersion = getNexusVersion(serverUrl, username, password);
         final ExecutorService executor =
                 Executors.newFixedThreadPool(Math.min(entriesToProcess.size(), parallelThreads));
@@ -387,6 +379,7 @@ public class CarMain {
             try {
                 latch.await();
             } catch (InterruptedException e) {
+                System.err.println("Exception caught while awaiting for latch: " + e.getMessage());
             }
         } finally {
             executor.shutdown();
@@ -395,6 +388,25 @@ public class CarMain {
             } catch (InterruptedException e) {
                 System.err.println("Interrupted while awaiting for executor to shutdown.");
             }
+            try {
+                System.out.println("Removing " + tempDirectory.getPath());
+                removeTempDirectoryRecursively(tempDirectory);
+            } catch (Exception e) {
+                System.err.println("Couldn't remove " + tempDirectory.getPath() + ": " + e.getMessage());
+            }
+        }
+    }
+
+    private static void removeTempDirectoryRecursively(final File file) {
+        if (file.exists() && file.isFile()) {
+            file.delete();
+            return;
+        } else if (file.isDirectory()) {
+            String[] files = file.list();
+            for (String filename : files) {
+                removeTempDirectoryRecursively(new File(file, filename));
+            }
+            file.delete();
         }
     }
 
@@ -405,7 +417,6 @@ public class CarMain {
             String fileName = entry.getName().substring(entry.getName().lastIndexOf("/") + 1);
             extracted = File.createTempFile("temp-", fileName, destDirectory);
             Files.copy(is, extracted.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            extracted.deleteOnExit();
         }
         return extracted;
     }
@@ -424,7 +435,6 @@ public class CarMain {
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Authorization", basicAuth);
             conn.connect();
-            System.out.println(conn.getResponseCode() + " - " + conn.getResponseMessage());
             if (conn.getResponseCode() == 404) {
                 return false;
             } else if (conn.getResponseCode() == 401) {
