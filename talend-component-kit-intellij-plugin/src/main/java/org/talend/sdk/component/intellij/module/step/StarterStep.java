@@ -159,11 +159,10 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
             Platform.setImplicitExit(false);
             jfxPanel = new JFXPanel();
             add(jfxPanel, BorderLayout.CENTER);
-            final String css = Base64
-                    .getMimeEncoder()
-                    .encodeToString(("div[class^=\"Finish__bigButton\"], #go-to-finish-button{display:none "
-                            + "!important;} " + "div[class^=\"Drawer__tc-drawer-container\"]" + " >" + " "
-                            + "div:nth-child(2) {display:block !important;}").getBytes(StandardCharsets.UTF_8));
+            final String css = Base64.getMimeEncoder().encodeToString(
+                    ("div[class^=\"Finish__bigButton\"], #go-to-finish-button{display:none  !important;} "
+                            + "div[class^=\"Drawer__tc-drawer-container\"] > div:nth-child(2) {display:block !important;} "
+                            + "input {height:25px !important;}").getBytes(StandardCharsets.UTF_8));
             Platform.runLater(() -> {
                 browser = new WebView();
                 webEngine = browser.getEngine();
