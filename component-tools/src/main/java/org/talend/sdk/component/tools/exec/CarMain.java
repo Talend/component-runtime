@@ -22,6 +22,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,9 +32,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileAttribute;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
@@ -76,6 +79,8 @@ public class CarMain {
                 deployToNexus(args[1], args[2], args[3], args[4]);
             } else if (args.length == 6) {
                 deployToNexus(args[1], args[2], args[3], args[4], Integer.parseInt(args[5]));
+            } else if (args.length == 7) {
+                deployToNexus(args[1], args[2], args[3], args[4], Integer.parseInt(args[5]), args[6]);
             }
             break;
         default:
@@ -202,9 +207,11 @@ public class CarMain {
     }
 
     private static void help() {
-        System.err.println("Usage:\n\n   java -jar " + jarLocation(CarMain.class).getName()
-                + " [studio-deploy|maven-deploy|deploy-to-nexus] [/path/to/studio|/path/to/.m2|NexusUrl repositoryName "
-                + "username password parallelThreads]");
+        System.err.println(
+                "Usage:\n\n   java -jar " + jarLocation(CarMain.class).getName() + " studio-deploy /path/to/studio");
+        System.err.println("   java -jar " + jarLocation(CarMain.class).getName() + " maven-deploy /path/to/.m2");
+        System.err.println("   java -jar " + jarLocation(CarMain.class).getName()
+                + " deploy-to-nexus NexusUrl repositoryName username password [parallelThreads [tempDirectory]]");
     }
 
     private static File jarLocation(final Class clazz) {
@@ -298,6 +305,11 @@ public class CarMain {
 
     private static void deployToNexus(final String serverUrl, final String repositoryName, final String username,
             final String password, final int parallelThreads) {
+        deployToNexus(serverUrl, repositoryName, username, password, parallelThreads, null);
+    }
+
+    private static void deployToNexus(final String serverUrl, final String repositoryName, final String username,
+            final String password, final int parallelThreads, final String tempDirLocation) {
         String mainGav = null;
         List<JarEntry> entriesToProcess = new ArrayList<>();
         try (JarFile jar = new JarFile(jarLocation(CarMain.class))) {
@@ -317,7 +329,8 @@ public class CarMain {
                     mainGav = properties.getProperty("component_coordinates");
                 }
             }
-            uploadEntries(serverUrl, repositoryName, username, password, entriesToProcess, jar, parallelThreads);
+            uploadEntries(serverUrl, repositoryName, username, password, entriesToProcess, jar, parallelThreads,
+                    tempDirLocation);
             if (mainGav == null || mainGav.trim().isEmpty()) {
                 throw new IllegalArgumentException("Didn't find the component coordinates");
             }
@@ -329,62 +342,93 @@ public class CarMain {
     }
 
     private static void uploadEntries(final String serverUrl, final String repositoryName, final String username,
-            final String password, final List<JarEntry> entriesToProcess, final JarFile jar,
-            final int parallelThreads) {
-        final CountDownLatch latch = new CountDownLatch(entriesToProcess.size());
+            final String password, final List<JarEntry> entriesToProcess, final JarFile jar, final int parallelThreads,
+            final String tempDirLocation) {
+        if (entriesToProcess.size() == 0) {
+            return;
+        }
+        final File tempDirectory;
+        if (tempDirLocation == null || tempDirLocation.isEmpty()) {
+            try {
+                tempDirectory = Files.createTempDirectory("car-deploy-to-nexus", new FileAttribute[0]).toFile();
+                tempDirectory.deleteOnExit();
+            } catch (IOException e1) {
+                String message = "Could not create temp directory: " + e1.getMessage();
+                throw new UnsupportedOperationException(message, e1);
+            }
+        } else {
+            tempDirectory = new File(tempDirLocation);
+            if (!tempDirectory.exists() || !(tempDirectory.canWrite() && tempDirectory.canRead())) {
+                throw new IllegalArgumentException("Cannot access temporary directory " + tempDirLocation);
+            }
+        }
         final String nexusVersion = getNexusVersion(serverUrl, username, password);
-        final ExecutorService executor = Executors.newFixedThreadPool(parallelThreads);
+        final ExecutorService executor =
+                Executors.newFixedThreadPool(Math.min(entriesToProcess.size(), parallelThreads));
         try {
+            final String basicAuth = getAuthHeader(username, password);
+            final CountDownLatch latch = new CountDownLatch(entriesToProcess.size());
             for (final JarEntry entry : entriesToProcess) {
                 final String path = entry.getName().substring("MAVEN-INF/repository/".length());
-                try {
-                    executor.execute(() -> {
-                        try {
-                            if (!artifactExists(nexusVersion, serverUrl, username, password, repositoryName, path)) {
-                                sendJar(nexusVersion, serverUrl, username, password, repositoryName, path, jar, entry);
-                                sendPom(nexusVersion, serverUrl, username, password, repositoryName, path, jar, entry);
-                            }
-                        } catch (Exception e) {
-                            System.out.println("A problem occured while running " + Thread.currentThread().getName()
-                                    + ": " + e.getMessage());
-                        } finally {
-                            latch.countDown();
+                executor.execute(() -> {
+                    try {
+                        if (!artifactExists(nexusVersion, serverUrl, basicAuth, repositoryName, path)) {
+                            File extracted = extractJar(tempDirectory, jar, entry);
+                            sendJar(nexusVersion, serverUrl, basicAuth, repositoryName, path, extracted);
+                            sendPom(nexusVersion, serverUrl, basicAuth, repositoryName, path, extracted);
                         }
-                    });
-                } catch (Exception e) {
-                    latch.countDown();
-                }
+                    } catch (Exception e) {
+                        System.err.println("A problem occured while uploading artifact: " + e.getMessage());
+                    } finally {
+                        latch.countDown();
+                    }
+                });
             }
             try {
-                latch.await(30, TimeUnit.SECONDS);
+                latch.await();
             } catch (InterruptedException e) {
             }
         } finally {
             executor.shutdown();
-            while (!executor.isTerminated()) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    System.out.println("Interrupted while awaiting for executor to shutdown.");
-                }
+            try {
+                executor.awaitTermination(1, TimeUnit.DAYS);
+            } catch (InterruptedException e) {
+                System.err.println("Interrupted while awaiting for executor to shutdown.");
             }
         }
     }
 
-    private static boolean artifactExists(final String nexusVersion, final String serverUrl, final String username,
-            final String password, final String repositoryName, final String path) throws IOException {
+    private static File extractJar(final File destDirectory, final JarFile jar, final JarEntry entry)
+            throws IOException {
+        File extracted = null;
+        try (InputStream is = jar.getInputStream(entry)) {
+            String fileName = entry.getName().substring(entry.getName().lastIndexOf("/") + 1);
+            extracted = File.createTempFile("temp-", fileName, destDirectory);
+            Files.copy(is, extracted.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            extracted.deleteOnExit();
+        }
+        return extracted;
+    }
+
+    private static String getAuthHeader(final String username, final String password) {
+        return "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
+    }
+
+    private static boolean artifactExists(final String nexusVersion, final String serverUrl, final String basicAuth,
+            final String repositoryName, final String path) throws IOException {
         HttpURLConnection conn = null;
         try {
             URL url = new URL(getNexusUploadUrl(nexusVersion, serverUrl, repositoryName, path));
             conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
-            String userpass = username + ":" + password;
-            String basicAuth = "Basic " + DatatypeConverter.printBase64Binary(userpass.getBytes());
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Authorization", basicAuth);
             conn.connect();
+            System.out.println(conn.getResponseCode() + " - " + conn.getResponseMessage());
             if (conn.getResponseCode() == 404) {
                 return false;
+            } else if (conn.getResponseCode() == 401) {
+                throw new IllegalArgumentException("Authentication failed!");
             }
             System.out.println("Artifact " + path + " already exists on " + serverUrl + ". Skipping.");
         } finally {
@@ -395,24 +439,20 @@ public class CarMain {
         return true;
     }
 
-    private static void sendPom(final String nexusVersion, final String serverUrl, final String username,
-            final String password, final String repositoryName, final String path, final JarFile jar,
-            final JarEntry entry) throws IOException {
+    private static void sendPom(final String nexusVersion, final String serverUrl, final String basicAuth,
+            final String repositoryName, final String path, final File jarFile) throws IOException {
         HttpURLConnection conn = null;
-        try (final JarInputStream jarIs = new JarInputStream(new BufferedInputStream(jar.getInputStream(entry)))) {
-            JarEntry jarEntry;
-            while ((jarEntry = jarIs.getNextJarEntry()) != null) {
-                if (jarEntry.isDirectory()) {
-                    continue;
-                }
-                if (jarEntry.getName().startsWith("META-INF/maven/") && jarEntry.getName().endsWith("pom.xml")) {
-                    final String pomPath = path.substring(0, path.lastIndexOf(".")) + ".pom";
-                    sendData(nexusVersion, serverUrl, username, password, repositoryName, pomPath, jarIs);
-                    break;
-                }
+        final String pomPath = getPomPathFromPath(path);
+        System.out.println("Path of pom file resolved: " + pomPath);
+        try (final JarFile jar = new JarFile(jarFile)) {
+            JarEntry entry = jar.getJarEntry(pomPath);
+            if (entry == null) {
+                throw new FileNotFoundException("Could not find " + pomPath + " inside " + jar.getName());
             }
-        } catch (final IOException e) {
-            throw new IllegalArgumentException(e);
+            try (final InputStream jarIs = jar.getInputStream(entry)) {
+                final String serverPomPath = path.substring(0, path.lastIndexOf(".")) + ".pom";
+                sendData(nexusVersion, serverUrl, basicAuth, repositoryName, serverPomPath, jarIs);
+            }
         } finally {
             if (conn != null) {
                 conn.disconnect();
@@ -420,25 +460,43 @@ public class CarMain {
         }
     }
 
-    private static void sendJar(final String nexusVersion, final String serverUrl, final String username,
-            final String password, final String repositoryName, final String path, final JarFile jar,
-            final JarEntry entry) throws IOException {
-        try (InputStream is = jar.getInputStream(entry)) {
-            sendData(nexusVersion, serverUrl, username, password, repositoryName, path, is);
+    private static String getPomPathFromPath(final String path) {
+        String parentPath = path.substring(0, path.lastIndexOf("/"));
+        String version = parentPath.substring(parentPath.lastIndexOf("/") + 1);
+        String fileName = path.substring(path.lastIndexOf("/") + 1);
+        int versionIndex = fileName.indexOf(version);
+        String artifactName = fileName;
+        if (versionIndex > 0) {
+            artifactName = fileName.substring(0, versionIndex - 1);
+        } else if (fileName.endsWith(".jar")) {
+            artifactName = fileName.substring(0, fileName.length() - 4);
+        }
+        String group = parentPath.substring(0, parentPath.lastIndexOf(artifactName));
+        if (group.startsWith("/")) {
+            group = group.substring(1, group.length());
+        }
+        if (group.endsWith("/")) {
+            group = group.substring(0, group.length() - 1);
+        }
+        group = group.replace("/", ".");
+        return "META-INF/maven/" + group + "/" + artifactName + "/pom.xml";
+    }
+
+    private static void sendJar(final String nexusVersion, final String serverUrl, final String basicAuth,
+            final String repositoryName, final String path, final File jarFile) throws IOException {
+        try (InputStream is = new FileInputStream(jarFile)) {
+            sendData(nexusVersion, serverUrl, basicAuth, repositoryName, path, is);
         }
     }
 
-    private static void sendData(final String nexusVersion, final String serverUrl, final String username,
-            final String password, final String repositoryName, final String path, final InputStream is)
-            throws IOException {
+    private static void sendData(final String nexusVersion, final String serverUrl, final String basicAuth,
+            final String repositoryName, final String path, final InputStream is) throws IOException {
         System.out.println("Uploading " + path + " to " + serverUrl);
         HttpURLConnection conn = null;
         try {
             URL url = new URL(getNexusUploadUrl(nexusVersion, serverUrl, repositoryName, path));
             conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
-            String userpass = username + ":" + password;
-            String basicAuth = "Basic " + DatatypeConverter.printBase64Binary(userpass.getBytes());
             conn.setRequestMethod(getRequestMethod(nexusVersion));
             conn.setRequestProperty("Authorization", basicAuth);
             conn.setRequestProperty("Content-Type", "multipart/form-data");
