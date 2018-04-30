@@ -16,7 +16,6 @@
 import React from 'react';
 import keycode from 'keycode';
 import { Typeahead } from '@talend/react-components';
-import Input from '../Component/Input';
 
 import theme from './CategorySelector.scss';
 
