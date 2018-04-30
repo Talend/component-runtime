@@ -23,6 +23,7 @@ The configuration goes into `$STUDIO_HOME/configuration/config.ini`.
 
 |===
 | Name | Description | Default
+| component.environment | Active the developer mode when set to `dev` | -
 | component.debounce.timeout | Specifies timeout in milliseconds before calling listeners in components Text fields | 750
 | component.kit.skip | If `true` the plugin is not active. Useful if you don't have any component develop with the framework. | false
 | component.java.arguments | Component server additional options | -
@@ -52,15 +53,17 @@ A common developer `configuration/config.ini` will use the following specific en
 # use local .m2 instead of embedded studio one
 maven.repository = global
 
-# log into the console the component interactions
-component.server.jul.forceConsole = true
-java.util.logging.SimpleFormatter.format = [%4$s] %5$s%6$s%n
-
 # load these component modules
 component.java.coordinates = \
     group1:artifact1:0.0.1,\
     group2:artifact2:0.2.1
 
+# during development, see developer model part
+component.environment = dev
+
+# log into the console the component interactions - optional
+component.server.jul.forceConsole = true
+java.util.logging.SimpleFormatter.format = [%4$s] %5$s%6$s%n
 ----
 
 === Random port when running concurrent studio instances
@@ -73,3 +76,17 @@ you can't get two concurrent processes getting the same allocated port.
 
 IMPORTANT: it is highly unlikely it happens on a desktop and forcing a different value through `component.java.port` in your `config.ini` is likely a better
 solution for local installations.
+
+=== Developer mode
+
+The developer mode will add a Talend Component Kit button in the main toolbar:
+
+image::studio-reload-button.png[Studio Reload Button]
+
+When clicking on this button, all component developped with the framework will be reloaded.
+The cache will be invalidated and the component refreshed.
+
+IMPORTANT: you still need to add/remove the components to see the changes.
+
+This feature is very useful to see some updates in components without having to restart the studio completly.
+
