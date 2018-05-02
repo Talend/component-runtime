@@ -18,7 +18,7 @@
   display: flex;
   flex-direction: column;
 
-  svg:first-child {
+   > svg:first-child {
     flex: 0 0 48px;
     display: block !important;
     height: 0;
