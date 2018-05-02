@@ -578,7 +578,6 @@ public class CarMain {
             conn.setRequestProperty("Authorization", basicAuth);
             conn.setRequestProperty("Accept", "application/json");
             conn.connect();
-            System.out.println(conn.getResponseCode() + " - " + conn.getResponseMessage());
             if (conn.getResponseCode() != 404) {
                 try (InputStream is = conn.getInputStream()) {
                     byte[] b = new byte[1024];
@@ -589,6 +588,7 @@ public class CarMain {
                         b = new byte[1024];
                     }
                     if (out.toString().contains("\"apiVersion\":\"2.")) {
+                        System.out.println("version is v2");
                         v2 = true;
                     }
                 }
@@ -617,7 +617,6 @@ public class CarMain {
             conn.setRequestProperty("Authorization", basicAuth);
             conn.setRequestProperty("Accept", "*/*");
             conn.connect();
-            System.out.println(conn.getResponseCode() + " - " + conn.getResponseMessage());
             if (conn.getResponseCode() == 200) {
                 v3 = true;
             }
