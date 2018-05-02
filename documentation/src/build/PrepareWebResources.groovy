@@ -66,7 +66,10 @@ def readTitle = { file ->
     return file.name.replace('.adoc', '').replace('-', ' ')
 }
 def readContent = { file ->
-    file.readLines().findAll { !it.startsWith(':') && !it.startsWith('=') && !it.trim().isEmpty() }.join(' ').replace('`', '')
+    file.readLines()
+            .findAll { !it.startsWith(':') && !it.startsWith('=') && !it.trim().isEmpty() }
+            .join(' ')
+            .replace('`', '')
 }
 def toText = { content ->
     def html = adoc.render(content, OptionsBuilder.options()
@@ -83,7 +86,8 @@ def toText = { content ->
             .attribute('docversion', project.properties['versions.release'])
             .attribute('git_branch', project.properties['git.branch'])
             .attribute('deploymentRoot', 'https://talend.github.io/component-runtime')))
-    Jsoup.parse(html).body()text()
+    Jsoup.parse(html).body().text()
+        .replaceAll('Last updated [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} CEST$', '')
 }
 
 def sourceSearchJs = new File(project.basedir, 'src/main/antora/modules/ROOT/pages/search.adoc')
