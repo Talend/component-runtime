@@ -394,7 +394,25 @@ in your instance. Here is a sample launch command:
 ----
 # for a studio
 java -jar mycomponent.car studio-deploy /path/to/my/studio
+or
+java -jar mycomponent.car studio-deploy --location /path/to/my/studio
 
 # for a m2 provisioning
 java -jar mycomponent.car maven-deploy /path/to/.m2/repository
+or
+java -jar mycomponent.car maven-deploy --location /path/to/.m2/repository
+----
+
+You can also upload the dependencies to your nexus server using the following command:
+
+[source,sh]
+----
+java -jar mycomponent.car deploy-to-nexus --url <nexus url> --repo <repository name> --user <username> --pass <password> --threads <parallel threads number> --dir <temp directory>
+----
+
+In this command Nexus Url and repository name are mandatory arguments. All other arguments are optional. If arguments contain spaces or special symbols, you need to quote the whole value of the argument, for example
+
+[source,sh]
+----
+--pass "Y0u will \ not G4iess i' ^"
 ----

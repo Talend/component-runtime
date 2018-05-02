@@ -35,6 +35,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
@@ -60,6 +61,7 @@ public class CarMain {
     }
 
     public static void main(final String[] args) {
+        System.out.println(Arrays.asList(args));
         if (args == null || args.length < 2) {
             help();
             return;
@@ -69,24 +71,71 @@ public class CarMain {
         }
         switch (args[0].toLowerCase(ROOT)) {
         case "studio-deploy":
-            deployInStudio(args[1]);
+            final String studioPath;
+            if (args.length == 2) {
+                studioPath = args[1];
+            } else {
+                studioPath = getArgument("--location", args);
+            }
+            if (studioPath == null || studioPath.isEmpty()) {
+                System.err.println("Path to studio is not set. Use '--location <location>' to set it.");
+                help();
+                break;
+            }
+            deployInStudio(studioPath);
             break;
         case "maven-deploy":
-            deployInM2(args[1]);
+            final String mavenPath;
+            if (args.length == 2) {
+                mavenPath = args[1];
+            } else {
+                mavenPath = getArgument("--location", args);
+            }
+            if (mavenPath == null || mavenPath.isEmpty()) {
+                System.err.println("Path to maven repository is not set. Use '--location <location>' to set it.");
+                help();
+                break;
+            }
+            deployInM2(mavenPath);
             break;
         case "deploy-to-nexus":
-            if (args.length == 5) {
-                deployToNexus(args[1], args[2], args[3], args[4], Runtime.getRuntime().availableProcessors(), null);
-            } else if (args.length == 6) {
-                deployToNexus(args[1], args[2], args[3], args[4], Integer.parseInt(args[5]), null);
-            } else if (args.length == 7) {
-                deployToNexus(args[1], args[2], args[3], args[4], Integer.parseInt(args[5]), args[6]);
+            final String url = getArgument("--url", args);
+            final String repo = getArgument("--repo", args);
+            final String user = getArgument("--user", args);
+            final String pass = getArgument("--pass", args);
+            final String threads = getArgument("--threads", args);
+            final int threadsNum;
+            if (threads == null) {
+                threadsNum = Runtime.getRuntime().availableProcessors();
+            } else {
+                threadsNum = Integer.parseInt(threads);
             }
+            final String dir = getArgument("--dir", args);
+            if (url == null || url.isEmpty()) {
+                System.err.println("Nexus url is not set. Use '--url <url>' to set it");
+                help();
+                break;
+            }
+            if (repo == null || repo.isEmpty()) {
+                System.err.println("Nexus repo is not set. Use '--repo <repository>' to set it");
+                help();
+                break;
+            }
+            deployToNexus(url, repo, user, pass, threadsNum, dir);
             break;
         default:
             help();
             throw new IllegalArgumentException("Unknown command '" + args[0] + "'");
         }
+    }
+
+    private static String getArgument(final String argumentPrefix, final String... args) {
+        for (int i = 1; i < args.length - 1; i++) {
+            if (args[i].equals(argumentPrefix)) {
+                return args[i + 1];
+            }
+        }
+        return null;
     }
 
     private static void deployInM2(final String m2) {
@@ -207,11 +256,29 @@ public class CarMain {
     }
 
     private static void help() {
+        System.err.println("Usage:\n\njava -jar " + jarLocation(CarMain.class).getName() + " [command] [arguments]");
+        System.err.println("commands:");
+        System.err.println("   studio-deploy");
+        System.err.println("      arguments:");
+        System.err.println("         --location <location>: path to studio");
+        System.err.println("         or");
+        System.err.println("         <location>: path to studio");
+        System.err.println();
+        System.err.println("   maven-deploy");
+        System.err.println("      arguments:");
+        System.err.println("         --location <location>: path to .m2 repository");
+        System.err.println("         or");
+        System.err.println("         <location>: path to .m2 repository");
+        System.err.println();
+        System.err.println("   deploy-to-nexus");
+        System.err.println("      arguments:");
+        System.err.println("         --url <nexusUrl>: nexus server url");
+        System.err.println("         --repo <repositoryName>: nexus repository name to upload dependencies to");
+        System.err.println("         --user <username>: username to connect to nexus(optional)");
+        System.err.println("         --pass <password>: password to connect to nexus(optional)");
         System.err.println(
-                "Usage:\n\n   java -jar " + jarLocation(CarMain.class).getName() + " studio-deploy /path/to/studio");
-        System.err.println("   java -jar " + jarLocation(CarMain.class).getName() + " maven-deploy /path/to/.m2");
-        System.err.println("   java -jar " + jarLocation(CarMain.class).getName()
-                + " deploy-to-nexus NexusUrl repositoryName username password [parallelThreads [tempDirectory]]");
+                "         --threads <parallelThreads>: threads number to use during upload to nexus(optional)");
+        System.err.println("         --dir <tempDirectory>: temporary directory to use during upload(optional)");
     }
 
     private static File jarLocation(final Class clazz) {
@@ -319,11 +386,11 @@ public class CarMain {
                     mainGav = properties.getProperty("component_coordinates");
                 }
             }
-            uploadEntries(serverUrl, repositoryName, username, password, entriesToProcess, jar, parallelThreads,
-                    tempDirLocation);
             if (mainGav == null || mainGav.trim().isEmpty()) {
                 throw new IllegalArgumentException("Didn't find the component coordinates");
             }
+            uploadEntries(serverUrl, repositoryName, username, password, entriesToProcess, jar, parallelThreads,
+                    tempDirLocation);
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
@@ -387,6 +454,7 @@ public class CarMain {
                 executor.awaitTermination(1, TimeUnit.DAYS);
             } catch (InterruptedException e) {
                 System.err.println("Interrupted while awaiting for executor to shutdown.");
+                Thread.currentThread().interrupt();
             }
             try {
                 System.out.println("Removing " + tempDirectory.getPath());
@@ -400,7 +468,6 @@ public class CarMain {
     private static void removeTempDirectoryRecursively(final File file) {
         if (file.exists() && file.isFile()) {
             file.delete();
-            return;
         } else if (file.isDirectory()) {
             String[] files = file.list();
             for (String filename : files) {
@@ -422,7 +489,11 @@ public class CarMain {
     }
 
     private static String getAuthHeader(final String username, final String password) {
-        return "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
+        if (username == null || username.isEmpty()) {
+            return null;
+        }
+        return "Basic " + Base64.getEncoder().encodeToString(
+                (username + (password == null || password.isEmpty() ? "" : ":" + password)).getBytes());
     }
 
     private static boolean artifactExists(final String nexusVersion, final String serverUrl, final String basicAuth,
@@ -433,7 +504,9 @@ public class CarMain {
             conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("Authorization", basicAuth);
+            if (basicAuth != null) {
+                conn.setRequestProperty("Authorization", basicAuth);
+            }
             conn.connect();
             if (conn.getResponseCode() == 404) {
                 return false;
@@ -508,7 +581,9 @@ public class CarMain {
             conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod(getRequestMethod(nexusVersion));
-            conn.setRequestProperty("Authorization", basicAuth);
+            if (basicAuth != null) {
+                conn.setRequestProperty("Authorization", basicAuth);
+            }
             conn.setRequestProperty("Content-Type", "multipart/form-data");
             conn.setRequestProperty("Accept", "*/*");
             conn.connect();
@@ -554,8 +629,7 @@ public class CarMain {
             version = "V2";
         } else if (isV3(serverUrl, username, password)) {
             version = "V3";
-        }
-        if (version == null) {
+        } else {
             throw new UnsupportedOperationException(
                     "Provided url doesn't respond neither to Nexus 2 nor to Nexus 3 endpoints.");
         }
@@ -575,10 +649,12 @@ public class CarMain {
             String userpass = username + ":" + password;
             String basicAuth = "Basic " + DatatypeConverter.printBase64Binary(userpass.getBytes());
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("Authorization", basicAuth);
+            if (basicAuth != null) {
+                conn.setRequestProperty("Authorization", basicAuth);
+            }
             conn.setRequestProperty("Accept", "application/json");
             conn.connect();
-            if (conn.getResponseCode() != 404) {
+            if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 299) {
                 try (InputStream is = conn.getInputStream()) {
                     byte[] b = new byte[1024];
                     final StringBuilder out = new StringBuilder();
@@ -614,7 +690,9 @@ public class CarMain {
             String userpass = username + ":" + password;
             String basicAuth = "Basic " + DatatypeConverter.printBase64Binary(userpass.getBytes());
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("Authorization", basicAuth);
+            if (basicAuth != null) {
+                conn.setRequestProperty("Authorization", basicAuth);
+            }
             conn.setRequestProperty("Accept", "*/*");
             conn.connect();
             if (conn.getResponseCode() == 200) {

@@ -40,6 +40,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -145,18 +146,23 @@ class CarBundlerTest {
 
         final CarBundler.Configuration configuration = createConfiguration(temporaryFolder, dep);
 
-        HttpServer server = createTestServerV2(expected, repoName, pathToJar);
+        final AtomicInteger serverCalls = new AtomicInteger(0);
+        HttpServer server = createTestServerV2(serverCalls, expected, repoName, pathToJar);
         try {
             server.start();
             assertEquals(0, new ProcessBuilder(
                     new File(System.getProperty("java.home"), "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : ""))
                             .getAbsolutePath(),
-                    "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus",
-                    "http://localhost:" + server.getAddress().getPort() + "/nexus", repoName, "admin", "admin123", "1",
-                    m2.getAbsolutePath()).inheritIO().start().waitFor());
+                    "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus", "--url",
+                    "http://localhost:" + server.getAddress().getPort() + "/nexus", "--repo", repoName, "--user",
+                    "admin", "--pass", "admin123", "--threads", "1", "--dir", m2.getAbsolutePath())
+                            .inheritIO()
+                            .start()
+                            .waitFor());
         } finally {
             server.stop(0);
         }
+        assertEquals(3, serverCalls.intValue());
     }
 
     @Test
@@ -173,18 +179,23 @@ class CarBundlerTest {
 
         final CarBundler.Configuration configuration = createConfiguration(temporaryFolder, dep);
 
-        HttpServer server = createTestServerV3(expected, repoName, pathToJar);
+        final AtomicInteger serverCalls = new AtomicInteger(0);
+        HttpServer server = createTestServerV3(serverCalls, expected, repoName, pathToJar);
         try {
             server.start();
             assertEquals(0, new ProcessBuilder(
                     new File(System.getProperty("java.home"), "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : ""))
                             .getAbsolutePath(),
-                    "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus",
-                    "http://localhost:" + server.getAddress().getPort(), repoName, "admin", "admin123", "1",
-                    m2.getAbsolutePath()).inheritIO().start().waitFor());
+                    "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus", "--url",
+                    "http://localhost:" + server.getAddress().getPort(), "--repo", repoName, "--user", "admin",
+                    "--pass", "admin123", "--threads", "1", "--dir", m2.getAbsolutePath())
+                            .inheritIO()
+                            .start()
+                            .waitFor());
         } finally {
             server.stop(0);
         }
+        assertEquals(3, serverCalls.intValue());
     }
 
     private File createTempJar(final File m2, final String pathToJar) throws IOException {
@@ -211,12 +222,13 @@ class CarBundlerTest {
         return configuration;
     }
 
-    private HttpServer createTestServerV3(final byte[] expected, final String repoName, final String pathToJar)
-            throws IOException {
+    private HttpServer createTestServerV3(final AtomicInteger serverCalls, final byte[] expected, final String repoName,
+            final String pathToJar) throws IOException {
         final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
         server.createContext("/service/rest/beta/repositories").setHandler(httpExchange -> {
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 0);
             httpExchange.close();
+            serverCalls.incrementAndGet();
         });
         server.createContext("/repository/" + repoName + "/" + pathToJar).setHandler(httpExchange -> {
             // we say that we don't have the jar. We need to receive it.
@@ -232,18 +244,20 @@ class CarBundlerTest {
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_CREATED, 0);
             }
             httpExchange.close();
+            serverCalls.incrementAndGet();
         });
         return server;
     }
 
-    private HttpServer createTestServerV2(final byte[] expected, final String repoName, final String pathToJar)
-            throws IOException {
+    private HttpServer createTestServerV2(final AtomicInteger serverCalls, final byte[] expected, final String repoName,
+            final String pathToJar) throws IOException {
         final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
         server.createContext("/nexus/service/local/status").setHandler(httpExchange -> {
             final byte[] bytes = getStatusResponseV2().getBytes();
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
             httpExchange.getResponseBody().write(bytes);
             httpExchange.close();
+            serverCalls.incrementAndGet();
         });
         server.createContext("/nexus/content/repositories/" + repoName + "/" + pathToJar).setHandler(httpExchange -> {
             // we say that we don't have the jar. We need to receive it.
@@ -259,6 +273,7 @@ class CarBundlerTest {
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_CREATED, 0);
             }
             httpExchange.close();
+            serverCalls.incrementAndGet();
         });
         return server;
     }
