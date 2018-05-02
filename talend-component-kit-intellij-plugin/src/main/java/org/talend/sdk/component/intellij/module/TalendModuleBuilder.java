@@ -163,7 +163,7 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
     public ModuleWizardStep modifySettingsStep(final SettingsStep settingsStep) {
         final JTextField namedFile = settingsStep.getModuleNameField();
         if (namedFile != null) {
-            final String projectJsonString = new String(Base64.getDecoder().decode(request.getProject()));
+            final String projectJsonString = new String(Base64.getUrlDecoder().decode(request.getProject()));
             jsonProject = gson.fromJson(projectJsonString, JsonObject.class);
             namedFile.setText(jsonProject.get("artifact").getAsString());
             namedFile.setEditable(false);

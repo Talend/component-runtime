@@ -17,7 +17,6 @@ package org.talend.sdk.component.intellij.module.step;
 
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
 import static com.intellij.openapi.ui.Messages.showErrorDialog;
-import static javax.swing.SwingUtilities.invokeLater;
 import static org.talend.sdk.component.intellij.Configuration.getMessage;
 
 import java.awt.BorderLayout;
@@ -25,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -57,8 +55,6 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
 
     private final JBLoadingPanel loadingPanel = new JBLoadingPanel(new BorderLayout(), this, 100);
 
-    private final long starterLoadTimeOut = Configuration.getStarterLoadTimeOut();
-
     private ProjectCreationRequest request;
 
     public StarterStep(final TalendModuleBuilder builder) {
@@ -70,25 +66,19 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
         super._init();
         loadingPanel.getContentPanel().removeAll();
         loadingPanel.startLoading();
-        getApplication().executeOnPooledThread(() -> {
-            try {
-                invokeLater(() -> loadingPanel.setLoadingText(getMessage("wizard.starter.loading")));
-                starterPanel = new StarterPanel();
-                final long start = System.currentTimeMillis();
-                while (starterPanel.isLoading()) {
-                    if (System.currentTimeMillis() - start > starterLoadTimeOut) {
-                        throw new TimeoutException(getMessage("wizard.starter.loading.error"));
-                    }
-                }
-                loadingPanel.add(starterPanel);
-            } catch (final TimeoutException e) {
-                invokeLater(() -> showErrorDialog(e.getMessage(), getMessage("wizard.starter.loading.error.title")));
-            } finally {
-                invokeLater(() -> {
+        getApplication().executeOnPooledThread(() -> loadingPanel.setLoadingText(getMessage("wizard.starter.loading")));
+        starterPanel = new StarterPanel();
+        starterPanel.getPanelLoaded().handle((panel, ex) -> {
+            getApplication().executeOnPooledThread(() -> {
+                if (ex != null) {
+                    showErrorDialog(ex.getMessage(), getMessage("wizard.starter.loading.error.title"));
+                } else {
+                    loadingPanel.add(panel);
                     loadingPanel.stopLoading();
                     loadingPanel.revalidate();
-                });
-            }
+                }
+            });
+            return panel;
         });
     }
 
@@ -113,7 +103,7 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
 
     @Override
     public boolean validate() throws ConfigurationException {
-        if (starterPanel.isLoading()) {
+        if (!starterPanel.getPanelLoaded().isDone()) {
             throw new ConfigurationException(getMessage("wizard.starter.loading"), getMessage("wait.message"));
         }
 
@@ -152,18 +142,17 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
 
         private WebView browser;
 
-        private boolean loading = true;
+        private final CompletableFuture<JPanel> panelLoaded = new CompletableFuture<>();
 
         StarterPanel() {
             super(new BorderLayout());
             Platform.setImplicitExit(false);
             jfxPanel = new JFXPanel();
             add(jfxPanel, BorderLayout.CENTER);
-            final String css = Base64
-                    .getMimeEncoder()
-                    .encodeToString(("div[class^=\"Finish__bigButton\"], #go-to-finish-button{display:none "
-                            + "!important;} " + "div[class^=\"Drawer__tc-drawer-container\"]" + " >" + " "
-                            + "div:nth-child(2) {display:block !important;}").getBytes(StandardCharsets.UTF_8));
+            final String css = Base64.getMimeEncoder().encodeToString(
+                    ("div[class^=\"Finish__bigButton\"], #go-to-finish-button{display:none  !important;} "
+                            + "div[class^=\"Drawer__tc-drawer-container\"] > div:nth-child(2) {display:block !important;} "
+                            + "input {height:25px !important;}").getBytes(StandardCharsets.UTF_8));
             Platform.runLater(() -> {
                 browser = new WebView();
                 webEngine = browser.getEngine();
@@ -171,11 +160,16 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
                         (ObservableValue<? extends Worker.State> observable, Worker.State oldValue,
                                 Worker.State newValue) -> {
                             if (newValue != Worker.State.SUCCEEDED) {
+                                if (newValue == Worker.State.CANCELLED || newValue == Worker.State.FAILED) {
+                                    panelLoaded.completeExceptionally(
+                                            new IllegalStateException("failed loading panel: " + newValue));
+                                }
                                 return;
                             }
                             webEngine.setUserStyleSheetLocation("data:text/css;charset=utf-8;base64," + css);
-                            loading = false;
+                            panelLoaded.complete(StarterPanel.this);
                         });
+                // todo timeouts, see com.sun.webkit.network.URLLoader.prepareConnection
                 webEngine.load(Configuration.getStarterHost());
                 jfxPanel.setScene(new Scene(browser));
             });
@@ -185,8 +179,8 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
             return webEngine;
         }
 
-        synchronized boolean isLoading() {
-            return loading;
+        CompletableFuture<JPanel> getPanelLoaded() {
+            return panelLoaded;
         }
     }
 

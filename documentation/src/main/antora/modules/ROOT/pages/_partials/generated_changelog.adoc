@@ -1,6 +1,25 @@
 
 
+== Version 0.0.11
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-804[TCOMP-804^]: Idea plugin doesn't render properly configuration inputs
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-798[TCOMP-798^]: intellij plugin - add official starter url
+- link:https://jira.talendforge.org/browse/TCOMP-799[TCOMP-799^]: @Checkable expects the datastore name to match the validation name
+- link:https://jira.talendforge.org/browse/TCOMP-806[TCOMP-806^]: Ensure server and starter support gzip
+
+
 == Version 0.0.10
+
+=== Backlog Task
+
+- link:https://jira.talendforge.org/browse/TCOMP-643[TCOMP-643^]: Deployment
+
 
 === Bug
 
