@@ -46,7 +46,6 @@ import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.OS;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
@@ -131,9 +130,10 @@ class CarBundlerTest {
         assertEquals("component.java.coordinates = foo.bar:dummy:1.2",
                 Files.readAllLines(fakeConfig.toPath()).stream().collect(joining("\n")).trim());
     }
-    
+
     @Test
-    void uploadToNexusV2(final TemporaryFolder temporaryFolder) throws IOException, NoSuchMethodException, InterruptedException {
+    void uploadToNexusV2(final TemporaryFolder temporaryFolder)
+            throws IOException, NoSuchMethodException, InterruptedException {
         final String repoName = "releases";
         final String pathToJar = "foo/bar/dummy/1.2/dummy-1.2.jar";
         final File m2 = temporaryFolder.newFolder();
@@ -142,26 +142,26 @@ class CarBundlerTest {
         try (final BufferedReader in = new BufferedReader(new FileReader(dep))) {
             expected = in.lines().collect(joining("/n")).getBytes();
         }
-        
+
         final CarBundler.Configuration configuration = createConfiguration(temporaryFolder, dep);
-        
+
         HttpServer server = createTestServerV2(expected, repoName, pathToJar);
         try {
             server.start();
-            assertEquals(0,
-                new ProcessBuilder(
-                        new File(System.getProperty("java.home"),
-                                "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : "")).getAbsolutePath(),
-                        "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus",
-                        "http://localhost:" + server.getAddress().getPort() + "/nexus", repoName, "admin", "admin123", "1", 
-                        m2.getAbsolutePath()).inheritIO().start().waitFor());
+            assertEquals(0, new ProcessBuilder(
+                    new File(System.getProperty("java.home"), "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : ""))
+                            .getAbsolutePath(),
+                    "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus",
+                    "http://localhost:" + server.getAddress().getPort() + "/nexus", repoName, "admin", "admin123", "1",
+                    m2.getAbsolutePath()).inheritIO().start().waitFor());
         } finally {
             server.stop(0);
         }
     }
-    
+
     @Test
-    void uploadToNexusV3(final TemporaryFolder temporaryFolder) throws IOException, InterruptedException, NoSuchMethodException {
+    void uploadToNexusV3(final TemporaryFolder temporaryFolder)
+            throws IOException, InterruptedException, NoSuchMethodException {
         final String repoName = "releases";
         final String pathToJar = "foo/bar/dummy/1.2/dummy-1.2.jar";
         final File m2 = temporaryFolder.newFolder();
@@ -170,24 +170,23 @@ class CarBundlerTest {
         try (final BufferedReader in = new BufferedReader(new FileReader(dep))) {
             expected = in.lines().collect(joining("/n")).getBytes();
         }
-        
+
         final CarBundler.Configuration configuration = createConfiguration(temporaryFolder, dep);
-        
+
         HttpServer server = createTestServerV3(expected, repoName, pathToJar);
         try {
             server.start();
-            assertEquals(0,
-                new ProcessBuilder(
-                        new File(System.getProperty("java.home"),
-                                "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : "")).getAbsolutePath(),
-                        "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus",
-                        "http://localhost:" + server.getAddress().getPort(), repoName, "admin", "admin123", "1", 
-                        m2.getAbsolutePath()).inheritIO().start().waitFor());
+            assertEquals(0, new ProcessBuilder(
+                    new File(System.getProperty("java.home"), "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : ""))
+                            .getAbsolutePath(),
+                    "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus",
+                    "http://localhost:" + server.getAddress().getPort(), repoName, "admin", "admin123", "1",
+                    m2.getAbsolutePath()).inheritIO().start().waitFor());
         } finally {
             server.stop(0);
         }
     }
-    
+
     private File createTempJar(final File m2, final String pathToJar) throws IOException {
         final File dep = new File(m2, pathToJar);
         dep.getParentFile().mkdirs();
@@ -199,8 +198,9 @@ class CarBundlerTest {
 
         return dep;
     }
-    
-    private CarBundler.Configuration createConfiguration(final TemporaryFolder temporaryFolder, final File dep) throws NoSuchMethodException {
+
+    private CarBundler.Configuration createConfiguration(final TemporaryFolder temporaryFolder, final File dep)
+            throws NoSuchMethodException {
         final CarBundler.Configuration configuration = new CarBundler.Configuration();
         configuration.setVersion("1.2.3");
         configuration.setArtifacts(singletonMap("foo.bar:dummy:1.2", dep));
@@ -210,18 +210,19 @@ class CarBundlerTest {
         assertTrue(configuration.getOutput().exists());
         return configuration;
     }
-    
-    private HttpServer createTestServerV3(final byte[] expected, final String repoName, final String pathToJar) throws IOException {
+
+    private HttpServer createTestServerV3(final byte[] expected, final String repoName, final String pathToJar)
+            throws IOException {
         final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
         server.createContext("/service/rest/beta/repositories").setHandler(httpExchange -> {
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 0);
             httpExchange.close();
         });
         server.createContext("/repository/" + repoName + "/" + pathToJar).setHandler(httpExchange -> {
-            //we say that we don't have the jar. We need to receive it.
-            if(httpExchange.getRequestMethod().equalsIgnoreCase("GET")) {
+            // we say that we don't have the jar. We need to receive it.
+            if (httpExchange.getRequestMethod().equalsIgnoreCase("GET")) {
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_NOT_FOUND, 0);
-            } else if(httpExchange.getRequestMethod().equalsIgnoreCase("PUT")) {
+            } else if (httpExchange.getRequestMethod().equalsIgnoreCase("PUT")) {
                 final byte[] bytes;
                 try (final BufferedReader in =
                         new BufferedReader(new InputStreamReader(httpExchange.getRequestBody()))) {
@@ -235,8 +236,8 @@ class CarBundlerTest {
         return server;
     }
 
-    private HttpServer createTestServerV2(final byte[] expected, final String repoName, 
-            final String pathToJar) throws IOException {
+    private HttpServer createTestServerV2(final byte[] expected, final String repoName, final String pathToJar)
+            throws IOException {
         final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
         server.createContext("/nexus/service/local/status").setHandler(httpExchange -> {
             final byte[] bytes = getStatusResponseV2().getBytes();
@@ -245,10 +246,10 @@ class CarBundlerTest {
             httpExchange.close();
         });
         server.createContext("/nexus/content/repositories/" + repoName + "/" + pathToJar).setHandler(httpExchange -> {
-            //we say that we don't have the jar. We need to receive it.
-            if(httpExchange.getRequestMethod().equalsIgnoreCase("GET")) {
+            // we say that we don't have the jar. We need to receive it.
+            if (httpExchange.getRequestMethod().equalsIgnoreCase("GET")) {
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_NOT_FOUND, 0);
-            } else if(httpExchange.getRequestMethod().equalsIgnoreCase("POST")) {
+            } else if (httpExchange.getRequestMethod().equalsIgnoreCase("POST")) {
                 final byte[] bytes;
                 try (final BufferedReader in =
                         new BufferedReader(new InputStreamReader(httpExchange.getRequestBody()))) {
@@ -261,7 +262,7 @@ class CarBundlerTest {
         });
         return server;
     }
-    
+
     private String getStatusResponseV2() {
         return "{\"data\":{\"appName\":\"Nexus Repository Manager\",\"formattedAppName\":\"Nexus Repository Manager OSS 2.14.8-01\","
                 + "\"version\":\"2.14.8-01\",\"apiVersion\":\"2.14.8-01\",\"editionLong\":\"\","
