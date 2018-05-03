@@ -1,5 +1,20 @@
 
 
+== Version 0.0.12
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-763[TCOMP-763^]: Add a dev mode in the studio for tacokit
+- link:https://jira.talendforge.org/browse/TCOMP-802[TCOMP-802^]: Add method to upload dependencies from .car to nexus
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-808[TCOMP-808^]: Upgrade to JUnit 5.2.0
+- link:https://jira.talendforge.org/browse/TCOMP-809[TCOMP-809^]: compress js and css for the starter
+- link:https://jira.talendforge.org/browse/TCOMP-810[TCOMP-810^]: ui spec service uses a multiselecttag for a proposable on a string field
+
+
 == Version 0.0.11
 
 === Bug
