@@ -29,6 +29,7 @@ const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const LiveReloadPlugin = require('webpack-livereload-plugin');
 const paths = require('./config/paths');
 const getClientEnvironment = require('./config/env');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 const SASS_DATA = `
 $brand-primary: #4F93A7;
@@ -242,7 +243,8 @@ module.exports = {
                 {
                   loader: require.resolve('css-loader'),
                   options: {
-                    sourceMap: true,
+                    sourceMap: shouldUseSourceMap,
+                    minimize: true,
                     modules: true,
                     importLoaders: 1,
                     localIdentName: '[name]__[local]___[hash:base64:5]',
@@ -266,13 +268,13 @@ module.exports = {
                         flexbox: 'no-2009',
                       }),
                     ],
-                    sourceMap: true,
+                    sourceMap: shouldUseSourceMap,
                   },
                 },
                 { loader: 'resolve-url-loader' },
                 {
                   loader: require.resolve('sass-loader'),
-                  options: { sourceMap: true, data: SASS_DATA }
+                  options: { sourceMap: shouldUseSourceMap, data: SASS_DATA }
                 }
               ],
             }),
@@ -359,7 +361,38 @@ module.exports = {
       },
     ],
   },
-  plugins: (useLivereload ? [new LiveReloadPlugin({ appendScriptTag: true })] : []).concat([
+  plugins: (useLivereload /*dev*/ ? [
+      new LiveReloadPlugin({ appendScriptTag: true }),
+    ] : [ // else prod
+      new webpack.optimize.UglifyJsPlugin({
+        compress: {
+          warnings: false,
+          // Disabled because of an issue with Uglify breaking seemingly valid code:
+          // https://github.com/facebookincubator/create-react-app/issues/2376
+          // Pending further investigation:
+          // https://github.com/mishoo/UglifyJS2/issues/2011
+          comparisons: false,
+        },
+        output: {
+          comments: false,
+          // Turned on because emoji and regex is not minified properly using default
+          // https://github.com/facebookincubator/create-react-app/issues/2488
+          ascii_only: true,
+        },
+        comments: false,
+        mangle: true,
+        minimize: true,
+        sourceMap: shouldUseSourceMap,
+      }),
+      new OptimizeCssAssetsPlugin({
+        assetNameRegExp: /main.*\.css$/,
+        cssProcessorOptions: {
+          discardComments: {
+            removeAll: true
+          }
+        }
+      })
+    ]).concat([
     // Makes some environment variables available in index.html.
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
@@ -386,24 +419,6 @@ module.exports = {
       },
     }),
     new webpack.DefinePlugin(env.stringified),
-    // Minify the code.
-    /*new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false,
-        // Disabled because of an issue with Uglify breaking seemingly valid code:
-        // https://github.com/facebookincubator/create-react-app/issues/2376
-        // Pending further investigation:
-        // https://github.com/mishoo/UglifyJS2/issues/2011
-        comparisons: false,
-      },
-      output: {
-        comments: false,
-        // Turned on because emoji and regex is not minified properly using default
-        // https://github.com/facebookincubator/create-react-app/issues/2488
-        ascii_only: true,
-      },
-      sourceMap: shouldUseSourceMap,
-    }),*/
     // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
     new ExtractTextPlugin({
       filename: cssFilename,
