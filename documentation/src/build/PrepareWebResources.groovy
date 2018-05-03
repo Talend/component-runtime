@@ -87,6 +87,7 @@ def toText = { content ->
             .attribute('git_branch', project.properties['git.branch'])
             .attribute('deploymentRoot', 'https://talend.github.io/component-runtime')))
     Jsoup.parse(html).body().text()
+        .replaceAll("^Version: ${project.properties['versions.release']}", '')
         .replaceAll('Last updated [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} CEST$', '')
 }
 
