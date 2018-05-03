@@ -19,8 +19,10 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
@@ -29,14 +31,21 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 public class DataListWidgetConverter extends AbstractWidgetConverter {
 
+    private final Client client;
+
+    private final String family;
+
     public DataListWidgetConverter(final Collection<UiSchema> schemas,
-            final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions) {
+            final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
+            final Client client, final String family) {
         super(schemas, properties, actions);
+        this.client = client;
+        this.family = family;
     }
 
     @Override
     public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
-        return cs.thenApply(context -> {
+        return cs.thenCompose(context -> {
             final UiSchema schema = newUiSchema(context);
             schema.setWidget("datalist");
 
@@ -44,7 +53,8 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
             jsonSchema.setType("string");
             schema.setSchema(jsonSchema);
 
-            if (context.getProperty().getValidation().getEnumValues() != null) {
+            if (context.getProperty().getValidation() != null
+                    && context.getProperty().getValidation().getEnumValues() != null) {
                 schema.setTitleMap(context.getProperty().getProposalDisplayNames() != null
                         ? context.getProperty().getProposalDisplayNames().entrySet().stream().map(v -> {
                             final UiSchema.NameValue nameValue = new UiSchema.NameValue();
@@ -60,10 +70,20 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
                         }).collect(toList()));
                 jsonSchema.setEnumValues(context.getProperty().getValidation().getEnumValues());
             } else {
-                schema.setTitleMap(emptyList());
-                jsonSchema.setEnumValues(emptyList());
+                final String actionName = context.getProperty().getMetadata().get("action::dynamic_values");
+                if (client != null && actionName != null) {
+                    return loadDynamicValues(client, family, schema, actionName).thenApply(namedValues -> {
+                        schema.setTitleMap(namedValues);
+                        jsonSchema.setEnumValues(
+                                namedValues.stream().map(UiSchema.NameValue::getValue).collect(toList()));
+                        return context;
+                    });
+                } else {
+                    schema.setTitleMap(emptyList());
+                    jsonSchema.setEnumValues(emptyList());
+                }
             }
-            return context;
+            return CompletableFuture.completedFuture(context);
         });
     }
 }

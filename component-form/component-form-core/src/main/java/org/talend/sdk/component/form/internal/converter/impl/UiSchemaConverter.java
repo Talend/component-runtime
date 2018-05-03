@@ -97,7 +97,7 @@ public class UiSchemaConverter implements PropertyConverter {
                         .convert(CompletableFuture.completedFuture(context));
             case "enum":
                 includedProperties.add(context.getProperty());
-                return new DataListWidgetConverter(schemas, properties, actions)
+                return new DataListWidgetConverter(schemas, properties, actions, client, family)
                         .convert(CompletableFuture.completedFuture(context));
             case "number":
                 includedProperties.add(context.getProperty());
@@ -132,7 +132,7 @@ public class UiSchemaConverter implements PropertyConverter {
                             .convert(CompletableFuture.completedFuture(context));
                 } else if (context.getProperty().getMetadata() != null
                         && context.getProperty().getMetadata().containsKey("action::dynamic_values")) {
-                    return new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family)
+                    return new DataListWidgetConverter(schemas, properties, actions, client, family)
                             .convert(CompletableFuture.completedFuture(context));
                 } else if (context.getProperty().getMetadata().containsKey("ui::textarea")
                         && Boolean.valueOf(context.getProperty().getMetadata().get("ui::textarea"))) {

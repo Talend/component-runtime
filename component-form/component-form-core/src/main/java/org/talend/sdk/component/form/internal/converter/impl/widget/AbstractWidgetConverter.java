@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
@@ -24,9 +26,12 @@ import static java.util.stream.Collectors.toSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
@@ -34,7 +39,9 @@ import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @AllArgsConstructor
 public abstract class AbstractWidgetConverter implements PropertyConverter {
 
@@ -43,6 +50,31 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     protected final Collection<SimplePropertyDefinition> properties;
 
     protected final Collection<ActionReference> actions;
+
+    protected CompletionStage<List<UiSchema.NameValue>> loadDynamicValues(final Client client, final String family,
+            final UiSchema schema, final String actionName) {
+        return client.action(family, "dynamic_values", actionName, emptyMap()).exceptionally(e -> {
+            log.warn(e.getMessage(), e);
+            return emptyMap();
+        }).thenApply(
+                values -> ofNullable(values).map(v -> v.get("items")).filter(Collection.class::isInstance).map(c -> {
+                    final Collection<?> dynamicValues = Collection.class.cast(c);
+                    return dynamicValues
+                            .stream()
+                            .filter(Map.class::isInstance)
+                            .filter(m -> Map.class.cast(m).get("id") != null
+                                    && Map.class.cast(m).get("id") instanceof String)
+                            .map(Map.class::cast)
+                            .map(entry -> {
+                                final UiSchema.NameValue val = new UiSchema.NameValue();
+                                val.setName((String) entry.get("id"));
+                                val.setValue(entry.get("label") == null ? (String) entry.get("id")
+                                        : (String) entry.get("label"));
+                                return val;
+                            })
+                            .collect(toList());
+                }).orElse(emptyList()));
+    }
 
     protected UiSchema.Trigger toTrigger(final Collection<SimplePropertyDefinition> properties,
             final SimplePropertyDefinition prop, final ActionReference ref) {

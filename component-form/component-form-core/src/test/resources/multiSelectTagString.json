@@ -1,0 +1,190 @@
+{
+  "actions": [
+    {
+      "family": "Demo",
+      "name": "validateURL",
+      "properties": [
+        {
+          "displayName": "url",
+          "metadata": {},
+          "name": "url",
+          "path": "url",
+          "placeholder": "url",
+          "type": "STRING"
+        }
+      ],
+      "type": "validation"
+    },
+    {
+      "family": "Demo",
+      "name": "default",
+      "properties": [
+        {
+          "displayName": "config",
+          "metadata": {
+            "action::healthcheck": "default",
+            "configurationtype::type": "datastore",
+            "configurationtype::name": "default",
+            "ui::gridlayout::Main::value": "url|username,password"
+          },
+          "name": "config",
+          "path": "config",
+          "placeholder": "config",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "password",
+          "metadata": {
+            "ui::credential": "true"
+          },
+          "name": "password",
+          "path": "config.password",
+          "placeholder": "password",
+          "type": "STRING"
+        },
+        {
+          "displayName": "url",
+          "metadata": {
+            "action::validation": "validateURL",
+            "action::validation::parameters": "."
+          },
+          "name": "url",
+          "path": "config.url",
+          "placeholder": "url",
+          "type": "STRING"
+        },
+        {
+          "displayName": "username",
+          "metadata": {},
+          "name": "username",
+          "path": "config.username",
+          "placeholder": "username",
+          "type": "STRING",
+          "validation": {
+            "pattern": "/^[a-zA-Z0-9]+$/"
+          }
+        }
+      ],
+      "type": "healthcheck"
+    },
+    {
+      "family": "Demo",
+      "name": "vendors",
+      "properties": [],
+      "type": "dynamic_values"
+    }
+  ],
+  "displayName": "Trip",
+  "icon": "star",
+  "id": {
+    "family": "Demo",
+    "familyId": "RGVtbw",
+    "id": "ZGVtby1jb21wb25lbnQjRGVtbyNUcmlw",
+    "name": "Trip",
+    "plugin": "demo-component",
+    "pluginLocation": "org.talend.components:demo-component:0.0.1-SNAPSHOT"
+  },
+  "inputFlows": [],
+  "links": [],
+  "outputFlows": [
+    "__default__"
+  ],
+  "properties": [
+    {
+      "displayName": "configuration",
+      "metadata": {
+        "ui::gridlayout::Advanced::value": "maxRecords",
+        "ui::gridlayout::Main::value": "auth|vendor|distanceMin,distanceMax"
+      },
+      "name": "configuration",
+      "path": "configuration",
+      "placeholder": "configuration",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "auth",
+      "metadata": {
+        "action::healthcheck": "default",
+        "configurationtype::type": "datastore",
+        "configurationtype::name": "default",
+        "ui::gridlayout::Main::value": "url|username,password"
+      },
+      "name": "auth",
+      "path": "configuration.auth",
+      "placeholder": "auth",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "password",
+      "metadata": {
+        "ui::credential": "true"
+      },
+      "name": "password",
+      "path": "configuration.auth.password",
+      "placeholder": "password",
+      "type": "STRING"
+    },
+    {
+      "displayName": "url",
+      "metadata": {
+        "action::validation": "validateURL",
+        "action::validation::parameters": "."
+      },
+      "name": "url",
+      "path": "configuration.auth.url",
+      "placeholder": "url",
+      "type": "STRING"
+    },
+    {
+      "displayName": "username",
+      "metadata": {},
+      "name": "username",
+      "path": "configuration.auth.username",
+      "placeholder": "username",
+      "type": "STRING",
+      "validation": {
+        "pattern": "/^[a-zA-Z0-9]+$/"
+      }
+    },
+    {
+      "defaultValue": "4.0",
+      "displayName": "distanceMax",
+      "metadata": {},
+      "name": "distanceMax",
+      "path": "configuration.distanceMax",
+      "placeholder": "distanceMax",
+      "type": "NUMBER"
+    },
+    {
+      "defaultValue": "1.0",
+      "displayName": "distanceMin",
+      "metadata": {},
+      "name": "distanceMin",
+      "path": "configuration.distanceMin",
+      "placeholder": "distanceMin",
+      "type": "NUMBER"
+    },
+    {
+      "defaultValue": "100",
+      "displayName": "maxRecords",
+      "metadata": {},
+      "name": "maxRecords",
+      "path": "configuration.maxRecords",
+      "placeholder": "maxRecords",
+      "type": "NUMBER"
+    },
+    {
+      "defaultValue": "1",
+      "displayName": "vendor",
+      "metadata": {
+        "action::dynamic_values": "vendors"
+      },
+      "name": "vendor",
+      "path": "configuration.vendor",
+      "placeholder": "vendor",
+      "type": "STRING"
+    }
+  ],
+  "type": "input",
+  "version": 1
+}

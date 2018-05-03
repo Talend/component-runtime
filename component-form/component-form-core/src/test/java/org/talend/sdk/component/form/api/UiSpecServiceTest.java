@@ -81,6 +81,17 @@ class UiSpecServiceTest {
     });
 
     @Test
+    void proposablePrimitives() throws Exception {
+        final ComponentDetail detail = load("multiSelectTagString.json", ComponentDetail.class);
+        final Ui payload = service.convert(detail).toCompletableFuture().get();
+        final UiSchema proposable =
+                ((List<UiSchema>) payload.getUiSchema().iterator().next().getItems().iterator().next().getItems())
+                        .get(1);
+        assertEquals("configuration.vendor", proposable.getKey());
+        assertEquals("datalist", proposable.getWidget());
+    }
+
+    @Test
     void configuration() throws Exception {
         final ConfigTypeNodes load = load("config.json", ConfigTypeNodes.class);
         final String family = load
@@ -329,7 +340,7 @@ class UiSpecServiceTest {
                                             .collect(toSet()),
                                     trigger.getParameters().stream().map(UiSchema.Parameter::getKey).collect(toSet()));
                         });
-                assertUiSchema(connectionIt.next(), "multiSelectTag", "driver", "configuration.connection.driver", 0,
+                assertUiSchema(connectionIt.next(), "datalist", "driver", "configuration.connection.driver", 0,
                         driver -> {
                             assertNotNull(driver.getTriggers());
                             assertEquals(1, driver.getTriggers().size());
