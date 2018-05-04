@@ -74,6 +74,9 @@ input.rounded {
   max-width: 400px;
   max-height: 400px;
 }
+.gallery tr>td:nth-child(2) {
+	min-width: 500px;
+}
 
 .global-search {
   display: flex;
