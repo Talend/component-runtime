@@ -50,11 +50,31 @@ Boolean config;
 |[source,java]
 ----
 @Option
-List<String> config;
+@Proposable("valuesProvider")
+String config;
+/** service class */
+@DynamicValues("valuesProvider")
+public Values vendors(){
+    return new Values(asList(new Values.Item("1", "Delete"),
+                      new Values.Item("2", "Insert")
+                      new Values.Item("3", "Update")));
+ }
 ----
 |image::gallery/widgets/studio/list.png[Studio List,window="_blank",link="_images/gallery/widgets/studio/list.png"]
 |image::gallery/widgets/web/list.png[Web List,window="_blank",link="_images/gallery/widgets/web/list.png"]
 
+| List
+|[source,java]
+----
+@Option
+ActionEnum config;
+/** Define enum */
+enum ActionEnum {Delete,
+    Insert,
+    Update}
+----
+|image::gallery/widgets/studio/list.png[Studio List,window="_blank",link="_images/gallery/widgets/studio/list.png"]
+|image::gallery/widgets/web/list.png[Web List,window="_blank",link="_images/gallery/widgets/web/list.png"]
 
 | Table
 |[source,java]
