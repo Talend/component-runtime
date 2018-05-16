@@ -16,6 +16,9 @@
 #  limitations under the License.
 #
 
+[ -z "$TALEND_COMPONENT_LOG4J2_PROFILE" ] && TALEND_COMPONENT_LOG4J2_PROFILE="default"
+
 export MEECROWAVE_PID=$MEECROWAVE_BASE/conf/server.pid
 export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
-export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Dtalend.component.exit-on-destroy=true"
+export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Dtalend.component.exit-on-destroy=true "
+export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Dlog4j.configurationFile="$MEECROWAVE_BASE"/conf/log4j2-$ARTIFACT_ID-$TALEND_COMPONENT_LOG4J2_PROFILE.xml "

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<Configuration status="INFO">
+  <Properties>
+    <Property name="defaultLayout">[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n</Property>
+    <Property name="jsonLayout">{"severity":"%level","logMessage":"%encode{%message}{JSON}","logTimestamp":"%d{ISO8601}{UTC}","eventUUID":"%uuid{RANDOM}","@version":"1","logger.name":"%encode{%logger}{JSON}","host.name":"${hostName}","threadName":"%encode{%thread}{JSON}","stackTrace":"%encode{%xThrowable{full}}{JSON}"}%n</Property>
+    <Property name="base">$${env:LOG_PATH:-$${env:MEECROWAVE_BASE:-.}/logs}</Property>
+    <Property name="interval">1</Property>
+  </Properties>
+  <Appenders>
+    <Kafka name="Kafka" topic="${KAFKA_TOPIC}">
+      <PatternLayout pattern="${jsonLayout}"/>
+      <Property name="bootstrap.servers">${KAFKA_URL}</Property>
+    </Kafka>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${defaultLayout}"/>
+    </Console>
+    <RollingFile name="File"
+                 fileName="${base}/application.log"
+                 filePattern="${base}/application-%d{yyyy-MM-dd}.log">
+      <PatternLayout pattern="${defaultLayout}" alwaysWriteExceptions="false" />
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="${interval}" modulate="true"/>
+      </Policies>
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO">
+      <AppenderRef ref="Kafka"/>
+      <AppenderRef ref="File" />
+      <AppenderRef ref="Console" level="${env:CONSOLE_LOG_LEVEL:-OFF}" />
+    </Root>
+  </Loggers>
+</Configuration>

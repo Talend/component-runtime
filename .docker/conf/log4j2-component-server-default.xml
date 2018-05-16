@@ -19,19 +19,20 @@
 -->
 <Configuration status="INFO">
   <Properties>
-    <Property name="jsonLayout">{"severity":"%level","logMessage":"%encode{%message}{JSON}","logTimestamp":"%d{ISO8601}{UTC}","eventUUID":"%uuid{RANDOM}","@version":"1","logger.name":"%encode{%logger}{JSON}","host.name":"${hostName}","threadName":"%encode{%thread}{JSON}","stackTrace":"%encode{%xThrowable{full}}{JSON}"}%n</Property>
+    <Property name="layout">[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n</Property>
     <Property name="base">$${env:LOG_PATH:-$${env:MEECROWAVE_BASE:-.}/logs}</Property>
+    <Property name="interval">1</Property>
   </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n"/>
+      <PatternLayout pattern="${layout}"/>
     </Console>
     <RollingFile name="File"
                  fileName="${base}/application.log"
                  filePattern="${base}/application-%d{yyyy-MM-dd}.log">
-      <PatternLayout pattern="${jsonLayout}" alwaysWriteExceptions="false" />
+      <PatternLayout pattern="${layout}" alwaysWriteExceptions="false" />
       <Policies>
-        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <TimeBasedTriggeringPolicy interval="${interval}" modulate="true"/>
       </Policies>
     </RollingFile>
   </Appenders>

@@ -88,8 +88,9 @@ RUN set -ex && \
     rm $ARTIFACT_ID.zip* && \
     echo "$GROUP_ID:$ARTIFACT_ID:zip:$SERVER_VERSION" > conf/build.gav && \
     date > conf/build.date
+
+RUN rm -f $MEECROWAVE_BASE/conf/log4j.xml
 COPY conf/* $MEECROWAVE_BASE/conf/
-COPY conf/log4j2-$ARTIFACT_ID.xml $MEECROWAVE_BASE/conf/log4j2.xml
 COPY bin/* $MEECROWAVE_BASE/bin/
 RUN chmod +x bin/*.sh
 
