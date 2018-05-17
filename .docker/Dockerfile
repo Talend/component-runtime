@@ -62,7 +62,6 @@ RUN set -xe && \
     [ "component-server" != "$ARTIFACT_ID" ] || export KAFKA_PGP_KEYS="461D2D1B577F40C58EC2FE060CF65F72E4609424 99369B56 7F1183BD E0A61EEA D0A67B5A AB55EF5C 27A7289E 9054F6FA 3B417B9B 518830CF" && \
     apk add --no-cache gnupg ca-certificates openssl && \
     update-ca-certificates && \
-    echo "KAFKA_PGP_KEYS: "$KAFKA_PGP_KEYS && \
     for key in E16448E7EC79DD12245C4ADFFA5FA52B5B7B42F0 CF80A055A2AD28E9EFBF942A73129F58DE61ECBD $KAFKA_PGP_KEYS; do \
         gpg --keyserver keyserver.ubuntu.com --recv-keys $key || \
         gpg --keyserver ha.pool.sks-keyservers.net --recv-keys $key || \
@@ -89,27 +88,28 @@ RUN set -ex && \
     mv $ARTIFACT_ID-distribution/* $MEECROWAVE_BASE && \
     rm -Rf $ARTIFACT_ID-distribution && \
     rm $ARTIFACT_ID.zip* && \
+    rm -f $MEECROWAVE_BASE/conf/log4j2.xml && \
     echo "$GROUP_ID:$ARTIFACT_ID:zip:$SERVER_VERSION" > conf/build.gav && \
     date > conf/build.date
 
-# download kafka client jar for log
+# download kafka client jar for logs
 RUN set -ex && \
-    [ "component-server" = "$ARTIFACT_ID" ] &&  \
+    if [ "component-server" != "$ARTIFACT_ID" ]; then exit 0; fi && \
     echo "downloading kafka-clients:"$KAFKA_CLIENT_VERSION".jar" && \
-    export KAFKA_NEXUS_BASE=${NEXUS_BASE:-http://repo.maven.apache.org/maven2} && \
-    export KAFKA_DOWNLOAD_URL="$KAFKA_NEXUS_BASE/org/apache/kafka/kafka-clients/$KAFKA_CLIENT_VERSION/kafka-clients-$KAFKA_CLIENT_VERSION.jar" && \
+    export KAFKA_REPO_BASE=${NEXUS_BASE:-http://repo.maven.apache.org/maven2} && \
+    export KAFKA_DOWNLOAD_URL="$KAFKA_REPO_BASE/org/apache/kafka/kafka-clients/$KAFKA_CLIENT_VERSION/kafka-clients-$KAFKA_CLIENT_VERSION.jar" && \
     wget  $KAFKA_DOWNLOAD_URL.asc -O kafka-clients.jar.asc && \
     wget  $KAFKA_DOWNLOAD_URL -O kafka-clients-$KAFKA_CLIENT_VERSION.jar && \
     gpg --batch --verify kafka-clients.jar.asc kafka-clients-$KAFKA_CLIENT_VERSION.jar && \
     mv kafka-clients-$KAFKA_CLIENT_VERSION.jar $MEECROWAVE_BASE/lib/ && \
     rm kafka-clients*
 
-RUN rm -f $MEECROWAVE_BASE/conf/log4j2.xml
-COPY conf/meecrowave.properties $MEECROWAVE_BASE/conf/
-COPY conf/log4j2-${ARTIFACT_ID}-default.xml $MEECROWAVE_BASE/conf/log4j2-default.xml
-COPY conf/log4j2-${ARTIFACT_ID}-kafka.xml $MEECROWAVE_BASE/conf/log4j2-kafka.xml
+COPY conf/log4j2-$ARTIFACT_ID-*.xml $MEECROWAVE_BASE/conf/
+COPY conf/meecrowave.properties $MEECROWAVE_BASE/conf/meecrowave.properties
 COPY bin/* $MEECROWAVE_BASE/bin/
 RUN chmod +x bin/*.sh
+
+RUN set -ex && sed -i "s/artifactId/$ARTIFACT_ID/" $MEECROWAVE_BASE/bin/setenv.sh
 
 EXPOSE 8080
 CMD [ "./bin/meecrowave.sh", "run" ]
