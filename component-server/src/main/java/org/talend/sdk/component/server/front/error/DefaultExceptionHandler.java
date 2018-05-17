@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.server.front.error;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static javax.ws.rs.core.MediaType.WILDCARD_TYPE;
 
 import java.util.logging.Level;
 
@@ -41,8 +41,6 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
     @Inject
     private ComponentServerConfiguration configuration;
 
-    private boolean debug;
-
     private boolean replaceException;
 
     @PostConstruct
@@ -60,7 +58,7 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
                 .status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
                         replaceException ? configuration.defaultExceptionMessage() : exception.getMessage()))
-                .type(APPLICATION_JSON_TYPE)
+                .type(WILDCARD_TYPE)
                 .build();
     }
 }
