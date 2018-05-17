@@ -19,20 +19,19 @@
 -->
 <Configuration status="INFO">
   <Properties>
-    <Property name="layout">[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n</Property>
+    <Property name="defaultLayout">[%d{HH:mm:ss.SSS}][%highlight{%-5level}][%15.15t][%30.30logger] %msg%n</Property>
     <Property name="base">$${env:LOG_PATH:-$${env:MEECROWAVE_BASE:-.}/logs}</Property>
-    <Property name="interval">1</Property>
   </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="${layout}"/>
+      <PatternLayout pattern="${defaultLayout}"/>
     </Console>
     <RollingFile name="File"
                  fileName="${base}/application.log"
                  filePattern="${base}/application-%d{yyyy-MM-dd}.log">
-      <PatternLayout pattern="${layout}" alwaysWriteExceptions="false" />
+      <PatternLayout pattern="${defaultLayout}" alwaysWriteExceptions="false" />
       <Policies>
-        <TimeBasedTriggeringPolicy interval="${interval}" modulate="true"/>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
       </Policies>
     </RollingFile>
   </Appenders>
