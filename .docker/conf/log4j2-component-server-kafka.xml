@@ -26,7 +26,7 @@
   </Properties>
   <Appenders>
     <Kafka name="Kafka" topic="${env:KAFKA_TOPIC}" syncSend="false" >
-      <PatternLayout pattern="${jsonLayout}"/>
+      <PatternLayout pattern="${jsonLayout}" alwaysWriteExceptions="false"/>
       <Property name="bootstrap.servers">${env:KAFKA_URL}</Property>
     </Kafka>
     <Console name="Console" target="SYSTEM_OUT">
@@ -35,7 +35,7 @@
     <RollingFile name="File"
                  fileName="${base}/application.log"
                  filePattern="${base}/application-%d{yyyy-MM-dd}.log">
-      <PatternLayout pattern="${defaultLayout}" alwaysWriteExceptions="false" />
+      <PatternLayout pattern="${defaultLayout}" />
       <Policies>
         <TimeBasedTriggeringPolicy interval="${interval}" modulate="true"/>
       </Policies>
