@@ -25,9 +25,9 @@
     <Property name="interval">1</Property>
   </Properties>
   <Appenders>
-    <Kafka name="Kafka" topic="${KAFKA_TOPIC}">
+    <Kafka name="Kafka" topic="${env:KAFKA_TOPIC}" syncSend="false" >
       <PatternLayout pattern="${jsonLayout}"/>
-      <Property name="bootstrap.servers">${KAFKA_URL}</Property>
+      <Property name="bootstrap.servers">${env:KAFKA_URL}</Property>
     </Kafka>
     <Console name="Console" target="SYSTEM_OUT">
       <PatternLayout pattern="${defaultLayout}"/>
