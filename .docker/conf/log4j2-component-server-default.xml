@@ -29,7 +29,7 @@
     <RollingFile name="File"
                  fileName="${base}/application.log"
                  filePattern="${base}/application-%d{yyyy-MM-dd}.log">
-      <PatternLayout pattern="${defaultLayout}" alwaysWriteExceptions="false" />
+      <PatternLayout pattern="${defaultLayout}" />
       <Policies>
         <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
       </Policies>
