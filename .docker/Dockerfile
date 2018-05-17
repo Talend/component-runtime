@@ -89,11 +89,10 @@ RUN set -ex && \
     echo "$GROUP_ID:$ARTIFACT_ID:zip:$SERVER_VERSION" > conf/build.gav && \
     date > conf/build.date
 
-RUN rm -f $MEECROWAVE_BASE/conf/log4j.xml
+RUN rm -f $MEECROWAVE_BASE/conf/log4j2.xml
 COPY conf/meecrowave.properties $MEECROWAVE_BASE/conf/
 COPY conf/log4j2-${ARTIFACT_ID}-default.xml $MEECROWAVE_BASE/conf/log4j2-default.xml
 COPY conf/log4j2-${ARTIFACT_ID}-kafka.xml $MEECROWAVE_BASE/conf/log4j2-kafka.xml
-
 COPY bin/* $MEECROWAVE_BASE/bin/
 RUN chmod +x bin/*.sh
 

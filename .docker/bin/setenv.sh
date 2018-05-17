@@ -22,5 +22,3 @@ export MEECROWAVE_PID=$MEECROWAVE_BASE/conf/server.pid
 export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
 export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Dtalend.component.exit-on-destroy=true"
 export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Dlog4j.configurationFile="$MEECROWAVE_BASE"/conf/log4j2-"$TALEND_COMPONENT_LOG4J2_PROFILE".xml"
-
-echo $MEECROWAVE_OPTS
