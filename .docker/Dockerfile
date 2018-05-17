@@ -101,8 +101,7 @@ RUN set -ex && \
     wget  $KAFKA_DOWNLOAD_URL.asc -O kafka-clients.jar.asc && \
     wget  $KAFKA_DOWNLOAD_URL -O kafka-clients-$KAFKA_CLIENT_VERSION.jar && \
     gpg --batch --verify kafka-clients.jar.asc kafka-clients-$KAFKA_CLIENT_VERSION.jar && \
-    mkdir  $MEECROWAVE_BASE/sharedLibraries && \
-    mv kafka-clients-$KAFKA_CLIENT_VERSION.jar $MEECROWAVE_BASE/sharedLibraries/ && \
+    mv kafka-clients-$KAFKA_CLIENT_VERSION.jar $MEECROWAVE_BASE/lib/ && \
     rm kafka-clients*
 
 RUN rm -f $MEECROWAVE_BASE/conf/log4j2.xml
