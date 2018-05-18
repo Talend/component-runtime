@@ -113,7 +113,7 @@ public class MyComponentTest {
     public void produce() {
         components.setInputData(asList(createData(), createData(), createData())); <1>
 
-        Job.components() <2>
+        Job.components()
              .component("emitter","test://emitter")
              .component("out", "yourcomponentfamily://myoutput?"+createComponentConfig())
            .connections()
