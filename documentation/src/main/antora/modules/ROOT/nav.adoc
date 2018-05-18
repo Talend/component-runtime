@@ -83,6 +83,7 @@
 ** xref:documentation.adoc#_extending_the_ui[Extending the UI]
 
 .Testing
+<<<<<<< HEAD
 * xref:documentation.adoc#_best_practises[Best practises]
 ** xref:documentation.adoc#_parameterized_tests[Parameterized tests]
 *** xref:documentation.adoc#_junit_4[JUnit 4]
@@ -116,6 +117,15 @@
 *** xref:documentation.adoc#_advanced_usage[Advanced usage]
 * xref:documentation.adoc#_secrets_passwords_and_maven[Secrets/Passwords and Maven]
 * xref:documentation.adoc#_generating_data[Generating data?]
+=======
+* xref:testing-best-practices.adoc[JUnit Integration]
+* xref:testing-http.adoc[Testing HTTP API]
+* xref:testing-beam.adoc[Beam case]
+* xref:testing-spark.adoc[Spark and JUnit]
+* xref:testing-multiple-envs.adoc[Multiple environments for the same tests]
+* xref:testing-maven-passwords.adoc[Secrets/Passwords and Maven]
+* xref:testing-generating-data.adoc[Generating data?]
+>>>>>>> Set right nav link to testing http
 
 .Web
 * xref:documentation-rest.adoc[Server]
