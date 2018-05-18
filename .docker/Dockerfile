@@ -14,38 +14,6 @@
 #  limitations under the License.
 #
 
-#
-# Note: you can set the env variable MEECROWAVE_OPTS to customize the server,
-#       by default it is installed in /opt/talend/component-kit and maven repository
-#       is the default one of the machine, you can change it setting the system property
-#       talend.component.server.maven.repository=/path/to/your/m2
-#
-
-#
-# Sample build command:
-# $ docker build --build-arg SERVER_VERSION=1.0.0-SNAPSHOT --tag talend-component-kit:1.0.0-snapshot .
-#
-# Note: for another "server" of the project you can also set ARTIFACT_ID=xxx, for instance:
-# $ docker build --build-arg SERVER_VERSION=1.0.0-SNAPSHOT --build-arg ARTIFACT_ID=component-starter-server --tag talend-component-kit-starter:1.0.0-snapshot .
-#
-
-# Sample run command once built (assuming previous command name)
-# $ docker run -p 8080:8080 talend-component-kit:1.0.0-snapshot
-#
-
-# In practise and during development you will want to use this kind of command to see the logs without connecting to the server:
-# $ docker run -p 8080:8080 -e CONSOLE_LOG_LEVEL=INFO registry.datapwn.com/talend-component-kit:1.0.0-snapshot
-#
-# And if you want to deploy some components you can configure which ones in MEECROWAVE_OPTS (see server doc online)
-# and redirect your local m2:
-# $ docker run \
-#       -p 8080:8080 \
-#       -v ~/.m2:/root/.m2 \
-#       -e CONSOLE_LOG_LEVEL=INFO \
-#       -e MEECROWAVE_OPTS="-Dtalend.component.server.component.coordinates=g:a:v,g2:a2:v2,..." \
-#       talend-component-kit:<tag>
-#
-
 # not used cause of licensing
 # FROM anapsix/alpine-java:8_server-jre_unlimited
 FROM openjdk:8-jre-alpine
@@ -107,9 +75,8 @@ RUN set -ex && \
 COPY conf/log4j2-$ARTIFACT_ID-*.xml $MEECROWAVE_BASE/conf/
 COPY conf/meecrowave.properties $MEECROWAVE_BASE/conf/meecrowave.properties
 COPY bin/* $MEECROWAVE_BASE/bin/
-RUN chmod +x bin/*.sh
-
 RUN set -ex && sed -i "s/artifactId/$ARTIFACT_ID/" $MEECROWAVE_BASE/bin/setenv.sh
+RUN chmod +x bin/*.sh
 
 EXPOSE 8080
 CMD [ "./bin/meecrowave.sh", "run" ]
