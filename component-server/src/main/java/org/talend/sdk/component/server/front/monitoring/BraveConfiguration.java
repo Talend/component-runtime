@@ -34,12 +34,11 @@ import zipkin2.reporter.Reporter;
 public class BraveConfiguration {
 
     @Inject
-    @ConfigProperty(name = "TRACING_SAMPLING_RATE")
+    @ConfigProperty(name = "TRACING_SAMPLING_RATE", defaultValue = "0.1f")
     private Float samplingRate;
 
-
     @Inject
-    @ConfigProperty(name = "TRACING_ON")
+    @ConfigProperty(name = "TRACING_ON", defaultValue = "false")
     private Boolean tracingOn;
 
     @Inject
@@ -58,7 +57,8 @@ public class BraveConfiguration {
                 .serverSampler(HttpRuleSampler
                         .newBuilder()
                         .addRule("GET", "/api/v1/environment", toActualRate(configuration.samplerEnvironmentRate()))
-                        .addRule("GET", "/api/v1/configurationtype", toActualRate(configuration.samplerConfigurationTypeRate()))
+                        .addRule("GET", "/api/v1/configurationtype",
+                                toActualRate(configuration.samplerConfigurationTypeRate()))
                         .addRule("GET", "/api/v1/component", toActualRate(configuration.samplerComponentRate()))
                         .addRule("POST", "/api/v1/component", toActualRate(configuration.samplerComponentRate()))
                         .addRule("POST", "/api/v1/execution", configuration.samplerExecutionRate())
@@ -72,7 +72,7 @@ public class BraveConfiguration {
 
     private float toActualRate(final float rate) {
         if (rate < 0) {
-            return samplingRate != null ? samplingRate : 0.1f;
+            return samplingRate;
         }
         return rate;
     }
