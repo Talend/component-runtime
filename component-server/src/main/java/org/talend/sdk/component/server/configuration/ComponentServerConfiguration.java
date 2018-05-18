@@ -89,12 +89,12 @@ public interface ComponentServerConfiguration {
     @ConfigProperty(name = "monitoring.brave.sampling.execution.rate", defaultValue = "1")
     float samplerExecutionRate();
 
-    @Documentation("The brave reporter to use to send the spans. Supported values are [auto, console, noop, url]. When configuration is needed,"
+    @Documentation("The brave reporter to use to send the spans. Supported values are [log, noop]. When configuration is needed,"
             + "you can use this syntax to configure the repoter if needed: `<name>(config1=value1, config2=value2)`, "
             + "for example: `url(endpoint=http://brave.company.com`.\n\n"
-            + "In `auto` mode, if environment variable `TRACING_ON` doesn't exist or is set to `false`, `noop` will be selected, "
+            + "In `log` mode, if environment variable `TRACING_ON` doesn't exist or is set to `false`, `noop` will be selected, "
             + "and is set to `true`, `TRACING_KAFKA_URL`, `TRACING_KAFKA_TOPIC` and `TRACING_SAMPLING_RATE` will configure `kafka` reporter..")
-    @ConfigProperty(name = "monitoring.brave.reporter.type", defaultValue = "auto")
+    @ConfigProperty(name = "monitoring.brave.reporter.type", defaultValue = "noop")
     String reporter();
 
     @Documentation("When using url or kafka reporter, you can configure the async reporter with properties passed to this configuration entry."

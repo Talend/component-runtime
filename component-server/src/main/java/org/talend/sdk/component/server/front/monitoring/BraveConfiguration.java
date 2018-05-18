@@ -37,6 +37,11 @@ public class BraveConfiguration {
     @ConfigProperty(name = "TRACING_SAMPLING_RATE")
     private Float samplingRate;
 
+
+    @Inject
+    @ConfigProperty(name = "TRACING_ON")
+    private Boolean tracingOn;
+
     @Inject
     private MonitoringLogger monitoringLogger;
 
@@ -52,8 +57,8 @@ public class BraveConfiguration {
                         .build())
                 .serverSampler(HttpRuleSampler
                         .newBuilder()
-                        .addRule("GET", "/api/v1/environment", toActualRate(configuration.samplerComponentRate()))
-                        .addRule("GET", "/api/v1/configurationtype", toActualRate(configuration.samplerComponentRate()))
+                        .addRule("GET", "/api/v1/environment", toActualRate(configuration.samplerEnvironmentRate()))
+                        .addRule("GET", "/api/v1/configurationtype", toActualRate(configuration.samplerConfigurationTypeRate()))
                         .addRule("GET", "/api/v1/component", toActualRate(configuration.samplerComponentRate()))
                         .addRule("POST", "/api/v1/component", toActualRate(configuration.samplerComponentRate()))
                         .addRule("POST", "/api/v1/execution", configuration.samplerExecutionRate())
@@ -73,19 +78,16 @@ public class BraveConfiguration {
     }
 
     private Reporter<Span> createReporter(final ComponentServerConfiguration configuration) {
-        final String reporter = configuration.reporter();
-        if ("auto".equalsIgnoreCase(reporter)) {
-            return monitoringLogger;
+        if (!tracingOn) {
+            return Reporter.NOOP;
         }
-
+        final String reporter = configuration.reporter();
         final String type = reporter.contains("(") ? reporter.substring(0, reporter.indexOf('(')) : reporter;
         switch (type) {
         case "noop":
             return Reporter.NOOP;
         case "log":
             return monitoringLogger;
-        case "console":
-            return Reporter.CONSOLE;
         default:
             throw new IllegalArgumentException("Unsupported reporter: '" + reporter + "', "
                     + "please do a PR on github@Talend/component-runtime if you want it to be supported");
