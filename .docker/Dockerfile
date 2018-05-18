@@ -14,6 +14,8 @@
 #  limitations under the License.
 #
 
+# For usage instruction and details, please see the README.adoc file from the same folder
+
 # not used cause of licensing
 # FROM anapsix/alpine-java:8_server-jre_unlimited
 FROM openjdk:8-jre-alpine
