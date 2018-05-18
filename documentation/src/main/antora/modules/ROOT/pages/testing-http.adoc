@@ -7,7 +7,7 @@ The HTTP JUnit module allows you to mock REST API very easily. Here are its coor
 ----
 <dependency>
   <groupId>org.talend.sdk.component</groupId>
-  <artifactId>component-runtime-junit</artifactId>
+  <artifactId>component-runtime-http-junit</artifactId>
   <version>${talend-component.version}</version>
   <scope>test</scope>
 </dependency>
