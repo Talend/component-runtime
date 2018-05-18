@@ -25,7 +25,7 @@
 
 .Testing
 * xref:testing-best-practices.adoc[JUnit Integration]
-* xref:testing-junit.adoc[Testing HTTP API]
+* xref:testing-http.adoc[Testing HTTP API]
 * xref:testing-beam.adoc[Beam case]
 * xref:testing-spark.adoc[Spark and JUnit]
 * xref:testing-multiple-envs.adoc[Multiple environments for the same tests]
