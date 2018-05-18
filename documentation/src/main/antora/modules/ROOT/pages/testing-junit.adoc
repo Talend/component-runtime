@@ -32,7 +32,7 @@ Then you can define a standard JUnit test and use the `SimpleComponentRule` rule
 public class MyComponentTest {
 
     @Rule <1>
-    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.sdk.component.mycomponent.");
+    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.sdk.component.mycomponent");
 
     @Test
     public void produce() {
@@ -95,7 +95,7 @@ Some IDE versions and `surefire` versions can also need you to install either a 
 === Mocking the output
 
 Using the component "test"/"collector" as in previous sample stores all records emitted by the chain (typically your source)
-in memory, you can then access them using `theSimpleComponentRule.getCollectoedRecord(type)`. Note that this method filters by type,
+in memory, you can then access them using `theSimpleComponentRule.getCollectedData(type)`. Note that this method filters by type,
 if you don't care of the type just use `Object.class`.
 
 === Mocking the input
@@ -107,7 +107,7 @@ The input mocking is symmetric to the output but here you provide the data you w
 public class MyComponentTest {
 
     @Rule
-    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.sdk.component.mycomponent.");
+    public final SimpleComponentRule components = new SimpleComponentRule("org.talend.sdk.component.mycomponent");
 
     @Test
     public void produce() {
