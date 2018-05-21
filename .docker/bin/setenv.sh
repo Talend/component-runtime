@@ -1,5 +1,4 @@
 #! /bin/sh
-
 #
 #  Copyright (C) 2006-2018 Talend Inc. - www.talend.com
 #
@@ -16,6 +15,16 @@
 #  limitations under the License.
 #
 
+ARTIFACT_ID=artifactId
+
+[ -z "$TALEND_COMPONENT_LOG4J2_PROFILE" ] && TALEND_COMPONENT_LOG4J2_PROFILE="default"
+if [ ! -f $MEECROWAVE_BASE"/conf/log4j2-"$ARTIFACT_ID"-"$TALEND_COMPONENT_LOG4J2_PROFILE".xml" ] ; then
+  echo "No log4j2 configuration file found for profile '"$TALEND_COMPONENT_LOG4J2_PROFILE"'"
+  exit 1
+fi
+
 export MEECROWAVE_PID=$MEECROWAVE_BASE/conf/server.pid
 export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
 export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Dtalend.component.exit-on-destroy=true"
+export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Dlog4j.configurationFile="$MEECROWAVE_BASE"/conf/log4j2-"$ARTIFACT_ID"-"$TALEND_COMPONENT_LOG4J2_PROFILE".xml"
+export MEECROWAVE_OPTS="$MEECROWAVE_OPTS -Dtalend.component.server.monitoring.brave.reporter.type=log"

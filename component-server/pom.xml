@@ -58,11 +58,6 @@
       <artifactId>brave-instrumentation-jaxrs2</artifactId>
       <version>4.13.3</version>
     </dependency>
-    <dependency>
-      <groupId>io.zipkin.reporter2</groupId>
-      <artifactId>zipkin-sender-kafka11</artifactId>
-      <version>2.2.2</version>
-    </dependency>
 
     <dependency>
       <groupId>commons-cli</groupId>
