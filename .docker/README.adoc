@@ -1,7 +1,7 @@
 = Component Server in Docker
 
 == Build
-You can build component server in docker following those instructions :
+You can build a docker image of component server following those instructions :
 ```
 $ docker build --build-arg SERVER_VERSION=`component server version` \
              --tag component-server .
@@ -51,23 +51,29 @@ sudo docker run -p 8080:8080 \
 ```
 
 ==== Kafka profile
-*Kafka* profile let you send log to Kafka servers. The log are formatted in json and follow the layout defined by talend
+*Kafka* profile let you send log to Kafka servers. The log are formatted in json and follow the layout defined by Talend
 and described here https://github.com/Talend/daikon/tree/master/daikon-logging/logging-event-layout
 
 This profile require two environment variables
 
-* `TRACING_KAFKA_TOPIC` : Kafka topic.
-* `TRACING_KAFKA_URL`   : A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
+* `LOG_KAFKA_TOPIC` : Kafka topic.
+* `LOG_KAFKA_URL`   : A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
 This list should be in the form `url:port` separated by `,`
 
 Run docker image with kafka profile
+
 ```
 sudo docker run -p 8080:8080 \
     -e TALEND_COMPONENT_LOG4J2_PROFILE=kafka \
-	-e TRACING_KAFKA_URL=`kafka url:port` \
-	-e TRACING_KAFKA_TOPIC=`kafka topic` \
+    -e LOG_KAFKA_URL=`log kafka url:port` \
+    -e LOG_KAFKA_TOPIC=`log kafka topic` \
+	-e TRACING_KAFKA_URL=`tracing kafka url:port` \
+	-e TRACING_KAFKA_TOPIC=`tracing kafka topic` \
 	component-server
 ```
+
+*Note* : `LOG_KAFKA_TOPIC` will receive the application and the access logs
+and `TRACING_KAFKA_TOPIC` will receive brave tracing logs.
 
 === Tracing (Brave Monitoring)
 The component server use https://github.com/openzipkin/brave to monitor request.

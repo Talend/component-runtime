@@ -22,14 +22,23 @@
     <Property name="jsonLayout">{"severity":"%level","logMessage":"%encode{%message}{JSON}","logTimestamp":"%d{ISO8601}{UTC}","eventUUID":"%uuid{RANDOM}","@version":"1","logger.name":"%encode{%logger}{JSON}","host.name":"${hostName}","threadName":"%encode{%thread}{JSON}","stackTrace":"%encode{%xThrowable{full}}{JSON}"}%n</Property>
   </Properties>
   <Appenders>
-    <Kafka name="Kafka" topic="${env:TRACING_KAFKA_TOPIC}" syncSend="false" >
-      <PatternLayout pattern="${jsonLayout}" alwaysWriteExceptions="false"/>
+    <Kafka name="KafkaTracing" topic="${env:TRACING_KAFKA_TOPIC}" syncSend="false" >
+      <PatternLayout pattern="%message" alwaysWriteExceptions="false"/>
       <Property name="bootstrap.servers">${env:TRACING_KAFKA_URL}</Property>
+    </Kafka>
+    <Kafka name="KafkaLog" topic="${env:LOG_KAFKA_TOPIC}" syncSend="false" >
+      <PatternLayout pattern="${jsonLayout}" alwaysWriteExceptions="false"/>
+      <Property name="bootstrap.servers">${env:LOG_KAFKA_URL}</Property>
     </Kafka>
   </Appenders>
   <Loggers>
+    <Logger name="org.talend.sdk.component.server.front.monitoring.MonitoringLogger"
+            level="INFO"
+            additivity="false">
+      <AppenderRef ref="KafkaTracing"/>
+    </Logger>
     <Root level="INFO">
-      <AppenderRef ref="Kafka"/>
+      <AppenderRef ref="KafkaLog"/>
     </Root>
   </Loggers>
 </Configuration>
