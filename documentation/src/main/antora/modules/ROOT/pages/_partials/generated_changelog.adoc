@@ -1,5 +1,12 @@
 
 
+== Version 0.0.13
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-811[TCOMP-811^]: Upgrade to tomcat 9.0.8
+
+
 == Version 0.0.12
 
 === New Feature
