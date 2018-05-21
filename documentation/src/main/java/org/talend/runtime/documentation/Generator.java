@@ -32,10 +32,12 @@ import static org.apache.ziplock.JarLocation.jarLocation;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -53,6 +55,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
@@ -73,6 +76,12 @@ import org.apache.johnzon.mapper.MapperBuilder;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.JarArchive;
+import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.AttributesBuilder;
+import org.asciidoctor.OptionsBuilder;
+import org.asciidoctor.SafeMode;
+import org.asciidoctor.ast.Section;
+import org.asciidoctor.ast.StructuralNode;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.condition.meta.Condition;
 import org.talend.sdk.component.api.configuration.constraint.meta.Validation;
@@ -109,6 +118,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Generator {
 
     public static void main(final String[] args) throws Exception {
+        generateNav();
         if (Boolean.parseBoolean(args[7])) {
             log.info("Skipping doc generation as requested");
             return;
@@ -116,6 +126,7 @@ public class Generator {
 
         final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
+        generateNav();
         generatedTypes(generatedDir);
         generatedConstraints(generatedDir);
         generatedConditions(generatedDir);
@@ -132,6 +143,72 @@ public class Generator {
         }
         generatedContributors(generatedDir, args[5], args[6]);
         generatedJira(generatedDir, args[1], args[2], args[3]);
+    }
+
+    private static void generateNav() throws IOException {
+        final Asciidoctor asciidoctor = Asciidoctor.Factory.create();
+        final File baseDir = jarLocation(Generator.class).getParentFile().getParentFile();
+        final File pages = new File(baseDir, "src/main/antora/modules/ROOT/pages/");
+        final Map<String, Object> options = OptionsBuilder
+                .options()
+                .baseDir(pages)
+                .backend("html5")
+                .safe(SafeMode.UNSAFE)
+                .headerFooter(false)
+                .toFile(false)
+                .attributes(AttributesBuilder
+                        .attributes()
+                        .attribute("includedir", pages.getAbsolutePath())
+                        .attribute("partialsdir", new File(pages, "_partials").getAbsolutePath())
+                        .attribute("imagesdir", new File(pages.getParentFile(), "assets/images").getAbsolutePath()))
+                .asMap();
+        final StringBuilder builder = new StringBuilder();
+        processSection(asciidoctor.loadFile(new File(pages, "documentation.adoc"), options), builder,
+                "documentation.adoc");
+        processSection(asciidoctor.loadFile(new File(pages, "_partials/tutorials-index.adoc"), options), builder,
+                "tutorials-index.adoc");
+
+        // hardcoded for now while they are simple or externals
+        builder.append(".Web\n" + "* xref:documentation-rest.adoc[Server]\n"
+                + ".Execute\n* xref:services-pipeline.adoc[Simple/Test Pipeline API]\n"
+                + "* https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline[Beam Pipeline API]\n");
+
+        try (final Writer nav = new FileWriter(new File(baseDir, "src/main/antora/modules/ROOT/nav.adoc"))) {
+            nav.write(builder.toString());
+        }
+        System.out.println("Updated nav.adoc");
+    }
+
+    private static void processSection(final StructuralNode node, final StringBuilder builder, final String target) {
+        node.getBlocks().stream().filter(Section.class::isInstance).map(Section.class::cast).forEach(section -> {
+            final boolean root = section.getLevel() == 1;
+            builder
+                    .append(root ? "."
+                            : (IntStream.range(0, section.getLevel() - 1).mapToObj(i -> "*").collect(joining())
+                                    + " xref:" + target + "#" + section.getId() + "["))
+                    .append(root ? mapTitle(section.getTitle()) : section.getTitle())
+                    .append(root ? "" : "]")
+                    .append('\n');
+            processSection(section, builder, target);
+            if (root) {
+                builder.append('\n');
+            }
+        });
+    }
+
+    private static String mapTitle(final String title) {
+        switch (title) {
+        case "Talend Components Definitions Documentation":
+            return "Programming Model";
+        case "Components Packaging":
+            return "Package";
+        case ".Build tools":
+            return "Build";
+        case "Talend Component Testing Documentation":
+            return "Testing";
+        default:
+            return title;
+        }
     }
 
     private static void generatedScanningExclusions(final File generatedDir) {

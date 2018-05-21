@@ -43,6 +43,7 @@
     <!-- alpha-16 in mvn, alpha.16 in gem -->
     <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
     <jsoup.version>1.11.2</jsoup.version>
+    <jruby.version>9.1.14.0</jruby.version>
   </properties>
 
   <dependencies>
@@ -62,6 +63,12 @@
       <artifactId>talend-component-maven-plugin</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.python</groupId>
+          <artifactId>jython</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -116,6 +123,24 @@
       <groupId>org.sonatype.plexus</groupId>
       <artifactId>plexus-sec-dispatcher</artifactId>
       <version>${plexus-sec-dispatcher.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.asciidoctor</groupId>
+      <artifactId>asciidoctorj</artifactId>
+      <version>${asciidoctorj.version}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jruby</groupId>
+          <artifactId>jruby</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jruby</groupId>
+      <artifactId>jruby-complete</artifactId>
+      <version>${jruby.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -203,6 +228,22 @@
           </execution>
         </executions>
         <dependencies>
+          <dependency>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctorj</artifactId>
+            <version>${asciidoctorj.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.jruby</groupId>
+                <artifactId>jruby</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+          <dependency>
+            <groupId>org.jruby</groupId>
+            <artifactId>jruby-complete</artifactId>
+            <version>${jruby.version}</version>
+          </dependency>
           <dependency> <!-- to reuse maven one -->
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -228,6 +269,12 @@
             <groupId>org.talend.sdk.component</groupId>
             <artifactId>talend-component-maven-plugin</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.python</groupId>
+                <artifactId>jython</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
           <dependency>
             <groupId>org.talend.sdk.component</groupId>
@@ -316,7 +363,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin> <!-- mvn package -Pgen-doc [once] && mvn mvn frontend:yarn@yarn-dev -Pgen-doc -->
+      <plugin> <!-- mvn package -Pgen-doc [once] && mvn frontend:yarn@yarn-dev -Pgen-doc -->
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend.version}</version>
@@ -510,7 +557,7 @@
           <dependency>
             <groupId>org.jruby</groupId>
             <artifactId>jruby-complete</artifactId>
-            <version>9.1.14.0</version>
+            <version>${jruby.version}</version>
           </dependency>
           <!-- until antora supports it we don't use that
           <dependency>
