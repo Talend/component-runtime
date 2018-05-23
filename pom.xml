@@ -56,8 +56,8 @@
     <component.front.build.skip>${skip.yarn}</component.front.build.skip>
 
     <!-- this is a bad default but each module should override it -->
-    <talend.build.name.base>${project.groupId}.runtime.</talend.build.name.base>
-    <talend.build.name>${talend.build.name.base}${project.artifactId}</talend.build.name>
+    <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
+    <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
 
     <xbean.version>4.8</xbean.version>
     <slf4j.version>1.7.25</slf4j.version>
