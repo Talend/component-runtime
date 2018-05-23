@@ -22,7 +22,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>component-server</artifactId>
-  <name>Component Runtime :: Server</name>
+  <name>Component Runtime :: Server Parent :: Server</name>
   <description>The Web server of the framework. Mainly provides UI interaction hooks.</description>
 
   <properties>
@@ -46,7 +46,7 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-model</artifactId>
+      <artifactId>component-server-model</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

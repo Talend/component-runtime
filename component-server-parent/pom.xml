@@ -28,7 +28,7 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>component-model</module>
+    <module>component-server-model</module>
     <module>component-server</module>
   </modules>
 

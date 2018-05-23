@@ -23,15 +23,18 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>component-model</artifactId>
-  <name>Component Runtime :: Model</name>
+  <artifactId>component-server-model</artifactId>
+  <name>Component Runtime :: Server Parent :: Model</name>
   <description>Talend Component model used in Talend component kit</description>
+
+  <properties>
+    <talend.build.name>${talend.build.name.base}.server.model</talend.build.name>
+  </properties>
 
   <organization>
     <name>Talend</name>
     <url>https://github.com/Talend/component-runtime</url>
   </organization>
-
 
   <build>
     <plugins>
