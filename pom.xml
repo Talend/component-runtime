@@ -34,7 +34,7 @@
     <module>component-runtime-manager</module>
     <module>component-runtime-testing</module>
     <module>component-runtime-design-extension</module>
-    <module>component-server</module>
+    <module>component-server-parent</module>
     <module>component-form</module>
     <module>talend-component-maven-plugin</module>
     <module>gradle-talend-component</module>

@@ -15,7 +15,7 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>component-runtime</artifactId>
+    <artifactId>component-server-parent</artifactId>
     <groupId>org.talend.sdk.component</groupId>
     <version>0.0.13-SNAPSHOT</version>
   </parent>
@@ -30,7 +30,7 @@
     <talend.build.name>${talend.build.name.base}.server</talend.build.name>
     <sample.beam.groupId>org.talend.sdk.components</sample.beam.groupId>
     <sample.beam.artifactId>sample-beam</sample.beam.artifactId>
-    <sample.beam.location>${project.build.directory}/lib</sample.beam.location>
+    <sample.beam.location>${project.build.directory}${file.separator}lib</sample.beam.location>
   </properties>
 
   <dependencies>
@@ -44,7 +44,11 @@
       <artifactId>component-runtime-design-extension</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.talend.ui</groupId>
       <artifactId>talend-icon</artifactId>
@@ -235,13 +239,7 @@
             <configuration>
               <allowSystemExits>true</allowSystemExits>
               <scripts>
-                <script>
-                  project.properties.setProperty('osgiVersion', project.version.replace('-', '.'))
-                  project.properties.setProperty('osgiExportedVersion', project.version.replace('-SNAPSHOT', ''))
-                  project.properties.setProperty('osgiLicence', project.licenses[0].url)
-                  project.properties.setProperty('osgiTimestamp', Long.toString(System.currentTimeMillis()))
-                </script>
-                <script>${project.parent.basedir}/build/CreatePNGIcons.groovy</script>
+                <script>${project.parent.parent.basedir}/build/CreatePNGIcons.groovy</script>
               </scripts>
             </configuration>
           </execution>
@@ -304,7 +302,7 @@
                   }
 
                   def content = doc.text
-                  def docCopy = new File(project.basedir, '../documentation/src/main/antora/modules/ROOT/pages/_partials/generated_rest-resources.adoc')
+                  def docCopy = new File(project.basedir, '../../documentation/src/main/antora/modules/ROOT/pages/_partials/generated_rest-resources.adoc')
                   if (!docCopy.exists() || !docCopy.text.trim() != content.trim()) {
                     docCopy.text = content
                   }
@@ -434,6 +432,7 @@
               <goal>copy</goal>
             </goals>
             <configuration>
+              <stripVersion>true</stripVersion>
               <artifactItems>
                 <artifact>
                   <groupId>org.talend.sdk.component</groupId>
@@ -457,40 +456,6 @@
                   <outputDirectory>${sample.beam.location}/deps</outputDirectory>
                 </artifact>
               </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.0.2</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <configuration>
-              <classifier>model</classifier>
-              <includes>
-                <include>org/talend/sdk/component/server/front/model/**/*.class</include>
-              </includes>
-              <archive>
-                <manifestEntries>
-                  <Build-Jdk>${java.version}</Build-Jdk>
-                  <Built-By>${user.name}</Built-By>
-                  <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
-                  <Bundle-Name>${project.name}</Bundle-Name>
-                  <Bundle-SymbolicName>${project.groupId}.server.model</Bundle-SymbolicName>
-                  <Created-By>Talend Component Kit Build</Created-By>
-                  <Require-Capability>osgi.ee;filter:="(&amp;(osgi.ee=JavaSE)(version=1.8))"</Require-Capability>
-                  <Export-Package>org.talend.sdk.component.server.front.model;version="${osgiExportedVersion}",org.talend.sdk.component.server.front.model.error;version="${osgiExportedVersion}",org.talend.sdk.component.server.front.model.execution;version="${osgiExportedVersion}"</Export-Package>
-                  <Bnd-LastModified>${osgiTimestamp}</Bnd-LastModified>
-                  <Bundle-License>${osgiLicence}</Bundle-License>
-                  <Bundle-Version>${osgiVersion}</Bundle-Version>
-                </manifestEntries>
-              </archive>
             </configuration>
           </execution>
         </executions>
@@ -558,8 +523,8 @@
                 <components.sample.beam.location>${sample.beam.location}</components.sample.beam.location>
               </systemPropertyVariables>
               <additionalClasspathElements>
-                <additionalClasspathElement>${sample.beam.location}/deps/beam-sdks-java-core-${beam.version}.jar</additionalClasspathElement>
-                <additionalClasspathElement>${sample.beam.location}/deps/component-runtime-beam-${project.version}.jar</additionalClasspathElement>
+                <additionalClasspathElement>${sample.beam.location}${file.separator}deps${file.separator}beam-sdks-java-core.jar</additionalClasspathElement>
+                <additionalClasspathElement>${sample.beam.location}${file.separator}deps${file.separator}component-runtime-beam.jar</additionalClasspathElement>
               </additionalClasspathElements>
             </configuration>
           </execution>
