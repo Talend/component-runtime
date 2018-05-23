@@ -44,6 +44,7 @@
     <module>component-tools-webapp</module>
     <module>component-kit.js</module>
     <module>talend-component-kit-intellij-plugin</module>
+    <module>documentation</module>
   </modules>
 
   <properties>
@@ -785,15 +786,6 @@
   </build>
 
   <profiles>
-    <profile>
-      <id>documentation</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <modules>
-        <module>documentation</module>
-      </modules>
-    </profile>
     <profile>
       <id>release</id>
       <build>
