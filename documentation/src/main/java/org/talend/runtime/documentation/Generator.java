@@ -256,9 +256,9 @@ public class Generator {
     private static void generatedJUnitEnvironment(final File generatedDir) throws MalformedURLException {
         final File file = new File(generatedDir, "generated_junit-environments.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println("");
+            stream.println();
             stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
-            stream.println("");
+            stream.println();
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
             stream.println("|Class|Name|Description");
@@ -454,9 +454,9 @@ public class Generator {
     private static void generatedServerConfiguration(final File generatedDir) throws MalformedURLException {
         final File file = new File(generatedDir, "generated_server-configuration.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println("");
+            stream.println();
             stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
-            stream.println("");
+            stream.println();
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
             stream.println("|Key|Description|Default");
@@ -487,7 +487,7 @@ public class Generator {
     private static void generatedActions(final File generatedDir) throws Exception {
         final File file = new File(generatedDir, "generated_actions.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println("");
+            stream.println();
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
             stream.println("|API|Type|Description|Return type|Sample returned type");
@@ -517,7 +517,7 @@ public class Generator {
     private static void generatedUi(final File generatedDir) throws Exception {
         final File file = new File(generatedDir, "generated_ui.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println("");
+            stream.println();
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
             stream.println("|API|Description|Generated property metadata");
@@ -594,7 +594,7 @@ public class Generator {
     private static void generatedConditions(final File generatedDir) throws Exception {
         final File file = new File(generatedDir, "generated_conditions.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println("");
+            stream.println();
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
             stream.println("|API|Name|Description|Metadata Sample");
@@ -623,7 +623,7 @@ public class Generator {
     private static void generatedTypes(final File generatedDir) throws Exception {
         final File file = new File(generatedDir, "generated_configuration-types.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println("");
+            stream.println();
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
             stream.println("|API|Type|Description|Metadata sample");
@@ -650,7 +650,7 @@ public class Generator {
     private static void generatedConstraints(final File generatedDir) throws Exception {
         final File file = new File(generatedDir, "generated_constraints.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println("");
+            stream.println();
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
             stream.println("|API|Name|Parameter Type|Description|Supported Types|Metadata sample");

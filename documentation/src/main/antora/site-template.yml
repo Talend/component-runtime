@@ -22,10 +22,11 @@ content:
   - url: https://github.com/Talend/component-runtime.git
     tags:
       - component-runtime-*
+      - '!component-runtime-0.0.1'
+      - '!component-runtime-1.0.0'
     branches:
       - master
       - component-runtime-*
-      - '!component-runtime-0.0.1'
     start_path: documentation/src/main/antora
 ui:
   bundle:
