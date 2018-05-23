@@ -34,7 +34,7 @@
     <module>component-runtime-manager</module>
     <module>component-runtime-testing</module>
     <module>component-runtime-design-extension</module>
-    <module>component-server</module>
+    <module>component-server-parent</module>
     <module>component-form</module>
     <module>talend-component-maven-plugin</module>
     <module>gradle-talend-component</module>
@@ -56,8 +56,8 @@
     <component.front.build.skip>${skip.yarn}</component.front.build.skip>
 
     <!-- this is a bad default but each module should override it -->
-    <talend.build.name.base>${project.groupId}.runtime.</talend.build.name.base>
-    <talend.build.name>${talend.build.name.base}${project.artifactId}</talend.build.name>
+    <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
+    <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
 
     <xbean.version>4.8</xbean.version>
     <slf4j.version>1.7.25</slf4j.version>
