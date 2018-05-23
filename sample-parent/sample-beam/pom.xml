@@ -21,7 +21,7 @@
     <version>0.0.13-SNAPSHOT</version>
   </parent>
   <artifactId>sample-beam</artifactId>
-  <name>Component Runtime :: Sample :: Beam</name>
+  <name>Component Runtime :: Sample Parent :: Beam</name>
   
   <dependencies>
     <dependency>

@@ -22,7 +22,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>sample</artifactId>
-  <name>Component Runtime :: Sample</name>
+  <name>Component Runtime :: Sample Parent :: Sample</name>
   <description>A sample component. IMPORTANT: it is used by some tests.</description>
 
   <properties>

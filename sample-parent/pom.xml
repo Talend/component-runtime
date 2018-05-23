@@ -20,8 +20,10 @@
     <artifactId>component-runtime</artifactId>
     <version>0.0.13-SNAPSHOT</version>
   </parent>
+
   <artifactId>sample-parent</artifactId>
   <packaging>pom</packaging>
+  <name>Component Runtime :: Sample Parent</name>
   
   <modules>
     <module>sample</module>
