@@ -2,9 +2,15 @@
 
 == Version 0.0.13
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-827[TCOMP-827^]: Fix Automatic-Module-Name
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-811[TCOMP-811^]: Upgrade to tomcat 9.0.8
+- link:https://jira.talendforge.org/browse/TCOMP-826[TCOMP-826^]: Extract component model from component server to a new artifact
 
 
 == Version 0.0.12

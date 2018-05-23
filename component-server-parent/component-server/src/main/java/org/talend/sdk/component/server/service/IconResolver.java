@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.MediaType;
 
 import lombok.Data;
 
@@ -36,15 +35,14 @@ public class IconResolver {
         }
 
         return Stream
+                // todo: add support for svg if apps don't embed the Talend/ui/icon bundle
                 .of(icon + "_icon32.png", "icons/" + icon + "_icon32.png")
-                .map(pattern -> String.format(pattern, icon))
                 .map(path -> {
                     final InputStream resource = loader.getResourceAsStream(path);
                     if (resource == null) {
                         return null;
                     }
-                    return new Icon(path.endsWith("svg") ? MediaType.APPLICATION_SVG_XML : "image/png",
-                            toBytes(resource));
+                    return new Icon("image/png", toBytes(resource));
                 })
                 .filter(Objects::nonNull)
                 .findFirst()

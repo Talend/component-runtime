@@ -60,14 +60,16 @@ final class Icons {
         }
         final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        try (final InputStream iconStream = loader.getResourceAsStream("icons/" + icon + ".svg")) {
-            if (iconStream != null) {
-                IOUtil.copy(iconStream, baos);
-                baos.flush();
-                return toPng(baos.toByteArray());
+        for (final String subfolder : new String[] { "", "svg/", "svg-deprecated/" }) {
+            try (final InputStream iconStream = loader.getResourceAsStream("icons/" + subfolder + icon + ".svg")) {
+                if (iconStream != null) {
+                    IOUtil.copy(iconStream, baos);
+                    baos.flush();
+                    return toPng(baos.toByteArray());
+                }
+            } catch (final IOException ioe) {
+                // no-op
             }
-        } catch (final IOException ioe) {
-            // no-op
         }
 
         // direct png - see SvgIconResolver in the server

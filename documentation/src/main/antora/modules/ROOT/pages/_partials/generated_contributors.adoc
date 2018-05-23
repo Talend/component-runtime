@@ -1,14 +1,14 @@
 ++++
 [
   {
-    "commits":1023,
+    "commits":1027,
     "description":"Joined the Apache EE family (TomEE, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":194,
+    "commits":197,
     "description":"I am a software developer at @Talend\r\nFor my personal projects you can check them @khabali \n\nBlog: https://khabali.github.io",
     "gravatar":"https://avatars3.githubusercontent.com/u/25590305?v=4",
     "id":"akhabali",
@@ -29,18 +29,18 @@
     "name":"Chao MENG"
   },
   {
+    "commits":17,
+    "description":"",
+    "gravatar":"https://avatars2.githubusercontent.com/u/29707101?v=4",
+    "id":"ypiel-talend",
+    "name":"ypiel"
+  },
+  {
     "commits":9,
     "description":"Java and Javascript developer",
     "gravatar":"https://avatars2.githubusercontent.com/u/10761073?v=4",
     "id":"jsomsanith",
     "name":"Jimmy Somsanith"
-  },
-  {
-    "commits":3,
-    "description":"",
-    "gravatar":"https://avatars2.githubusercontent.com/u/29707101?v=4",
-    "id":"ypiel-talend",
-    "name":"ypiel"
   },
   {
     "commits":1,
