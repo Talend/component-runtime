@@ -94,7 +94,7 @@ export default class Component extends React.Component {
               <p className={theme.title}><em>{this.props.component.configuration.name || ''}</em> Configuration</p>
               <div>
                 <Actions actions={this.state.componentTypeActions} />
-                <Help title="Component Type" content={
+                <Help title="Component Type" i18nKey="component_type" content={
                   <span>
                     <p>
                       Talend Component Kit supports two types of components:
@@ -113,7 +113,7 @@ export default class Component extends React.Component {
               <form novalidate submit={e => e.preventDefault()}>
                 <div className="field">
                   <label forHtml="componentName">Name</label>
-                  <Help title="Component Name" content={
+                  <Help title="Component Name" i18nKey="component_name" content={
                     <span>
                       <p>Each component has a name which must be unique into a family.</p>
                       <p><Icon name="talend-info-circle"/> The name must be a valid java name (no space, special characters, ...).</p>

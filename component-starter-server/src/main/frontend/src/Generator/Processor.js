@@ -66,7 +66,7 @@ class EmbeddableToggle extends React.Component {
         <div className={this.props.theme['form-row']}>
           <p className={this.props.theme.title}>
             Generic
-            <Help title="Generic" content={
+            <Help title="Generic" i18nKey="processor_generic" content={
               <span>
                 <p>Is this branch type generic, i.e. is the data strongly typed or can use a dynamic schema.</p>
                 <p>Using a dynamic schema will allow you to read data from a structure you do not know at development time.</p>
@@ -117,7 +117,7 @@ class Connection extends React.Component {
       <Drawer title={`${this.props.connection.name} Record Model (${this.props.type})`} footerActions={drawerActions(this.props)}>
         <div className="field">
           <label>Name</label>
-          <Help title="Branch Name" content={
+          <Help title="Branch Name" i18nKey="processor_branch_name" content={
             <span>
               <p>The name of the connection/branch.</p>
               <p>The main branch must be named <code>MAIN</code>.</p>
@@ -236,7 +236,7 @@ export default class Processor extends React.Component {
     return (
       <processor className={this.props.theme.Processor}>
         <AppButton text="Configuration Model" onClick={this.onConfigurationButtonClick} help={(
-          <Help title="Configuration" content={
+          <Help title="Configuration" i18nKey="processor_configuration" content={
             <span>
               <p>The component configuration schema design can be configured by clicking on this button.</p>
               <p>It allows you to define the data you need to be able to execute the component logic.</p>
@@ -247,7 +247,7 @@ export default class Processor extends React.Component {
         <div className={this.props.theme['form-row']}>
           <p className={this.props.theme.title}>
             Input(s) / Ouput(s)
-            <Help title="Connectivity" content={
+            <Help title="Connectivity" i18nKey="processor_connectivity" content={
               <span>
                 <p>This section allows you to configure the processor connectivity.</p>
                 <p>Click on <Icon name="talend-plus-circle" /> buttons to add inputs/outputs and the <Icon name="talend-trash"/> to remove one.</p>
@@ -258,7 +258,7 @@ export default class Processor extends React.Component {
           <div className={[this.props.theme.ComponentButtons, 'col-sm-12'].join(' ')}>
             <div className="col-sm-6">
               <AppButton text="Add Input" icon="talend-plus-circle" onClick={() => this.setState(s => s.inputs = this.newStructure('input', this.state.inputs))} help={(
-                <Help title="Inputs" content={
+                <Help title="Inputs" i18nKey="processor_inputs" content={
                   <span>
                     <p>Clicking on this button you add an input to the processor.</p>
                     <p><Icon name="talend-info-circle" /> <code>MAIN</code> input is mandatory.</p>
@@ -269,7 +269,7 @@ export default class Processor extends React.Component {
             <div className="col-sm-6">
               <AppButton text="Add Ouput" icon="talend-plus-circle" side="right" iconPosition="left"
                          onClick={() => this.setState(s => s.outputs = this.newStructure('output', this.state.outputs))} help={(
-                           <Help title="Outputs" placement="left" content={
+                           <Help title="Outputs" i18nKey="processor_outputs" placement="left" content={
                              <span>
                                <p>Clicking on this button you add an output to the processor.</p>
                              </span>

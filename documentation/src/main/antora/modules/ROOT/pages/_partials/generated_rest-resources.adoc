@@ -1,4 +1,4 @@
-= REST resources of Component Runtime :: Server
+= REST resources of Component Runtime :: Server Parent :: Server
 0.0.13-SNAPSHOT
 
 == `POST api/v1/action/execute`

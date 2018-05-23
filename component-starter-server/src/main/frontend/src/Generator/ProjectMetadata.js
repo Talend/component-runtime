@@ -109,7 +109,7 @@ export default class ProjectMetadata extends React.Component {
             <p className={theme.title}>Create a Talend Component Family Project</p>
             <div>
               <Actions actions={this.state.buildToolActions} />
-              <Help title="Build Tool" content={
+              <Help title="Build Tool" i18nKey="project_build_tool" content={
                 <span>
                   <p>Maven is the most commonly used build tool and Talend Component Kit integrates with it smoothly.</p>
                   <p>Gradle is less used but get more and more attraction because it is communicated as being faster than Maven.</p>
@@ -133,7 +133,7 @@ export default class ProjectMetadata extends React.Component {
             <form novalidate submit={e => e.preventDefault()}>
               <div className="field">
                 <label forHtml="projectFamily">Component Family</label>
-                <Help title="Family" content={
+                <Help title="Family" i18nKey="project_family" content={
                   <span>
                     <p>The family groups multiple components altogether.</p>
                     <p>
@@ -147,7 +147,7 @@ export default class ProjectMetadata extends React.Component {
               </div>
               <div className="field">
                 <label forHtml="projectCategory">Category</label>
-                <Help title="Category" content={
+                <Help title="Category" i18nKey="project_category" content={
                   <span>
                     <p>The category is a group used by the Studio to organize components of different families in the same bucket into the <code>Palette</code>.</p>
                     <p>It is recommended to use a two level category. The first level is generally very general and the second one is close to the family name.</p>
@@ -163,7 +163,7 @@ export default class ProjectMetadata extends React.Component {
           <form novalidate submit={e => e.preventDefault()}>
             <div className="field">
               <label forHtml="projectGroup">Group</label>
-              <Help title="Project Group" content={
+              <Help title="Project Group" i18nKey="project_group" content={
                 <span>
                   <p>The project group used when deployed on a repository (like a Nexus or central).</p>
                   <p>The best practice recommends to use the reversed company hostname suffixed with something specific to the project.</p>
@@ -178,7 +178,7 @@ export default class ProjectMetadata extends React.Component {
             </div>
             <div className="field">
               <label forHtml="projectArtifact">Artifact</label>
-              <Help title="Project Artifact" content={
+              <Help title="Project Artifact" i18nKey="project_artifact" content={
                 <span>
                   <p>The project artifact used when deployed on a repository (like a Nexus or central).</p>
                   <p>It must be a unique identifier in the group namespace.</p>
@@ -190,7 +190,7 @@ export default class ProjectMetadata extends React.Component {
             </div>
             <div className="field">
               <label forHtml="projectPackage">Package</label>
-              <Help title="Project Root package" content={
+              <Help title="Project Root package" i18nKey="project_package" content={
                 <span>
                   <p>The root package represents a unique namespace in term of code.</p>
                   <p>Talend recommendation is to align it on the selected group.</p>
@@ -214,7 +214,7 @@ export default class ProjectMetadata extends React.Component {
                 [
                   <div className="field">
                     <label forHtml="projectVersion">Version</label>
-                    <Help title="Project Version" content={
+                    <Help title="Project Version" i18nKey="project_version" content={
                       <span>
                         <p>The version to use when deploying the artifact.</p>
                         <p>Generally this generator is used for a first version so the default should fit without modification.</p>
@@ -225,7 +225,7 @@ export default class ProjectMetadata extends React.Component {
                   </div>,
                   <div className="field">
                     <label forHtml="projectName">Project Name</label>
-                    <Help title="Project Name" content={
+                    <Help title="Project Name" i18nKey="project_name" content={
                       <span>
                         <p>Giving a human readable name to the project is more friendly in an IDE or continuous integration platform.</p>
                       </span>
@@ -235,7 +235,7 @@ export default class ProjectMetadata extends React.Component {
                   </div>,
                   <div className="field">
                     <label forHtml="projectDescription">Project Description</label>
-                    <Help title="Project Description" content={
+                    <Help title="Project Description" i18nKey="project_description" content={
                       <span>
                         <p>Giving a human readable description to the project allows to share some goals of the project with other developers in a standard fashion.</p>
                       </span>

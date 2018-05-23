@@ -125,7 +125,7 @@ class Node extends React.Component {
         {!this.props.readOnly && <Icon className={theme.nodeIcon} name="talend-trash" onClick={this.deleteNode} />}
         {
           !this.props.parent && (
-            <Help title="Designing your model" content={
+            <Help title="Designing your model" i18nKey="schema_designing_model" content={
               <span>
                 <p>This view allows you to modelize your model.</p>
                 <p>You can click on the <Icon name="talend-plus-circle" /> to add an object field, on the <Icon name="talend-trash" /> to delete one and on any field to edit its name and type.</p>

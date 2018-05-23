@@ -201,31 +201,6 @@
         </dependencies>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.0.2</version>
-        <executions>
-          <execution>
-            <id>copy-asciidoctor.js</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.outputDirectory}/talend/server</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>src/main/frontend/node_modules/asciidoctor.js/dist</directory>
-                  <includes>
-                    <include>asciidoctor.js</include>
-                  </includes>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
         <version>${gmavenplus.version}</version>

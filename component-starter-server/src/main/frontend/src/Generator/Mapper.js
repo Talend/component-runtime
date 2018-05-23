@@ -90,7 +90,7 @@ export default class Mapper extends React.Component {
     return (
       <mapper className={this.props.theme.Mapper}>
         <AppButton text="Configuration Model" onClick={this.onConfigurationButtonClick} help={(
-          <Help title="Configuration" content={
+          <Help title="Configuration" i18nKey="mapper_configuration" content={
             <span>
               <p>The component configuration schema design can be configured by clicking on this button.</p>
               <p>It allows you to define the data you need to be able to execute the component logic.</p>
@@ -100,7 +100,7 @@ export default class Mapper extends React.Component {
         <div className={this.props.theme['form-row']}>
           <p className={this.props.theme.title}>
             Stream
-            <Help title="Stream" content={
+            <Help title="Stream" i18nKey="mapper_stream" content={
               <span>
                 <p>Activate this toggle if your input will issue a stream.</p>
                 <p>It means that there is no real "end" of the data and that the job/pipeline using this component
@@ -113,7 +113,7 @@ export default class Mapper extends React.Component {
         <div className={this.props.theme['form-row']}>
           <p className={this.props.theme.title}>
             Record Type
-            <Help title="Record" content={
+            <Help title="Record" i18nKey="mapper_record_type" content={
               <span>
                 <p>The input will issue some records.</p>
                 <p>This configuration allows you to either define the schema of the records
@@ -127,7 +127,7 @@ export default class Mapper extends React.Component {
           </select>
           {
             !this.props.component.source.genericOutput && <AppButton text="Record Model" onClick={this.onRecordButtonClick} help={(
-              <Help title="Record Model" content={
+              <Help title="Record Model" i18nKey="mapper_record_model" content={
                 <span>
                   <p>In custom mode you can define the schema of the record you want to design by clicking on this button.</p>
                   <p>The schema will be used to create POJO model you will use to instantiate the records sent by your input to the job.</p>

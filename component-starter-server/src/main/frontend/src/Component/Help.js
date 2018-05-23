@@ -14,18 +14,29 @@
  *  limitations under the License.
  */
 import React from 'react';
+import { Trans, I18n } from 'react-i18next';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { Icon } from '@talend/react-components';
 
 import theme from './Help.scss';
 
 export default function Help(props) {
+  const overlay = (
+    <Popover title={<Trans i18nKey={`${props.i18nKey}_title`}>{props.title}</Trans>}>
+      {
+        <span className={theme.HelpContent}>
+          <Trans i18nKey={props.i18nKey}>
+            {props.content}
+          </Trans>
+        </span>
+      }
+    </Popover>);
   return (
-    <OverlayTrigger trigger={['hover', 'focus']} placement={props.placement || 'right'}
-                    overlay={<Popover title={props.title}>{<span className={theme.HelpContent}>{props.content}</span>}</Popover>}>
-      <span className={theme.Help}>
-        <Icon name="talend-question-circle" />
-      </span>
-    </OverlayTrigger>
-  );
+    <I18n ns="Help">{(t, { i18n }) => (
+      <OverlayTrigger trigger={['hover', 'focus']} placement={props.placement || 'right'} overlay={overlay}>
+        <span className={theme.Help}>
+          <Icon name="talend-question-circle" />
+        </span>
+      </OverlayTrigger>
+    )}</I18n>);
 }

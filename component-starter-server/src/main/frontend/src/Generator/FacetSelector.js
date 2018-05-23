@@ -180,7 +180,7 @@ export default class FacetSelector extends React.Component {
               tabindex="-1"
             />
             <div>
-              <Help title="Facets" content={
+              <Help title="Facets" i18nKey="facets_values" content={
                 <span>
                   <p>Selecting a facet allows you to adds some features to your generated project.</p>
                   <p>A common use case is to activate the testing facet to have skeletons for tests.</p>

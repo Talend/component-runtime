@@ -166,7 +166,7 @@ export default class Finish extends React.Component {
                 {!!this.state.githubError && <p className={theme.error}>{this.state.githubError}</p>}
                 <div className={fieldClasses}>
                   <label forHtml="githubUser">User</label>
-                  <Help title="Github User" content={
+                  <Help title="Github User" i18nKey="finish_github_user" content={
                     <span>
                       <p>The Github username to use to create the project.</p>
                     </span>
@@ -176,7 +176,7 @@ export default class Finish extends React.Component {
                 </div>
                 <div className={fieldClasses}>
                   <label forHtml="githubPassword">Password</label>
-                  <Help title="Github Password" content={
+                  <Help title="Github Password" i18nKey="finish_github_password" content={
                     <span>
                       <p>The Github password to use to create the project.</p>
                     </span>
@@ -189,7 +189,7 @@ export default class Finish extends React.Component {
                   !!this.state.github.useOrganization && (
                     <div className={fieldClasses}>
                       <label forHtml="githubOrganization">Organization</label>
-                      <Help title="Github Organization" content={
+                      <Help title="Github Organization" i18nKey="finish_github_organization" content={
                         <span>
                           <p>The Github organization to use to create the project.</p>
                         </span>
@@ -200,7 +200,7 @@ export default class Finish extends React.Component {
                 }
                 <div className={fieldClasses}>
                   <label forHtml="githubRepository">Repository</label>
-                  <Help title="Github Repository" content={
+                  <Help title="Github Repository" i18nKey="finish_github_repository" content={
                     <span>
                       <p>The Github repository to create for the project.</p>
                     </span>
@@ -211,7 +211,7 @@ export default class Finish extends React.Component {
 
                 <div className={fieldClasses}>
                   <label forHtml="githubUseOrganization">Create the repository for an organization</label>
-                  <Help title="Github Use Organization" content={
+                  <Help title="Github Use Organization" i18nKey="finish_github_useOrganization" content={
                     <span>
                       <p>If checked an organization project will be created instead of a user project.</p>
                     </span>
