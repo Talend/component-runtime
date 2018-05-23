@@ -246,7 +246,7 @@ public class Person {
 @ElementListener
 public MyNewData map(final Person person) {
     String name = person.getName();
-    int name = person.getAge();
+    int age = person.getAge();
     return ...;
 }
 

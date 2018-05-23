@@ -7,7 +7,7 @@ The HTTP JUnit module allows you to mock REST API very easily. Here are its coor
 ----
 <dependency>
   <groupId>org.talend.sdk.component</groupId>
-  <artifactId>component-runtime-junit</artifactId>
+  <artifactId>component-runtime-http-junit</artifactId>
   <version>${talend-component.version}</version>
   <scope>test</scope>
 </dependency>
@@ -118,7 +118,7 @@ The strength of this implementation is to run a small proxy server and auto conf
 `http[s].proxyHost`, `http[s].proxyPort`, `HttpsURLConnection#defaultSSLSocketFactory` and `SSLContext#default`
 are auto configured to work out of the box with the proxy.
 
-It allows you to keep in your tests the native and real URLs. For instance this test is perfectlt valid:
+It allows you to keep in your tests the native and real URLs. For instance this test is perfectly valid:
 
 [source,java]
 ----
