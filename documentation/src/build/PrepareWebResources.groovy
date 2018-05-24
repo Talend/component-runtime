@@ -19,11 +19,6 @@ import org.asciidoctor.Asciidoctor
 import org.asciidoctor.AttributesBuilder
 import org.asciidoctor.OptionsBuilder
 import org.asciidoctor.SafeMode
-
-import javax.json.bind.JsonbBuilder
-import javax.json.bind.JsonbConfig
-import javax.json.bind.config.PropertyOrderStrategy
-
 import org.jsoup.Jsoup
 
 def adoc = Asciidoctor.Factory.create()
@@ -40,11 +35,14 @@ copyJsResource(
     new File(project.basedir, 'src/main/frontend/node_modules/highlight.js/styles/idea.css').toURI().toURL(),
     'css/idea.css')
 copyJsResource(
-    new File(project.basedir, 'src/main/frontend/node_modules/docsearch.js/dist/cdn/docsearch.min.css').toURI().toURL(),
-    'js/docsearch.min.css')
+    new File(project.basedir, 'src/main/frontend/node_modules/instantsearch.js/dist/instantsearch-theme-algolia.min.css').toURI().toURL(),
+    'css/instantsearch-theme-algolia.min.css')
 copyJsResource(
-    new File(project.basedir, 'src/main/frontend/node_modules/docsearch.js/dist/cdn/docsearch.min.css').toURI().toURL(),
-    'js/docsearch.min.js')
+    new File(project.basedir, 'src/main/frontend/node_modules/instantsearch.js/dist/instantsearch.min.css').toURI().toURL(),
+    'css/instantsearch.min.css')
+copyJsResource(
+    new File(project.basedir, 'src/main/frontend/node_modules/instantsearch.js/dist/instantsearch.min.js').toURI().toURL(),
+    'js/instantsearch.min.js')
 
 // temp antora patch to add the branch
 def antoraLoadAdoc = new File(project.basedir, 'src/main/frontend/node_modules/@antora/asciidoc-loader/lib/load-asciidoc.js')
@@ -92,38 +90,6 @@ def toText = { content ->
     Jsoup.parse(html).body().text()
         .replaceAll("^Version: ${project.properties['versions.release']}", '')
         .replaceAll('Last updated [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} CEST$', '')
-}
-
-def sourceSearchJs = new File(project.basedir, 'src/main/antora/modules/ROOT/pages/search.adoc')
-def index = []
-// browse all pages and create an index for them
-new File(project.basedir, 'src/main/antora/modules/ROOT/pages').listFiles()
-        .findAll {
-            !it.isDirectory() && !it.name.equals('search.adoc') && !it.text.contains('include::') // we skip aggregator pages
-        }
-        .each { file ->
-            // todo: pre tokenize?
-            index.add(new Document(
-                    title: readTitle(file),
-                    content: toText(readContent(file)),
-                    link: file.name.replace('.adoc', '.html')))
-        }
-// as any generated source we ensure it is deterministic
-index.sort { it.link.compareTo(it.link) }
-
-def jsonb = JsonbBuilder.create(new JsonbConfig().withFormatting(true).withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))
-def output = '= Search\n' +
-        ':page-partial:\n' +
-        ':page-talend_search: true\n\n++++\n' +
-        jsonb.toJson(index) +
-        '\n++++\n'
-jsonb.close()
-if (!sourceSearchJs.exists() || sourceSearchJs.text != output) {
-    sourceSearchJs.parentFile.mkdirs()
-    sourceSearchJs.text = output
-    log.info("Generated search index ${sourceSearchJs}")
-} else {
-    log.info('search index already up to date')
 }
 
 // otherwise gh-pages ignore the _ folders

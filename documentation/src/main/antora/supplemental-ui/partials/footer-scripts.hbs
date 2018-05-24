@@ -1,6 +1,5 @@
 <script src="{{uiRootPath}}/js/site.js"></script>
 <script src="{{uiRootPath}}/js/vendor/highlight.js"></script>
-<script src="{{uiRootPath}}/js/tacokit.js"></script>
 <script>hljs.initHighlighting()</script>
 <script>
 (function (window, document) {
@@ -8,22 +7,16 @@
   document.querySelectorAll('.listingblock')
     .forEach(function (listingblock, index) {
       var pre = listingblock.querySelector('div.content > pre.highlightjs.highlight');
-      if (!pre) {
-        return;
-      }
+      if (!pre) {return;}
       var code = pre.querySelector('code.hljs');
-      if (!code) {
-        return;
-      }
+      if (!code) {return;}
 
       var span = document.createElement('span');
       var initialBlockClosed = listingblock.className.indexOf('initial-block-closed') >= 0;
       span.className = 'code-' + (initialBlockClosed ? 'collapsed' : 'open') + '-handle code-handle-base';
 
       var height = code.style.height;
-      if (initialBlockClosed) {
-        code.style.height = closedSize;
-      }
+      if (initialBlockClosed) {code.style.height = closedSize;}
 
       span.addEventListener('click', function () {
         if (span.className == 'code-collapsed-handle code-handle-base') {

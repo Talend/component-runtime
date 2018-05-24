@@ -1,15 +1,38 @@
-<form>
-    <div action="search.html" class="navbar-item">
-        <label for="searchInput">
-            Search
-            <span id="resultCounter" class="badge"></span>
-        </label>
-        <input class="rounded" type="search" name="q" id="searchInput" placeholder="Search...">
-    </div>
-</form>
-<div id="resultTable" class="table table-striped table-condensed hidden">
-</div>
+<div id="search-box"></div>
+<div id="hits"></div>
+<div id="pagination"></div>
 
+<script src="{{uiRootPath}}/js/instantsearch.min.js"></script>
 <script type="text/javascript">
-docsearch({algoliaOptions:{hitsPerPage:20},apiKey:'e8867b9a2e8e3d764d7f29e28c3ae4ab',indexName:'github_antora',inputSelector:'#searchInput'});
+var docVersion = window.location.pathname.replace(/\/[^\/]+\/([0-9\.]+)\/.*/g, '$1');
+var searchInput = document.getElementById('searchInput');
+var search = instantsearch({
+  appId: 'LJ50FMU1OP',
+  apiKey: 'ca1017132e0722c761956d71c305b7af',
+  indexName: 'githubantora',
+  searchParameters: {
+    hitsPerPage: 10,
+    facetFilters: ['version:' + docVersion]
+  },
+  routing: {
+    router: instantsearch.routers.history({ writeDelay: 350 })
+  }
+});
+
+search.addWidget(instantsearch.widgets.searchBox({
+  container: '#search-box',
+  placeholder: 'Search for products'
+}));
+search.addWidget(instantsearch.widgets.hits({
+  container: '#hits',
+  templates: {
+    empty: '<div class="text-center">No results matching <strong>\{{query}}</strong> found.</div>',
+    item: '<div class="search-result-container"><a href="\{{url}}">\{{title}}</a><p>\{{text}}</p></div>'
+  },
+}));
+search.addWidget(instantsearch.widgets.pagination({
+  container: '#pagination'
+}));
+
+search.start();
 </script>

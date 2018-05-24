@@ -39,6 +39,29 @@ h3.contributor-commits {
   margin-bottom: 1rem !important;
 }
 
+#pagination {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+.search-result-container > p {
+   overflow: hidden;
+   text-overflow: ellipsis;
+   display: -webkit-box;
+   line-height: 16px;
+   max-height: 64px;
+   -webkit-line-clamp: 4;
+   -webkit-box-orient: vertical;
+}
+.ais-search-box {
+  width: 100%;
+  max-width: 100% !important;
+}
+.ais-search-box--input {
+  -moz-border-radius: 25px;
+  -webkit-border-radius: 25px;
+  border-radius: 25px;
+}
 .global-search {
   line-height: 1.5;
   padding: .5rem 1rem;
