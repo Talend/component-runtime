@@ -1,0 +1,41 @@
+{
+  "sitemaps": [
+    { "url": "https://talend.github.io/component-runtime/sitemap.xml", "lang": "en" }
+  ],
+  "app": "github_antora",
+  "index": {
+    "name": "github_antora",
+    "settings": {
+      "attributesToIndex": [
+        "title",
+        "unordered(lvl1)",
+        "unordered(lvl2)",
+        "unordered(lvl3)",
+        "unordered(lvl4)",
+        "unordered(text)"
+      ],
+      "attributesForFaceting": [
+        "lang",
+        "version"
+      ]
+    }
+  },
+  "selectors": {
+    "title": "title",
+    "lvl1": ".doc h1",
+    "lvl2": ".doc h2",
+    "lvl3": ".doc h3",
+    "lvl4": ".doc h4",
+    "text": ".doc p, .doc td.content, .doc th.tableblock",
+    "version": {
+      "selector": "div.navigation-container",
+      "attributes": "data-version"
+    }
+  },
+  "oldentries" : 86400000,
+  "maxRecordSize": 10000,
+  "cred": {
+    "appid": "LJ50FMU1OP",
+    "apikey": "${talend.algolia_admin_key.password}"
+  }
+}

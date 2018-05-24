@@ -34,6 +34,11 @@
       <username>${env.JETBRAINS_USER}</username>
       <password>${env.JETBRAINS_PASS}</password>
     </server>
+    <server>
+      <id>algolia_admin_key</id>
+      <username>algolia</username>
+      <password>${env.ALGOLIA_ADMIN_KEY}</password>
+    </server>
   </servers>
 
   <profiles>

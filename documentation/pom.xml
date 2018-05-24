@@ -361,6 +361,17 @@
               <to>${project.basedir}/src/main/antora/site.yml</to>
             </configuration>
           </execution>
+          <execution>
+            <id>filter-algolia</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>filter</goal>
+            </goals>
+            <configuration>
+              <from>${project.basedir}/src/main/frontend/algolia/config_template.json</from>
+              <to>${project.basedir}/src/main/frontend/algolia/config.json</to>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin> <!-- mvn package -Pgen-doc [once] && mvn frontend:yarn@yarn-dev -Pgen-doc -->
@@ -409,6 +420,17 @@
             <configuration>
               <skip>${component.front.build.skip}</skip>
               <arguments>run antora:dev</arguments>
+            </configuration>
+          </execution>
+          <execution> <!-- mvn initialize gplus:execute@groovy-scripts rmannibucau-common:filter@filter-algolia frontend:yarn@algolia-index -->
+            <id>algolia-index</id>
+            <phase />
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <configuration>
+              <skip>${component.front.build.skip}</skip>
+              <arguments>run algolia:index</arguments>
             </configuration>
           </execution>
         </executions>

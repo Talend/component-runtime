@@ -1,5 +1,5 @@
 <form>
-    <div action="search.html">
+    <div action="search.html" class="navbar-item">
         <label for="searchInput">
             Search
             <span id="resultCounter" class="badge"></span>
@@ -10,56 +10,6 @@
 <div id="resultTable" class="table table-striped table-condensed hidden">
 </div>
 
-<script type="text/javascript" src="{{uiRootPath}}/js/js-search.min.js"></script>
 <script type="text/javascript">
-var search = new JsSearch.Search('title');
-search.indexStrategy = new JsSearch.AllSubstringsIndexStrategy();
-search.addIndex('title');
-search.addIndex('content');
-{{#passthrough page.contents}}
-search.addDocuments({{{this}}});
-{{/passthrough}}
-var searchInput = document.getElementById('searchInput');
-var resultCounter = document.getElementById('resultCounter');
-var resultTable = document.getElementById('resultTable');
-
-var addResult = function (parent, result) {
-  var linkA = document.createElement('a');
-  linkA.href = result.link;
-  linkA.innerHTML = result.title;
-  var description = document.createElement('p');
-  description.innerHTML = result.description;
-
-  var div = document.createElement('div');
-  div.appendChild(linkA);
-  div.appendChild(description);
-  div.classList.add('search-result-container');
-  parent.appendChild(div);
-};
-
-searchInput.oninput = function () {
-    var results = search.search(searchInput.value);
-    var maxTextLen = 250;
-
-    resultCounter.innerText = results.length + ' results';
-
-    resultTable.innerHTML = '';
-    if (!searchInput.value || !searchInput.value.length) {
-      resultTable.classList.add('hidden');
-      return;
-    }
-    for (var i = 0; i < results.length; i++) {
-      addResult(resultTable, {
-        title: results[i].title,
-        description: results[i].content.length < maxTextLen ? results[i].content : (results[i].content.substring(0, maxTextLen - 3) + '...'),
-        link: results[i].link
-      });
-    }
-    resultTable.classList.remove('hidden');
-};
-
-if (!!window.location.search && window.location.search.indexOf('?q=') == 0) {
-  searchInput.value = window.location.search.substring(3, window.location.search.length);
-  searchInput.oninput();
-}
+docsearch({algoliaOptions:{hitsPerPage:20},apiKey:'e8867b9a2e8e3d764d7f29e28c3ae4ab',indexName:'github_antora',inputSelector:'#searchInput'});
 </script>

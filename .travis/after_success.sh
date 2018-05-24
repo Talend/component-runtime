@@ -13,5 +13,10 @@ node .travis/heartbeat.js mvn clean deploy -Dhub-detect.skip=true $OPTS
 node .travis/heartbeat.js mvn clean verify -Dhub-detect.skip=false $OPTS
 
 cd documentation
-    node ../.travis/heartbeat.js mvn verify -Pgh-pages -Dgithub.site.profile=latest $OPTS
+    node ../.travis/heartbeat.js mvn verify -Pgh-pages -Dgithub.site.profile=latest $OPTS &
+
+    # reindex the website on Algolia
+    mvn initialize gplus:execute@groovy-scripts rmannibucau-common:filter@filter-algolia frontend:yarn@algolia-index &
+
+    wait
 cd -

@@ -40,8 +40,11 @@ copyJsResource(
     new File(project.basedir, 'src/main/frontend/node_modules/highlight.js/styles/idea.css').toURI().toURL(),
     'css/idea.css')
 copyJsResource(
-    new File(project.basedir, 'src/main/frontend/node_modules/js-search/dist/umd/js-search.min.js').toURI().toURL(),
-    'js/js-search.min.js')
+    new File(project.basedir, 'src/main/frontend/node_modules/docsearch.js/dist/cdn/docsearch.min.css').toURI().toURL(),
+    'js/docsearch.min.css')
+copyJsResource(
+    new File(project.basedir, 'src/main/frontend/node_modules/docsearch.js/dist/cdn/docsearch.min.css').toURI().toURL(),
+    'js/docsearch.min.js')
 
 // temp antora patch to add the branch
 def antoraLoadAdoc = new File(project.basedir, 'src/main/frontend/node_modules/@antora/asciidoc-loader/lib/load-asciidoc.js')

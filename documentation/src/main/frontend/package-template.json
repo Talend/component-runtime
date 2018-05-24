@@ -6,10 +6,13 @@
     "js-search": "1.4.2",
     "@antora/cli": "${antora.version}",
     "@antora/site-generator-default": "${antora.version}",
-    "highlight.js": "9.12.0 "
+    "highlight.js": "9.12.0",
+    "docsearch.js": "2.5.2",
+    "algolia-webcrawler": "2.3.0"
   },
   "scripts": {
     "antora:build": "antora --stacktrace ../antora/site.yml",
-    "antora:dev": "antora --stacktrace ../antora/site-dev.yml"
+    "antora:dev": "antora --stacktrace ../antora/site-dev.yml",
+    "algolia:index": "algolia-webcrawler --config algolia/config.json"
   }
 }
