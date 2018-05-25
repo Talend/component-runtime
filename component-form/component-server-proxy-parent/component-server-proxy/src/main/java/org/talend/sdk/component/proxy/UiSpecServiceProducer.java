@@ -17,13 +17,17 @@ package org.talend.sdk.component.proxy;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
 import javax.json.bind.Jsonb;
-import javax.json.bind.spi.JsonbProvider;
+import javax.json.bind.JsonbBuilder;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @ApplicationScoped
 public class UiSpecServiceProducer {
 
@@ -36,7 +40,22 @@ public class UiSpecServiceProducer {
     @Produces
     @ApplicationScoped
     public Jsonb jsonb() {
-        return JsonbProvider.provider().create().build();
+        return JsonbBuilder.create();
     }
 
+    public void releaseUiSpecService(@Disposes final UiSpecService uiSpecService) {
+        try {
+            uiSpecService.close();
+        } catch (final Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    public void releaseJsonb(@Disposes final Jsonb jsonb) {
+        try {
+            jsonb.close();
+        } catch (final Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
 }

@@ -22,5 +22,4 @@ import javax.ws.rs.core.Application;
 @Dependent
 @ApplicationPath("api/v1")
 public class ComponentProxyApplication extends Application {
-
 }
