@@ -13,22 +13,23 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>component-runtime</artifactId>
+    <artifactId>component-form</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>0.0.13-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>component-form</artifactId>
+  <artifactId>component-server-proxy-parent</artifactId>
   <packaging>pom</packaging>
-  <name>Component Runtime :: Form</name>
-  <description>Umbrella parent for the Web UI representation of the properties of the components.</description>
+  <name>Component Runtime :: Form :: Server Proxy Parent</name>
 
   <modules>
-    <module>component-form-model</module>
-    <module>component-form-core</module>
-    <module>component-server-proxy-parent</module>
+    <module>component-server-proxy</module>
+    <module>component-server-proxy-play</module>
   </modules>
+
 </project>
