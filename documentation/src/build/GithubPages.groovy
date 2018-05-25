@@ -24,7 +24,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 import static java.util.Collections.singleton
 
-if (!new File(project.build.directory, "${project.build.finalName}/_/js/js-search.min.js").exists()) {
+if (!new File(project.build.directory, "${project.build.finalName}/_/js/instantsearch.min.js").exists()) {
     log.info('Not yet in deploy phase, should generate the site before')
     return
 }
