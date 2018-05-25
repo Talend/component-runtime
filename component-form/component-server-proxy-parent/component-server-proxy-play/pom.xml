@@ -19,7 +19,7 @@
   <parent>
     <artifactId>component-server-proxy-parent</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>0.0.13-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -29,23 +29,20 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.server.proxy.play</talend.build.name>
-    <playx.version>0.0.6</playx.version>
 
+    <playx.version>0.0.6</playx.version>
     <play2.version>2.6.12</play2.version>
     <scala.version>2.12.4</scala.version>
-    <play2.plugin.version>1.0.0-rc2</play2.plugin.version>
   </properties>
 
 
   <dependencies>
-    <!-- jaxrs component server proxy -->
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server-proxy</artifactId>
       <version>${project.version}</version>
     </dependency>
 
-    <!-- playx  -->
     <dependency>
       <groupId>com.github.rmannibucau</groupId>
       <artifactId>playx-servlet</artifactId>
@@ -66,39 +63,113 @@
       <artifactId>playx-microprofile-config</artifactId>
       <version>${playx.version}</version>
     </dependency>
+
+    <!-- API, forced to be delivered -->
     <dependency>
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>tomcat-servlet-api</artifactId>
-      <version>9.0.8</version>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jcdi_2.0_spec</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-annotation_1.3_spec</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-atinject_1.0_spec</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-interceptor_1.2_spec</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jsonb_1.0_spec</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-json_1.1_spec</artifactId>
+      <scope>compile</scope>
     </dependency>
 
-    <!-- logs -->
+    <!-- implementations -->
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-      <version>${log4j2.version}</version>
+      <groupId>org.apache.openwebbeans</groupId>
+      <artifactId>openwebbeans-se</artifactId>
+      <version>2.0.5</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-web</artifactId>
-      <version>${log4j2.version}</version>
+      <groupId>org.apache.geronimo.config</groupId>
+      <artifactId>geronimo-config-impl</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <version>${log4j2.version}</version>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-rs-client</artifactId>
+      <version>${cxf.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.enterprise</groupId>
+          <artifactId>cdi-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.inject</groupId>
+          <artifactId>javax.inject</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.ws.rs</groupId>
+          <artifactId>javax.ws.rs-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.annotation</groupId>
+          <artifactId>javax-annotation-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>${log4j2.version}</version>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-integration-cdi</artifactId>
+      <version>${cxf.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.enterprise</groupId>
+          <artifactId>cdi-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.inject</groupId>
+          <artifactId>javax.inject</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.ws.rs</groupId>
+          <artifactId>javax.ws.rs-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.annotation</groupId>
+          <artifactId>javax-annotation-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.johnzon</groupId>
+      <artifactId>johnzon-jsonb</artifactId>
+      <version>${johnzon.version}</version>
     </dependency>
   </dependencies>
-
 
   <profiles>
     <profile>
       <id>playDev</id>
+      <properties>
+        <play2.plugin.version>1.0.0-rc2</play2.plugin.version>
+      </properties>
       <dependencies>
         <dependency>
           <groupId>org.scala-lang</groupId>
@@ -145,5 +216,4 @@
       </build>
     </profile>
   </profiles>
-
 </project>
