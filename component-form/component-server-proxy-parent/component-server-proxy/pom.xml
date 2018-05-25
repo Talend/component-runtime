@@ -95,6 +95,12 @@
 
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-api</artifactId>
+      <version>${component-api.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server-proxy-dependencies</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -104,6 +110,18 @@
       <groupId>com.typesafe.play</groupId>
       <artifactId>play-test_${scala.version}</artifactId>
       <version>${play2.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomee</groupId>
+      <artifactId>openejb-loader</artifactId>
+      <version>${ziplock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -19,6 +19,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -34,11 +35,8 @@ public class ConfigurationService {
 
     public List<Config> getRootConfiguration(final ConfigTypeNodes configs) {
         final List<ConfigTypeNode> families = ofNullable(configs)
-                .filter(c -> !c.getNodes().isEmpty())
-                .orElseThrow(() -> new RuntimeException("No Component found"))
-                .getNodes()
-                .values()
-                .stream()
+                .map(c -> c.getNodes().values().stream())
+                .orElseGet(Stream::empty)
                 .filter(node -> node.getParentId() == null || node.getParentId().isEmpty())
                 .collect(toList());
         return configs
@@ -50,7 +48,7 @@ public class ConfigurationService {
                 .map(root -> {
                     final ConfigTypeNode family =
                             families.stream().filter(f -> f.getId().equals(root.getParentId())).findFirst().orElseThrow(
-                                    () -> new RuntimeException("Can't find familly of component " + root));
+                                    () -> new IllegalStateException("Can't find family of component " + root));
                     return new Config(root.getId(), family.getId(), root.getDisplayName(), family.getDisplayName(),
                             root.getEdges(), null); // todo : get family icon key
                 })
