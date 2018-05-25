@@ -4,7 +4,10 @@
 
 <script src="{{uiRootPath}}/js/instantsearch.min.js"></script>
 <script type="text/javascript">
-var docVersion = window.location.pathname.replace(/\/[^\/]+\/([0-9\.]+)\/.*/g, '$1');
+var pathname = window.location.pathname;
+var docVersion = pathname.indexOf('/component-runtime') === 0 ?
+    pathname.replace(/\/component\-runtime\/[^\/]+\/([0-9\.]+)\/.*/g, '$1') :
+    pathname.replace(/\/[^\/]+\/([0-9\.]+)\/.*/g, '$1');
 var searchInput = document.getElementById('searchInput');
 var search = instantsearch({
   appId: 'LJ50FMU1OP',
