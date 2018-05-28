@@ -90,7 +90,7 @@
       <build>
         <resources>
           <resource>
-            <directory>${basedir}/conf</directory>
+            <directory>${project.basedir}/conf</directory>
           </resource>
         </resources>
 
