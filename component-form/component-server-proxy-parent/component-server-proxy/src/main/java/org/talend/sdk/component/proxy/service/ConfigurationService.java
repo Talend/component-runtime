@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.proxy.service;
 
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -25,10 +26,14 @@ import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.proxy.client.ConfigurationClient;
 import org.talend.sdk.component.proxy.model.ConfigType;
 import org.talend.sdk.component.proxy.model.Configurations;
+import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
+import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 
@@ -41,7 +46,7 @@ public class ConfigurationService {
     @Inject
     private ConfigurationClient client;
 
-    public Configurations getRootConfiguration(final ConfigTypeNodes configs) {
+    public Configurations getRootConfiguration(final ConfigTypeNodes configs, final ComponentIndices componentIndices) {
         final Map<String, ConfigTypeNode> families = ofNullable(configs)
                 .map(c -> c.getNodes().values().stream())
                 .orElseGet(Stream::empty)
@@ -56,7 +61,7 @@ public class ConfigurationService {
                 .map(root -> {
                     final ConfigTypeNode family = families.get(root.getParentId());
                     return new ConfigType(root.getId(), family.getId(), root.getDisplayName(), family.getDisplayName(),
-                            null, root.getEdges());
+                            findIcon(family, componentIndices), root.getEdges());
                 })
                 .collect(toMap(ConfigType::getId, identity())), Collections.emptyMap());
     }
@@ -67,5 +72,20 @@ public class ConfigurationService {
             family = nodes.getNodes().get(family.getParentId());
         }
         return family; // require ot null/web app ex
+    }
+
+    public String findIcon(final ConfigTypeNode family, final ComponentIndices componentIndices) {
+        return componentIndices
+                .getComponents()
+                .stream()
+                .filter(component -> component.getId().getFamilyId().equals(family.getId()))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(Response
+                        .status(HTTP_INTERNAL_ERROR)
+                        .entity(new ProxyErrorPayload("UNEXPECTED", "No icon found for this configuration " + family))
+                        .header(ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, false)
+                        .build()))
+                .getIconFamily()
+                .getIcon();
     }
 }
