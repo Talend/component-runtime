@@ -23,25 +23,25 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.ComponentIndices;
 
 @ApplicationScoped
-public class ConfigurationProxyClient {
+public class ComponentClient {
 
     @Inject
     private WebTarget webTarget;
 
-    public CompletionStage<ConfigTypeNodes> getAllConfigurations(final String language) {
+    public CompletionStage<ComponentIndices> getAllComponents(final String language) {
         return this.webTarget
-                .path("configurationtype/index")
+                .path("component/index")
                 .queryParam("language", language)
-                .queryParam("lightPayload", true)
+                .queryParam("includeIconContent", false)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .rx()
-                .get(ConfigTypeNodes.class);
+                .get(ComponentIndices.class);
     }
 
-    public CompletionStage<Response> getConfigurationIconById(final String id) {
+    public CompletionStage<Response> getFamilyIconById(final String id) {
         return this.webTarget.path("component/icon/family/" + id).request().rx().get();
     }
 

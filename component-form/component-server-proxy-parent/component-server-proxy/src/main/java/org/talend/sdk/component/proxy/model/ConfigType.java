@@ -13,9 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Components(family = "TheTestFamily", categories = "Test/Sample")
-@Icon(value = Icon.IconType.BADGE)
-package org.talend.sdk.component.proxy.test.component;
+package org.talend.sdk.component.proxy.model;
 
-import org.talend.sdk.component.api.component.Components;
-import org.talend.sdk.component.api.component.Icon;
+import java.util.Collection;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class ConfigType {
+
+    private String id;
+
+    private String familyId;
+
+    private String label;
+
+    private String familyLabel;
+
+    private String icon;
+
+    private Collection<String> children;
+
+}

@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.json.JsonObject;
 
+import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
@@ -29,10 +30,11 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.input.Split;
 
-@PartitionMapper(name = "TheMapper")
-public class TheComponent implements Serializable {
+@PartitionMapper(name = "TheMapper1")
+@Icon(value = Icon.IconType.STAR)
+public class TheComponent1 implements Serializable {
 
-    public TheComponent(@Option("config") final TheTestDataSet config) {
+    public TheComponent1(@Option final DataSet1 config) {
         // no-op
     }
 
@@ -42,7 +44,7 @@ public class TheComponent implements Serializable {
     }
 
     @Split
-    public List<TheComponent> split() {
+    public List<TheComponent1> split() {
         return emptyList();
     }
 
