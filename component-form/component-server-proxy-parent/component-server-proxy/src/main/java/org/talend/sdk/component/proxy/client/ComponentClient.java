@@ -23,6 +23,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 
 @ApplicationScoped
@@ -31,18 +32,27 @@ public class ComponentClient {
     @Inject
     private WebTarget webTarget;
 
+    @Inject
+    private ProxyConfiguration configuration;
+
     public CompletionStage<ComponentIndices> getAllComponents(final String language) {
-        return this.webTarget
-                .path("component/index")
-                .queryParam("language", language)
-                .queryParam("includeIconContent", false)
-                .request(MediaType.APPLICATION_JSON_TYPE)
+        return configuration
+                .getHeaderAppender()
+                .apply(this.webTarget
+                        .path("component/index")
+                        .queryParam("language", language)
+                        .queryParam("includeIconContent", false)
+                        .request(MediaType.APPLICATION_JSON_TYPE))
                 .rx()
                 .get(ComponentIndices.class);
     }
 
     public CompletionStage<Response> getFamilyIconById(final String id) {
-        return this.webTarget.path("component/icon/family/" + id).request().rx().get();
+        return configuration
+                .getHeaderAppender()
+                .apply(this.webTarget.path("component/icon/family/" + id).request())
+                .rx()
+                .get();
     }
 
 }

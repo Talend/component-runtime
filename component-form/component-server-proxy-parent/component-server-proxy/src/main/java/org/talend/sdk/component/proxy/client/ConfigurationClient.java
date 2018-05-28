@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
+import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 
 @ApplicationScoped
@@ -30,22 +31,29 @@ public class ConfigurationClient {
     @Inject
     private WebTarget webTarget;
 
+    @Inject
+    private ProxyConfiguration configuration;
+
     public CompletionStage<ConfigTypeNodes> getAllConfigurations(final String language) {
-        return this.webTarget
-                .path("configurationtype/index")
-                .queryParam("language", language)
-                .queryParam("lightPayload", true)
-                .request(MediaType.APPLICATION_JSON_TYPE)
+        return configuration
+                .getHeaderAppender()
+                .apply(this.webTarget
+                        .path("configurationtype/index")
+                        .queryParam("language", language)
+                        .queryParam("lightPayload", true)
+                        .request(MediaType.APPLICATION_JSON_TYPE))
                 .rx()
                 .get(ConfigTypeNodes.class);
     }
 
     public CompletionStage<ConfigTypeNodes> getDetails(final String language, final String[] ids) {
-        return this.webTarget
-                .path("configurationtype/details")
-                .queryParam("language", language)
-                .queryParam("identifiers", ids)
-                .request(MediaType.APPLICATION_JSON_TYPE)
+        return configuration
+                .getHeaderAppender()
+                .apply(this.webTarget
+                        .path("configurationtype/details")
+                        .queryParam("language", language)
+                        .queryParam("identifiers", ids)
+                        .request(MediaType.APPLICATION_JSON_TYPE))
                 .rx()
                 .get(ConfigTypeNodes.class);
     }

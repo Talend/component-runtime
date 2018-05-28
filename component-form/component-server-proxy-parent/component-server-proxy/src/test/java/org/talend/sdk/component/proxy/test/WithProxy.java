@@ -33,6 +33,7 @@ import java.net.ServerSocket;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -56,6 +57,7 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.talend.sdk.component.proxy.test.component.Connection1;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -138,6 +140,23 @@ class Network {
     }
 }
 
+@Data
+class Env implements AutoCloseable {
+
+    private final WithProxy.Tacokit tacokit;
+
+    private final TestServer playServer;
+
+    @Override
+    public void close() {
+        try {
+            tacokit.close();
+        } finally {
+            playServer.stop();
+        }
+    }
+}
+
 @Target(TYPE)
 @Retention(RUNTIME)
 @ExtendWith(WithProxy.Extension.class)
@@ -148,55 +167,79 @@ public @interface WithProxy {
         private static final ExtensionContext.Namespace NAMESPACE =
                 ExtensionContext.Namespace.create(Extension.class.getName());
 
+        private static final AtomicReference<Env> ENV = new AtomicReference<>();
+
         @Override
         public void beforeAll(final ExtensionContext extensionContext) {
             final ExtensionContext.Store store = extensionContext.getStore(NAMESPACE);
 
-            final Tacokit tacokit = startTacokitRemoteServer(Network.randomPort());
-            tacokit.prepare();
-            tacokit.launch();
-            store.put(Tacokit.class, tacokit);
+            if (ENV.get() == null) {
+                synchronized (Extension.class) {
+                    if (ENV.get() == null) {
+                        final Tacokit tacokit = startTacokitRemoteServer(Network.randomPort());
+                        tacokit.prepare();
+                        tacokit.launch();
+                        store.put(Tacokit.class, tacokit);
 
-            final TestServer playServer = startPlay(tacokit.port);
-            store.put(TestServer.class, playServer);
+                        final TestServer playServer = startPlay(tacokit.port);
+                        store.put(TestServer.class, playServer);
 
-            Network.ensureStarted(() -> {
-                try {
-                    return IO.slurp(new URL("http://localhost:" + tacokit.port + "/api/v1/environment")).contains(
-                            "\"version\"");
-                } catch (final IOException e) {
-                    return false;
+                        Network.ensureStarted(() -> {
+                            try {
+                                return IO
+                                        .slurp(new URL("http://localhost:" + tacokit.port + "/api/v1/environment"))
+                                        .contains("\"version\"");
+                            } catch (final IOException e) {
+                                return false;
+                            }
+                        });
+
+                        playServer.start();
+                        Network.ensureStarted(() -> {
+                            try {
+                                return IO
+                                        .slurp(new URL("http://localhost:" + playServer.port()
+                                                + "/componentproxy/api/v1/internaltest/ping"))
+                                        .trim()
+                                        .equals("ok");
+                            } catch (final IOException e) {
+                                return false;
+                            }
+                        });
+
+                        final Env env = new Env(tacokit, playServer);
+                        ENV.set(env);
+                        Runtime.getRuntime().addShutdownHook(
+                                new Thread(ENV.get()::close, "proxy-test-servers-shutdown"));
+                    }
                 }
-            });
-
-            playServer.start();
-            Network.ensureStarted(() -> {
-                try {
-                    return IO
-                            .slurp(new URL("http://localhost:" + playServer.port()
-                                    + "/componentproxy/api/v1/internaltest/ping"))
-                            .trim()
-                            .equals("ok");
-                } catch (final IOException e) {
-                    return false;
-                }
-            });
+            }
 
             final Client client = ClientBuilder.newClient().register(new JsonbJaxrsProvider<>());
+            store.put(TestServer.class, ENV.get().getPlayServer());
+            store.put(Tacokit.class, ENV.get().getTacokit());
             store.put(Client.class, client);
             store.put(WebTarget.class,
-                    client.target("http://localhost:" + playServer.port() + "/componentproxy/api/v1"));
+                    client.target("http://localhost:" + ENV.get().getPlayServer().port() + "/componentproxy/api/v1"));
         }
 
         @Override
-        public void afterAll(final ExtensionContext extensionContext) {
-            final ExtensionContext.Store store = extensionContext.getStore(NAMESPACE);
-            ofNullable(store.get(Client.class)).map(Client.class::cast).ifPresent(Client::close);
-            try {
-                ofNullable(store.get(Tacokit.class)).map(Tacokit.class::cast).ifPresent(Tacokit::close);
-            } finally {
-                ofNullable(store.get(TestServer.class)).map(TestServer.class::cast).ifPresent(TestServer::stop);
-            }
+        public void afterAll(ExtensionContext extensionContext) {
+            ofNullable(extensionContext.getStore(NAMESPACE).get(Client.class)).map(Client.class::cast).ifPresent(
+                    Client::close);
+        }
+
+        @Override
+        public boolean supportsParameter(final ParameterContext parameterContext,
+                final ExtensionContext extensionContext) throws ParameterResolutionException {
+            final Class<?> type = parameterContext.getParameter().getType();
+            return extensionContext.getStore(NAMESPACE).get(type) != null;
+        }
+
+        @Override
+        public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext)
+                throws ParameterResolutionException {
+            return extensionContext.getStore(NAMESPACE).get(parameterContext.getParameter().getType());
         }
 
         private TestServer startPlay(final int tacokitPort) {
@@ -212,7 +255,8 @@ public @interface WithProxy {
 
                                 {
                                     put("config.resource", "test/play/conf/application.conf");
-                                    put("talend.component.proxy.targetServerBase",
+                                    put("talend.component.proxy.processing.headers", "Talend-Test=true");
+                                    put("talend.component.proxy.server.base",
                                             "http://localhost:" + tacokitPort + "/api/v1");
                                 }
                             });
@@ -221,19 +265,6 @@ public @interface WithProxy {
 
         private Tacokit startTacokitRemoteServer(final int port) {
             return new Tacokit(port);
-        }
-
-        @Override
-        public boolean supportsParameter(final ParameterContext parameterContext,
-                final ExtensionContext extensionContext) throws ParameterResolutionException {
-            final Class<?> type = parameterContext.getParameter().getType();
-            return Tacokit.class == type || TestServer.class == type || Client.class == type || WebTarget.class == type;
-        }
-
-        @Override
-        public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext)
-                throws ParameterResolutionException {
-            return extensionContext.getStore(NAMESPACE).get(parameterContext.getParameter().getType());
         }
     }
 
