@@ -52,7 +52,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ResponseHeader;
 
-@Api(description = "Configuration endpoint", tags = "configuration, icon")
+@Api(description = "Configuration endpoint", tags = { "configuration", "icon" })
 @ApplicationScoped
 @Path("configuration")
 @Consumes(MediaType.APPLICATION_JSON)
