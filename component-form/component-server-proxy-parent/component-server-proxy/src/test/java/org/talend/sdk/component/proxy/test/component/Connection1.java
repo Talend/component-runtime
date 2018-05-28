@@ -13,9 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Components(family = "TheTestFamily", categories = "Test/Sample")
-@Icon(value = Icon.IconType.BADGE)
 package org.talend.sdk.component.proxy.test.component;
 
-import org.talend.sdk.component.api.component.Components;
-import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.widget.Credential;
+
+@DataStore("Connection-1")
+public class Connection1 {
+
+    @Option
+    private String url;
+
+    @Option
+    private String username;
+
+    @Option
+    @Credential
+    private String password;
+}

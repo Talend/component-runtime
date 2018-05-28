@@ -13,10 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.test.component;
+package org.talend.sdk.component.proxy.model;
 
-import org.talend.sdk.component.api.configuration.type.DataSet;
+import java.util.Map;
 
-@DataSet
-public class TheTestDataSet {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Configurations {
+
+    private Map<String, ConfigType> configurations;
+
+    private Map<String, ProxyErrorPayload> errors;
+
 }

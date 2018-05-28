@@ -15,23 +15,17 @@
  */
 package org.talend.sdk.component.proxy.model;
 
-import java.util.Collection;
-
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class Config {
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProxyErrorPayload {
 
-    private final String id;
+    private String code;
 
-    private final String familyId;
-
-    private final String label;
-
-    private final String familyLabel;
-
-    private final Collection<String> children;
-
-    private final String icon;
+    private String message;
 
 }

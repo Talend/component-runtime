@@ -32,6 +32,13 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>1.5.16</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- API, forced to be delivered -->
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
@@ -125,4 +132,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+  </build>
 </project>

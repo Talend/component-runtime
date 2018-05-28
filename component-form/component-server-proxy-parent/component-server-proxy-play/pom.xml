@@ -73,12 +73,24 @@
           <version>${play2.version}</version>
           <scope>runtime</scope>
         </dependency>
+        <dependency>
+          <groupId>com.typesafe.play</groupId>
+          <artifactId>play-guice_2.12</artifactId>
+          <version>${play2.version}</version>
+          <scope>runtime</scope>
+        </dependency>
+        <dependency>
+          <groupId>javax.annotation</groupId>
+          <artifactId>javax.annotation-api</artifactId>
+          <version>1.3</version>
+          <scope>runtime</scope>
+        </dependency>
       </dependencies>
 
       <build>
         <resources>
           <resource>
-            <directory>conf</directory>
+            <directory>${basedir}/conf</directory>
           </resource>
         </resources>
 

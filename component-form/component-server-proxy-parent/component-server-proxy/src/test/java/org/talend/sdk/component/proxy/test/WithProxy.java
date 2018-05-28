@@ -54,7 +54,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
-import org.talend.sdk.component.proxy.test.component.TheTestDataSet;
+import org.talend.sdk.component.proxy.test.component.Connection1;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -260,7 +260,7 @@ public @interface WithProxy {
             final File jar = new File(m2, "org/talend/test/test-component/1.0.0/test-component-1.0.0.jar");
             jar.getParentFile().mkdirs();
             try (final JarOutputStream out = new JarOutputStream(new FileOutputStream(jar))) {
-                final String packageToInclude = TheTestDataSet.class.getPackage().getName();
+                final String packageToInclude = Connection1.class.getPackage().getName();
                 final String[] pck = packageToInclude.split("\\.");
                 for (int i = 0; i < pck.length; i++) {
                     final String folder = Stream.of(pck).limit(i + 1).collect(joining("/"));
