@@ -16,6 +16,7 @@
 package org.talend.sdk.component.proxy.client;
 
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -35,22 +36,24 @@ public class ComponentClient {
     @Inject
     private ProxyConfiguration configuration;
 
-    public CompletionStage<ComponentIndices> getAllComponents(final String language) {
+    public CompletionStage<ComponentIndices> getAllComponents(final String language,
+            final Function<String, String> placeholderProvider) {
         return configuration
                 .getHeaderAppender()
                 .apply(this.webTarget
                         .path("component/index")
                         .queryParam("language", language)
                         .queryParam("includeIconContent", false)
-                        .request(MediaType.APPLICATION_JSON_TYPE))
+                        .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
                 .rx()
                 .get(ComponentIndices.class);
     }
 
-    public CompletionStage<Response> getFamilyIconById(final String id) {
+    public CompletionStage<Response> getFamilyIconById(final String id,
+            final Function<String, String> placeholderProvider) {
         return configuration
                 .getHeaderAppender()
-                .apply(this.webTarget.path("component/icon/family/" + id).request())
+                .apply(this.webTarget.path("component/icon/family/" + id).request(), placeholderProvider)
                 .rx()
                 .get();
     }

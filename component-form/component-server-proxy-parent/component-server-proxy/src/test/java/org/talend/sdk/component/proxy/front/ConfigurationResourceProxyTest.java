@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.proxy.front;
 
-import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.Proxy;
@@ -43,7 +42,14 @@ class ConfigurationResourceProxyTest {
                                 headers.put(args[0].toString(), args[1].toString());
                             }
                             return proxy;
-                        })));
-        assertEquals(singletonMap("Talend-Test", "true"), headers);
+                        })),
+                k -> "pReplaced");
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("Talend-Test", "true");
+                put("Talend-Replaced", "pReplaced");
+            }
+        }, headers);
     }
 }

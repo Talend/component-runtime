@@ -255,7 +255,9 @@ public @interface WithProxy {
 
                                 {
                                     put("config.resource", "test/play/conf/application.conf");
-                                    put("talend.component.proxy.processing.headers", "Talend-Test=true");
+                                    put("test.replaced", "done");
+                                    put("talend.component.proxy.processing.headers",
+                                            "Talend-Test=true\nTalend-Replaced=${test.replaced}");
                                     put("talend.component.proxy.server.base",
                                             "http://localhost:" + tacokitPort + "/api/v1");
                                 }

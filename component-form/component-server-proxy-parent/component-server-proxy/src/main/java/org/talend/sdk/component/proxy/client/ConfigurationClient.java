@@ -16,6 +16,7 @@
 package org.talend.sdk.component.proxy.client;
 
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -34,26 +35,28 @@ public class ConfigurationClient {
     @Inject
     private ProxyConfiguration configuration;
 
-    public CompletionStage<ConfigTypeNodes> getAllConfigurations(final String language) {
+    public CompletionStage<ConfigTypeNodes> getAllConfigurations(final String language,
+            final Function<String, String> placeholderProvider) {
         return configuration
                 .getHeaderAppender()
                 .apply(this.webTarget
                         .path("configurationtype/index")
                         .queryParam("language", language)
                         .queryParam("lightPayload", true)
-                        .request(MediaType.APPLICATION_JSON_TYPE))
+                        .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
                 .rx()
                 .get(ConfigTypeNodes.class);
     }
 
-    public CompletionStage<ConfigTypeNodes> getDetails(final String language, final String[] ids) {
+    public CompletionStage<ConfigTypeNodes> getDetails(final String language, final String[] ids,
+            final Function<String, String> placeholderProvider) {
         return configuration
                 .getHeaderAppender()
                 .apply(this.webTarget
                         .path("configurationtype/details")
                         .queryParam("language", language)
                         .queryParam("identifiers", ids)
-                        .request(MediaType.APPLICATION_JSON_TYPE))
+                        .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
                 .rx()
                 .get(ConfigTypeNodes.class);
     }

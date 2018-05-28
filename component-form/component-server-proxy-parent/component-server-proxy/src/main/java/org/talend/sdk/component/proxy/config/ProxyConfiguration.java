@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.proxy.config;
 
+import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.NONE;
@@ -23,10 +24,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -57,12 +59,16 @@ public class ProxyConfiguration {
     private String headers;
 
     @Getter
-    private Function<Invocation.Builder, Invocation.Builder> headerAppender;
+    private BiFunction<Invocation.Builder, Function<String, String>, Invocation.Builder> headerAppender;
 
     @PostConstruct
     private void init() {
+        processHeaders();
+    }
+
+    private void processHeaders() {
         if (headers == null || headers.isEmpty()) {
-            headerAppender = identity();
+            headerAppender = (a, b) -> a;
         } else {
             final Properties properties = new Properties();
             try (final Reader reader = new StringReader(headers.trim())) {
@@ -70,18 +76,44 @@ public class ProxyConfiguration {
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }
-            final Map<String, Supplier<String>> providers =
+            final Map<String, Function<Function<String, String>, String>> providers =
                     properties.stringPropertyNames().stream().collect(toMap(identity(), e -> {
                         final String value = properties.getProperty(e);
                         if (value.contains("${") && value.contains("}")) {
-                            return () -> value; // todo
+                            final Map<String, String> toReplace = new HashMap<>();
+                            int lastEnd = -1;
+                            do {
+                                final int start = value.indexOf("${", lastEnd);
+                                if (start < 0) {
+                                    break;
+                                }
+                                final int end = value.indexOf('}', start);
+                                if (end < start) {
+                                    break;
+                                }
+
+                                toReplace.put(value.substring(start, end + 1),
+                                        value.substring(start + "${".length(), end));
+                                lastEnd = end;
+                            } while (lastEnd > 0);
+                            if (!toReplace.isEmpty()) {
+                                return placeholders -> {
+                                    String output = value;
+                                    for (final Map.Entry<String, String> placeholder : toReplace.entrySet()) {
+                                        output = output.replace(placeholder.getKey(),
+                                                ofNullable(placeholders.apply(placeholder.getValue())).orElse(""));
+                                    }
+                                    return output;
+                                };
+                            }
                         }
-                        return () -> value;
+                        return ignored -> value;
                     }));
-            headerAppender = t -> {
-                Invocation.Builder out = t;
-                for (final Map.Entry<String, Supplier<String>> header : providers.entrySet()) {
-                    out = out.header(header.getKey(), header.getValue().get());
+            headerAppender = (builder, placeholders) -> {
+                Invocation.Builder out = builder;
+                for (final Map.Entry<String, Function<Function<String, String>, String>> header : providers
+                        .entrySet()) {
+                    out = out.header(header.getKey(), header.getValue().apply(placeholders));
                 }
                 return out;
             };

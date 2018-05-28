@@ -44,6 +44,7 @@ import org.talend.sdk.component.proxy.model.ConfigType;
 import org.talend.sdk.component.proxy.model.Configurations;
 import org.talend.sdk.component.proxy.service.ConfigurationService;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
+import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
@@ -74,6 +75,9 @@ public class ConfigurationResourceProxy {
     @Inject
     private ErrorProcessor errorProcessor;
 
+    @Inject
+    private PlaceholderProviderFactory placeholderProviderFactory;
+
     @ApiOperation(value = "Return all the available root configuration (Data store like) from the component server",
             notes = "Every configuration has an icon. "
                     + "In the response an icon key is returned. this icon key can be one of the bundled icons or a custom one. "
@@ -86,7 +90,8 @@ public class ConfigurationResourceProxy {
     @Path("roots")
     public void getRootConfig(@Suspended final AsyncResponse response, @Context final HttpServletRequest request) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
-        withNodesAndComponents(language,
+        final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
+        withNodesAndComponents(language, placeholderProvider,
                 (nodes, components) -> configurationService.getRootConfiguration(nodes, components))
                         .handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
     }
@@ -106,9 +111,10 @@ public class ConfigurationResourceProxy {
         }
 
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
+        final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
         configurationClient
-                .getDetails(language, ids)
-                .thenCompose(configs -> withNodesAndComponents(language,
+                .getDetails(language, ids, placeholderProvider)
+                .thenCompose(configs -> withNodesAndComponents(language, placeholderProvider,
                         (nodes, components) -> createConfigurations(configs, nodes, components)))
                 .handle((detail, throwable) -> errorProcessor.handleResponse(response, detail, throwable));
     }
@@ -119,8 +125,9 @@ public class ConfigurationResourceProxy {
                     description = SWAGGER_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("icon/{id}")
-    public void getConfigurationIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id) {
-        componentClient.getFamilyIconById(id).handle(
+    public void getConfigurationIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id,
+            @Context final HttpServletRequest request) {
+        componentClient.getFamilyIconById(id, placeholderProviderFactory.newProvider(request)).handle(
                 (icon, throwable) -> errorProcessor.handleResponse(response, icon, throwable));
     }
 
@@ -135,9 +142,12 @@ public class ConfigurationResourceProxy {
     }
 
     private <T> CompletionStage<T> withNodesAndComponents(final String language,
+            final Function<String, String> placeholderProvider,
             final BiFunction<ConfigTypeNodes, ComponentIndices, T> callback) {
-        final CompletionStage<ConfigTypeNodes> allConfigurations = configurationClient.getAllConfigurations(language);
-        final CompletionStage<ComponentIndices> allComponents = componentClient.getAllComponents(language);
+        final CompletionStage<ConfigTypeNodes> allConfigurations =
+                configurationClient.getAllConfigurations(language, placeholderProvider);
+        final CompletionStage<ComponentIndices> allComponents =
+                componentClient.getAllComponents(language, placeholderProvider);
         return allConfigurations
                 .thenCompose(nodes -> allComponents.thenApply(components -> callback.apply(nodes, components)));
     }
