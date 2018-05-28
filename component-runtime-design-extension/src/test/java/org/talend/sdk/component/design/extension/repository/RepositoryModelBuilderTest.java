@@ -20,12 +20,14 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.apache.xbean.asm6.ClassReader.EXPAND_FRAMES;
 import static org.apache.xbean.asm6.ClassWriter.COMPUTE_FRAMES;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -62,6 +64,26 @@ import org.talend.test.WrappingStore;
 
 @WithTemporaryFolder
 class RepositoryModelBuilderTest {
+
+    @Test
+    void complexTree() {
+        try (final ComponentManager manager = new ComponentManager(new File("target/foo"), "deps.txt", null)) {
+            final String plugin = manager.addPlugin(jarLocation(RepositoryModelBuilderTest.class).getAbsolutePath());
+            final RepositoryModel model =
+                    manager.findPlugin(plugin).orElseThrow(IllegalArgumentException::new).get(RepositoryModel.class);
+
+            final Family theTestFamily = model
+                    .getFamilies()
+                    .stream()
+                    .filter(f -> f.getMeta().getName().equals("TheTestFamily"))
+                    .findFirst()
+                    .orElseThrow(IllegalArgumentException::new);
+            assertEquals(3, theTestFamily.getConfigs().size(),
+                    theTestFamily.getConfigs().stream().map(c -> c.getKey().getConfigName()).collect(joining(", ")));
+            theTestFamily.getConfigs().forEach(it -> assertTrue(it.getKey().getConfigName().startsWith("Connection-"),
+                    it.getKey().getConfigName()));
+        }
+    }
 
     @Test
     void notRootConfig() {

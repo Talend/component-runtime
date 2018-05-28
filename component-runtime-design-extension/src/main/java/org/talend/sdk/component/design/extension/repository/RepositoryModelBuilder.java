@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -46,20 +47,10 @@ public class RepositoryModelBuilder {
                         .filter(RepositoryModelBuilder::isConfiguration)
                         .map(p -> createConfig(services, p, familyMeta.getName(), familyMeta.getIcon(),
                                 migrationHandlerFactory))
-                        .collect(toMap(c -> c.getMeta().getJavaType(), identity(), (config1, config2) -> config1))
+                        .collect(toMap(c -> c.getMeta().getJavaType(), identity(), (config1, config2) -> config1,
+                                LinkedHashMap::new))
                         .values()
                         .stream()
-                        .sorted((o1, o2) -> {
-                            if (toParamStream(o1.getMeta().getNestedParameters())
-                                    .anyMatch(p -> p.getJavaType() == o2.getMeta().getJavaType())) {
-                                return 1;
-                            }
-                            if (toParamStream(o2.getMeta().getNestedParameters())
-                                    .anyMatch(p -> p.getJavaType() == o1.getMeta().getJavaType())) {
-                                return -1;
-                            }
-                            return o1.getMeta().getPath().compareTo(o2.getMeta().getPath());
-                        })
                         .collect(() -> {
                             final Family family = new Family();
                             family.setId(IdGenerator.get(familyMeta.getName()));
@@ -90,10 +81,10 @@ public class RepositoryModelBuilder {
     }
 
     private Stream<ParameterMeta> flatten(final ParameterMeta meta) {
-        if (meta.getNestedParameters() == null) {
+        if (meta.getNestedParameters() == null || meta.getNestedParameters().isEmpty()) {
             return Stream.of(meta);
         }
-        return Stream.concat(Stream.of(meta), meta.getNestedParameters().stream().flatMap(this::flatten));
+        return Stream.concat(meta.getNestedParameters().stream().flatMap(this::flatten), Stream.of(meta));
     }
 
     private Config createConfig(final ComponentManager.AllServices services, final ParameterMeta config,

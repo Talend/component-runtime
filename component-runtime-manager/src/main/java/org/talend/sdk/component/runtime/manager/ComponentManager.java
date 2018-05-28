@@ -1108,6 +1108,7 @@ public class ComponentManager implements AutoCloseable {
             Stream
                     .of(PartitionMapper.class, Processor.class, Emitter.class)
                     .flatMap(a -> finder.findAnnotatedClasses(a).stream())
+                    .filter(t -> Modifier.isPublic(t.getModifiers()))
                     .forEach(type -> {
                         final Components components = findComponentsConfig(componentDefaults, type,
                                 container.getLoader(), Components.class, DEFAULT_COMPONENT);
