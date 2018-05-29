@@ -45,7 +45,7 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
 
     @PostConstruct
     private void init() {
-        replaceException = !"false".equalsIgnoreCase(configuration.defaultExceptionMessage());
+        replaceException = !"false".equalsIgnoreCase(configuration.getDefaultExceptionMessage());
     }
 
     @Override
@@ -57,7 +57,7 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
         return Response
                 .status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
-                        replaceException ? configuration.defaultExceptionMessage() : exception.getMessage()))
+                        replaceException ? configuration.getDefaultExceptionMessage() : exception.getMessage()))
                 .type(WILDCARD_TYPE)
                 .build();
     }

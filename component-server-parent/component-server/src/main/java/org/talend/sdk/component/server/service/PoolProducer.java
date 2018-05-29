@@ -38,13 +38,13 @@ public class PoolProducer {
     public ExecutorService executorService(final ComponentServerConfiguration configuration,
             final HttpTracing tracing) {
         return tracing.tracing().currentTraceContext().executorService(Executors.newFixedThreadPool(
-                configuration.executionPoolSize(),
+                configuration.getExecutionPoolSize(),
                 new BasicThreadFactory.Builder().namingPattern("talend-component-server-%d").daemon(false).build()));
     }
 
     public void release(@Disposes final ExecutorService executorService,
             final ComponentServerConfiguration configuration) {
-        final long timeout = Duration.parse(configuration.executionPoolShutdownTimeout()).toMillis();
+        final long timeout = Duration.parse(configuration.getExecutionPoolShutdownTimeout()).toMillis();
         executorService.shutdown();
         try {
             if (!executorService.awaitTermination(timeout, MILLISECONDS)) {

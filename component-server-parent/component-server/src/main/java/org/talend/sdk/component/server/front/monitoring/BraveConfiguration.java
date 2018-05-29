@@ -19,7 +19,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
-import org.apache.deltaspike.core.api.config.ConfigProperty;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
 import brave.Tracing;
@@ -50,21 +50,22 @@ public class BraveConfiguration {
         return HttpTracing
                 .newBuilder(Tracing
                         .newBuilder()
-                        .localServiceName(configuration.serviceName())
-                        .sampler(CountingSampler.create(toActualRate(configuration.samplerRate())))
+                        .localServiceName(configuration.getServiceName())
+                        .sampler(CountingSampler.create(toActualRate(configuration.getSamplerRate())))
                         .spanReporter(createReporter(configuration))
                         .build())
                 .serverSampler(HttpRuleSampler
                         .newBuilder()
-                        .addRule("GET", "/api/v1/environment", toActualRate(configuration.samplerEnvironmentRate()))
+                        .addRule("GET", "/api/v1/environment", toActualRate(configuration.getSamplerEnvironmentRate()))
                         .addRule("GET", "/api/v1/configurationtype",
-                                toActualRate(configuration.samplerConfigurationTypeRate()))
-                        .addRule("GET", "/api/v1/component", toActualRate(configuration.samplerComponentRate()))
-                        .addRule("POST", "/api/v1/component", toActualRate(configuration.samplerComponentRate()))
-                        .addRule("POST", "/api/v1/execution", configuration.samplerExecutionRate())
-                        .addRule("GET", "/api/v1/action", toActualRate(configuration.samplerActionRate()))
-                        .addRule("POST", "/api/v1/action", toActualRate(configuration.samplerActionRate()))
-                        .addRule("GET", "/api/v1/documentation", toActualRate(configuration.samplerDocumentationRate()))
+                                toActualRate(configuration.getSamplerConfigurationTypeRate()))
+                        .addRule("GET", "/api/v1/component", toActualRate(configuration.getSamplerComponentRate()))
+                        .addRule("POST", "/api/v1/component", toActualRate(configuration.getSamplerComponentRate()))
+                        .addRule("POST", "/api/v1/execution", configuration.getSamplerExecutionRate())
+                        .addRule("GET", "/api/v1/action", toActualRate(configuration.getSamplerActionRate()))
+                        .addRule("POST", "/api/v1/action", toActualRate(configuration.getSamplerActionRate()))
+                        .addRule("GET", "/api/v1/documentation",
+                                toActualRate(configuration.getSamplerDocumentationRate()))
                         .build())
                 .clientSampler(HttpRuleSampler.newBuilder().build())
                 .build();
@@ -81,7 +82,7 @@ public class BraveConfiguration {
         if (!tracingOn) {
             return Reporter.NOOP;
         }
-        final String reporter = configuration.reporter();
+        final String reporter = configuration.getReporter();
         final String type = reporter.contains("(") ? reporter.substring(0, reporter.indexOf('(')) : reporter;
         switch (type) {
         case "noop":

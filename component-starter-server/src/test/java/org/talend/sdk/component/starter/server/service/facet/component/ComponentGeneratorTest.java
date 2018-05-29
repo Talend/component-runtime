@@ -45,7 +45,7 @@ import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 
 @MonoMeecrowaveConfig
-public class ComponentGeneratorTest {
+class ComponentGeneratorTest {
 
     @Inject
     private ComponentGenerator generator;
@@ -54,7 +54,7 @@ public class ComponentGeneratorTest {
             "src/test/resources", "src/main/webapp", "pom.xml", "some pom", "target", emptyList());
 
     @Test
-    public void source() {
+    void source() {
         final Set<ProjectRequest.SourceConfiguration> sources = singleton(new ProjectRequest.SourceConfiguration(
                 "mycomp", "", false,
                 new ProjectRequest.DataStructure(singleton(new ProjectRequest.Entry("name", "string", null))),

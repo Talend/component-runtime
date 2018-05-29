@@ -87,7 +87,7 @@ public class ComponentManagerService {
 
     @PostConstruct
     private void init() {
-        ofNullable(configuration.mavenRepository())
+        ofNullable(configuration.getMavenRepository())
                 .ifPresent(repo -> System.setProperty("talend.component.manager.m2.repository", repo));
 
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
@@ -98,8 +98,8 @@ public class ComponentManagerService {
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
-        ofNullable(configuration.componentCoordinates()).orElse(emptyList()).forEach(this::deploy);
-        ofNullable(configuration.componentRegistry()).map(File::new).filter(File::exists).ifPresent(registry -> {
+        ofNullable(configuration.getComponentCoordinates()).orElse(emptyList()).forEach(this::deploy);
+        ofNullable(configuration.getComponentRegistry()).map(File::new).filter(File::exists).ifPresent(registry -> {
             final Properties properties = new Properties();
             try (final InputStream is = new FileInputStream(registry)) {
                 properties.load(is);
@@ -110,7 +110,7 @@ public class ComponentManagerService {
                     .stringPropertyNames()
                     .stream()
                     .map(properties::getProperty)
-                    .filter(gav -> !configuration.componentCoordinates().contains(gav))
+                    .filter(gav -> !configuration.getComponentCoordinates().contains(gav))
                     .forEach(this::deploy);
         });
     }

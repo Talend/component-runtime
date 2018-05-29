@@ -128,7 +128,7 @@ public class ExecutionResource {
             @QueryParam("size") @DefaultValue("50") final long size, final Map<String, String> configuration) {
         final long maxSize = Math.min(size, MAX_RECORDS);
         response.setTimeoutHandler(asyncResponse -> log.warn("Timeout on dataset retrieval"));
-        response.setTimeout(appConfiguration.datasetRetrieverTimeout(), SECONDS);
+        response.setTimeout(appConfiguration.getDatasetRetrieverTimeout(), SECONDS);
         executorService.submit(() -> {
             final Optional<Mapper> mapperOptional =
                     manager.findMapper(family, component, getConfigComponentVersion(configuration), configuration);
@@ -190,7 +190,7 @@ public class ExecutionResource {
             @PathParam("family") final String family, @PathParam("component") final String component,
             @QueryParam("group-size") @DefaultValue("50") final long chunkSize, final InputStream stream) {
         response.setTimeoutHandler(asyncResponse -> log.warn("Timeout on dataset retrieval"));
-        response.setTimeout(appConfiguration.datasetRetrieverTimeout(), SECONDS);
+        response.setTimeout(appConfiguration.getDatasetRetrieverTimeout(), SECONDS);
         executorService.submit(() -> {
             Processor processor = null;
             final WriteStatistics statistics = new WriteStatistics(0);

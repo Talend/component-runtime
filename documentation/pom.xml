@@ -50,6 +50,12 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
+      <version>${geronimo-jaxrs.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-api</artifactId>
       <scope>provided</scope>
@@ -259,6 +265,16 @@
         </executions>
         <dependencies>
           <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.7</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
+            <version>${geronimo-jaxrs.version}</version>
+          </dependency>
+          <dependency>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctorj</artifactId>
             <version>${asciidoctorj.version}</version>
@@ -283,11 +299,6 @@
             <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-api</artifactId>
             <version>${component-api.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.github.swagger2markup</groupId>
-            <artifactId>swagger2markup</artifactId>
-            <version>${swagger2markup.version}</version>
           </dependency>
           <dependency>
             <groupId>org.talend.sdk.component</groupId>

@@ -20,44 +20,73 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Vetoed;
 
-import org.apache.deltaspike.core.api.config.Source;
-import org.apache.deltaspike.core.impl.config.MapConfigSource;
+import org.eclipse.microprofile.config.spi.ConfigSource;
 
-@Source
-@ApplicationScoped
-public class ScmConfigurationLoader extends MapConfigSource {
+@Vetoed
+public class ScmConfigurationLoader implements ConfigSource {
 
-    public ScmConfigurationLoader() {
-        super(new HashMap<>());
-    }
+    private final Map<String, String> map = new HashMap<>();
 
-    @PostConstruct
-    private void init() {
-        try (final InputStream stream =
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("TALEND-INF/git.properties")) {
-            final Properties properties = new Properties() {
+    private volatile boolean init = false;
 
-                {
-                    try {
-                        load(stream);
-                    } catch (final IOException e) {
-                        throw new IllegalStateException(e);
+    private void ensureInit() {
+        if (init) {
+            return;
+        }
+        synchronized (this) {
+            if (init) {
+                return;
+            }
+            try (final InputStream stream =
+                    Thread.currentThread().getContextClassLoader().getResourceAsStream("TALEND-INF/git.properties")) {
+                final Properties properties = new Properties() {
+
+                    {
+                        try {
+                            load(stream);
+                        } catch (final IOException e) {
+                            throw new IllegalStateException(e);
+                        }
                     }
-                }
-            };
-            properties.stringPropertyNames().stream().collect(this::getProperties,
-                    (m, k) -> m.put(k, properties.getProperty(k)), Map::putAll);
-        } catch (final IOException e) {
-            throw new IllegalStateException(e);
+                };
+                properties.stringPropertyNames().stream().collect(() -> map,
+                        (m, k) -> m.put(k, properties.getProperty(k)), Map::putAll);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+            init = true;
         }
     }
 
     @Override
-    public String getConfigName() {
+    public Map<String, String> getProperties() {
+        ensureInit();
+        return map;
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        ensureInit();
+        return map.keySet();
+    }
+
+    @Override
+    public int getOrdinal() {
+        return 1000;
+    }
+
+    @Override
+    public String getValue(final String propertyName) {
+        ensureInit();
+        return map.get(propertyName);
+    }
+
+    @Override
+    public String getName() {
         return "component-scm-configuration";
     }
 }

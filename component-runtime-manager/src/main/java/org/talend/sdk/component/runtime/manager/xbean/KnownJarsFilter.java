@@ -281,6 +281,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("meecrowave-");
             add("mesos-");
             add("metrics-");
+            add("microprofile-config-api-");
             add("mimepull-");
             add("mina-");
             add("minlog");

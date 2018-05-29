@@ -149,9 +149,9 @@ public class ProjectResource {
         final Client client = ClientBuilder.newClient();
         try {
             client
-                    .target(starterConfiguration.githubBaseApi())
-                    .path(useOrganization ? starterConfiguration.githubOrgCreateProjectPath()
-                            : starterConfiguration.githubCreateProjectPath())
+                    .target(starterConfiguration.getGithubBaseApi())
+                    .path(useOrganization ? starterConfiguration.getGithubOrgCreateProjectPath()
+                            : starterConfiguration.getGithubCreateProjectPath())
                     .resolveTemplate("name", organization)
                     .request(APPLICATION_JSON_TYPE)
                     .header("Accept", "application/vnd.github.v3+json")
@@ -160,7 +160,7 @@ public class ProjectResource {
                                     .getEncoder()
                                     .encodeToString((githubConfig.getUsername() + ':' + githubConfig.getPassword())
                                             .getBytes(StandardCharsets.UTF_8)))
-                    .method(starterConfiguration.githubCreateProjectMethod(),
+                    .method(starterConfiguration.getGithubCreateProjectMethod(),
                             entity(new CreateProjectRequest(project.getModel().getArtifact(),
                                     project.getModel().getDescription(), false), APPLICATION_JSON_TYPE),
                             CreateProjectResponse.class);
@@ -170,7 +170,7 @@ public class ProjectResource {
 
         // clone the project in a temp repo
         final File workDir = new File(
-                starterConfiguration.workDir().replace("${java.io.tmpdir}", System.getProperty("java.io.tmpdir")),
+                starterConfiguration.getWorkDir().replace("${java.io.tmpdir}", System.getProperty("java.io.tmpdir")),
                 githubConfig.getRepository() + "_" + System.nanoTime());
         if (!workDir.mkdirs()) {
             throw new WebApplicationException(Response
@@ -185,13 +185,12 @@ public class ProjectResource {
         try (final Git git = Git
                 .cloneRepository()
                 .setBranch("master")
-                .setURI(String.format(starterConfiguration.githubRepository(), organization,
+                .setURI(String.format(starterConfiguration.getGithubRepository(), organization,
                         githubConfig.getRepository()))
                 .setDirectory(workDir)
                 .setProgressMonitor(NullProgressMonitor.INSTANCE)
                 .setCredentialsProvider(credentialsProvider)
                 .call()) {
-
             { // copy the zip files into the project temporary folder
                 try (final ZipInputStream file = new ZipInputStream(new ByteArrayInputStream(zip.toByteArray()))) {
                     ZipEntry entry;

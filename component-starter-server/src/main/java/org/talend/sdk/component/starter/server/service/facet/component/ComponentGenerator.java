@@ -414,7 +414,7 @@ public class ComponentGenerator {
 
     private boolean isCredential(final String name, final String type) {
         return name != null && !name.isEmpty() && "string".equals(type)
-                && config.dictionaryCredentials().stream().anyMatch(name::contains);
+                && config.getDictionaryCredentials().stream().anyMatch(name::contains);
     }
 
     @Data

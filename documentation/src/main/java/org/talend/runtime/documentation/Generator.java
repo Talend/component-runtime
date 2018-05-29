@@ -68,8 +68,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.deltaspike.core.api.config.ConfigProperty;
-import org.apache.deltaspike.core.api.config.Configuration;
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.apache.johnzon.mapper.Mapper;
 import org.apache.johnzon.mapper.MapperBuilder;
@@ -452,7 +450,7 @@ public class Generator {
         return ref.equals(name) || ref.equals(name + ".0");
     }
 
-    private static void generatedServerConfiguration(final File generatedDir) throws MalformedURLException {
+    private static void generatedServerConfiguration(final File generatedDir) {
         final File file = new File(generatedDir, "generated_server-configuration.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println();
@@ -461,27 +459,9 @@ public class Generator {
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
             stream.println("|Key|Description|Default");
-            final File api = jarLocation(ComponentServerConfiguration.class);
-            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            final AnnotationFinder finder = new AnnotationFinder(
-                    api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder
-                    .findAnnotatedClasses(Configuration.class)
-                    .stream()
-                    .flatMap(c -> Stream.of(c.getMethods()))
-                    .map(method -> {
-                        final ConfigProperty configProperty = method.getAnnotation(ConfigProperty.class);
-                        final String name = method.getDeclaringClass().getAnnotation(Configuration.class).prefix()
-                                + method.getAnnotation(ConfigProperty.class).name();
-                        return "|" + name + "|" + method.getAnnotation(Documentation.class).value() + "|"
-                                + (ConfigProperty.NULL.equalsIgnoreCase(configProperty.defaultValue()) ? "-"
-                                        : configProperty.defaultValue());
-                    })
-                    .sorted()
-                    .forEach(stream::println);
+            generateConfigTableContent(stream, ComponentServerConfiguration.class);
             stream.println("|====");
             stream.println();
-
         }
     }
 
@@ -496,40 +476,44 @@ public class Generator {
             stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
             stream.println("|====");
             stream.println("|Key|Description|Default");
-            Stream
-                    .of(ProxyConfiguration.class.getDeclaredFields())
-                    .filter(field -> field
-                            .isAnnotationPresent(org.eclipse.microprofile.config.inject.ConfigProperty.class))
-                    .map(field -> {
-                        final org.eclipse.microprofile.config.inject.ConfigProperty configProperty =
-                                field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class);
-                        final String name =
-                                field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class).name();
-                        return "|" + name + "|"
-                                + Stream
-                                        .of(field.getDeclaredAnnotations())
-                                        .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
-                                        .map(a -> {
-                                            try {
-                                                return a.annotationType().getMethod("value").invoke(a).toString();
-                                            } catch (final IllegalAccessException | InvocationTargetException
-                                                    | NoSuchMethodException e) {
-                                                return "-";
-                                            }
-                                        })
-                                        .findFirst()
-                                        .orElse("-")
-                                + "|"
-                                + (org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE
-                                        .equalsIgnoreCase(configProperty.defaultValue()) ? "-"
-                                                : configProperty.defaultValue());
-                    })
-                    .sorted()
-                    .forEach(stream::println);
+            final Class<ProxyConfiguration> configClass = ProxyConfiguration.class;
+            generateConfigTableContent(stream, configClass);
             stream.println("|====");
             stream.println();
-
         }
+    }
+
+    private static void generateConfigTableContent(final PrintStream stream, final Class<?>... configClass) {
+        Stream
+                .of(configClass)
+                .flatMap(c -> Stream.of(c.getDeclaredFields()))
+                .filter(field -> field.isAnnotationPresent(org.eclipse.microprofile.config.inject.ConfigProperty.class))
+                .map(field -> {
+                    final org.eclipse.microprofile.config.inject.ConfigProperty configProperty =
+                            field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class);
+                    final String name =
+                            field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class).name();
+                    return "|" + name + "|"
+                            + Stream
+                                    .of(field.getDeclaredAnnotations())
+                                    .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
+                                    .map(a -> {
+                                        try {
+                                            return a.annotationType().getMethod("value").invoke(a).toString();
+                                        } catch (final IllegalAccessException | InvocationTargetException
+                                                | NoSuchMethodException e) {
+                                            return "-";
+                                        }
+                                    })
+                                    .findFirst()
+                                    .orElse("-")
+                            + "|"
+                            + (org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE
+                                    .equalsIgnoreCase(configProperty.defaultValue()) ? "-"
+                                            : configProperty.defaultValue());
+                })
+                .sorted()
+                .forEach(stream::println);
     }
 
     private static void generatedActions(final File generatedDir) throws Exception {

@@ -92,7 +92,7 @@
     <dependency>
       <groupId>org.eclipse.microprofile.config</groupId>
       <artifactId>microprofile-config-api</artifactId>
-      <version>1.2</version>
+      <version>${microprofile-config-api.version}</version>
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>

@@ -39,7 +39,7 @@ public class DocumentationToggle implements Filter {
     @Override
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
             final FilterChain filterChain) throws IOException, ServletException {
-        if (configuration.supportsDocumentation()) {
+        if (configuration.isSupportsDocumentation()) {
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             final HttpServletResponse response = HttpServletResponse.class.cast(servletResponse);

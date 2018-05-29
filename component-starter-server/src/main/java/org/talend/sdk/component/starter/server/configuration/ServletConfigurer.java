@@ -57,7 +57,8 @@ public class ServletConfigurer implements ServletContainerInitializer {
         @Override
         public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
                 final FilterChain filterChain) throws IOException, ServletException {
-            HttpServletResponse.class.cast(servletResponse).addHeader("Content-Security-Policy", configuration.csp());
+            HttpServletResponse.class.cast(servletResponse).addHeader("Content-Security-Policy",
+                    configuration.getCsp());
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }

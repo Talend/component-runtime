@@ -32,7 +32,7 @@ import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
-import org.apache.deltaspike.core.api.config.ConfigProperty;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.sdk.component.starter.server.service.event.CreateProject;
@@ -78,19 +78,19 @@ public class StatisticService {
         private StatisticService statistics;
 
         @Inject
-        @ConfigProperty(name = "statistics.threads", defaultValue = "8")
+        @ConfigProperty(name = "talend.component.starter.statistics.threads", defaultValue = "8")
         private Integer threads;
 
         @Inject
-        @ConfigProperty(name = "statistics.retries", defaultValue = "3")
+        @ConfigProperty(name = "talend.component.starter.statistics.retries", defaultValue = "3")
         private Integer retries;
 
         @Inject
-        @ConfigProperty(name = "statistics.retry-sleep", defaultValue = "250")
+        @ConfigProperty(name = "talend.component.starter.statistics.retry-sleep", defaultValue = "250")
         private Integer retrySleep;
 
         @Inject
-        @ConfigProperty(name = "statistics.shutdown-timeout", defaultValue = "50000")
+        @ConfigProperty(name = "talend.component.starter.statistics.shutdown-timeout", defaultValue = "50000")
         private Integer shutdownTimeout;
 
         private ExecutorService executorService;

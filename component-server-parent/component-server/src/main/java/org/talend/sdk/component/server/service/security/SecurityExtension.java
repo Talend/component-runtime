@@ -81,11 +81,11 @@ public class SecurityExtension implements Extension {
                 beanManager.getReference(beanManager.resolve(beanManager.getBeans(ComponentServerConfiguration.class)),
                         ComponentServerConfiguration.class, beanManager.createCreationalContext(null)));
 
-        final String connectionHandler = configuration.securityConnectionHandler();
+        final String connectionHandler = configuration.getSecurityConnectionHandler();
         onConnectionMtd = ofNullable(onConnectionObservers.get(connectionHandler))
                 .orElseThrow(() -> new IllegalArgumentException("No handler '" + connectionHandler + "'"));
 
-        final String commandHandler = configuration.securityCommandHandler();
+        final String commandHandler = configuration.getSecurityCommandHandler();
         onCommandMtd = ofNullable(onCommandObservers.get(commandHandler))
                 .orElseThrow(() -> new IllegalArgumentException("No handler '" + commandHandler + "'"));
 

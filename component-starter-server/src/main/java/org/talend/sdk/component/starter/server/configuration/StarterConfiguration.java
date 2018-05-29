@@ -18,36 +18,49 @@ package org.talend.sdk.component.starter.server.configuration;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
-import org.apache.deltaspike.core.api.config.ConfigProperty;
-import org.apache.deltaspike.core.api.config.Configuration;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import lombok.Getter;
+
+@Getter
 @ApplicationScoped
-@Configuration(prefix = "talend.component.starter.")
-public interface StarterConfiguration {
+public class StarterConfiguration {
 
-    @ConfigProperty(name = "dictionary.credentials", defaultValue = "password;passwd;pass;credential;token;secret",
-            converter = ConfigurationConverters.SetConverter.class)
-    Set<String> dictionaryCredentials();
+    @Inject
+    @ConfigProperty(name = "dictionary.credentials", defaultValue = "password,passwd,pass,credential,token,secret")
+    private Set<String> dictionaryCredentials;
 
-    @ConfigProperty(name = "work.dir", defaultValue = "${java.io.tmpdir}")
-    String workDir();
+    @Inject
+    @ConfigProperty(name = "talend.component.starter.talend.component.starter.work.dir",
+            defaultValue = "${java.io.tmpdir}")
+    private String workDir;
 
-    @ConfigProperty(name = "github.repository.pattern", defaultValue = "https://github.com/%s/%s")
-    String githubRepository();
+    @Inject
+    @ConfigProperty(name = "talend.component.starter.github.repository.pattern",
+            defaultValue = "https://github.com/%s/%s")
+    private String githubRepository;
 
-    @ConfigProperty(name = "github.api.base", defaultValue = "https://api.github.com")
-    String githubBaseApi();
+    @Inject
+    @ConfigProperty(name = "talend.component.starter.github.api.base", defaultValue = "https://api.github.com")
+    private String githubBaseApi;
 
-    @ConfigProperty(name = "github.api.project.user.create.path", defaultValue = "/user/repos")
-    String githubCreateProjectPath();
+    @Inject
+    @ConfigProperty(name = "talend.component.starter.github.api.project.user.create.path", defaultValue = "/user/repos")
+    private String githubCreateProjectPath;
 
-    @ConfigProperty(name = "github.api.project.org.create.path", defaultValue = "/orgs/{name}/repos")
-    String githubOrgCreateProjectPath();
+    @Inject
+    @ConfigProperty(name = "talend.component.starter.github.api.project.org.create.path",
+            defaultValue = "/orgs/{name}/repos")
+    private String githubOrgCreateProjectPath;
 
-    @ConfigProperty(name = "github.api.project.create.method", defaultValue = "POST")
-    String githubCreateProjectMethod();
+    @Inject
+    @ConfigProperty(name = "talend.component.starter.github.api.project.create.method", defaultValue = "POST")
+    private String githubCreateProjectMethod;
 
-    @ConfigProperty(name = "security.csp", defaultValue = "default-src 'self' data: ; frame-ancestors 'none'")
-    String csp();
+    @Inject
+    @ConfigProperty(name = "talend.component.starter.security.csp",
+            defaultValue = "default-src 'self' data: ; frame-ancestors 'none'")
+    private String csp;
 }
