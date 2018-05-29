@@ -38,13 +38,13 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 
 import org.talend.sdk.component.form.api.UiSpecService;
-import org.talend.sdk.component.proxy.client.ComponentClient;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.UiNode;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
 import org.talend.sdk.component.proxy.service.ModelEnricherService;
 import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
+import org.talend.sdk.component.proxy.service.client.ComponentClient;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
@@ -86,7 +86,6 @@ public class ComponentResource {
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("/")
     public void listComponent(@Suspended final AsyncResponse response, @Context final HttpServletRequest request) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
@@ -108,7 +107,7 @@ public class ComponentResource {
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("/{id}/form")
+    @Path("{id}/form")
     public void getComponentForm(@Suspended final AsyncResponse response, @Context final HttpServletRequest request,
             @PathParam("id") final String id) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
@@ -123,7 +122,7 @@ public class ComponentResource {
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("/{id}/icon")
+    @Path("{id}/icon")
     public void getComponentIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id,
             @Context final HttpServletRequest request) {
         componentClient.getComponentIconById(placeholderProviderFactory.newProvider(request), id).handle(

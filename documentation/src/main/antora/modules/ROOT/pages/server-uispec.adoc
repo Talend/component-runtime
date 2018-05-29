@@ -19,6 +19,32 @@ with the client Javascript `UiForm` library.
 
 include::{partialsdir}/generated_proxy-server-configuration.adoc[]
 
+TIP: the special `dynamic_values` action `builtin::roots` can be used for a drop down which will
+be filled with all available root types.
+
+Here is a sample patch file:
+
+[source,config]
+----
+{
+  "properties": [
+    {
+      "path": "_datasetMetadata",
+      "type": "OBJECT"
+    },
+    {
+      "path": "_datasetMetadata.type",
+      "displayName": "Types",
+      "type": "ENUM",
+      "metadata": {
+        "action::dynamic_values": "builtin::roots"
+      }
+    }
+  ]
+}
+
+----
+
 == HTTP API
 
 include::{partialsdir}/generated_proxy-server-api.adoc[]

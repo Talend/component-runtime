@@ -20,12 +20,20 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Collection;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 
 import javax.enterprise.inject.spi.CDI;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.form.api.UiSpecService;
+import org.talend.sdk.component.form.model.Ui;
+import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.proxy.test.WithServer;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
@@ -38,7 +46,7 @@ class ModelEnricherServiceTest {
     @Test
     void convertConfig() {
         final ModelEnricherService modelEnricherService = CDI.current().select(ModelEnricherService.class).get();
-        final ConfigTypeNode configTypeNode = newConfig(newProperty());
+        final ConfigTypeNode configTypeNode = newConfig("test", newProperty());
         final ConfigTypeNode enriched = modelEnricherService.enrich(configTypeNode, "en");
 
         assertEquals(configTypeNode.getId(), enriched.getId());
@@ -63,8 +71,24 @@ class ModelEnricherServiceTest {
         assertEquals("The Placeholder From Resource Bundle", def.getPlaceholder());
     }
 
-    private ConfigTypeNode newConfig(final SimplePropertyDefinition... props) {
-        return new ConfigTypeNode("a", 3, "b", "test", "Test", "The Test Config", emptySet(), asList(props),
+    @Test
+    void typeProposals() throws ExecutionException, InterruptedException {
+        final CDI<Object> cdi = CDI.current();
+        final ModelEnricherService modelEnricherService = cdi.select(ModelEnricherService.class).get();
+        final UiSpecService uiSpecService = cdi.select(UiSpecService.class).get();
+        final ConfigTypeNode configTypeNode = newConfig("type-proposals", newProperty());
+        final ConfigTypeNode configType = modelEnricherService.enrich(configTypeNode, "en");
+        final Ui ui = uiSpecService.convert("someDamily", configType).toCompletableFuture().get();
+
+        final Collection<UiSchema.NameValue> proposals =
+                ui.getUiSchema().iterator().next().getItems().iterator().next().getTitleMap();
+        assertEquals(3, proposals.size());
+        assertEquals(asList("Connection-1", "Connection-2", "Connection-3"),
+                proposals.stream().map(UiSchema.NameValue::getValue).collect(toList()));
+    }
+
+    private ConfigTypeNode newConfig(final String type, final SimplePropertyDefinition... props) {
+        return new ConfigTypeNode("a", 3, "b", type, "Test", "The Test Config", emptySet(), asList(props),
                 singletonList(new ActionReference("test", "cb", "test", emptyList())));
     }
 

@@ -1,0 +1,16 @@
+{
+  "properties": [
+    {
+      "path": "_datasetMetadata",
+      "type": "OBJECT"
+    },
+    {
+      "path": "_datasetMetadata.type",
+      "displayName": "Types",
+      "type": "ENUM",
+      "metadata": {
+        "action::dynamic_values": "builtin::roots"
+      }
+    }
+  ]
+}

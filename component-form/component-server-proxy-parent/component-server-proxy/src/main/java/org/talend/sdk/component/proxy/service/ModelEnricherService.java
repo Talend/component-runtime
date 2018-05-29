@@ -15,7 +15,9 @@
  */
 package org.talend.sdk.component.proxy.service;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -45,6 +48,7 @@ import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
+import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.AllArgsConstructor;
@@ -57,7 +61,7 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class ModelEnricherService {
 
-    private final Patches skip = new Patches(null, null) {
+    private final Patches skip = new Patches(null) {
 
         @Override
         public String toString() {
@@ -125,7 +129,35 @@ public class ModelEnricherService {
                         }
                     }
                 })
-                .map(p -> new Patches(type, p));
+                .map(this::normalize)
+                .map(Patches::new);
+    }
+
+    private Patch normalize(final Patch p) {
+        p.setProperties(ofNullable(p.getProperties()).orElseGet(Collections::emptyList));
+        p.getProperties().forEach(prop -> {
+            if (prop.getProposalDisplayNames() != null) {
+                if (prop.getValidation() == null) {
+                    prop.setValidation(new PropertyValidation());
+                }
+                if (prop.getValidation().getEnumValues() == null) {
+                    prop.getValidation().setEnumValues(prop.getProposalDisplayNames().keySet());
+                }
+            } else if (prop.getValidation() != null && prop.getValidation().getEnumValues() != null
+                    && prop.getProposalDisplayNames() == null) {
+                prop.setProposalDisplayNames(
+                        prop.getValidation().getEnumValues().stream().collect(toMap(identity(), identity())));
+            }
+
+            if (prop.getMetadata() == null) {
+                prop.setMetadata(emptyMap());
+            }
+
+            if (prop.getName() == null) {
+                prop.setName(prop.getPath().substring(prop.getPath().lastIndexOf('.') + 1));
+            }
+        });
+        return p;
     }
 
     private Optional<InputStream> extractLocation(final String location) {
@@ -182,8 +214,6 @@ public class ModelEnricherService {
     @RequiredArgsConstructor
     private static class Patches {
 
-        private final String type;
-
         private final Patch base;
 
         private final ConcurrentMap<String, Patch> patchPerLang = new ConcurrentHashMap<>();
@@ -203,9 +233,7 @@ public class ModelEnricherService {
                                                                     Map.Entry::getKey,
                                                                     e -> findTranslation(bundle, e.getValue()))))
                                                             .orElse(null),
-                                                    ofNullable(p.getPlaceholder())
-                                                            .map(v -> findTranslation(bundle, v))
-                                                            .orElse(null),
+                                                    findTranslation(bundle, p.getPlaceholder()),
                                                     ofNullable(p.getProposalDisplayNames())
                                                             .map(proposals -> proposals
                                                                     .entrySet()
@@ -218,6 +246,9 @@ public class ModelEnricherService {
         }
 
         private String findTranslation(final ResourceBundle bundle, final String keyOrValue) {
+            if (keyOrValue == null) {
+                return null;
+            }
             return bundle.containsKey(keyOrValue) ? bundle.getString(keyOrValue) : keyOrValue;
         }
     }

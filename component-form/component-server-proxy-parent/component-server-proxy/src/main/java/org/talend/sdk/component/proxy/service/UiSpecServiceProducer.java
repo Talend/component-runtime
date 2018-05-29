@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy;
+package org.talend.sdk.component.proxy.service;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;

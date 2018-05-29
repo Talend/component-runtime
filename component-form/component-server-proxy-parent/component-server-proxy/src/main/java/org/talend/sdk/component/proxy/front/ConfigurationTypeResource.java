@@ -39,8 +39,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.form.api.UiSpecService;
-import org.talend.sdk.component.proxy.client.ComponentClient;
-import org.talend.sdk.component.proxy.client.ConfigurationClient;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
@@ -49,6 +47,8 @@ import org.talend.sdk.component.proxy.service.ConfigurationService;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
 import org.talend.sdk.component.proxy.service.ModelEnricherService;
 import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
+import org.talend.sdk.component.proxy.service.client.ComponentClient;
+import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
@@ -96,7 +96,6 @@ public class ConfigurationTypeResource {
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("/")
     public void getRootConfig(@Suspended final AsyncResponse response, @Context final HttpServletRequest request) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
@@ -110,7 +109,7 @@ public class ConfigurationTypeResource {
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("/{id}/form")
+    @Path("{id}/form")
     public void getForm(@Suspended final AsyncResponse response, @PathParam("id") final String id,
             @Context final HttpServletRequest request) {
         if (id == null || id.isEmpty()) {
@@ -131,7 +130,7 @@ public class ConfigurationTypeResource {
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("/{id}/icon")
+    @Path("{id}/icon")
     public void getConfigurationIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id,
             @Context final HttpServletRequest request) {
         componentClient.getFamilyIconById(id, placeholderProviderFactory.newProvider(request)).handle(
@@ -141,7 +140,7 @@ public class ConfigurationTypeResource {
     private CompletionStage<UiNode> toUiNode(final String language, final ConfigTypeNode node,
             final ConfigTypeNodes nodes, final ComponentIndices componentIndices) {
         final ConfigTypeNode family = configurationService.getFamilyOf(node.getParentId(), nodes);
-        final String icon = configurationService.findIcon(family, componentIndices);
+        final String icon = configurationService.findIcon(family.getId(), componentIndices);
         Node configType = new Node(node.getId(), Node.Type.CONFIGURATION, node.getDisplayName(), family.getId(),
                 family.getDisplayName(), icon, node.getEdges(), node.getVersion(), node.getName(), null);
         return uiSpecService.convert(family.getName(), modelEnricherService.enrich(node, language)).thenApply(
