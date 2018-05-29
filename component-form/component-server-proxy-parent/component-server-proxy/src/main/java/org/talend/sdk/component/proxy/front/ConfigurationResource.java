@@ -54,12 +54,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ResponseHeader;
 
-@Api(description = "Configuration endpoint", tags = { "configuration", "icon" })
+@Api(description = "Endpoint responsible to provide a way to navigate in the configurations and subconfigurations "
+        + "to let the UI creates the corresponding entities. It is UiSpec friendly.",
+        tags = { "configuration", "icon", "uispec" })
 @ApplicationScoped
 @Path("configuration")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-public class ConfigurationResourceProxy {
+public class ConfigurationResource {
 
     @Inject
     private ConfigurationClient configurationClient;
@@ -94,7 +96,7 @@ public class ConfigurationResourceProxy {
                         .handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
     }
 
-    @ApiOperation(value = "Return a configuration details using configuraiton identifiers ", notes = "",
+    @ApiOperation(value = "Return a configuration details using configuraiton identifiers ",
             response = Configurations.class, tags = { "configurations", "datastore", "dataset" },
             produces = "application/json",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,

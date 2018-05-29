@@ -40,12 +40,13 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ResponseHeader;
 
-@Api(description = "Action endpoint", tags = { "action" })
+@Api(description = "Endpoint responsible to handle any server side interaction (validation, healthcheck, ...)",
+        tags = { "action" })
 @ApplicationScoped
 @Path("action")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-public class ActionResourceProxy {
+public class ActionResource {
 
     @Inject
     private Client actionClient;
@@ -60,12 +61,11 @@ public class ActionResourceProxy {
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @ApiResponses({
-            @ApiResponse(code = 404,
-                    message = "This response is returned when no action is found", response = ProxyErrorPayload.class),
-            @ApiResponse(code = 400,
-                    message = "This response is returned when the action is null", response = ProxyErrorPayload.class),
-            @ApiResponse(code = 520,
-                    message = "This response is returned when the action raise an unhandled error",
+            @ApiResponse(code = 404, message = "This response is returned when no action is found",
+                    response = ProxyErrorPayload.class),
+            @ApiResponse(code = 400, message = "This response is returned when the action is null",
+                    response = ProxyErrorPayload.class),
+            @ApiResponse(code = 520, message = "This response is returned when the action raise an unhandled error",
                     response = ProxyErrorPayload.class) })
     @POST
     @Path("execute")

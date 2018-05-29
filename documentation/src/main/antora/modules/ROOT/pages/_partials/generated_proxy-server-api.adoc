@@ -33,17 +33,71 @@ __Schemes__ : HTTP, HTTPS
 
 === Tags
 
+* action
+* action, configurations
 * configuration
 * configurations
 * dataset
 * datastore
 * icon
+* uispec
 
 
 
 
 [[_paths]]
 == Paths
+
+[[_execute]]
+=== This endpoint execute an action
+....
+POST /action/execute
+....
+
+
+==== Description
+configuration types has action that can be executed using this endpoint
+
+
+==== Parameters
+
+[options="header", cols=".^2,.^3,.^4"]
+|===
+|Type|Name|Schema
+|**Query**|**action** +
+__optional__|string
+|**Query**|**family** +
+__optional__|string
+|**Query**|**type** +
+__optional__|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**400**|This response is returned when the action is null|<<_proxyerrorpayload,ProxyErrorPayload>>
+|**404**|This response is returned when no action is found|<<_proxyerrorpayload,ProxyErrorPayload>>
+|**520**|This response is returned when the action raise an unhandled error|<<_proxyerrorpayload,ProxyErrorPayload>>
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+
+
+==== Tags
+
+* action, configurations
+
 
 [[_getdetails]]
 === Return a configuration details using configuraiton identifiers 
