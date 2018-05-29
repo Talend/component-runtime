@@ -415,3 +415,5 @@ The server module contains several configuration you can set in:
 - A file located based on the `--component-configuration` CLI option
 
 include::{partialsdir}/generated_server-configuration.adoc[]
+
+include::server-uispec.adoc[leveloffset=+1]

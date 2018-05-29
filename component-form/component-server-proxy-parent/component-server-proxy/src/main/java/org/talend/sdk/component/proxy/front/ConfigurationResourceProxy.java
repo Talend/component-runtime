@@ -83,7 +83,7 @@ public class ConfigurationResourceProxy {
                     + "In the response an icon key is returned. this icon key can be one of the bundled icons or a custom one. "
                     + "The consumer of this endpoint will need to check if the icon key is in the icons bundle "
                     + "otherwise the icon need to be gathered using the `familyId` from this endpoint `configuration/icon/{id}`",
-            response = Configurations.class, tags = "configurations, data store", produces = "application/json",
+            response = Configurations.class, tags = { "configurations", "datastore" }, produces = "application/json",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = SWAGGER_HEADER_DESC, response = Boolean.class) })
     @GET
@@ -97,7 +97,7 @@ public class ConfigurationResourceProxy {
     }
 
     @ApiOperation(value = "Return a configuration details using configuraiton identifiers ", notes = "",
-            response = Configurations.class, tags = "configurations, data store, data set",
+            response = Configurations.class, tags = { "configurations", "datastore", "dataset" },
             produces = "application/json",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = SWAGGER_HEADER_DESC, response = Boolean.class) })
@@ -119,8 +119,7 @@ public class ConfigurationResourceProxy {
                 .handle((detail, throwable) -> errorProcessor.handleResponse(response, detail, throwable));
     }
 
-    @ApiOperation(value = "Return the configuration icon file in png format", tags = "configuration icon, icon",
-            produces = "image/png",
+    @ApiOperation(value = "Return the configuration icon file in png format", tags = "icon", produces = "image/png",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = SWAGGER_HEADER_DESC, response = Boolean.class) })
     @GET

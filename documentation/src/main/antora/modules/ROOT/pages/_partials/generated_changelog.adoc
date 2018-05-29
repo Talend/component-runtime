@@ -1,5 +1,12 @@
 
 
+== Version 1.0.1
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-829[TCOMP-829^]: Configuration Type tree is not correctly computed
+
+
 == Version 1.0.0
 
 === Bug

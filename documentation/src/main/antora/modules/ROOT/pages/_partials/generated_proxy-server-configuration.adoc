@@ -1,0 +1,13 @@
+
+NOTE: the configuration is read from system properties, environment variables, ....
+If you use `playx-microprofile-config`, you can also use typesafe configuration.
+
+
+[role="table-striped table-hover table-ordered",options="header,autowidth"]
+|====
+|Key|Description|Default
+|talend.component.proxy.client.providers|List of JAX-RS providers to register on the client, at least a JSON-B one should be here.|-
+|talend.component.proxy.processing.headers|The headers to append to the request when contacting the server. Format is a properties one. You can put a hardcoded value or a placeholder (`${key}`).In this case it will be read from the request attributes and headers.|-
+|talend.component.proxy.server.base|The base to contact the remote server (NOTE: it is recommanded to put a load balancer if you have multiple instances.)|-
+|====
+

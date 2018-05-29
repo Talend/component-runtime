@@ -1,0 +1,63 @@
+= UiSpec Server
+
+The UiSpec server is a companion application for the Component Server.
+It provides a client to the Component Server which serves UiSpec payload to integrate
+with the client Javascript `UiForm` library.
+
+== Coordinates
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>component-server-proxy</artifactId>
+  <version>${server-proxy.version}</version>
+</dependency>
+----
+
+== Configuration
+
+include::{partialsdir}/generated_proxy-server-configuration.adoc[]
+
+== HTTP API
+
+include::{partialsdir}/generated_proxy-server-api.adoc[]
+
+== Play Integration
+
+Thanks to https://github.com/rmannibucau/playx[Playx] you can deploy this server
+in a Play! application.
+
+The first step is to import the play integration (which mainly imports pre-configuration):
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.talend.sdk.component</groupId>
+  <artifactId>component-server-proxy-play</artifactId>
+  <version>${server-proxy.version}</version>
+</dependency>
+----
+
+Then you can configure it in your `application.conf` - see configuration for more details:
+
+[source,config]
+----
+include "conf/component-proxy.play.conf" <1>
+
+talend.component.proxy { <2>
+  server {
+    base = "http://localhost:8080/api/v1"
+  }
+  processing {
+    headers = """
+X-ServiceName = proxy
+X-ID = ${someRequestAttributeNameForTheId}
+"""
+    // ...
+  }
+}
+----
+
+<1> Imports the global configuration mapping the endpoints on `/componentproxy/*`
+<2> Customize the configuration to specialize it for the current deployment

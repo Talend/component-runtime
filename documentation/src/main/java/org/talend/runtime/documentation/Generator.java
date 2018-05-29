@@ -98,6 +98,7 @@ import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
 import org.talend.sdk.component.api.service.schema.Type;
 import org.talend.sdk.component.junit.environment.BaseEnvironmentProvider;
+import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher;
@@ -132,6 +133,7 @@ public class Generator {
         generatedActions(generatedDir);
         generatedUi(generatedDir);
         generatedServerConfiguration(generatedDir);
+        generatedProxyServerConfiguration(generatedDir);
         generatedJUnitEnvironment(generatedDir);
         generatedScanningExclusions(generatedDir);
 
@@ -474,6 +476,53 @@ public class Generator {
                         return "|" + name + "|" + method.getAnnotation(Documentation.class).value() + "|"
                                 + (ConfigProperty.NULL.equalsIgnoreCase(configProperty.defaultValue()) ? "-"
                                         : configProperty.defaultValue());
+                    })
+                    .sorted()
+                    .forEach(stream::println);
+            stream.println("|====");
+            stream.println();
+
+        }
+    }
+
+    private static void generatedProxyServerConfiguration(final File generatedDir) {
+        final File file = new File(generatedDir, "generated_proxy-server-configuration.adoc");
+        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
+            stream.println();
+            stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
+            stream.println("If you use `playx-microprofile-config`, you can also use typesafe configuration.");
+            stream.println();
+            stream.println();
+            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
+            stream.println("|====");
+            stream.println("|Key|Description|Default");
+            Stream
+                    .of(ProxyConfiguration.class.getDeclaredFields())
+                    .filter(field -> field
+                            .isAnnotationPresent(org.eclipse.microprofile.config.inject.ConfigProperty.class))
+                    .map(field -> {
+                        final org.eclipse.microprofile.config.inject.ConfigProperty configProperty =
+                                field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class);
+                        final String name =
+                                field.getAnnotation(org.eclipse.microprofile.config.inject.ConfigProperty.class).name();
+                        return "|" + name + "|"
+                                + Stream
+                                        .of(field.getDeclaredAnnotations())
+                                        .filter(a -> a.annotationType().getSimpleName().equals("Documentation"))
+                                        .map(a -> {
+                                            try {
+                                                return a.annotationType().getMethod("value").invoke(a).toString();
+                                            } catch (final IllegalAccessException | InvocationTargetException
+                                                    | NoSuchMethodException e) {
+                                                return "-";
+                                            }
+                                        })
+                                        .findFirst()
+                                        .orElse("-")
+                                + "|"
+                                + (org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE
+                                        .equalsIgnoreCase(configProperty.defaultValue()) ? "-"
+                                                : configProperty.defaultValue());
                     })
                     .sorted()
                     .forEach(stream::println);

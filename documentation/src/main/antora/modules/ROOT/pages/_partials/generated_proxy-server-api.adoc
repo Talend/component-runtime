@@ -1,0 +1,226 @@
+= Component UiSpec Server
+
+
+[[_overview]]
+== Overview
+These endpoints allow to obtain UiSpec representations of the component/configuration types properties.
+
+
+=== Version information
+[%hardbreaks]
+__Version__ : v1
+
+
+=== Contact information
+[%hardbreaks]
+__Contact__ : Talend
+__Contact Email__ : contact@talend.com
+
+
+=== License information
+[%hardbreaks]
+__License__ : Apache 2.0
+__License URL__ : http://www.apache.org/licenses/LICENSE-2.0.html
+__Terms of service__ : null
+
+
+=== URI scheme
+[%hardbreaks]
+__Host__ : host:port
+__BasePath__ : /componentproxy/api/v1
+__Schemes__ : HTTP, HTTPS
+
+
+=== Tags
+
+* configuration
+* configurations
+* dataset
+* datastore
+* icon
+
+
+
+
+[[_paths]]
+== Paths
+
+[[_getdetails]]
+=== Return a configuration details using configuraiton identifiers 
+....
+GET /configuration/details
+....
+
+
+==== Parameters
+
+[options="header", cols=".^2,.^3,.^4"]
+|===
+|Type|Name|Schema
+|**Query**|**identifiers** +
+__optional__|< string > array(multi)
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|successful operation +
+**Headers** :  +
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_configurations,Configurations>>
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+
+
+==== Tags
+
+* configurations
+* dataset
+* datastore
+
+
+[[_getconfigurationiconbyid]]
+=== Return the configuration icon file in png format
+....
+GET /configuration/icon/{id}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^2,.^3,.^4"]
+|===
+|Type|Name|Schema
+|**Path**|**id** +
+__required__|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**default**|successful operation|No Content
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+
+
+==== Tags
+
+* icon
+
+
+[[_getrootconfig]]
+=== Return all the available root configuration (Data store like) from the component server
+....
+GET /configuration/roots
+....
+
+
+==== Description
+Every configuration has an icon. In the response an icon key is returned. this icon key can be one of the bundled icons or a custom one. The consumer of this endpoint will need to check if the icon key is in the icons bundle otherwise the icon need to be gathered using the `familyId` from this endpoint `configuration/icon/{id}`
+
+
+==== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|successful operation +
+**Headers** :  +
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_configurations,Configurations>>
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+
+
+==== Tags
+
+* configurations
+* datastore
+
+
+
+
+[[_definitions]]
+== Definitions
+
+[[_configtype]]
+=== ConfigType
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**children** +
+__optional__|< string > array
+|**familyId** +
+__optional__|string
+|**familyLabel** +
+__optional__|string
+|**icon** +
+__optional__|string
+|**id** +
+__optional__|string
+|**label** +
+__optional__|string
+|===
+
+
+[[_configurations]]
+=== Configurations
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**configurations** +
+__optional__|< string, <<_configtype,ConfigType>> > map
+|**errors** +
+__optional__|< string, <<_proxyerrorpayload,ProxyErrorPayload>> > map
+|===
+
+
+[[_proxyerrorpayload]]
+=== ProxyErrorPayload
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**code** +
+__optional__|string
+|**message** +
+__optional__|string
+|===
+
+
+
+
+

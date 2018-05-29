@@ -165,7 +165,7 @@
       <plugin>
         <groupId>com.sebastian-daschner</groupId>
         <artifactId>jaxrs-analyzer-maven-plugin</artifactId>
-        <version>0.16</version>
+        <version>${jaxrs-analyzer.version}</version>
         <executions>
           <execution>
             <id>analyzer-adoc</id>
@@ -196,7 +196,7 @@
           <dependency>
             <groupId>com.github.rmannibucau</groupId>
             <artifactId>jaxrs-analyzer-extension</artifactId>
-            <version>0.0.6</version>
+            <version>${jaxrs-analyzer-extension.version}</version>
           </dependency>
         </dependencies>
       </plugin>

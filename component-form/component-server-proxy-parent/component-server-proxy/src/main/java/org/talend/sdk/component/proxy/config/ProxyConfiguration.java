@@ -46,15 +46,21 @@ public class ProxyConfiguration {
     private static final String PREFIX = "talend.component.proxy.";
 
     @Inject
+    @Documentation("The base to contact the remote server "
+            + "(NOTE: it is recommanded to put a load balancer if you have multiple instances.)")
     @ConfigProperty(name = PREFIX + "server.base")
     private String targetServerBase;
 
     @Inject
+    @Documentation("List of JAX-RS providers to register on the client, at least a JSON-B one should be here.")
     @ConfigProperty(name = PREFIX + "client.providers")
     private Collection<Class> clientProviders;
 
     @Inject
     @Getter(NONE)
+    @Documentation("The headers to append to the request when contacting the server. Format is a properties one. "
+            + "You can put a hardcoded value or a placeholder (`${key}`)."
+            + "In this case it will be read from the request attributes and headers.")
     @ConfigProperty(name = PREFIX + "processing.headers")
     private String headers;
 

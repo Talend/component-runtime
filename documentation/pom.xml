@@ -39,11 +39,13 @@
     <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
 
     <talend.build.name>${talend.build.name.base}.documentation</talend.build.name>
+
     <asciidoctorj-diagram.version>1.5.4.1</asciidoctorj-diagram.version>
     <!-- alpha-16 in mvn, alpha.16 in gem -->
     <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
     <jsoup.version>1.11.2</jsoup.version>
     <jruby.version>9.1.14.0</jruby.version>
+    <swagger2markup.version>1.3.3</swagger2markup.version>
   </properties>
 
   <dependencies>
@@ -55,6 +57,12 @@
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-server-proxy</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -201,6 +209,28 @@
         </dependencies>
       </plugin>
       <plugin>
+        <groupId>io.github.swagger2markup</groupId>
+        <artifactId>swagger2markup-maven-plugin</artifactId>
+        <version>1.3.3</version>
+        <executions>
+          <execution>
+            <id>generated-proxy-adoc</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>convertSwagger2markup</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <swaggerInput>${project.parent.basedir}/component-form/component-server-proxy-parent/component-server-proxy/target/generated/swagger/swagger.json</swaggerInput>
+          <outputFile>${project.basedir}/src/main/antora/modules/ROOT/pages/_partials/generated_proxy-server-api</outputFile>
+          <config>
+            <swagger2markup.markupLanguage>ASCIIDOC</swagger2markup.markupLanguage>
+            <swagger2markup.outputLanguage>EN</swagger2markup.outputLanguage>
+          </config>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.6.0</version>
@@ -253,6 +283,16 @@
             <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-api</artifactId>
             <version>${component-api.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>io.github.swagger2markup</groupId>
+            <artifactId>swagger2markup</artifactId>
+            <version>${swagger2markup.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.talend.sdk.component</groupId>
+            <artifactId>component-server-proxy</artifactId>
+            <version>${project.version}</version>
           </dependency>
           <dependency>
             <groupId>org.talend.sdk.component</groupId>
@@ -700,4 +740,11 @@
       </build>
     </profile>
   </profiles>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>bintray</id>
+      <url>https://jcenter.bintray.com</url>
+    </pluginRepository>
+  </pluginRepositories>
 </project>

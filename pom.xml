@@ -102,6 +102,8 @@
     <!-- for doc -->
     <revealjs.version>3.5.0</revealjs.version>
 
+    <jaxrs-analyzer.version>0.16</jaxrs-analyzer.version>
+    <jaxrs-analyzer-extension.version>0.0.6</jaxrs-analyzer-extension.version>
     <groovy.version>3.0.0-alpha-1</groovy.version>
     <gmavenplus.version>1.6</gmavenplus.version>
     <dependency-plugin.version>3.0.2</dependency-plugin.version>

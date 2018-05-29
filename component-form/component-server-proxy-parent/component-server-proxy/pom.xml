@@ -134,5 +134,92 @@
   </dependencies>
 
   <build>
+    <plugins>
+      <!-- not working since we use the reactive (@Suspended) pattern
+      <plugin>
+        <groupId>com.sebastian-daschner</groupId>
+        <artifactId>jaxrs-analyzer-maven-plugin</artifactId>
+        <version>${jaxrs-analyzer.version}</version>
+        <executions>
+          <execution>
+            <id>analyzer-adoc</id>
+            <goals>
+              <goal>analyze-jaxrs</goal>
+            </goals>
+            <configuration>
+              <inlinePrettify>true</inlinePrettify>
+              <backend>asciidoc</backend>
+            </configuration>
+          </execution>
+          <execution>
+            <id>analyzer-swagger</id>
+            <goals>
+              <goal>analyze-jaxrs</goal>
+            </goals>
+            <configuration>
+              <backend>swagger</backend>
+              <swaggerSchemes>
+                <swaggerScheme>https</swaggerScheme>
+                <swaggerScheme>http</swaggerScheme>
+              </swaggerSchemes>
+              <resourcesDir>classes/META-INF/resources/documentation</resourcesDir>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.github.rmannibucau</groupId>
+            <artifactId>jaxrs-analyzer-extension</artifactId>
+            <version>${jaxrs-analyzer-extension.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      -->
+      <plugin>
+        <groupId>com.github.kongchen</groupId>
+        <artifactId>swagger-maven-plugin</artifactId>
+        <version>3.1.6</version>
+        <executions>
+          <execution>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <apiSources>
+            <apiSource>
+              <springmvc>false</springmvc>
+              <schemes>
+                <scheme>http</scheme>
+                <scheme>https</scheme>
+              </schemes>
+              <host>host:port</host>
+              <basePath>/componentproxy/api/v1</basePath>
+              <info>
+                <title>Component UiSpec Server</title>
+                <version>v1</version>
+                <description>These endpoints allow to obtain UiSpec representations of the component/configuration types properties.</description>
+                <contact>
+                  <email>contact@talend.com</email>
+                  <name>Talend</name>
+                  <url>http://www.talend.com</url>
+                </contact>
+                <license>
+                  <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+                  <name>Apache 2.0</name>
+                </license>
+              </info>
+              <locations>
+                <location>org.talend.sdk.component.proxy.front</location>
+              </locations>
+              <swaggerDirectory>${project.build.directory}/generated/swagger</swaggerDirectory>
+              <attachSwaggerArtifact>true</attachSwaggerArtifact>
+            </apiSource>
+          </apiSources>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 </project>
