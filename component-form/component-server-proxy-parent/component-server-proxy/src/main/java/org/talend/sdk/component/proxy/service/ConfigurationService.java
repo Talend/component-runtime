@@ -48,8 +48,7 @@ public class ConfigurationService {
     @Inject
     private ConfigurationClient client;
 
-    public Nodes getRootConfiguration(final ConfigTypeNodes configs,
-            final Function<String, String> iconProvider) {
+    public Nodes getRootConfiguration(final ConfigTypeNodes configs, final Function<String, String> iconProvider) {
         final Map<String, ConfigTypeNode> families = ofNullable(configs)
                 .map(c -> c.getNodes().values().stream())
                 .orElseGet(Stream::empty)

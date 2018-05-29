@@ -107,7 +107,7 @@ public class ClientProducer {
                     .getAllConfigurations("en", null)
                     .thenApply(configs -> configurationService.getRootConfiguration(configs, ignored -> null))
                     .thenApply(configs -> new Values(configs
-                            .getConfigurations()
+                            .getNodes()
                             .values()
                             .stream()
                             .map(it -> new Values.Item(it.getId(), it.getLabel()))
