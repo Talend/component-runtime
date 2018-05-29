@@ -124,7 +124,7 @@ public class ComponentResource {
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("/{id}/icon")
-    public void getConfigurationIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id,
+    public void getComponentIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id,
             @Context final HttpServletRequest request) {
         componentClient.getComponentIconById(placeholderProviderFactory.newProvider(request), id).handle(
                 (icon, throwable) -> errorProcessor.handleResponse(response, icon, throwable));
