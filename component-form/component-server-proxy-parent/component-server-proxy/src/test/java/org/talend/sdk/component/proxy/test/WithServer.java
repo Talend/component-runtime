@@ -143,7 +143,7 @@ class Network {
 @Data
 class Env implements AutoCloseable {
 
-    private final WithProxy.Tacokit tacokit;
+    private final WithServer.Tacokit tacokit;
 
     private final TestServer playServer;
 
@@ -159,8 +159,8 @@ class Env implements AutoCloseable {
 
 @Target(TYPE)
 @Retention(RUNTIME)
-@ExtendWith(WithProxy.Extension.class)
-public @interface WithProxy {
+@ExtendWith(WithServer.Extension.class)
+public @interface WithServer {
 
     class Extension implements BeforeAllCallback, AfterAllCallback, ParameterResolver {
 

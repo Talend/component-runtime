@@ -25,10 +25,9 @@ import javax.enterprise.inject.spi.CDI;
 import javax.ws.rs.client.Invocation;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.proxy.config.ProxyConfiguration;
-import org.talend.sdk.component.proxy.test.WithProxy;
+import org.talend.sdk.component.proxy.test.WithServer;
 
-@WithProxy
+@WithServer
 class ConfigurationResourceProxyTest {
 
     @Test
@@ -43,12 +42,12 @@ class ConfigurationResourceProxyTest {
                             }
                             return proxy;
                         })),
-                k -> "pReplaced");
+                k -> "done");
         assertEquals(new HashMap<String, String>() {
 
             {
                 put("Talend-Test", "true");
-                put("Talend-Replaced", "pReplaced");
+                put("Talend-Replaced", "done");
             }
         }, headers);
     }

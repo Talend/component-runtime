@@ -32,9 +32,9 @@ import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.proxy.model.ConfigType;
 import org.talend.sdk.component.proxy.model.Configurations;
-import org.talend.sdk.component.proxy.test.WithProxy;
+import org.talend.sdk.component.proxy.test.WithServer;
 
-@WithProxy
+@WithServer
 class ConfigurationResourcesProxyTest {
 
     @Test

@@ -13,33 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy;
+package org.talend.sdk.component.proxy.service;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
 import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 
-import org.talend.sdk.component.form.api.Client;
-import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class UiSpecServiceProducer {
+public class JsonbProducer {
 
     @Produces
-    @Dependent
-    public UiSpecService uiSpecService(final Client client, @UiSpecProxy final Jsonb jsonb) {
-        return new UiSpecService(client, jsonb);
+    @UiSpecProxy
+    @ApplicationScoped
+    Jsonb jsonb() {
+        return JsonbBuilder.create();
     }
 
-    public void releaseUiSpecService(@Disposes final UiSpecService uiSpecService) {
+    void disposes(@Disposes @UiSpecProxy final Jsonb jsonb) {
         try {
-            uiSpecService.close();
+            jsonb.close();
         } catch (final Exception e) {
             log.error(e.getMessage(), e);
         }

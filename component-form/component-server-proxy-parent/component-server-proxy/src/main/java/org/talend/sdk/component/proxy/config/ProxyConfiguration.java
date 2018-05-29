@@ -64,6 +64,21 @@ public class ProxyConfiguration {
     @ConfigProperty(name = PREFIX + "processing.headers")
     private String headers;
 
+    @Inject
+    @Documentation("An optional location (absolute or resolved from `APP_HOME` environment variable). "
+            + "It can take an optional query parameter `force` which specifies if the startup should fail if the  "
+            + "file is not resolved. The resolution is done per configuration type (`datastore`, `dataset`, ...) "
+            + "but fallbacks on `default` type if the file is not found.\n\nThe values can be keys in the resource bundle "
+            + "`org.talend.sdk.component.proxy.enrichment.i18n.Messages`. Use that for display names, placeholders etc...")
+    @ConfigProperty(name = PREFIX + "processing.uiSpec.patch",
+            defaultValue = "component-uispec-metadata.%s.json?force=false")
+    private String uiSpecPatchLocation;
+
+    @Inject
+    @Documentation("A home location for relative path resolution (optional).")
+    @ConfigProperty(name = PREFIX + "application.home", defaultValue = "${playx.application.home:.}")
+    private String home;
+
     @Getter
     private BiFunction<Invocation.Builder, Function<String, String>, Invocation.Builder> headerAppender;
 

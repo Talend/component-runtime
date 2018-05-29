@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.proxy.client;
 
+import static java.util.Collections.emptyMap;
+
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -50,6 +53,9 @@ public class ConfigurationClient {
 
     public CompletionStage<ConfigTypeNodes> getDetails(final String language, final String[] ids,
             final Function<String, String> placeholderProvider) {
+        if (ids == null || ids.length == 0) {
+            return CompletableFuture.completedFuture(new ConfigTypeNodes(emptyMap()));
+        }
         return configuration
                 .getHeaderAppender()
                 .apply(this.webTarget

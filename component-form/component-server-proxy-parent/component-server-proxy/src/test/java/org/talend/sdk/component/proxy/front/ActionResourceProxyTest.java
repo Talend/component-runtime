@@ -32,10 +32,10 @@ import javax.ws.rs.core.GenericType;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
-import org.talend.sdk.component.proxy.test.WithProxy;
+import org.talend.sdk.component.proxy.test.WithServer;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 
-@WithProxy
+@WithServer
 class ActionResourceProxyTest {
 
     private final GenericType<Map<String, Object>> mapType = new GenericType<Map<String, Object>>() {
