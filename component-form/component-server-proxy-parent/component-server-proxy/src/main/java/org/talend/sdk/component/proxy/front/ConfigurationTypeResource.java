@@ -47,6 +47,7 @@ import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
 import org.talend.sdk.component.proxy.model.UiNode;
 import org.talend.sdk.component.proxy.service.ConfigurationService;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
+import org.talend.sdk.component.proxy.service.ModelEnricherService;
 import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
@@ -81,6 +82,9 @@ public class ConfigurationTypeResource {
     private PlaceholderProviderFactory placeholderProviderFactory;
 
     @Inject
+    private ModelEnricherService modelEnricherService;
+
+    @Inject
     private UiSpecService uiSpecService;
 
     @ApiOperation(value = "Return all the available root configuration (Data store like) from the component server",
@@ -96,7 +100,7 @@ public class ConfigurationTypeResource {
     public void getRootConfig(@Suspended final AsyncResponse response, @Context final HttpServletRequest request) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        withNodesAndComponents(language, placeholderProvider,
+        withApplyNodesAndComponents(language, placeholderProvider,
                 (nodes, components) -> configurationService.getRootConfiguration(nodes, components))
                         .handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
     }
@@ -118,20 +122,9 @@ public class ConfigurationTypeResource {
         configurationClient
                 .getDetails(language, id, placeholderProvider)
                 .thenApply(this::getSingleNode)
-                .thenCompose(node -> withNodesAndComponents(language, placeholderProvider,
-                        (nodes, components) -> createConfigurationType(node, nodes, components)))
-                .thenCompose(configType -> createConfigurationDetail(configType, language, placeholderProvider))
+                .thenCompose(node -> withComposeNodesAndComponents(language, placeholderProvider,
+                        (nodes, components) -> toUiNode(language, node, nodes, components)))
                 .handle((detail, throwable) -> errorProcessor.handleResponse(response, detail, throwable));
-    }
-
-    private CompletionStage<UiNode> createConfigurationDetail(final Node configType, final String language,
-            final Function<String, String> placeholderProvider) {
-
-        return configurationClient
-                .getDetails(language, configType.getId(), placeholderProvider)
-                .thenApply(this::getSingleNode)
-                .thenCompose(node -> uiSpecService.convert("", node))
-                .thenApply(uiSpec -> new UiNode(uiSpec, configType));
     }
 
     @ApiOperation(value = "Return the configuration icon file in png format", tags = "icon", produces = "image/png",
@@ -145,12 +138,14 @@ public class ConfigurationTypeResource {
                 (icon, throwable) -> errorProcessor.handleResponse(response, icon, throwable));
     }
 
-    private Node createConfigurationType(final ConfigTypeNode node, final ConfigTypeNodes nodes,
-            final ComponentIndices componentIndices) {
+    private CompletionStage<UiNode> toUiNode(final String language, final ConfigTypeNode node,
+            final ConfigTypeNodes nodes, final ComponentIndices componentIndices) {
         final ConfigTypeNode family = configurationService.getFamilyOf(node.getParentId(), nodes);
         final String icon = configurationService.findIcon(family, componentIndices);
-        return new Node(node.getId(), Node.Type.CONFIGURATION, node.getDisplayName(), family.getId(),
+        Node configType = new Node(node.getId(), Node.Type.CONFIGURATION, node.getDisplayName(), family.getId(),
                 family.getDisplayName(), icon, node.getEdges(), node.getVersion(), node.getName(), null);
+        return uiSpecService.convert(family.getName(), modelEnricherService.enrich(node, language)).thenApply(
+                uiSpec -> new UiNode(uiSpec, configType));
     }
 
     private ConfigTypeNode getSingleNode(final ConfigTypeNodes configs) {
@@ -164,10 +159,9 @@ public class ConfigurationTypeResource {
                 .getValue();
     }
 
-    private <T> CompletionStage<T> withNodesAndComponents(final String language,
+    private <T> CompletionStage<T> withApplyNodesAndComponents(final String language,
             final Function<String, String> placeholderProvider,
             final BiFunction<ConfigTypeNodes, ComponentIndices, T> callback) {
-
         final CompletionStage<ConfigTypeNodes> allConfigurations =
                 configurationClient.getAllConfigurations(language, placeholderProvider);
         final CompletionStage<ComponentIndices> allComponents =
@@ -175,5 +169,16 @@ public class ConfigurationTypeResource {
 
         return allConfigurations
                 .thenCompose(nodes -> allComponents.thenApply(components -> callback.apply(nodes, components)));
+    }
+
+    private <T> CompletionStage<T> withComposeNodesAndComponents(final String language,
+            final Function<String, String> placeholderProvider,
+            final BiFunction<ConfigTypeNodes, ComponentIndices, CompletionStage<T>> callback) {
+        final CompletionStage<ConfigTypeNodes> allConfigurations =
+                configurationClient.getAllConfigurations(language, placeholderProvider);
+        final CompletionStage<ComponentIndices> allComponents =
+                componentClient.getAllComponents(language, placeholderProvider);
+        return allConfigurations
+                .thenCompose(nodes -> allComponents.thenCompose(components -> callback.apply(nodes, components)));
     }
 }

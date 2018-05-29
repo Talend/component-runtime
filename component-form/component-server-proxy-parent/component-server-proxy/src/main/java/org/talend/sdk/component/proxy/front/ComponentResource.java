@@ -43,6 +43,7 @@ import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.UiNode;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
+import org.talend.sdk.component.proxy.service.ModelEnricherService;
 import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
@@ -72,6 +73,9 @@ public class ComponentResource {
 
     @Inject
     private ErrorProcessor errorProcessor;
+
+    @Inject
+    private ModelEnricherService modelEnricherService;
 
     @ApiOperation(value = "This endpoint return a list of available component",
             notes = "component has icon that need to be handled by the consumer of this endpoint "
@@ -109,8 +113,10 @@ public class ComponentResource {
             @PathParam("id") final String id) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        componentClient.getComponentDetail(language, placeholderProvider, id).thenCompose(this::withUiSpec).handle(
-                (r, e) -> errorProcessor.handleResponse(response, r, e));
+        componentClient
+                .getComponentDetail(language, placeholderProvider, id)
+                .thenCompose(d -> withUiSpec(d, language))
+                .handle((r, e) -> errorProcessor.handleResponse(response, r, e));
     }
 
     @ApiOperation(value = "Return the component icon file in png format", tags = "icon", produces = "image/png",
@@ -124,8 +130,10 @@ public class ComponentResource {
                 (icon, throwable) -> errorProcessor.handleResponse(response, icon, throwable));
     }
 
-    private CompletionStage<UiNode> withUiSpec(final ComponentDetail d) {
-        return uiSpecService.convert(d).thenApply(ui -> new UiNode(ui, toNode(d)));
+    private CompletionStage<UiNode> withUiSpec(final ComponentDetail d, final String language) {
+
+        return uiSpecService.convert(modelEnricherService.enrich(d, language)).thenApply(
+                ui -> new UiNode(ui, toNode(d)));
     }
 
     private Node toNode(final ComponentDetail d) {
