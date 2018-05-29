@@ -17,6 +17,8 @@ package org.talend.sdk.component.proxy.service;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
+import java.util.concurrent.CompletionException;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
@@ -24,6 +26,7 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
+import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 
 @ApplicationScoped
@@ -36,11 +39,17 @@ public class ErrorProcessor {
 
     public Object handleResponse(final AsyncResponse response, final Object result, final Throwable throwable) {
         if (throwable != null) {
-            response.resume(handleSingleError(throwable));
+            response.resume(handleSingleError(unwrap(throwable)));
         } else {
             response.resume(result);
         }
         return null;
+    }
+
+    private Throwable unwrap(final Throwable throwable) {
+        return CompletionException.class.isInstance(throwable)
+                ? unwrap(CompletionException.class.cast(throwable).getCause())
+                : throwable;
     }
 
     private WebApplicationException handleSingleError(final Throwable throwable) {
@@ -56,16 +65,17 @@ public class ErrorProcessor {
             } catch (final ProcessingException pe) {
                 return new WebApplicationException(Response
                         .status(HTTP_INTERNAL_ERROR)
-                        .entity(new ProxyErrorPayload("UNEXPECTED",
-                                "Component server failed with status '" + error.getResponse().getStatus() + "'"))
-                        .header(Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
+                        .entity(new ProxyErrorPayload(ErrorDictionary.UNEXPECTED.name(),
+                                "Error while processing server error : '" + error.getResponse().getStatus() + "'"))
+                        .header(Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, false)
                         .build());
             }
         }
 
         return new WebApplicationException(Response
                 .status(HTTP_INTERNAL_ERROR)
-                .entity(new ProxyErrorPayload("UNEXPECTED", throwable.getLocalizedMessage()))
+                .entity(new ProxyErrorPayload(ErrorDictionary.UNEXPECTED.name(),
+                        "Component server failed with : '" + throwable.getLocalizedMessage() + "'"))
                 .header(Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
                 .build());
     }

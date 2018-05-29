@@ -18,6 +18,8 @@ package org.talend.sdk.component.proxy.front;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
 
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
@@ -36,7 +38,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 
 import org.talend.sdk.component.proxy.client.ComponentClient;
 import org.talend.sdk.component.proxy.client.ConfigurationClient;
@@ -56,12 +57,9 @@ import io.swagger.annotations.ResponseHeader;
 @Api(description = "Configuration endpoint", tags = { "configuration", "icon" })
 @ApplicationScoped
 @Path("configuration")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
+@Consumes(APPLICATION_JSON)
+@Produces(APPLICATION_JSON)
 public class ConfigurationResourceProxy {
-
-    private static final String SWAGGER_HEADER_DESC = "This header indicate the error origin. "
-            + "true indicate an error from the component server, " + "false indicate that the error is from this proxy";
 
     @Inject
     private ConfigurationClient configurationClient;
@@ -85,7 +83,7 @@ public class ConfigurationResourceProxy {
                     + "otherwise the icon need to be gathered using the `familyId` from this endpoint `configuration/icon/{id}`",
             response = Configurations.class, tags = "configurations, data store", produces = "application/json",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
-                    description = SWAGGER_HEADER_DESC, response = Boolean.class) })
+                    description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("roots")
     public void getRootConfig(@Suspended final AsyncResponse response, @Context final HttpServletRequest request) {
@@ -100,7 +98,7 @@ public class ConfigurationResourceProxy {
             response = Configurations.class, tags = "configurations, data store, data set",
             produces = "application/json",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
-                    description = SWAGGER_HEADER_DESC, response = Boolean.class) })
+                    description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("details")
     public void getDetails(@Suspended final AsyncResponse response, @QueryParam("identifiers") final String[] ids,
@@ -122,7 +120,7 @@ public class ConfigurationResourceProxy {
     @ApiOperation(value = "Return the configuration icon file in png format", tags = "configuration icon, icon",
             produces = "image/png",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
-                    description = SWAGGER_HEADER_DESC, response = Boolean.class) })
+                    description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("icon/{id}")
     public void getConfigurationIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id,
