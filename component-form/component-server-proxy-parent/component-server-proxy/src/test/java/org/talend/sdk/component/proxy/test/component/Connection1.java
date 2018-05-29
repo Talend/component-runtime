@@ -16,9 +16,14 @@
 package org.talend.sdk.component.proxy.test.component;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 
+import lombok.Data;
+
+@Data
+@Checkable("validate-connection-1")
 @DataStore("Connection-1")
 public class Connection1 {
 

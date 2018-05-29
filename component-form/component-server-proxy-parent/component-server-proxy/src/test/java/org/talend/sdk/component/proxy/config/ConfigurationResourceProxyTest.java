@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.front;
+package org.talend.sdk.component.proxy.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

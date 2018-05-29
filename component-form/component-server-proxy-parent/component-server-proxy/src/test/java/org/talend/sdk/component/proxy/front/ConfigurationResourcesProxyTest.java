@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy;
+package org.talend.sdk.component.proxy.front;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,13 +28,14 @@ import java.util.Comparator;
 
 import javax.ws.rs.client.WebTarget;
 
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.proxy.model.ConfigType;
 import org.talend.sdk.component.proxy.model.Configurations;
 import org.talend.sdk.component.proxy.test.WithProxy;
 
 @WithProxy
-class ConfigurationResourceTest {
+class ConfigurationResourcesProxyTest {
 
     @Test
     void listRootConfigs(final WebTarget proxyClient) {
@@ -72,6 +74,17 @@ class ConfigurationResourceTest {
         final Configurations configurations = proxyClient
                 .path("configuration/details")
                 .queryParam("identifiers", config.getChildren().stream().toArray())
+                .request(APPLICATION_JSON_TYPE)
+                .get(Configurations.class);
+        assertNotNull(configurations);
+        configurations.getConfigurations().forEach((k, v) -> assertTrue(v.getChildren().isEmpty()));
+    }
+
+    @Ignore("not ye supported by the server, invalid ids are ignored")
+    void getConfigDetailsInvalidId(final WebTarget proxyClient) {
+        final Configurations configurations = proxyClient
+                .path("configuration/details")
+                .queryParam("identifiers", singletonList("0invalidxyz"))
                 .request(APPLICATION_JSON_TYPE)
                 .get(Configurations.class);
         assertNotNull(configurations);

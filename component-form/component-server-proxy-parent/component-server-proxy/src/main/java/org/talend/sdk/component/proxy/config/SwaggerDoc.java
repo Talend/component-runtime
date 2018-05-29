@@ -13,24 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.test.component;
+package org.talend.sdk.component.proxy.config;
 
-import java.util.List;
+public interface SwaggerDoc {
 
-import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.action.Proposable;
-import org.talend.sdk.component.api.configuration.type.DataSet;
+    String ERROR_HEADER_DESC = "This header indicate the error origin. "
+            + "true indicate an error from the component server, " + "false indicate that the error is from this proxy";
 
-@DataSet("dataset-1")
-public class DataSet1 {
-
-    @Option
-    private Connection1 connection;
-
-    @Proposable("action-with-error")
-    @Option
-    private String proposable;
-
-    @Option
-    private int limit;
 }
