@@ -43,7 +43,7 @@ import io.swagger.annotations.ResponseHeader;
 @Api(description = "Endpoint responsible to handle any server side interaction (validation, healthcheck, ...)",
         tags = { "action" })
 @ApplicationScoped
-@Path("action")
+@Path("actions")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
 public class ActionResource {
@@ -56,7 +56,7 @@ public class ActionResource {
 
     @ApiOperation(value = "This endpoint execute an action",
             notes = "configuration types has action that can be executed using this endpoint",
-            tags = "action, configurations", produces = APPLICATION_JSON, consumes = APPLICATION_JSON,
+            tags = { "action", "configurations" }, produces = APPLICATION_JSON, consumes = APPLICATION_JSON,
             responseContainer = "Map",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })

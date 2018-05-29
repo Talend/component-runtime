@@ -36,7 +36,7 @@ import org.talend.sdk.component.proxy.test.WithServer;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 
 @WithServer
-class ActionResourceProxyTest {
+class ActionResourceTest {
 
     private final GenericType<Map<String, Object>> mapType = new GenericType<Map<String, Object>>() {
 
@@ -46,7 +46,7 @@ class ActionResourceProxyTest {
     void actionHealthcheckOK(final WebTarget proxyClient) {
         Map<String, Object> payload = singletonMap("configuration.url", "http://localhost");
         final Map<String, Object> result = proxyClient
-                .path("action/execute")
+                .path("actions/execute")
                 .queryParam("family", "TheTestFamily")
                 .queryParam("type", "healthcheck")
                 .queryParam("action", "validate-connection-1")
@@ -62,7 +62,7 @@ class ActionResourceProxyTest {
     void actionHealthcheckKO(final WebTarget proxyClient) {
         Map<String, Object> payload = singletonMap("configuration.url", "na://localhost");
         final Map<String, Object> result = proxyClient
-                .path("action/execute")
+                .path("actions/execute")
                 .queryParam("family", "TheTestFamily")
                 .queryParam("type", "healthcheck")
                 .queryParam("action", "validate-connection-1")
@@ -77,7 +77,7 @@ class ActionResourceProxyTest {
     void actionNull(final WebTarget proxyClient) {
         final WebApplicationException error = assertThrows(WebApplicationException.class, () -> {
             final Map<String, Object> result = proxyClient
-                    .path("action/execute")
+                    .path("actions/execute")
                     .queryParam("family", "TheTestFamily")
                     .queryParam("type", "healthcheck")
                     .request(APPLICATION_JSON_TYPE)
@@ -93,7 +93,7 @@ class ActionResourceProxyTest {
     void actionInvalid(final WebTarget proxyClient) {
         final WebApplicationException error = assertThrows(WebApplicationException.class, () -> {
             final Map<String, Object> result = proxyClient
-                    .path("action/execute")
+                    .path("actions/execute")
                     .queryParam("family", "TheTestFamily")
                     .queryParam("type", "healthcheck")
                     .queryParam("action", "do-not-exist")
@@ -110,7 +110,7 @@ class ActionResourceProxyTest {
     void unhandledErrorFromAction(final WebTarget proxyClient) {
         final WebApplicationException error = assertThrows(WebApplicationException.class, () -> {
             final Map<String, Object> result = proxyClient
-                    .path("action/execute")
+                    .path("actions/execute")
                     .queryParam("family", "TheTestFamily")
                     .queryParam("type", "dynamic_values")
                     .queryParam("action", "action-with-error")

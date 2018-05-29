@@ -15,9 +15,7 @@
  */
 package org.talend.sdk.component.proxy.front;
 
-import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
 
@@ -34,15 +32,19 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 
+import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.proxy.client.ComponentClient;
 import org.talend.sdk.component.proxy.client.ConfigurationClient;
-import org.talend.sdk.component.proxy.model.ConfigType;
-import org.talend.sdk.component.proxy.model.Configurations;
+import org.talend.sdk.component.proxy.model.Node;
+import org.talend.sdk.component.proxy.model.Nodes;
+import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
+import org.talend.sdk.component.proxy.model.UiNode;
 import org.talend.sdk.component.proxy.service.ConfigurationService;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
 import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
@@ -56,12 +58,12 @@ import io.swagger.annotations.ResponseHeader;
 
 @Api(description = "Endpoint responsible to provide a way to navigate in the configurations and subconfigurations "
         + "to let the UI creates the corresponding entities. It is UiSpec friendly.",
-        tags = { "configuration", "icon", "uispec" })
+        tags = { "configuration", "icon", "uispec", "form" })
 @ApplicationScoped
-@Path("configuration")
+@Path("configurations")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-public class ConfigurationResource {
+public class ConfigurationTypeResource {
 
     @Inject
     private ConfigurationClient configurationClient;
@@ -78,16 +80,19 @@ public class ConfigurationResource {
     @Inject
     private PlaceholderProviderFactory placeholderProviderFactory;
 
+    @Inject
+    private UiSpecService uiSpecService;
+
     @ApiOperation(value = "Return all the available root configuration (Data store like) from the component server",
             notes = "Every configuration has an icon. "
                     + "In the response an icon key is returned. this icon key can be one of the bundled icons or a custom one. "
                     + "The consumer of this endpoint will need to check if the icon key is in the icons bundle "
-                    + "otherwise the icon need to be gathered using the `familyId` from this endpoint `configuration/icon/{id}`",
-            response = Configurations.class, tags = { "configurations", "datastore" }, produces = "application/json",
+                    + "otherwise the icon need to be gathered using the `familyId` from this endpoint `configurations/{id}/icon`",
+            response = Nodes.class, tags = { "configurations", "datastore" }, produces = "application/json",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("roots")
+    @Path("/")
     public void getRootConfig(@Suspended final AsyncResponse response, @Context final HttpServletRequest request) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
@@ -96,57 +101,78 @@ public class ConfigurationResource {
                         .handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
     }
 
-    @ApiOperation(value = "Return a configuration details using configuraiton identifiers ",
-            response = Configurations.class, tags = { "configurations", "datastore", "dataset" },
-            produces = "application/json",
+    @ApiOperation(value = "Return a form description ( Ui Spec ) of a specific configuration ", response = Nodes.class,
+            tags = { "form", "ui spec", "configurations", "datastore", "dataset" }, produces = "application/json",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("details")
-    public void getDetails(@Suspended final AsyncResponse response, @QueryParam("identifiers") final String[] ids,
+    @Path("/{id}/form")
+    public void getForm(@Suspended final AsyncResponse response, @PathParam("id") final String id,
             @Context final HttpServletRequest request) {
-        if (ids == null || ids.length == 0) {
-            response.resume(new Configurations(emptyMap(), emptyMap()));
+        if (id == null || id.isEmpty()) {
+            response.resume(new UiNode());
             return;
         }
-
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
         configurationClient
-                .getDetails(language, ids, placeholderProvider)
-                .thenCompose(configs -> withNodesAndComponents(language, placeholderProvider,
-                        (nodes, components) -> createConfigurations(configs, nodes, components)))
+                .getDetails(language, id, placeholderProvider)
+                .thenApply(this::getSingleNode)
+                .thenCompose(node -> withNodesAndComponents(language, placeholderProvider,
+                        (nodes, components) -> createConfigurationType(node, nodes, components)))
+                .thenCompose(configType -> createConfigurationDetail(configType, language, placeholderProvider))
                 .handle((detail, throwable) -> errorProcessor.handleResponse(response, detail, throwable));
+    }
+
+    private CompletionStage<UiNode> createConfigurationDetail(final Node configType, final String language,
+            final Function<String, String> placeholderProvider) {
+
+        return configurationClient
+                .getDetails(language, configType.getId(), placeholderProvider)
+                .thenApply(this::getSingleNode)
+                .thenCompose(node -> uiSpecService.convert("", node))
+                .thenApply(uiSpec -> new UiNode(uiSpec, configType));
     }
 
     @ApiOperation(value = "Return the configuration icon file in png format", tags = "icon", produces = "image/png",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("icon/{id}")
+    @Path("/{id}/icon")
     public void getConfigurationIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id,
             @Context final HttpServletRequest request) {
         componentClient.getFamilyIconById(id, placeholderProviderFactory.newProvider(request)).handle(
                 (icon, throwable) -> errorProcessor.handleResponse(response, icon, throwable));
     }
 
-    private Configurations createConfigurations(final ConfigTypeNodes configs, final ConfigTypeNodes nodes,
+    private Node createConfigurationType(final ConfigTypeNode node, final ConfigTypeNodes nodes,
             final ComponentIndices componentIndices) {
-        return new Configurations(configs.getNodes().entrySet().stream().map(e -> {
-            final ConfigTypeNode family = configurationService.getFamilyOf(e.getValue().getParentId(), nodes);
-            final String icon = configurationService.findIcon(family, componentIndices);
-            return new ConfigType(e.getValue().getId(), family.getId(), e.getValue().getDisplayName(),
-                    family.getDisplayName(), icon, e.getValue().getEdges());
-        }).collect(toMap(ConfigType::getId, Function.identity())), emptyMap());
+        final ConfigTypeNode family = configurationService.getFamilyOf(node.getParentId(), nodes);
+        final String icon = configurationService.findIcon(family, componentIndices);
+        return new Node(node.getId(), Node.Type.CONFIGURATION, node.getDisplayName(), family.getId(),
+                family.getDisplayName(), icon, node.getEdges(), node.getVersion(), node.getName(), null);
+    }
+
+    private ConfigTypeNode getSingleNode(final ConfigTypeNodes configs) {
+        return configs
+                .getNodes()
+                .entrySet()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(
+                        Response.status(404).entity(new ProxyErrorPayload("", "No node is found")).build()))
+                .getValue();
     }
 
     private <T> CompletionStage<T> withNodesAndComponents(final String language,
             final Function<String, String> placeholderProvider,
             final BiFunction<ConfigTypeNodes, ComponentIndices, T> callback) {
+
         final CompletionStage<ConfigTypeNodes> allConfigurations =
                 configurationClient.getAllConfigurations(language, placeholderProvider);
         final CompletionStage<ComponentIndices> allComponents =
                 componentClient.getAllComponents(language, placeholderProvider);
+
         return allConfigurations
                 .thenCompose(nodes -> allComponents.thenApply(components -> callback.apply(nodes, components)));
     }

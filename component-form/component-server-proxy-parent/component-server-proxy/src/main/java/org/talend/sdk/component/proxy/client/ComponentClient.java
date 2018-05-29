@@ -25,6 +25,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
+import org.talend.sdk.component.server.front.model.ComponentDetail;
+import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 
 @ApplicationScoped
@@ -54,6 +56,29 @@ public class ComponentClient {
         return configuration
                 .getHeaderAppender()
                 .apply(this.webTarget.path("component/icon/family/" + id).request(), placeholderProvider)
+                .rx()
+                .get();
+    }
+
+    public CompletionStage<ComponentDetail> getComponentDetail(final String language,
+            final Function<String, String> placeholderProvider, final String id) {
+        return configuration
+                .getHeaderAppender()
+                .apply(this.webTarget
+                        .path("component/details")
+                        .queryParam("language", language)
+                        .queryParam("identifiers", id)
+                        .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
+                .rx()
+                .get(ComponentDetailList.class)
+                .thenApply(l -> l.getDetails().iterator().next());
+    }
+
+    public CompletionStage<Response> getComponentIconById(final Function<String, String> placeholderProvider,
+            final String id) {
+        return configuration
+                .getHeaderAppender()
+                .apply(this.webTarget.path("component/icon/" + id).request(), placeholderProvider)
                 .rx()
                 .get();
     }

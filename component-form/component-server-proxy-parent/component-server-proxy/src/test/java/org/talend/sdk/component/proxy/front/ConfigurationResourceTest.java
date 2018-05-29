@@ -16,7 +16,6 @@
 package org.talend.sdk.component.proxy.front;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -30,65 +29,56 @@ import javax.ws.rs.client.WebTarget;
 
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.proxy.model.ConfigType;
-import org.talend.sdk.component.proxy.model.Configurations;
+import org.talend.sdk.component.proxy.model.Node;
+import org.talend.sdk.component.proxy.model.Nodes;
+import org.talend.sdk.component.proxy.model.UiNode;
 import org.talend.sdk.component.proxy.test.WithServer;
 
 @WithServer
-class ConfigurationResourcesProxyTest {
+class ConfigurationResourceTest {
 
     @Test
     void listRootConfigs(final WebTarget proxyClient) {
-        final Configurations roots =
-                proxyClient.path("configuration/roots").request(APPLICATION_JSON_TYPE).get(Configurations.class);
+        final Nodes roots = proxyClient.path("configurations").request(APPLICATION_JSON_TYPE).get(Nodes.class);
         assertNotNull(roots);
-        assertEquals(3, roots.getConfigurations().size());
-        roots.getConfigurations().forEach((k, c) -> assertNotNull(c.getIcon()));
+        assertEquals(3, roots.getNodes().size());
+        roots.getNodes().forEach((k, c) -> assertNotNull(c.getIcon()));
         assertEquals(asList("Connection-1", "Connection-2", "Connection-3"),
-                roots.getConfigurations().values().stream().map(ConfigType::getLabel).sorted().collect(toList()));
-    }
-
-    @Test
-    void getEmptyConfigDetails(final WebTarget proxyClient) {
-        final Configurations configurations = proxyClient
-                .path("configuration/details")
-                .queryParam("identifiers", emptyList())
-                .request(APPLICATION_JSON_TYPE)
-                .get(Configurations.class);
-        assertNotNull(configurations);
-        assertTrue(configurations.getConfigurations().isEmpty());
+                roots.getNodes().values().stream().map(Node::getLabel).sorted().collect(toList()));
     }
 
     @Test
     void getConfigDetails(final WebTarget proxyClient) {
-        final ConfigType config = proxyClient
-                .path("configuration/roots")
+        final Node config = proxyClient
+                .path("configurations")
                 .request(APPLICATION_JSON_TYPE)
-                .get(Configurations.class)
-                .getConfigurations()
+                .get(Nodes.class)
+                .getNodes()
                 .values()
                 .stream()
-                .sorted(Comparator.comparing(ConfigType::getLabel))
+                .sorted(Comparator.comparing(Node::getLabel))
                 .iterator()
                 .next();
-        final Configurations configurations = proxyClient
-                .path("configuration/details")
-                .queryParam("identifiers", config.getChildren().stream().toArray())
-                .request(APPLICATION_JSON_TYPE)
-                .get(Configurations.class);
-        assertNotNull(configurations);
-        configurations.getConfigurations().forEach((k, v) -> assertTrue(v.getChildren().isEmpty()));
+        final UiNode uiNode =
+                proxyClient.path("configurations/" + config.getId() + "/form").request(APPLICATION_JSON_TYPE).get(
+                        UiNode.class);
+
+        assertNotNull(uiNode);
+        assertNotNull(uiNode.getUi());
+        assertNotNull(uiNode.getMetadata());
+        assertEquals("Connection-1", uiNode.getMetadata().getName());
+        assertEquals("badge", uiNode.getMetadata().getIcon());
     }
 
     @Ignore("not ye supported by the server, invalid ids are ignored")
     void getConfigDetailsInvalidId(final WebTarget proxyClient) {
-        final Configurations configurations = proxyClient
-                .path("configuration/details")
+        final Nodes configurations = proxyClient
+                .path("configuration/form")
                 .queryParam("identifiers", singletonList("0invalidxyz"))
                 .request(APPLICATION_JSON_TYPE)
-                .get(Configurations.class);
+                .get(Nodes.class);
         assertNotNull(configurations);
-        configurations.getConfigurations().forEach((k, v) -> assertTrue(v.getChildren().isEmpty()));
+        configurations.getNodes().forEach((k, v) -> assertTrue(v.getChildren().isEmpty()));
     }
 
 }
