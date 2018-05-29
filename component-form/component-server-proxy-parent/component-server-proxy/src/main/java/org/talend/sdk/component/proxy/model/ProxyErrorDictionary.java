@@ -15,19 +15,9 @@
  */
 package org.talend.sdk.component.proxy.model;
 
-import java.util.Map;
+public enum ProxyErrorDictionary {
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class Configurations {
-
-    private Map<String, ConfigType> configurations;
-
-    private Map<String, ProxyErrorPayload> errors;
+    NO_COMPONENT_IN_FAMILY,
+    NO_FAMILY_FOR_CONFIGURATION,
 
 }

@@ -15,29 +15,19 @@
  */
 package org.talend.sdk.component.proxy.model;
 
-import java.util.Collection;
+import org.talend.sdk.component.form.model.Ui;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-public class ConfigType {
+public class UiNode {
 
-    private String id;
+    private Ui ui;
 
-    private String familyId;
-
-    private String label;
-
-    private String familyLabel;
-
-    private String icon;
-
-    private Collection<String> children;
+    private Node metadata;
 
 }

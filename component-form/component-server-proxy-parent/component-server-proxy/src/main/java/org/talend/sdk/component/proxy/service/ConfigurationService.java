@@ -15,12 +15,13 @@
  */
 package org.talend.sdk.component.proxy.service;
 
-import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static org.talend.sdk.component.proxy.model.ProxyErrorDictionary.NO_COMPONENT_IN_FAMILY;
+import static org.talend.sdk.component.proxy.model.ProxyErrorDictionary.NO_FAMILY_FOR_CONFIGURATION;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -30,8 +31,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.proxy.client.ConfigurationClient;
-import org.talend.sdk.component.proxy.model.ConfigType;
-import org.talend.sdk.component.proxy.model.Configurations;
+import org.talend.sdk.component.proxy.model.Node;
+import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
@@ -46,13 +47,14 @@ public class ConfigurationService {
     @Inject
     private ConfigurationClient client;
 
-    public Configurations getRootConfiguration(final ConfigTypeNodes configs, final ComponentIndices componentIndices) {
+    public Nodes getRootConfiguration(final ConfigTypeNodes configs, final ComponentIndices componentIndices) {
+
         final Map<String, ConfigTypeNode> families = ofNullable(configs)
                 .map(c -> c.getNodes().values().stream())
                 .orElseGet(Stream::empty)
                 .filter(node -> node.getParentId() == null)
                 .collect(toMap(ConfigTypeNode::getId, identity()));
-        return new Configurations(configs
+        return new Nodes(configs
                 .getNodes()
                 .values()
                 .stream()
@@ -60,10 +62,12 @@ public class ConfigurationService {
                         config -> config.getParentId() != null && families.containsKey(config.getParentId())))
                 .map(root -> {
                     final ConfigTypeNode family = families.get(root.getParentId());
-                    return new ConfigType(root.getId(), family.getId(), root.getDisplayName(), family.getDisplayName(),
-                            findIcon(family, componentIndices), root.getEdges());
+                    return new Node(root.getId(), Node.Type.CONFIGURATION, root.getDisplayName(), family.getId(),
+                            family.getDisplayName(), findIcon(family, componentIndices), root.getEdges(),
+                            root.getVersion(), root.getName(), null);
                 })
-                .collect(toMap(ConfigType::getId, identity())), Collections.emptyMap());
+                .collect(toMap(Node::getId, identity())));
+
     }
 
     public ConfigTypeNode getFamilyOf(final String id, final ConfigTypeNodes nodes) {
@@ -71,7 +75,17 @@ public class ConfigurationService {
         while (family != null && family.getParentId() != null) {
             family = nodes.getNodes().get(family.getParentId());
         }
-        return family; // require ot null/web app ex
+
+        if (family == null) {
+            throw new WebApplicationException(Response
+                    .status(INTERNAL_SERVER_ERROR)
+                    .entity(new ProxyErrorPayload(NO_FAMILY_FOR_CONFIGURATION.name(),
+                            "No family found for this configuration identified by id:" + id))
+                    .header(ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, false)
+                    .build());
+        }
+
+        return family;
     }
 
     public String findIcon(final ConfigTypeNode family, final ComponentIndices componentIndices) {
@@ -81,8 +95,9 @@ public class ConfigurationService {
                 .filter(component -> component.getId().getFamilyId().equals(family.getId()))
                 .findFirst()
                 .orElseThrow(() -> new WebApplicationException(Response
-                        .status(HTTP_INTERNAL_ERROR)
-                        .entity(new ProxyErrorPayload("UNEXPECTED", "No icon found for this configuration " + family))
+                        .status(INTERNAL_SERVER_ERROR)
+                        .entity(new ProxyErrorPayload(NO_COMPONENT_IN_FAMILY.name(),
+                                "No component found in this family " + family))
                         .header(ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, false)
                         .build()))
                 .getIconFamily()
