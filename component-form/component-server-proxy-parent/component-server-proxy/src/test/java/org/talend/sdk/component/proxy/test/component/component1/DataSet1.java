@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+package org.talend.sdk.component.proxy.test.component.component1;
 
-public enum ErrorDictionary {
-    PLUGIN_MISSING,
-    FAMILY_MISSING,
-    COMPONENT_MISSING,
-    CONFIGURATION_MISSING,
-    ICON_MISSING,
-    ACTION_MISSING,
-    ACTION_ERROR,
-    BAD_FORMAT,
-    DESIGN_MODEL_MISSING,
-    UNEXPECTED,
-    UNAUTHORIZED
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.action.Proposable;
+import org.talend.sdk.component.api.configuration.type.DataSet;
+
+@DataSet("dataset-1")
+public class DataSet1 {
+
+    @Option
+    private Connection1 connection;
+
+    @Proposable("action-with-error")
+    @Option
+    private String proposable;
+
+    @Option
+    private int limit;
 }

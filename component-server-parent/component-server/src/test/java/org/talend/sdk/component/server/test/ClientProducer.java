@@ -27,7 +27,6 @@ import javax.ws.rs.client.WebTarget;
 import org.apache.cxf.Bus;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
-import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.meecrowave.Meecrowave;
 
 @ApplicationScoped
@@ -38,7 +37,7 @@ public class ClientProducer {
 
     @PostConstruct
     private void enableLogging() {
-        if (Boolean.getBoolean("component.server.test.logging.skip")) {
+        if ("true".equalsIgnoreCase(System.getProperty("component.server.test.logging.skip", "true"))) {
             return;
         }
         new LoggingFeature().initialize(bus);

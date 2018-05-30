@@ -17,6 +17,7 @@ package org.talend.sdk.component.proxy.front;
 
 import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
 
 import java.util.Locale;
@@ -128,11 +129,12 @@ public class ConfigurationTypeResource {
                 .handle((detail, throwable) -> errorProcessor.handleResponse(response, detail, throwable));
     }
 
-    @ApiOperation(value = "Return the configuration icon file in png format", tags = "icon", produces = "image/png",
+    @ApiOperation(value = "Return the configuration icon file in png format", tags = "icon",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("{id}/icon")
+    @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
     public void getConfigurationIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id,
             @Context final HttpServletRequest request) {
         componentClient.getFamilyIconById(id, placeholderProviderFactory.newProvider(request)).handle(
@@ -165,8 +167,10 @@ public class ConfigurationTypeResource {
                 .entrySet()
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new WebApplicationException(
-                        Response.status(404).entity(new ProxyErrorPayload("", "No node is found")).build()))
+                .orElseThrow(() -> new WebApplicationException(Response
+                        .status(Response.Status.NOT_FOUND)
+                        .entity(new ProxyErrorPayload(ProxyErrorDictionary.UNEXPECTED.name(), "No node is found"))
+                        .build()))
                 .getValue();
     }
 

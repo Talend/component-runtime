@@ -17,6 +17,7 @@ package org.talend.sdk.component.proxy.front;
 
 import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
 
 import java.util.Collections;
@@ -119,15 +120,31 @@ public class ComponentResource {
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
         componentClient
                 .getComponentDetail(language, placeholderProvider, id)
-                .thenCompose(d -> withUiSpec(d, language, placeholderProvider))
-                .handle((r, e) -> errorProcessor.handleResponse(response, r, e));
+                .thenCompose(detail -> this.componentClient
+                        .getAllComponents(language, placeholderProvider)
+                        .thenApply(components -> components
+                                .getComponents()
+                                .stream()
+                                .filter(c -> c.getId().getId().equals(id))
+                                .findFirst()
+                                .orElseThrow(() -> new WebApplicationException(Response
+                                        .status(Response.Status.INTERNAL_SERVER_ERROR)
+                                        .entity(new ProxyErrorPayload(ProxyErrorDictionary.UNEXPECTED.name(),
+                                                "No component index found for " + id))
+                                        .header(ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
+                                        .build())))
+                        .thenCompose(
+                                componentIndex -> withUiSpec(detail, language, placeholderProvider, componentIndex)))
+                .handle((r, e) -> errorProcessor.handleResponse(response, r, e,
+                        this.errorProcessor::multipleToSingleError));
     }
 
-    @ApiOperation(value = "Return the component icon file in png format", tags = "icon", produces = "image/png",
+    @ApiOperation(value = "Return the component icon file in png format", tags = "icon",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("{id}/icon")
+    @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
     public void getComponentIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id,
             @Context final HttpServletRequest request) {
         componentClient.getComponentIconById(placeholderProviderFactory.newProvider(request), id).handle(
@@ -135,10 +152,10 @@ public class ComponentResource {
     }
 
     private CompletionStage<UiNode> withUiSpec(final ComponentDetail detail, final String language,
-            final Function<String, String> placeholderProvider) {
+            final Function<String, String> placeholderProvider, final ComponentIndex componentIndex) {
         try (final UiSpecService specService = uiSpecServiceProvider.newInstance(language, placeholderProvider)) {
             return specService.convert(modelEnricherService.enrich(detail, language)).thenApply(
-                    uiSpec -> new UiNode(uiSpec, toNode(detail)));
+                    uiSpec -> new UiNode(uiSpec, toNode(detail, componentIndex)));
         } catch (final Exception e) {
             throw new WebApplicationException(Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -149,9 +166,10 @@ public class ComponentResource {
         }
     }
 
-    private Node toNode(final ComponentDetail d) {
-        return new Node(d.getId().getId(), Node.Type.COMPONENT, d.getDisplayName(), d.getId().getFamilyId(), "",
-                d.getIcon(), Collections.emptyList(), d.getVersion(), d.getId().getName(), d.getId().getPlugin());
+    private Node toNode(final ComponentDetail d, final ComponentIndex componentIndex) {
+        return new Node(d.getId().getId(), Node.Type.COMPONENT, d.getDisplayName(), d.getId().getFamilyId(),
+                componentIndex.getFamilyDisplayName(), d.getIcon(), Collections.emptyList(), d.getVersion(),
+                d.getId().getName(), d.getId().getPlugin());
 
     }
 

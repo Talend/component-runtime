@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.proxy.service.client;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -22,7 +24,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
@@ -53,13 +54,14 @@ public class ComponentClient {
                 .get(ComponentIndices.class);
     }
 
-    public CompletionStage<Response> getFamilyIconById(final String id,
+    public CompletionStage<byte[]> getFamilyIconById(final String id,
             final Function<String, String> placeholderProvider) {
         return configuration
                 .getHeaderAppender()
-                .apply(this.webTarget.path("component/icon/family/" + id).request(), placeholderProvider)
+                .apply(this.webTarget.path("component/icon/family/" + id).request(APPLICATION_OCTET_STREAM),
+                        placeholderProvider)
                 .rx()
-                .get();
+                .get(byte[].class);
     }
 
     public CompletionStage<ComponentDetail> getComponentDetail(final String language,
@@ -76,13 +78,14 @@ public class ComponentClient {
                 .thenApply(l -> l.getDetails().iterator().next());
     }
 
-    public CompletionStage<Response> getComponentIconById(final Function<String, String> placeholderProvider,
+    public CompletionStage<byte[]> getComponentIconById(final Function<String, String> placeholderProvider,
             final String id) {
         return configuration
                 .getHeaderAppender()
-                .apply(this.webTarget.path("component/icon/" + id).request(), placeholderProvider)
+                .apply(this.webTarget.path("component/icon/" + id).request(APPLICATION_OCTET_STREAM),
+                        placeholderProvider)
                 .rx()
-                .get();
+                .get(byte[].class);
     }
 
 }

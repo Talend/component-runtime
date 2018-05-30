@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.proxy.front;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
 
@@ -22,6 +23,7 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -61,9 +63,9 @@ public class ActionResource {
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @ApiResponses({
-            @ApiResponse(code = 404, message = "This response is returned when no action is found",
-                    response = ProxyErrorPayload.class),
-            @ApiResponse(code = 400, message = "This response is returned when the action is null",
+            @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND,
+                    message = "This response is returned when no action is found", response = ProxyErrorPayload.class),
+            @ApiResponse(code = SC_BAD_REQUEST, message = "This response is returned when the action is null",
                     response = ProxyErrorPayload.class),
             @ApiResponse(code = 520, message = "This response is returned when the action raise an unhandled error",
                     response = ProxyErrorPayload.class) })
