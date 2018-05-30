@@ -75,6 +75,7 @@ class ComponentResourceTest {
         assertNotNull(uiNode.getUi());
         assertNotNull(uiNode.getMetadata());
         assertEquals("TheMapper1", uiNode.getMetadata().getName());
+        assertEquals("TheTestFamily2", uiNode.getMetadata().getFamilyLabel());
         assertEquals("myicon", uiNode.getMetadata().getIcon());
         assertEquals("test-component", uiNode.getMetadata().getPlugin());
     }

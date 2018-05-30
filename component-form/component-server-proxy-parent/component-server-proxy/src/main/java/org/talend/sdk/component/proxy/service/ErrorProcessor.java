@@ -60,7 +60,7 @@ public class ErrorProcessor {
         return null;
     }
 
-    public static Throwable unwrap(final Throwable throwable) {
+    private Throwable unwrap(final Throwable throwable) {
         return CompletionException.class.isInstance(throwable)
                 ? unwrap(CompletionException.class.cast(throwable).getCause())
                 : throwable;
@@ -73,13 +73,14 @@ public class ErrorProcessor {
      * @return WebApplicationException with a single error
      */
     public WebApplicationException multipleToSingleError(final Throwable throwable) {
-        final WebApplicationException error = WebApplicationException.class.cast(ErrorProcessor.unwrap(throwable));
-        final ErrorPayload errorDetails =
+        final WebApplicationException error = WebApplicationException.class.cast(unwrap(throwable));
+        ErrorPayload errorDetails =
                 error.getResponse().readEntity(multipleErrorType).entrySet().iterator().next().getValue();
         return new WebApplicationException(Response
                 .status(error.getResponse().getStatus())
                 .entity(new ProxyErrorPayload(errorDetails.getCode().name(), errorDetails.getDescription()))
                 .type(APPLICATION_JSON_TYPE)
+                .header(Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
                 .build());
     }
 

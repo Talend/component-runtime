@@ -167,8 +167,10 @@ public class ConfigurationTypeResource {
                 .entrySet()
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new WebApplicationException(
-                        Response.status(404).entity(new ProxyErrorPayload("", "No node is found")).build()))
+                .orElseThrow(() -> new WebApplicationException(Response
+                        .status(Response.Status.NOT_FOUND)
+                        .entity(new ProxyErrorPayload(ProxyErrorDictionary.UNEXPECTED.name(), "No node is found"))
+                        .build()))
                 .getValue();
     }
 
