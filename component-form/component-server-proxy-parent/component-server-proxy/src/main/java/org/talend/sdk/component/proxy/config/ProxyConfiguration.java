@@ -53,6 +53,16 @@ public class ProxyConfiguration {
     private String targetServerBase;
 
     @Inject
+    @Documentation("The connect timeout for the communication with the server.base in ms.")
+    @ConfigProperty(name = PREFIX + "client.timeouts.connect", defaultValue = "60000")
+    private Long connectTimeout;
+
+    @Inject
+    @Documentation("The read timeout for the communication with the server.base in ms.")
+    @ConfigProperty(name = PREFIX + "client.timeouts.read", defaultValue = "600000")
+    private Long readTimeout;
+
+    @Inject
     @Documentation("List of JAX-RS providers to register on the client, at least a JSON-B one should be here.")
     @ConfigProperty(name = PREFIX + "client.providers")
     private List<Class> clientProviders;
@@ -79,6 +89,38 @@ public class ProxyConfiguration {
     @Documentation("A home location for relative path resolution (optional).")
     @ConfigProperty(name = PREFIX + "application.home", defaultValue = "${playx.application.home:.}")
     private String home;
+
+    @Inject
+    @Documentation("Should the server use jcache to store catalog information and refresh it with some polling. "
+            + "If so the keys `jcache.caches.$cacheName.expiry.duration`, `jcache.caches.$cacheName.management.active` and "
+            + "`jcache.caches.$cacheName.statistics.active` will be read to create a JCache `MutableConfiguration`.")
+    @ConfigProperty(name = PREFIX + "jcache.active", defaultValue = "true")
+    private Boolean jcacheActive;
+
+    @Inject
+    @Documentation("Caching provider implementation to use (only set it if ambiguous).")
+    @ConfigProperty(name = PREFIX + "jcache.provider")
+    private Optional<String> jcacheProvider;
+
+    @Inject
+    @Documentation("Number of seconds used to check if the server must be refreshed.")
+    @ConfigProperty(name = PREFIX + "jcache.refresh.period", defaultValue = "60")
+    private Long jcacheRefreshPeriod;
+
+    @Inject
+    @Documentation("Core pool size for the client executor.")
+    @ConfigProperty(name = PREFIX + "client.threads.core", defaultValue = "64")
+    private Integer clientPoolCore;
+
+    @Inject
+    @Documentation("Max pool size for the client executor.")
+    @ConfigProperty(name = PREFIX + "client.threads.max", defaultValue = "256")
+    private Integer clientPoolMax;
+
+    @Inject
+    @Documentation("Keep alive for the client executor (in seconds).")
+    @ConfigProperty(name = PREFIX + "client.threads.keepAlive", defaultValue = "60")
+    private Long clientPoolKeepAlive;
 
     @Getter
     private BiFunction<Invocation.Builder, Function<String, String>, Invocation.Builder> headerAppender;

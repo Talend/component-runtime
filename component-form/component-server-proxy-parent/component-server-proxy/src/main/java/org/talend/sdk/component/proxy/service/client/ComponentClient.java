@@ -20,6 +20,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
+import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
@@ -41,6 +42,7 @@ public class ComponentClient {
     @Inject
     private ProxyConfiguration configuration;
 
+    @CacheResult
     public CompletionStage<ComponentIndices> getAllComponents(final String language,
             final Function<String, String> placeholderProvider) {
         return configuration

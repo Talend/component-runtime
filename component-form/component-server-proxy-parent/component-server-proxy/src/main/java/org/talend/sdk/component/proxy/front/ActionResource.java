@@ -35,6 +35,7 @@ import javax.ws.rs.container.Suspended;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,6 +52,7 @@ import io.swagger.annotations.ResponseHeader;
 public class ActionResource {
 
     @Inject
+    @UiSpecProxy
     private Client actionClient;
 
     @Inject

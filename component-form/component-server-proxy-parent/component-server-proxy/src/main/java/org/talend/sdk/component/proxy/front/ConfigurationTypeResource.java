@@ -16,6 +16,7 @@
 package org.talend.sdk.component.proxy.front;
 
 import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
@@ -40,6 +41,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.form.api.UiSpecService;
+import org.talend.sdk.component.proxy.api.ConfigurationTypes;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorDictionary;
@@ -67,7 +69,7 @@ import io.swagger.annotations.ResponseHeader;
 @Path("configurations")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-public class ConfigurationTypeResource {
+public class ConfigurationTypeResource implements ConfigurationTypes {
 
     @Inject
     private ConfigurationClient configurationClient;
@@ -90,6 +92,12 @@ public class ConfigurationTypeResource {
     @Inject
     private UiSpecServiceProvider uiSpecServiceProvider;
 
+    @Override
+    public CompletionStage<Nodes> findRoots(final String language, final Function<String, String> placeholderProvider) {
+        return withApplyNodesAndComponents(language, placeholderProvider,
+                (nodes, components) -> configurationService.getRootConfiguration(nodes, components));
+    }
+
     @ApiOperation(value = "Return all the available root configuration (Data store like) from the component server",
             notes = "Every configuration has an icon. "
                     + "In the response an icon key is returned. this icon key can be one of the bundled icons or a custom one. "
@@ -102,9 +110,8 @@ public class ConfigurationTypeResource {
     public void getRootConfig(@Suspended final AsyncResponse response, @Context final HttpServletRequest request) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        withApplyNodesAndComponents(language, placeholderProvider,
-                (nodes, components) -> configurationService.getRootConfiguration(nodes, components))
-                        .handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
+        findRoots(language, placeholderProvider)
+                .handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
     }
 
     @ApiOperation(value = "Return a form description ( Ui Spec ) of a specific configuration ", response = Nodes.class,
@@ -124,8 +131,9 @@ public class ConfigurationTypeResource {
         configurationClient
                 .getDetails(language, id, placeholderProvider)
                 .thenApply(this::getSingleNode)
-                .thenCompose(node -> withComposeNodesAndComponents(language, placeholderProvider,
+                .thenCompose(node -> withApplyNodesAndComponents(language, placeholderProvider,
                         (nodes, components) -> toUiNode(language, node, nodes, components, placeholderProvider)))
+                .thenCompose(identity())
                 .handle((detail, throwable) -> errorProcessor.handleResponse(response, detail, throwable));
     }
 
@@ -184,16 +192,5 @@ public class ConfigurationTypeResource {
 
         return allConfigurations
                 .thenCompose(nodes -> allComponents.thenApply(components -> callback.apply(nodes, components)));
-    }
-
-    private <T> CompletionStage<T> withComposeNodesAndComponents(final String language,
-            final Function<String, String> placeholderProvider,
-            final BiFunction<ConfigTypeNodes, ComponentIndices, CompletionStage<T>> callback) {
-        final CompletionStage<ConfigTypeNodes> allConfigurations =
-                configurationClient.getAllConfigurations(language, placeholderProvider);
-        final CompletionStage<ComponentIndices> allComponents =
-                componentClient.getAllComponents(language, placeholderProvider);
-        return allConfigurations
-                .thenCompose(nodes -> allComponents.thenCompose(components -> callback.apply(nodes, components)));
     }
 }

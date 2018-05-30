@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.service.qualifier;
+package org.talend.sdk.component.proxy.api;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import org.talend.sdk.component.proxy.model.Nodes;
 
-import javax.inject.Qualifier;
+public interface ConfigurationTypes {
 
-@Qualifier
-@Target({ TYPE, FIELD, METHOD, PARAMETER })
-@Retention(RUNTIME)
-public @interface UiSpecProxy {
+    CompletionStage<Nodes> findRoots(String language, Function<String, String> placeholderProvider);
 }

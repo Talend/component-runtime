@@ -76,6 +76,7 @@
     <geronimo-interceptor.version>1.0</geronimo-interceptor.version>
     <geronimo-jsonb.version>1.0</geronimo-jsonb.version>
     <geronimo-json.version>1.0</geronimo-json.version>
+    <jcache-api.version>1.0-alpha-1</jcache-api.version>
     <batik.version>1.9.1</batik.version>
     <beam.version>2.4.0</beam.version>
     <commons-codec.version>1.11</commons-codec.version>
