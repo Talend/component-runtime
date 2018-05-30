@@ -1,6 +1,10 @@
 {
   "prependProperties": [
     {
+      "path": "_datasetMetadata",
+      "type": "OBJECT"
+    },
+    {
       "path": "_datasetMetadata.name",
       "name": "name",
       "displayName": "test.displayName",

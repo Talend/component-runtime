@@ -61,7 +61,7 @@ class ModelEnricherServiceTest {
         assertEquals(configTypeNode.getDisplayName(), enriched.getDisplayName());
         assertEquals(configTypeNode.getEdges(), enriched.getEdges());
         assertEquals(configTypeNode.getParentId(), enriched.getParentId());
-        assertEquals(2, enriched.getProperties().size());
+        assertEquals(3, enriched.getProperties().size());
 
         final SimplePropertyDefinition def = enriched
                 .getProperties()
