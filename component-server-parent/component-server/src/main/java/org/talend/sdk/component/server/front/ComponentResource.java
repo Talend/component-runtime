@@ -21,7 +21,9 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
@@ -268,6 +270,7 @@ public class ComponentResource {
      */
     @GET
     @Path("icon/family/{id}")
+    @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
     public Response familyIcon(@PathParam("id") final String id) {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta meta = componentFamilyDao.findById(id);
@@ -308,6 +311,7 @@ public class ComponentResource {
      */
     @GET
     @Path("icon/{id}")
+    @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
     public Response icon(@PathParam("id") final String id) {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta.BaseMeta<Object> meta = componentDao.findById(id);
