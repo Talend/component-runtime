@@ -1,5 +1,5 @@
 {
-  "properties": [
+  "prependProperties": [
     {
       "path": "_datasetMetadata.name",
       "name": "name",

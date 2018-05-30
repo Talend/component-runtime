@@ -16,6 +16,7 @@
 package org.talend.sdk.component.proxy.service;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
@@ -29,7 +30,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -37,7 +38,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -83,35 +83,32 @@ public class ModelEnricherService {
                     new Locale(lang), Thread.currentThread().getContextClassLoader());
 
     public ConfigTypeNode enrich(final ConfigTypeNode node, final String lang) {
-        return ofNullable(doEnrich(node.getConfigurationType(), lang,
-                () -> new ConfigTypeNode(node.getId(), node.getVersion(), node.getParentId(),
-                        node.getConfigurationType(), node.getName(), node.getDisplayName(),
-                        new HashSet<>(node.getEdges()), new ArrayList<>(node.getProperties()),
-                        new ArrayList<>(node.getActions())),
-                ConfigTypeNode::getProperties)).orElse(node);
+        return doEnrich(node.getConfigurationType(), lang, patch -> {
+            final ConfigTypeNode copy = new ConfigTypeNode(node.getId(), node.getVersion(), node.getParentId(),
+                    node.getConfigurationType(), node.getName(), node.getDisplayName(), node.getEdges(),
+                    new ArrayList<>(), node.getActions());
+            patch.doPatch(copy.getProperties(), node.getProperties());
+            return copy;
+        }).orElse(node);
     }
 
     public ComponentDetail enrich(final ComponentDetail node, final String lang) {
-        return ofNullable(doEnrich("component", lang,
-                () -> new ComponentDetail(node.getId(), node.getDisplayName(), node.getIcon(), node.getType(),
-                        node.getVersion(), new ArrayList<>(node.getProperties()), new ArrayList<>(node.getActions()),
-                        new ArrayList<>(node.getInputFlows()), new ArrayList<>(node.getOutputFlows()),
-                        new ArrayList<>(node.getLinks())),
-                ComponentDetail::getProperties)).orElse(node);
+        return doEnrich("component", lang, patch -> {
+            final ComponentDetail copy = new ComponentDetail(node.getId(), node.getDisplayName(), node.getIcon(),
+                    node.getType(), node.getVersion(), new ArrayList<>(), node.getActions(), node.getInputFlows(),
+                    node.getOutputFlows(), node.getLinks());
+            patch.doPatch(copy.getProperties(), node.getProperties());
+            return copy;
+        }).orElse(node);
     }
 
-    private <T> T doEnrich(final String type, final String lang, final Supplier<T> lightCopyProvider,
-            final Function<T, Collection<SimplePropertyDefinition>> propertiesExtractor) {
+    private <T> Optional<T> doEnrich(final String type, final String lang, final Function<Patch, T> propertiesMerger) {
         final Patches config =
                 patches.computeIfAbsent(type, k -> findPatch(type).orElseGet(() -> findPatch("default").orElse(skip)));
         if (config == skip) {
-            return null;
+            return empty();
         }
-        final Patch patch = config.forLang(bundleSupplier.apply(lang));
-        final T copy = lightCopyProvider.get();
-        final Collection<SimplePropertyDefinition> properties = propertiesExtractor.apply(copy);
-        ofNullable(patch.getProperties()).ifPresent(properties::addAll);
-        return copy;
+        return ofNullable(config.forLang(bundleSupplier.apply(lang))).map(propertiesMerger);
     }
 
     private Optional<Patches> findPatch(final String type) {
@@ -134,30 +131,34 @@ public class ModelEnricherService {
     }
 
     private Patch normalize(final Patch p) {
-        p.setProperties(ofNullable(p.getProperties()).orElseGet(Collections::emptyList));
-        p.getProperties().forEach(prop -> {
-            if (prop.getProposalDisplayNames() != null) {
-                if (prop.getValidation() == null) {
-                    prop.setValidation(new PropertyValidation());
-                }
-                if (prop.getValidation().getEnumValues() == null) {
-                    prop.getValidation().setEnumValues(prop.getProposalDisplayNames().keySet());
-                }
-            } else if (prop.getValidation() != null && prop.getValidation().getEnumValues() != null
-                    && prop.getProposalDisplayNames() == null) {
-                prop.setProposalDisplayNames(
-                        prop.getValidation().getEnumValues().stream().collect(toMap(identity(), identity())));
-            }
-
-            if (prop.getMetadata() == null) {
-                prop.setMetadata(emptyMap());
-            }
-
-            if (prop.getName() == null) {
-                prop.setName(prop.getPath().substring(prop.getPath().lastIndexOf('.') + 1));
-            }
-        });
+        p.setPrependProperties(ofNullable(p.getPrependProperties()).orElseGet(Collections::emptyList));
+        p.getPrependProperties().forEach(this::normalize);
+        p.setAppendProperties(ofNullable(p.getAppendProperties()).orElseGet(Collections::emptyList));
+        p.getAppendProperties().forEach(this::normalize);
         return p;
+    }
+
+    private void normalize(final SimplePropertyDefinition prop) {
+        if (prop.getProposalDisplayNames() != null) {
+            if (prop.getValidation() == null) {
+                prop.setValidation(new PropertyValidation());
+            }
+            if (prop.getValidation().getEnumValues() == null) {
+                prop.getValidation().setEnumValues(prop.getProposalDisplayNames().keySet());
+            }
+        } else if (prop.getValidation() != null && prop.getValidation().getEnumValues() != null
+                && prop.getProposalDisplayNames() == null) {
+            prop.setProposalDisplayNames(
+                    prop.getValidation().getEnumValues().stream().collect(toMap(identity(), identity())));
+        }
+
+        if (prop.getMetadata() == null) {
+            prop.setMetadata(emptyMap());
+        }
+
+        if (prop.getName() == null) {
+            prop.setName(prop.getPath().substring(prop.getPath().lastIndexOf('.') + 1));
+        }
     }
 
     private Optional<InputStream> extractLocation(final String location) {
@@ -208,7 +209,16 @@ public class ModelEnricherService {
     @AllArgsConstructor
     public static class Patch {
 
-        private Collection<SimplePropertyDefinition> properties;
+        private Collection<SimplePropertyDefinition> prependProperties;
+
+        private Collection<SimplePropertyDefinition> appendProperties;
+
+        private void doPatch(final Collection<SimplePropertyDefinition> properties,
+                final Collection<SimplePropertyDefinition> original) {
+            ofNullable(prependProperties).ifPresent(properties::addAll);
+            ofNullable(original).ifPresent(properties::addAll);
+            ofNullable(appendProperties).ifPresent(properties::addAll);
+        }
     }
 
     @RequiredArgsConstructor
@@ -219,30 +229,28 @@ public class ModelEnricherService {
         private final ConcurrentMap<String, Patch> patchPerLang = new ConcurrentHashMap<>();
 
         private Patch forLang(final ResourceBundle bundle) {
-            return patchPerLang
-                    .computeIfAbsent(bundle.getLocale().getLanguage(),
-                            k -> new Patch(
-                                    base.properties
-                                            .stream()
-                                            .map(p -> new SimplePropertyDefinition(p.getPath(),
-                                                    findTranslation(bundle, p.getName()),
-                                                    findTranslation(bundle, p.getDisplayName()), p.getType(),
-                                                    p.getDefaultValue(), p.getValidation(),
-                                                    ofNullable(p.getMetadata())
-                                                            .map(m -> m.entrySet().stream().collect(toMap(
-                                                                    Map.Entry::getKey,
-                                                                    e -> findTranslation(bundle, e.getValue()))))
-                                                            .orElse(null),
-                                                    findTranslation(bundle, p.getPlaceholder()),
-                                                    ofNullable(p.getProposalDisplayNames())
-                                                            .map(proposals -> proposals
-                                                                    .entrySet()
-                                                                    .stream()
-                                                                    .collect(toMap(Map.Entry::getKey,
-                                                                            e -> findTranslation(bundle,
-                                                                                    e.getValue()))))
-                                                            .orElse(null)))
-                                            .collect(toList())));
+            return patchPerLang.computeIfAbsent(bundle.getLocale().getLanguage(),
+                    k -> new Patch(withTranslations(bundle, base.prependProperties),
+                            withTranslations(bundle, base.appendProperties)));
+        }
+
+        private List<SimplePropertyDefinition> withTranslations(final ResourceBundle bundle,
+                final Collection<SimplePropertyDefinition> props) {
+            return props
+                    .stream()
+                    .map(p -> new SimplePropertyDefinition(p.getPath(), findTranslation(bundle, p.getName()),
+                            findTranslation(bundle, p.getDisplayName()), p.getType(), p.getDefaultValue(),
+                            p.getValidation(),
+                            ofNullable(p.getMetadata())
+                                    .map(m -> m.entrySet().stream().collect(
+                                            toMap(Map.Entry::getKey, e -> findTranslation(bundle, e.getValue()))))
+                                    .orElse(null),
+                            findTranslation(bundle, p.getPlaceholder()),
+                            ofNullable(p.getProposalDisplayNames())
+                                    .map(proposals -> proposals.entrySet().stream().collect(
+                                            toMap(Map.Entry::getKey, e -> findTranslation(bundle, e.getValue()))))
+                                    .orElse(null)))
+                    .collect(toList());
         }
 
         private String findTranslation(final ResourceBundle bundle, final String keyOrValue) {

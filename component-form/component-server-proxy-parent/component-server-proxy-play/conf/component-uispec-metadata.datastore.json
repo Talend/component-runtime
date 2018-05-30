@@ -5,11 +5,24 @@
       "type": "OBJECT"
     },
     {
+      "path": "_datasetMetadata.name",
+      "displayName": "Name",
+      "type": "STRING"
+    },
+    {
       "path": "_datasetMetadata.type",
       "displayName": "Types",
       "type": "ENUM",
       "metadata": {
         "action::dynamic_values": "builtin::roots"
+      }
+    },
+    {
+      "path": "_datasetMetadata.description",
+      "displayName": "Description",
+      "type": "STRING",
+      "metadata": {
+        "ui::textarea": "true"
       }
     }
   ]
