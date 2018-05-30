@@ -38,7 +38,7 @@ public class ClientProducer {
 
     @PostConstruct
     private void enableLogging() {
-        if (Boolean.getBoolean("component.server.test.logging.skip")) {
+        if ("true".equalsIgnoreCase(System.getProperty("component.server.test.logging.skip", "true"))) {
             return;
         }
         new LoggingFeature().initialize(bus);
