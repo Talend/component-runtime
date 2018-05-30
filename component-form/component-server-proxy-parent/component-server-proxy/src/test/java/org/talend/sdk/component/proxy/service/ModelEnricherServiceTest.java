@@ -26,20 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 
-import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
-import javax.json.bind.Jsonb;
-import javax.ws.rs.client.Client;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
-import org.talend.sdk.component.proxy.config.ProxyConfiguration;
-import org.talend.sdk.component.proxy.service.client.ComponentClient;
-import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
-import org.talend.sdk.component.proxy.service.client.UiSpecServiceClient;
-import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.proxy.test.CdiInject;
 import org.talend.sdk.component.proxy.test.WithServer;
 import org.talend.sdk.component.server.front.model.ActionReference;
@@ -55,21 +47,7 @@ class ModelEnricherServiceTest {
     private ModelEnricherService modelEnricherService;
 
     @Inject
-    private ConfigurationClient configurationClient;
-
-    @Inject
-    private ConfigurationService configurationService;
-
-    @Inject
-    private ProxyConfiguration configuration;
-
-    @Inject
-    @UiSpecProxy
-    private Client client;
-
-    @Inject
-    @UiSpecProxy
-    private Jsonb jsonb;
+    private UiSpecServiceProvider provider;
 
     @Test
     void convertConfig() {
@@ -102,9 +80,7 @@ class ModelEnricherServiceTest {
     void typeProposals() throws Exception {
         final ConfigTypeNode configTypeNode = newConfig("type-proposals", newProperty());
         final ConfigTypeNode configType = modelEnricherService.enrich(configTypeNode, "en");
-        final UiSpecService uiSpecService =
-                new UiSpecService(new UiSpecServiceClient(client, configuration.getTargetServerBase(),
-                        configurationClient, configurationService, jsonb, "en", k -> null), jsonb);
+        final UiSpecService uiSpecService = provider.newInstance("en", k -> null);
         final Ui ui = uiSpecService.convert("someDamily", configType).toCompletableFuture().get();
         uiSpecService.close();
 

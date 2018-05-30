@@ -26,7 +26,6 @@ import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.json.bind.Jsonb;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -34,14 +33,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.form.api.UiSpecService;
-import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorDictionary;
@@ -51,10 +48,9 @@ import org.talend.sdk.component.proxy.service.ConfigurationService;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
 import org.talend.sdk.component.proxy.service.ModelEnricherService;
 import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
+import org.talend.sdk.component.proxy.service.UiSpecServiceProvider;
 import org.talend.sdk.component.proxy.service.client.ComponentClient;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
-import org.talend.sdk.component.proxy.service.client.UiSpecServiceClient;
-import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
@@ -91,15 +87,7 @@ public class ConfigurationTypeResource {
     private ModelEnricherService modelEnricherService;
 
     @Inject
-    private ProxyConfiguration configuration;
-
-    @Inject
-    @UiSpecProxy
-    private Client client;
-
-    @Inject
-    @UiSpecProxy
-    private Jsonb jsonb;
+    private UiSpecServiceProvider uiSpecServiceProvider;
 
     @ApiOperation(value = "Return all the available root configuration (Data store like) from the component server",
             notes = "Every configuration has an icon. "
@@ -158,16 +146,14 @@ public class ConfigurationTypeResource {
         final String icon = configurationService.findIcon(family.getId(), componentIndices);
         Node configType = new Node(node.getId(), Node.Type.CONFIGURATION, node.getDisplayName(), family.getId(),
                 family.getDisplayName(), icon, node.getEdges(), node.getVersion(), node.getName(), null);
-        try (final UiSpecService specService =
-                new UiSpecService(new UiSpecServiceClient(client, configuration.getTargetServerBase(),
-                        configurationClient, configurationService, jsonb, language, placeholderProvider), jsonb)) {
+        try (final UiSpecService specService = uiSpecServiceProvider.newInstance(language, placeholderProvider)) {
             return specService.convert(family.getName(), modelEnricherService.enrich(node, language)).thenApply(
                     uiSpec -> new UiNode(uiSpec, configType));
         } catch (final Exception e) {
             throw new WebApplicationException(Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(new ProxyErrorPayload(ProxyErrorDictionary.UISPEC_SERVICE_CLOSE_FAILURE.name(),
-                            "UiSpecService close failed"))
+                            "UiSpecService processing failed"))
                     .header(ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
                     .build());
         }
