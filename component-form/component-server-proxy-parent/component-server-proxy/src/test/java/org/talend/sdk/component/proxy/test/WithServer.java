@@ -20,7 +20,14 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.of;
 import static org.apache.openejb.loader.JarLocation.jarLocation;
+
+import play.Application;
+import play.ApplicationLoader;
+import play.Environment;
+import play.Mode;
+import play.test.TestServer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -37,7 +44,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
-import java.util.stream.Stream;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -55,18 +61,12 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
-import org.talend.sdk.component.proxy.test.component.Connection1;
+import org.talend.sdk.component.proxy.test.component.TheService;
 
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import play.Application;
-import play.ApplicationLoader;
-import play.Environment;
-import play.Mode;
-import play.test.TestServer;
 
 @Slf4j
 class SurefireWorkaroundOutput implements Runnable {
@@ -291,23 +291,27 @@ public @interface WithServer {
 
         private void createM2() {
             final File jar = new File(m2, "org/talend/test/test-component/1.0.0/test-component-1.0.0.jar");
-            jar.getParentFile().mkdirs();
+            if (!jar.getParentFile().mkdirs()) {
+                throw new IllegalStateException(
+                        "Can't prepare test environment. cause : can't create component jar " + jar.getAbsolutePath());
+            }
             try (final JarOutputStream out = new JarOutputStream(new FileOutputStream(jar))) {
-                final String packageToInclude = Connection1.class.getPackage().getName();
+                final String packageToInclude = TheService.class.getPackage().getName();
                 final String[] pck = packageToInclude.split("\\.");
                 for (int i = 0; i < pck.length; i++) {
-                    final String folder = Stream.of(pck).limit(i + 1).collect(joining("/"));
+                    final String folder = of(pck).limit(i + 1).collect(joining("/"));
                     final JarEntry entry = new JarEntry(folder + '/');
                     out.putNextEntry(entry);
                     out.closeEntry();
                 }
                 final String pckPath = packageToInclude.replace('.', '/');
-                Stream
-                        .of(ofNullable(new File(jarLocation(Tacokit.class), pckPath).listFiles())
-                                .orElseGet(() -> new File[0]))
-                        .filter(c -> c.getName().endsWith(".class") || c.getName().endsWith(".properties"))
+                of(ofNullable(new File(jarLocation(Tacokit.class), pckPath).listFiles()).orElseGet(() -> new File[0]))
+                        .forEach(file -> appendEntryToJar(out, pckPath, file));
+                // add components icons
+                of(ofNullable(new File(jarLocation(Tacokit.class), "icons").listFiles()).orElseGet(() -> new File[0]))
+                        .filter(c -> c.getName().endsWith("_icon32.png"))
                         .forEach(file -> {
-                            final JarEntry entry = new JarEntry(pckPath + '/' + file.getName());
+                            final JarEntry entry = new JarEntry("icons/" + file.getName());
                             try {
                                 out.putNextEntry(entry);
                                 IO.copy(file, out);
@@ -316,6 +320,25 @@ public @interface WithServer {
                                 throw new IllegalStateException(e);
                             }
                         });
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        private void appendEntryToJar(final JarOutputStream out, final String pckPath, final File file) {
+            try {
+                if (file.isDirectory()) {
+                    final JarEntry entry = new JarEntry(pckPath + '/' + file.getName() + "/");
+                    out.putNextEntry(entry);
+                    out.closeEntry();
+                    of(ofNullable(file.listFiles()).orElse(new File[0]))
+                            .forEach(f -> appendEntryToJar(out, pckPath + "/" + file.getName(), f));
+                } else if (file.getName().endsWith(".class") || file.getName().endsWith(".properties")) {
+                    final JarEntry entry = new JarEntry(pckPath + '/' + file.getName());
+                    out.putNextEntry(entry);
+                    IO.copy(file, out);
+                    out.closeEntry();
+                }
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
@@ -348,22 +371,19 @@ public @interface WithServer {
 
         @Override
         public void run() {
-            final String classpath = Stream
-                    .of(ofNullable(libs.listFiles()).orElseGet(() -> new File[0]))
-                    .map(File::getAbsolutePath)
-                    .collect(joining(File.pathSeparator));
+            final String classpath =
+                    of(ofNullable(libs.listFiles()).orElseGet(() -> new File[0])).map(File::getAbsolutePath).collect(
+                            joining(File.pathSeparator));
 
             try {
                 process = new ProcessBuilder()
                         .directory(libs.getParentFile())
-                        .command(Stream
-                                .of(new File(System.getProperty("java.home"),
+                        .command(of(
+                                new File(System.getProperty("java.home"),
                                         "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : "")).getAbsolutePath(),
-                                        "-cp", classpath,
-                                        "-Dtalend.component.server.maven.repository=" + m2.getAbsolutePath(),
-                                        "-Dtalend.component.server.component.coordinates=" + getComponents(),
-                                        "org.apache.meecrowave.runner.Cli", "--http", Integer.toString(port))
-                                .collect(toList()))
+                                "-cp", classpath, "-Dtalend.component.server.maven.repository=" + m2.getAbsolutePath(),
+                                "-Dtalend.component.server.component.coordinates=" + getComponents(),
+                                "org.apache.meecrowave.runner.Cli", "--http", Integer.toString(port)).collect(toList()))
                         .start();
                 new Thread(new SurefireWorkaroundOutput("tacokit-server-out", process.getInputStream()),
                         "tacokit-server-out").start();
