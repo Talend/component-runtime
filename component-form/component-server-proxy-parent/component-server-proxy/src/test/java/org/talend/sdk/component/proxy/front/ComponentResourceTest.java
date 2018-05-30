@@ -16,7 +16,6 @@
 package org.talend.sdk.component.proxy.front;
 
 import static java.util.stream.Collectors.joining;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
