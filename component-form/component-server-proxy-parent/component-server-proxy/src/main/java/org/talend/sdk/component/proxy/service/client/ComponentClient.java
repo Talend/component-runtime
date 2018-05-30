@@ -22,7 +22,6 @@ import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
@@ -62,14 +61,7 @@ public class ComponentClient {
                 .apply(this.webTarget.path("component/icon/family/" + id).request(APPLICATION_OCTET_STREAM),
                         placeholderProvider)
                 .rx()
-                .get()
-                .thenApply(r -> {
-                    if (r.getStatus() != 200) {
-                        throw new WebApplicationException(r); // propagate as error
-                    }
-                    return r;
-                })
-                .thenApply(r -> r.readEntity(byte[].class));
+                .get(byte[].class);
     }
 
     public CompletionStage<ComponentDetail> getComponentDetail(final String language,
@@ -93,14 +85,7 @@ public class ComponentClient {
                 .apply(this.webTarget.path("component/icon/" + id).request(APPLICATION_OCTET_STREAM),
                         placeholderProvider)
                 .rx()
-                .get()
-                .thenApply(r -> {
-                    if (r.getStatus() != 200) {
-                        throw new WebApplicationException(r); // propagate as error
-                    }
-                    return r;
-                })
-                .thenApply(r -> r.readEntity(byte[].class));
+                .get(byte[].class);
     }
 
 }
