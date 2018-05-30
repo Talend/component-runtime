@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -70,6 +72,8 @@ public class Container implements Lifecycle {
 
     private final AtomicReference<Date> created = new AtomicReference<>();
 
+    private final AtomicReference<Date> lastModifiedTimestamp = new AtomicReference<>();
+
     private final Supplier<ConfigurableClassLoader> classloaderProvider;
 
     @Getter
@@ -90,10 +94,11 @@ public class Container implements Lifecycle {
         this.rootModule = rootModule;
         this.dependencies = dependencies;
         this.localDependencyRelativeResolver = localDependencyRelativeResolver;
+        this.lastModifiedTimestamp.set(new Date(0));
         ofNullable(initializer).ifPresent(i -> i.accept(this));
 
         this.classloaderProvider = () -> {
-            final URL[] urls = findExistingClasspathFiles().map(f -> {
+            final URL[] urls = findExistingClasspathFiles().peek(this::visitLastModified).map(f -> {
                 try {
                     return f.toURI().toURL();
                 } catch (final MalformedURLException e) {
@@ -124,6 +129,21 @@ public class Container implements Lifecycle {
             return loader;
         };
         reload();
+    }
+
+    private void visitLastModified(final File f) {
+        long lastModified = f.lastModified();
+        if (lastModified <= 0) { // generally does the same but some OS don't
+            try {
+                final FileTime lastModifiedTime = Files.getLastModifiedTime(f.toPath());
+                lastModified = lastModifiedTime.toMillis();
+            } catch (final IOException e) {
+                // no-op
+            }
+        }
+        if (lastModified > 0 && new Date(lastModified).compareTo(lastModifiedTimestamp.get()) > 0) {
+            lastModifiedTimestamp.set(new Date(lastModified));
+        }
     }
 
     // we use that to prefilter the dependencies we keep, in some env we don't nest them
@@ -228,6 +248,10 @@ public class Container implements Lifecycle {
         doClose();
         loaderRef.set(classloaderProvider.get());
         this.created.set(new Date());
+    }
+
+    public Date getLastModifiedTimestamp() {
+        return lastModifiedTimestamp.get();
     }
 
     public Date getCreated() {

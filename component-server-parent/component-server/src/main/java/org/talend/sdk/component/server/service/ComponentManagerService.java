@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -87,8 +88,8 @@ public class ComponentManagerService {
 
     @PostConstruct
     private void init() {
-        ofNullable(configuration.getMavenRepository())
-                .ifPresent(repo -> System.setProperty("talend.component.manager.m2.repository", repo));
+        configuration.getMavenRepository().ifPresent(
+                repo -> System.setProperty("talend.component.manager.m2.repository", repo));
 
         mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
         instance = ComponentManager.instance();
@@ -99,7 +100,7 @@ public class ComponentManagerService {
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
         ofNullable(configuration.getComponentCoordinates()).orElse(emptyList()).forEach(this::deploy);
-        ofNullable(configuration.getComponentRegistry()).map(File::new).filter(File::exists).ifPresent(registry -> {
+        configuration.getComponentRegistry().map(File::new).filter(File::exists).ifPresent(registry -> {
             final Properties properties = new Properties();
             try (final InputStream is = new FileInputStream(registry)) {
                 properties.load(is);
@@ -142,6 +143,11 @@ public class ComponentManagerService {
                 .orElseThrow(() -> new IllegalArgumentException("No plugin found using maven GAV: " + pluginGAV));
 
         instance.removePlugin(pluginID);
+    }
+
+    public Date findLastUpdated() {
+        return instance.find(Stream::of).map(Container::getLastModifiedTimestamp).max(Date::compareTo).orElseGet(
+                () -> new Date(0));
     }
 
     @AllArgsConstructor

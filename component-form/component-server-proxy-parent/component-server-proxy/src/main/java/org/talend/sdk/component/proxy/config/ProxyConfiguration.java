@@ -23,9 +23,10 @@ import static lombok.AccessLevel.NONE;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -54,7 +55,7 @@ public class ProxyConfiguration {
     @Inject
     @Documentation("List of JAX-RS providers to register on the client, at least a JSON-B one should be here.")
     @ConfigProperty(name = PREFIX + "client.providers")
-    private Collection<Class> clientProviders;
+    private List<Class> clientProviders;
 
     @Inject
     @Getter(NONE)
@@ -62,7 +63,7 @@ public class ProxyConfiguration {
             + "You can put a hardcoded value or a placeholder (`${key}`)."
             + "In this case it will be read from the request attributes and headers.")
     @ConfigProperty(name = PREFIX + "processing.headers")
-    private String headers;
+    private Optional<String> headers;
 
     @Inject
     @Documentation("An optional location (absolute or resolved from `APP_HOME` environment variable). "
@@ -88,11 +89,11 @@ public class ProxyConfiguration {
     }
 
     private void processHeaders() {
-        if (headers == null || headers.isEmpty()) {
+        if (!headers.isPresent()) {
             headerAppender = (a, b) -> a;
         } else {
             final Properties properties = new Properties();
-            try (final Reader reader = new StringReader(headers.trim())) {
+            try (final Reader reader = new StringReader(headers.get().trim())) {
                 properties.load(reader);
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);

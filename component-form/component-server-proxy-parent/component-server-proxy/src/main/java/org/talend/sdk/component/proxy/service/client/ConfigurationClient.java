@@ -24,12 +24,14 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 
 @ApplicationScoped
 public class ConfigurationClient {
 
     @Inject
+    @UiSpecProxy
     private WebTarget webTarget;
 
     @Inject

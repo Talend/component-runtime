@@ -34,12 +34,15 @@ __Schemes__ : HTTP, HTTPS
 === Tags
 
 * action
-* action, configurations
+* component
+* components
 * configuration
 * configurations
 * dataset
 * datastore
+* form
 * icon
+* ui spec
 * uispec
 
 
@@ -51,7 +54,7 @@ __Schemes__ : HTTP, HTTPS
 [[_execute]]
 === This endpoint execute an action
 ....
-POST /action/execute
+POST /actions/execute
 ....
 
 
@@ -96,24 +99,19 @@ __optional__|string
 
 ==== Tags
 
-* action, configurations
+* action
+* configurations
 
 
-[[_getdetails]]
-=== Return a configuration details using configuraiton identifiers 
+[[_listcomponent]]
+=== This endpoint return a list of available component
 ....
-GET /configuration/details
+GET /components
 ....
 
 
-==== Parameters
-
-[options="header", cols=".^2,.^3,.^4"]
-|===
-|Type|Name|Schema
-|**Query**|**identifiers** +
-__optional__|< string > array(multi)
-|===
+==== Description
+component has icon that need to be handled by the consumer of this endpoint In the response an icon key is returned. this icon key can be one of the bundled icons or a custom one. The consumer of this endpoint will need to check if the icon key is in the icons bundle otherwise the icon need to be gathered using the `id` of the component from this endpoint `components/{id}/icon/`
 
 
 ==== Responses
@@ -123,7 +121,7 @@ __optional__|< string > array(multi)
 |HTTP Code|Description|Schema
 |**200**|successful operation +
 **Headers** :  +
-`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_configurations,Configurations>>
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_nodes,Nodes>>
 |===
 
 
@@ -139,15 +137,60 @@ __optional__|< string > array(multi)
 
 ==== Tags
 
-* configurations
-* dataset
-* datastore
+* components
 
 
-[[_getconfigurationiconbyid]]
-=== Return the configuration icon file in png format
+[[_getcomponentform]]
+=== This endpoint return the ui spec of a component identified by it's id
 ....
-GET /configuration/icon/{id}
+GET /components/{id}/form
+....
+
+
+==== Description
+component has icon that need to be handled by the consumer of this endpoint In the response an icon key is returned. this icon key can be one of the bundled icons or a custom one. The consumer of this endpoint will need to check if the icon key is in the icons bundle otherwise the icon need to be gathered using the `id` of the component from this endpoint `components/{id}/icon/`
+
+
+==== Parameters
+
+[options="header", cols=".^2,.^3,.^4"]
+|===
+|Type|Name|Schema
+|**Path**|**id** +
+__required__|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|successful operation +
+**Headers** :  +
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_uinode,UiNode>>
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+
+
+==== Tags
+
+* components
+
+
+[[_getcomponenticonbyid]]
+=== Return the component icon file in png format
+....
+GET /components/{id}/icon
 ....
 
 
@@ -188,12 +231,12 @@ __required__|string
 [[_getrootconfig]]
 === Return all the available root configuration (Data store like) from the component server
 ....
-GET /configuration/roots
+GET /configurations
 ....
 
 
 ==== Description
-Every configuration has an icon. In the response an icon key is returned. this icon key can be one of the bundled icons or a custom one. The consumer of this endpoint will need to check if the icon key is in the icons bundle otherwise the icon need to be gathered using the `familyId` from this endpoint `configuration/icon/{id}`
+Every configuration has an icon. In the response an icon key is returned. this icon key can be one of the bundled icons or a custom one. The consumer of this endpoint will need to check if the icon key is in the icons bundle otherwise the icon need to be gathered using the `familyId` from this endpoint `configurations/{id}/icon`
 
 
 ==== Responses
@@ -203,7 +246,7 @@ Every configuration has an icon. In the response an icon key is returned. this i
 |HTTP Code|Description|Schema
 |**200**|successful operation +
 **Headers** :  +
-`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_configurations,Configurations>>
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_nodes,Nodes>>
 |===
 
 
@@ -223,13 +266,174 @@ Every configuration has an icon. In the response an icon key is returned. this i
 * datastore
 
 
+[[_getform]]
+=== Return a form description ( Ui Spec ) of a specific configuration 
+....
+GET /configurations/{id}/form
+....
+
+
+==== Parameters
+
+[options="header", cols=".^2,.^3,.^4"]
+|===
+|Type|Name|Schema
+|**Path**|**id** +
+__required__|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|successful operation +
+**Headers** :  +
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_nodes,Nodes>>
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+
+
+==== Tags
+
+* configurations
+* dataset
+* datastore
+* form
+* ui spec
+
+
+[[_getconfigurationiconbyid]]
+=== Return the configuration icon file in png format
+....
+GET /configurations/{id}/icon
+....
+
+
+==== Parameters
+
+[options="header", cols=".^2,.^3,.^4"]
+|===
+|Type|Name|Schema
+|**Path**|**id** +
+__required__|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**default**|successful operation|No Content
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+
+
+==== Tags
+
+* icon
+
+
 
 
 [[_definitions]]
 == Definitions
 
-[[_configtype]]
-=== ConfigType
+[[_condition]]
+=== Condition
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**path** +
+__optional__|string
+|**values** +
+__optional__|< object > array
+|===
+
+
+[[_jsonschema]]
+=== JsonSchema
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**defaultValue** +
+__optional__|object
+|**description** +
+__optional__|string
+|**enumValues** +
+__optional__|< string > array
+|**id** +
+__optional__|string
+|**items** +
+__optional__|<<_jsonschema,JsonSchema>>
+|**maxItems** +
+__optional__|integer (int32)
+|**maxLength** +
+__optional__|integer (int32)
+|**maximum** +
+__optional__|number (double)
+|**minItems** +
+__optional__|integer (int32)
+|**minLength** +
+__optional__|integer (int32)
+|**minimum** +
+__optional__|number (double)
+|**pattern** +
+__optional__|string
+|**properties** +
+__optional__|< string, <<_jsonschema,JsonSchema>> > map
+|**ref** +
+__optional__|string
+|**required** +
+__optional__|< string > array
+|**schema** +
+__optional__|string
+|**title** +
+__optional__|string
+|**type** +
+__optional__|string
+|**uniqueItems** +
+__optional__|boolean
+|===
+
+
+[[_namevalue]]
+=== NameValue
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**name** +
+__optional__|string
+|**value** +
+__optional__|string
+|===
+
+
+[[_node]]
+=== Node
 
 [options="header", cols=".^3,.^4"]
 |===
@@ -246,19 +450,51 @@ __optional__|string
 __optional__|string
 |**label** +
 __optional__|string
+|**name** +
+__optional__|string
+|**plugin** +
+__optional__|string
+|**type** +
+__optional__|enum (CONFIGURATION, COMPONENT)
+|**version** +
+__optional__|integer (int32)
 |===
 
 
-[[_configurations]]
-=== Configurations
+[[_nodes]]
+=== Nodes
 
 [options="header", cols=".^3,.^4"]
 |===
 |Name|Schema
-|**configurations** +
-__optional__|< string, <<_configtype,ConfigType>> > map
-|**errors** +
-__optional__|< string, <<_proxyerrorpayload,ProxyErrorPayload>> > map
+|**nodes** +
+__optional__|< string, <<_node,Node>> > map
+|===
+
+
+[[_option]]
+=== Option
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**path** +
+__optional__|string
+|**type** +
+__optional__|string
+|===
+
+
+[[_parameter]]
+=== Parameter
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**key** +
+__optional__|string
+|**path** +
+__optional__|string
 |===
 
 
@@ -271,6 +507,98 @@ __optional__|< string, <<_proxyerrorpayload,ProxyErrorPayload>> > map
 |**code** +
 __optional__|string
 |**message** +
+__optional__|string
+|===
+
+
+[[_trigger]]
+=== Trigger
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**action** +
+__optional__|string
+|**family** +
+__optional__|string
+|**options** +
+__optional__|< <<_option,Option>> > array
+|**parameters** +
+__optional__|< <<_parameter,Parameter>> > array
+|**type** +
+__optional__|string
+|===
+
+
+[[_ui]]
+=== Ui
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**jsonSchema** +
+__optional__|<<_jsonschema,JsonSchema>>
+|**properties** +
+__optional__|object
+|**uiSchema** +
+__optional__|< <<_uischema,UiSchema>> > array
+|===
+
+
+[[_uinode]]
+=== UiNode
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**metadata** +
+__optional__|<<_node,Node>>
+|**ui** +
+__optional__|<<_ui,Ui>>
+|===
+
+
+[[_uischema]]
+=== UiSchema
+
+[options="header", cols=".^3,.^4"]
+|===
+|Name|Schema
+|**autoFocus** +
+__optional__|boolean
+|**conditions** +
+__optional__|< <<_condition,Condition>> > array
+|**description** +
+__optional__|string
+|**disabled** +
+__optional__|boolean
+|**itemWidget** +
+__optional__|string
+|**items** +
+__optional__|< <<_uischema,UiSchema>> > array
+|**key** +
+__optional__|string
+|**options** +
+__optional__|< string, string > map
+|**placeholder** +
+__optional__|string
+|**readOnly** +
+__optional__|boolean
+|**required** +
+__optional__|boolean
+|**restricted** +
+__optional__|boolean
+|**schema** +
+__optional__|<<_jsonschema,JsonSchema>>
+|**title** +
+__optional__|string
+|**titleMap** +
+__optional__|< <<_namevalue,NameValue>> > array
+|**triggers** +
+__optional__|< <<_trigger,Trigger>> > array
+|**type** +
+__optional__|string
+|**widget** +
 __optional__|string
 |===
 

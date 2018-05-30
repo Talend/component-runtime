@@ -258,6 +258,7 @@ These jars use the following prefix:
 - meecrowave-
 - mesos-
 - metrics-
+- microprofile-config-api-
 - mimepull-
 - mina-
 - minlog

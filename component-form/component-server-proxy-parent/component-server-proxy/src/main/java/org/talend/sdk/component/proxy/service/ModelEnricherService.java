@@ -115,8 +115,8 @@ public class ModelEnricherService {
     }
 
     private Optional<Patches> findPatch(final String type) {
-        return Optional
-                .of(String.format(configuration.getUiSpecPatchLocation(), type))
+        return ofNullable(configuration.getUiSpecPatchLocation())
+                .map(l -> String.format(l, type))
                 .flatMap(this::extractLocation)
                 .map(stream -> {
                     try {

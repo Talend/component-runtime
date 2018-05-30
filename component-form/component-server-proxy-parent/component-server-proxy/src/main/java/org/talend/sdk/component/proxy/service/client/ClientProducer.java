@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
@@ -37,6 +38,7 @@ import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.service.ConfigurationService;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -48,6 +50,7 @@ public class ClientProducer {
     private ProxyConfiguration configuration;
 
     @Produces
+    @UiSpecProxy
     @ApplicationScoped
     public javax.ws.rs.client.Client client() {
         final javax.ws.rs.client.Client client = ClientBuilder
@@ -59,12 +62,14 @@ public class ClientProducer {
     }
 
     @Produces
+    @UiSpecProxy
     @ApplicationScoped
     public WebTarget webTarget(final javax.ws.rs.client.Client client) {
         return client.target(configuration.getTargetServerBase());
     }
 
     @Produces
+    @UiSpecProxy
     @ApplicationScoped
     public Client actionClient(final javax.ws.rs.client.Client client, final ConfigurationService configurationService,
             final ConfigurationClient configurationClient, final Jsonb jsonb) {
@@ -97,14 +102,16 @@ public class ClientProducer {
         public CompletableFuture<Map<String, Object>> action(final String family, final String type,
                 final String action, final Map<String, Object> params) {
             if ("builtin::roots".equals(action) && "dynamic_values".equals(type) /* && whatever family */) {
-                return findRoots().toCompletableFuture();
+                return findRoots(ofNullable(params.get("lang")).map(String::valueOf).orElse("en"),
+                        Function.class.cast(params.get("placeholderProvider"))).toCompletableFuture();
             }
             return super.action(family, type, action, params);
         }
 
-        private CompletionStage<Map<String, Object>> findRoots() {
+        private CompletionStage<Map<String, Object>> findRoots(final String lang,
+                final Function<String, String> placeholderProvider) {
             return configurationClient
-                    .getAllConfigurations("en", null)
+                    .getAllConfigurations(lang, placeholderProvider)
                     .thenApply(configs -> configurationService.getRootConfiguration(configs, ignored -> null))
                     .thenApply(configs -> new Values(configs
                             .getNodes()

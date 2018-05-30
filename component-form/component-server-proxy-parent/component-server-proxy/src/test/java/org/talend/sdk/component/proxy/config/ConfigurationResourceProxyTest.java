@@ -21,18 +21,22 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
 import javax.ws.rs.client.Invocation;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.proxy.test.CdiInject;
 import org.talend.sdk.component.proxy.test.WithServer;
 
 @WithServer
+@CdiInject
 class ConfigurationResourceProxyTest {
+
+    @Inject
+    private ProxyConfiguration configuration;
 
     @Test
     void checkHeaders() {
-        final ProxyConfiguration configuration = CDI.current().select(ProxyConfiguration.class).get();
         final Map<String, String> headers = new HashMap<>();
         configuration.getHeaderAppender().apply(
                 Invocation.Builder.class.cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),

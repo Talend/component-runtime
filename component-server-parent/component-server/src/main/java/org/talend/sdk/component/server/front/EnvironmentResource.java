@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.front;
 
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
@@ -30,12 +31,13 @@ import javax.ws.rs.core.Application;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.server.front.model.Environment;
+import org.talend.sdk.component.server.service.ComponentManagerService;
 
 @Path("environment")
 @ApplicationScoped
 public class EnvironmentResource {
 
-    private Environment environment;
+    private final AtomicReference<Environment> environment = new AtomicReference<>();
 
     @Inject
     @ConfigProperty(name = "git.build.version")
@@ -52,9 +54,14 @@ public class EnvironmentResource {
     @Inject
     private Instance<Application> applications;
 
+    @Inject
+    private ComponentManagerService service;
+
+    private int latestApiVersion;
+
     @PostConstruct
     private void init() {
-        final int latestApiVersion = StreamSupport
+        latestApiVersion = StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(applications.iterator(), Spliterator.IMMUTABLE), false)
                 .filter(a -> a.getClass().isAnnotationPresent(ApplicationPath.class))
                 .map(a -> a.getClass().getAnnotation(ApplicationPath.class).value())
@@ -62,7 +69,6 @@ public class EnvironmentResource {
                 .mapToInt(Integer::parseInt)
                 .max()
                 .orElse(1);
-        environment = new Environment(latestApiVersion, version, commit, time);
     }
 
     /**
@@ -72,6 +78,6 @@ public class EnvironmentResource {
      */
     @GET
     public Environment get() {
-        return environment;
+        return new Environment(latestApiVersion, version, commit, time, service.findLastUpdated());
     }
 }

@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -40,6 +41,14 @@ import org.talend.sdk.component.test.rule.ContainerProviderRule;
 
 @ExtendWith(ContainerProviderRule.class)
 public class ContainerTest {
+
+    @Test
+    void lastTimestamp(
+            @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.8:runtime") final Container container) {
+        final Date lastModifiedTimestamp = container.getLastModifiedTimestamp();
+        assertTrue(lastModifiedTimestamp.getTime() > new Date(0).getTime());
+        assertTrue(lastModifiedTimestamp.compareTo(container.getCreated()) <= 0);
+    }
 
     @Test
     void findDependencies(
@@ -105,7 +114,7 @@ public class ContainerTest {
         assertEquals(filter.hashCode(), filter.hashCode());
 
         final Filter otherInstance = supplier.get();
-        assertFalse(otherInstance == filter);
+        assertNotSame(otherInstance, filter);
         assertNotEquals(otherInstance, filter);
 
         final Set<Filter> set = Stream.of(filter, otherInstance).collect(toSet());

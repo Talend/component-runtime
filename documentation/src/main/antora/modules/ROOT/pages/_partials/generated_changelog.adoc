@@ -5,6 +5,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-829[TCOMP-829^]: Configuration Type tree is not correctly computed
+- link:https://jira.talendforge.org/browse/TCOMP-830[TCOMP-830^]: Move all configuration to Microprofile Config instead of DeltaSpike
 
 
 == Version 1.0.0

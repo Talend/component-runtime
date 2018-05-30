@@ -546,6 +546,8 @@ _No body_ +
 ----
 {
     "commit": "string",
+    "lastUpdated": {
+    },
     "latestApiVersion": 0,
     "time": "string",
     "version": "string"

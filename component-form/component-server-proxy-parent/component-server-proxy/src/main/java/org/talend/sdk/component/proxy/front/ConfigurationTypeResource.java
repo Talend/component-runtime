@@ -26,6 +26,7 @@ import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -33,14 +34,17 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.form.api.UiSpecService;
+import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
+import org.talend.sdk.component.proxy.model.ProxyErrorDictionary;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
 import org.talend.sdk.component.proxy.model.UiNode;
 import org.talend.sdk.component.proxy.service.ConfigurationService;
@@ -49,6 +53,8 @@ import org.talend.sdk.component.proxy.service.ModelEnricherService;
 import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
 import org.talend.sdk.component.proxy.service.client.ComponentClient;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
+import org.talend.sdk.component.proxy.service.client.UiSpecServiceClient;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
@@ -85,7 +91,15 @@ public class ConfigurationTypeResource {
     private ModelEnricherService modelEnricherService;
 
     @Inject
-    private UiSpecService uiSpecService;
+    private ProxyConfiguration configuration;
+
+    @Inject
+    @UiSpecProxy
+    private Client client;
+
+    @Inject
+    @UiSpecProxy
+    private Jsonb jsonb;
 
     @ApiOperation(value = "Return all the available root configuration (Data store like) from the component server",
             notes = "Every configuration has an icon. "
@@ -122,7 +136,7 @@ public class ConfigurationTypeResource {
                 .getDetails(language, id, placeholderProvider)
                 .thenApply(this::getSingleNode)
                 .thenCompose(node -> withComposeNodesAndComponents(language, placeholderProvider,
-                        (nodes, components) -> toUiNode(language, node, nodes, components)))
+                        (nodes, components) -> toUiNode(language, node, nodes, components, placeholderProvider)))
                 .handle((detail, throwable) -> errorProcessor.handleResponse(response, detail, throwable));
     }
 
@@ -138,13 +152,25 @@ public class ConfigurationTypeResource {
     }
 
     private CompletionStage<UiNode> toUiNode(final String language, final ConfigTypeNode node,
-            final ConfigTypeNodes nodes, final ComponentIndices componentIndices) {
+            final ConfigTypeNodes nodes, final ComponentIndices componentIndices,
+            final Function<String, String> placeholderProvider) {
         final ConfigTypeNode family = configurationService.getFamilyOf(node.getParentId(), nodes);
         final String icon = configurationService.findIcon(family.getId(), componentIndices);
         Node configType = new Node(node.getId(), Node.Type.CONFIGURATION, node.getDisplayName(), family.getId(),
                 family.getDisplayName(), icon, node.getEdges(), node.getVersion(), node.getName(), null);
-        return uiSpecService.convert(family.getName(), modelEnricherService.enrich(node, language)).thenApply(
-                uiSpec -> new UiNode(uiSpec, configType));
+        try (final UiSpecService specService =
+                new UiSpecService(new UiSpecServiceClient(client, configuration.getTargetServerBase(),
+                        configurationClient, configurationService, jsonb, language, placeholderProvider), jsonb)) {
+            return specService.convert(family.getName(), modelEnricherService.enrich(node, language)).thenApply(
+                    uiSpec -> new UiNode(uiSpec, configType));
+        } catch (final Exception e) {
+            throw new WebApplicationException(Response
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ProxyErrorPayload(ProxyErrorDictionary.UISPEC_SERVICE_CLOSE_FAILURE.name(),
+                            "UiSpecService close failed"))
+                    .header(ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
+                    .build());
+        }
     }
 
     private ConfigTypeNode getSingleNode(final ConfigTypeNodes configs) {

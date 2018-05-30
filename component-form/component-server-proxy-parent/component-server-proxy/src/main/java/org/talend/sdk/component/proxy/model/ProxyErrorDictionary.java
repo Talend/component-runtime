@@ -19,5 +19,5 @@ public enum ProxyErrorDictionary {
 
     NO_COMPONENT_IN_FAMILY,
     NO_FAMILY_FOR_CONFIGURATION,
-
+    UISPEC_SERVICE_CLOSE_FAILURE
 }

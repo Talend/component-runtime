@@ -17,7 +17,9 @@ package org.talend.sdk.component.server.front;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Date;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -40,5 +42,7 @@ class EnvironmentResourceTest {
         assertEquals(1, environment.getLatestApiVersion());
         Stream.of(environment.getCommit(), environment.getTime(), environment.getVersion()).forEach(
                 Assertions::assertNotNull);
+        assertTrue(environment.getLastUpdated().compareTo(new Date(0)) > 0);
+
     }
 }

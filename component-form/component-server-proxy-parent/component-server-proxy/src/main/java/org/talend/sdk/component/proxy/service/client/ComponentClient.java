@@ -25,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
@@ -33,6 +34,7 @@ import org.talend.sdk.component.server.front.model.ComponentIndices;
 public class ComponentClient {
 
     @Inject
+    @UiSpecProxy
     private WebTarget webTarget;
 
     @Inject

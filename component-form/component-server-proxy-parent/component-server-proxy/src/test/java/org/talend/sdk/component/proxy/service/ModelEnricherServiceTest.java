@@ -25,27 +25,54 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 
 import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
+import javax.json.bind.Jsonb;
+import javax.ws.rs.client.Client;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
+import org.talend.sdk.component.proxy.config.ProxyConfiguration;
+import org.talend.sdk.component.proxy.service.client.ComponentClient;
+import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
+import org.talend.sdk.component.proxy.service.client.UiSpecServiceClient;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
+import org.talend.sdk.component.proxy.test.CdiInject;
 import org.talend.sdk.component.proxy.test.WithServer;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
+@CdiInject
 @WithServer
 class ModelEnricherServiceTest {
 
+    @Inject
+    private ModelEnricherService modelEnricherService;
+
+    @Inject
+    private ConfigurationClient configurationClient;
+
+    @Inject
+    private ConfigurationService configurationService;
+
+    @Inject
+    private ProxyConfiguration configuration;
+
+    @Inject
+    @UiSpecProxy
+    private Client client;
+
+    @Inject
+    @UiSpecProxy
+    private Jsonb jsonb;
+
     @Test
     void convertConfig() {
-        final ModelEnricherService modelEnricherService = CDI.current().select(ModelEnricherService.class).get();
         final ConfigTypeNode configTypeNode = newConfig("test", newProperty());
         final ConfigTypeNode enriched = modelEnricherService.enrich(configTypeNode, "en");
 
@@ -72,13 +99,14 @@ class ModelEnricherServiceTest {
     }
 
     @Test
-    void typeProposals() throws ExecutionException, InterruptedException {
-        final CDI<Object> cdi = CDI.current();
-        final ModelEnricherService modelEnricherService = cdi.select(ModelEnricherService.class).get();
-        final UiSpecService uiSpecService = cdi.select(UiSpecService.class).get();
+    void typeProposals() throws Exception {
         final ConfigTypeNode configTypeNode = newConfig("type-proposals", newProperty());
         final ConfigTypeNode configType = modelEnricherService.enrich(configTypeNode, "en");
+        final UiSpecService uiSpecService =
+                new UiSpecService(new UiSpecServiceClient(client, configuration.getTargetServerBase(),
+                        configurationClient, configurationService, jsonb, "en", k -> null), jsonb);
         final Ui ui = uiSpecService.convert("someDamily", configType).toCompletableFuture().get();
+        uiSpecService.close();
 
         final Collection<UiSchema.NameValue> proposals =
                 ui.getUiSchema().iterator().next().getItems().iterator().next().getTitleMap();

@@ -16,6 +16,7 @@
 package org.talend.sdk.component.server.configuration;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -37,24 +38,24 @@ public class ComponentServerConfiguration {
     @Inject
     @Documentation("The local maven repository used to locate components and their dependencies")
     @ConfigProperty(name = "talend.component.server.maven.repository")
-    private String mavenRepository;
+    private Optional<String> mavenRepository;
 
     // property to list plugins directly by gav. This is nice to set it on the cli but not as a maintenance solution.
     @Inject
     @Documentation("A comma separated list of gav to locate the components")
-    @ConfigProperty(name = "talend.component.server.component.coordinates", defaultValue = "")
+    @ConfigProperty(name = "talend.component.server.component.coordinates")
     private List<String> componentCoordinates;
 
     // property to list plugins like in a fatjar, ie value = gav. Nice for assemblies, less for demo/cli usage.
     @Inject
     @Documentation("A property file where the value is a gav of a component to register (complementary with `coordinates`)")
-    @ConfigProperty(name = "talend.component.server.component.registry", defaultValue = "")
-    private String componentRegistry;
+    @ConfigProperty(name = "talend.component.server.component.registry")
+    private Optional<String> componentRegistry;
 
     @Inject
     @Documentation("The size of the execution pool for runtime endpoints.")
     @ConfigProperty(name = "talend.component.server.execution.pool.size", defaultValue = "64")
-    private int executionPoolSize;
+    private Integer executionPoolSize;
 
     @Inject
     @Documentation("How long the application waits during shutdown for the execution tasks to complete")
@@ -65,7 +66,7 @@ public class ComponentServerConfiguration {
     @Documentation("How long the read execution endpoint can last (max)")
     @ConfigProperty(name = "talend.component.server.execution.dataset.retriever.timeout", defaultValue = "180") // in
                                                                                                                 // sec
-    private long datasetRetrieverTimeout;
+    private Long datasetRetrieverTimeout;
 
     @Inject
     @Documentation("The name used by the brave integration (zipkin)")
@@ -75,38 +76,38 @@ public class ComponentServerConfiguration {
     @Inject
     @Documentation("The accuracy rate of the sampling.")
     @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.rate", defaultValue = "-1.")
-    private float samplerRate;
+    private Float samplerRate;
 
     @Inject
     @Documentation("The accuracy rate of the sampling for environment endpoints.")
     @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.environment.rate", defaultValue = "-1")
-    private float samplerEnvironmentRate;
+    private Float samplerEnvironmentRate;
 
     @Inject
     @Documentation("The accuracy rate of the sampling for environment endpoints.")
     @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.configurationtype.rate",
             defaultValue = "-1")
-    private float samplerConfigurationTypeRate;
+    private Float samplerConfigurationTypeRate;
 
     @Inject
     @Documentation("The accuracy rate of the sampling for component endpoints.")
     @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.component.rate", defaultValue = "-1")
-    private float samplerComponentRate;
+    private Float samplerComponentRate;
 
     @Inject
     @Documentation("The accuracy rate of the sampling for documentation endpoint.")
     @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.documentation.rate", defaultValue = "-1")
-    private float samplerDocumentationRate;
+    private Float samplerDocumentationRate;
 
     @Inject
     @Documentation("The accuracy rate of the sampling for action endpoints.")
     @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.action.rate", defaultValue = "-1")
-    private float samplerActionRate;
+    private Float samplerActionRate;
 
     @Inject
     @Documentation("The accuracy rate of the sampling for execution endpoints.")
     @ConfigProperty(name = "talend.component.server.monitoring.brave.sampling.execution.rate", defaultValue = "1")
-    private float samplerExecutionRate;
+    private Float samplerExecutionRate;
 
     @Inject
     @Documentation("The brave reporter to use to send the spans. Supported values are [log, noop]. When configuration is needed,"
@@ -126,7 +127,7 @@ public class ComponentServerConfiguration {
     @Inject
     @Documentation("Should the /documentation endpoint be activated.")
     @ConfigProperty(name = "talend.component.server.documentation.active", defaultValue = "true")
-    private boolean supportsDocumentation;
+    private Boolean supportsDocumentation;
 
     // sync with org.talend.sdk.component.server.service.security.SecurityExtension.addSecurityHandlers
     @Inject
@@ -143,5 +144,5 @@ public class ComponentServerConfiguration {
     @Inject
     @Documentation("Should the component extensions add required dependencies.")
     @ConfigProperty(name = "talend.component.server.component.extend.dependencies", defaultValue = "true")
-    private boolean addExtensionDependencies;
+    private Boolean addExtensionDependencies;
 }

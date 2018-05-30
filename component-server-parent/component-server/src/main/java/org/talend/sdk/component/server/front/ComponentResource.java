@@ -155,7 +155,7 @@ public class ComponentResource {
                             ComponentExtension extension = context.owningExtension();
                             final Stream<Artifact> deps = c.findDependencies();
                             final Stream<Artifact> artifacts;
-                            if (configuration.isAddExtensionDependencies() && extension != null) {
+                            if (configuration.getAddExtensionDependencies() && extension != null) {
                                 final List<Artifact> dependencies = deps.collect(toList());
                                 final Stream<Artifact> addDeps = extension
                                         .getAdditionalDependencies()

@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.server.front.model;
 
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,4 +33,6 @@ public class Environment {
     private String commit;
 
     private String time;
+
+    private Date lastUpdated;
 }
