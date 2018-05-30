@@ -274,7 +274,7 @@ public class ComponentResource {
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.COMPONENT_MISSING, "No family for identifier: " + id))
+                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "No family for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }

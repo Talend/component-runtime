@@ -27,7 +27,6 @@ import javax.ws.rs.client.WebTarget;
 import org.apache.cxf.Bus;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
-import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.meecrowave.Meecrowave;
 
 @ApplicationScoped
