@@ -18,12 +18,15 @@ package org.talend.sdk.component.proxy.service;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
+import java.util.Map;
 import java.util.concurrent.CompletionException;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
@@ -38,9 +41,19 @@ public class ErrorProcessor {
         String HEADER_TALEND_COMPONENT_SERVER_ERROR = "Talend-Component-Server-Error";
     }
 
+    private final GenericType<Map<String, ErrorPayload>> multipleErrorType =
+            new GenericType<Map<String, ErrorPayload>>() {
+
+            };
+
     public Object handleResponse(final AsyncResponse response, final Object result, final Throwable throwable) {
+        return handleResponse(response, result, throwable, this::handleSingleError);
+    }
+
+    public Object handleResponse(final AsyncResponse response, final Object result, final Throwable throwable,
+            final Function<Throwable, WebApplicationException> erroHandler) {
         if (throwable != null) {
-            response.resume(handleSingleError(unwrap(throwable)));
+            response.resume(erroHandler.apply(unwrap(throwable)));
         } else {
             response.resume(result);
         }
@@ -51,6 +64,23 @@ public class ErrorProcessor {
         return CompletionException.class.isInstance(throwable)
                 ? unwrap(CompletionException.class.cast(throwable).getCause())
                 : throwable;
+    }
+
+    /**
+     * unwrap multiple errors to single one when we request only one resource using batch endpoint
+     *
+     * @param throwable WebApplicationException to unwrap
+     * @return WebApplicationException with a single error
+     */
+    public WebApplicationException multipleToSingleError(final Throwable throwable) {
+        final WebApplicationException error = WebApplicationException.class.cast(ErrorProcessor.unwrap(throwable));
+        final ErrorPayload errorDetails =
+                error.getResponse().readEntity(multipleErrorType).entrySet().iterator().next().getValue();
+        return new WebApplicationException(Response
+                .status(error.getResponse().getStatus())
+                .entity(new ProxyErrorPayload(errorDetails.getCode().name(), errorDetails.getDescription()))
+                .type(APPLICATION_JSON_TYPE)
+                .build());
     }
 
     private WebApplicationException handleSingleError(final Throwable throwable) {

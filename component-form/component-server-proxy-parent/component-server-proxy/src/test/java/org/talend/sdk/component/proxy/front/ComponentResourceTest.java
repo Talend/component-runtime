@@ -82,7 +82,6 @@ class ComponentResourceTest {
 
     @Test
     void getComponentFormWithInvalidId(final WebTarget webTarget) {
-
         final WebApplicationException ex = assertThrows(WebApplicationException.class,
                 () -> webTarget.path("components/x0invalidid/form").request(MediaType.APPLICATION_JSON_TYPE).get(
                         UiNode.class));

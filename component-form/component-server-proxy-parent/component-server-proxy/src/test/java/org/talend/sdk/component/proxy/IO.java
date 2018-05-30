@@ -19,7 +19,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class IO {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class IO {
 
     public static byte[] slurp(final InputStream inputStream, final int defaultLen) throws IOException {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(defaultLen);

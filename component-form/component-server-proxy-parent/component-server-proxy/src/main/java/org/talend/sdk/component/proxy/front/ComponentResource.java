@@ -121,7 +121,8 @@ public class ComponentResource {
         componentClient
                 .getComponentDetail(language, placeholderProvider, id)
                 .thenCompose(d -> withUiSpec(d, language, placeholderProvider))
-                .handle((r, e) -> errorProcessor.handleResponse(response, r, e));
+                .handle((r, e) -> errorProcessor.handleResponse(response, r, e,
+                        this.errorProcessor::multipleToSingleError));
     }
 
     @ApiOperation(value = "Return the component icon file in png format", tags = "icon",

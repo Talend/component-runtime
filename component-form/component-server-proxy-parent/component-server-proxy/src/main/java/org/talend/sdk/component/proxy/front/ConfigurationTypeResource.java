@@ -129,7 +129,7 @@ public class ConfigurationTypeResource {
                 .handle((detail, throwable) -> errorProcessor.handleResponse(response, detail, throwable));
     }
 
-    @ApiOperation(value = "Return the configuration icon file in png format", tags = "icon", 
+    @ApiOperation(value = "Return the configuration icon file in png format", tags = "icon",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
