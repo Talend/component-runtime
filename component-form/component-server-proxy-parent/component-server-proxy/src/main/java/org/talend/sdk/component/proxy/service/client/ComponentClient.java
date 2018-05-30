@@ -15,20 +15,27 @@
  */
 package org.talend.sdk.component.proxy.service.client;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
+import org.talend.sdk.component.proxy.service.ErrorProcessor;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 
 @ApplicationScoped
 public class ComponentClient {
@@ -39,6 +46,11 @@ public class ComponentClient {
 
     @Inject
     private ProxyConfiguration configuration;
+
+    private final GenericType<Map<String, ErrorPayload>> multipleErrorType =
+            new GenericType<Map<String, ErrorPayload>>() {
+
+            };
 
     public CompletionStage<ComponentIndices> getAllComponents(final String language,
             final Function<String, String> placeholderProvider) {
@@ -53,13 +65,21 @@ public class ComponentClient {
                 .get(ComponentIndices.class);
     }
 
-    public CompletionStage<Response> getFamilyIconById(final String id,
+    public CompletionStage<byte[]> getFamilyIconById(final String id,
             final Function<String, String> placeholderProvider) {
         return configuration
                 .getHeaderAppender()
-                .apply(this.webTarget.path("component/icon/family/" + id).request(), placeholderProvider)
+                .apply(this.webTarget.path("component/icon/family/" + id).request(APPLICATION_OCTET_STREAM),
+                        placeholderProvider)
                 .rx()
-                .get();
+                .get()
+                .thenApply(r -> {
+                    if (r.getStatus() != 200) {
+                        throw new WebApplicationException(r); // propagate as error
+                    }
+                    return r;
+                })
+                .thenApply(r -> r.readEntity(byte[].class));
     }
 
     public CompletionStage<ComponentDetail> getComponentDetail(final String language,
@@ -73,16 +93,36 @@ public class ComponentClient {
                         .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
                 .rx()
                 .get(ComponentDetailList.class)
+                .handle((r, e) -> {
+                    if (e != null) {
+                        // unwrap multiple error to single one as we request only one component
+                        final WebApplicationException error =
+                                WebApplicationException.class.cast(ErrorProcessor.unwrap(e));
+                        Map<String, ErrorPayload> errorDetails = error.getResponse().readEntity(multipleErrorType);
+                        throw new WebApplicationException(
+                                Response.status(error.getResponse().getStatus()).entity(errorDetails.get(id)).build());
+                    }
+
+                    return r;
+                })
                 .thenApply(l -> l.getDetails().iterator().next());
     }
 
-    public CompletionStage<Response> getComponentIconById(final Function<String, String> placeholderProvider,
+    public CompletionStage<byte[]> getComponentIconById(final Function<String, String> placeholderProvider,
             final String id) {
         return configuration
                 .getHeaderAppender()
-                .apply(this.webTarget.path("component/icon/" + id).request(), placeholderProvider)
+                .apply(this.webTarget.path("component/icon/" + id).request(APPLICATION_OCTET_STREAM),
+                        placeholderProvider)
                 .rx()
-                .get();
+                .get()
+                .thenApply(r -> {
+                    if (r.getStatus() != 200) {
+                        throw new WebApplicationException(r); // propagate as error
+                    }
+                    return r;
+                })
+                .thenApply(r -> r.readEntity(byte[].class));
     }
 
 }

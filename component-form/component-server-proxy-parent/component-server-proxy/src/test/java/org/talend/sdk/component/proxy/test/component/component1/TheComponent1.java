@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.test.component;
+package org.talend.sdk.component.proxy.test.component.component1;
 
 import static java.util.Collections.emptyList;
 
@@ -30,8 +30,8 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.input.Split;
 
-@PartitionMapper(name = "TheMapper1")
-@Icon(value = Icon.IconType.STAR)
+@PartitionMapper(name = "TheMapper1", family = "TheTestFamily2")
+@Icon(value = Icon.IconType.CUSTOM, custom = "myicon")
 public class TheComponent1 implements Serializable {
 
     public TheComponent1(@Option final DataSet1 config) {

@@ -16,6 +16,7 @@
 package org.talend.sdk.component.proxy.service;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.util.concurrent.CompletionException;
 
@@ -46,7 +47,7 @@ public class ErrorProcessor {
         return null;
     }
 
-    private Throwable unwrap(final Throwable throwable) {
+    public static Throwable unwrap(final Throwable throwable) {
         return CompletionException.class.isInstance(throwable)
                 ? unwrap(CompletionException.class.cast(throwable).getCause())
                 : throwable;
@@ -60,6 +61,7 @@ public class ErrorProcessor {
                 return new WebApplicationException(Response
                         .status(error.getResponse().getStatus())
                         .entity(new ProxyErrorPayload(serverError.getCode().name(), serverError.getDescription()))
+                        .type(APPLICATION_JSON_TYPE)
                         .header(Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
                         .build());
             } catch (final ProcessingException pe) {
@@ -67,6 +69,7 @@ public class ErrorProcessor {
                         .status(HTTP_INTERNAL_ERROR)
                         .entity(new ProxyErrorPayload(ErrorDictionary.UNEXPECTED.name(),
                                 "Error while processing server error : '" + error.getResponse().getStatus() + "'"))
+                        .type(APPLICATION_JSON_TYPE)
                         .header(Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, false)
                         .build());
             }
@@ -76,6 +79,7 @@ public class ErrorProcessor {
                 .status(HTTP_INTERNAL_ERROR)
                 .entity(new ProxyErrorPayload(ErrorDictionary.UNEXPECTED.name(),
                         "Component server failed with : '" + throwable.getLocalizedMessage() + "'"))
+                .type(APPLICATION_JSON_TYPE)
                 .header(Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
                 .build());
     }

@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.test.component;
+package org.talend.sdk.component.proxy;
 
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.action.Proposable;
-import org.talend.sdk.component.api.configuration.type.DataSet;
+public class IO {
 
-@DataSet("dataset-1")
-public class DataSet1 {
-
-    @Option
-    private Connection1 connection;
-
-    @Proposable("action-with-error")
-    @Option
-    private String proposable;
-
-    @Option
-    private int limit;
+    public static byte[] slurp(final InputStream inputStream, final int defaultLen) throws IOException {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(defaultLen);
+        final byte[] bytes = new byte[defaultLen];
+        int read;
+        while ((read = inputStream.read(bytes)) >= 0) {
+            byteArrayOutputStream.write(bytes, 0, read);
+        }
+        return byteArrayOutputStream.toByteArray();
+    }
 }
