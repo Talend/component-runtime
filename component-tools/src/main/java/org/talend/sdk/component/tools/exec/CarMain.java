@@ -19,10 +19,12 @@ import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -187,7 +189,9 @@ public class CarMain {
                 final File backup = new File(config.getParentFile(), "backup/" + config.getName() + "_"
                         + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-mm-dd_HH-mm-ss")));
                 backup.getParentFile().mkdirs();
-                Files.copy(config.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING/* unlikely */);
+                try (final OutputStream to = new BufferedOutputStream(new FileOutputStream(backup))) {
+                    Files.copy(config.toPath(), to);
+                }
 
                 boolean skip = false;
                 try (final Writer writer = new FileWriter(config)) {
