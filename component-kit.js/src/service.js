@@ -101,7 +101,10 @@ function jsonpatch({ body, uiSpecHandle, trigger, properties }) {
   if (patched.properties) {
     delete patched.properties;
   }
-  uiSpecHandle.onUpdate(patched);
+  uiSpecHandle.onUpdate({
+    ...patched,
+    metadata: body.metadata,
+  });
 
   // no-op return here, should be handled by uiSpecHandle
   return { properties };
