@@ -15,11 +15,15 @@
  */
 package org.talend.sdk.component.proxy.service;
 
+import static java.util.Collections.emptyMap;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
+import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 
@@ -27,7 +31,21 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class JsonbProducer {
+public class JsonProducer {
+
+    @Produces
+    @UiSpecProxy
+    @ApplicationScoped
+    JsonProvider jsonp() {
+        return JsonProvider.provider();
+    }
+
+    @Produces
+    @UiSpecProxy
+    @ApplicationScoped
+    JsonBuilderFactory jsonObjectBuilder(@UiSpecProxy final JsonProvider provider) {
+        return provider.createBuilderFactory(emptyMap());
+    }
 
     @Produces
     @UiSpecProxy

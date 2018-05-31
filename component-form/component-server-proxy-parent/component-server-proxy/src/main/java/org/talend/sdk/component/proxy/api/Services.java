@@ -36,6 +36,10 @@ public final class Services {
         return lookup(ConfigurationTypes.class);
     }
 
+    public static ConfigurationFormatter configurationFormatter() {
+        return lookup(ConfigurationFormatter.class);
+    }
+
     private static <T> T lookup(final Class<T> api) {
         return CDI.current().select(api).get();
     }
