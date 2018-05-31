@@ -33,6 +33,9 @@ import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @ApplicationScoped
 public class ErrorProcessor {
 
@@ -96,6 +99,7 @@ public class ErrorProcessor {
                         .header(Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
                         .build());
             } catch (final ProcessingException pe) {
+                log.error(pe.getMessage(), pe);
                 return new WebApplicationException(Response
                         .status(HTTP_INTERNAL_ERROR)
                         .entity(new ProxyErrorPayload(ErrorDictionary.UNEXPECTED.name(),
