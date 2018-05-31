@@ -28,7 +28,8 @@ function extractRequestPayload(parameters = [], properties) {
   return payload;
 }
 
-export default function getDefaultTrigger({ url, customRegistry }) {
+// uiSpecHandle = { get: function () { return {uiSchema, jsonSchema} }, onUpdate: function ({uiSchema,jsonSchema,metadata}) {} }
+export default function getDefaultTrigger({ url, customRegistry, uiSpecHandle }) {
   return function onDefaultTrigger(event, { trigger, schema, properties, errors }) {
     const services = {
       ...defaultRegistry,
@@ -52,6 +53,7 @@ export default function getDefaultTrigger({ url, customRegistry }) {
           properties,
           schema,
           trigger,
+          uiSpecHandle,
         });
       });
   };

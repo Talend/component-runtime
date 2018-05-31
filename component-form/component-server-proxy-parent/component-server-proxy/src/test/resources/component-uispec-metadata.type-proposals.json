@@ -9,7 +9,9 @@
       "displayName": "Types",
       "type": "ENUM",
       "metadata": {
-        "action::dynamic_values": "builtin::roots"
+        "action::dynamic_values": "builtin::roots",
+        "action::jsonpatch": "builtin::root::reloadFromId",
+        "action::jsonpatch::parameters": "."
       }
     }
   ]

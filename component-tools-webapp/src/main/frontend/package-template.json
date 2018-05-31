@@ -32,7 +32,8 @@
     "redux-thunk": "2.2.0",
     "uuid": "3.0.1",
     "whatwg-fetch": "2.0.3",
-    "date-fns": "1.29.0"
+    "date-fns": "1.29.0",
+    "fast-json-patch": "2.0.6"
   },
   "devDependencies": {
     "autoprefixer": "7.1.4",

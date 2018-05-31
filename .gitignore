@@ -27,6 +27,7 @@ travis_wait_*.log
 yarn-error.log
 component-form/component-form-demo/src/main/frontend/build/
 documentation/src/main/frontend/.antora-cache
+yarn-error.log
 
 # generated from the filtered version
 component-kit.js/package.json

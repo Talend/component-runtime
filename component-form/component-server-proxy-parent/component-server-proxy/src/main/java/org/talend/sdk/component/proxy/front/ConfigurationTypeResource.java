@@ -174,7 +174,7 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
             final Function<String, String> placeholderProvider) {
         final ConfigTypeNode family = configurationService.getFamilyOf(node.getParentId(), nodes);
         final String icon = configurationService.findIcon(family.getId(), componentIndices);
-        Node configType = new Node(node.getId(), Node.Type.CONFIGURATION, node.getDisplayName(), family.getId(),
+        final Node configType = new Node(node.getId(), Node.Type.CONFIGURATION, node.getDisplayName(), family.getId(),
                 family.getDisplayName(), icon, node.getEdges(), node.getVersion(), node.getName(), null);
         try (final UiSpecService specService = uiSpecServiceProvider.newInstance(language, placeholderProvider)) {
             return specService.convert(family.getName(), modelEnricherService.enrich(node, language)).thenApply(

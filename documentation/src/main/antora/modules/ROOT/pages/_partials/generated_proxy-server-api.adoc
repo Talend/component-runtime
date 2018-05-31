@@ -221,6 +221,7 @@ __required__|string
 ==== Produces
 
 * `application/json`
+* `application/octet-stream`
 
 
 ==== Tags
@@ -347,6 +348,7 @@ __required__|string
 ==== Produces
 
 * `application/json`
+* `application/octet-stream`
 
 
 ==== Tags
@@ -358,6 +360,21 @@ __required__|string
 
 [[_definitions]]
 == Definitions
+
+[[_completionstage]]
+=== CompletionStage
+__Type__ : object
+
+
+[[_completionstagecollectionsimplepropertydefinition]]
+=== CompletionStageCollectionSimplePropertyDefinition
+__Type__ : object
+
+
+[[_completionstagenodes]]
+=== CompletionStageNodes
+__Type__ : object
+
 
 [[_condition]]
 === Condition

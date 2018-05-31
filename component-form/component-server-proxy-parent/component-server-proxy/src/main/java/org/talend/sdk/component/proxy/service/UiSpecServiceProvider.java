@@ -24,6 +24,7 @@ import javax.ws.rs.client.Client;
 
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
+import org.talend.sdk.component.proxy.service.client.ComponentClient;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
 import org.talend.sdk.component.proxy.service.client.UiSpecServiceClient;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
@@ -33,6 +34,9 @@ public class UiSpecServiceProvider {
 
     @Inject
     private ModelEnricherService modelEnricherService;
+
+    @Inject
+    private ComponentClient componentClient;
 
     @Inject
     private ConfigurationClient configurationClient;
@@ -52,7 +56,12 @@ public class UiSpecServiceProvider {
     private Jsonb jsonb;
 
     public UiSpecService newInstance(final String language, final Function<String, String> placeholderProvider) {
-        return new UiSpecService(new UiSpecServiceClient(client, configuration.getTargetServerBase(),
-                configurationClient, configurationService, jsonb, language, placeholderProvider), jsonb);
+        return new UiSpecService(newClient(language, placeholderProvider), jsonb);
+    }
+
+    protected UiSpecServiceClient newClient(final String language, final Function<String, String> placeholderProvider) {
+        return new UiSpecServiceClient(client, configuration.getTargetServerBase(), configurationClient,
+                configurationService, jsonb, language, placeholderProvider, this, modelEnricherService,
+                componentClient);
     }
 }

@@ -16,6 +16,7 @@
 package org.talend.sdk.component.proxy.service;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singleton;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
@@ -46,6 +47,7 @@ import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
+import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
@@ -60,6 +62,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ApplicationScoped
 public class ModelEnricherService {
+
+    private static final ActionReference BUILTIN_RELOAD_FROM_ID_ACTION = new ActionReference("builtin::family",
+            "builtin::root::reloadFromId", "jsonpatch", singleton(new SimplePropertyDefinition("id", "id",
+                    "Configuration Identifier", "STRING", null, null, emptyMap(), null, emptyMap())));
 
     private final Patches skip = new Patches(null) {
 
@@ -86,8 +92,9 @@ public class ModelEnricherService {
         return doEnrich(node.getConfigurationType(), lang, patch -> {
             final ConfigTypeNode copy = new ConfigTypeNode(node.getId(), node.getVersion(), node.getParentId(),
                     node.getConfigurationType(), node.getName(), node.getDisplayName(), node.getEdges(),
-                    new ArrayList<>(), node.getActions());
-            patch.doPatch(copy.getProperties(), node.getProperties());
+                    new ArrayList<>(), new ArrayList<>(node.getActions()));
+            patch.doPatchProperties(copy.getProperties(), node.getProperties());
+            patch.appendBuiltInActions(copy.getActions());
             return copy;
         }).orElse(node);
     }
@@ -95,9 +102,10 @@ public class ModelEnricherService {
     public ComponentDetail enrich(final ComponentDetail node, final String lang) {
         return doEnrich("component", lang, patch -> {
             final ComponentDetail copy = new ComponentDetail(node.getId(), node.getDisplayName(), node.getIcon(),
-                    node.getType(), node.getVersion(), new ArrayList<>(), node.getActions(), node.getInputFlows(),
-                    node.getOutputFlows(), node.getLinks());
-            patch.doPatch(copy.getProperties(), node.getProperties());
+                    node.getType(), node.getVersion(), new ArrayList<>(), new ArrayList<>(node.getActions()),
+                    node.getInputFlows(), node.getOutputFlows(), node.getLinks());
+            patch.doPatchProperties(copy.getProperties(), node.getProperties());
+            patch.appendBuiltInActions(copy.getActions());
             return copy;
         }).orElse(node);
     }
@@ -213,11 +221,15 @@ public class ModelEnricherService {
 
         private Collection<SimplePropertyDefinition> appendProperties;
 
-        private void doPatch(final Collection<SimplePropertyDefinition> properties,
+        private void doPatchProperties(final Collection<SimplePropertyDefinition> properties,
                 final Collection<SimplePropertyDefinition> original) {
             ofNullable(prependProperties).ifPresent(properties::addAll);
             ofNullable(original).ifPresent(properties::addAll);
             ofNullable(appendProperties).ifPresent(properties::addAll);
+        }
+
+        private void appendBuiltInActions(final Collection<ActionReference> actions) {
+            actions.add(BUILTIN_RELOAD_FROM_ID_ACTION);
         }
     }
 
