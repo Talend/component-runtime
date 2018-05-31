@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.proxy.service;
 
+import static java.util.Collections.singletonMap;
 import static java.util.Comparator.comparing;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
@@ -23,8 +24,10 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.json.stream.JsonCollectors.toJsonArray;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,8 +35,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.JsonArray;
 import javax.json.JsonBuilderFactory;
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.spi.JsonProvider;
 
@@ -52,6 +57,48 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
     @Inject
     @UiSpecProxy
     private JsonProvider jsonp;
+
+    @Override
+    public Map<String, String> flatten(final JsonObject form) {
+        final Map<String, String> keyValues = new HashMap<>();
+        if (form == null || form.isEmpty()) {
+            return keyValues;
+        }
+        return form
+                .entrySet()
+                .stream()
+                .filter(v -> v.getValue().getValueType() != JsonValue.ValueType.NULL)
+                .map(this::flattenValue)
+                .flatMap(map -> map.entrySet().stream())
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private Map<String, String> flattenValue(final Map.Entry<String, JsonValue> e) {
+        switch (e.getValue().getValueType()) {
+        case STRING:
+            return singletonMap(e.getKey(), JsonString.class.cast(e.getValue()).getString());
+        case FALSE:
+            return singletonMap(e.getKey(), "false");
+        case TRUE:
+            return singletonMap(e.getKey(), "true");
+        case NUMBER:
+            return singletonMap(e.getKey(), String.valueOf(JsonNumber.class.cast(e.getValue()).doubleValue()));
+        case OBJECT:
+            return flatten(JsonObject.class.cast(e.getValue())).entrySet().stream().collect(
+                    toMap(it -> e.getKey() + '.' + it.getKey(), Map.Entry::getValue));
+        case ARRAY:
+            final JsonArray array = JsonArray.class.cast(e.getValue());
+            int index = 0;
+            final Map<String, String> converted = new HashMap<>();
+            for (final JsonValue value : array) {
+                converted.putAll(flattenValue(new AbstractMap.SimpleEntry<>(e.getKey() + '[' + index + ']', value)));
+                index++;
+            }
+            return converted;
+        default:
+            throw new IllegalArgumentException("Unsupported entry: " + e.getValue());
+        }
+    }
 
     @Override
     public JsonObject unflatten(final Collection<SimplePropertyDefinition> definitions,

@@ -32,6 +32,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 public final class Services {
 
+    public static Components components() {
+        return lookup(Components.class);
+    }
+
     public static ConfigurationTypes configurationTypes() {
         return lookup(ConfigurationTypes.class);
     }

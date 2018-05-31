@@ -16,18 +16,11 @@
 package org.talend.sdk.component.proxy.api;
 
 import java.util.Collection;
-import java.util.Map;
-
-import javax.json.JsonObject;
+import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-/**
- * Allows to handle the form (uispec so JSON structure) to Talend Component Kit config format conversions.
- */
-public interface ConfigurationFormatter {
+public interface Components {
 
-    Map<String, String> flatten(JsonObject form);
-
-    JsonObject unflatten(Collection<SimplePropertyDefinition> definitions, Map<String, String> config);
+    CompletionStage<Collection<SimplePropertyDefinition>> findProperties(RequestContext context, String id);
 }

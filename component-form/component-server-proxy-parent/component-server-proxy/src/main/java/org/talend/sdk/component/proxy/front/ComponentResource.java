@@ -20,6 +20,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
@@ -41,6 +42,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.form.api.UiSpecService;
+import org.talend.sdk.component.proxy.api.Components;
+import org.talend.sdk.component.proxy.api.RequestContext;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorDictionary;
@@ -54,6 +57,7 @@ import org.talend.sdk.component.proxy.service.client.ComponentClient;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -66,7 +70,7 @@ import io.swagger.annotations.ResponseHeader;
 @Path("components")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-public class ComponentResource {
+public class ComponentResource implements Components {
 
     @Inject
     private PlaceholderProviderFactory placeholderProviderFactory;
@@ -82,6 +86,13 @@ public class ComponentResource {
 
     @Inject
     private UiSpecServiceProvider uiSpecServiceProvider;
+
+    @Override
+    public CompletionStage<Collection<SimplePropertyDefinition>> findProperties(final RequestContext context,
+            final String id) {
+        return componentClient.getComponentDetail(context.language(), context::findPlaceholder, id).thenApply(
+                ComponentDetail::getProperties);
+    }
 
     @ApiOperation(value = "This endpoint return a list of available component",
             notes = "component has icon that need to be handled by the consumer of this endpoint "
@@ -178,5 +189,4 @@ public class ComponentResource {
                 c.getFamilyDisplayName(), c.getIcon().getIcon(), Collections.emptyList(), c.getVersion(),
                 c.getId().getName(), c.getId().getPlugin());
     }
-
 }

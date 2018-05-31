@@ -184,15 +184,17 @@ public @interface WithServer {
                         final TestServer playServer = startPlay(tacokit.port);
                         store.put(TestServer.class, playServer);
 
-                        Network.ensureStarted(() -> {
-                            try {
-                                return IO
-                                        .slurp(new URL("http://localhost:" + tacokit.port + "/api/v1/environment"))
-                                        .contains("\"version\"");
-                            } catch (final IOException e) {
-                                return false;
-                            }
-                        });
+                        if (!tacokit.isSkipped()) {
+                            Network.ensureStarted(() -> {
+                                try {
+                                    return IO
+                                            .slurp(new URL("http://localhost:" + tacokit.port + "/api/v1/environment"))
+                                            .contains("\"version\"");
+                                } catch (final IOException e) {
+                                    return false;
+                                }
+                            });
+                        }
 
                         playServer.start();
                         Network.ensureStarted(() -> {
@@ -345,6 +347,9 @@ public @interface WithServer {
         }
 
         private void prepare() {
+            if (isSkipped()) {
+                return;
+            }
             final File target = jarLocation(Tacokit.class).getParentFile();
             final File distrib = new File(target.getParentFile(),
                     "../../../component-server-parent/component-server/target/component-server-meecrowave-distribution.zip");
@@ -371,6 +376,9 @@ public @interface WithServer {
 
         @Override
         public void run() {
+            if (isSkipped()) {
+                return;
+            }
             final String classpath =
                     of(ofNullable(libs.listFiles()).orElseGet(() -> new File[0])).map(File::getAbsolutePath).collect(
                             joining(File.pathSeparator));
@@ -414,6 +422,11 @@ public @interface WithServer {
                     }
                 });
             }
+        }
+
+        // useful when developping/running tests not requiring the remote server
+        private boolean isSkipped() {
+            return Boolean.getBoolean("component.test.proxy.tacokit.skip");
         }
 
         private void launch() {

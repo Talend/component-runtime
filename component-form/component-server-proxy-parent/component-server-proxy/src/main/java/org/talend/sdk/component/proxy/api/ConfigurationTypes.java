@@ -15,12 +15,15 @@
  */
 package org.talend.sdk.component.proxy.api;
 
+import java.util.Collection;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
 
 import org.talend.sdk.component.proxy.model.Nodes;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 public interface ConfigurationTypes {
 
-    CompletionStage<Nodes> findRoots(String language, Function<String, String> placeholderProvider);
+    CompletionStage<Nodes> findRoots(RequestContext context);
+
+    CompletionStage<Collection<SimplePropertyDefinition>> findProperties(RequestContext context, String id);
 }

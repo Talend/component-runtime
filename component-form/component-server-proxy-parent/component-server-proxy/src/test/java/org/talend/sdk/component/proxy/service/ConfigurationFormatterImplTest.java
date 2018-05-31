@@ -23,13 +23,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.json.JsonArray;
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonString;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.proxy.test.CdiInject;
 import org.talend.sdk.component.proxy.test.WithServer;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -41,8 +44,80 @@ class ConfigurationFormatterImplTest {
     @Inject
     private ConfigurationFormatterImpl formatter;
 
+    @Inject
+    @UiSpecProxy
+    private JsonBuilderFactory factory;
+
     @Test
-    void table() {
+    void flattenFlatObject() {
+        final JsonObject from = factory.createObjectBuilder().add("name", "N").add("age", 20.).build();
+        final Map<String, String> flatten = formatter.flatten(from);
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("name", "N");
+                put("age", "20.0");
+            }
+        }, flatten);
+    }
+
+    @Test
+    void flattenSimpleArray() {
+        final JsonObject from = factory
+                .createObjectBuilder()
+                .add("urls", factory.createArrayBuilder().add("a").add("b").build())
+                .build();
+        final Map<String, String> flatten = formatter.flatten(from);
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("urls[0]", "a");
+                put("urls[1]", "b");
+            }
+        }, flatten);
+    }
+
+    @Test
+    void flattenObjectArray() {
+        final JsonObject from = factory
+                .createObjectBuilder()
+                .add("people",
+                        factory
+                                .createArrayBuilder()
+                                .add(factory.createObjectBuilder().add("name", "First").add("age", 20))
+                                .add(factory.createObjectBuilder().add("name", "Second").add("age", 30))
+                                .build())
+                .build();
+        final Map<String, String> flatten = formatter.flatten(from);
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("people[0].name", "First");
+                put("people[0].age", "20.0");
+                put("people[1].name", "Second");
+                put("people[1].age", "30.0");
+            }
+        }, flatten);
+    }
+
+    @Test
+    void flattenNestedObject() {
+        final JsonObject from = factory
+                .createObjectBuilder()
+                .add("config", factory.createObjectBuilder().add("name", "N").add("age", 20.).build())
+                .build();
+        final Map<String, String> flatten = formatter.flatten(from);
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("config.name", "N");
+                put("config.age", "20.0");
+            }
+        }, flatten);
+    }
+
+    @Test
+    void unflattenTable() {
         final JsonObject object = formatter.unflatten(
                 asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"), prop("root.table[${index}]", "STRING")),
                 new HashMap<String, String>() {
@@ -61,7 +136,7 @@ class ConfigurationFormatterImplTest {
     }
 
     @Test
-    void tableOfObject() {
+    void unflattenTableOfObject() {
         final JsonObject object = formatter.unflatten(asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"),
                 prop("root.table[${index}].name", "STRING"), prop("root.table[${index}].age", "NUMBER")),
                 new HashMap<String, String>() {
@@ -83,7 +158,7 @@ class ConfigurationFormatterImplTest {
     }
 
     @Test
-    void complex() {
+    void unflattenComplex() {
         final JsonObject object = formatter.unflatten(asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"),
                 prop("root.table[${index}].urls", "ARRAY"), prop("root.table[${index}].urls[${index}]", "STRING")),
                 new HashMap<String, String>() {
@@ -109,7 +184,7 @@ class ConfigurationFormatterImplTest {
     }
 
     @Test
-    void primitivesRoot() {
+    void unflattenPrimitivesRoot() {
         final JsonObject object = formatter.unflatten(asList(prop("root", "OBJECT"), prop("root.name", "STRING"),
                 prop("root.age", "NUMBER"), prop("root.toggle", "BOOLEAN")), new HashMap<String, String>() {
 
@@ -128,7 +203,7 @@ class ConfigurationFormatterImplTest {
     }
 
     @Test
-    void primitivesNested() {
+    void unflattenPrimitivesNested() {
         final JsonObject object = formatter.unflatten(
                 asList(prop("root", "OBJECT"), prop("root.nested1", "OBJECT"), prop("root.nested2", "OBJECT"),
                         prop("root.nested3", "OBJECT"), // ignored in this test

@@ -21,6 +21,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
 
+import java.util.Collection;
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
@@ -42,6 +43,7 @@ import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.proxy.api.ConfigurationTypes;
+import org.talend.sdk.component.proxy.api.RequestContext;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorDictionary;
@@ -57,6 +59,7 @@ import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -93,9 +96,16 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     private UiSpecServiceProvider uiSpecServiceProvider;
 
     @Override
-    public CompletionStage<Nodes> findRoots(final String language, final Function<String, String> placeholderProvider) {
-        return withApplyNodesAndComponents(language, placeholderProvider,
+    public CompletionStage<Nodes> findRoots(final RequestContext context) {
+        return withApplyNodesAndComponents(context.language(), context::findPlaceholder,
                 (nodes, components) -> configurationService.getRootConfiguration(nodes, components));
+    }
+
+    @Override
+    public CompletionStage<Collection<SimplePropertyDefinition>> findProperties(final RequestContext context,
+            final String id) {
+        return configurationClient.getDetails(context.language(), id, context::findPlaceholder).thenApply(
+                c -> c.getNodes().values().iterator().next().getProperties());
     }
 
     @ApiOperation(value = "Return all the available root configuration (Data store like) from the component server",
@@ -110,8 +120,18 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     public void getRootConfig(@Suspended final AsyncResponse response, @Context final HttpServletRequest request) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        findRoots(language, placeholderProvider)
-                .handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
+        findRoots(new RequestContext() {
+
+            @Override
+            public String language() {
+                return language;
+            }
+
+            @Override
+            public String findPlaceholder(final String attributeName) {
+                return placeholderProvider.apply(attributeName);
+            }
+        }).handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
     }
 
     @ApiOperation(value = "Return a form description ( Ui Spec ) of a specific configuration ", response = Nodes.class,
