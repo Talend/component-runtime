@@ -18,16 +18,18 @@ package org.talend.sdk.component.tools;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -39,7 +41,6 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
 
-// @Experimental
 public class StudioInstaller implements Runnable {
 
     private final String mainGav;
@@ -104,14 +105,13 @@ public class StudioInstaller implements Runnable {
             final MvnCoordinateToFileConverter converter = new MvnCoordinateToFileConverter();
             this.artifacts.forEach((gav, file) -> {
                 final Artifact artifact = converter.toArtifact(gav);
+                final File target = new File(studioHome, "configuration/.m2/repository/" + artifact.toPath());
                 try {
-                    final File target = new File(studioHome, "configuration/.m2/repository/" + artifact.toPath());
                     if (target.exists() && !artifact.getVersion().endsWith("-SNAPSHOT")) {
                         log.info(gav + " already exists, skipping");
                         return;
                     }
-                    mkdirP(target.getParentFile());
-                    Files.copy(file.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    copy(file, target);
                     log.info("Installed " + gav + " at " + target.getAbsolutePath());
                 } catch (final IOException e) {
                     throw new IllegalStateException(e);
@@ -134,9 +134,8 @@ public class StudioInstaller implements Runnable {
             try {
                 final File backup = new File(configIni.getParentFile(), "backup/" + configIni.getName() + "_"
                         + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-mm-dd_HH-mm-ss")));
-                mkdirP(backup.getParentFile());
                 log.info("Saving configuration in " + backup);
-                Files.copy(configIni.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                copy(configIni, backup);
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
@@ -172,6 +171,13 @@ public class StudioInstaller implements Runnable {
         }
     }
 
+    private void copy(final File source, final File target) throws IOException {
+        mkdirP(target.getParentFile());
+        try (final OutputStream to = new BufferedOutputStream(new FileOutputStream(target))) {
+            Files.copy(source.toPath(), to);// this copy don't lock on win
+        }
+    }
+
     private void mkdirP(final File dir) {
         if (!dir.exists() && !dir.mkdirs()) {
             throw new IllegalStateException("Can't create " + dir);
@@ -185,4 +191,5 @@ public class StudioInstaller implements Runnable {
             log.info("Deleting " + jar.getAbsolutePath());
         }
     }
+
 }
