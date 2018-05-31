@@ -87,3 +87,14 @@ X-ID = ${someRequestAttributeNameForTheId}
 
 <1> Imports the global configuration mapping the endpoints on `/componentproxy/*`
 <2> Customize the configuration to specialize it for the current deployment
+
+=== If you are using Guice
+
+`org.talend.sdk.component.proxy.guice.ComponentUiSpecServerModule` Guice module allows
+to import `Services` from the server and to use some of them locally for the part
+out of scope of the endpoint delivery like:
+
+- Converting `JsonObject` to `Map<String, String>` and the opposite
+- Getting the properties model for a configuration or component (used in previous item)
+
+IMPORTANT: it is important to use a `Provider<T>` injection to keep it lazy.

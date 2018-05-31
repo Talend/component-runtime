@@ -15,7 +15,12 @@
  */
 package org.talend.sdk.component.proxy.api;
 
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static lombok.AccessLevel.PRIVATE;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 import javax.enterprise.inject.spi.CDI;
 
@@ -32,19 +37,27 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 public final class Services {
 
+    @Binding
     public static Components components() {
         return lookup(Components.class);
     }
 
+    @Binding
     public static ConfigurationTypes configurationTypes() {
         return lookup(ConfigurationTypes.class);
     }
 
+    @Binding
     public static ConfigurationFormatter configurationFormatter() {
         return lookup(ConfigurationFormatter.class);
     }
 
     private static <T> T lookup(final Class<T> api) {
         return CDI.current().select(api).get();
+    }
+
+    @Target(METHOD)
+    @Retention(RUNTIME)
+    public @interface Binding {
     }
 }
