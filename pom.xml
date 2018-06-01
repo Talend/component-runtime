@@ -98,8 +98,8 @@
     <component-api.version>1.0.0</component-api.version>
 
     <!-- for the starter -->
-    <gradle.version>4.4</gradle.version>
-    <mvn.version>3.5.2</mvn.version>
+    <gradle.version>4.7</gradle.version>
+    <mvn.version>3.5.3</mvn.version>
 
     <!-- for doc -->
     <revealjs.version>3.5.0</revealjs.version>
