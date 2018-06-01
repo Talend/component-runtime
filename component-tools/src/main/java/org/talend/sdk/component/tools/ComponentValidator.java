@@ -35,6 +35,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -160,6 +161,12 @@ public class ComponentValidator extends BaseTask {
             throw new IllegalStateException(
                     "Some error were detected:" + errors.stream().collect(joining("\n- ", "\n- ", "")));
         }
+    }
+
+    private boolean hasNestedDataSet(final List<ParameterMeta> options) {
+        return options.stream().anyMatch(
+                option -> "dataset".equals(option.getMetadata().get("tcomp::configurationtype::type"))
+                        || this.hasNestedDataSet(option.getNestedParameters()));
     }
 
     private void validateLayout(final AnnotationFinder finder, final List<Class<?>> components,
@@ -370,10 +377,27 @@ public class ComponentValidator extends BaseTask {
                 .map(i -> i + " has conflicting component annotations, ensure it has a single one")
                 .collect(toList()));
 
+        errors.addAll(components
+                .stream()
+                .filter(c -> countParameters(findConstructor(c).getParameters()) > 1)
+                .map(c -> "Component must use a single root option. '" + c.getName() + "'")
+                .collect(toList()));
+
+        errors.addAll(components
+                .stream()
+                .flatMap(c -> parameterModelService
+                        .buildParameterMetas(findConstructor(c),
+                                ofNullable(c.getPackage()).map(Package::getName).orElse(""))
+                        .stream())
+                .filter(option -> this.hasNestedDataSet(option.getNestedParameters()))
+                .map(option -> "Root configuration can't contains a nested DataSet `" + option.getJavaType() + "`")
+                .collect(toList()));
+
         final ModelVisitor modelVisitor = new ModelVisitor();
         final ModelListener noop = new ModelListener() {
 
         };
+
         errors.addAll(components.stream().map(c -> {
             try {
                 modelVisitor.visit(c, noop, configuration.isValidateComponent());
@@ -546,7 +570,11 @@ public class ComponentValidator extends BaseTask {
     }
 
     private int countParameters(final Method m) {
-        return (int) Stream.of(m.getParameters()).filter(p -> !parameterModelService.isService(p)).count();
+        return countParameters(m.getParameters());
+    }
+
+    private int countParameters(final Parameter[] params) {
+        return (int) Stream.of(params).filter(p -> !parameterModelService.isService(p)).count();
     }
 
     private String validateComponentResourceBundle(final Class<?> component) {

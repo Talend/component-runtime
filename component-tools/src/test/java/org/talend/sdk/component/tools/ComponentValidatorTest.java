@@ -298,6 +298,21 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage("org.talend.test.failure.multiplerootconfig")
+    void testFailureDuplicatedRootConfiguration(final ExceptionSpec expectedException) {
+        expectedException.expectMessage(
+                "Component must use a single root option. 'org.talend.test.failure.multiplerootconfig.MyComponent'");
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.nesteddataset")
+    void testFailureNestedDataSet(final ExceptionSpec expectedException) {
+        expectedException.expectMessage(
+                "- Root configuration can't contains a nested DataSet `class org.talend.test.failure.nesteddataset.MyComponent$DataSetWithNestedDataSet`\n"
+                        + "- Root configuration can't contains a nested DataSet `class org.talend.test.failure.nesteddataset.MyComponent$SimpleWithNested`");
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.valid", success = true, validateDocumentation = true)
     void testFullValidation() {
         // no-op
