@@ -70,67 +70,70 @@ public class Github {
         final ForkJoinPool pool = new ForkJoinPool(Math.max(4, Runtime.getRuntime().availableProcessors() * 8));
         try {
             return pool
-                    .submit(() -> contributors(client, token,
-                            "https://api.github.com/repos/talend/component-runtime/contributors")
-                                    .parallel()
-                                    .collect(toMap(e -> normalizeLogin(e.login), identity(), (c1, c2) -> {
-                                        c1.contributions += c2.contributions;
-                                        return c1;
-                                    }))
-                                    .values()
-                                    .stream()
-                                    .map(contributor -> {
-                                        if (contributor.url == null) { // anon contributor
+                    .submit(() -> Stream
+                            .of("component-api", "component-runtime")
+                            .flatMap(repo -> contributors(client, token,
+                                    "https://api.github.com/repos/talend/" + repo + "/contributors")
+                                            .parallel()
+                                            .collect(toMap(e -> normalizeLogin(e.login), identity(), (c1, c2) -> {
+                                                c1.contributions += c2.contributions;
+                                                return c1;
+                                            }))
+                                            .values()
+                                            .stream())
+                            .map(contributor -> {
+                                if (contributor.url == null) { // anon contributor
 
-                                            try {
-                                                final Contributor gravatar =
-                                                        Gravatars.loadGravatar(gravatarBase, contributor.email);
-                                                return Contributor
-                                                        .builder()
-                                                        .name(contributor.name)
-                                                        .commits(contributor.contributions)
-                                                        .description(gravatar.getDescription())
-                                                        .gravatar(gravatar.getGravatar())
-                                                        .build();
-                                            } catch (final Exception e) {
-                                                log.warn(e.getMessage(), e);
-                                                return new Contributor(contributor.email, contributor.email, "",
-                                                        Gravatars.url(contributor.email), contributor.contributions);
-                                            }
-                                        }
-                                        final GithubUser user = client
-                                                .target(contributor.url)
-                                                .request(APPLICATION_JSON_TYPE)
-                                                .header("Authorization", token)
-                                                .get(GithubUser.class);
+                                    try {
+                                        final Contributor gravatar =
+                                                Gravatars.loadGravatar(gravatarBase, contributor.email);
                                         return Contributor
                                                 .builder()
-                                                .id(contributor.login)
-                                                .name(ofNullable(user.name).orElse(contributor.name))
-                                                .description((user.bio == null ? "" : user.bio)
-                                                        + (user.blog != null && !user.blog.trim().isEmpty()
-                                                                && (user.bio == null || !user.bio.contains(user.blog))
-                                                                        ? "\n\nBlog: " + user.blog
-                                                                        : ""))
+                                                .name(contributor.name)
                                                 .commits(contributor.contributions)
-                                                .gravatar(ofNullable(contributor.avatarUrl).orElseGet(() -> {
-                                                    final String gravatarId = contributor.gravatarId == null
-                                                            || contributor.gravatarId.isEmpty() ? contributor.email
-                                                                    : contributor.gravatarId;
-                                                    try {
-                                                        final Contributor gravatar =
-                                                                Gravatars.loadGravatar(gravatarBase, gravatarId);
-                                                        return gravatar.getGravatar();
-                                                    } catch (final Exception e) {
-                                                        log.warn(e.getMessage(), e);
-                                                        return Gravatars.url(gravatarId);
-                                                    }
-                                                }))
+                                                .description(gravatar.getDescription())
+                                                .gravatar(gravatar.getGravatar())
                                                 .build();
-                                    })
-                                    .filter(Objects::nonNull)
-                                    .sorted(comparing(Contributor::getCommits).reversed())
-                                    .collect(toList()))
+                                    } catch (final Exception e) {
+                                        log.warn(e.getMessage(), e);
+                                        return new Contributor(contributor.email, contributor.email, "",
+                                                Gravatars.url(contributor.email), contributor.contributions);
+                                    }
+                                }
+                                final GithubUser user = client
+                                        .target(contributor.url)
+                                        .request(APPLICATION_JSON_TYPE)
+                                        .header("Authorization", token)
+                                        .get(GithubUser.class);
+                                return Contributor
+                                        .builder()
+                                        .id(contributor.login)
+                                        .name(ofNullable(user.name).orElse(contributor.name))
+                                        .description((user.bio == null ? "" : user.bio)
+                                                + (user.blog != null && !user.blog.trim().isEmpty()
+                                                        && (user.bio == null || !user.bio.contains(user.blog))
+                                                                ? "\n\nBlog: " + user.blog
+                                                                : ""))
+                                        .commits(contributor.contributions)
+                                        .gravatar(ofNullable(contributor.avatarUrl).orElseGet(() -> {
+                                            final String gravatarId =
+                                                    contributor.gravatarId == null || contributor.gravatarId.isEmpty()
+                                                            ? contributor.email
+                                                            : contributor.gravatarId;
+                                            try {
+                                                final Contributor gravatar =
+                                                        Gravatars.loadGravatar(gravatarBase, gravatarId);
+                                                return gravatar.getGravatar();
+                                            } catch (final Exception e) {
+                                                log.warn(e.getMessage(), e);
+                                                return Gravatars.url(gravatarId);
+                                            }
+                                        }))
+                                        .build();
+                            })
+                            .filter(Objects::nonNull)
+                            .sorted(comparing(Contributor::getCommits).reversed())
+                            .collect(toList()))
                     .get(15, MINUTES);
         } catch (final ExecutionException ee) {
             if (WebApplicationException.class.isInstance(ee.getCause())) {
