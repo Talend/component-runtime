@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.proxy.service.client;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -38,10 +39,14 @@ public class EnvironmentClient {
     private ProxyConfiguration configuration;
 
     public CompletionStage<Environment> current(final Function<String, String> placeholderProvider) {
-        return configuration
+        final CompletableFuture<Environment> result = new CompletableFuture<>();
+        configuration
                 .getHeaderAppender()
                 .apply(this.webTarget.path("environment").request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
-                .rx()
-                .get(Environment.class);
+                .async()
+                .get(new RxInvocationCallback<Environment>(result) {
+
+                });
+        return result;
     }
 }
