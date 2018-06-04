@@ -20,6 +20,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
+import javax.cache.annotation.CacheDefaults;
 import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,12 +28,15 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
+import org.talend.sdk.component.proxy.jcache.CacheResolverManager;
+import org.talend.sdk.component.proxy.jcache.ProxyCacheKeyGenerator;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 
 @ApplicationScoped
+@CacheDefaults(cacheResolverFactory = CacheResolverManager.class, cacheKeyGenerator = ProxyCacheKeyGenerator.class)
 public class ComponentClient {
 
     @Inject
@@ -42,7 +46,7 @@ public class ComponentClient {
     @Inject
     private ProxyConfiguration configuration;
 
-    @CacheResult
+    @CacheResult(cacheName = "org.talend.sdk.component.proxy.components.all")
     public CompletionStage<ComponentIndices> getAllComponents(final String language,
             final Function<String, String> placeholderProvider) {
         return configuration
@@ -56,6 +60,7 @@ public class ComponentClient {
                 .get(ComponentIndices.class);
     }
 
+    @CacheResult(cacheName = "org.talend.sdk.component.proxy.components.family.icon")
     public CompletionStage<byte[]> getFamilyIconById(final String id,
             final Function<String, String> placeholderProvider) {
         return configuration
@@ -66,6 +71,7 @@ public class ComponentClient {
                 .get(byte[].class);
     }
 
+    @CacheResult(cacheName = "org.talend.sdk.component.proxy.components.detail")
     public CompletionStage<ComponentDetail> getComponentDetail(final String language,
             final Function<String, String> placeholderProvider, final String id) {
         return configuration
@@ -80,6 +86,7 @@ public class ComponentClient {
                 .thenApply(l -> l.getDetails().iterator().next());
     }
 
+    @CacheResult(cacheName = "org.talend.sdk.component.proxy.components.icon")
     public CompletionStage<byte[]> getComponentIconById(final Function<String, String> placeholderProvider,
             final String id) {
         return configuration

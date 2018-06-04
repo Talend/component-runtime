@@ -21,6 +21,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
 
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -31,10 +32,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 
+import org.talend.sdk.component.proxy.front.error.AutoErrorHandling;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
 import org.talend.sdk.component.proxy.service.ActionService;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
@@ -50,6 +50,7 @@ import io.swagger.annotations.ResponseHeader;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@AutoErrorHandling
 @Api(description = "Endpoint responsible to handle any server side interaction (validation, healthcheck, ...)",
         tags = { "action" })
 @ApplicationScoped
@@ -57,9 +58,6 @@ import lombok.extern.slf4j.Slf4j;
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
 public class ActionResource {
-
-    @Inject
-    private ErrorProcessor errorProcessor;
 
     @Inject
     private ActionService service;
@@ -82,15 +80,12 @@ public class ActionResource {
                     response = ProxyErrorPayload.class) })
     @POST
     @Path("execute")
-    public void execute(@Suspended final AsyncResponse response, @QueryParam("family") final String family,
+    public CompletionStage<Map<String, Object>> execute(@QueryParam("family") final String family,
             @QueryParam("type") final String type, @QueryParam("action") final String action,
             @QueryParam("language") final String lang, @Context final HttpServletRequest request,
             final Map<String, Object> params) {
-        service
-                .createStage(family, type, action,
-                        new UiSpecContext(ofNullable(lang).orElse("en"),
-                                placeholderProviderFactory.newProvider(request)),
-                        params)
-                .handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
+        return service.createStage(family, type, action,
+                new UiSpecContext(ofNullable(lang).orElse("en"), placeholderProviderFactory.newProvider(request)),
+                params);
     }
 }

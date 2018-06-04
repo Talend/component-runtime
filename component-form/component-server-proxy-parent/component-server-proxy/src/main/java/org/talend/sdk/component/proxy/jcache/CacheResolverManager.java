@@ -19,6 +19,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.lang.annotation.Annotation;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -71,7 +72,7 @@ public class CacheResolverManager implements CacheResolverFactory {
     @Inject
     private EnvironmentClient client;
 
-    private final ConcurrentMap<String, CacheResolver> noCacheCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, CacheResolver> resolvers = new ConcurrentHashMap<>();
 
     private Runnable onDestroy;
 
@@ -146,18 +147,16 @@ public class CacheResolverManager implements CacheResolverFactory {
 
     private CacheResolver toResolver(final String cacheName) {
         if (!configuration.getJcacheActive()) {
-            return noCacheCache.computeIfAbsent(cacheName,
+            return resolvers.computeIfAbsent(cacheName,
                     k -> new CacheResolverImpl(new EmptyCache<>(cacheName, cacheManager)));
         }
 
-        Cache<Object, Object> cache = cacheManager.getCache(cacheName);
-        if (cache == null) {
+        return resolvers.computeIfAbsent(cacheName, k -> {
             final String keyCacheName = cacheName.replaceAll("\\([^\\)]*\\)", "");
             log.debug("Creating cache {}", keyCacheName);
 
             final Config config = ConfigProvider.getConfig();
-            final Factory<ExpiryPolicy> policy = config
-                    .getOptionalValue("jcache.caches." + keyCacheName + ".expiry.duration", Long.class)
+            final Factory<ExpiryPolicy> policy = getConfigValue(config, keyCacheName, "expiry.duration", Long.class)
                     .map(l -> new Duration(TimeUnit.SECONDS, l))
                     .map(CreatedExpiryPolicy::factoryOf)
                     .orElseGet(EternalExpiryPolicy::factoryOf);
@@ -165,20 +164,26 @@ public class CacheResolverManager implements CacheResolverFactory {
             final MutableConfiguration<Object, Object> conf = new MutableConfiguration<>();
             conf.setExpiryPolicyFactory(policy);
             conf.setStoreByValue(false);
-            conf.setManagementEnabled(config
-                    .getOptionalValue("jcache.caches." + keyCacheName + ".management.active", Boolean.class)
-                    .orElse(false));
-            conf.setStatisticsEnabled(config
-                    .getOptionalValue("jcache.caches." + keyCacheName + ".statistics.active", Boolean.class)
-                    .orElse(false));
+            conf.setManagementEnabled(
+                    getConfigValue(config, keyCacheName, "management.active", Boolean.class).orElse(false));
+            conf.setStatisticsEnabled(
+                    getConfigValue(config, keyCacheName, "statistics.active", Boolean.class).orElse(false));
 
             try {
-                cache = cacheManager.createCache(cacheName, conf);
+                return new CacheResolverImpl(cacheManager.createCache(cacheName, conf));
             } catch (final CacheException ce) {
-                cache = cacheManager.getCache(cacheName);
+                return new CacheResolverImpl(cacheManager.getCache(cacheName));
             }
-        }
-        return new CacheResolverImpl(cache);
+        });
+    }
+
+    private <T> Optional<T> getConfigValue(final Config config, final String keyCacheName, final String suffix,
+            final Class<T> type) {
+        return ofNullable(config
+                .getOptionalValue(configuration.getPrefix() + "jcache.caches." + keyCacheName + '.' + suffix, type)
+                .orElseGet(() -> config
+                        .getOptionalValue(configuration.getPrefix() + "jcache.caches." + suffix, type)
+                        .orElse(null)));
     }
 
     private void refreshThread(final long delay, final CountDownLatch onExit) {

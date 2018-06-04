@@ -41,14 +41,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.proxy.api.ConfigurationTypes;
 import org.talend.sdk.component.proxy.api.RequestContext;
+import org.talend.sdk.component.proxy.front.error.AutoErrorHandling;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorDictionary;
@@ -74,6 +73,7 @@ import io.swagger.annotations.ResponseHeader;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@AutoErrorHandling
 @Api(description = "Endpoint responsible to provide a way to navigate in the configurations and subconfigurations "
         + "to let the UI creates the corresponding entities. It is UiSpec friendly.",
         tags = { "configuration", "icon", "uispec", "form" })
@@ -133,10 +133,10 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    public void getRootConfig(@Suspended final AsyncResponse response, @Context final HttpServletRequest request) {
+    public CompletionStage<Nodes> getRootConfig(@Context final HttpServletRequest request) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        findRoots(new RequestContext() {
+        return findRoots(new RequestContext() {
 
             @Override
             public String language() {
@@ -147,7 +147,7 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
             public String findPlaceholder(final String attributeName) {
                 return placeholderProvider.apply(attributeName);
             }
-        }).handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
+        });
     }
 
     @ApiOperation(value = "Return a form description ( Ui Spec ) without a specific configuration ",
@@ -157,20 +157,19 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("{type}/form/initial")
-    public void getInitialForm(@Suspended final AsyncResponse response, @PathParam("type") final String type,
+    public CompletionStage<UiNode> getInitialForm(@PathParam("type") final String type,
             @Context final HttpServletRequest request) {
         if (type == null || type.isEmpty()) {
-            response.resume(new WebApplicationException(Response
+            throw new WebApplicationException(Response
                     .status(Response.Status.BAD_REQUEST)
                     .entity(new ProxyErrorPayload(ProxyErrorDictionary.BAD_CONFIGURATION_TYPE.name(),
                             "No configuration type passed"))
                     .type(APPLICATION_JSON_TYPE)
-                    .build()));
-            return;
+                    .build());
         }
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        toUiSpecAndMetadata(response, language, placeholderProvider,
+        return toUiSpecAndMetadata(language, placeholderProvider,
                 CompletableFuture.supplyAsync(() -> new ConfigTypeNode(type, 0, null, type, type, type, emptySet(),
                         new ArrayList<>(), new ArrayList<>()), pool),
                 true);
@@ -182,15 +181,14 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("{id}/form")
-    public void getForm(@Suspended final AsyncResponse response, @PathParam("id") final String id,
+    public CompletionStage<UiNode> getForm(@PathParam("id") final String id,
             @Context final HttpServletRequest request) {
         if (id == null || id.isEmpty()) {
-            response.resume(new UiNode());
-            return;
+            return CompletableFuture.completedFuture(new UiNode());
         }
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        toUiSpecAndMetadata(response, language, placeholderProvider,
+        return toUiSpecAndMetadata(language, placeholderProvider,
                 configurationClient.getDetails(language, id, placeholderProvider).thenApply(this::getSingleNode),
                 false);
     }
@@ -201,21 +199,19 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     @GET
     @Path("{id}/icon")
     @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
-    public void getConfigurationIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id,
+    public CompletionStage<byte[]> getConfigurationIconById(@PathParam("id") final String id,
             @Context final HttpServletRequest request) {
-        componentClient.getFamilyIconById(id, placeholderProviderFactory.newProvider(request)).handle(
-                (icon, throwable) -> errorProcessor.handleResponse(response, icon, throwable));
+        return componentClient.getFamilyIconById(id, placeholderProviderFactory.newProvider(request));
     }
 
-    private void toUiSpecAndMetadata(final AsyncResponse response, final String language,
+    private CompletionStage<UiNode> toUiSpecAndMetadata(final String language,
             final Function<String, String> placeholderProvider, final CompletionStage<ConfigTypeNode> from,
             final boolean noFamily) {
-        from
+        return from
                 .thenCompose(node -> withApplyNodesAndComponents(language, placeholderProvider,
                         (nodes, components) -> toUiNode(language, node, nodes, components, noFamily,
                                 placeholderProvider)))
-                .thenCompose(identity())
-                .handle((detail, throwable) -> errorProcessor.handleResponse(response, detail, throwable));
+                .thenCompose(identity());
     }
 
     private CompletionStage<UiNode> toUiNode(final String language, final ConfigTypeNode node,

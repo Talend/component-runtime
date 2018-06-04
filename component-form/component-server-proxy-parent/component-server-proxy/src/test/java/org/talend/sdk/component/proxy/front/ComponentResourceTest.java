@@ -26,9 +26,12 @@ import static org.talend.sdk.component.proxy.IO.slurp;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -42,6 +45,26 @@ import org.talend.sdk.component.proxy.test.WithServer;
 
 @WithServer
 class ComponentResourceTest {
+
+    @Test
+    void ensureCacheIsUsed(final WebTarget webTarget) throws Exception {
+        // ensure cache exists and data is cached otherwise no way to use hit as a comparison
+        webTarget.path("components").request(MediaType.APPLICATION_JSON_TYPE).get(Nodes.class);
+
+        final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        final ObjectName on = mBeanServer
+                .queryMBeans(new ObjectName(
+                        "javax.cache:type=CacheStatistics,Cache=org.talend.sdk.component.proxy.components.all,CacheManager=*"),
+                        null)
+                .iterator()
+                .next()
+                .getObjectName();
+        final Number hits = Number.class.cast(mBeanServer.getAttribute(on, "CacheHits"));
+        webTarget.path("components").request(MediaType.APPLICATION_JSON_TYPE).get(Nodes.class);
+        final Number hitsAfter = Number.class.cast(mBeanServer.getAttribute(on, "CacheHits"));
+
+        assertEquals(hits.intValue() + 1, hitsAfter.intValue());
+    }
 
     @Test
     void getComponents(final WebTarget webTarget) {

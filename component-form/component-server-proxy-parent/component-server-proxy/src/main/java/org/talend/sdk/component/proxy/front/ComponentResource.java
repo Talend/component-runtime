@@ -36,14 +36,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.proxy.api.Components;
 import org.talend.sdk.component.proxy.api.RequestContext;
+import org.talend.sdk.component.proxy.front.error.AutoErrorHandling;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorDictionary;
@@ -64,6 +63,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ResponseHeader;
 
+@AutoErrorHandling
 @Api(description = "Endpoint responsible to provide a way to get components list and there ui definition"
         + "to let the UI creates the corresponding entities. It is UiSpec friendly.",
         tags = { "component", "icon", "uispec", "form" })
@@ -105,16 +105,15 @@ public class ComponentResource implements Components {
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    public void listComponent(@Suspended final AsyncResponse response, @Context final HttpServletRequest request) {
+    public CompletionStage<Nodes> listComponent(@Context final HttpServletRequest request) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        componentClient
+        return componentClient
                 .getAllComponents(language, placeholderProvider)
                 .thenApply(ComponentIndices::getComponents)
                 .thenApply(components -> components.stream().map(this::toNode).collect(
                         Collectors.toMap(Node::getId, Function.identity())))
-                .thenApply(Nodes::new)
-                .handle((r, e) -> errorProcessor.handleResponse(response, r, e));
+                .thenApply(Nodes::new);
     }
 
     @ApiOperation(value = "This endpoint return the ui spec of a component identified by it's id",
@@ -127,11 +126,12 @@ public class ComponentResource implements Components {
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("{id}/form")
-    public void getComponentForm(@Suspended final AsyncResponse response, @Context final HttpServletRequest request,
+    @AutoErrorHandling(single = false)
+    public CompletionStage<UiNode> getComponentForm(@Context final HttpServletRequest request,
             @PathParam("id") final String id) {
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        componentClient
+        return componentClient
                 .getComponentDetail(language, placeholderProvider, id)
                 .thenCompose(detail -> this.componentClient
                         .getAllComponents(language, placeholderProvider)
@@ -147,9 +147,7 @@ public class ComponentResource implements Components {
                                         .header(ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
                                         .build())))
                         .thenCompose(
-                                componentIndex -> withUiSpec(detail, language, componentIndex, placeholderProvider)))
-                .handle((r, e) -> errorProcessor.handleResponse(response, r, e,
-                        this.errorProcessor::multipleToSingleError));
+                                componentIndex -> withUiSpec(detail, language, componentIndex, placeholderProvider)));
     }
 
     @ApiOperation(value = "Return the component icon file in png format", tags = "icon",
@@ -158,10 +156,9 @@ public class ComponentResource implements Components {
     @GET
     @Path("{id}/icon")
     @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
-    public void getComponentIconById(@Suspended final AsyncResponse response, @PathParam("id") final String id,
+    public CompletionStage<byte[]> getComponentIconById(@PathParam("id") final String id,
             @Context final HttpServletRequest request) {
-        componentClient.getComponentIconById(placeholderProviderFactory.newProvider(request), id).handle(
-                (icon, throwable) -> errorProcessor.handleResponse(response, icon, throwable));
+        return componentClient.getComponentIconById(placeholderProviderFactory.newProvider(request), id);
     }
 
     private CompletionStage<UiNode> withUiSpec(final ComponentDetail detail, final String language,

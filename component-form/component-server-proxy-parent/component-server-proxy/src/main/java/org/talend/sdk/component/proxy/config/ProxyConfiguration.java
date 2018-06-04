@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.proxy.config;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.unmodifiableSet;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -23,11 +25,14 @@ import static lombok.AccessLevel.NONE;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -92,8 +97,10 @@ public class ProxyConfiguration {
 
     @Inject
     @Documentation("Should the server use jcache to store catalog information and refresh it with some polling. "
-            + "If so the keys `jcache.caches.$cacheName.expiry.duration`, `jcache.caches.$cacheName.management.active` and "
-            + "`jcache.caches.$cacheName.statistics.active` will be read to create a JCache `MutableConfiguration`.")
+            + "If so the keys `" + PREFIX + "jcache.caches.$cacheName.expiry.duration`, `" + PREFIX
+            + "jcache.caches.$cacheName.management.active` and " + "`" + PREFIX
+            + "jcache.caches.$cacheName.statistics.active` will be read to create a JCache `MutableConfiguration`. Also note that if all the caches"
+            + "share the same configuration you can ignore the `$cacheName` layer.")
     @ConfigProperty(name = PREFIX + "jcache.active", defaultValue = "true")
     private Boolean jcacheActive;
 
@@ -125,6 +132,8 @@ public class ProxyConfiguration {
     @Getter
     private BiFunction<Invocation.Builder, Function<String, String>, Invocation.Builder> headerAppender;
 
+    private Collection<String> dynamicHeaders;
+
     @PostConstruct
     private void init() {
         processHeaders();
@@ -133,6 +142,7 @@ public class ProxyConfiguration {
     private void processHeaders() {
         if (!headers.isPresent()) {
             headerAppender = (a, b) -> a;
+            dynamicHeaders = emptySet();
         } else {
             final Properties properties = new Properties();
             try (final Reader reader = new StringReader(headers.get().trim())) {
@@ -140,6 +150,7 @@ public class ProxyConfiguration {
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }
+            final Set<String> dynamicHeaderKeys = new HashSet<>();
             final Map<String, Function<Function<String, String>, String>> providers =
                     properties.stringPropertyNames().stream().collect(toMap(identity(), e -> {
                         final String value = properties.getProperty(e);
@@ -156,8 +167,9 @@ public class ProxyConfiguration {
                                     break;
                                 }
 
-                                toReplace.put(value.substring(start, end + 1),
-                                        value.substring(start + "${".length(), end));
+                                final String rawKey = value.substring(start + "${".length(), end);
+                                dynamicHeaderKeys.add(rawKey);
+                                toReplace.put(value.substring(start, end + 1), rawKey);
                                 lastEnd = end;
                             } while (lastEnd > 0);
                             if (!toReplace.isEmpty()) {
@@ -173,6 +185,7 @@ public class ProxyConfiguration {
                         }
                         return ignored -> value;
                     }));
+            dynamicHeaders = unmodifiableSet(dynamicHeaderKeys);
             headerAppender = (builder, placeholders) -> {
                 Invocation.Builder out = builder;
                 for (final Map.Entry<String, Function<Function<String, String>, String>> header : providers
@@ -182,5 +195,9 @@ public class ProxyConfiguration {
                 return out;
             };
         }
+    }
+
+    public String getPrefix() {
+        return PREFIX;
     }
 }

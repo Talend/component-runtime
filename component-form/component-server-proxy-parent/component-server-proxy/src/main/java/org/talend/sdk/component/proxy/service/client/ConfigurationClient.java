@@ -18,16 +18,21 @@ package org.talend.sdk.component.proxy.service.client;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
+import javax.cache.annotation.CacheDefaults;
+import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
+import org.talend.sdk.component.proxy.jcache.CacheResolverManager;
+import org.talend.sdk.component.proxy.jcache.ProxyCacheKeyGenerator;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 
 @ApplicationScoped
+@CacheDefaults(cacheResolverFactory = CacheResolverManager.class, cacheKeyGenerator = ProxyCacheKeyGenerator.class)
 public class ConfigurationClient {
 
     @Inject
@@ -37,6 +42,7 @@ public class ConfigurationClient {
     @Inject
     private ProxyConfiguration configuration;
 
+    @CacheResult(cacheName = "org.talend.sdk.component.proxy.configurations.all")
     public CompletionStage<ConfigTypeNodes> getAllConfigurations(final String language,
             final Function<String, String> placeholderProvider) {
         return configuration
@@ -50,6 +56,7 @@ public class ConfigurationClient {
                 .get(ConfigTypeNodes.class);
     }
 
+    @CacheResult(cacheName = "org.talend.sdk.component.proxy.configurations.detail")
     public CompletionStage<ConfigTypeNodes> getDetails(final String language, final String id,
             final Function<String, String> placeholderProvider) {
         return configuration

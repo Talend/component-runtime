@@ -20,11 +20,10 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.util.Map;
 import java.util.concurrent.CompletionException;
-import java.util.function.Function;
+import java.util.concurrent.CompletionStage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
@@ -48,18 +47,16 @@ public class ErrorProcessor {
 
             };
 
-    public Object handleResponse(final AsyncResponse response, final Object result, final Throwable throwable) {
-        return handleResponse(response, result, throwable, this::handleSingleError);
+    public <T> CompletionStage<T> handleResponse(final CompletionStage<T> stage) {
+        return stage.exceptionally(t -> {
+            throw handleSingleError(unwrap(t));
+        });
     }
 
-    public Object handleResponse(final AsyncResponse response, final Object result, final Throwable throwable,
-            final Function<Throwable, WebApplicationException> erroHandler) {
-        if (throwable != null) {
-            response.resume(erroHandler.apply(unwrap(throwable)));
-        } else {
-            response.resume(result);
-        }
-        return null;
+    public <T> CompletionStage<T> handleResponses(final CompletionStage<T> stage) {
+        return stage.exceptionally(t -> {
+            throw multipleToSingleError(unwrap(t));
+        });
     }
 
     private Throwable unwrap(final Throwable throwable) {
@@ -74,7 +71,7 @@ public class ErrorProcessor {
      * @param throwable WebApplicationException to unwrap
      * @return WebApplicationException with a single error
      */
-    public WebApplicationException multipleToSingleError(final Throwable throwable) {
+    private WebApplicationException multipleToSingleError(final Throwable throwable) {
         final WebApplicationException error = WebApplicationException.class.cast(unwrap(throwable));
         ErrorPayload errorDetails =
                 error.getResponse().readEntity(multipleErrorType).entrySet().iterator().next().getValue();
