@@ -46,7 +46,6 @@ class Content extends React.Component {
   }
 
   componentWillMount() {
-      const id = 'U2VydmljZU5vdyNkYXRhc3RvcmUjYmFzaWNBdXRo';
       fetch(
         '/componentproxy/api/v1/configurations/datastore/form/initial',
         { method: 'GET', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } }
