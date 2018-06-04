@@ -24,6 +24,7 @@ import java.util.concurrent.CompletionStage;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
+import org.talend.sdk.component.form.internal.lang.CompletionStages;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -43,7 +44,7 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
     }
 
     @Override
-    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+    public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
             final UiSchema uiSchema = newUiSchema(context);
             uiSchema.setWidget("fieldset");
@@ -58,8 +59,8 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
                     .allOf(this.properties
                             .stream()
                             .filter(context::isDirectChild)
-                            .map(PropertyContext::new)
-                            .map(CompletableFuture::completedFuture)
+                            .map(it -> new PropertyContext<>(it, context.getRootContext()))
+                            .map(CompletionStages::toStage)
                             .map(uiSchemaConverter::convert)
                             .toArray(CompletableFuture[]::new))
                     .thenApply(done -> {

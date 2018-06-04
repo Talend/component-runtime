@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.proxy.service;
 
+import static java.util.Collections.emptyEnumeration;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static java.util.Optional.empty;
@@ -31,9 +32,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,7 +67,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ModelEnricherService {
 
     private static final ActionReference BUILTIN_RELOAD_FROM_ID_ACTION = new ActionReference("builtin::family",
-            "builtin::root::reloadFromId", "jsonpatch", singleton(new SimplePropertyDefinition("id", "id",
+            "builtin::root::reloadFromId", "reloadForm", singleton(new SimplePropertyDefinition("id", "id",
                     "Configuration Identifier", "STRING", null, null, emptyMap(), null, emptyMap())));
 
     private final Patches skip = new Patches(null) {
@@ -84,9 +87,32 @@ public class ModelEnricherService {
 
     private final ConcurrentMap<String, Patches> patches = new ConcurrentHashMap<>();
 
-    private final Function<String, ResourceBundle> bundleSupplier =
-            lang -> ResourceBundle.getBundle("org.talend.sdk.component.proxy.enrichment.i18n.Messages",
-                    new Locale(lang), Thread.currentThread().getContextClassLoader());
+    private final Function<String, ResourceBundle> bundleSupplier = lang -> {
+        final Locale locale = new Locale(lang);
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            return ResourceBundle.getBundle("org.talend.sdk.component.proxy.enrichment.i18n.Messages", locale,
+                    classLoader);
+        } catch (final MissingResourceException mre) {
+            return new ResourceBundle() {
+
+                @Override
+                public Locale getLocale() {
+                    return locale;
+                }
+
+                @Override // normally not used since getKeys will prevent it in our usage
+                protected Object handleGetObject(final String key) {
+                    return key;
+                }
+
+                @Override
+                public Enumeration<String> getKeys() {
+                    return emptyEnumeration();
+                }
+            };
+        }
+    };
 
     public ConfigTypeNode enrich(final ConfigTypeNode node, final String lang) {
         return doEnrich(node.getConfigurationType(), lang, patch -> {

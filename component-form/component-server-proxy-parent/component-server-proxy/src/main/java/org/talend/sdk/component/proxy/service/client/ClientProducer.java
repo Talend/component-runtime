@@ -15,50 +15,84 @@
  */
 package org.talend.sdk.component.proxy.service.client;
 
-import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
 import org.talend.sdk.component.form.api.Client;
+import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
-import org.talend.sdk.component.proxy.service.ConfigurationService;
+import org.talend.sdk.component.proxy.service.ActionService;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 public class ClientProducer {
 
-    @Inject
-    private ProxyConfiguration configuration;
+    @Produces
+    @UiSpecProxy
+    public UiSpecService<UiSpecContext> uiSpecService(@UiSpecProxy final Client client,
+            @UiSpecProxy final Jsonb jsonb) {
+        return new UiSpecService<>(client, jsonb);
+    }
+
+    public void destroyUiSpecService(@Disposes @UiSpecProxy final UiSpecService<UiSpecContext> client) {
+        try {
+            client.close();
+        } catch (final Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
 
     @Produces
     @UiSpecProxy
     @ApplicationScoped
-    public ExecutorService pool() {
+    public Client<UiSpecContext> uiSpecClient(@UiSpecProxy final javax.ws.rs.client.Client client,
+            final ProxyConfiguration configuration, final ActionService actionService) {
+        return new JAXRSClient<UiSpecContext>(client, configuration.getTargetServerBase(), false) {
+
+            @Override
+            public CompletableFuture<Map<String, Object>> action(final String family, final String type,
+                    final String action, final Map<String, Object> params, final UiSpecContext context) {
+                if (actionService.isBuiltin(action)) {
+                    return actionService
+                            .findBuiltInAction(action, context.getLanguage(), context.getPlaceholderProvider(), params)
+                            .toCompletableFuture();
+                }
+                return super.action(family, type, action, params, context);
+            }
+        };
+    }
+
+    public void destroyUiSpecClient(@Disposes @UiSpecProxy final Client<UiSpecContext> client) {
+        client.close();
+    }
+
+    @Produces
+    @UiSpecProxy
+    @ApplicationScoped
+    public ExecutorService pool(final ProxyConfiguration configuration) {
         final int core = configuration.getClientPoolCore();
         final int max = configuration.getClientPoolMax();
         final long keepAlive = configuration.getClientPoolKeepAlive();
@@ -84,7 +118,8 @@ public class ClientProducer {
     @Produces
     @UiSpecProxy
     @ApplicationScoped
-    public javax.ws.rs.client.Client client(@UiSpecProxy final ExecutorService pool) {
+    public javax.ws.rs.client.Client client(@UiSpecProxy final ExecutorService pool,
+            final ProxyConfiguration configuration) {
         final javax.ws.rs.client.Client client = ClientBuilder
                 .newBuilder()
                 .connectTimeout(configuration.getConnectTimeout(), MILLISECONDS)
@@ -98,65 +133,13 @@ public class ClientProducer {
     @Produces
     @UiSpecProxy
     @ApplicationScoped
-    public WebTarget webTarget(@UiSpecProxy final javax.ws.rs.client.Client client) {
+    public WebTarget webTarget(@UiSpecProxy final javax.ws.rs.client.Client client,
+            final ProxyConfiguration configuration) {
         return client.target(configuration.getTargetServerBase());
-    }
-
-    @Produces
-    @UiSpecProxy
-    @ApplicationScoped
-    public Client actionClient(@UiSpecProxy final javax.ws.rs.client.Client client,
-            final ConfigurationService configurationService, final ConfigurationClient configurationClient,
-            @UiSpecProxy final Jsonb jsonb) {
-        return new MergedClient(client, configuration.getTargetServerBase(), true, configurationClient,
-                configurationService, jsonb);
     }
 
     public void disposeClient(@Disposes final javax.ws.rs.client.Client client) {
         client.close();
-    }
-
-    private static class MergedClient extends JAXRSClient {
-
-        private final ConfigurationClient configurationClient;
-
-        private final ConfigurationService configurationService;
-
-        private final Jsonb jsonb;
-
-        private MergedClient(final javax.ws.rs.client.Client client, final String base, final boolean closeClient,
-                final ConfigurationClient configurationClient, final ConfigurationService configurationService,
-                final Jsonb jsonb) {
-            super(client, base, closeClient);
-            this.configurationClient = configurationClient;
-            this.configurationService = configurationService;
-            this.jsonb = jsonb;
-        }
-
-        @Override
-        public CompletableFuture<Map<String, Object>> action(final String family, final String type,
-                final String action, final Map<String, Object> params) {
-            if ("builtin::roots".equals(action) && "dynamic_values".equals(type) /* && whatever family */) {
-                return findRoots(ofNullable(params.get("lang")).map(String::valueOf).orElse("en"),
-                        Function.class.cast(params.get("placeholderProvider"))).toCompletableFuture();
-            }
-            return super.action(family, type, action, params);
-        }
-
-        private CompletionStage<Map<String, Object>> findRoots(final String lang,
-                final Function<String, String> placeholderProvider) {
-            return configurationClient
-                    .getAllConfigurations(lang, placeholderProvider)
-                    .thenApply(configs -> configurationService.getRootConfiguration(configs, ignored -> null))
-                    .thenApply(configs -> new Values(configs
-                            .getNodes()
-                            .values()
-                            .stream()
-                            .map(it -> new Values.Item(it.getId(), it.getLabel()))
-                            .sorted(comparing(Values.Item::getLabel))
-                            .collect(toList())))
-                    .thenApply(values -> ((Map<String, Object>) jsonb.fromJson(jsonb.toJson(values), Map.class)));
-        }
     }
 
     @Data

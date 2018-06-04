@@ -52,8 +52,9 @@ import org.talend.sdk.component.proxy.model.UiNode;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
 import org.talend.sdk.component.proxy.service.ModelEnricherService;
 import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
-import org.talend.sdk.component.proxy.service.UiSpecServiceProvider;
 import org.talend.sdk.component.proxy.service.client.ComponentClient;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
@@ -85,7 +86,8 @@ public class ComponentResource implements Components {
     private ModelEnricherService modelEnricherService;
 
     @Inject
-    private UiSpecServiceProvider uiSpecServiceProvider;
+    @UiSpecProxy
+    private UiSpecService<UiSpecContext> uiSpecService;
 
     @Override
     public CompletionStage<Collection<SimplePropertyDefinition>> findProperties(final RequestContext context,
@@ -145,7 +147,7 @@ public class ComponentResource implements Components {
                                         .header(ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
                                         .build())))
                         .thenCompose(
-                                componentIndex -> withUiSpec(detail, language, placeholderProvider, componentIndex)))
+                                componentIndex -> withUiSpec(detail, language, componentIndex, placeholderProvider)))
                 .handle((r, e) -> errorProcessor.handleResponse(response, r, e,
                         this.errorProcessor::multipleToSingleError));
     }
@@ -163,18 +165,11 @@ public class ComponentResource implements Components {
     }
 
     private CompletionStage<UiNode> withUiSpec(final ComponentDetail detail, final String language,
-            final Function<String, String> placeholderProvider, final ComponentIndex componentIndex) {
-        try (final UiSpecService specService = uiSpecServiceProvider.newInstance(language, placeholderProvider)) {
-            return specService.convert(modelEnricherService.enrich(detail, language)).thenApply(
-                    uiSpec -> new UiNode(uiSpec, toNode(detail, componentIndex)));
-        } catch (final Exception e) {
-            throw new WebApplicationException(Response
-                    .status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(new ProxyErrorPayload(ProxyErrorDictionary.UISPEC_SERVICE_CLOSE_FAILURE.name(),
-                            "UiSpecService processing failed"))
-                    .header(ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
-                    .build());
-        }
+            final ComponentIndex componentIndex, final Function<String, String> placeholderProvider) {
+        return uiSpecService
+                .convert(modelEnricherService.enrich(detail, language),
+                        new UiSpecContext(language, placeholderProvider))
+                .thenApply(uiSpec -> new UiNode(uiSpec, toNode(detail, componentIndex)));
     }
 
     private Node toNode(final ComponentDetail d, final ComponentIndex componentIndex) {

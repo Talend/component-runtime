@@ -35,11 +35,11 @@ public class WebAppConfiguration {
     }
 
     @Produces
-    public UiSpecService uiSpecService(final Client client) {
-        return new UiSpecService(client);
+    public UiSpecService<Object> uiSpecService(final Client client) {
+        return new UiSpecService<>(client);
     }
 
-    public void release(@Disposes final UiSpecService uiSpecService) {
+    public void release(@Disposes final UiSpecService<Object> uiSpecService) {
         try {
             uiSpecService.close();
         } catch (final Exception e) {

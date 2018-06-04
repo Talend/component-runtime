@@ -32,6 +32,8 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.proxy.test.CdiInject;
 import org.talend.sdk.component.proxy.test.WithServer;
 import org.talend.sdk.component.server.front.model.ActionReference;
@@ -47,7 +49,8 @@ class ModelEnricherServiceTest {
     private ModelEnricherService modelEnricherService;
 
     @Inject
-    private UiSpecServiceProvider provider;
+    @UiSpecProxy
+    private UiSpecService<UiSpecContext> uiSpecService;
 
     @Test
     void convertConfig() {
@@ -80,15 +83,16 @@ class ModelEnricherServiceTest {
     void typeProposals() throws Exception {
         final ConfigTypeNode configTypeNode = newConfig("type-proposals", newProperty());
         final ConfigTypeNode configType = modelEnricherService.enrich(configTypeNode, "en");
-        final UiSpecService uiSpecService = provider.newInstance("en", k -> null);
-        final Ui ui = uiSpecService.convert("someDamily", configType).toCompletableFuture().get();
-        uiSpecService.close();
+        final Ui ui = uiSpecService
+                .convert("someDamily", configType, new UiSpecContext("en", k -> null))
+                .toCompletableFuture()
+                .get();
 
         final Collection<UiSchema.NameValue> proposals =
                 ui.getUiSchema().iterator().next().getItems().iterator().next().getTitleMap();
         assertEquals(3, proposals.size());
         assertEquals(asList("Connection-1", "Connection-2", "Connection-3"),
-                proposals.stream().map(UiSchema.NameValue::getValue).collect(toList()));
+                proposals.stream().map(UiSchema.NameValue::getName).collect(toList()));
     }
 
     private ConfigTypeNode newConfig(final String type, final SimplePropertyDefinition... props) {

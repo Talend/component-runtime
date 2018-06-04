@@ -19,12 +19,14 @@ with the client Javascript `UiForm` library.
 
 include::{partialsdir}/generated_proxy-server-configuration.adoc[]
 
+=== Dropdown with all root configurations
+
 TIP: the special `dynamic_values` action `builtin::roots` can be used for a drop down which will
 be filled with all available root types.
 
 Here is a sample patch file:
 
-[source,config]
+[source,json]
 ----
 {
   "properties": [
@@ -42,8 +44,82 @@ Here is a sample patch file:
     }
   ]
 }
-
 ----
+
+=== Reload the form based on the selected root
+
+As a companion of previous action there is the `builtin::root::reloadFromId` action of type `jsonpatch` which
+allows to reload the whole form:
+
+[source,json]
+----
+{
+  "path": "_datasetMetadata.type",
+  "displayName": "Types",
+  "type": "STRING",
+  "metadata": {
+    "action::dynamic_values": "builtin::roots", <1>
+    "action::reloadForm": "builtin::root::reloadFromId", <2>
+    "action::reloadForm::parameters": "."
+  }
+}
+----
+
+<1> Prepopulate the dropdown with the list of datastore
+<2> On the selection of a datastore refresh the form with the new parameters
+
+Here we use both to have a dropdown with the list of roots and to reload the form when one is selected.
+
+Here is how the `UIForm` (javascript side) part can be implemented:
+
+[source,javascript]
+----
+import kit from 'component-kit.js';
+
+// ...
+
+constructor(props) {
+  super(props);
+
+  this.state = {};
+  this.trigger = kit.createTriggers({
+    url: '/componentproxy/api/v1/actions/execute',
+    customRegistry: {
+      reloadForm: ({ body }) => { <1>
+        const { _datasetMetadata } = this.state.uiSpec.properties;
+        return {
+          ...body, <2>
+          properties: { _datasetMetadata }, <3>
+        };
+      }
+    }
+  });
+
+
+  // ...
+  }
+
+// ...
+
+onTrigger(event, payload) {
+  return this.trigger(event, payload)
+    .then(result => {
+      if (result.properties || result.errors || result.uiSchema || result.jsonSchema) { <4>
+        this.setState({
+          uiSpec: {
+            ...this.state.uiSpec,
+            ...result,
+          }
+        });
+      }
+    });
+}
+----
+
+<1> Add a custom handler for the specific `reloadForm` action
+<2> Pass the `uiSchema` and `jsonSchema` back to the next step in the response processing chain
+<3> Reset the dynamic part of the form (= keep only the static part)
+<4> Merge back the result of the handler into the current state (you can use redux or cmf as well)
 
 == HTTP API
 

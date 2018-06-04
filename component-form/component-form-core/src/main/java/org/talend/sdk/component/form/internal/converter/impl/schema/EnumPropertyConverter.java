@@ -31,7 +31,7 @@ public class EnumPropertyConverter implements PropertyConverter {
     private final JsonSchema jsonSchema;
 
     @Override
-    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+    public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenApply(context -> {
             jsonSchema.setType("string");
             if (context.getProperty().getValidation() == null

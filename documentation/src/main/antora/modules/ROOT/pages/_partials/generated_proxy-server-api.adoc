@@ -71,6 +71,8 @@ configuration types has action that can be executed using this endpoint
 __optional__|string
 |**Query**|**family** +
 __optional__|string
+|**Query**|**language** +
+__optional__|string
 |**Query**|**type** +
 __optional__|string
 |===
@@ -291,7 +293,7 @@ __required__|string
 |HTTP Code|Description|Schema
 |**200**|successful operation +
 **Headers** :  +
-`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_nodes,Nodes>>
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_uinode,UiNode>>
 |===
 
 
@@ -354,6 +356,53 @@ __required__|string
 ==== Tags
 
 * icon
+
+
+[[_getinitialform]]
+=== Return a form description ( Ui Spec ) without a specific configuration 
+....
+GET /configurations/{type}/form/initial
+....
+
+
+==== Parameters
+
+[options="header", cols=".^2,.^3,.^4"]
+|===
+|Type|Name|Schema
+|**Path**|**type** +
+__required__|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|successful operation +
+**Headers** :  +
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_nodes,Nodes>>
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+
+
+==== Tags
+
+* configurations
+* dataset
+* datastore
+* form
+* ui spec
 
 
 

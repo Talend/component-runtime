@@ -49,7 +49,7 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+    public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
             final UiSchema arraySchema = newUiSchema(context);
             arraySchema.setTitle(context.getProperty().getDisplayName());
@@ -60,7 +60,8 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
             return CompletableFuture
                     .allOf(nestedProperties
                             .stream()
-                            .map(p -> converter.convert(CompletableFuture.completedFuture(new PropertyContext(p))))
+                            .map(p -> converter.convert(CompletableFuture
+                                    .completedFuture(new PropertyContext<>(p, context.getRootContext()))))
                             .toArray(CompletableFuture[]::new))
                     .thenApply(r -> context);
         });

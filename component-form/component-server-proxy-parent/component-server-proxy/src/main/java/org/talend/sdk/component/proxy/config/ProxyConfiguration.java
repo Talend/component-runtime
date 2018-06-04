@@ -87,7 +87,7 @@ public class ProxyConfiguration {
 
     @Inject
     @Documentation("A home location for relative path resolution (optional).")
-    @ConfigProperty(name = PREFIX + "application.home", defaultValue = "${playx.application.home:.}")
+    @ConfigProperty(name = PREFIX + "application.home", defaultValue = "${playx.application.home}")
     private String home;
 
     @Inject

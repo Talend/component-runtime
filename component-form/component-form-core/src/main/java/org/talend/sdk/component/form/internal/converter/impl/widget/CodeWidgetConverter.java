@@ -33,7 +33,7 @@ public class CodeWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+    public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenApply(context -> {
             final UiSchema schema = newUiSchema(context);
             final String codeLang = context.getProperty().getMetadata().get("ui::code::value");

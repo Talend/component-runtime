@@ -53,13 +53,13 @@ public class WebAppComponentProxy {
     private static final String[] EMPTY_ARRAY = new String[0];
 
     @Inject
-    private Client client;
+    private Client<Object> client;
 
     @Inject
     private ActionService actionService;
 
     @Inject
-    private UiSpecService uiSpecService;
+    private UiSpecService<Object> uiSpecService;
 
     @Inject
     private WebTarget target;
@@ -69,7 +69,7 @@ public class WebAppComponentProxy {
     public void action(@Suspended final AsyncResponse response, @QueryParam("family") final String family,
             @QueryParam("type") final String type, @QueryParam("action") final String action,
             final Map<String, Object> params) {
-        client.action(family, type, action, params).handle((r, e) -> {
+        client.action(family, type, action, params, null).handle((r, e) -> {
             if (e != null) {
                 onException(response, e);
             } else {
@@ -119,7 +119,7 @@ public class WebAppComponentProxy {
                 .rx()
                 .get(ComponentDetailList.class)
                 .toCompletableFuture()
-                .thenCompose(result -> uiSpecService.convert(result.getDetails().iterator().next()))
+                .thenCompose(result -> uiSpecService.convert(result.getDetails().iterator().next(), null))
                 .handle((result, e) -> {
                     if (e != null) {
                         onException(response, e);

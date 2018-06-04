@@ -31,7 +31,7 @@ public class TextAreaWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+    public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenApply(context -> {
             final UiSchema schema = newUiSchema(context);
             schema.setWidget("textarea");

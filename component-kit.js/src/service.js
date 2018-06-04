@@ -16,7 +16,6 @@
 
 import clonedeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import { applyOperation } from 'fast-json-patch';
 import { removeError, addError, getError } from '@talend/react-forms/lib/UIForm/utils/errors';
 
 /**
@@ -96,24 +95,9 @@ function dynamic_values({ schema, body, properties, trigger }) {
   return { properties };
 }
 
-function jsonpatch({ body, uiSpecHandle, trigger, properties }) {
-  const patched = applyOperation(uiSpecHandle.get(), body.jsonPatch).newDocument;
-  if (patched.properties) {
-    delete patched.properties;
-  }
-  uiSpecHandle.onUpdate({
-    ...patched,
-    metadata: body.metadata,
-  });
-
-  // no-op return here, should be handled by uiSpecHandle
-  return { properties };
-}
-
 export default {
   dynamic_values,
   healthcheck: validation,
   schema,
   validation,
-  jsonpatch,
 };

@@ -37,6 +37,7 @@ import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
 import org.talend.sdk.component.form.internal.converter.impl.schema.ArrayPropertyConverter;
 import org.talend.sdk.component.form.internal.converter.impl.schema.EnumPropertyConverter;
+import org.talend.sdk.component.form.internal.lang.CompletionStages;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -53,7 +54,7 @@ public class JsonSchemaConverter implements PropertyConverter {
     private final Collection<SimplePropertyDefinition> properties;
 
     @Override
-    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+    public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
             final JsonSchema jsonSchema = new JsonSchema();
             jsonSchema.setTitle(context.getProperty().getDisplayName());
@@ -75,7 +76,7 @@ public class JsonSchemaConverter implements PropertyConverter {
                 jsonSchema.setRequired(properties
                         .stream()
                         .filter(context::isDirectChild)
-                        .filter(nested -> new PropertyContext(nested).isRequired())
+                        .filter(nested -> new PropertyContext<>(nested, context.getRootContext()).isRequired())
                         .map(SimplePropertyDefinition::getName)
                         .collect(toSet()));
                 return CompletableFuture.completedFuture(context).thenCompose(
@@ -84,8 +85,8 @@ public class JsonSchemaConverter implements PropertyConverter {
         });
     }
 
-    private CompletionStage<PropertyContext> postHandling(final PropertyContext context, final JsonSchema jsonSchema,
-            final String type) {
+    private CompletionStage<PropertyContext<?>> postHandling(final PropertyContext<?> context,
+            final JsonSchema jsonSchema, final String type) {
         final String defaultValue = context.getProperty().getMetadata().getOrDefault("ui::defaultvalue::value",
                 context.getProperty().getDefaultValue());
         convertDefaultValue(type, defaultValue).ifPresent(jsonSchema::setDefaultValue);
@@ -131,8 +132,8 @@ public class JsonSchemaConverter implements PropertyConverter {
                     .allOf(properties
                             .stream()
                             .filter(context::isDirectChild)
-                            .map(PropertyContext::new)
-                            .map(CompletableFuture::completedFuture)
+                            .map(it -> new PropertyContext<>(it, context.getRootContext()))
+                            .map(CompletionStages::toStage)
                             .map(jsonSchemaConverter::convert)
                             .toArray(CompletableFuture[]::new))
                     .thenApply(r -> context);

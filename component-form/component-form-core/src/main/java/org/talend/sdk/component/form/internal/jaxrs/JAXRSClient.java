@@ -28,7 +28,7 @@ import javax.ws.rs.core.GenericType;
 
 import org.talend.sdk.component.form.api.Client;
 
-public class JAXRSClient implements Client {
+public class JAXRSClient<T> implements Client<T> {
 
     private final javax.ws.rs.client.Client delegate;
 
@@ -52,7 +52,7 @@ public class JAXRSClient implements Client {
 
     @Override
     public CompletableFuture<Map<String, Object>> action(final String family, final String type, final String action,
-            final Map<String, Object> params) {
+            final Map<String, Object> params, final T context) {
         final Map<Object, Object> payload =
                 params.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
         return target

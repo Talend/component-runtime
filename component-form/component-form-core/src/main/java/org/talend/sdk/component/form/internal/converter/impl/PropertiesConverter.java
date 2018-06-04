@@ -27,6 +27,7 @@ import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
+import org.talend.sdk.component.form.internal.lang.CompletionStages;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.AllArgsConstructor;
@@ -41,7 +42,7 @@ public class PropertiesConverter implements PropertyConverter {
     private final Collection<SimplePropertyDefinition> properties;
 
     @Override
-    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+    public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
             final SimplePropertyDefinition property = context.getProperty();
             if ("object".equalsIgnoreCase(property.getType())) {
@@ -54,8 +55,8 @@ public class PropertiesConverter implements PropertyConverter {
                         .allOf(properties
                                 .stream()
                                 .filter(context::isDirectChild)
-                                .map(PropertyContext::new)
-                                .map(CompletableFuture::completedFuture)
+                                .map(it -> new PropertyContext<>(it, context.getRootContext()))
+                                .map(CompletionStages::toStage)
                                 .map(propertiesConverter::convert)
                                 .toArray(CompletableFuture[]::new))
                         .thenApply(done -> context);

@@ -19,6 +19,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -44,7 +45,7 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
     }
 
     @Override
-    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+    public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
             final UiSchema schema = newUiSchema(context);
             schema.setWidget("datalist");
@@ -58,8 +59,8 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
                 schema.setTitleMap(context.getProperty().getProposalDisplayNames() != null
                         ? context.getProperty().getProposalDisplayNames().entrySet().stream().map(v -> {
                             final UiSchema.NameValue nameValue = new UiSchema.NameValue();
-                            nameValue.setName(v.getKey());
-                            nameValue.setValue(v.getValue());
+                            nameValue.setName(v.getValue());
+                            nameValue.setValue(v.getKey());
                             return nameValue;
                         }).collect(toList())
                         : context.getProperty().getValidation().getEnumValues().stream().sorted().map(v -> {
@@ -72,7 +73,9 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
             } else {
                 final String actionName = context.getProperty().getMetadata().get("action::dynamic_values");
                 if (client != null && actionName != null) {
-                    return loadDynamicValues(client, family, schema, actionName).thenApply(namedValues -> {
+                    final CompletionStage<List<UiSchema.NameValue>> pairs =
+                            loadDynamicValues(client, family, actionName, context.getRootContext());
+                    return pairs.thenApply(namedValues -> {
                         schema.setTitleMap(namedValues);
                         jsonSchema.setEnumValues(
                                 namedValues.stream().map(UiSchema.NameValue::getValue).collect(toList()));

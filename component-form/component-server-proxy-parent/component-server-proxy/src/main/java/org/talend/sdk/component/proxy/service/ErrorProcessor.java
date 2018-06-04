@@ -23,7 +23,6 @@ import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.core.GenericType;
@@ -91,14 +90,16 @@ public class ErrorProcessor {
         if (WebApplicationException.class.isInstance(throwable)) {
             final WebApplicationException error = WebApplicationException.class.cast(throwable);
             try {
-                final ErrorPayload serverError = error.getResponse().readEntity(ErrorPayload.class);
+                final ErrorPayload serverError = error.getResponse() != null && error.getResponse().bufferEntity()
+                        ? error.getResponse().readEntity(ErrorPayload.class)
+                        : new ErrorPayload(ErrorDictionary.UNEXPECTED, "No error entity available");
                 return new WebApplicationException(Response
                         .status(error.getResponse().getStatus())
                         .entity(new ProxyErrorPayload(serverError.getCode().name(), serverError.getDescription()))
                         .type(APPLICATION_JSON_TYPE)
                         .header(Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
                         .build());
-            } catch (final ProcessingException pe) {
+            } catch (final RuntimeException | Error pe) {
                 log.error(pe.getMessage(), pe);
                 return new WebApplicationException(Response
                         .status(HTTP_INTERNAL_ERROR)

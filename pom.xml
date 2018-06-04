@@ -918,7 +918,7 @@
     </developer>
     <developer>
       <name>Dmytro Chmyga</name>
-      <id>rmannibucau</id>
+      <id>dchmyga</id>
       <email>dchmyga@talend.com</email>
       <roles>
         <role>Contributor</role>
@@ -929,7 +929,7 @@
     </developer>
     <developer>
       <name>Ivan Honchar</name>
-      <id>rmannibucau</id>
+      <id>igonchar</id>
       <email>igonchar@talend.com</email>
       <roles>
         <role>Contributor</role>
@@ -939,7 +939,6 @@
       <timezone>+2</timezone>
     </developer>
   </developers>
-
 
   <repositories>
     <repository>

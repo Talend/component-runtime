@@ -30,6 +30,7 @@ import javax.json.bind.Jsonb;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
 import org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter;
+import org.talend.sdk.component.form.internal.lang.CompletionStages;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
@@ -45,7 +46,7 @@ public class ArrayPropertyConverter implements PropertyConverter {
     private final Collection<SimplePropertyDefinition> properties;
 
     @Override
-    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+    public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
             jsonSchema.setType(context.getProperty().getType().toLowerCase(ROOT));
             final String prefix = context.getProperty().getPath() + "[]";
@@ -60,8 +61,8 @@ public class ArrayPropertyConverter implements PropertyConverter {
                 return CompletableFuture
                         .allOf(arrayElements
                                 .stream()
-                                .map(PropertyContext::new)
-                                .map(CompletableFuture::completedFuture)
+                                .map(it -> new PropertyContext<>(it, context.getRootContext()))
+                                .map(CompletionStages::toStage)
                                 .map(e -> new JsonSchemaConverter(jsonb, items, emptyList()).convert(e))
                                 .toArray(CompletableFuture[]::new))
                         .thenApply(done -> context);

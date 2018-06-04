@@ -22,9 +22,11 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PropertyContext {
+public class PropertyContext<T> {
 
     private final SimplePropertyDefinition property;
+
+    private final T rootContext;
 
     public boolean isRequired() {
         return property.getValidation() != null && property.getValidation().getRequired() != null

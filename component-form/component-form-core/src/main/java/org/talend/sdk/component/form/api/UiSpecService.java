@@ -37,6 +37,7 @@ import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter;
 import org.talend.sdk.component.form.internal.converter.impl.PropertiesConverter;
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
+import org.talend.sdk.component.form.internal.lang.CompletionStages;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
@@ -47,7 +48,7 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class UiSpecService implements AutoCloseable {
+public class UiSpecService<T> implements AutoCloseable {
 
     private final Client client;
 
@@ -72,9 +73,10 @@ public class UiSpecService implements AutoCloseable {
      *
      * @param family the family (you must browse the configuration tree to find the root parent id).
      * @param node the configuration model to convert to a uiSpec.
+     * @param context an optional custom context to propagate some parameters.
      * @return a Ui promise.
      */
-    public CompletionStage<Ui> convert(final String family, final ConfigTypeNode node) {
+    public CompletionStage<Ui> convert(final String family, final ConfigTypeNode node, final T context) {
         // extract root property
         final Collection<String> rootProperties =
                 node.getProperties().stream().map(SimplePropertyDefinition::getPath).collect(toSet());
@@ -110,24 +112,25 @@ public class UiSpecService implements AutoCloseable {
             isRootProperty = p -> rootProperties.contains(p.getPath());
         }
 
-        return convert(node::getDisplayName, () -> family, () -> props, node::getActions, isRootProperty);
+        return convert(node::getDisplayName, () -> family, () -> props, node::getActions, isRootProperty, context);
     }
 
     /**
      * Converts a component form to a uiSpec.
      *
      * @param detail the component model.
+     * @param context an optional custom context to propagate some parameters.
      * @return the uiSpec corresponding to the model.
      */
-    public CompletionStage<Ui> convert(final ComponentDetail detail) {
+    public CompletionStage<Ui> convert(final ComponentDetail detail, final T context) {
         return convert(detail::getDisplayName, detail.getId()::getFamily, detail::getProperties, detail::getActions,
-                p -> p.getName().equals(p.getPath()));
+                p -> p.getName().equals(p.getPath()), context);
     }
 
     private CompletionStage<Ui> convert(final Supplier<String> displayName, final Supplier<String> family,
             final Supplier<Collection<SimplePropertyDefinition>> properties,
             final Supplier<Collection<ActionReference>> actions,
-            final Predicate<SimplePropertyDefinition> isRootProperty) {
+            final Predicate<SimplePropertyDefinition> isRootProperty, final T context) {
         final Collection<SimplePropertyDefinition> props = properties.get();
 
         final Ui ui = new Ui();
@@ -141,7 +144,7 @@ public class UiSpecService implements AutoCloseable {
                 .setRequired(props
                         .stream()
                         .filter(isRootProperty)
-                        .filter(p -> new PropertyContext(p).isRequired())
+                        .filter(p -> new PropertyContext<>(p, context).isRequired())
                         .map(SimplePropertyDefinition::getName)
                         .collect(toSet()));
 
@@ -156,8 +159,8 @@ public class UiSpecService implements AutoCloseable {
                         .stream()
                         .filter(Objects::nonNull)
                         .filter(isRootProperty)
-                        .map(PropertyContext::new)
-                        .map(CompletableFuture::completedFuture)
+                        .map(it -> new PropertyContext<>(it, context))
+                        .map(CompletionStages::toStage)
                         .map(jsonSchemaConverter::convert)
                         .map(uiSchemaConverter::convert)
                         .map(propertiesConverter::convert)

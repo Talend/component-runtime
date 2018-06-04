@@ -28,7 +28,8 @@ function extractRequestPayload(parameters = [], properties) {
   return payload;
 }
 
-// uiSpecHandle = { get: function () { return {uiSchema, jsonSchema} }, onUpdate: function ({uiSchema,jsonSchema,metadata}) {} }
+// customRegistry can be used to add extensions or custom trigger handlers like extension_jsonpatch one
+// uiSpecHandle = { get: function () { return {uiSchema, jsonSchema}; }, onUpdate: function ({uiSchema,jsonSchema,metadata}) {} }
 export default function getDefaultTrigger({ url, customRegistry, uiSpecHandle }) {
   return function onDefaultTrigger(event, { trigger, schema, properties, errors }) {
     const services = {
@@ -37,7 +38,7 @@ export default function getDefaultTrigger({ url, customRegistry, uiSpecHandle })
     };
     const payload = extractRequestPayload(trigger.parameters, properties);
     return fetch(
-      `${url}?action=${trigger.action}&family=${trigger.family}&type=${trigger.type}`,
+      `${url}?action=${encodeURIComponent(trigger.action)}&family=${encodeURIComponent(trigger.family)}&type=${encodeURIComponent(trigger.type)}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },

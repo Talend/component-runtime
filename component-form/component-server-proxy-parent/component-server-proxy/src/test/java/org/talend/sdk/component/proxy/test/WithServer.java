@@ -150,9 +150,13 @@ class Env implements AutoCloseable {
     @Override
     public void close() {
         try {
-            tacokit.close();
+            if (tacokit != null) {
+                tacokit.close();
+            }
         } finally {
-            playServer.stop();
+            if (playServer != null) {
+                playServer.stop();
+            }
         }
     }
 }
@@ -177,6 +181,10 @@ public @interface WithServer {
                 synchronized (Extension.class) {
                     if (ENV.get() == null) {
                         final Tacokit tacokit = startTacokitRemoteServer(Network.randomPort());
+                        ENV.set(new Env(tacokit, null));
+                        Runtime.getRuntime().addShutdownHook(
+                                new Thread(ENV.get()::close, "proxy-test-servers-shutdown"));
+
                         tacokit.prepare();
                         tacokit.launch();
                         store.put(Tacokit.class, tacokit);
@@ -196,6 +204,7 @@ public @interface WithServer {
                             });
                         }
 
+                        ENV.set(new Env(tacokit, playServer));
                         playServer.start();
                         Network.ensureStarted(() -> {
                             try {
@@ -208,11 +217,6 @@ public @interface WithServer {
                                 return false;
                             }
                         });
-
-                        final Env env = new Env(tacokit, playServer);
-                        ENV.set(env);
-                        Runtime.getRuntime().addShutdownHook(
-                                new Thread(ENV.get()::close, "proxy-test-servers-shutdown"));
                     }
                 }
             }

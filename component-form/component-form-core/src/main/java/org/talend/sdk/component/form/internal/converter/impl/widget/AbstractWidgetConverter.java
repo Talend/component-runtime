@@ -17,7 +17,6 @@ package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -27,6 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -51,9 +51,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
 
     protected final Collection<ActionReference> actions;
 
-    protected CompletionStage<List<UiSchema.NameValue>> loadDynamicValues(final Client client, final String family,
-            final UiSchema schema, final String actionName) {
-        return client.action(family, "dynamic_values", actionName, emptyMap()).exceptionally(e -> {
+    protected <T> CompletionStage<List<UiSchema.NameValue>> loadDynamicValues(final Client<T> client,
+            final String family, final String actionName, final T context) {
+        return client.action(family, "dynamic_values", actionName, emptyMap(), context).exceptionally(e -> {
             log.warn(e.getMessage(), e);
             return emptyMap();
         }).thenApply(
@@ -67,9 +67,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                             .map(Map.class::cast)
                             .map(entry -> {
                                 final UiSchema.NameValue val = new UiSchema.NameValue();
-                                val.setName((String) entry.get("id"));
-                                val.setValue(entry.get("label") == null ? (String) entry.get("id")
-                                        : (String) entry.get("label"));
+                                val.setName(entry.get("label") == null ? (String) entry.get("id")
+                                        : String.class.cast(entry.get("label")));
+                                val.setValue(String.class.cast(entry.get("id")));
                                 return val;
                             })
                             .collect(toList());
@@ -158,15 +158,47 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         schema.setRequired(ctx.isRequired());
         schema.setPlaceholder(ctx.getProperty().getPlaceholder());
         if (actions != null) {
-            ofNullable(ctx.getProperty().getMetadata().get("action::validation"))
-                    .flatMap(v -> actions
-                            .stream()
-                            .filter(a -> a.getName().equals(v) && "validation".equals(a.getType()))
-                            .findFirst())
-                    .ifPresent(ref -> schema.setTriggers(singletonList(toTrigger(properties, ctx.getProperty(), ref))));
+            final List<UiSchema.Trigger> triggers =
+                    Stream
+                            .concat(ofNullable(ctx.getProperty().getMetadata().get("action::validation"))
+                                    .flatMap(
+                                            v -> actions
+                                                    .stream()
+                                                    .filter(a -> a.getName().equals(v)
+                                                            && "validation".equals(a.getType()))
+                                                    .findFirst())
+                                    .map(ref -> Stream.of(toTrigger(properties, ctx.getProperty(), ref)))
+                                    .orElseGet(Stream::empty),
+                                    ctx
+                                            .getProperty()
+                                            .getMetadata()
+                                            .entrySet()
+                                            .stream()
+                                            .filter(it -> it.getKey().startsWith("action::")
+                                                    && !isBuiltInAction(it.getKey()))
+                                            .map(v -> actions
+                                                    .stream()
+                                                    .filter(a -> a.getName().equals(v.getValue())
+                                                            && v.getKey().substring("action::".length()).equals(
+                                                                    a.getType()))
+                                                    .findFirst()
+                                                    .map(ref -> toTrigger(properties, ctx.getProperty(), ref))
+                                                    .orElse(null))
+                                            .filter(Objects::nonNull))
+                            .collect(toList());
+            if (!triggers.isEmpty()) {
+                schema.setTriggers(triggers);
+            }
         }
         schema.setConditions(createConditions(ctx));
         return schema;
+    }
+
+    // means the actions is processed in the converter in a custom fashion and doesn't need to be passthrough to the
+    // client
+    private boolean isBuiltInAction(final String key) {
+        return key.equals("action::dynamic_values") || key.equals("action::healthcheck")
+                || key.equals("action::validation");
     }
 
     protected List<UiSchema.Condition> createConditions(final PropertyContext ctx) {

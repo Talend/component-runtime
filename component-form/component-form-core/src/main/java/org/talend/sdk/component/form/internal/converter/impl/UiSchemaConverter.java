@@ -64,7 +64,7 @@ public class UiSchemaConverter implements PropertyConverter {
     private Collection<ActionReference> actions;
 
     @Override
-    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+    public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
             final String type = context.getProperty().getType().toLowerCase(Locale.ROOT);
             switch (type) {

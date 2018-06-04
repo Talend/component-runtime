@@ -42,7 +42,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.WebException;
 
-public class SpringRestClient implements Client {
+public class SpringRestClient<T> implements Client<T> {
 
     private final AsyncRestTemplate delegate;
 
@@ -88,7 +88,7 @@ public class SpringRestClient implements Client {
 
     @Override
     public CompletableFuture<Map<String, Object>> action(final String family, final String type, final String action,
-            final Map<String, Object> params) {
+            final Map<String, Object> params, final T context) {
         return toCompletionStage(delegate.exchange(
                 UriComponentsBuilder
                         .fromHttpUrl(base)

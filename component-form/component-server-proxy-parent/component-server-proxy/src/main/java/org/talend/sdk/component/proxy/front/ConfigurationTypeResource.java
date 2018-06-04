@@ -15,15 +15,20 @@
  */
 package org.talend.sdk.component.proxy.front;
 
+import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -53,9 +58,10 @@ import org.talend.sdk.component.proxy.service.ConfigurationService;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
 import org.talend.sdk.component.proxy.service.ModelEnricherService;
 import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
-import org.talend.sdk.component.proxy.service.UiSpecServiceProvider;
 import org.talend.sdk.component.proxy.service.client.ComponentClient;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
@@ -65,6 +71,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ResponseHeader;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Api(description = "Endpoint responsible to provide a way to navigate in the configurations and subconfigurations "
         + "to let the UI creates the corresponding entities. It is UiSpec friendly.",
         tags = { "configuration", "icon", "uispec", "form" })
@@ -93,7 +102,14 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     private ModelEnricherService modelEnricherService;
 
     @Inject
-    private UiSpecServiceProvider uiSpecServiceProvider;
+    @UiSpecProxy
+    private UiSpecService<UiSpecContext> uiSpecService;
+
+    @Inject
+    @UiSpecProxy
+    private ExecutorService pool;
+
+    private final ConfigTypeNode defaultFamily = new ConfigTypeNode(); // potential todo: add some defaults?
 
     @Override
     public CompletionStage<Nodes> findRoots(final RequestContext context) {
@@ -134,7 +150,33 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
         }).handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
     }
 
-    @ApiOperation(value = "Return a form description ( Ui Spec ) of a specific configuration ", response = Nodes.class,
+    @ApiOperation(value = "Return a form description ( Ui Spec ) without a specific configuration ",
+            response = Nodes.class, tags = { "form", "ui spec", "configurations", "datastore", "dataset" },
+            produces = "application/json",
+            responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
+                    description = ERROR_HEADER_DESC, response = Boolean.class) })
+    @GET
+    @Path("{type}/form/initial")
+    public void getInitialForm(@Suspended final AsyncResponse response, @PathParam("type") final String type,
+            @Context final HttpServletRequest request) {
+        if (type == null || type.isEmpty()) {
+            response.resume(new WebApplicationException(Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(new ProxyErrorPayload(ProxyErrorDictionary.BAD_CONFIGURATION_TYPE.name(),
+                            "No configuration type passed"))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build()));
+            return;
+        }
+        final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
+        final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
+        toUiSpecAndMetadata(response, language, placeholderProvider,
+                CompletableFuture.supplyAsync(() -> new ConfigTypeNode(type, 0, null, type, type, type, emptySet(),
+                        new ArrayList<>(), new ArrayList<>()), pool),
+                true);
+    }
+
+    @ApiOperation(value = "Return a form description ( Ui Spec ) of a specific configuration ", response = UiNode.class,
             tags = { "form", "ui spec", "configurations", "datastore", "dataset" }, produces = "application/json",
             responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
@@ -148,13 +190,9 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
         }
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        configurationClient
-                .getDetails(language, id, placeholderProvider)
-                .thenApply(this::getSingleNode)
-                .thenCompose(node -> withApplyNodesAndComponents(language, placeholderProvider,
-                        (nodes, components) -> toUiNode(language, node, nodes, components, placeholderProvider)))
-                .thenCompose(identity())
-                .handle((detail, throwable) -> errorProcessor.handleResponse(response, detail, throwable));
+        toUiSpecAndMetadata(response, language, placeholderProvider,
+                configurationClient.getDetails(language, id, placeholderProvider).thenApply(this::getSingleNode),
+                false);
     }
 
     @ApiOperation(value = "Return the configuration icon file in png format", tags = "icon",
@@ -169,24 +207,29 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
                 (icon, throwable) -> errorProcessor.handleResponse(response, icon, throwable));
     }
 
+    private void toUiSpecAndMetadata(final AsyncResponse response, final String language,
+            final Function<String, String> placeholderProvider, final CompletionStage<ConfigTypeNode> from,
+            final boolean noFamily) {
+        from
+                .thenCompose(node -> withApplyNodesAndComponents(language, placeholderProvider,
+                        (nodes, components) -> toUiNode(language, node, nodes, components, noFamily,
+                                placeholderProvider)))
+                .thenCompose(identity())
+                .handle((detail, throwable) -> errorProcessor.handleResponse(response, detail, throwable));
+    }
+
     private CompletionStage<UiNode> toUiNode(final String language, final ConfigTypeNode node,
-            final ConfigTypeNodes nodes, final ComponentIndices componentIndices,
+            final ConfigTypeNodes nodes, final ComponentIndices componentIndices, final boolean noFamily,
             final Function<String, String> placeholderProvider) {
-        final ConfigTypeNode family = configurationService.getFamilyOf(node.getParentId(), nodes);
-        final String icon = configurationService.findIcon(family.getId(), componentIndices);
+        final ConfigTypeNode family =
+                noFamily ? defaultFamily : configurationService.getFamilyOf(node.getParentId(), nodes);
+        final String icon = noFamily ? null : configurationService.findIcon(family.getId(), componentIndices);
         final Node configType = new Node(node.getId(), Node.Type.CONFIGURATION, node.getDisplayName(), family.getId(),
                 family.getDisplayName(), icon, node.getEdges(), node.getVersion(), node.getName(), null);
-        try (final UiSpecService specService = uiSpecServiceProvider.newInstance(language, placeholderProvider)) {
-            return specService.convert(family.getName(), modelEnricherService.enrich(node, language)).thenApply(
-                    uiSpec -> new UiNode(uiSpec, configType));
-        } catch (final Exception e) {
-            throw new WebApplicationException(Response
-                    .status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(new ProxyErrorPayload(ProxyErrorDictionary.UISPEC_SERVICE_CLOSE_FAILURE.name(),
-                            "UiSpecService processing failed"))
-                    .header(ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR, true)
-                    .build());
-        }
+        return uiSpecService
+                .convert(family.getName(), modelEnricherService.enrich(node, language),
+                        new UiSpecContext(language, placeholderProvider))
+                .thenApply(uiSpec -> new UiNode(uiSpec, configType));
     }
 
     private ConfigTypeNode getSingleNode(final ConfigTypeNodes configs) {

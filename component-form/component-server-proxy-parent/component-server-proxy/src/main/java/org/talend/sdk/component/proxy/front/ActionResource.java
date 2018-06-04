@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.proxy.front;
 
+import static java.util.Optional.ofNullable;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
@@ -23,6 +24,7 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -31,11 +33,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
+import javax.ws.rs.core.Context;
 
-import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
+import org.talend.sdk.component.proxy.service.ActionService;
 import org.talend.sdk.component.proxy.service.ErrorProcessor;
-import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
+import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -43,6 +47,9 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ResponseHeader;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Api(description = "Endpoint responsible to handle any server side interaction (validation, healthcheck, ...)",
         tags = { "action" })
 @ApplicationScoped
@@ -52,11 +59,13 @@ import io.swagger.annotations.ResponseHeader;
 public class ActionResource {
 
     @Inject
-    @UiSpecProxy
-    private Client actionClient;
+    private ErrorProcessor errorProcessor;
 
     @Inject
-    private ErrorProcessor errorProcessor;
+    private ActionService service;
+
+    @Inject
+    private PlaceholderProviderFactory placeholderProviderFactory;
 
     @ApiOperation(value = "This endpoint execute an action",
             notes = "configuration types has action that can be executed using this endpoint",
@@ -75,10 +84,13 @@ public class ActionResource {
     @Path("execute")
     public void execute(@Suspended final AsyncResponse response, @QueryParam("family") final String family,
             @QueryParam("type") final String type, @QueryParam("action") final String action,
+            @QueryParam("language") final String lang, @Context final HttpServletRequest request,
             final Map<String, Object> params) {
-
-        actionClient.action(family, type, action, params).handle(
-                (result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
+        service
+                .createStage(family, type, action,
+                        new UiSpecContext(ofNullable(lang).orElse("en"),
+                                placeholderProviderFactory.newProvider(request)),
+                        params)
+                .handle((result, throwable) -> errorProcessor.handleResponse(response, result, throwable));
     }
-
 }

@@ -19,6 +19,6 @@ import java.util.concurrent.CompletionStage;
 
 public interface PropertyConverter {
 
-    CompletionStage<PropertyContext> convert(CompletionStage<PropertyContext> context);
+    CompletionStage<PropertyContext<?>> convert(CompletionStage<PropertyContext<?>> context);
 
 }

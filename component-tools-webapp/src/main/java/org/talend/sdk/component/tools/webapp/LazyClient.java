@@ -39,10 +39,10 @@ import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
 import lombok.experimental.Delegate;
 
 @ApplicationScoped
-public class LazyClient implements Client {
+public class LazyClient implements Client<Object> {
 
     @Delegate
-    private volatile Client client;
+    private volatile Client<Object> client;
 
     @Produces
     private volatile WebTarget webTarget;
@@ -54,7 +54,7 @@ public class LazyClient implements Client {
                     final String baseValue = base.get();
                     final javax.ws.rs.client.Client jaxrsClient = ClientBuilder.newClient();
                     webTarget = jaxrsClient.target(baseValue);
-                    client = new JAXRSClient(jaxrsClient, baseValue, true);
+                    client = new JAXRSClient<>(jaxrsClient, baseValue, true);
                 }
             }
         }

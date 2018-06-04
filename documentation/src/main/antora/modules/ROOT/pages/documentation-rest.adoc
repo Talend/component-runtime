@@ -196,7 +196,7 @@ public class ComponentFacade {
 ----
 
 NOTE: the `Client` can be created using `ClientFactory.createDefault(System.getProperty("app.components.base", "http://localhost:8080/api/v1"))`
-and the service can be a simple `new UiSpecService()`. The factory uses JAX-RS if the API is available (assuming a JSON-B provider is registered) otherwise it tries to use Spring.
+and the service can be a simple `new UiSpecService<>()`. The factory uses JAX-RS if the API is available (assuming a JSON-B provider is registered) otherwise it tries to use Spring.
 
 All the conversion between component model (REST API) and uiSpec model is done through the `UiSpecService`. It is based on the object model
 which will be mapped to a ui model. The advantage to have a flat model in the component REST API is to make these layers easy to customize.

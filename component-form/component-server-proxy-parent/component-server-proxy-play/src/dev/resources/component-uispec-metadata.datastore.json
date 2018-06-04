@@ -15,8 +15,8 @@
       "type": "STRING",
       "metadata": {
         "action::dynamic_values": "builtin::roots",
-        "action::jsonpatch": "builtin::root::reloadFromId",
-        "action::jsonpatch::parameters": "."
+        "action::reloadForm": "builtin::root::reloadFromId",
+        "action::reloadForm::parameters": "."
       }
     },
     {

@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
+import org.talend.sdk.component.form.internal.lang.CompletionStages;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -54,7 +55,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
     }
 
     @Override
-    public CompletionStage<PropertyContext> convert(final CompletionStage<PropertyContext> cs) {
+    public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
             // if we have a single tab we don't wrap the forms in tabs otherwise we do
             if (layouts.size() == 1) {
@@ -124,7 +125,8 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
             if (line.length == 1 && childProperties.containsKey(line[0])) {
                 return new UiSchemaConverter(layoutFilter, family, uiSchema.getItems(), visitedProperties, client,
                         properties, actions)
-                                .convert(completedFuture(new PropertyContext(childProperties.get(line[0]))))
+                                .convert(completedFuture(
+                                        new PropertyContext<>(childProperties.get(line[0]), root.getRootContext())))
                                 .thenApply(r -> uiSchema);
             } else if (line.length > 1) {
                 final UiSchema schema = new UiSchema();
@@ -140,8 +142,8 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
                                 .map(String::trim)
                                 .map(childProperties::get)
                                 .filter(Objects::nonNull)
-                                .map(PropertyContext::new)
-                                .map(CompletableFuture::completedFuture)
+                                .map(it -> new PropertyContext<>(it, root.getRootContext()))
+                                .map(CompletionStages::toStage)
                                 .map(columnConverter::convert)
                                 .toArray(CompletableFuture[]::new))
                         .thenApply(r -> {

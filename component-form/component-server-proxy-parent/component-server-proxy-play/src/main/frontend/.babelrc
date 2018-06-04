@@ -1,0 +1,23 @@
+{
+  "presets": [
+    [
+      "env",
+      {
+        "targets": {
+          "browsers": [
+            "last 1 versions"
+          ]
+        }
+      }
+    ],
+    "react"
+  ],
+  "ignore": [
+    "**/**/*.css"
+  ],
+  "plugins": [
+    "transform-class-properties",
+    "transform-object-assign",
+    "transform-object-rest-spread"
+  ]
+}
