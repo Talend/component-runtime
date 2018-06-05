@@ -6,11 +6,9 @@ If you use `playx-microprofile-config`, you can also use typesafe configuration.
 [role="table-striped table-hover table-ordered",options="header,autowidth"]
 |====
 |Key|Description|Default
+|talend.component.proxy.actions.proposable.cached|If true the proposable (suggestion lists only depending on the server state) will be cached, otherwise they will be requested for each form rendering.|true
 |talend.component.proxy.application.home|A home location for relative path resolution (optional).|${playx.application.home}
 |talend.component.proxy.client.providers|List of JAX-RS providers to register on the client, at least a JSON-B one should be here.|-
-|talend.component.proxy.client.threads.core|Core pool size for the client executor.|64
-|talend.component.proxy.client.threads.keepAlive|Keep alive for the client executor (in seconds).|60
-|talend.component.proxy.client.threads.max|Max pool size for the client executor.|256
 |talend.component.proxy.client.timeouts.connect|The connect timeout for the communication with the server.base in ms.|60000
 |talend.component.proxy.client.timeouts.read|The read timeout for the communication with the server.base in ms.|600000
 |talend.component.proxy.jcache.active|Should the server use jcache to store catalog information and refresh it with some polling. If so the keys `talend.component.proxy.jcache.caches.$cacheName.expiry.duration`, `talend.component.proxy.jcache.caches.$cacheName.management.active` and `talend.component.proxy.jcache.caches.$cacheName.statistics.active` will be read to create a JCache `MutableConfiguration`. Also note that if all the cachesshare the same configuration you can ignore the `$cacheName` layer.|true

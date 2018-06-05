@@ -108,10 +108,9 @@ public class ActionService {
     }
 
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.actions.proposables",
-            cacheResolverFactory = CacheResolverManager.class,
-            cacheKeyGenerator = ProxyCacheKeyGenerator.class)
-    public CompletionStage<Map<String, Object>> findProposable(final String family, final String type, final String action,
-                                                               final String lang, final Function<String, String> placeholders) {
+            cacheResolverFactory = CacheResolverManager.class, cacheKeyGenerator = ProxyCacheKeyGenerator.class)
+    public CompletionStage<Map<String, Object>> findProposable(final String family, final String type,
+            final String action, final String lang, final Function<String, String> placeholders) {
         // we recreate the context and don't pass it as a param to ensure the cache key is right
         return client.action(family, type, action, emptyMap(), new UiSpecContext(lang, placeholders));
     }
