@@ -30,7 +30,7 @@
   <properties>
     <scala.version>2.12</scala.version>
     <play2.version>2.6.15</play2.version>
-    <playx.version>0.0.12</playx.version>
+    <playx.version>0.0.14</playx.version>
   </properties>
 
   <modules>

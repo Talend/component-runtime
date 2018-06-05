@@ -49,6 +49,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+import org.apache.johnzon.jaxrs.JsrProvider;
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.apache.openejb.loader.Files;
 import org.apache.openejb.loader.IO;
@@ -221,7 +222,8 @@ public @interface WithServer {
                 }
             }
 
-            final Client client = ClientBuilder.newClient().register(new JsonbJaxrsProvider<>());
+            final Client client =
+                    ClientBuilder.newClient().register(new JsonbJaxrsProvider<>()).register(new JsrProvider());
             store.put(TestServer.class, ENV.get().getPlayServer());
             store.put(Tacokit.class, ENV.get().getTacokit());
             store.put(Client.class, client);

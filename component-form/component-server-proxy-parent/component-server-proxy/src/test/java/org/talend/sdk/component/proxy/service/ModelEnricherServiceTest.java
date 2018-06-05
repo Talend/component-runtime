@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collection;
 
 import javax.inject.Inject;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.form.api.UiSpecService;
@@ -51,6 +53,37 @@ class ModelEnricherServiceTest {
     @Inject
     @UiSpecProxy
     private UiSpecService<UiSpecContext> uiSpecService;
+
+    @Inject
+    @UiSpecProxy
+    private JsonBuilderFactory builderFactory;
+
+    @Test
+    void extractCustomExisting() {
+        final JsonObject object = modelEnricherService.extractEnrichment("test", "en",
+                builderFactory
+                        .createObjectBuilder()
+                        .add("url", "http://foo")
+                        .add("userId", "bar")
+                        .add("nested", builderFactory.createObjectBuilder().add("open", false))
+                        .add("_datasetMetadata", builderFactory.createObjectBuilder().add("name", "simple"))
+                        .build());
+        assertEquals(1, object.size());
+        assertEquals("simple", object.getJsonObject("_datasetMetadata").getString("name"));
+    }
+
+    @Test
+    void extractCustomNotExisting() {
+        final JsonObject object = modelEnricherService.extractEnrichment("foo", "en",
+                builderFactory
+                        .createObjectBuilder()
+                        .add("url", "http://foo")
+                        .add("userId", "bar")
+                        .add("nested", builderFactory.createObjectBuilder().add("open", false))
+                        .add("_datasetMetadata", builderFactory.createObjectBuilder().add("name", "simple"))
+                        .build());
+        assertTrue(object.isEmpty());
+    }
 
     @Test
     void convertConfig() {

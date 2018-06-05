@@ -18,10 +18,12 @@ package org.talend.sdk.component.proxy.front;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
+import static javax.json.stream.JsonCollectors.toJsonObject;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.talend.sdk.component.proxy.config.SwaggerDoc.ERROR_HEADER_DESC;
+import static org.talend.sdk.component.proxy.service.ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,10 +34,15 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.NotificationOptions;
 import javax.inject.Inject;
+import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -44,9 +51,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.form.api.UiSpecService;
+import org.talend.sdk.component.proxy.api.ConfigurationFormatter;
 import org.talend.sdk.component.proxy.api.ConfigurationTypes;
 import org.talend.sdk.component.proxy.api.RequestContext;
+import org.talend.sdk.component.proxy.api.persistence.OnEdit;
+import org.talend.sdk.component.proxy.api.persistence.OnPersist;
 import org.talend.sdk.component.proxy.front.error.AutoErrorHandling;
+import org.talend.sdk.component.proxy.model.EntityRef;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorDictionary;
@@ -104,6 +115,21 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     @UiSpecProxy
     private UiSpecService<UiSpecContext> uiSpecService;
 
+    @Inject
+    @UiSpecProxy
+    private Jsonb jsonb;
+
+    @Inject
+    private Event<OnPersist> onPersistEvent;
+
+    @Inject
+    private Event<OnEdit> onEditEvent;
+
+    @Inject
+    private ConfigurationFormatter configurationFormatter;
+
+    private final NotificationOptions notificationOptions = NotificationOptions.ofExecutor(Runnable::run);
+
     private final ConfigTypeNode defaultFamily = new ConfigTypeNode(); // potential todo: add some defaults?
 
     @Override
@@ -125,11 +151,11 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
                     + "The consumer of this endpoint will need to check if the icon key is in the icons bundle "
                     + "otherwise the icon need to be gathered using the `familyId` from this endpoint `configurations/{id}/icon`",
             response = Nodes.class, tags = { "configurations", "datastore" }, produces = "application/json",
-            responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
+            responseHeaders = { @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     public CompletionStage<Nodes> getRootConfig(@Context final HttpServletRequest request) {
-        final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
+        final String language = getLang(request);
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
         return findRoots(new RequestContext() {
 
@@ -146,9 +172,9 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     }
 
     @ApiOperation(value = "Return a form description ( Ui Spec ) without a specific configuration ",
-            response = Nodes.class, tags = { "form", "ui spec", "configurations", "datastore", "dataset" },
-            produces = "application/json",
-            responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
+            response = Nodes.class, produces = "application/json",
+            tags = { "form", "ui spec", "configurations", "datastore", "dataset" },
+            responseHeaders = { @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("{type}/form/initial")
@@ -162,16 +188,62 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
                     .type(APPLICATION_JSON_TYPE)
                     .build());
         }
-        final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
+        final String language = getLang(request);
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
         return toUiSpecAndMetadata(language, placeholderProvider, CompletableFuture.completedFuture(
                 new ConfigTypeNode(type, 0, null, type, type, type, emptySet(), new ArrayList<>(), new ArrayList<>())),
                 true);
     }
 
+    @POST
+    @Path("{type}/save")
+    @ApiOperation(value = "Saves a configuration.", response = EntityRef.class, produces = "application/json",
+            tags = { "form", "ui spec", "configurations", "datastore", "dataset", "persistence" },
+            responseHeaders = @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
+                    description = ERROR_HEADER_DESC, response = Boolean.class))
+    public CompletionStage<EntityRef> postConfiguration(@Context final HttpServletRequest request,
+            @PathParam("type") final String type, final JsonObject payload) {
+        final JsonObject enrichment = modelEnricherService.extractEnrichment(type, getLang(request), payload);
+        final JsonObject configuration = enrichment.isEmpty() ? payload
+                : payload.entrySet().stream().filter(it -> !enrichment.containsKey(it.getKey())).collect(
+                        toJsonObject());
+        return onPersistEvent
+                .fireAsync(new OnPersist(request, jsonb, enrichment, configurationFormatter.flatten(configuration)),
+                        notificationOptions)
+                .thenApply(persist -> {
+                    final String id = persist.getId();
+                    if (id == null) { // wrong setup likely
+                        throw new WebApplicationException(Response
+                                .status(Response.Status.EXPECTATION_FAILED)
+                                .entity(new ProxyErrorPayload(ProxyErrorDictionary.PERSISTENCE_FAILED.name(),
+                                        "Entity was not persisted"))
+                                .build());
+                    }
+                    return new EntityRef(id);
+                });
+    }
+
+    @POST
+    @Path("{type}/edit/{id}")
+    @ApiOperation(value = "Update a configuration.", response = EntityRef.class, produces = "application/json",
+            tags = { "form", "ui spec", "configurations", "datastore", "dataset", "persistence" },
+            responseHeaders = @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
+                    description = ERROR_HEADER_DESC, response = Boolean.class))
+    public CompletionStage<EntityRef> putConfiguration(@Context final HttpServletRequest request,
+            @PathParam("type") final String type, @PathParam("id") final String id, final JsonObject payload) {
+        final JsonObject enrichment = modelEnricherService.extractEnrichment(type, getLang(request), payload);
+        final JsonObject configuration = enrichment.isEmpty() ? payload
+                : payload.entrySet().stream().filter(it -> !enrichment.containsKey(it.getKey())).collect(
+                        toJsonObject());
+        return onEditEvent
+                .fireAsync(new OnEdit(id, request, jsonb, enrichment, configurationFormatter.flatten(configuration)),
+                        notificationOptions)
+                .thenApply(edit -> new EntityRef(id));
+    }
+
     @ApiOperation(value = "Return a form description ( Ui Spec ) of a specific configuration ", response = UiNode.class,
             tags = { "form", "ui spec", "configurations", "datastore", "dataset" }, produces = "application/json",
-            responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
+            responseHeaders = { @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("{id}/form")
@@ -180,7 +252,7 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
         if (id == null || id.isEmpty()) {
             return CompletableFuture.completedFuture(new UiNode());
         }
-        final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
+        final String language = getLang(request);
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
         return toUiSpecAndMetadata(language, placeholderProvider,
                 configurationClient.getDetails(language, id, placeholderProvider).thenApply(this::getSingleNode),
@@ -188,7 +260,7 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     }
 
     @ApiOperation(value = "Return the configuration icon file in png format", tags = "icon",
-            responseHeaders = { @ResponseHeader(name = ErrorProcessor.Constants.HEADER_TALEND_COMPONENT_SERVER_ERROR,
+            responseHeaders = { @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
     @Path("{id}/icon")
@@ -196,6 +268,10 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     public CompletionStage<byte[]> getConfigurationIconById(@PathParam("id") final String id,
             @Context final HttpServletRequest request) {
         return componentClient.getFamilyIconById(id, placeholderProviderFactory.newProvider(request));
+    }
+
+    private String getLang(final HttpServletRequest request) {
+        return ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
     }
 
     private CompletionStage<UiNode> toUiSpecAndMetadata(final String language,

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.guice;
+package org.talend.sdk.component.guice;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Stream;

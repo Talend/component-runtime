@@ -15,12 +15,14 @@
  */
 package org.talend.sdk.component.proxy.model;
 
-public enum ProxyErrorDictionary {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    NO_COMPONENT_IN_FAMILY,
-    NO_FAMILY_FOR_CONFIGURATION,
-    UISPEC_SERVICE_CLOSE_FAILURE,
-    UNEXPECTED,
-    BAD_CONFIGURATION_TYPE,
-    PERSISTENCE_FAILED
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class EntityRef {
+
+    private String id;
 }

@@ -19,6 +19,19 @@ with the client Javascript `UiForm` library.
 
 include::{partialsdir}/generated_proxy-server-configuration.adoc[]
 
+=== Add custom entries in the forms
+
+As seen in the previous table you can customize the forms by type. The format is reusing Talend Component Kit
+rest API (properties model) and defines two main types of extension:
+
+1. `prependProperties`: which will list all the model of properties added to the form *before* the actual underlying form
+2. `appendProperties`: which will list all the model of properties added to the form *after* the actual underlying form
+
+Note that if you don't specify a name, the path is used to deduce the name automatically.
+
+IMPORTANT: always ensure you define a root object (no dot in the `path` value) for these properties. It is recommanded
+to prefix it with a `$`.
+
 === Client in Play!
 
 Also note that the client to connect to the Talend Component Kit server is
@@ -37,13 +50,13 @@ Here is a sample patch file:
 [source,json]
 ----
 {
-  "properties": [
+  "prependProperties": [
     {
-      "path": "_datasetMetadata",
+      "path": "$datasetMetadata",
       "type": "OBJECT"
     },
     {
-      "path": "_datasetMetadata.type",
+      "path": "$datasetMetadata.type",
       "displayName": "Types",
       "type": "ENUM",
       "metadata": {
@@ -62,7 +75,7 @@ allows to reload the whole form:
 [source,json]
 ----
 {
-  "path": "_datasetMetadata.type",
+  "path": "$datasetMetadata.type",
   "displayName": "Types",
   "type": "STRING",
   "metadata": {
@@ -174,7 +187,7 @@ X-ID = ${someRequestAttributeNameForTheId}
 
 === If you are using Guice
 
-`org.talend.sdk.component.proxy.guice.ComponentUiSpecServerModule` Guice module allows
+`org.talend.sdk.component.guice.ComponentUiSpecServerModule` Guice module allows
 to import `Services` from the server and to use some of them locally for the part
 out of scope of the endpoint delivery like:
 
@@ -182,3 +195,35 @@ out of scope of the endpoint delivery like:
 - Getting the properties model for a configuration or component (used in previous item)
 
 IMPORTANT: it is important to use a `Provider<T>` injection to keep it lazy.
+
+The server doesn't handle two layers you will likely need to add:
+
+1. security
+2. persistence
+
+For the first layer it is recommended to create a Play filter you configure before the proxy one (`ServletFilter`).
+You will need to ensure you pass all contextual data in the request attributes to be able to get them back after.
+
+For the persistence, the framework will fire particular events `OnPersist` and `OnEdit` you can observe
+to implement the persistence as you wish. If you reused the CDI context of the server just a plain CDI observer works
+but if you used the Guice/CDI setup (using the play module of the integration) you will need to write Guice observers:
+
+IMPORTANT: `OnPersist` will need to become identifier aware of the created entity, ensure to call `setId` please.
+
+[source,java]
+----
+@Singleton
+public class PersistenceHandler {
+    @Subscribe
+    public void onPersist(final OnPersist event) {
+        // do persist, ensure to call event.setId(...)
+    }
+
+    @Subscribe
+    public void onEdit(final OnEdit event) {
+        // do update
+    }
+}
+----
+
+NOTE: the deletion is not handled by the server since there is not encapsulation of any format at that moment.

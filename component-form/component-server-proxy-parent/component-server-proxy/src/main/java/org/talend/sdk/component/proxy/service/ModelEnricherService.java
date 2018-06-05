@@ -23,12 +23,14 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static javax.json.stream.JsonCollectors.toJsonObject;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,8 +46,11 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
@@ -80,12 +85,23 @@ public class ModelEnricherService {
 
     @Inject
     @UiSpecProxy
+    private JsonBuilderFactory builderFactory;
+
+    @Inject
+    @UiSpecProxy
     private Jsonb jsonb;
 
     @Inject
     private ProxyConfiguration configuration;
 
     private final ConcurrentMap<String, Patches> patches = new ConcurrentHashMap<>();
+
+    private JsonObject emptyPayload;
+
+    @PostConstruct
+    private void init() {
+        emptyPayload = builderFactory.createObjectBuilder().build();
+    }
 
     private final Function<String, ResourceBundle> bundleSupplier = lang -> {
         final Locale locale = new Locale(lang);
@@ -236,6 +252,21 @@ public class ModelEnricherService {
             }
         }
         return Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResourceAsStream(location));
+    }
+
+    public JsonObject extractEnrichment(final String type, final String lang, final JsonObject payload) {
+        return doEnrich(type, lang,
+                patch -> Stream
+                        .concat(filterRoots(patch.getPrependProperties()), filterRoots(patch.getAppendProperties()))
+                        .map(SimplePropertyDefinition::getName)
+                        .filter(payload::containsKey)
+                        .map(key -> new AbstractMap.SimpleEntry<>(key, payload.get(key)))
+                        .collect(toJsonObject())).orElse(emptyPayload);
+    }
+
+    private Stream<SimplePropertyDefinition> filterRoots(final Collection<SimplePropertyDefinition> props) {
+        return ofNullable(props).map(p -> p.stream().filter(it -> it.getName().equals(it.getPath()))).orElseGet(
+                Stream::empty);
     }
 
     @Data

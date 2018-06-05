@@ -13,14 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.model;
+package org.talend.sdk.component.proxy.api.persistence;
 
-public enum ProxyErrorDictionary {
+import java.util.Map;
 
-    NO_COMPONENT_IN_FAMILY,
-    NO_FAMILY_FOR_CONFIGURATION,
-    UISPEC_SERVICE_CLOSE_FAILURE,
-    UNEXPECTED,
-    BAD_CONFIGURATION_TYPE,
-    PERSISTENCE_FAILED
+import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
+import javax.servlet.http.HttpServletRequest;
+
+import lombok.Getter;
+
+public class OnEdit extends PersistenceEvent {
+
+    @Getter
+    private final String id;
+
+    public OnEdit(final String id, final HttpServletRequest request, final Jsonb jsonb, final JsonObject enrichment,
+            final Map<String, String> properties) {
+        super(request, jsonb, enrichment, properties);
+        this.id = id;
+    }
 }

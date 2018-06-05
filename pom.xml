@@ -621,7 +621,7 @@
                 </module>
                 <module name="UpperEll" />
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javafx,javax,jdk,com,org,orgomg,brave,freemarker,io,zipkin2,lombok" />
+                  <property name="groups" value="*,java,javafx,javax,jdk,com,org,orgomg,brave,freemarker,io,zipkin2,lombok,play" />
                   <property name="ordered" value="true" />
                   <property name="separated" value="true" />
                   <property name="option" value="top" />

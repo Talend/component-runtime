@@ -17,6 +17,7 @@ package org.talend.sdk.component.proxy.front;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,19 +31,86 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import javax.inject.Inject;
+import javax.json.JsonBuilderFactory;
+import javax.json.bind.annotation.JsonbProperty;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
+import org.junit.After;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.proxy.api.persistence.OnEdit;
+import org.talend.sdk.component.proxy.api.persistence.OnPersist;
+import org.talend.sdk.component.proxy.model.EntityRef;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
 import org.talend.sdk.component.proxy.model.UiNode;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
+import org.talend.sdk.component.proxy.test.CdiInject;
+import org.talend.sdk.component.proxy.test.InMemoryTestPersistence;
 import org.talend.sdk.component.proxy.test.WithServer;
 
+import lombok.Data;
+
+@CdiInject
 @WithServer
 class ConfigurationResourceTest {
+
+    @Inject
+    private InMemoryTestPersistence database;
+
+    @Inject
+    @UiSpecProxy
+    private JsonBuilderFactory factory;
+
+    @After
+    void after() {
+        database.clear();
+    }
+
+    @Test
+    void save(final WebTarget client) {
+        final EntityRef ref = client
+                .path("configurations/{type}/save")
+                .resolveTemplate("type", "test")
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(factory
+                        .createObjectBuilder()
+                        .add("url", "http://")
+                        .add("_datasetMetadata", factory.createObjectBuilder().add("name", "New Connection"))
+                        .build(), APPLICATION_JSON_TYPE), EntityRef.class);
+        assertNotNull(ref.getId());
+        assertEquals(1, database.getPersist().size());
+
+        final OnPersist persist = database.getPersist().iterator().next();
+        assertNotNull(persist);
+        assertEquals(ref.getId(), persist.getId());
+        assertEquals("New Connection", persist.getEnrichment(EnrichmentTestModel.class).getMetadata().getName());
+    }
+
+    @Test
+    void edit(final WebTarget client) {
+        final EntityRef ref = client
+                .path("configurations/{type}/edit/{id}")
+                .resolveTemplate("type", "test")
+                .resolveTemplate("id", "fakeId")
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(factory
+                        .createObjectBuilder()
+                        .add("url", "http://")
+                        .add("_datasetMetadata", factory.createObjectBuilder().add("name", "Edited Connection"))
+                        .build(), APPLICATION_JSON_TYPE), EntityRef.class);
+        assertNotNull(ref.getId());
+        assertEquals("fakeId", ref.getId());
+        assertEquals(1, database.getEdit().size());
+
+        final OnEdit event = database.getEdit().iterator().next();
+        assertNotNull(event);
+        assertEquals(ref.getId(), event.getId());
+        assertEquals("Edited Connection", event.getEnrichment(EnrichmentTestModel.class).getMetadata().getName());
+    }
 
     @Test
     void listRootConfigs(final WebTarget proxyClient) {
@@ -117,4 +185,16 @@ class ConfigurationResourceTest {
 
     }
 
+    @Data
+    public static class EnrichmentTestModel {
+
+        @JsonbProperty("_datasetMetadata")
+        private MetadataTestModel metadata;
+    }
+
+    @Data
+    public static class MetadataTestModel {
+
+        private String name;
+    }
 }

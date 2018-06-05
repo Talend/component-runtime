@@ -85,7 +85,8 @@ public class ProxyConfiguration {
             + "It can take an optional query parameter `force` which specifies if the startup should fail if the  "
             + "file is not resolved. The resolution is done per configuration type (`datastore`, `dataset`, ...) "
             + "but fallbacks on `default` type if the file is not found.\n\nThe values can be keys in the resource bundle "
-            + "`org.talend.sdk.component.proxy.enrichment.i18n.Messages`. Use that for display names, placeholders etc...")
+            + "`org.talend.sdk.component.proxy.enrichment.i18n.Messages`. Use that for display names, placeholders etc..."
+            + "The content ")
     @ConfigProperty(name = PREFIX + "processing.uiSpec.patch",
             defaultValue = "component-uispec-metadata.%s.json?force=false")
     private String uiSpecPatchLocation;
