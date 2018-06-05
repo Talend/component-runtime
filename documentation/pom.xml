@@ -45,7 +45,6 @@
     <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
     <jsoup.version>1.11.2</jsoup.version>
     <jruby.version>9.1.14.0</jruby.version>
-    <swagger2markup.version>1.3.3</swagger2markup.version>
   </properties>
 
   <dependencies>
@@ -217,7 +216,7 @@
       <plugin>
         <groupId>io.github.swagger2markup</groupId>
         <artifactId>swagger2markup-maven-plugin</artifactId>
-        <version>1.3.3</version>
+        <version>1.3.7</version>
         <executions>
           <execution>
             <id>generated-proxy-adoc</id>
@@ -752,6 +751,12 @@
     </profile>
   </profiles>
 
+  <repositories>
+    <repository>
+      <id>bintray</id>
+      <url>https://jcenter.bintray.com</url>
+    </repository>
+  </repositories>
   <pluginRepositories>
     <pluginRepository>
       <id>bintray</id>
