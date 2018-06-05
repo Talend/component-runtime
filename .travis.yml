@@ -26,7 +26,6 @@ cache:
   - "$HOME/build/Talend/component-runtime/component-kit.js/node_modules"
   - "$HOME/build/Talend/component-runtime/documentation/.node"
   - "$HOME/build/Talend/component-runtime/documentation/src/main/frontend/node_modules"
-  - "$HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache"
   - "$HOME/build/Talend/component-runtime/talend-component-kit-intellij-plugin/.cache"
   - "$HOME/build/Talend/component-runtime/.blackduck"
   - "$HOME/build/Talend/component-runtime/.ci-cache"
@@ -73,6 +72,7 @@ jobs:
       env:
       - STEP=Update Documentation
       script:
+      - rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache
       - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
       - cd documentation && node ../.travis/heartbeat.js mvn clean verify pre-site -e -q -Pgh-pages -Dgpg.skip=true $DEPLOY_OPTS && cd -
       - cd documentation && node ../.travis/heartbeat.js mvn gplus:execute@groovy-scripts rmannibucau-common:filter@filter-algolia frontend:yarn@algolia-index && cd -
