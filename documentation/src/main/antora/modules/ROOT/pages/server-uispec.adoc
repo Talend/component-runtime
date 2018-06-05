@@ -19,6 +19,14 @@ with the client Javascript `UiForm` library.
 
 include::{partialsdir}/generated_proxy-server-configuration.adoc[]
 
+=== Client in Play!
+
+Also note that the client to connect to the Talend Component Kit server is
+CXF client using HttpClient HC (NIO) transport. It can be configured with its standard properties
+prefixed by `talend.component.proxy.` when you use the play module.
+
+More info available on link:http://cxf.apache.org/docs/asynchronous-client-http-transport.html[CXF] website.
+
 === Dropdown with all root configurations
 
 TIP: the special `dynamic_values` action `builtin::roots` can be used for a drop down which will

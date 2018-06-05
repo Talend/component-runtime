@@ -83,6 +83,9 @@ __optional__|string
 [options="header", cols=".^2,.^14,.^4"]
 |===
 |HTTP Code|Description|Schema
+|**200**|successful operation +
+**Headers** :  +
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|< string, <<_completionstagemapstringobject,CompletionStageMapStringObject>> > map
 |**400**|This response is returned when the action is null|<<_proxyerrorpayload,ProxyErrorPayload>>
 |**404**|This response is returned when no action is found|<<_proxyerrorpayload,ProxyErrorPayload>>
 |**520**|This response is returned when the action raise an unhandled error|<<_proxyerrorpayload,ProxyErrorPayload>>
@@ -211,7 +214,9 @@ __required__|string
 [options="header", cols=".^2,.^14,.^4"]
 |===
 |HTTP Code|Description|Schema
-|**default**|successful operation|No Content
+|**200**|successful operation +
+**Headers** :  +
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_completionstagebyte,CompletionStageByte[]>>
 |===
 
 
@@ -338,7 +343,9 @@ __required__|string
 [options="header", cols=".^2,.^14,.^4"]
 |===
 |HTTP Code|Description|Schema
-|**default**|successful operation|No Content
+|**200**|successful operation +
+**Headers** :  +
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_completionstagebyte,CompletionStageByte[]>>
 |===
 
 
@@ -415,8 +422,18 @@ __required__|string
 __Type__ : object
 
 
+[[_completionstagebyte]]
+=== CompletionStageByte[]
+__Type__ : object
+
+
 [[_completionstagecollectionsimplepropertydefinition]]
 === CompletionStageCollectionSimplePropertyDefinition
+__Type__ : object
+
+
+[[_completionstagemapstringobject]]
+=== CompletionStageMapStringObject
 __Type__ : object
 
 

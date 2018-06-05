@@ -7,6 +7,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-822[TCOMP-822^]: [Windows] deploy-in-studio & car copy jar command in mvn plugin - don't work if the studio is running
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-834[TCOMP-834^]: Ensure that component has only one configuration argument.
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-829[TCOMP-829^]: Configuration Type tree is not correctly computed
