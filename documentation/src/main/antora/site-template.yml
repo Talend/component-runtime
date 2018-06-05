@@ -44,3 +44,5 @@ asciidoc:
     deploymentRoot: ${site.rootpath}
     numbered: true
     hide-uri-scheme: true
+    icons: font
+    icon-set: octicon
