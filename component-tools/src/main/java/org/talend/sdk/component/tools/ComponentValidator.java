@@ -64,6 +64,7 @@ import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
+import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
@@ -198,6 +199,7 @@ public class ComponentValidator extends BaseTask {
                 .flatMap(meta -> of(meta.getValue().split("\\|")))
                 .flatMap(s -> of(s.split(",")))
                 .filter(s -> !s.isEmpty())
+                .sorted()
                 .collect(toSet());
 
         final Set<String> fieldsInOptionOrder = config
@@ -207,6 +209,7 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .filter(meta -> meta.getKey().startsWith("tcomp::ui::optionsorder"))
                 .flatMap(meta -> of(meta.getValue().split(",")))
+                .sorted()
                 .collect(toSet());
 
         if (fieldsInGridLayout.isEmpty() && fieldsInOptionOrder.isEmpty()) {
@@ -307,7 +310,7 @@ public class ComponentValidator extends BaseTask {
             return "Option name `" + name
                     + "` is invalid, you can't start an option name with a '$' and it can't contain a '.'. "
                     + "Please fix it on field `" + field.getDeclaringClass() + "#" + field.getName() + "`";
-        }).collect(toSet()));
+        }).sorted().collect(toSet()));
     }
 
     private void validateDocumentation(final AnnotationFinder finder, final List<Class<?>> components,
@@ -349,6 +352,7 @@ public class ComponentValidator extends BaseTask {
                         })
                         .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName() + "._displayName in "
                                 + enumType + " resource bundle"))
+                .sorted()
                 .collect(toSet()));
 
         for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
@@ -357,11 +361,13 @@ public class ComponentValidator extends BaseTask {
                 final Collection<String> keys = of(i.getMethods())
                         .filter(m -> m.getDeclaringClass() != Object.class)
                         .map(m -> i.getName() + "." + m.getName())
+                        .sorted()
                         .collect(toSet());
                 errors.addAll(keys
                         .stream()
                         .filter(k -> !resourceBundle.containsKey(k))
                         .map(k -> "Missing key " + k + " in " + i + " resource bundle")
+                        .sorted()
                         .collect(toList()));
 
                 errors.addAll(resourceBundle
@@ -369,6 +375,7 @@ public class ComponentValidator extends BaseTask {
                         .stream()
                         .filter(k -> k.startsWith(i.getName() + ".") && !keys.contains(k))
                         .map(k -> "Key " + k + " from " + i + " is no more used")
+                        .sorted()
                         .collect(toList()));
             } else {
                 errors.add("No resource bundle for " + i);
@@ -490,12 +497,14 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .filter(h -> h.getDeclaringClass().isAnnotationPresent(Service.class))
                 .map(m -> m.getAnnotation(HealthCheck.class).value())
+                .sorted()
                 .collect(toSet());
         errors.addAll(checkableDataStoresMap
                 .entrySet()
                 .stream()
                 .filter(e -> !healthchecks.contains(e.getValue()))
                 .map(e -> "No @HealthCheck for dataStore: '" + e.getKey() + "' with checkable: '" + e.getValue() + "'")
+                .sorted()
                 .collect(toList()));
     }
 
@@ -520,8 +529,8 @@ public class ComponentValidator extends BaseTask {
 
     private void validateActions(final AnnotationFinder finder, final Set<String> errors) {
         // returned types
-        errors.addAll(of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class)
-                .flatMap(action -> {
+        errors.addAll(of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class,
+                Suggestions.class).flatMap(action -> {
                     final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
                     final List<Method> annotatedMethods = finder.findAnnotatedMethods(action);
                     return Stream.concat(
@@ -534,8 +543,7 @@ public class ComponentValidator extends BaseTask {
                                     .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class)
                                             && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
                                     .map(m -> m + " is not declared into a service class"));
-                })
-                .collect(toSet()));
+                }).sorted().collect(toSet()));
 
         // parameters for @DynamicValues
         errors.addAll(finder
@@ -543,6 +551,7 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .filter(m -> countParameters(m) != 0)
                 .map(m -> m + " should have no parameter")
+                .sorted()
                 .collect(toSet()));
 
         // parameters for @HealthCheck
@@ -551,6 +560,7 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .filter(m -> countParameters(m) != 1 || !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
                 .map(m -> m + " should have its first parameter being a datastore (marked with @DataStore)")
+                .sorted()
                 .collect(toSet()));
 
         // parameters for @DiscoverSchema
@@ -559,6 +569,7 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .filter(m -> countParameters(m) != 1 || !m.getParameterTypes()[0].isAnnotationPresent(DataSet.class))
                 .map(m -> m + " should have its first parameter being a dataset (marked with @Config)")
+                .sorted()
                 .collect(toSet()));
 
         errors.addAll(finder
@@ -572,11 +583,13 @@ public class ComponentValidator extends BaseTask {
                 .findAnnotatedFields(Proposable.class)
                 .stream()
                 .map(f -> f.getAnnotation(Proposable.class).value())
+                .sorted()
                 .collect(toSet());
         final Set<String> dynamicValues = finder
                 .findAnnotatedMethods(DynamicValues.class)
                 .stream()
                 .map(f -> f.getAnnotation(DynamicValues.class).value())
+                .sorted()
                 .collect(toSet());
         proposables.removeAll(dynamicValues);
         errors.addAll(proposables
