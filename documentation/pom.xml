@@ -685,7 +685,6 @@
         <github.global.server>github</github.global.server> <!-- matches a server in your settings.xml -->
         <content.rootpath>/component-runtime</content.rootpath>
         <site.rootpath>/component-runtime</site.rootpath>
-        <talend.documentation.generation.skip>true</talend.documentation.generation.skip>
       </properties>
 
       <build>
