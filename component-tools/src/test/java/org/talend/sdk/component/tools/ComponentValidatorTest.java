@@ -177,8 +177,8 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.options.badname")
     void testBadOptionName(final ExceptionSpec expectedException) {
         expectedException.expectMessage(
-                "- Option name `forbidden1.name` is invalid, you can't start an option name with a '$' and it can't contain a '.'. Please fix it on field `class org.talend.test.failure.options.badname.BadConfig#forbidden2`\n"
-                        + "- Option name `$forbidden1` is invalid, you can't start an option name with a '$' and it can't contain a '.'. Please fix it on field `class org.talend.test.failure.options.badname.BadConfig#forbidden1`");
+                "- Option name `$forbidden1` is invalid, you can't start an option name with a '$' and it can't contain a '.'. Please fix it on field `org.talend.test.failure.options.badname.BadConfig#forbidden1`\n"
+                        + "- Option name `forbidden1.name` is invalid, you can't start an option name with a '$' and it can't contain a '.'. Please fix it on field `org.talend.test.failure.options.badname.BadConfig#forbidden2`");
     }
 
     @Test

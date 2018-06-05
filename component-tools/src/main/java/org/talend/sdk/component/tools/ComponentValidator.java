@@ -19,9 +19,9 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.empty;
 import static java.util.stream.Stream.of;
@@ -47,6 +47,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
@@ -119,7 +121,7 @@ public class ComponentValidator extends BaseTask {
         if (configuration.isValidateSerializable()) {
             final Collection<Class<?>> copy = new ArrayList<>(components);
             copy.removeIf(this::isSerializable);
-            errors.addAll(copy.stream().map(c -> c + " is not Serializable").collect(toList()));
+            errors.addAll(copy.stream().map(c -> c + " is not Serializable").sorted().collect(toSet()));
         }
 
         if (configuration.isValidateInternationalization()) {
@@ -231,7 +233,8 @@ public class ComponentValidator extends BaseTask {
                             .noneMatch(field -> field.equals(fieldInLayout)))
                     .map(fieldInLayout -> "Option '" + fieldInLayout
                             + "' in @GridLayout doesn't exist in declaring class '" + config.getKey() + "'")
-                    .collect(toList()));
+                    .sorted()
+                    .collect(toSet()));
 
             config
                     .getValue()
@@ -252,7 +255,8 @@ public class ComponentValidator extends BaseTask {
                             .noneMatch(field -> field.equals(fieldInLayout)))
                     .map(fieldInLayout -> "Option '" + fieldInLayout
                             + "' in @OptionOrder doesn't exist in declaring class '" + config.getKey() + "'")
-                    .collect(toList()));
+                    .sorted()
+                    .collect(toSet()));
 
             config
                     .getValue()
@@ -309,7 +313,7 @@ public class ComponentValidator extends BaseTask {
             final String name = field.getAnnotation(Option.class).value();
             return "Option name `" + name
                     + "` is invalid, you can't start an option name with a '$' and it can't contain a '.'. "
-                    + "Please fix it on field `" + field.getDeclaringClass() + "#" + field.getName() + "`";
+                    + "Please fix it on field `" + field.getDeclaringClass().getName() + "#" + field.getName() + "`";
         }).sorted().collect(toSet()));
     }
 
@@ -320,7 +324,7 @@ public class ComponentValidator extends BaseTask {
                 .filter(c -> !c.isAnnotationPresent(Documentation.class))
                 .map(c -> "No @Documentation on '" + c.getName() + "'")
                 .sorted()
-                .collect(toList()));
+                .collect(toSet()));
         errors.addAll(finder
                 .findAnnotatedFields(Option.class)
                 .stream()
@@ -333,8 +337,12 @@ public class ComponentValidator extends BaseTask {
 
     private void validateInternationalization(final AnnotationFinder finder, final List<Class<?>> components,
             final Set<String> errors) {
-        errors.addAll(components.stream().map(this::validateComponentResourceBundle).filter(Objects::nonNull).collect(
-                toList()));
+        errors.addAll(components
+                .stream()
+                .map(this::validateComponentResourceBundle)
+                .filter(Objects::nonNull)
+                .sorted()
+                .collect(toSet()));
         errors.addAll(finder
                 .findAnnotatedFields(Option.class)
                 .stream()
@@ -368,7 +376,7 @@ public class ComponentValidator extends BaseTask {
                         .filter(k -> !resourceBundle.containsKey(k))
                         .map(k -> "Missing key " + k + " in " + i + " resource bundle")
                         .sorted()
-                        .collect(toList()));
+                        .collect(toSet()));
 
                 errors.addAll(resourceBundle
                         .keySet()
@@ -376,7 +384,7 @@ public class ComponentValidator extends BaseTask {
                         .filter(k -> k.startsWith(i.getName() + ".") && !keys.contains(k))
                         .map(k -> "Key " + k + " from " + i + " is no more used")
                         .sorted()
-                        .collect(toList()));
+                        .collect(toSet()));
             } else {
                 errors.add("No resource bundle for " + i);
             }
@@ -390,7 +398,8 @@ public class ComponentValidator extends BaseTask {
                 .map(Class::getDeclaringClass)
                 .distinct()
                 .flatMap(c -> HttpClientFactoryImpl.createErrors(c).stream())
-                .collect(toList()));
+                .sorted()
+                .collect(toSet()));
     }
 
     private void validateModel(final AnnotationFinder finder, final List<Class<?>> components,
@@ -399,13 +408,15 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .filter(c -> componentMarkers().filter(c::isAnnotationPresent).count() > 1)
                 .map(i -> i + " has conflicting component annotations, ensure it has a single one")
-                .collect(toList()));
+                .sorted()
+                .collect(toSet()));
 
         errors.addAll(components
                 .stream()
                 .filter(c -> countParameters(findConstructor(c).getParameters()) > 1)
                 .map(c -> "Component must use a single root option. '" + c.getName() + "'")
-                .collect(toList()));
+                .sorted()
+                .collect(toSet()));
 
         errors.addAll(components
                 .stream()
@@ -415,7 +426,8 @@ public class ComponentValidator extends BaseTask {
                         .stream())
                 .filter(option -> this.hasNestedDataSet(option.getNestedParameters()))
                 .map(option -> "Root configuration can't contains a nested DataSet `" + option.getJavaType() + "`")
-                .collect(toList()));
+                .sorted()
+                .collect(toSet()));
 
         final ModelVisitor modelVisitor = new ModelVisitor();
         final ModelListener noop = new ModelListener() {
@@ -429,7 +441,7 @@ public class ComponentValidator extends BaseTask {
             } catch (final RuntimeException re) {
                 return re.getMessage();
             }
-        }).filter(Objects::nonNull).collect(toList()));
+        }).filter(Objects::nonNull).sorted().collect(toSet()));
 
         // limited config types
         errors.addAll(finder
@@ -439,7 +451,8 @@ public class ComponentValidator extends BaseTask {
                         || (!isListString(f) && !isMapString(f)))
                 .map(f -> f.getDeclaringClass() + "#" + f.getName()
                         + " uses @Structure but is not a List<String> nor a Map<String, String>")
-                .collect(toList()));
+                .sorted()
+                .collect(toSet()));
     }
 
     private boolean isMapString(final Field f) {
@@ -460,7 +473,7 @@ public class ComponentValidator extends BaseTask {
                 return "Component " + component + " should use @Icon and @Version";
             }
             return null;
-        }).filter(Objects::nonNull).collect(toList()));
+        }).filter(Objects::nonNull).sorted().collect(toSet()));
     }
 
     private void validateDataStore(final AnnotationFinder finder, final Set<String> errors) {
@@ -486,7 +499,8 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .filter(d -> !d.isAnnotationPresent(DataStore.class))
                 .map(c -> c.getName() + " has @Checkable but is not a @DataStore")
-                .collect(toList()));
+                .sorted()
+                .collect(toSet()));
 
         final Map<String, String> checkableDataStoresMap =
                 checkableClasses.stream().filter(d -> d.isAnnotationPresent(DataStore.class)).collect(toMap(
@@ -505,7 +519,7 @@ public class ComponentValidator extends BaseTask {
                 .filter(e -> !healthchecks.contains(e.getValue()))
                 .map(e -> "No @HealthCheck for dataStore: '" + e.getKey() + "' with checkable: '" + e.getValue() + "'")
                 .sorted()
-                .collect(toList()));
+                .collect(toSet()));
     }
 
     private void validateDataSet(final AnnotationFinder finder, final Set<String> errors) {
@@ -577,7 +591,8 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .filter(f -> f.getType().isEnum())
                 .map(f -> f.toString() + " must not define @Proposable since it is an enum")
-                .collect(toList()));
+                .sorted()
+                .collect(toSet()));
 
         final Set<String> proposables = finder
                 .findAnnotatedFields(Proposable.class)
@@ -596,7 +611,8 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .map(p -> "No @DynamicValues(\"" + p + "\"), add a service with this method: " + "@DynamicValues(\"" + p
                         + "\") Values proposals();")
-                .collect(toList()));
+                .sorted()
+                .collect(toSet()));
     }
 
     private int countParameters(final Method m) {
@@ -627,6 +643,10 @@ public class ComponentValidator extends BaseTask {
 
     private boolean isSerializable(final Class<?> aClass) {
         return Serializable.class.isAssignableFrom(aClass);
+    }
+
+    private static <T> Collector<T, ?, Set<T>> toSet() {
+        return toCollection(TreeSet::new);
     }
 
     @Data
