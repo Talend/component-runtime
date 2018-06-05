@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -90,10 +89,6 @@ public class ActionService {
     @Inject
     private ModelEnricherService modelEnricherService;
 
-    @Inject
-    @UiSpecProxy
-    private ExecutorService pool;
-
     public CompletionStage<Map<String, Object>> createStage(final String family, final String type, final String action,
             final UiSpecContext context, final Map<String, Object> params) {
         // family is ignored since we virtually add it for all families (=local exec)
@@ -141,7 +136,7 @@ public class ActionService {
             final Function<String, String> placeholderProvider) {
         if (id.isEmpty()) {
             return CompletableFuture
-                    .supplyAsync(() -> datastoreNode, pool)
+                    .completedFuture(datastoreNode)
                     .thenApply(node -> modelEnricherService.enrich(node, lang))
                     .thenCompose(detail -> toUiNode(lang, placeholderProvider, detail, null, noFamily));
         }
@@ -170,8 +165,8 @@ public class ActionService {
     private CompletionStage<ConfigTypeNode> getNode(final String id, final String lang,
             final Function<String, String> placeholderProvider) {
         return id.isEmpty()
-                ? CompletableFuture.supplyAsync(() -> new ConfigTypeNode("datastore", 0, null, "datastore", "datastore",
-                        "datastore", emptySet(), new ArrayList<>(), new ArrayList<>()), pool)
+                ? CompletableFuture.completedFuture(new ConfigTypeNode("datastore", 0, null, "datastore", "datastore",
+                        "datastore", emptySet(), new ArrayList<>(), new ArrayList<>()))
                 : configurationClient
                         .getDetails(lang, id, placeholderProvider)
                         .thenApply(ConfigTypeNodes::getNodes)

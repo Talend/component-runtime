@@ -17,16 +17,10 @@ package org.talend.sdk.component.proxy.service.client;
 
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
@@ -92,39 +86,11 @@ public class ClientProducer {
     @Produces
     @UiSpecProxy
     @ApplicationScoped
-    public ExecutorService pool(final ProxyConfiguration configuration) {
-        final int core = configuration.getClientPoolCore();
-        final int max = configuration.getClientPoolMax();
-        final long keepAlive = configuration.getClientPoolKeepAlive();
-        return new ThreadPoolExecutor(core, max, keepAlive, SECONDS, new LinkedBlockingQueue<>(), new ThreadFactory() {
-
-            private final AtomicInteger counter = new AtomicInteger();
-
-            @Override
-            public Thread newThread(final Runnable r) {
-                final Thread thread = new Thread(r);
-                thread.setDaemon(false);
-                thread.setPriority(Thread.NORM_PRIORITY);
-                thread.setName("talend-component-uispec-server-" + counter.incrementAndGet());
-                return thread;
-            }
-        });
-    }
-
-    public void releasePool(@Disposes @UiSpecProxy final ExecutorService pool) {
-        pool.shutdownNow();
-    }
-
-    @Produces
-    @UiSpecProxy
-    @ApplicationScoped
-    public javax.ws.rs.client.Client client(@UiSpecProxy final ExecutorService pool,
-            final ProxyConfiguration configuration) {
+    public javax.ws.rs.client.Client client(final ProxyConfiguration configuration) {
         final javax.ws.rs.client.Client client = ClientBuilder
                 .newBuilder()
                 .connectTimeout(configuration.getConnectTimeout(), MILLISECONDS)
                 .readTimeout(configuration.getReadTimeout(), MILLISECONDS)
-                .executorService(pool)
                 .build();
         ofNullable(configuration.getClientProviders()).ifPresent(list -> list.forEach(client::register));
         return client;

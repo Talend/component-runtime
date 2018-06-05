@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -105,10 +104,6 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     @UiSpecProxy
     private UiSpecService<UiSpecContext> uiSpecService;
 
-    @Inject
-    @UiSpecProxy
-    private ExecutorService pool;
-
     private final ConfigTypeNode defaultFamily = new ConfigTypeNode(); // potential todo: add some defaults?
 
     @Override
@@ -169,9 +164,8 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
         }
         final String language = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        return toUiSpecAndMetadata(language, placeholderProvider,
-                CompletableFuture.supplyAsync(() -> new ConfigTypeNode(type, 0, null, type, type, type, emptySet(),
-                        new ArrayList<>(), new ArrayList<>()), pool),
+        return toUiSpecAndMetadata(language, placeholderProvider, CompletableFuture.completedFuture(
+                new ConfigTypeNode(type, 0, null, type, type, type, emptySet(), new ArrayList<>(), new ArrayList<>())),
                 true);
     }
 

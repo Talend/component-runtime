@@ -114,21 +114,6 @@ public class ProxyConfiguration {
     @ConfigProperty(name = PREFIX + "jcache.refresh.period", defaultValue = "60")
     private Long jcacheRefreshPeriod;
 
-    @Inject
-    @Documentation("Core pool size for the client executor.")
-    @ConfigProperty(name = PREFIX + "client.threads.core", defaultValue = "64")
-    private Integer clientPoolCore;
-
-    @Inject
-    @Documentation("Max pool size for the client executor.")
-    @ConfigProperty(name = PREFIX + "client.threads.max", defaultValue = "256")
-    private Integer clientPoolMax;
-
-    @Inject
-    @Documentation("Keep alive for the client executor (in seconds).")
-    @ConfigProperty(name = PREFIX + "client.threads.keepAlive", defaultValue = "60")
-    private Long clientPoolKeepAlive;
-
     @Getter
     private BiFunction<Invocation.Builder, Function<String, String>, Invocation.Builder> headerAppender;
 
