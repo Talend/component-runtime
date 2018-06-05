@@ -28,9 +28,8 @@ function extractRequestPayload(parameters = [], properties) {
   return payload;
 }
 
-// customRegistry can be used to add extensions or custom trigger handlers like extension_jsonpatch one
-// uiSpecHandle = { get: function () { return {uiSchema, jsonSchema}; }, onUpdate: function ({uiSchema,jsonSchema,metadata}) {} }
-export default function getDefaultTrigger({ url, customRegistry, uiSpecHandle }) {
+// customRegistry can be used to add extensions or custom trigger (not portable accross integrations)
+export default function getDefaultTrigger({ url, customRegistry }) {
   return function onDefaultTrigger(event, { trigger, schema, properties, errors }) {
     const services = {
       ...defaultRegistry,
@@ -54,7 +53,6 @@ export default function getDefaultTrigger({ url, customRegistry, uiSpecHandle })
           properties,
           schema,
           trigger,
-          uiSpecHandle,
         });
       });
   };
