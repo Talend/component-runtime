@@ -105,6 +105,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Parameter(defaultValue = "true", property = "talend.validation.layout")
     private boolean validateLayout;
 
+    /**
+     * Should the option names be validated.
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.options")
+    private boolean validateOptionNames;
+
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
         final ComponentValidator.Configuration configuration = new ComponentValidator.Configuration();
@@ -119,6 +125,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateActions(validateActions);
         configuration.setValidateDocumentation(validateDocumentation);
         configuration.setValidateLayout(validateLayout);
+        configuration.setValidateOptionNames(validateOptionNames);
         new ComponentValidator(configuration, new File[] { classes }, getLog()).run();
     }
 }

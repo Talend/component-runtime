@@ -41,6 +41,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -100,7 +101,7 @@ public class ComponentValidator extends BaseTask {
                 componentMarkers().flatMap(a -> finder.findAnnotatedClasses(a).stream()).collect(toList());
         components.forEach(c -> log.debug("Found component: " + c));
 
-        final Set<String> errors = new HashSet<>();
+        final Set<String> errors = new LinkedHashSet<>();
 
         if (configuration.isValidateFamily()) {
             // todo: better fix is to get the package with @Components then check it has an icon
@@ -154,6 +155,10 @@ public class ComponentValidator extends BaseTask {
 
         if (configuration.isValidateLayout()) {
             validateLayout(finder, components, errors);
+        }
+
+        if (configuration.isValidateOptionNames()) {
+            validateOptionNames(finder, errors);
         }
 
         if (!errors.isEmpty()) {
@@ -291,6 +296,18 @@ public class ComponentValidator extends BaseTask {
                 && param.getNestedParameters().stream().anyMatch(
                         p -> OBJECT.equals(p.getType()) || ENUM.equals(p.getType()) || isArrayOfObject(p));
 
+    }
+
+    private void validateOptionNames(final AnnotationFinder finder, final Set<String> errors) {
+        errors.addAll(finder.findAnnotatedFields(Option.class).stream().filter(field -> {
+            final String name = field.getAnnotation(Option.class).value();
+            return name.contains(".") || name.startsWith("$");
+        }).distinct().map(field -> {
+            final String name = field.getAnnotation(Option.class).value();
+            return "Option name `" + name
+                    + "` is invalid, you can't start an option name with a '$' and it can't contain a '.'. "
+                    + "Please fix it on field `" + field.getDeclaringClass() + "#" + field.getName() + "`";
+        }).collect(toSet()));
     }
 
     private void validateDocumentation(final AnnotationFinder finder, final List<Class<?>> components,
@@ -625,5 +642,7 @@ public class ComponentValidator extends BaseTask {
         private boolean validateDocumentation;
 
         private boolean validateLayout;
+
+        private boolean validateOptionNames;
     }
 }

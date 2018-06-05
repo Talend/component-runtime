@@ -1,9 +1,11 @@
 = Configuring components
 :page-partial:
+:icons: font
 
 Component are configured through their constructor parameters. They can all be marked with `@Option`
 which will let you give a name to parameters (if not it will use the bytecode name which can require you to compile with `-parameter` flag
-to not have `arg0`, `arg1`, ... as names).
+to not have `arg0`, `arg1`, ... as names). It is highly recommanded to use a hava friendly name and it is forbidden to include `.` character in
+it. Also note that starting with a `$` is forbidden too.
 
 The parameter types can be _primitives_ or complex objects with fields decorated with `@Option` exactly like method parameters.
 
@@ -31,6 +33,17 @@ public MyFileReader(@Option("file-path") final File file,
 Using this kind of API makes the configuration extensible and component oriented letting the user define all he needs.
 
 The instantiation of the parameters is done from the properties passed to the component (see next part).
+
+== Is my option valid?
+
+[cols="<,^",options="header"]
+|===
+| Option name|Valid
+| myName | icon:check-circle[role="green"]
+| my_name | icon:check-circle[role="green"]
+| my.name | icon:times-circle[role="red"]
+| $myName | icon:times-circle[role="red"]
+|===
 
 == Primitives
 

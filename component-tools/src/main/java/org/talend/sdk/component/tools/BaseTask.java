@@ -20,8 +20,12 @@ import static java.util.Optional.ofNullable;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,7 +62,22 @@ abstract class BaseTask implements Runnable {
     protected AnnotationFinder newFinder() {
         return new AnnotationFinder(new CompositeArchive(
                 Stream.of(classes).map(c -> new FileArchive(Thread.currentThread().getContextClassLoader(), c)).toArray(
-                        Archive[]::new)));
+                        Archive[]::new))) {
+
+            private final Map<Class<?>, List<Field>> fieldCache = new HashMap<>();
+
+            private final Map<Class<?>, List<Class<?>>> classCache = new HashMap<>();
+
+            @Override
+            public List<Field> findAnnotatedFields(final Class<? extends Annotation> annotation) {
+                return fieldCache.computeIfAbsent(annotation, a -> super.findAnnotatedFields(annotation));
+            }
+
+            @Override
+            public List<Class<?>> findAnnotatedClasses(final Class<? extends Annotation> annotation) {
+                return classCache.computeIfAbsent(annotation, a -> super.findAnnotatedClasses(annotation));
+            }
+        };
     }
 
     protected Optional<ComponentValidator.Component> components(final Class<?> component) {

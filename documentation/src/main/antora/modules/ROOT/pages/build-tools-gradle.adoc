@@ -48,6 +48,7 @@ talendComponentKit {
     validateSerializable = true
     validateInternationalization = true
     validateModel = true
+    validateOptionNames = true
     validateMetadata = true
     validateComponent = true
     validateDataStore = true

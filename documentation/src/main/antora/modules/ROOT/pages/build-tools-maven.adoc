@@ -86,6 +86,8 @@ adding the corresponding flags to `false` in the `<configuration>` block of the 
 |validateActions|Validate actions signatures for the ones not tolerating dynamic binding (`@HealthCheck`, `@DynamicValues`, ...). It is recommended to keep it `true`.|true
 |validateFamily|Validate the family, i.e. the package containing the `@Components` has also a `@Icon`.|true
 |validateDocumentation|Ensure all 1. components and 2. `@Option` properties have a documentation using `@Documentation`|true
+|validateLayout|Ensure the layout is referencing existing options/properties.|true
+|validateOptionNames|Ensure the option names are compliant with the framework. It is really unsafe to set it to false.|true
 |===
 
 == Documentation

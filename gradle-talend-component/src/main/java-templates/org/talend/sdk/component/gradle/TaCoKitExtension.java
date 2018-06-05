@@ -95,6 +95,8 @@ public class TaCoKitExtension {
 
     private boolean validateLayout = true;
 
+    private boolean validateOptionNames = true;
+
     //
     // web
     //

@@ -125,6 +125,7 @@ class ComponentValidatorTest {
             cfg.setValidateModel(true);
             cfg.setValidateDataStore(true);
             cfg.setValidateLayout(true);
+            cfg.setValidateOptionNames(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
@@ -144,11 +145,12 @@ class ComponentValidatorTest {
                 }
             } catch (final IllegalStateException ise) {
                 if (fails) {
-                    assertTrue(ise
-                            .getMessage()
-                            .contains(ExceptionSpec.class
-                                    .cast(context.getStore(NAMESPACE).get(ExceptionSpec.class.getName()))
-                                    .getMessage()));
+                    final String message = ExceptionSpec.class
+                            .cast(context.getStore(NAMESPACE).get(ExceptionSpec.class.getName()))
+                            .getMessage();
+
+                    final String exMsg = ise.getMessage();
+                    assertTrue(exMsg.contains(message), message + "\n\n> " + exMsg);
                 } else {
                     fail(ise);
                 }
@@ -172,6 +174,14 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage("org.talend.test.failure.options.badname")
+    void testBadOptionName(final ExceptionSpec expectedException) {
+        expectedException.expectMessage(
+                "- Option name `forbidden1.name` is invalid, you can't start an option name with a '$' and it can't contain a '.'. Please fix it on field `class org.talend.test.failure.options.badname.BadConfig#forbidden2`\n"
+                        + "- Option name `$forbidden1` is invalid, you can't start an option name with a '$' and it can't contain a '.'. Please fix it on field `class org.talend.test.failure.options.badname.BadConfig#forbidden1`");
+    }
+
+    @Test
     @ComponentPackage("org.talend.test.failure.enumi18n")
     void testFailureEnumi18n(final ExceptionSpec expectedException) {
         expectedException.expectMessage(
@@ -189,7 +199,7 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.proposal.enumconfig")
     void testFailureEnumProposal(final ExceptionSpec expectedException) {
         expectedException.expectMessage(
-                "Some error were detected:\n- private org.talend.test.failure.proposal.enumconfig.ComponentConfiguredWithEnum$TheEnum org.talend.test.failure.proposal.enumconfig.ComponentConfiguredWithEnum$Foo.value must not define @Proposable since it is an enum");
+                "- private org.talend.test.failure.proposal.enumconfig.ComponentConfiguredWithEnum$TheEnum org.talend.test.failure.proposal.enumconfig.ComponentConfiguredWithEnum$Foo.value must not define @Proposable since it is an enum");
     }
 
     @Test
@@ -214,15 +224,16 @@ class ComponentValidatorTest {
     @Test
     @ComponentPackage("org.talend.test.failure.datastore")
     void testFailureDataStore(final ExceptionSpec expectedException) {
-        expectedException.expectMessage("No @HealthCheck for dataStore: 'default' with checkable: 'default'\n"
-                + "- org.talend.test.failure.datastore.MyDataStore2 has @Checkable but is not a @DataStore");
+        expectedException.expectMessage(
+                "- org.talend.test.failure.datastore.MyDataStore2 has @Checkable but is not a @DataStore\n"
+                        + "- No @HealthCheck for dataStore: 'default' with checkable: 'default'");
     }
 
     @Test
     @ComponentPackage("org.talend.test.failure.family")
     void testFailureFamily(final ExceptionSpec expectedException) {
-        expectedException.expectMessage("Some error were detected:\n"
-                + "- No resource bundle for org.talend.test.failure.family.MyComponent, you should create a org/talend/test/failure/family/Messages.properties at least.");
+        expectedException.expectMessage(
+                "- No resource bundle for org.talend.test.failure.family.MyComponent, you should create a org/talend/test/failure/family/Messages.properties at least.");
     }
 
     @Test
@@ -235,9 +246,9 @@ class ComponentValidatorTest {
     @Test
     @ComponentPackage("org.talend.test.failure.i18n.custom")
     void testFailureI18nCustom(final ExceptionSpec expectedException) {
-        expectedException.expectMessage(
-                "Some error were detected:\n- Key org.talend.test.failure.i18n.custom.MyInternalization.message_wrong from interface org.talend.test.failure.i18n.custom.MyInternalization is no more used\n"
-                        + "- Missing key org.talend.test.failure.i18n.custom.MyInternalization.message in interface org.talend.test.failure.i18n.custom.MyInternalization resource bundle");
+        expectedException.expectMessage("Some error were detected:\n"
+                + "- Missing key org.talend.test.failure.i18n.custom.MyInternalization.message in interface org.talend.test.failure.i18n.custom.MyInternalization resource bundle\n"
+                + "- Key org.talend.test.failure.i18n.custom.MyInternalization.message_wrong from interface org.talend.test.failure.i18n.custom.MyInternalization is no more used");
     }
 
     @Test
@@ -251,7 +262,7 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.missing.icon")
     void testFailureMissingIcon(final ExceptionSpec expectedException) {
         expectedException.expectMessage(
-                "Some error were detected:\n- Component class org.talend.test.failure.missing.icon.MyComponent should use @Icon and @Version");
+                "- Component class org.talend.test.failure.missing.icon.MyComponent should use @Icon and @Version");
     }
 
     @Test
@@ -286,9 +297,9 @@ class ComponentValidatorTest {
     @ComponentPackage(value = "org.talend.test.failure.layout")
     void testFailureLayoutOption(final ExceptionSpec expectedException) {
         expectedException.expectMessage("Some error were detected:\n"
-                + "- Option 'proxy' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$OtherConfig'\n"
+                + "- Option 'badOption' in @OptionOrder doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$MyNestedConfig'\n"
                 + "- Option 'badOption' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$MyConfig'\n"
-                + "- Option 'badOption' in @OptionOrder doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$MyNestedConfig'");
+                + "- Option 'proxy' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$OtherConfig'");
     }
 
     @Test
