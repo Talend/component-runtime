@@ -249,14 +249,14 @@
                   session.container.lookup(MavenProjectHelper).attachArtifact(project, 'json', 'swagger-heroku', swaggerDemo);
 
                   // copy icon (in svg) for the topbar logo
-                  def icon = Thread.currentThread().getContextClassLoader().getResourceAsStream('icons/component-kit-positive.svg')
+                  def icon = Thread.currentThread().getContextClassLoader().getResourceAsStream('icons/svg/component-kit-positive.svg')
                   def iconTarget = new File(project.build.outputDirectory, 'META-INF/resources/documentation/logo.svg')
                   // change color
                   iconTarget.text = icon.text.replace('#000', '#0675c1')
 
                   // create the favicon from the png
                   ICOEncoder.write(
-                    ImageIO.read(new File(project.build.outputDirectory, 'icons/component-kit-positive_icon32.png')),
+                    ImageIO.read(new File(project.build.outputDirectory, 'icons/svg/component-kit-positive_icon32.png')),
                     new File(project.build.outputDirectory, 'META-INF/resources/documentation/favicon.ico'));
                   ]]>
                 </script>
