@@ -13,6 +13,7 @@
 ** xref:documentation.adoc#_combiners[Combiners?]
 ** xref:documentation.adoc#_family_components_icons[Family &amp; Components Icons]
 * xref:documentation.adoc#_configuring_components[Configuring components]
+** xref:documentation.adoc#_is_my_option_valid[Is my option valid?]
 ** xref:documentation.adoc#_primitives[Primitives]
 ** xref:documentation.adoc#_complex_object_mapping[Complex object mapping]
 *** xref:documentation.adoc#_list_case[List case]
