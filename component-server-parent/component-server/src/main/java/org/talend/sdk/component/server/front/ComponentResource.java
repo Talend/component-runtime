@@ -250,13 +250,13 @@ public class ComponentResource {
                                         () -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
                                 .flatMap(component -> Stream.concat(
                                         component.getPartitionMappers().values().stream().map(
-                                                mapper -> toComponentIndex(c.getLoader(), locale, c.getId(), mapper,
+                                                mapper -> toComponentIndex(c, locale, c.getId(), mapper,
                                                         c.get(ComponentManager.OriginalId.class), includeIconContent)),
                                         component
                                                 .getProcessors()
                                                 .values()
                                                 .stream()
-                                                .map(proc -> toComponentIndex(c.getLoader(), locale, c.getId(), proc,
+                                                .map(proc -> toComponentIndex(c, locale, c.getId(), proc,
                                                         c.get(ComponentManager.OriginalId.class),
                                                         includeIconContent)))))
                         .collect(toList())));
@@ -291,7 +291,7 @@ public class ComponentResource {
                     .build();
         }
 
-        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get().getLoader(), meta.getIcon());
+        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), meta.getIcon());
         if (iconContent == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -333,7 +333,7 @@ public class ComponentResource {
                     .build();
         }
 
-        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get().getLoader(), meta.getIcon());
+        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), meta.getIcon());
         if (iconContent == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -441,13 +441,14 @@ public class ComponentResource {
                 meta.getParent().getName(), meta.getName());
     }
 
-    private ComponentIndex toComponentIndex(final ClassLoader loader, final Locale locale, final String plugin,
+    private ComponentIndex toComponentIndex(final Container container, final Locale locale, final String plugin,
             final ComponentFamilyMeta.BaseMeta meta, final ComponentManager.OriginalId originalId,
             final boolean includeIcon) {
+        final ClassLoader loader = container.getLoader();
         final String icon = meta.getIcon();
         final String familyIcon = meta.getParent().getIcon();
-        final IconResolver.Icon iconContent = iconResolver.resolve(loader, icon);
-        final IconResolver.Icon iconFamilyContent = iconResolver.resolve(loader, familyIcon);
+        final IconResolver.Icon iconContent = iconResolver.resolve(container, icon);
+        final IconResolver.Icon iconFamilyContent = iconResolver.resolve(container, familyIcon);
         return new ComponentIndex(
                 new ComponentId(meta.getId(), meta.getParent().getId(), plugin,
                         ofNullable(originalId).map(ComponentManager.OriginalId::getValue).orElse(plugin),

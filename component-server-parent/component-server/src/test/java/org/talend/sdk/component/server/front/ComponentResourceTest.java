@@ -45,7 +45,6 @@ import java.util.function.Predicate;
 import java.util.jar.JarFile;
 
 import javax.inject.Inject;
-import javax.websocket.DeploymentException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
@@ -83,7 +82,7 @@ class ComponentResourceTest {
     private WebsocketClient ws;
 
     @Test
-    void webSocketGetIndex() throws IOException, DeploymentException {
+    void webSocketGetIndex() {
         assertIndex(ws.read(ComponentIndices.class, "get", "/component/index?includeIconContent=true", ""));
     }
 

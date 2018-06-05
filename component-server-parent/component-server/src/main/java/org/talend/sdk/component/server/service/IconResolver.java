@@ -20,23 +20,47 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
+
+import org.talend.sdk.component.container.Container;
 
 import lombok.Data;
 
 @ApplicationScoped
 public class IconResolver {
 
-    public Icon resolve(final ClassLoader loader, final String icon) {
+    public Icon resolve(final Container container, final String icon) {
         if (icon == null) {
             return null;
         }
 
+        Cache cache = container.get(Cache.class);
+        if (cache == null) {
+            synchronized (container) {
+                cache = container.get(Cache.class);
+                if (cache == null) {
+                    cache = new Cache();
+                    container.set(Cache.class, cache);
+                }
+            }
+        }
+        return cache.icons.computeIfAbsent(icon, k -> doLoad(container.getLoader(), icon)).orElse(null);
+    }
+
+    private static class Cache {
+        private final ConcurrentMap<String, Optional<Icon>> icons = new ConcurrentHashMap<>();
+    }
+
+    // todo: add support for svg if apps don't embed the Talend/ui/icon bundle
+    private Optional<Icon> doLoad(final ClassLoader loader, final String icon) {
         return Stream
-                // todo: add support for svg if apps don't embed the Talend/ui/icon bundle
-                .of(icon + "_icon32.png", "icons/" + icon + "_icon32.png")
+                .of(icon + "_icon32.png", "icons/" + icon + "_icon32.png",
+                        "icons/svg/" + icon + "_icon32.png", "icons/svg-deprecated/" + icon + "_icon32.png")
                 .map(path -> {
                     final InputStream resource = loader.getResourceAsStream(path);
                     if (resource == null) {
@@ -45,8 +69,7 @@ public class IconResolver {
                     return new Icon("image/png", toBytes(resource));
                 })
                 .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     @Data
