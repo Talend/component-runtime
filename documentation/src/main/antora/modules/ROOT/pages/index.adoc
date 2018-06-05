@@ -2,17 +2,17 @@
 :page-partial:
 
 ifeval::["{backend}" == "html5"]
-ifeval::["{docbranch}" == "master"]
+ifeval::["{page-origin-refname}" == "master"]
 IMPORTANT: this is a version under development which has not yet been deployed.
 You can however use it using the `-SNAPSHOT` version and Sonatype snapshot https://oss.sonatype.org/content/repositories/snapshots/[repository].
 
 TIP: if you want a PDF version of that page you can find it in our snapshots:
-https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation&v={docversion}-SNAPSHOT&e=pdf&c=all-in-one[PDF].
+https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation&v={page-component-version}-SNAPSHOT&e=pdf&c=all-in-one[PDF].
 endif::[]
 
-ifeval::["{docbranch}" != "master"]
+ifeval::["{page-origin-refname}" != "master"]
 NOTE: if you want a PDF version of that page just click on
-this http://repo.apache.maven.org/maven2/org/talend/sdk/component/documentation/{docversion}/documentation-{docversion}-all-in-one.pdf[link].
+this http://repo.apache.maven.org/maven2/org/talend/sdk/component/documentation/{page-component-version}/documentation-{page-component-version}-all-in-one.pdf[link].
 endif::[]
 endif::[]
 

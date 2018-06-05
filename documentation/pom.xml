@@ -597,12 +597,12 @@
                 <hide-uri-scheme />
                 <idprefix />
                 <icons>font</icons>
-                <icon-set>octicon</icon-set>
+                <icon-set>fa</icon-set>
                 <idseparator>-</idseparator>
                 <partialsdir>${project.basedir}/src/main/antora/modules/ROOT/pages/_partials</partialsdir>
                 <imagesdir>${project.basedir}/src/main/antora/modules/ROOT/assets/images</imagesdir>
                 <project_version>${versions.release}</project_version>
-                <docversion>${versions.release}</docversion>
+                <page-component-version>${versions.release}</page-component-version>
                 <deploymentRoot>https://talend.github.io/component-runtime</deploymentRoot>
                 <git_branch>${git.branch}</git_branch>
               </attributes>
@@ -720,29 +720,9 @@
                 <version>${groovy.version}</version>
               </dependency>
               <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-json</artifactId>
-                <version>${groovy.version}</version>
-              </dependency>
-              <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
                 <version>${jgit.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.apache.johnzon</groupId>
-                <artifactId>johnzon-jsonb</artifactId>
-                <version>${johnzon.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctorj</artifactId>
-                <version>${asciidoctorj.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.jsoup</groupId>
-                <artifactId>jsoup</artifactId>
-                <version>${jsoup.version}</version>
               </dependency>
             </dependencies>
           </plugin>

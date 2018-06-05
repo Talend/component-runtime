@@ -40,8 +40,8 @@ The instantiation of the parameters is done from the properties passed to the co
 | Option name|Valid
 | myName | icon:check[role="green"]
 | my_name | icon:check[role="green"]
-| my.name | icon:x[role="red"]
-| $myName | icon:x[role="red"]
+| my.name | icon:times[role="mediumvioletred"]
+| $myName | icon:times[role="mediumvioletred"]
 |===
 
 == Primitives
