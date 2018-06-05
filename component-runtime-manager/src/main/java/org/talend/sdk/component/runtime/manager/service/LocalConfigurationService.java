@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toSet;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
@@ -41,6 +42,7 @@ public class LocalConfigurationService implements LocalConfiguration, Serializab
                 .stream()
                 .map(d -> ofNullable(d.get(plugin + "." + key))
                         .orElseGet(() -> d.get(plugin + "_" + key.replace('.', '_'))))
+                .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
     }

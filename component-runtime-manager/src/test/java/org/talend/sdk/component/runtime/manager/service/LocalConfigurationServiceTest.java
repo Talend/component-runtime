@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.manager.service;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Set;
 import java.util.stream.Stream;
@@ -39,6 +40,12 @@ class LocalConfigurationServiceTest {
             return System.getProperties().stringPropertyNames();
         }
     };
+
+    @Test
+    void nullDoesntFail() {
+        assertNull(new LocalConfigurationService(singletonList(systemProperties), "LocalConfigurationServiceTest")
+                .get("test.foo.missing"));
+    }
 
     @Test
     void read() {
