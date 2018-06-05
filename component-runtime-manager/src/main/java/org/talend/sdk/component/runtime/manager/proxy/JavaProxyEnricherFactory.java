@@ -24,6 +24,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.runtime.reflect.Defaults;
@@ -59,9 +61,18 @@ public class JavaProxyEnricherFactory {
 
         private final String key;
 
+        private final ConcurrentMap<Method, Boolean> defaultMethods = new ConcurrentHashMap<>();
+
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-            if (method.isDefault()) {
+            if (method.isDefault() && defaultMethods.computeIfAbsent(method, m -> {
+                try {
+                    delegate.getClass().getMethod(method.getName(), method.getParameterTypes());
+                    return false;
+                } catch (final NoSuchMethodException e) {
+                    return true;
+                }
+            })) {
                 final Class<?> declaringClass = method.getDeclaringClass();
                 return Defaults
                         .of(declaringClass)

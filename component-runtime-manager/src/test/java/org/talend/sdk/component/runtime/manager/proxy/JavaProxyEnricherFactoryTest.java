@@ -49,6 +49,28 @@ class JavaProxyEnricherFactoryTest {
         }
     }
 
+    @Test
+    void defaultMethod() {
+        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        final JavaProxyEnricherFactory factory = new JavaProxyEnricherFactory();
+        final SomeDefault proxyBased = SomeDefault.class.cast(factory.asSerializable(loader, getClass().getSimpleName(),
+                SomeDefault.class.getName(), new SomeDefault() {
+
+                    @Override
+                    public String get() {
+                        return "ok";
+                    }
+                }));
+        assertEquals("ok", proxyBased.get());
+    }
+
+    public interface SomeDefault {
+
+        default String get() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     @Internationalized
     public interface Translator {
 
