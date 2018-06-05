@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.proxy.service.client;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -45,28 +46,34 @@ public class ConfigurationClient {
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.configurations.all")
     public CompletionStage<ConfigTypeNodes> getAllConfigurations(final String language,
             final Function<String, String> placeholderProvider) {
-        return configuration
+        final CompletableFuture<ConfigTypeNodes> result = new CompletableFuture<>();
+        configuration
                 .getHeaderAppender()
                 .apply(this.webTarget
                         .path("configurationtype/index")
                         .queryParam("language", language)
                         .queryParam("lightPayload", true)
                         .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
-                .rx()
-                .get(ConfigTypeNodes.class);
+                .async()
+                .get(new RxInvocationCallback<ConfigTypeNodes>(result) {
+                });
+        return result;
     }
 
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.configurations.detail")
     public CompletionStage<ConfigTypeNodes> getDetails(final String language, final String id,
             final Function<String, String> placeholderProvider) {
-        return configuration
+        final CompletableFuture<ConfigTypeNodes> result = new CompletableFuture<>();
+        configuration
                 .getHeaderAppender()
                 .apply(this.webTarget
                         .path("configurationtype/details")
                         .queryParam("language", language)
                         .queryParam("identifiers", id)
                         .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
-                .rx()
-                .get(ConfigTypeNodes.class);
+                .async()
+                .get(new RxInvocationCallback<ConfigTypeNodes>(result) {
+                });
+        return result;
     }
 }

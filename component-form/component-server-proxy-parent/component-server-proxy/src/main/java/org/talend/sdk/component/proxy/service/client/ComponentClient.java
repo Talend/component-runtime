@@ -17,6 +17,7 @@ package org.talend.sdk.component.proxy.service.client;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -49,52 +50,67 @@ public class ComponentClient {
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.components.all")
     public CompletionStage<ComponentIndices> getAllComponents(final String language,
             final Function<String, String> placeholderProvider) {
-        return configuration
+        final CompletableFuture<ComponentIndices> result = new CompletableFuture<>();
+        configuration
                 .getHeaderAppender()
                 .apply(this.webTarget
                         .path("component/index")
                         .queryParam("language", language)
                         .queryParam("includeIconContent", false)
                         .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
-                .rx()
-                .get(ComponentIndices.class);
+                .async()
+                .get(new RxInvocationCallback<ComponentIndices>(result) {
+
+                });
+        return result;
     }
 
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.components.family.icon")
     public CompletionStage<byte[]> getFamilyIconById(final String id,
             final Function<String, String> placeholderProvider) {
-        return configuration
+        final CompletableFuture<byte[]> result = new CompletableFuture<>();
+        configuration
                 .getHeaderAppender()
                 .apply(this.webTarget.path("component/icon/family/" + id).request(APPLICATION_OCTET_STREAM),
                         placeholderProvider)
-                .rx()
-                .get(byte[].class);
+                .async()
+                .get(new RxInvocationCallback<byte[]>(result) {
+
+                });
+        return result;
     }
 
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.components.detail")
     public CompletionStage<ComponentDetail> getComponentDetail(final String language,
             final Function<String, String> placeholderProvider, final String id) {
-        return configuration
+        final CompletableFuture<ComponentDetailList> result = new CompletableFuture<>();
+        configuration
                 .getHeaderAppender()
                 .apply(this.webTarget
                         .path("component/details")
                         .queryParam("language", language)
                         .queryParam("identifiers", id)
                         .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
-                .rx()
-                .get(ComponentDetailList.class)
-                .thenApply(l -> l.getDetails().iterator().next());
+                .async()
+                .get(new RxInvocationCallback<ComponentDetailList>(result) {
+
+                });
+        return result.thenApply(list -> list.getDetails().iterator().next());
     }
 
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.components.icon")
     public CompletionStage<byte[]> getComponentIconById(final Function<String, String> placeholderProvider,
             final String id) {
-        return configuration
+        final CompletableFuture<byte[]> result = new CompletableFuture<>();
+        configuration
                 .getHeaderAppender()
                 .apply(this.webTarget.path("component/icon/" + id).request(APPLICATION_OCTET_STREAM),
                         placeholderProvider)
-                .rx()
-                .get(byte[].class);
+                .async()
+                .get(new RxInvocationCallback<byte[]>(result) {
+
+                });
+        return result;
     }
 
 }
