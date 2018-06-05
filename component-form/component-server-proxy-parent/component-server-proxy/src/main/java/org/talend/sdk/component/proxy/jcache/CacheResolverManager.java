@@ -141,12 +141,15 @@ public class CacheResolverManager implements CacheResolverFactory {
     }
 
     private void clearCaches() {
-        StreamSupport.stream(cacheManager.getCacheNames().spliterator(), false).forEach(
+        StreamSupport.stream(cacheManager.getCacheNames().spliterator(), false)
+                     .filter(name -> name.startsWith("org.talend.sdk.component.proxy."))
+                     .forEach(
                 r -> cacheManager.getCache(r).clear());
     }
 
     private CacheResolver toResolver(final String cacheName) {
-        if (!configuration.getJcacheActive()) {
+        if (!configuration.getJcacheActive() ||
+                ("org.talend.sdk.component.proxy.actions.proposables".equals(cacheName) && !configuration.getCacheProposables())) {
             return resolvers.computeIfAbsent(cacheName,
                     k -> new CacheResolverImpl(new EmptyCache<>(cacheName, cacheManager)));
         }

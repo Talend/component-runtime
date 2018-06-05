@@ -53,14 +53,15 @@ public class IconResolver {
     }
 
     private static class Cache {
+
         private final ConcurrentMap<String, Optional<Icon>> icons = new ConcurrentHashMap<>();
     }
 
     // todo: add support for svg if apps don't embed the Talend/ui/icon bundle
     private Optional<Icon> doLoad(final ClassLoader loader, final String icon) {
         return Stream
-                .of(icon + "_icon32.png", "icons/" + icon + "_icon32.png",
-                        "icons/svg/" + icon + "_icon32.png", "icons/svg-deprecated/" + icon + "_icon32.png")
+                .of(icon + "_icon32.png", "icons/" + icon + "_icon32.png", "icons/svg/" + icon + "_icon32.png",
+                        "icons/svg-deprecated/" + icon + "_icon32.png")
                 .map(path -> {
                     final InputStream resource = loader.getResourceAsStream(path);
                     if (resource == null) {

@@ -28,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
+import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
@@ -37,6 +38,8 @@ import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
+import org.talend.sdk.component.proxy.jcache.CacheResolverManager;
+import org.talend.sdk.component.proxy.jcache.ProxyCacheKeyGenerator;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.UiNode;
 import org.talend.sdk.component.proxy.service.client.ClientProducer;
@@ -89,13 +92,28 @@ public class ActionService {
     @Inject
     private ModelEnricherService modelEnricherService;
 
+    @Inject // to have cache activated and not handle it manually
+    private ActionService self;
+
     public CompletionStage<Map<String, Object>> createStage(final String family, final String type, final String action,
             final UiSpecContext context, final Map<String, Object> params) {
         // family is ignored since we virtually add it for all families (=local exec)
         if (isBuiltin(action)) {
             return findBuiltInAction(action, context.getLanguage(), context.getPlaceholderProvider(), params);
         }
+        if ("dynamic_values".equals(type)) {
+            return self.findProposable(family, type, action, context.getLanguage(), context.getPlaceholderProvider());
+        }
         return client.action(family, type, action, params, context);
+    }
+
+    @CacheResult(cacheName = "org.talend.sdk.component.proxy.actions.proposables",
+            cacheResolverFactory = CacheResolverManager.class,
+            cacheKeyGenerator = ProxyCacheKeyGenerator.class)
+    public CompletionStage<Map<String, Object>> findProposable(final String family, final String type, final String action,
+                                                               final String lang, final Function<String, String> placeholders) {
+        // we recreate the context and don't pass it as a param to ensure the cache key is right
+        return client.action(family, type, action, emptyMap(), new UiSpecContext(lang, placeholders));
     }
 
     public boolean isBuiltin(final String action) {

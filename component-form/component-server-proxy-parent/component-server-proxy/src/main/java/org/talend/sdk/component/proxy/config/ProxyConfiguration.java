@@ -96,6 +96,12 @@ public class ProxyConfiguration {
     private String home;
 
     @Inject
+    @Documentation("If true the proposable (suggestion lists only depending on the server state) will be cached, otherwise they will be " +
+            "requested for each form rendering.")
+    @ConfigProperty(name = PREFIX + "actions.proposable.cached", defaultValue = "true")
+    private Boolean cacheProposables;
+
+    @Inject
     @Documentation("Should the server use jcache to store catalog information and refresh it with some polling. "
             + "If so the keys `" + PREFIX + "jcache.caches.$cacheName.expiry.duration`, `" + PREFIX
             + "jcache.caches.$cacheName.management.active` and " + "`" + PREFIX

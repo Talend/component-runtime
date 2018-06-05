@@ -249,8 +249,11 @@ public class ComponentResource {
                                 .execute(
                                         () -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
                                 .flatMap(component -> Stream.concat(
-                                        component.getPartitionMappers().values().stream().map(
-                                                mapper -> toComponentIndex(c, locale, c.getId(), mapper,
+                                        component
+                                                .getPartitionMappers()
+                                                .values()
+                                                .stream()
+                                                .map(mapper -> toComponentIndex(c, locale, c.getId(), mapper,
                                                         c.get(ComponentManager.OriginalId.class), includeIconContent)),
                                         component
                                                 .getProcessors()
