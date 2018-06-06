@@ -92,8 +92,8 @@ public class HandlerImpl<T extends HttpApiHandler<?>> implements AutoCloseable {
                         .closeFuture()
                         .sync();
             } catch (final InterruptedException e) {
-                Thread.interrupted();
                 close();
+                Thread.currentThread().interrupt();
             }
         }) {
 
@@ -110,8 +110,8 @@ public class HandlerImpl<T extends HttpApiHandler<?>> implements AutoCloseable {
                         + "setting talend.junit.http.starting.timeout system property");
             }
         } catch (final InterruptedException e) {
-            Thread.interrupted();
             log.warn(e.getMessage());
+            Thread.currentThread().interrupt();
         }
 
         if (shutdown != null && handler.isGlobalProxyConfiguration()) {
@@ -154,8 +154,8 @@ public class HandlerImpl<T extends HttpApiHandler<?>> implements AutoCloseable {
             try {
                 instance.join(TimeUnit.MINUTES.toMillis(5));
             } catch (final InterruptedException e) {
-                Thread.interrupted();
                 log.warn(e.getMessage(), e);
+                Thread.currentThread().interrupt();
             } finally {
                 instance = null;
                 shutdown = null;
