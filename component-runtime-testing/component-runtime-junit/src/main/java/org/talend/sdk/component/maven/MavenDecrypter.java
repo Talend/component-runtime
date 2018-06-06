@@ -98,6 +98,10 @@ public class MavenDecrypter {
                 () -> new File(System.getProperty("user.home"), ".m2"));
     }
 
+    public static void main(final String[] args) {
+        System.out.println(new MavenDecrypter().find(args[0]));
+    }
+
     private static class MvnServerExtractor extends DefaultHandler {
 
         private static final Pattern ENCRYPTED_PATTERN = Pattern.compile(".*?[^\\\\]?\\{(.*?[^\\\\])\\}.*");

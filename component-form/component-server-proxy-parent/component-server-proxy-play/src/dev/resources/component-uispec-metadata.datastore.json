@@ -16,7 +16,8 @@
       "metadata": {
         "action::dynamic_values": "builtin::roots",
         "action::reloadForm": "builtin::root::reloadFromId",
-        "action::reloadForm::parameters": "."
+        "action::reloadForm::parameters": ".",
+        "proxyserver::formId": "true"
       }
     },
     {

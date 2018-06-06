@@ -32,8 +32,6 @@ import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.jcache.CacheResolverManager;
 import org.talend.sdk.component.proxy.jcache.ProxyCacheKeyGenerator;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
-import org.talend.sdk.component.server.front.model.ComponentDetail;
-import org.talend.sdk.component.server.front.model.ComponentDetailList;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 
 @ApplicationScoped
@@ -79,38 +77,4 @@ public class ComponentClient {
                 });
         return result;
     }
-
-    @CacheResult(cacheName = "org.talend.sdk.component.proxy.components.detail")
-    public CompletionStage<ComponentDetail> getComponentDetail(final String language,
-            final Function<String, String> placeholderProvider, final String id) {
-        final CompletableFuture<ComponentDetailList> result = new CompletableFuture<>();
-        configuration
-                .getHeaderAppender()
-                .apply(this.webTarget
-                        .path("component/details")
-                        .queryParam("language", language)
-                        .queryParam("identifiers", id)
-                        .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
-                .async()
-                .get(new RxInvocationCallback<ComponentDetailList>(result) {
-
-                });
-        return result.thenApply(list -> list.getDetails().iterator().next());
-    }
-
-    @CacheResult(cacheName = "org.talend.sdk.component.proxy.components.icon")
-    public CompletionStage<byte[]> getComponentIconById(final Function<String, String> placeholderProvider,
-            final String id) {
-        final CompletableFuture<byte[]> result = new CompletableFuture<>();
-        configuration
-                .getHeaderAppender()
-                .apply(this.webTarget.path("component/icon/" + id).request(APPLICATION_OCTET_STREAM),
-                        placeholderProvider)
-                .async()
-                .get(new RxInvocationCallback<byte[]>(result) {
-
-                });
-        return result;
-    }
-
 }

@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.model;
+package org.talend.sdk.component.proxy.api.persistence;
 
-public enum ProxyErrorDictionary {
+import static lombok.AccessLevel.PROTECTED;
 
-    NO_COMPONENT_IN_FAMILY,
-    NO_FAMILY_FOR_CONFIGURATION,
-    UISPEC_SERVICE_CLOSE_FAILURE,
-    UNEXPECTED,
-    BAD_CONFIGURATION_TYPE,
-    PERSISTENCE_FAILED,
-    CONFIGURATION_NOT_FOUND,
-    NO_CONFIGURATION_TYPE
+import javax.servlet.http.HttpServletRequest;
+
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor(access = PROTECTED)
+public abstract class BaseEvent {
+
+    private final HttpServletRequest request;
+
+    public <T> T getAttribute(final String key, final Class<T> type) {
+        return type.cast(request.getAttribute(key));
+    }
 }

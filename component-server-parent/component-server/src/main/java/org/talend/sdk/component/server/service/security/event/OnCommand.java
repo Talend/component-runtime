@@ -18,8 +18,10 @@ package org.talend.sdk.component.server.service.security.event;
 import java.lang.reflect.Method;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class OnCommand extends ValidableEvent {
 
     private final Class<?> clazz;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.api;
+package org.talend.sdk.component.proxy.api.service;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -31,15 +31,15 @@ import lombok.NoArgsConstructor;
  *
  * NOTE: ensure to call it only once (you can use a guice provider to look it up lazily but instantiate it once).
  *
- * Note that this is not the recommanded way since it bypasses serialization and endpoint mapping but can
+ * Note that this is not the recommended way since it bypasses serialization and endpoint mapping but can
  * save some self requests in some cases.
  */
 @NoArgsConstructor(access = PRIVATE)
 public final class Services {
 
     @Binding
-    public static Components components() {
-        return lookup(Components.class);
+    public static ConfigurationVisitorService configurationVisitorService() {
+        return lookup(ConfigurationVisitorService.class);
     }
 
     @Binding

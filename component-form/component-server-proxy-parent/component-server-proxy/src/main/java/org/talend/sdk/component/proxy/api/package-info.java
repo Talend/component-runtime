@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * This package hosts some service layer which is named API
+ * because it is usable from the layer integrating this module
+ * (instead of through HTTP).
+ */
 package org.talend.sdk.component.proxy.api;
-
-import java.util.Collection;
-import java.util.concurrent.CompletionStage;
-
-import org.talend.sdk.component.proxy.model.Nodes;
-import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
-
-public interface ConfigurationTypes {
-
-    CompletionStage<Nodes> findRoots(RequestContext context);
-
-    CompletionStage<Collection<SimplePropertyDefinition>> findProperties(RequestContext context, String id);
-}

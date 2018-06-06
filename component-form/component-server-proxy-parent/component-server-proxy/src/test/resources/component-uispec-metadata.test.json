@@ -12,6 +12,9 @@
       "type": "STRING",
       "validation": {
         "required": true
+      },
+      "metadata": {
+        "proxyserver::formId": "true"
       }
     }
   ]

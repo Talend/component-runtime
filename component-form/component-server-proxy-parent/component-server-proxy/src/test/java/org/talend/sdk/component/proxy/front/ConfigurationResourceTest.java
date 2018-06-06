@@ -38,7 +38,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.proxy.api.persistence.OnEdit;
 import org.talend.sdk.component.proxy.api.persistence.OnPersist;
@@ -65,16 +65,27 @@ class ConfigurationResourceTest {
     @UiSpecProxy
     private JsonBuilderFactory factory;
 
-    @After
+    @AfterEach
     void after() {
         database.clear();
     }
 
     @Test
     void save(final WebTarget client) {
+        final Node config = client
+                .path("configurations")
+                .request(APPLICATION_JSON_TYPE)
+                .get(Nodes.class)
+                .getNodes()
+                .values()
+                .stream()
+                .filter(it -> it.getName().equals("defaulttest"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No defaulttest config found"));
+
         final EntityRef ref = client
-                .path("configurations/{type}/save")
-                .resolveTemplate("type", "test")
+                .path("configurations/persistence/save/{formId}")
+                .resolveTemplate("formId", config.getId())
                 .request(APPLICATION_JSON_TYPE)
                 .post(entity(factory
                         .createObjectBuilder()
@@ -91,19 +102,52 @@ class ConfigurationResourceTest {
     }
 
     @Test
-    void edit(final WebTarget client) {
+    void saveFromType(final WebTarget client) {
+        final Node config = client
+                .path("configurations")
+                .request(APPLICATION_JSON_TYPE)
+                .get(Nodes.class)
+                .getNodes()
+                .values()
+                .stream()
+                .filter(it -> it.getName().equals("defaulttest"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No defaulttest config found"));
+
         final EntityRef ref = client
-                .path("configurations/{type}/edit/{id}")
+                .path("configurations/persistence/save-from-type/{type}")
                 .resolveTemplate("type", "test")
-                .resolveTemplate("id", "fakeId")
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(factory
+                        .createObjectBuilder()
+                        .add("url", "http://")
+                        .add("_datasetMetadata", factory.createObjectBuilder().add("name", config.getId()))
+                        .build(), APPLICATION_JSON_TYPE), EntityRef.class);
+        assertNotNull(ref.getId());
+        assertEquals(1, database.getPersist().size());
+
+        final OnPersist persist = database.getPersist().iterator().next();
+        assertNotNull(persist);
+        assertEquals(ref.getId(), persist.getId());
+        assertEquals(config.getId(), persist.getEnrichment(EnrichmentTestModel.class).getMetadata().getName());
+    }
+
+    @Test
+    void edit(final WebTarget client) {
+        save(client);
+
+        final String id = database.getPersist().iterator().next().getId();
+
+        final EntityRef ref = client
+                .path("configurations/persistence/edit/{id}")
+                .resolveTemplate("id", id)
                 .request(APPLICATION_JSON_TYPE)
                 .post(entity(factory
                         .createObjectBuilder()
                         .add("url", "http://")
                         .add("_datasetMetadata", factory.createObjectBuilder().add("name", "Edited Connection"))
                         .build(), APPLICATION_JSON_TYPE), EntityRef.class);
-        assertNotNull(ref.getId());
-        assertEquals("fakeId", ref.getId());
+        assertEquals(id, ref.getId());
         assertEquals(1, database.getEdit().size());
 
         final OnEdit event = database.getEdit().iterator().next();
@@ -116,33 +160,27 @@ class ConfigurationResourceTest {
     void listRootConfigs(final WebTarget proxyClient) {
         final Nodes roots = proxyClient.path("configurations").request(APPLICATION_JSON_TYPE).get(Nodes.class);
         assertNotNull(roots);
-        assertEquals(3, roots.getNodes().size());
+        assertEquals(4, roots.getNodes().size());
         roots.getNodes().forEach((k, c) -> assertNotNull(c.getIcon()));
-        assertEquals(asList("Connection-1", "Connection-2", "Connection-3"),
+        assertEquals(asList("Connection-1", "Connection-2", "Connection-3", "defaulttest"),
                 roots.getNodes().values().stream().map(Node::getLabel).sorted().collect(toList()));
     }
 
     @Test
     void getConfigDetails(final WebTarget proxyClient) {
-        final Node config = proxyClient
-                .path("configurations")
+        save(proxyClient);
+
+        final UiNode uiNode = proxyClient
+                .path("configurations/form/{id}")
+                .resolveTemplate("id", database.getPersist().iterator().next().getId())
                 .request(APPLICATION_JSON_TYPE)
-                .get(Nodes.class)
-                .getNodes()
-                .values()
-                .stream()
-                .sorted(Comparator.comparing(Node::getLabel))
-                .iterator()
-                .next();
-        final UiNode uiNode =
-                proxyClient.path("configurations/" + config.getId() + "/form").request(APPLICATION_JSON_TYPE).get(
-                        UiNode.class);
+                .get(UiNode.class);
 
         assertNotNull(uiNode);
         assertNotNull(uiNode.getUi());
         assertNotNull(uiNode.getMetadata());
-        assertEquals("Connection-1", uiNode.getMetadata().getName());
-        assertEquals("myicon", uiNode.getMetadata().getIcon());
+        assertEquals("defaulttest", uiNode.getMetadata().getName());
+        assertEquals("badge", uiNode.getMetadata().getIcon());
     }
 
     @Test
@@ -159,7 +197,8 @@ class ConfigurationResourceTest {
 
         assertEquals("TheTestFamily2", config.getFamilyLabel());
         final byte[] serverIcon = webTarget
-                .path("configurations/" + config.getFamilyId() + "/icon")
+                .path("configurations/icon/{id}")
+                .resolveTemplate("id", config.getFamilyId())
                 .request(MediaType.APPLICATION_OCTET_STREAM)
                 .get(byte[].class);
         assertNotNull(serverIcon);
@@ -175,7 +214,8 @@ class ConfigurationResourceTest {
     void getConfigurationIconWithMissingId(final WebTarget webTarget) {
         final WebApplicationException ex = assertThrows(WebApplicationException.class,
                 () -> webTarget
-                        .path("configurations/x0invalidid/icon")
+                        .path("configurations/icon/{id}")
+                        .resolveTemplate("id", "x0invalidid")
                         .request(APPLICATION_OCTET_STREAM_TYPE, APPLICATION_JSON_TYPE)
                         .get(byte[].class));
         assertEquals(404, ex.getResponse().getStatus());

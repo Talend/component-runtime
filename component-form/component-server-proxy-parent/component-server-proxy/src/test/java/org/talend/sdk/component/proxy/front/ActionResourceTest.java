@@ -69,7 +69,7 @@ class ActionResourceTest {
 
         assertEquals(1, result.size());
         final List<Map<String, String>> items = List.class.cast(result.get("items"));
-        assertEquals(3, items.size());
+        assertEquals(4, items.size());
         final Map<String, String> itemsMap = items.stream().collect(toMap(e -> e.get("id"), e -> e.get("label")));
         assertEquals(new HashMap<String, String>() {
 
@@ -77,6 +77,7 @@ class ActionResourceTest {
                 put("VGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ", "Connection-1");
                 put("VGhlVGVzdEZhbWlseSNkYXRhc3RvcmUjQ29ubmVjdGlvbi0y", "Connection-2");
                 put("VGhlVGVzdEZhbWlseSNkYXRhc3RvcmUjQ29ubmVjdGlvbi0z", "Connection-3");
+                put("VGhlVGVzdEZhbWlseSN0ZXN0I2RlZmF1bHR0ZXN0", "defaulttest");
             }
         }, itemsMap);
     }

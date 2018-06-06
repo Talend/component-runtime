@@ -23,6 +23,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static javax.json.JsonValue.ValueType.STRING;
 import static javax.json.stream.JsonCollectors.toJsonObject;
 
 import java.io.File;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,7 +53,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonPointer;
+import javax.json.JsonString;
 import javax.json.bind.Jsonb;
+import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
@@ -90,6 +95,10 @@ public class ModelEnricherService {
     @Inject
     @UiSpecProxy
     private Jsonb jsonb;
+
+    @Inject
+    @UiSpecProxy
+    private JsonProvider json;
 
     @Inject
     private ProxyConfiguration configuration;
@@ -158,7 +167,7 @@ public class ModelEnricherService {
         if (config == skip) {
             return empty();
         }
-        return ofNullable(config.forLang(bundleSupplier.apply(lang))).map(propertiesMerger);
+        return ofNullable(config.forLang(bundleSupplier.apply(lang), json)).map(propertiesMerger);
     }
 
     private Optional<Patches> findPatch(final String type) {
@@ -264,6 +273,16 @@ public class ModelEnricherService {
                         .collect(toJsonObject())).orElse(emptyPayload);
     }
 
+    public Optional<String> findEnclosedFormId(final String type, final String lang, final JsonObject payload) {
+        return doEnrich(type, lang,
+                patch -> ofNullable(patch.getTypePointer())
+                        .map(it -> it.getValue(payload))
+                        .filter(it -> it.getValueType() == STRING)
+                        .map(it -> JsonString.class.cast(it).getString())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "No form identifier available, check your server configuration.")));
+    }
+
     private Stream<SimplePropertyDefinition> filterRoots(final Collection<SimplePropertyDefinition> props) {
         return ofNullable(props).map(p -> p.stream().filter(it -> it.getName().equals(it.getPath()))).orElseGet(
                 Stream::empty);
@@ -277,6 +296,8 @@ public class ModelEnricherService {
         private Collection<SimplePropertyDefinition> prependProperties;
 
         private Collection<SimplePropertyDefinition> appendProperties;
+
+        private JsonPointer typePointer;
 
         private void doPatchProperties(final Collection<SimplePropertyDefinition> properties,
                 final Collection<SimplePropertyDefinition> original) {
@@ -297,10 +318,22 @@ public class ModelEnricherService {
 
         private final ConcurrentMap<String, Patch> patchPerLang = new ConcurrentHashMap<>();
 
-        private Patch forLang(final ResourceBundle bundle) {
-            return patchPerLang.computeIfAbsent(bundle.getLocale().getLanguage(),
-                    k -> new Patch(withTranslations(bundle, base.prependProperties),
-                            withTranslations(bundle, base.appendProperties)));
+        private Patch forLang(final ResourceBundle bundle, final JsonProvider provider) {
+            return patchPerLang.computeIfAbsent(bundle.getLocale().getLanguage(), k -> {
+                final List<SimplePropertyDefinition> prependProperties =
+                        withTranslations(bundle, base.prependProperties);
+                final List<SimplePropertyDefinition> appendProperties = withTranslations(bundle, base.appendProperties);
+                return new Patch(prependProperties, appendProperties,
+                        Stream
+                                .of(prependProperties, appendProperties)
+                                .filter(Objects::nonNull)
+                                .flatMap(Collection::stream)
+                                .filter(it -> "true".equalsIgnoreCase(it.getMetadata().get("proxyserver::formId"))
+                                        && !it.getPath().contains("${index}"))
+                                .findFirst()
+                                .map(it -> provider.createPointer('/' + it.getPath().replace('.', '/')))
+                                .orElse(null));
+            });
         }
 
         private List<SimplePropertyDefinition> withTranslations(final ResourceBundle bundle,

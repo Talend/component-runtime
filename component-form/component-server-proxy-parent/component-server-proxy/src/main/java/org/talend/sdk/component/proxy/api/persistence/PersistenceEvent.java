@@ -15,21 +15,20 @@
  */
 package org.talend.sdk.component.proxy.api.persistence;
 
-import static lombok.AccessLevel.PROTECTED;
-
+import java.util.Collection;
 import java.util.Map;
 
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.AllArgsConstructor;
+import org.talend.sdk.component.proxy.api.configuration.ConfigurationReader;
+import org.talend.sdk.component.proxy.api.configuration.ConfigurationVisitor;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+
 import lombok.Getter;
 
-@AllArgsConstructor(access = PROTECTED)
-public abstract class PersistenceEvent {
-
-    private final HttpServletRequest request;
+public abstract class PersistenceEvent extends BaseEvent {
 
     private final Jsonb mapper;
 
@@ -38,11 +37,23 @@ public abstract class PersistenceEvent {
     @Getter
     private final Map<String, String> properties;
 
-    public <T> T getAttribute(final String key, final Class<T> type) {
-        return type.cast(request.getAttribute(key));
+    private final Collection<SimplePropertyDefinition> definitions;
+
+    protected PersistenceEvent(final HttpServletRequest request, final Jsonb jsonb, final JsonObject enrichment,
+            final Collection<SimplePropertyDefinition> definitions, final Map<String, String> properties) {
+        super(request);
+        this.properties = properties;
+        this.mapper = jsonb;
+        this.definitions = definitions;
+        this.enrichment = enrichment;
     }
 
     public <T> T getEnrichment(final Class<T> type) {
         return mapper.fromJson(enrichment.toString(), type);
+    }
+
+    public <T extends ConfigurationVisitor> T visitProperties(final T visitor) {
+        new ConfigurationReader(properties, visitor, definitions).visit();
+        return visitor;
     }
 }

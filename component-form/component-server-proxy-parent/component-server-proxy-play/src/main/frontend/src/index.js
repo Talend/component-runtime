@@ -27,6 +27,7 @@ class Content extends React.Component {
     super(props);
 
     this.state = {};
+    this.type = 'datastore';
     this.trigger = kit.createTriggers({
       url: '/componentproxy/api/v1/actions/execute',
       customRegistry: {
@@ -46,18 +47,24 @@ class Content extends React.Component {
   }
 
   componentWillMount() {
-      fetch(
-        '/componentproxy/api/v1/configurations/datastore/form/initial',
-        { method: 'GET', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } }
-      )
-      .then(resp => resp.json())
-      .then(body => {
-        this.setState({ uiSpec: body.ui, metadata: body.metadata });
-      });
+    fetch(
+      `/componentproxy/api/v1/configurations/form/initial/${this.type}`,
+      { method: 'GET', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+    .then(resp => resp.json())
+    .then(body => this.setState({ uiSpec: body.ui, metadata: body.metadata }));
   }
 
   onSubmit() {
     alert(JSON.stringify(this.state.uiSpec.properties, 2, ' '));
+    fetch(
+      `/componentproxy/api/v1/configurations/persistence/save-from-type/${this.type}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(this.state.uiSpec.properties)
+      })
+    .then(resp => resp.json())
+    .then(body => this.setState({ id: body.id }));
   }
 
   onChange(event, { properties }) {
@@ -84,6 +91,10 @@ class Content extends React.Component {
     }
     return (
       <div className='content'>
+        {this.state.id && (
+          <div>Last saved id: {this.state.id}</div>
+        )}
+
         <UIForm
           data={this.state.uiSpec}
           onChange={this.onChange}

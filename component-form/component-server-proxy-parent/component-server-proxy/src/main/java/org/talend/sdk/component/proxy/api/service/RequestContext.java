@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.api;
+package org.talend.sdk.component.proxy.api.service;
 
-import java.util.Collection;
-import java.util.concurrent.CompletionStage;
+public interface RequestContext {
 
-import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+    /**
+     * @return the current request language.
+     */
+    String language();
 
-public interface Components {
-
-    CompletionStage<Collection<SimplePropertyDefinition>> findProperties(RequestContext context, String id);
+    /**
+     * Used to handle placeholders in headers (see config doc).
+     *
+     * @param attributeName the name of the placeholder to find.
+     * @return the value for this placeholder.
+     */
+    String findPlaceholder(String attributeName);
 }

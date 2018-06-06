@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
 
-import org.talend.sdk.component.proxy.api.Services;
+import org.talend.sdk.component.proxy.api.service.Services;
 
 public class ComponentUiSpecServerModule extends AbstractModule {
 

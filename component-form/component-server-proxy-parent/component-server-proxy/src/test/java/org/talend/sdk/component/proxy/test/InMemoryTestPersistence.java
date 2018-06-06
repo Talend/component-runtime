@@ -23,6 +23,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
 
 import org.talend.sdk.component.proxy.api.persistence.OnEdit;
+import org.talend.sdk.component.proxy.api.persistence.OnFindById;
 import org.talend.sdk.component.proxy.api.persistence.OnPersist;
 
 import lombok.Getter;
@@ -41,6 +42,13 @@ public class InMemoryTestPersistence {
 
     void on(@ObservesAsync final OnEdit event) {
         edit.add(event);
+    }
+
+    void on(@ObservesAsync final OnFindById event) {
+        final OnPersist persisted =
+                persist.stream().filter(it -> it.getId().equals(event.getId())).findFirst().orElseThrow(
+                        () -> new IllegalArgumentException("No persisted entries matching id #" + event.getId()));
+        event.setProperties(persisted.getProperties()).setFormId(persisted.getFormId());
     }
 
     public void clear() {

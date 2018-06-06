@@ -121,6 +121,7 @@ import org.apache.tomcat.util.http.FastHttpDateFormat;
 import org.talend.sdk.component.server.front.security.ConnectionSecurityProvider;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 // ensure any JAX-RS command can use websockets
@@ -250,6 +251,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
     }
 
     @Data
+    @EqualsAndHashCode(callSuper = false)
     private static class JAXRSEndpoint extends Endpoint {
 
         private final String appBase;

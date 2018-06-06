@@ -15,22 +15,30 @@
  */
 package org.talend.sdk.component.proxy.api.persistence;
 
+import java.util.Collection;
 import java.util.Map;
 
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.servlet.http.HttpServletRequest;
 
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+
 import lombok.Getter;
 
 public class OnPersist extends PersistenceEvent {
 
     @Getter
+    private final String formId;
+
+    @Getter
     private String id;
 
-    public OnPersist(final HttpServletRequest request, final Jsonb jsonb, final JsonObject enrichment,
+    public OnPersist(final HttpServletRequest request, final Jsonb jsonb, final String formId,
+            final JsonObject enrichment, final Collection<SimplePropertyDefinition> definitions,
             final Map<String, String> properties) {
-        super(request, jsonb, enrichment, properties);
+        super(request, jsonb, enrichment, definitions, properties);
+        this.formId = formId;
     }
 
     public synchronized OnPersist setId(final String id) {

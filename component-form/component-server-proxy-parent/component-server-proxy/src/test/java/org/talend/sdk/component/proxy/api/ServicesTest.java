@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.proxy.api.service.Services;
 import org.talend.sdk.component.proxy.test.WithServer;
 
 // stupid test to ensure the lookup "api" works (= we provided a bean for each types)
@@ -38,6 +39,7 @@ class ServicesTest {
                     try {
                         assertNotNull(m.invoke(null));
                     } catch (final InvocationTargetException | IllegalAccessException e) {
+                        e.printStackTrace();
                         fail(e.getMessage());
                     }
                 })

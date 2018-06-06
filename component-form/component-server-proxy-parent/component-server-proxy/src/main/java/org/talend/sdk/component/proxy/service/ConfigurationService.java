@@ -62,9 +62,8 @@ public class ConfigurationService {
                         config -> config.getParentId() != null && families.containsKey(config.getParentId())))
                 .map(root -> {
                     final ConfigTypeNode family = families.get(root.getParentId());
-                    return new Node(root.getId(), Node.Type.CONFIGURATION, root.getDisplayName(), family.getId(),
-                            family.getDisplayName(), iconProvider.apply(family.getId()), root.getEdges(),
-                            root.getVersion(), root.getName(), null);
+                    return new Node(root.getId(), root.getDisplayName(), family.getId(), family.getDisplayName(),
+                            iconProvider.apply(family.getId()), root.getEdges(), root.getVersion(), root.getName());
                 })
                 .collect(toMap(Node::getId, identity())));
     }

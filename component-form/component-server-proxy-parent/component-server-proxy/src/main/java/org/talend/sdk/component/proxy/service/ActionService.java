@@ -49,7 +49,6 @@ import org.talend.sdk.component.proxy.service.client.UiSpecContext;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
-import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -170,13 +169,13 @@ public class ActionService {
 
     private CompletionStage<UiNode> toUiNode(final String lang, final Function<String, String> placeholderProvider,
             final ConfigTypeNode detail, final ComponentIndices iconComponents, final ConfigTypeNode family) {
-        return toUiSpec(detail, family, new UiSpecContext(lang, placeholderProvider)).thenApply(ui -> new UiNode(ui,
-                new Node(detail.getId(), Node.Type.CONFIGURATION, detail.getDisplayName(), family.getId(),
-                        family.getDisplayName(),
-                        ofNullable(family.getId()).map(id -> configurationService.findIcon(id, iconComponents)).orElse(
-                                null),
-                        detail.getEdges(), detail.getVersion(), detail.getName(),
-                        null /* not used for config, only components */)));
+        return toUiSpec(detail, family, new UiSpecContext(lang, placeholderProvider))
+                .thenApply(ui -> new UiNode(ui,
+                        new Node(detail.getId(), detail.getDisplayName(), family.getId(), family.getDisplayName(),
+                                ofNullable(family.getId())
+                                        .map(id -> configurationService.findIcon(id, iconComponents))
+                                        .orElse(null),
+                                detail.getEdges(), detail.getVersion(), detail.getName())));
     }
 
     private CompletionStage<ConfigTypeNode> getNode(final String id, final String lang,
@@ -184,16 +183,7 @@ public class ActionService {
         return id.isEmpty()
                 ? CompletableFuture.completedFuture(new ConfigTypeNode("datastore", 0, null, "datastore", "datastore",
                         "datastore", emptySet(), new ArrayList<>(), new ArrayList<>()))
-                : configurationClient
-                        .getDetails(lang, id, placeholderProvider)
-                        .thenApply(ConfigTypeNodes::getNodes)
-                        .thenApply(nodes -> {
-                            if (nodes.isEmpty()) {
-                                log.error("No detail for configuration {}", id);
-                                throw new IllegalArgumentException("No detail for " + id);
-                            }
-                            return nodes.values().iterator().next();
-                        });
+                : configurationClient.getDetails(lang, id, placeholderProvider);
     }
 
     private CompletionStage<Ui> toUiSpec(final ConfigTypeNode detail, final ConfigTypeNode family,

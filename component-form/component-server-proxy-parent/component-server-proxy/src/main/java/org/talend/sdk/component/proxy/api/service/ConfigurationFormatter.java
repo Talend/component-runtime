@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.api;
+package org.talend.sdk.component.proxy.api.service;
 
-public interface RequestContext {
+import java.util.Collection;
+import java.util.Map;
 
-    /**
-     * @return the current request language.
-     */
-    String language();
+import javax.json.JsonObject;
 
-    /**
-     * Used to handle placeholders in headers (see config doc).
-     *
-     * @param attributeName the name of the placeholder to find.
-     * @return the value for this placeholder.
-     */
-    String findPlaceholder(String attributeName);
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+
+/**
+ * Allows to handle the form (uispec so JSON structure) to Talend Component Kit config format conversions.
+ */
+public interface ConfigurationFormatter {
+
+    Map<String, String> flatten(JsonObject form);
+
+    JsonObject unflatten(Collection<SimplePropertyDefinition> definitions, Map<String, String> config);
 }

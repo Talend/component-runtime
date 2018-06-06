@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.model;
+package org.talend.sdk.component.proxy.api.service;
 
-public enum ProxyErrorDictionary {
+import java.util.Collection;
+import java.util.concurrent.CompletionStage;
 
-    NO_COMPONENT_IN_FAMILY,
-    NO_FAMILY_FOR_CONFIGURATION,
-    UISPEC_SERVICE_CLOSE_FAILURE,
-    UNEXPECTED,
-    BAD_CONFIGURATION_TYPE,
-    PERSISTENCE_FAILED,
-    CONFIGURATION_NOT_FOUND,
-    NO_CONFIGURATION_TYPE
+import org.talend.sdk.component.proxy.model.Nodes;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+
+public interface ConfigurationTypes {
+
+    CompletionStage<Nodes> findRoots(RequestContext context);
+
+    CompletionStage<Collection<SimplePropertyDefinition>> findProperties(RequestContext context, String id);
 }

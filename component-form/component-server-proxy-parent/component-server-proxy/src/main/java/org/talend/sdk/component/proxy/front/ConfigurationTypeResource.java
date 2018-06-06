@@ -51,11 +51,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.form.api.UiSpecService;
-import org.talend.sdk.component.proxy.api.ConfigurationFormatter;
-import org.talend.sdk.component.proxy.api.ConfigurationTypes;
-import org.talend.sdk.component.proxy.api.RequestContext;
 import org.talend.sdk.component.proxy.api.persistence.OnEdit;
+import org.talend.sdk.component.proxy.api.persistence.OnFindById;
 import org.talend.sdk.component.proxy.api.persistence.OnPersist;
+import org.talend.sdk.component.proxy.api.service.ConfigurationFormatter;
+import org.talend.sdk.component.proxy.api.service.ConfigurationTypes;
+import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.proxy.front.error.AutoErrorHandling;
 import org.talend.sdk.component.proxy.model.EntityRef;
 import org.talend.sdk.component.proxy.model.Node;
@@ -126,11 +127,14 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     private Event<OnEdit> onEditEvent;
 
     @Inject
+    private Event<OnFindById> onFindByIdEvent;
+
+    @Inject
     private ConfigurationFormatter configurationFormatter;
 
     private final NotificationOptions notificationOptions = NotificationOptions.ofExecutor(Runnable::run);
 
-    private final ConfigTypeNode defaultFamily = new ConfigTypeNode(); // potential todo: add some defaults?
+    private final ConfigTypeNode defaultFamily = new ConfigTypeNode();
 
     @Override
     public CompletionStage<Nodes> findRoots(final RequestContext context) {
@@ -142,7 +146,7 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     public CompletionStage<Collection<SimplePropertyDefinition>> findProperties(final RequestContext context,
             final String id) {
         return configurationClient.getDetails(context.language(), id, context::findPlaceholder).thenApply(
-                c -> c.getNodes().values().iterator().next().getProperties());
+                ConfigTypeNode::getProperties);
     }
 
     @ApiOperation(value = "Return all the available root configuration (Data store like) from the component server",
@@ -177,7 +181,7 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
             responseHeaders = { @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("{type}/form/initial")
+    @Path("form/initial/{type}")
     public CompletionStage<UiNode> getInitialForm(@PathParam("type") final String type,
             @Context final HttpServletRequest request) {
         if (type == null || type.isEmpty()) {
@@ -196,49 +200,62 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     }
 
     @POST
-    @Path("{type}/save")
-    @ApiOperation(value = "Saves a configuration.", response = EntityRef.class, produces = "application/json",
+    @Path("persistence/save/{formId}")
+    @ApiOperation(value = "Saves a configuration based on a form identifier.", response = EntityRef.class,
+            produces = "application/json",
             tags = { "form", "ui spec", "configurations", "datastore", "dataset", "persistence" },
             responseHeaders = @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class))
-    public CompletionStage<EntityRef> postConfiguration(@Context final HttpServletRequest request,
-            @PathParam("type") final String type, final JsonObject payload) {
-        final JsonObject enrichment = modelEnricherService.extractEnrichment(type, getLang(request), payload);
-        final JsonObject configuration = enrichment.isEmpty() ? payload
-                : payload.entrySet().stream().filter(it -> !enrichment.containsKey(it.getKey())).collect(
-                        toJsonObject());
-        return onPersistEvent
-                .fireAsync(new OnPersist(request, jsonb, enrichment, configurationFormatter.flatten(configuration)),
-                        notificationOptions)
-                .thenApply(persist -> {
-                    final String id = persist.getId();
-                    if (id == null) { // wrong setup likely
-                        throw new WebApplicationException(Response
-                                .status(Response.Status.EXPECTATION_FAILED)
-                                .entity(new ProxyErrorPayload(ProxyErrorDictionary.PERSISTENCE_FAILED.name(),
-                                        "Entity was not persisted"))
-                                .build());
-                    }
-                    return new EntityRef(id);
-                });
+    public CompletionStage<EntityRef> postConfigurationFromFormId(@Context final HttpServletRequest request,
+            @PathParam("formId") final String formId, final JsonObject payload) {
+        return doSave(request, getLang(request), payload, formId);
     }
 
     @POST
-    @Path("{type}/edit/{id}")
+    @Path("persistence/save-from-type/{type}")
+    @ApiOperation(
+            value = "Saves a configuration based on a type. Concretely it is the same as `/persistence/save/{formId}` "
+                    + "but the `formId` is contained into the payload itself and marked in the metadata as such.",
+            response = EntityRef.class, produces = "application/json",
+            tags = { "form", "ui spec", "configurations", "datastore", "dataset", "persistence" },
+            responseHeaders = @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
+                    description = ERROR_HEADER_DESC, response = Boolean.class))
+    public CompletionStage<EntityRef> postConfigurationFromType(@Context final HttpServletRequest request,
+            @PathParam("type") final String type, final JsonObject payload) {
+        final String lang = getLang(request);
+        final String formId = modelEnricherService
+                .findEnclosedFormId(type, lang, payload)
+                .orElseThrow(() -> new WebApplicationException(Response
+                        .status(Response.Status.BAD_REQUEST)
+                        .entity(new ProxyErrorPayload(ProxyErrorDictionary.NO_CONFIGURATION_TYPE.name(),
+                                "No form identifier found in the form properties"))
+                        .build()));
+        return doSave(request, lang, payload, formId);
+    }
+
+    @POST
+    @Path("persistence/edit/{id}")
     @ApiOperation(value = "Update a configuration.", response = EntityRef.class, produces = "application/json",
             tags = { "form", "ui spec", "configurations", "datastore", "dataset", "persistence" },
             responseHeaders = @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class))
     public CompletionStage<EntityRef> putConfiguration(@Context final HttpServletRequest request,
-            @PathParam("type") final String type, @PathParam("id") final String id, final JsonObject payload) {
-        final JsonObject enrichment = modelEnricherService.extractEnrichment(type, getLang(request), payload);
-        final JsonObject configuration = enrichment.isEmpty() ? payload
-                : payload.entrySet().stream().filter(it -> !enrichment.containsKey(it.getKey())).collect(
-                        toJsonObject());
-        return onEditEvent
-                .fireAsync(new OnEdit(id, request, jsonb, enrichment, configurationFormatter.flatten(configuration)),
-                        notificationOptions)
-                .thenApply(edit -> new EntityRef(id));
+            @PathParam("id") final String id, final JsonObject payload) {
+        return onFindByIdEvent
+                .fireAsync(new OnFindById(request, id), notificationOptions)
+                .thenCompose(event -> configurationClient.getDetails(getLang(request), event.getFormId(),
+                        placeholderProviderFactory.newProvider(request)))
+                .thenCompose(config -> {
+                    final JsonObject enrichment = modelEnricherService.extractEnrichment(config.getConfigurationType(),
+                            getLang(request), payload);
+                    final JsonObject configuration = enrichment.isEmpty() ? payload
+                            : payload.entrySet().stream().filter(it -> !enrichment.containsKey(it.getKey())).collect(
+                                    toJsonObject());
+                    return onEditEvent
+                            .fireAsync(new OnEdit(id, request, jsonb, enrichment, config.getProperties(),
+                                    configurationFormatter.flatten(configuration)), notificationOptions)
+                            .thenApply(edit -> new EntityRef(id));
+                });
     }
 
     @ApiOperation(value = "Return a form description ( Ui Spec ) of a specific configuration ", response = UiNode.class,
@@ -246,28 +263,54 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
             responseHeaders = { @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("{id}/form")
+    @Path("form/{id}")
     public CompletionStage<UiNode> getForm(@PathParam("id") final String id,
             @Context final HttpServletRequest request) {
-        if (id == null || id.isEmpty()) {
-            return CompletableFuture.completedFuture(new UiNode());
-        }
-        final String language = getLang(request);
-        final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        return toUiSpecAndMetadata(language, placeholderProvider,
-                configurationClient.getDetails(language, id, placeholderProvider).thenApply(this::getSingleNode),
-                false);
+        return onFindByIdEvent.fireAsync(new OnFindById(request, id), notificationOptions).thenCompose(event -> {
+            final String language = getLang(request);
+            final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
+            return toUiSpecAndMetadata(language, placeholderProvider,
+                    configurationClient.getDetails(language, event.getFormId(), placeholderProvider), false);
+        });
     }
 
     @ApiOperation(value = "Return the configuration icon file in png format", tags = "icon",
             responseHeaders = { @ResponseHeader(name = HEADER_TALEND_COMPONENT_SERVER_ERROR,
                     description = ERROR_HEADER_DESC, response = Boolean.class) })
     @GET
-    @Path("{id}/icon")
+    @Path("icon/{id}")
     @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
     public CompletionStage<byte[]> getConfigurationIconById(@PathParam("id") final String id,
             @Context final HttpServletRequest request) {
         return componentClient.getFamilyIconById(id, placeholderProviderFactory.newProvider(request));
+    }
+
+    private CompletionStage<EntityRef> doSave(final HttpServletRequest request, final String lang,
+            final JsonObject payload, final String formId) {
+        return configurationClient
+                .getDetails(lang, formId, placeholderProviderFactory.newProvider(request))
+                .thenCompose(node -> {
+                    final JsonObject enrichment =
+                            modelEnricherService.extractEnrichment(node.getConfigurationType(), lang, payload);
+                    final JsonObject configuration = enrichment.isEmpty() ? payload
+                            : payload.entrySet().stream().filter(it -> !enrichment.containsKey(it.getKey())).collect(
+                                    toJsonObject());
+                    return onPersistEvent
+                            .fireAsync(new OnPersist(request, jsonb, node.getId(), enrichment, node.getProperties(),
+                                    configurationFormatter.flatten(configuration)), notificationOptions)
+                            .thenApply(persist -> {
+                                final String id = persist.getId();
+                                if (id == null) { // wrong setup likely
+                                    throw new WebApplicationException(Response
+                                            .status(Response.Status.EXPECTATION_FAILED)
+                                            .entity(new ProxyErrorPayload(
+                                                    ProxyErrorDictionary.PERSISTENCE_FAILED.name(),
+                                                    "Entity was not persisted"))
+                                            .build());
+                                }
+                                return new EntityRef(id);
+                            });
+                });
     }
 
     private String getLang(final HttpServletRequest request) {
@@ -290,25 +333,12 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
         final ConfigTypeNode family =
                 noFamily ? defaultFamily : configurationService.getFamilyOf(node.getParentId(), nodes);
         final String icon = noFamily ? null : configurationService.findIcon(family.getId(), componentIndices);
-        final Node configType = new Node(node.getId(), Node.Type.CONFIGURATION, node.getDisplayName(), family.getId(),
-                family.getDisplayName(), icon, node.getEdges(), node.getVersion(), node.getName(), null);
+        final Node configType = new Node(node.getId(), node.getDisplayName(), family.getId(), family.getDisplayName(),
+                icon, node.getEdges(), node.getVersion(), node.getName());
         return uiSpecService
                 .convert(family.getName(), modelEnricherService.enrich(node, language),
                         new UiSpecContext(language, placeholderProvider))
                 .thenApply(uiSpec -> new UiNode(uiSpec, configType));
-    }
-
-    private ConfigTypeNode getSingleNode(final ConfigTypeNodes configs) {
-        return configs
-                .getNodes()
-                .entrySet()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new WebApplicationException(Response
-                        .status(Response.Status.NOT_FOUND)
-                        .entity(new ProxyErrorPayload(ProxyErrorDictionary.UNEXPECTED.name(), "No node is found"))
-                        .build()))
-                .getValue();
     }
 
     private <T> CompletionStage<T> withApplyNodesAndComponents(final String language,

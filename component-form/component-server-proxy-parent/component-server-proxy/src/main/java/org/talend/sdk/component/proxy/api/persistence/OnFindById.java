@@ -15,25 +15,39 @@
  */
 package org.talend.sdk.component.proxy.api.persistence;
 
-import java.util.Collection;
 import java.util.Map;
 
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
 import javax.servlet.http.HttpServletRequest;
-
-import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.Getter;
 
-public class OnEdit extends PersistenceEvent {
+@Getter
+public class OnFindById extends BaseEvent {
 
-    @Getter
     private final String id;
 
-    public OnEdit(final String id, final HttpServletRequest request, final Jsonb jsonb, final JsonObject enrichment,
-            final Collection<SimplePropertyDefinition> definitions, final Map<String, String> properties) {
-        super(request, jsonb, enrichment, definitions, properties);
+    private Map<String, String> properties;
+
+    private String formId;
+
+    public OnFindById(final HttpServletRequest request, final String id) {
+        super(request);
         this.id = id;
+    }
+
+    public synchronized OnFindById setProperties(final Map<String, String> properties) {
+        if (this.properties != null && !this.properties.equals(properties)) {
+            throw new IllegalArgumentException("Properties already set");
+        }
+        this.properties = properties;
+        return this;
+    }
+
+    public synchronized OnFindById setFormId(final String id) {
+        if (this.formId != null && !this.formId.equals(id)) {
+            throw new IllegalArgumentException("formId already set");
+        }
+        this.formId = id;
+        return this;
     }
 }

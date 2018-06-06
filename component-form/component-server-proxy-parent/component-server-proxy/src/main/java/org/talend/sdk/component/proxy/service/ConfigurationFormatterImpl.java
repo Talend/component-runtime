@@ -42,7 +42,7 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.spi.JsonProvider;
 
-import org.talend.sdk.component.proxy.api.ConfigurationFormatter;
+import org.talend.sdk.component.proxy.api.service.ConfigurationFormatter;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 

@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.api;
+package org.talend.sdk.component.proxy.api.service;
 
-import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 
-import javax.json.JsonObject;
-
-import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
+import org.talend.sdk.component.proxy.api.configuration.ConfigurationVisitor;
 
 /**
- * Allows to handle the form (uispec so JSON structure) to Talend Component Kit config format conversions.
+ * Typically used before setting the properties in a {@see org.talend.sdk.component.proxy.api.persistence.OnFindById}
+ * event to ensure passwords, token, key etc... are deciphered if they were saved ciphered.
  */
-public interface ConfigurationFormatter {
+public interface ConfigurationVisitorService {
 
-    Map<String, String> flatten(JsonObject form);
-
-    JsonObject unflatten(Collection<SimplePropertyDefinition> definitions, Map<String, String> config);
+    <T extends ConfigurationVisitor> CompletionStage<T> visit(RequestContext context, String id,
+            Map<String, String> properties, T visitor);
 }

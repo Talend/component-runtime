@@ -146,6 +146,26 @@ onTrigger(event, payload) {
 
 include::{partialsdir}/generated_proxy-server-api.adoc[]
 
+TIP: as you can see there are two ways to call save endpoint. If you don't want to pass the form identifier
+and prefer to use a generic endpoint just passing the type of configuration you are configuring then you will
+need to modify your enrichment configuration to ensure the form identier is present and to specify which form field it is.
+To do that just add to the metadata the boolean `proxyserver::formId`:
+
+[source,json]
+----
+{
+  "path": "$datasetMetadata.type",
+  "displayName": "Types",
+  "type": "STRING",
+  "metadata": {
+    // other metadata as seen previously
+    "proxyserver::formId": "true"
+  }
+}
+----
+
+IMPORTANT: only the first property with `proxyserver::formId` set to `"true"` is used. Also the path can't contain any array.
+
 == Play Integration
 
 Thanks to https://github.com/rmannibucau/playx[Playx] you can deploy this server
@@ -204,11 +224,12 @@ The server doesn't handle two layers you will likely need to add:
 For the first layer it is recommended to create a Play filter you configure before the proxy one (`ServletFilter`).
 You will need to ensure you pass all contextual data in the request attributes to be able to get them back after.
 
-For the persistence, the framework will fire particular events `OnPersist` and `OnEdit` you can observe
+For the persistence, the framework will fire particular events `OnPersist`, `OnEdit` and `OnFindById` you should observe
 to implement the persistence as you wish. If you reused the CDI context of the server just a plain CDI observer works
 but if you used the Guice/CDI setup (using the play module of the integration) you will need to write Guice observers:
 
-IMPORTANT: `OnPersist` will need to become identifier aware of the created entity, ensure to call `setId` please.
+IMPORTANT: `OnPersist` will need to become identifier aware of the created entity, ensure to call `setId` please. Similarly,
+`OnFindById` requires you to pass the found instance with `setProperties()` and `setFormId()`.
 
 [source,java]
 ----
@@ -222,6 +243,11 @@ public class PersistenceHandler {
     @Subscribe
     public void onEdit(final OnEdit event) {
         // do update
+    }
+
+    @Subscribe
+    public void onFind(final OnFindById event) {
+        // do find
     }
 }
 ----

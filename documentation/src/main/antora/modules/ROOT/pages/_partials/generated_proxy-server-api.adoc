@@ -149,7 +149,7 @@ component has icon that need to be handled by the consumer of this endpoint In t
 [[_getcomponentform]]
 === This endpoint return the ui spec of a component identified by it's id
 ....
-GET /components/{id}/form
+GET /components/form/{id}
 ....
 
 
@@ -196,7 +196,7 @@ __required__|string
 [[_getcomponenticonbyid]]
 === Return the component icon file in png format
 ....
-GET /components/{id}/icon
+GET /components/icon/{id}
 ....
 
 
@@ -275,10 +275,57 @@ Every configuration has an icon. In the response an icon key is returned. this i
 * datastore
 
 
+[[_getinitialform]]
+=== Return a form description ( Ui Spec ) without a specific configuration 
+....
+GET /configurations/form/initial/{type}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^2a,.^3a,.^4a"]
+|===
+|Type|Name|Schema
+|**Path**|**type** +
+__required__|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2a,.^14a,.^4a"]
+|===
+|HTTP Code|Description|Schema
+|**200**|successful operation +
+**Headers** :  +
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_nodes,Nodes>>
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+
+
+==== Tags
+
+* configurations
+* dataset
+* datastore
+* form
+* ui spec
+
+
 [[_getform]]
 === Return a form description ( Ui Spec ) of a specific configuration 
 ....
-GET /configurations/{id}/form
+GET /configurations/form/{id}
 ....
 
 
@@ -325,7 +372,7 @@ __required__|string
 [[_getconfigurationiconbyid]]
 === Return the configuration icon file in png format
 ....
-GET /configurations/{id}/icon
+GET /configurations/icon/{id}
 ....
 
 
@@ -369,7 +416,7 @@ __required__|string
 [[_putconfiguration]]
 === Update a configuration.
 ....
-POST /configurations/{type}/edit/{id}
+POST /configurations/persistence/edit/{id}
 ....
 
 
@@ -380,6 +427,52 @@ POST /configurations/{type}/edit/{id}
 |Type|Name|Schema
 |**Path**|**id** +
 __required__|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2a,.^14a,.^4a"]
+|===
+|HTTP Code|Description|Schema
+|**200**|successful operation +
+**Headers** :  +
+`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_entityref,EntityRef>>
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+
+
+==== Tags
+
+* configurations
+* dataset
+* datastore
+* form
+* persistence
+* ui spec
+
+
+[[_postconfigurationfromtype]]
+=== Saves a configuration based on a type. Concretely it is the same as `/persistence/save/{formId}` but the `formId` is contained into the payload itself and marked in the metadata as such.
+....
+POST /configurations/persistence/save-from-type/{type}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^2a,.^3a,.^4a"]
+|===
+|Type|Name|Schema
 |**Path**|**type** +
 __required__|string
 |===
@@ -416,57 +509,10 @@ __required__|string
 * ui spec
 
 
-[[_getinitialform]]
-=== Return a form description ( Ui Spec ) without a specific configuration 
+[[_postconfigurationfromformid]]
+=== Saves a configuration based on a form identifier.
 ....
-GET /configurations/{type}/form/initial
-....
-
-
-==== Parameters
-
-[options="header", cols=".^2a,.^3a,.^4a"]
-|===
-|Type|Name|Schema
-|**Path**|**type** +
-__required__|string
-|===
-
-
-==== Responses
-
-[options="header", cols=".^2a,.^14a,.^4a"]
-|===
-|HTTP Code|Description|Schema
-|**200**|successful operation +
-**Headers** :  +
-`Talend-Component-Server-Error` (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.|<<_nodes,Nodes>>
-|===
-
-
-==== Consumes
-
-* `application/json`
-
-
-==== Produces
-
-* `application/json`
-
-
-==== Tags
-
-* configurations
-* dataset
-* datastore
-* form
-* ui spec
-
-
-[[_postconfiguration]]
-=== Saves a configuration.
-....
-POST /configurations/{type}/save
+POST /configurations/persistence/save/{formId}
 ....
 
 
@@ -475,7 +521,7 @@ POST /configurations/{type}/save
 [options="header", cols=".^2a,.^3a,.^4a"]
 |===
 |Type|Name|Schema
-|**Path**|**type** +
+|**Path**|**formId** +
 __required__|string
 |===
 

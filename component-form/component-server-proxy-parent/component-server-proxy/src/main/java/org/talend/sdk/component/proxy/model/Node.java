@@ -30,8 +30,6 @@ public class Node {
 
     private String id;
 
-    private Type type;
-
     private String label;
 
     private String familyId;
@@ -45,11 +43,4 @@ public class Node {
     private Integer version;
 
     private String name;
-
-    private String plugin;
-
-    public enum Type {
-        CONFIGURATION,
-        COMPONENT,
-    }
 }

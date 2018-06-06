@@ -13,16 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.model;
+package org.talend.sdk.component.proxy.test.component;
 
-public enum ProxyErrorDictionary {
+import java.io.Serializable;
 
-    NO_COMPONENT_IN_FAMILY,
-    NO_FAMILY_FOR_CONFIGURATION,
-    UISPEC_SERVICE_CLOSE_FAILURE,
-    UNEXPECTED,
-    BAD_CONFIGURATION_TYPE,
-    PERSISTENCE_FAILED,
-    CONFIGURATION_NOT_FOUND,
-    NO_CONFIGURATION_TYPE
+import javax.json.JsonObject;
+
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.Producer;
+
+@Emitter(name = "Emitter4")
+@Icon(value = Icon.IconType.SEARCH)
+public class TheTestComponent implements Serializable {
+
+    public TheTestComponent(@Option final ConfigTestModel config) {
+        // no-op
+    }
+
+    @Producer
+    public JsonObject next() {
+        return null;
+    }
 }

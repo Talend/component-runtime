@@ -23,13 +23,18 @@ import javax.cache.annotation.CacheDefaults;
 import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.jcache.CacheResolverManager;
 import org.talend.sdk.component.proxy.jcache.ProxyCacheKeyGenerator;
+import org.talend.sdk.component.proxy.model.ProxyErrorDictionary;
+import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 
 @ApplicationScoped
@@ -61,7 +66,7 @@ public class ConfigurationClient {
     }
 
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.configurations.detail")
-    public CompletionStage<ConfigTypeNodes> getDetails(final String language, final String id,
+    public CompletionStage<ConfigTypeNode> getDetails(final String language, final String id,
             final Function<String, String> placeholderProvider) {
         final CompletableFuture<ConfigTypeNodes> result = new CompletableFuture<>();
         configuration
@@ -74,6 +79,15 @@ public class ConfigurationClient {
                 .async()
                 .get(new RxInvocationCallback<ConfigTypeNodes>(result) {
                 });
-        return result;
+        return result.thenApply(configNodes -> {
+            if (configNodes.getNodes().size() != 1) {
+                throw new WebApplicationException(Response
+                        .status(Response.Status.BAD_REQUEST)
+                        .entity(new ProxyErrorPayload(ProxyErrorDictionary.CONFIGURATION_NOT_FOUND.name(),
+                                "Configuration not found"))
+                        .build());
+            }
+            return configNodes.getNodes().values().iterator().next();
+        });
     }
 }
