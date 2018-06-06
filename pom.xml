@@ -98,7 +98,7 @@
     <component-api.version>1.0.1-SNAPSHOT</component-api.version>
 
     <!-- for the starter -->
-    <gradle.version>4.7</gradle.version>
+    <gradle.version>4.8</gradle.version>
     <mvn.version>3.5.3</mvn.version>
 
     <!-- for doc -->
