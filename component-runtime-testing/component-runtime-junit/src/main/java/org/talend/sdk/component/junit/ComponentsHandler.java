@@ -55,4 +55,8 @@ public interface ComponentsHandler {
     <T> void setInputData(Iterable<T> data);
 
     <T> List<T> getCollectedData(Class<T> recordType);
+
+    <T> T findService(String plugin, Class<T> serviceClass);
+
+    <T> T findService(Class<T> serviceClass);
 }
