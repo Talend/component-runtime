@@ -423,6 +423,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
         return STATE.get().manager;
     }
 
+    @Override
     public <T> T findService(final String plugin, final Class<T> serviceClass) {
         return serviceClass.cast(asManager()
                 .findPlugin(plugin)
@@ -432,6 +433,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                 .get(serviceClass));
     }
 
+    @Override
     public <T> T findService(final Class<T> serviceClass) {
         return findService(
                 Optional.of(getTestPlugins()).filter(c -> !c.isEmpty()).map(c -> c.iterator().next()).orElseThrow(
