@@ -14,7 +14,7 @@
     "@talend/react-forms": "${talend-ui.version}",
     "bootstrap-sass": "3.3.7",
     "classnames": "2.2.5",
-    "i18next": "9.0.0",
+    "i18next": "10.0.7",
     "invariant": "2.2.2",
     "keycode": "2.1.9",
     "lodash": "4.17.4",
@@ -25,15 +25,14 @@
     "react-bootstrap": "0.31.5",
     "react-css-transition": "0.7.4",
     "react-dom": "15.6.2",
-    "react-i18next": "5.2.0",
+    "react-i18next": "6.1.0",
     "react-redux": "5.0.5",
     "react-router-dom": "4.2.2",
     "redux": "3.6.0",
     "redux-thunk": "2.2.0",
     "uuid": "3.0.1",
     "whatwg-fetch": "2.0.3",
-    "date-fns": "1.29.0",
-    "fast-json-patch": "2.0.6"
+    "date-fns": "1.29.0"
   },
   "devDependencies": {
     "autoprefixer": "7.1.4",
