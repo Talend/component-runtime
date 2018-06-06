@@ -21,6 +21,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpContentCompressor;
+import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
@@ -42,7 +44,9 @@ public class ProxyInitializer extends ChannelInitializer<SocketChannel> {
         pipeline
                 .addLast("logging", new LoggingHandler(LogLevel.valueOf(api.getLogLevel())))
                 .addLast("http-decoder", new HttpRequestDecoder())
+                .addLast("gzip-decompressor", new HttpContentDecompressor())
                 .addLast("http-encoder", new HttpResponseEncoder())
+                .addLast("gzip-compressor", new HttpContentCompressor())
                 .addLast("http-keepalive", new HttpServerKeepAliveHandler())
                 .addLast("aggregator", new HttpObjectAggregator(Integer.MAX_VALUE))
                 .addLast("chunked-writer", new ChunkedWriteHandler())

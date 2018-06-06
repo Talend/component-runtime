@@ -29,7 +29,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -119,25 +121,35 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 final int responseCode = connection.getResponseCode();
                 final int defaultLength =
                         ofNullable(connection.getHeaderField("content-length")).map(Integer::parseInt).orElse(8192);
-                resp = new ResponseImpl(
-                        connection
-                                .getHeaderFields()
-                                .entrySet()
-                                .stream()
-                                .filter(e -> e.getKey() != null)
-                                .filter(h -> !api.getHeaderFilter().test(h.getKey()))
-                                .collect(toMap(Map.Entry::getKey,
-                                        e -> e.getValue().stream().collect(Collectors.joining(",")))),
+                resp = new ResponseImpl(connection
+                        .getHeaderFields()
+                        .entrySet()
+                        .stream()
+                        .filter(e -> e.getKey() != null)
+                        .filter(h -> !api.getHeaderFilter().test(h.getKey()))
+                        .collect(toMap(Map.Entry::getKey, e -> e.getValue().stream().collect(Collectors.joining(",")),
+                                (a, b) -> a, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))),
 
                         responseCode, responseCode <= 399 ? slurp(connection.getInputStream(), defaultLength)
                                 : slurp(connection.getErrorStream(), defaultLength));
+
+                beforeResponse(requestUri, request, resp,
+                        new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER) {
+
+                            {
+                                connection
+                                        .getHeaderFields()
+                                        .entrySet()
+                                        .stream()
+                                        .filter(it -> it.getKey() != null && it.getValue() != null)
+                                        .forEach(e -> put(e.getKey(), e.getValue()));
+                            }
+                        });
             } catch (final Exception e) {
                 log.error(e.getMessage(), e);
                 sendError(ctx, HttpResponseStatus.BAD_REQUEST);
                 return;
             }
-
-            beforeResponse(requestUri, request, resp);
 
             final ByteBuf bytes = ofNullable(resp.payload()).map(Unpooled::copiedBuffer).orElse(Unpooled.EMPTY_BUFFER);
             final HttpResponse response =
@@ -152,7 +164,8 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
         }
     }
 
-    protected void beforeResponse(final String requestUri, final FullHttpRequest request, final Response resp) {
+    protected void beforeResponse(final String requestUri, final FullHttpRequest request, final Response resp,
+            final Map<String, List<String>> headerFields) {
         // no-op
     }
 

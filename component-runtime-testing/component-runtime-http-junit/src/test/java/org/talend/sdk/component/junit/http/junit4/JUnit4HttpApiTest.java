@@ -15,14 +15,21 @@
  */
 package org.talend.sdk.component.junit.http.junit4;
 
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.ziplock.IO;
 import org.junit.ClassRule;
@@ -42,15 +49,29 @@ public class JUnit4HttpApiTest {
     @Test
     public void direct() throws Exception { // ensure it responds when directly called
         assertEquals(HttpURLConnection.HTTP_BAD_REQUEST,
-                execute("GET", "http://localhost:" + API.getPort(), null).status());
+                execute("GET", "http://localhost:" + API.getPort(), null, null).status());
         assertEquals(HttpURLConnection.HTTP_BAD_REQUEST,
-                execute("POST", "http://localhost:" + API.getPort(), "whatever").status());
+                execute("POST", "http://localhost:" + API.getPort(), "whatever", null).status());
+    }
+
+    @Test
+    public void gzip() throws Exception {
+        final Response response = execute("GET", "http://foo.bar.not.existing.talend.com/component/test?api=true", null,
+                u -> u.setRequestProperty("Accept-Encoding", "gzip"));
+        assertEquals(HttpURLConnection.HTTP_OK, response.status());
+        try (final BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new GZIPInputStream(new ByteArrayInputStream(response.payload()))))) {
+            assertEquals(reader.lines().collect(joining("\n")), "worked as expected");
+        }
+        assertEquals("text/plain", response.headers().get("content-type"));
+        assertEquals("true", response.headers().get("mocked"));
+        assertEquals("true", response.headers().get("X-Talend-Proxy-JUnit"));
     }
 
     @Test
     public void getProxy() throws Exception {
         final Response response =
-                execute("GET", "http://foo.bar.not.existing.talend.com/component/test?api=true", null);
+                execute("GET", "http://foo.bar.not.existing.talend.com/component/test?api=true", null, null);
         assertEquals(HttpURLConnection.HTTP_OK, response.status());
         assertEquals(new String(response.payload()), "worked as expected");
         assertEquals("text/plain", response.headers().get("content-type"));
@@ -75,12 +96,14 @@ public class JUnit4HttpApiTest {
         }
     }
 
-    private Response execute(final String method, final String uri, final String payload) throws Exception {
+    private Response execute(final String method, final String uri, final String payload,
+            final Consumer<HttpURLConnection> customizer) throws Exception {
         final URL url = new URL(uri);
         final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection());
         connection.setConnectTimeout(30000);
         connection.setReadTimeout(20000);
         connection.setRequestMethod(method);
+        ofNullable(customizer).ifPresent(c -> c.accept(connection));
         if (payload != null) {
             connection.setDoOutput(true);
             connection.getOutputStream().write(payload.getBytes(StandardCharsets.UTF_8));

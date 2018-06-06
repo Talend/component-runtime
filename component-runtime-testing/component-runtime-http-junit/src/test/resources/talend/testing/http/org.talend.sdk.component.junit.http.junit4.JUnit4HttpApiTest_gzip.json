@@ -1,0 +1,19 @@
+[
+  {
+    "request":{
+      "headers":{
+        "Accept-Encoding":"gzip"
+      },
+      "method":"GET",
+      "uri": "http://foo.bar.not.existing.talend.com/component/test?api=true"
+    },
+    "response":{
+      "status": 200,
+      "payload": "worked as expected",
+      "headers": {
+        "mocked": "true",
+        "content-type": "text/plain"
+      }
+    }
+  }
+]

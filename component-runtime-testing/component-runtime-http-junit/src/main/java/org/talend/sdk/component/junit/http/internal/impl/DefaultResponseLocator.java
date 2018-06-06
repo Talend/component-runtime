@@ -101,9 +101,14 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
                             m -> m.request != null && matches(request, m.request, exactMatching, headerFilter));
                 })
                 .findFirst()
-                .map(model -> new ResponseImpl(model.response.headers, model.response.status,
-                        model.response.payload == null ? null
-                                : model.response.payload.getBytes(StandardCharsets.UTF_8)));
+                .map(model -> new ResponseImpl(model.response.headers, model.response.status, getPayload(model)));
+    }
+
+    private byte[] getPayload(final Model model) {
+        if (model.response.payload == null) {
+            return null;
+        }
+        return model.response.payload.getBytes(StandardCharsets.UTF_8);
     }
 
     private String stripQuery(final String uri) {
