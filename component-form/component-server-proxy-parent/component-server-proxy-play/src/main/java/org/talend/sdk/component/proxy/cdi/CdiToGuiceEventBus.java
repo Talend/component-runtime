@@ -32,7 +32,7 @@ import org.talend.sdk.component.proxy.api.persistence.OnPersist;
 import play.Application;
 
 /**
- * Loose coupling on extension points for the application base don Guice events.
+ * Loose coupling on extension points for the application based on Guice events.
  */
 @ApplicationScoped
 public class CdiToGuiceEventBus {
