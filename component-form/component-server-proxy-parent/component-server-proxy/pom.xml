@@ -231,6 +231,8 @@
         <configuration>
           <apiSources>
             <apiSource>
+              <useJAXBAnnotationProcessor>true</useJAXBAnnotationProcessor>
+              <useJAXBAnnotationProcessorAsPrimary>false</useJAXBAnnotationProcessorAsPrimary>
               <springmvc>false</springmvc>
               <schemes>
                 <scheme>http</scheme>
