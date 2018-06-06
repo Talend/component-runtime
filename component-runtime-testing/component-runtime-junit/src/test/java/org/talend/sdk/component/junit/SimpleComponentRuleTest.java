@@ -31,8 +31,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import javax.json.bind.Jsonb;
+
+import org.junit.Assert;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.talend.sdk.component.api.InjectedService;
+import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.junit.component.Source;
 import org.talend.sdk.component.junit.component.Transform;
 import org.talend.sdk.component.runtime.input.Input;
@@ -46,6 +52,20 @@ public class SimpleComponentRuleTest {
     @ClassRule
     public static final SimpleComponentRule COMPONENT_FACTORY =
             new SimpleComponentRule("org.talend.sdk.component.junit.component");
+
+    @Rule
+    public final ServiceInjectionRule injections = new ServiceInjectionRule(COMPONENT_FACTORY, this);
+
+    @InjectedService
+    private LocalConfiguration configuration;
+
+    @InjectedService
+    private Jsonb jsonb;
+
+    @Test
+    public void serviceInjection() {
+        Stream.of(configuration, jsonb).forEach(Assert::assertNotNull);
+    }
 
     @Test
     public void manualMapper() {

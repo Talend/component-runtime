@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.talend.sdk.component.junit.BaseComponentsHandler;
 import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
@@ -28,7 +29,7 @@ import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
  * and auto register components from current project.
  */
 class ComponentExtension extends BaseComponentsHandler
-        implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport {
+        implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport, BeforeEachCallback {
 
     private static final ExtensionContext.Namespace NAMESPACE =
             ExtensionContext.Namespace.create(ComponentExtension.class.getName());
@@ -57,5 +58,10 @@ class ComponentExtension extends BaseComponentsHandler
     @Override
     public Class<? extends Annotation> injectionMarker() {
         return Injected.class;
+    }
+
+    @Override
+    public void beforeEach(final ExtensionContext extensionContext) {
+        extensionContext.getTestInstance().ifPresent(this::injectServices);
     }
 }

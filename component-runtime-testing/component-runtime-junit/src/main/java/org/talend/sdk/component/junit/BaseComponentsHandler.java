@@ -25,6 +25,7 @@ import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.Assert.fail;
 import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
 
 import org.apache.xbean.finder.filter.Filter;
+import org.talend.sdk.component.api.InjectedService;
 import org.talend.sdk.component.junit.lang.StreamDecorator;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.input.Input;
@@ -78,6 +80,47 @@ public class BaseComponentsHandler implements ComponentsHandler {
     protected String packageName;
 
     protected Collection<String> isolatedPackages;
+
+    public <T> T injectServices(final T instance) {
+        if (instance == null) {
+            return null;
+        }
+        final String plugin = getSinglePlugin();
+        doInject(asManager()
+                .findPlugin(plugin)
+                .orElseThrow(() -> new IllegalArgumentException("cant find plugin '" + plugin + "'"))
+                .get(ComponentManager.AllServices.class)
+                .getServices(), instance.getClass(), instance);
+        return instance;
+    }
+
+    private <T> void doInject(final Map<Class<?>, Object> services, final Class<?> type, final T instance) {
+        if (type == Object.class || type == null) {
+            return;
+        }
+        Stream
+                .of(type.getDeclaredFields())
+                .filter(field -> !Modifier.isStatic(field.getModifiers()))
+                .filter(field -> field.isAnnotationPresent(InjectedService.class))
+                .peek(f -> {
+                    if (!f.isAccessible()) {
+                        f.setAccessible(true);
+                    }
+                })
+                .forEach(field -> {
+                    final Object value = services.get(field.getType());
+                    if (value != null) {
+                        try {
+                            field.set(instance, value);
+                        } catch (final IllegalAccessException e) {
+                            throw new IllegalArgumentException(e);
+                        }
+                    }
+                });
+        if (type.getSuperclass() != type) {
+            doInject(services, type.getSuperclass(), instance);
+        }
+    }
 
     public BaseComponentsHandler withIsolatedPackage(final String packageName, final String... packages) {
         isolatedPackages =
@@ -435,10 +478,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
     @Override
     public <T> T findService(final Class<T> serviceClass) {
-        return findService(
-                Optional.of(getTestPlugins()).filter(c -> !c.isEmpty()).map(c -> c.iterator().next()).orElseThrow(
-                        () -> new IllegalStateException("No component plugin found")),
-                serviceClass);
+        return findService(getSinglePlugin(), serviceClass);
     }
 
     public Set<String> getTestPlugins() {
@@ -458,6 +498,11 @@ public class BaseComponentsHandler implements ComponentsHandler {
                 .filter(r -> recordType.isInstance(r) || JsonObject.class.isInstance(r))
                 .map(r -> mapRecord(state, recordType, r))
                 .collect(toList());
+    }
+
+    private String getSinglePlugin() {
+        return Optional.of(getTestPlugins()).filter(c -> !c.isEmpty()).map(c -> c.iterator().next()).orElseThrow(
+                () -> new IllegalStateException("No component plugin found"));
     }
 
     private <T> T mapRecord(final State state, final Class<T> recordType, final Object r) {

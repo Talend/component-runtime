@@ -31,7 +31,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import javax.json.bind.Jsonb;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.InjectedService;
+import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.junit.ComponentsHandler;
 import org.talend.sdk.component.junit.JoinInputFactory;
 import org.talend.sdk.component.junit.SimpleComponentRule;
@@ -44,10 +49,21 @@ import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.output.Processor;
 
 @WithComponents("org.talend.sdk.component.junit.component")
-public class ComponentExtensionTest {
+class ComponentExtensionTest {
 
     @Injected
     private ComponentsHandler handler;
+
+    @InjectedService
+    private LocalConfiguration configuration;
+
+    @InjectedService
+    private Jsonb jsonb;
+
+    @Test
+    void serviceInjection() {
+        Stream.of(configuration, jsonb).forEach(Assertions::assertNotNull);
+    }
 
     @Test
     void manualMapper() {

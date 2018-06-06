@@ -54,6 +54,39 @@ public class MyComponentTest {
 <2> you define any chain you want to test, it generally uses the mock as source or collector
 <3> you validate your component behavior, for a source you can assert the right records were emitted in the mock collect
 
+TIP: the rule can also be defined as a `@ClassRule` to start it once per class and not per test as with `@Rule`.
+
+To go further, you can add the rule `ServiceInjectionRule` which will allow to inject into the test class all the component family services
+marking test class fields with `@InjectService`:
+
+[source,java]
+----
+public class SimpleComponentRuleTest {
+
+    @ClassRule
+    public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule("...");
+
+    @Rule <1>
+    public final ServiceInjectionRule injections = new ServiceInjectionRule(COMPONENT_FACTORY, this); <2>
+
+    @InjectedService <3>
+    private LocalConfiguration configuration;
+
+    @InjectedService
+    private Jsonb jsonb;
+
+    @Test
+    public void test() {
+        // ...
+    }
+}
+----
+
+<1> The injection requires the test instance so it must be a `@Rule` and not a `@ClassRule`
+<2> We pass to the rule the `ComponentsController` which is the `SimpleComponentRule` for JUnit 4 and the test instance
+to inject services in
+<3> We mark all service fields with `@InjectedService` to let the rule inject them before the test is ran
+
 === JUnit 5
 
 The JUnit 5 integration is mainly the same as for JUnit 4 except it uses the new JUnit 5 extension mecanism.
@@ -91,6 +124,28 @@ public class ComponentExtensionTest {
 
 NOTE: if it is the first time you use JUnit 5, don't forget the imports changed and you must use `org.junit.jupiter.api.Test` instead of `org.junit.Test`.
 Some IDE versions and `surefire` versions can also need you to install either a plugin or a specific configuration.
+
+As for JUnit 4, you can go further, getting test class fields marked with `@InjectService` injected but here no additional extension to specify:
+
+[source,java]
+----
+@WithComponents("...")
+class ComponentExtensionTest {
+
+    @InjectedService <1>
+    private LocalConfiguration configuration;
+
+    @InjectedService
+    private Jsonb jsonb;
+
+    @Test
+    void test() {
+        // ...
+    }
+}
+----
+
+<1> We mark all service fields with `@InjectedService` to let the rule inject them before the test is ran
 
 === Mocking the output
 

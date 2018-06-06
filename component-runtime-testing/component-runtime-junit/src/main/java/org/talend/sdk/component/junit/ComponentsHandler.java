@@ -59,4 +59,6 @@ public interface ComponentsHandler {
     <T> T findService(String plugin, Class<T> serviceClass);
 
     <T> T findService(Class<T> serviceClass);
+
+    <T> T injectServices(T instance);
 }
