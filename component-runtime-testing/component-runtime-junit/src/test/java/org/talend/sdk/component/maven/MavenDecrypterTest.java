@@ -26,6 +26,16 @@ import org.junit.jupiter.api.Test;
 class MavenDecrypterTest {
 
     @Test
+    void env() {
+        final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings.xml");
+        final File settingsSecurity = new File(jarLocation(MavenDecrypterTest.class), "maven/settings-security.xml");
+        MavenDecrypter decrypter = new MavenDecrypter(settings, settingsSecurity);
+        final Server encrypted = decrypter.find("envpass");
+        assertEquals("langCauseItIsOnWinAndLin", encrypted.getUsername());
+        assertEquals(System.getenv("LANG"), encrypted.getPassword());
+    }
+
+    @Test
     void encrypted() {
         final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings.xml");
         final File settingsSecurity = new File(jarLocation(MavenDecrypterTest.class), "maven/settings-security.xml");

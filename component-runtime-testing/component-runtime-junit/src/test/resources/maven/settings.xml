@@ -29,5 +29,10 @@
       <username>repouser</username>
       <password>{Etqciac9bBAHv+MpVFTW+TvHWf42jVf6gAB68mmXYx4=} the password is 'encrypted'</password>
     </server>
+    <server>
+      <id>envpass</id>
+      <username>langCauseItIsOnWinAndLin</username>
+      <password>${env.LANG}</password>
+    </server>
   </servers>
 </settings>

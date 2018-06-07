@@ -183,11 +183,19 @@ public class MavenDecrypter {
                 return value; // not encrypted, just use it
             }
 
+            final String bare = matcher.group(1);
+            if (value.startsWith("${env.")) {
+                final String key = bare.substring("env.".length());
+                return ofNullable(System.getenv(key)).orElseGet(() -> System.getProperty(bare));
+            }
+            if (value.startsWith("${")) { // all is system prop, interpolation yet
+                return System.getProperty(bare);
+            }
+
             if (pwd == null || pwd.isEmpty()) {
                 throw new IllegalArgumentException("Master password can't be null or empty.");
             }
 
-            final String bare = matcher.group(1);
             if (bare.contains("[") && bare.contains("]") && bare.contains("type=")) {
                 throw new IllegalArgumentException("Unsupported encryption for " + value);
             }
