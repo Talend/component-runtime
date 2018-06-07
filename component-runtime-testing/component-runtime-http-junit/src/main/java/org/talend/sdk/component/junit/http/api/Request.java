@@ -36,4 +36,11 @@ public interface Request {
      * @return the HTTP method for this HTTP request.
      */
     String method();
+
+    /**
+     * @return the request payload.
+     */
+    default String payload() {
+        return null;
+    }
 }

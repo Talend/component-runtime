@@ -37,6 +37,28 @@ class JUnit5HttpApiTest {
     private HttpApiHandler<?> handler;
 
     @Test
+    void withPayload() throws Exception {
+        {
+            final Response response =
+                    execute("POST", "http://foo.bar.not.existing.talend.com/component/test?api=true", "first");
+            assertEquals(HttpURLConnection.HTTP_OK, response.status());
+            assertEquals("one", new String(response.payload(), StandardCharsets.UTF_8));
+        }
+        {
+            final Response response =
+                    execute("POST", "http://foo.bar.not.existing.talend.com/component/test?api=true", "second");
+            assertEquals(HttpURLConnection.HTTP_OK, response.status());
+            assertEquals("two", new String(response.payload(), StandardCharsets.UTF_8));
+        }
+        {
+            final Response response = execute("POST", "http://foo.bar.not.existing.talend.com/component/test?api=true",
+                    "start something whatever");
+            assertEquals(HttpURLConnection.HTTP_OK, response.status());
+            assertEquals("fallback", new String(response.payload(), StandardCharsets.UTF_8));
+        }
+    }
+
+    @Test
     void direct() throws Exception { // ensure it responds when directly called
         assertEquals(HttpURLConnection.HTTP_BAD_REQUEST,
                 execute("GET", "http://localhost:" + handler.getPort(), null).status());

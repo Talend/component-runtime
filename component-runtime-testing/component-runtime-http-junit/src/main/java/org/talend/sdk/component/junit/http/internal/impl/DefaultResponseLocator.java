@@ -124,10 +124,9 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
             final Predicate<String> headerFilter) {
         final boolean headLineMatches = request.uri().equals(model.uri)
                 && request.method().equalsIgnoreCase(ofNullable(model.method).orElse("GET"));
-        final boolean exactMatching = headLineMatches && model.headers != null
-                && model.headers.entrySet().stream().filter(h -> !headerFilter.test(h.getKey())).allMatch(
-                        h -> h.getValue().equals(request.headers().get(h.getKey())));
-        if (exactMatching) {
+        final String payload = request.payload();
+        final boolean headersMatch = doesHeadersMatch(request, model, headerFilter);
+        if (headLineMatches && headersMatch && (model.payload == null || model.payload.equals(payload))) {
             return true;
         } else if (exact) {
             return false;
@@ -137,8 +136,15 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
             log.debug("Matching test: {} for {}", request, model);
         }
 
-        return headLineMatches && (model.headers == null || model.headers.entrySet().stream().allMatch(
-                h -> h.getValue().equals(request.headers().get(h.getKey()))));
+        return headLineMatches && headersMatch && (model.payload == null
+                || (payload != null && (payload.matches(model.payload) || payload.equals(model.payload))));
+    }
+
+    private boolean doesHeadersMatch(final Request request, final RequestModel model,
+            final Predicate<String> headerFilter) {
+        return model.headers == null
+                || model.headers.entrySet().stream().filter(h -> !headerFilter.test(h.getKey())).allMatch(
+                        h -> h.getValue().equals(request.headers().get(h.getKey())));
     }
 
     @Override
@@ -177,6 +183,8 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
         private String uri;
 
         private String method;
+
+        private String payload;
 
         private Map<String, String> headers;
     }

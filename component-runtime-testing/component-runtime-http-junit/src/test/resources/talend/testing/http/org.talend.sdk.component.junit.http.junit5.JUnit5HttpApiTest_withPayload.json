@@ -1,0 +1,47 @@
+[
+  {
+    "request": {
+      "uri": "http://foo.bar.not.existing.talend.com/component/test?api=true",
+      "payload": "first",
+      "method": "POST"
+    },
+    "response": {
+      "status": 200,
+      "payload": "one",
+      "headers": {
+        "mocked": "true",
+        "content-type": "text/plain"
+      }
+    }
+  },
+  {
+    "request": {
+      "uri": "http://foo.bar.not.existing.talend.com/component/test?api=true",
+      "payload": "start.*whatever",
+      "method": "POST"
+    },
+    "response": {
+      "status": 200,
+      "payload": "fallback",
+      "headers": {
+        "mocked": "true",
+        "content-type": "text/plain"
+      }
+    }
+  },
+  {
+    "request": {
+      "uri": "http://foo.bar.not.existing.talend.com/component/test?api=true",
+      "payload": "second",
+      "method": "POST"
+    },
+    "response": {
+      "status": 200,
+      "payload": "two",
+      "headers": {
+        "mocked": "true",
+        "content-type": "text/plain"
+      }
+    }
+  }
+]

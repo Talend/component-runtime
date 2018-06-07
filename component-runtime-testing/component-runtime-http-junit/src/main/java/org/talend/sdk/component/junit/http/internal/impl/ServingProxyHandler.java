@@ -22,6 +22,7 @@ import static org.talend.sdk.component.junit.http.internal.impl.Handlers.closeOn
 import static org.talend.sdk.component.junit.http.internal.impl.Handlers.sendError;
 
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -68,6 +69,8 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
             return;
         }
 
+        final String payload = request.content().toString(StandardCharsets.UTF_8);
+
         api.getExecutor().execute(() -> {
             final Map<String, String> headers = StreamSupport
                     .stream(Spliterators.spliteratorUnknownSize(request.headers().iteratorAsString(),
@@ -76,7 +79,7 @@ public class ServingProxyHandler extends SimpleChannelInboundHandler<FullHttpReq
             final Attribute<String> baseAttr = ctx.channel().attr(Handlers.BASE);
             Optional<Response> matching = api.getResponseLocator().findMatching(
                     new RequestImpl((baseAttr == null || baseAttr.get() == null ? "" : baseAttr.get()) + request.uri(),
-                            request.method().name(), headers),
+                            request.method().name(), payload, headers),
                     api.getHeaderFilter());
             if (!matching.isPresent()) {
                 if (HttpMethod.CONNECT.name().equalsIgnoreCase(request.method().name())) {

@@ -28,6 +28,8 @@ public class RequestImpl implements Request {
 
     private final String method;
 
+    private final String payload;
+
     private final Map<String, String> headers;
 
     @Override
@@ -43,5 +45,10 @@ public class RequestImpl implements Request {
     @Override
     public String uri() {
         return uri;
+    }
+
+    @Override
+    public String payload() {
+        return payload;
     }
 }

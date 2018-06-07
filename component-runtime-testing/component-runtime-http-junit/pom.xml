@@ -197,6 +197,7 @@
                 <exclude>org/talend/__shade__/**</exclude>
                 <exclude>**/base/**</exclude>
                 <exclude>**/internal/**</exclude>
+                <exclude>**/api/Request</exclude> <!-- clirr is not java 8 friendly -->
               </excludes>
             </configuration>
           </execution>
