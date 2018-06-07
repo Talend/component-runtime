@@ -162,7 +162,11 @@ public class MavenDecrypter {
                     server.setId(current.toString());
                     break;
                 case "username":
-                    server.setUsername(current.toString());
+                    try {
+                        server.setUsername(doDecrypt(current.toString(), passphrase));
+                    } catch (final RuntimeException re) {
+                        server.setUsername(current.toString());
+                    }
                     break;
                 case "password":
                     encryptedPassword = current.toString();
