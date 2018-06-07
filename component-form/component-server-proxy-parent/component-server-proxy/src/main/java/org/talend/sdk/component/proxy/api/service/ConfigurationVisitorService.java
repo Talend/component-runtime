@@ -21,7 +21,7 @@ import java.util.concurrent.CompletionStage;
 import org.talend.sdk.component.proxy.api.configuration.ConfigurationVisitor;
 
 /**
- * Typically used before setting the properties in a {@see org.talend.sdk.component.proxy.api.persistence.OnFindById}
+ * Typically used before setting the properties in a {@link org.talend.sdk.component.proxy.api.persistence.OnFindById}
  * event to ensure passwords, token, key etc... are deciphered if they were saved ciphered.
  */
 public interface ConfigurationVisitorService {
