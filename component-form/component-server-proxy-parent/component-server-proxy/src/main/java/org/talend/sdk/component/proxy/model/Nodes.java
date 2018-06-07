@@ -17,6 +17,8 @@ package org.talend.sdk.component.proxy.model;
 
 import java.util.Map;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,5 +28,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Nodes {
 
+    @ApiModelProperty("The list of nodes matching the request. The key is the node identifier.")
     private Map<String, Node> nodes;
 }

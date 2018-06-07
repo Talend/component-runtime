@@ -120,6 +120,7 @@
 
 .Web
 * xref:documentation-rest.adoc[Server]
+* xref:server-uispec.adoc[UiSpec Server]
 .Execute
 * xref:services-pipeline.adoc[Simple/Test Pipeline API]
 * https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline[Beam Pipeline API]

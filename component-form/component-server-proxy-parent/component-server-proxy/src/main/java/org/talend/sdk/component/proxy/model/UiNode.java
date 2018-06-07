@@ -17,6 +17,8 @@ package org.talend.sdk.component.proxy.model;
 
 import org.talend.sdk.component.form.model.Ui;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,8 +28,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UiNode {
 
+    @ApiModelProperty("The ui specification corresponding to the requested node. It is literally the form representing "
+            + "this configuration.")
     private Ui ui;
 
+    @ApiModelProperty("The metadata associated to the node if needed by the UI.")
     private Node metadata;
 
 }

@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.proxy.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,8 +26,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProxyErrorPayload {
 
+    @ApiModelProperty("The error code independently of the locale and not as precise as a message (not context aware).")
     private String code;
 
+    @ApiModelProperty("A human readable message to help understanding the error")
     private String message;
 
 }

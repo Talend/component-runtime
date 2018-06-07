@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.proxy.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,5 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EntityRef {
 
+    @ApiModelProperty("The identifier of the entity related to current request. It is generally the"
+            + "created entity of updated one.")
     private String id;
 }

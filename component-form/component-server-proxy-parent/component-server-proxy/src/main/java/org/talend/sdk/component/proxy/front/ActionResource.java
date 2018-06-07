@@ -65,7 +65,7 @@ public class ActionResource {
     @Inject
     private PlaceholderProviderFactory placeholderProviderFactory;
 
-    @ApiOperation(value = "This endpoint execute an action",
+    @ApiOperation(value = "This endpoint execute an action required by a form.",
             notes = "configuration types has action that can be executed using this endpoint",
             tags = { "action", "configurations" }, produces = APPLICATION_JSON, consumes = APPLICATION_JSON,
             responseContainer = "Map",

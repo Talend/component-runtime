@@ -473,11 +473,11 @@ __optional__|< object > array
 [[_entityref]]
 === EntityRef
 
-[options="header", cols=".^3a,.^4a"]
+[options="header", cols=".^3a,.^11a,.^4a"]
 |===
-|Name|Schema
+|Name|Description|Schema
 |**id** +
-__optional__|string
+__optional__|The identifier of the entity related to current request. It is generally thecreated entity of updated one.|string
 |===
 
 
@@ -544,36 +544,36 @@ __optional__|string
 [[_node]]
 === Node
 
-[options="header", cols=".^3a,.^4a"]
+[options="header", cols=".^3a,.^11a,.^4a"]
 |===
-|Name|Schema
+|Name|Description|Schema
 |**children** +
-__optional__|< string > array
+__optional__|The list of configuration reusing this one as a reference (can be created "next").|< string > array
 |**familyId** +
-__optional__|string
+__optional__|The identifier of the family of this configuration.|string
 |**familyLabel** +
-__optional__|string
+__optional__|The display name of the family of this configuration.|string
 |**icon** +
-__optional__|string
+__optional__|The icon of this configuration. If you use an existing bundle (@talend/ui/icon), ensure it is present by default and if not do a request using the family on the related endpoint.|string
 |**id** +
-__optional__|string
+__optional__|The identifier of this configuration/node.|string
 |**label** +
-__optional__|string
+__optional__|The display name of this configuration.|string
 |**name** +
-__optional__|string
+__optional__|The technical name of this node (it is human readable but not i18n friendly), useful for debug purposes.|string
 |**version** +
-__optional__|integer (int32)
+__optional__|The version of this configuration for the migration management.|integer (int32)
 |===
 
 
 [[_nodes]]
 === Nodes
 
-[options="header", cols=".^3a,.^4a"]
+[options="header", cols=".^3a,.^11a,.^4a"]
 |===
-|Name|Schema
+|Name|Description|Schema
 |**nodes** +
-__optional__|< string, <<_node,Node>> > map
+__optional__|The list of nodes matching the request. The key is the node identifier.|< string, <<_node,Node>> > map
 |===
 
 
@@ -606,13 +606,13 @@ __optional__|string
 [[_proxyerrorpayload]]
 === ProxyErrorPayload
 
-[options="header", cols=".^3a,.^4a"]
+[options="header", cols=".^3a,.^11a,.^4a"]
 |===
-|Name|Schema
+|Name|Description|Schema
 |**code** +
-__optional__|string
+__optional__|The error code independently of the locale and not as precise as a message (not context aware).|string
 |**message** +
-__optional__|string
+__optional__|A human readable message to help understanding the error|string
 |===
 
 
@@ -653,13 +653,13 @@ __optional__|< <<_uischema,UiSchema>> > array
 [[_uinode]]
 === UiNode
 
-[options="header", cols=".^3a,.^4a"]
+[options="header", cols=".^3a,.^11a,.^4a"]
 |===
-|Name|Schema
+|Name|Description|Schema
 |**metadata** +
-__optional__|<<_node,Node>>
+__optional__|The metadata associated to the node if needed by the UI.|<<_node,Node>>
 |**ui** +
-__optional__|<<_ui,Ui>>
+__optional__|The ui specification corresponding to the requested node. It is literally the form representing this configuration.|<<_ui,Ui>>
 |===
 
 

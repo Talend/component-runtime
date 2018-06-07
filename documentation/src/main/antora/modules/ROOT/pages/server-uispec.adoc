@@ -1,4 +1,5 @@
 = UiSpec Server
+:toc:
 
 The UiSpec server is a companion application for the Component Server.
 It provides a client to the Component Server which serves UiSpec payload to integrate
@@ -144,7 +145,7 @@ onTrigger(event, payload) {
 
 == HTTP API
 
-include::{partialsdir}/generated_proxy-server-api.adoc[]
+include::{partialsdir}/generated_proxy-server-api.adoc[leveloffset=+1]
 
 TIP: as you can see there are two ways to call save endpoint. If you don't want to pass the form identifier
 and prefer to use a generic endpoint just passing the type of configuration you are configuring then you will
@@ -253,3 +254,14 @@ public class PersistenceHandler {
 ----
 
 NOTE: the deletion is not handled by the server since there is not encapsulation of any format at that moment.
+
+
+== Server Configuration
+
+The server module contains several configuration you can set in:
+
+- Environment variables
+- System properties
+- A file located based on the `--component-configuration` CLI option
+
+include::{partialsdir}/generated_server-configuration.adoc[]

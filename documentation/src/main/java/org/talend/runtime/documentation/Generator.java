@@ -169,6 +169,7 @@ public class Generator {
 
         // hardcoded for now while they are simple or externals
         builder.append(".Web\n" + "* xref:documentation-rest.adoc[Server]\n"
+                + "* xref:server-uispec.adoc[UiSpec Server]\n"
                 + ".Execute\n* xref:services-pipeline.adoc[Simple/Test Pipeline API]\n"
                 + "* https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline[Beam Pipeline API]\n");
 
