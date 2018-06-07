@@ -61,8 +61,6 @@ public class UiSchema {
 
     private Collection<NameValue> titleMap;
 
-    private JsonSchema schema;
-
     private Collection<Condition> conditions;
 
     public static Builder uiSchema() {
@@ -477,7 +475,6 @@ public class UiSchema {
             uiSchema.setPlaceholder(placeholder);
             uiSchema.setTriggers(triggers);
             uiSchema.setTitleMap(titleMap);
-            uiSchema.setSchema(schema);
             uiSchema.setDescription(description);
             return uiSchema;
         }

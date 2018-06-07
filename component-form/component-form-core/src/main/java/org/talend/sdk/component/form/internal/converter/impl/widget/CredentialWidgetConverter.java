@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
+import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -26,8 +27,9 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 public class CredentialWidgetConverter extends AbstractWidgetConverter {
 
     public CredentialWidgetConverter(final Collection<UiSchema> schemas,
-            final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions) {
-        super(schemas, properties, actions);
+            final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
+            final JsonSchema jsonSchema) {
+        super(schemas, properties, actions, jsonSchema);
     }
 
     @Override

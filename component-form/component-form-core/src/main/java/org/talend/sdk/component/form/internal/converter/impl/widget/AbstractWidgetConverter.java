@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
+import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -50,6 +51,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     protected final Collection<SimplePropertyDefinition> properties;
 
     protected final Collection<ActionReference> actions;
+
+    protected final JsonSchema jsonSchema;
 
     protected <T> CompletionStage<List<UiSchema.NameValue>> loadDynamicValues(final Client<T> client,
             final String family, final String actionName, final T context) {
@@ -242,5 +245,25 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         default:
             return s -> s;
         }
+    }
+
+    protected JsonSchema findJsonSchema(final PropertyContext<?> cs) {
+        final String[] segments = cs.getProperty().getPath().split("\\.");
+        JsonSchema schema = jsonSchema;
+        for (final String current : segments) {
+            if (current.endsWith("[]")) {
+                schema = schema.getProperties().get(current.substring(0, current.length() - "[]".length())).getItems();
+            } else {
+                schema = schema.getProperties().get(current);
+            }
+            if ("array".equals(schema.getType()) && schema.getItems() != null) {
+                schema = schema.getItems();
+            }
+            if (schema == null) { // unexpected
+                log.warn("Didn't find json schema for {}", cs.getProperty().getPath());
+                return null;
+            }
+        }
+        return schema;
     }
 }

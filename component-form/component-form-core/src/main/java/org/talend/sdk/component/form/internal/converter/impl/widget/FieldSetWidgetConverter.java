@@ -25,6 +25,7 @@ import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
 import org.talend.sdk.component.form.internal.lang.CompletionStages;
+import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -37,8 +38,8 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
 
     public FieldSetWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
-            final Client client, final String family) {
-        super(schemas, properties, actions);
+            final Client client, final String family, final JsonSchema jsonSchema) {
+        super(schemas, properties, actions, jsonSchema);
         this.client = client;
         this.family = family;
     }
@@ -52,7 +53,7 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
 
             final List<SimplePropertyDefinition> properties = new ArrayList<>();
             final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, family, uiSchema.getItems(),
-                    properties, client, this.properties, actions);
+                    properties, client, jsonSchema, this.properties, actions);
 
             // Create Nested UI Items
             return CompletableFuture

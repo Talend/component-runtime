@@ -38,8 +38,8 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
 
     public DataListWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
-            final Client client, final String family) {
-        super(schemas, properties, actions);
+            final Client client, final String family, final JsonSchema jsonSchema) {
+        super(schemas, properties, actions, jsonSchema);
         this.client = client;
         this.family = family;
     }
@@ -50,10 +50,14 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
             final UiSchema schema = newUiSchema(context);
             schema.setWidget("datalist");
 
-            final JsonSchema jsonSchema = new JsonSchema();
-            jsonSchema.setType("string");
-            schema.setSchema(jsonSchema);
+            final JsonSchema jsonSchema = findJsonSchema(context);
+            if (jsonSchema == null) { // unexpected
+                return CompletableFuture.completedFuture(context);
+            }
 
+            if (jsonSchema.getType() == null) {
+                jsonSchema.setType("string");
+            }
             if (context.getProperty().getValidation() != null
                     && context.getProperty().getValidation().getEnumValues() != null) {
                 schema.setTitleMap(context.getProperty().getProposalDisplayNames() != null
@@ -83,7 +87,9 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
                     });
                 } else {
                     schema.setTitleMap(emptyList());
-                    jsonSchema.setEnumValues(emptyList());
+                    if (jsonSchema.getEnumValues() == null) {
+                        jsonSchema.setEnumValues(emptyList());
+                    }
                 }
             }
             return CompletableFuture.completedFuture(context);

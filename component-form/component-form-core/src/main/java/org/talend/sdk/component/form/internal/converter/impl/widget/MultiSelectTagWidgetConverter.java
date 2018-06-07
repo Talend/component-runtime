@@ -16,6 +16,7 @@
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
+import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -39,9 +41,8 @@ public class MultiSelectTagWidgetConverter extends AbstractWidgetConverter {
 
     public MultiSelectTagWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
-            final Client client, final String family) {
-        super(schemas, properties, actions);
-
+            final Client client, final String family, final JsonSchema jsonSchema) {
+        super(schemas, properties, actions, jsonSchema);
         this.client = client;
         this.family = family;
     }
@@ -53,16 +54,29 @@ public class MultiSelectTagWidgetConverter extends AbstractWidgetConverter {
             schema.setWidget("multiSelectTag");
             schema.setRestricted(false);
 
+            final JsonSchema jsonSchema = findJsonSchema(context);
+            if (jsonSchema == null) { // unexpected
+                return CompletableFuture.completedFuture(context);
+            }
+
+            if (jsonSchema.getType() == null) {
+                jsonSchema.setType("string");
+            }
+
             final String actionName = context.getProperty().getMetadata().get("action::dynamic_values");
             if (client != null && actionName != null) {
                 final CompletionStage<List<UiSchema.NameValue>> pairs =
                         loadDynamicValues(client, family, actionName, context.getRootContext());
                 return pairs.thenApply(namedValues -> {
                     schema.setTitleMap(namedValues);
+                    jsonSchema.setEnumValues(namedValues.stream().map(UiSchema.NameValue::getValue).collect(toList()));
                     return context;
                 });
             } else {
                 schema.setTitleMap(emptyList());
+                if (jsonSchema.getEnumValues() == null) {
+                    jsonSchema.setEnumValues(emptyList());
+                }
             }
             return CompletableFuture.completedFuture(context);
         });

@@ -33,6 +33,7 @@ import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
 import org.talend.sdk.component.form.internal.lang.CompletionStages;
+import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -47,8 +48,9 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
 
     public GridLayoutWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
-            final Client client, final String family, final Map<String, String> gridLayouts) {
-        super(schemas, properties, actions);
+            final Client client, final String family, final Map<String, String> gridLayouts,
+            final JsonSchema jsonSchema) {
+        super(schemas, properties, actions, jsonSchema);
         this.client = client;
         this.family = family;
         this.layouts = gridLayouts;
@@ -124,7 +126,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
         return CompletableFuture.allOf(Stream.of(layout.split("\\|")).map(line -> line.split(",")).map(line -> {
             if (line.length == 1 && childProperties.containsKey(line[0])) {
                 return new UiSchemaConverter(layoutFilter, family, uiSchema.getItems(), visitedProperties, client,
-                        properties, actions)
+                        jsonSchema, properties, actions)
                                 .convert(completedFuture(
                                         new PropertyContext<>(childProperties.get(line[0]), root.getRootContext())))
                                 .thenApply(r -> uiSchema);
@@ -134,7 +136,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
                 schema.setItems(new ArrayList<>());
 
                 final UiSchemaConverter columnConverter = new UiSchemaConverter(layoutFilter, family, schema.getItems(),
-                        visitedProperties, client, properties, actions);
+                        visitedProperties, client, jsonSchema, properties, actions);
 
                 return CompletableFuture
                         .allOf(Stream

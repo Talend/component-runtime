@@ -21,7 +21,6 @@ import static java.util.stream.Collectors.toSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -77,16 +76,11 @@ public class UiSpecService<T> implements AutoCloseable {
      * @return a Ui promise.
      */
     public CompletionStage<Ui> convert(final String family, final ConfigTypeNode node, final T context) {
-        // extract root property
+        // extract root properties
         final Collection<String> rootProperties =
                 node.getProperties().stream().map(SimplePropertyDefinition::getPath).collect(toSet());
-        final Iterator<String> it = rootProperties.iterator();
-        while (it.hasNext()) {
-            final String path = it.next() + '.';
-            if (node.getProperties().stream().noneMatch(p -> p.getPath().startsWith(path))) {
-                it.remove();
-            }
-        }
+        rootProperties
+                .removeIf(path -> node.getProperties().stream().anyMatch(p -> path.startsWith(p.getPath() + '.')));
         if (rootProperties.isEmpty()) {
             log.warn("No root properties for configuration node {} (family={})", node.getId(), family);
         }
@@ -150,7 +144,7 @@ public class UiSpecService<T> implements AutoCloseable {
 
         final JsonSchemaConverter jsonSchemaConverter = new JsonSchemaConverter(jsonb, ui.getJsonSchema(), props);
         final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, family.get(), ui.getUiSchema(),
-                new ArrayList<>(), client, props, actions.get());
+                new ArrayList<>(), client, ui.getJsonSchema(), props, actions.get());
         final PropertiesConverter propertiesConverter =
                 new PropertiesConverter(jsonb, Map.class.cast(ui.getProperties()), props);
 

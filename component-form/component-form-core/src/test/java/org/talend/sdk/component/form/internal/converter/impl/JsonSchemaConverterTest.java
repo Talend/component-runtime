@@ -17,21 +17,30 @@ package org.talend.sdk.component.form.internal.converter.impl;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.form.api.Client;
+import org.talend.sdk.component.form.api.UiSpecService;
+import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
+import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 
 import lombok.Data;
 
@@ -62,6 +71,70 @@ class JsonSchemaConverterTest {
     }
 
     @Test
+    void enumValues() throws Exception {
+        try (final Jsonb jsonb = JsonbBuilder.create();
+                final InputStream stream =
+                        Thread.currentThread().getContextClassLoader().getResourceAsStream("config.json")) {
+            final ConfigTypeNodes nodes = jsonb.fromJson(stream, ConfigTypeNodes.class);
+            final Ui payload = new UiSpecService<>(null, jsonb)
+                    .convert("test", nodes.getNodes().get("U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl"), null)
+                    .toCompletableFuture()
+                    .get();
+            final JsonSchema jsonSchema = payload.getJsonSchema();
+            final JsonSchema schema = jsonSchema
+                    .getProperties()
+                    .get("tableDataSet")
+                    .getProperties()
+                    .get("commonConfig")
+                    .getProperties()
+                    .get("tableName");
+            assertEquals(5, schema.getEnumValues().size());
+        }
+    }
+
+    @Test
+    void dynamicValues() throws Exception {
+        try (final Jsonb jsonb = JsonbBuilder.create();
+                final InputStream stream =
+                        Thread.currentThread().getContextClassLoader().getResourceAsStream("config.json")) {
+            final ConfigTypeNodes nodes = jsonb.fromJson(stream, ConfigTypeNodes.class);
+            final Ui payload = new UiSpecService<>(new Client<Object>() {
+
+                @Override
+                public CompletionStage<Map<String, Object>> action(final String family, final String type,
+                        final String action, final Map<String, Object> params, final Object ignored) {
+                    if ("test".equals(family) && "dynamic_values".equals(type) && "GetTableFields".equals(action)) {
+                        final Map<String, String> item = new HashMap<>();
+                        item.put("id", "some");
+                        item.put("label", "Some");
+                        return CompletableFuture.completedFuture(singletonMap("items", singleton(item)));
+                    }
+                    return CompletableFuture.completedFuture(emptyMap());
+                }
+
+                @Override
+                public void close() {
+                    // no-op
+                }
+            }, jsonb)
+                    .convert("test", nodes.getNodes().get("U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl"), null)
+                    .toCompletableFuture()
+                    .get();
+            final JsonSchema jsonSchema = payload.getJsonSchema();
+            final JsonSchema schema = jsonSchema
+                    .getProperties()
+                    .get("tableDataSet")
+                    .getProperties()
+                    .get("commonConfig")
+                    .getProperties()
+                    .get("fields")
+                    .getItems();
+            assertEquals(1, schema.getEnumValues().size());
+            assertEquals("some", schema.getEnumValues().iterator().next());
+        }
+    }
+
+    @Test
     void booleanDefaultValue() throws Exception {
         assertEquals(true, convert("boolean", "true"));
     }
@@ -77,7 +150,6 @@ class JsonSchemaConverterTest {
     }
 
     @Test
-    @Disabled("see org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter.convertDefaultValue")
     void emptyArrayDefaultValue() throws Exception {
         final Object converted = convert("array", "[]");
         assertTrue(Object[].class.isInstance(converted));
@@ -85,7 +157,6 @@ class JsonSchemaConverterTest {
     }
 
     @Test
-    @Disabled("see org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter.convertDefaultValue")
     void primitiveArrayDefaultValue() throws Exception {
         final Object converted = convert("array", "[\"test\"]");
         assertTrue(Object[].class.isInstance(converted));
@@ -95,7 +166,6 @@ class JsonSchemaConverterTest {
     }
 
     @Test
-    @Disabled("see org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter.convertDefaultValue")
     void objectArrayDefaultValue() throws Exception {
         final Object converted = convert("array", "[{\"id\":1}]");
         assertTrue(Object[].class.isInstance(converted));

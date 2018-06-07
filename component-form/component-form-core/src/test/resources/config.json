@@ -573,7 +573,7 @@
             "ui::gridlayout::Main::value": "dataStore|commonConfig|queryBuilder|ordered|orderBuilder"
           },
           "name": "tableDataSet",
-          "path": "configuration",
+          "path": "tableDataSet",
           "placeholder": "tableDataSet",
           "type": "OBJECT"
         },
@@ -584,7 +584,7 @@
             "ui::gridlayout::Main::value": "tableName"
           },
           "name": "commonConfig",
-          "path": "configuration.commonConfig",
+          "path": "tableDataSet.commonConfig",
           "placeholder": "commonConfig",
           "type": "OBJECT"
         },
@@ -599,7 +599,7 @@
             "ui::structure::value": "__default__"
           },
           "name": "fields",
-          "path": "configuration.commonConfig.fields",
+          "path": "tableDataSet.commonConfig.fields",
           "placeholder": "fields",
           "type": "ARRAY"
         },
@@ -607,7 +607,7 @@
           "displayName": "fields[${index}]",
           "metadata": {},
           "name": "fields[]",
-          "path": "configuration.commonConfig.fields[]",
+          "path": "tableDataSet.commonConfig.fields[]",
           "placeholder": "fields[${index}]",
           "type": "STRING"
         },
@@ -616,7 +616,7 @@
           "displayName": "Table Name",
           "metadata": {},
           "name": "tableName",
-          "path": "configuration.commonConfig.tableName",
+          "path": "tableDataSet.commonConfig.tableName",
           "placeholder": "tableName",
           "proposalDisplayNames": {
             "sc_request": "sc_request",
@@ -683,7 +683,7 @@
           "displayName": "Limit Per Request",
           "metadata": {},
           "name": "limit",
-          "path": "configuration.limit",
+          "path": "tableDataSet.limit",
           "placeholder": "limit",
           "type": "NUMBER"
         },
@@ -692,7 +692,7 @@
           "displayName": "Max Records",
           "metadata": {},
           "name": "maxRecords",
-          "path": "configuration.maxRecords",
+          "path": "tableDataSet.maxRecords",
           "placeholder": "The maximum number of records to retrieve...",
           "type": "NUMBER"
         },
@@ -704,7 +704,7 @@
             "ui::gridlayout::Main::value": "field|order"
           },
           "name": "orderBuilder",
-          "path": "configuration.orderBuilder",
+          "path": "tableDataSet.orderBuilder",
           "placeholder": "orderBuilder",
           "type": "ARRAY"
         },
@@ -712,7 +712,7 @@
           "displayName": "Field",
           "metadata": {},
           "name": "field",
-          "path": "configuration.orderBuilder[].field",
+          "path": "tableDataSet.orderBuilder[].field",
           "placeholder": "field",
           "proposalDisplayNames": {
             "parent": "parent",
@@ -838,7 +838,7 @@
           "displayName": "Order",
           "metadata": {},
           "name": "order",
-          "path": "configuration.orderBuilder[].order",
+          "path": "tableDataSet.orderBuilder[].order",
           "placeholder": "order",
           "proposalDisplayNames": {
             "ASC": "ASC",
@@ -857,7 +857,7 @@
           "displayName": "Ordered",
           "metadata": {},
           "name": "ordered",
-          "path": "configuration.ordered",
+          "path": "tableDataSet.ordered",
           "placeholder": "ordered",
           "type": "BOOLEAN"
         },
@@ -867,7 +867,7 @@
             "ui::gridlayout::Main::value": "field|operation|value"
           },
           "name": "queryBuilder",
-          "path": "configuration.queryBuilder",
+          "path": "tableDataSet.queryBuilder",
           "placeholder": "queryBuilder",
           "type": "ARRAY"
         },
@@ -875,7 +875,7 @@
           "displayName": "Filed",
           "metadata": {},
           "name": "field",
-          "path": "configuration.queryBuilder[].field",
+          "path": "tableDataSet.queryBuilder[].field",
           "placeholder": "field",
           "proposalDisplayNames": {
             "parent": "parent",
@@ -1001,7 +1001,7 @@
           "displayName": "Operation",
           "metadata": {},
           "name": "operation",
-          "path": "configuration.queryBuilder[].operation",
+          "path": "tableDataSet.queryBuilder[].operation",
           "placeholder": "operation",
           "proposalDisplayNames": {
             "Equals": "Equals",
@@ -1027,7 +1027,7 @@
           "displayName": "Value",
           "metadata": {},
           "name": "value",
-          "path": "configuration.queryBuilder[].value",
+          "path": "tableDataSet.queryBuilder[].value",
           "placeholder": "value",
           "type": "STRING"
         }

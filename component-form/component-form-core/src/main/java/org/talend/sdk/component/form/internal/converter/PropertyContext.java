@@ -35,6 +35,7 @@ public class PropertyContext<T> {
 
     public boolean isDirectChild(final SimplePropertyDefinition child) {
         final String prefix = property.getPath() + ".";
-        return child.getPath().startsWith(prefix) && child.getPath().indexOf('.', prefix.length()) < 0;
+        return child.getPath().startsWith(prefix) && child.getPath().indexOf('.', prefix.length()) < 0
+                && !child.getPath().endsWith("[]");
     }
 }

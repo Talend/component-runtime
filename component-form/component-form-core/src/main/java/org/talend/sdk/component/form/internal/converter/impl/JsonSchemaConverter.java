@@ -17,6 +17,7 @@ package org.talend.sdk.component.form.internal.converter.impl;
 
 import static java.util.Arrays.asList;
 import static java.util.Locale.ROOT;
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
 
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -73,12 +75,12 @@ public class JsonSchemaConverter implements PropertyConverter {
                     return CompletableFuture.completedFuture(context);
                 }
                 jsonSchema.setType(type.toLowerCase(ROOT));
-                jsonSchema.setRequired(properties
+                of(properties
                         .stream()
                         .filter(context::isDirectChild)
                         .filter(nested -> new PropertyContext<>(nested, context.getRootContext()).isRequired())
                         .map(SimplePropertyDefinition::getName)
-                        .collect(toSet()));
+                        .collect(toSet())).filter(s -> !s.isEmpty()).ifPresent(jsonSchema::setRequired);
                 return CompletableFuture.completedFuture(context).thenCompose(
                         c -> postHandling(context, jsonSchema, type));
             }
@@ -110,7 +112,9 @@ public class JsonSchemaConverter implements PropertyConverter {
             rootJsonSchema.getProperties().put(context.getProperty().getName(), jsonSchema);
         }
 
-        if (properties.stream().anyMatch(context::isDirectChild)) { // has child
+        final Set<SimplePropertyDefinition> nestedProperties =
+                properties.stream().filter(context::isDirectChild).collect(toSet());
+        if (!nestedProperties.isEmpty()) {
             final String order = context.getProperty().getMetadata().get("ui::optionsorder::value");
             if (order != null) {
                 jsonSchema.setProperties(new TreeMap<>(new Comparator<String>() {
@@ -129,9 +133,8 @@ public class JsonSchemaConverter implements PropertyConverter {
 
             final JsonSchemaConverter jsonSchemaConverter = new JsonSchemaConverter(jsonb, jsonSchema, properties);
             return CompletableFuture
-                    .allOf(properties
+                    .allOf(nestedProperties
                             .stream()
-                            .filter(context::isDirectChild)
                             .map(it -> new PropertyContext<>(it, context.getRootContext()))
                             .map(CompletionStages::toStage)
                             .map(jsonSchemaConverter::convert)

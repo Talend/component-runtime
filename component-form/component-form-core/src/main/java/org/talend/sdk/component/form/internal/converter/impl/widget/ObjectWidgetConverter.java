@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
+import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -34,8 +35,8 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
 
     ObjectWidgetConverter(final Collection<UiSchema> schemas, final Collection<SimplePropertyDefinition> properties,
-            final Collection<ActionReference> actions) {
-        super(schemas, properties, actions);
+            final Collection<ActionReference> actions, final JsonSchema jsonSchema) {
+        super(schemas, properties, actions, jsonSchema);
     }
 
     protected void addActions(final PropertyContext root, final UiSchema uiSchema,

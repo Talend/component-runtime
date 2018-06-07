@@ -17,6 +17,7 @@ package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import java.util.Collection;
 
+import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -25,7 +26,8 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 public class NumberWidgetConverter extends TextWidgetConverter {
 
     public NumberWidgetConverter(final Collection<UiSchema> schemas,
-            final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions) {
-        super(schemas, properties, actions);
+            final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
+            final JsonSchema jsonSchema) {
+        super(schemas, properties, actions, jsonSchema);
     }
 }
