@@ -18,6 +18,7 @@ package org.talend.sdk.component.junit5;
 import java.lang.annotation.Annotation;
 
 import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -29,7 +30,7 @@ import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;
  * and auto register components from current project.
  */
 class ComponentExtension extends BaseComponentsHandler
-        implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport, BeforeEachCallback {
+        implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport, BeforeEachCallback, AfterEachCallback {
 
     private static final ExtensionContext.Namespace NAMESPACE =
             ExtensionContext.Namespace.create(ComponentExtension.class.getName());
@@ -63,5 +64,10 @@ class ComponentExtension extends BaseComponentsHandler
     @Override
     public void beforeEach(final ExtensionContext extensionContext) {
         extensionContext.getTestInstance().ifPresent(this::injectServices);
+    }
+
+    @Override
+    public void afterEach(final ExtensionContext extensionContext) {
+        resetState();
     }
 }

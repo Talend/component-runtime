@@ -16,6 +16,7 @@
 package org.talend.sdk.component.junit;
 
 import static java.lang.Math.abs;
+import static java.util.Collections.emptyIterator;
 import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -67,13 +68,13 @@ import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.output.Processor;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class BaseComponentsHandler implements ComponentsHandler {
 
-    static final ThreadLocal<State> STATE = new ThreadLocal<>();
+    protected static final ThreadLocal<State> STATE = new ThreadLocal<>();
 
     private final ThreadLocal<PreState> initState = ThreadLocal.withInitial(PreState::new);
 
@@ -162,7 +163,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
             }
         };
 
-        STATE.set(new State(embeddedComponentManager, new ArrayList<>(), initState.get().emitter));
+        STATE.set(new State(embeddedComponentManager, new ArrayList<>(), initState.get().emitter, null));
         return embeddedComponentManager;
     }
 
@@ -487,7 +488,12 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
     @Override
     public <T> void setInputData(final Iterable<T> data) {
-        initState.get().emitter = data.iterator();
+        final State state = STATE.get();
+        if (state == null) {
+            initState.get().emitter = data.iterator();
+        } else {
+            state.emitter = data.iterator();
+        }
     }
 
     @Override
@@ -498,6 +504,16 @@ public class BaseComponentsHandler implements ComponentsHandler {
                 .filter(r -> recordType.isInstance(r) || JsonObject.class.isInstance(r))
                 .map(r -> mapRecord(state, recordType, r))
                 .collect(toList());
+    }
+
+    public void resetState() {
+        final State state = STATE.get();
+        if (state == null) {
+            STATE.remove();
+        } else {
+            state.collector.clear();
+            state.emitter = emptyIterator();
+        }
     }
 
     private String getSinglePlugin() {
@@ -521,14 +537,14 @@ public class BaseComponentsHandler implements ComponentsHandler {
         Iterator<?> emitter;
     }
 
-    @RequiredArgsConstructor
-    static class State {
+    @AllArgsConstructor
+    protected static class State {
 
         final ComponentManager manager;
 
         final Collection<Object> collector;
 
-        final Iterator<?> emitter;
+        Iterator<?> emitter;
 
         volatile Jsonb jsonb;
 
