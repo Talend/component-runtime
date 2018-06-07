@@ -188,7 +188,7 @@ public class MavenDecrypter {
                 final String key = bare.substring("env.".length());
                 return ofNullable(System.getenv(key)).orElseGet(() -> System.getProperty(bare));
             }
-            if (value.startsWith("${")) { // all is system prop, interpolation yet
+            if (value.startsWith("${")) { // all is system prop, no interpolation yet
                 return System.getProperty(bare);
             }
 
