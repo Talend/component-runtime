@@ -51,7 +51,7 @@ __Schemes__ : HTTP, HTTPS
 == Paths
 
 [[_execute]]
-=== This endpoint execute an action
+=== This endpoint execute an action required by a form.
 ....
 POST /actions/execute
 ....
@@ -693,8 +693,6 @@ __optional__|boolean
 __optional__|boolean
 |**restricted** +
 __optional__|boolean
-|**schema** +
-__optional__|<<_jsonschema,JsonSchema>>
 |**title** +
 __optional__|string
 |**titleMap** +
