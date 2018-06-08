@@ -37,7 +37,7 @@ import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.talend.sdk.component.api.InjectedService;
+import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.junit.component.Source;
 import org.talend.sdk.component.junit.component.Transform;
@@ -56,10 +56,10 @@ public class SimpleComponentRuleTest {
     @Rule
     public final ServiceInjectionRule injections = new ServiceInjectionRule(COMPONENT_FACTORY, this);
 
-    @InjectedService
+    @Service
     private LocalConfiguration configuration;
 
-    @InjectedService
+    @Service
     private Jsonb jsonb;
 
     @Test

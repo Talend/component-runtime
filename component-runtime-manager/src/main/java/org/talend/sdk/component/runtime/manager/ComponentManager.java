@@ -25,6 +25,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
@@ -133,6 +134,7 @@ import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
+import org.talend.sdk.component.runtime.manager.service.Injector;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
@@ -830,6 +832,7 @@ public class ComponentManager implements AutoCloseable {
         services.put(ProxyGenerator.class, proxyGenerator);
         services.put(Resolver.class,
                 new ResolverImpl(container.getId(), container.getLocalDependencyRelativeResolver()));
+        services.put(Injector.class, new Injector(container.getId(), services));
     }
 
     protected Collection<LocalConfiguration> createRawLocalConfigurations() {
@@ -1065,8 +1068,11 @@ public class ComponentManager implements AutoCloseable {
                         services.put(proxy, instance);
                         registry.getServices().add(new ServiceMeta(instance, emptyList()));
                     });
-            finder.findAnnotatedClasses(Service.class).stream().filter(s -> !services.keySet().contains(s)).forEach(
-                    service -> {
+            final Map<Class<?>, Object> userServices = finder
+                    .findAnnotatedClasses(Service.class)
+                    .stream()
+                    .filter(s -> !services.keySet().contains(s))
+                    .collect(toMap(identity(), service -> {
                         try {
                             final Object instance;
                             final Thread thread = Thread.currentThread();
@@ -1078,7 +1084,7 @@ public class ComponentManager implements AutoCloseable {
                                     proxyGenerator.initialize(instance, new InterceptorHandlerFacade(
                                             service.getConstructor().newInstance(), services));
                                 }
-                                doInvoke(container.getId(), instance, PostConstruct.class);
+                                return instance;
                             } catch (final InstantiationException | IllegalAccessException e) {
                                 throw new IllegalArgumentException(e);
                             } catch (final InvocationTargetException e) {
@@ -1086,22 +1092,28 @@ public class ComponentManager implements AutoCloseable {
                             } finally {
                                 thread.setContextClassLoader(old);
                             }
-                            services.put(service, instance);
-                            registry
-                                    .getServices()
-                                    .add(new ServiceMeta(instance, Stream
-                                            .of(service.getMethods())
-                                            .filter(m -> Stream.of(m.getAnnotations()).anyMatch(
-                                                    a -> a.annotationType().isAnnotationPresent(ActionType.class)))
-                                            .map(serviceMethod -> createServiceMeta(container, services,
-                                                    componentDefaults, service, instance, serviceMethod))
-                                            .collect(toList())));
                         } catch (final NoSuchMethodException e) {
                             throw new IllegalArgumentException("No default constructor for " + service);
                         }
-
-                        info("Added @Service " + service + " for container-id=" + container.getId());
-                    });
+                    }));
+            // now we created all instances we can inject *then* postconstruct
+            final Injector injector = Injector.class.cast(services.get(Injector.class));
+            userServices.forEach((service, instance) -> {
+                injector.inject(instance);
+                doInvoke(container.getId(), instance, PostConstruct.class);
+                services.put(service, instance);
+                registry
+                        .getServices()
+                        .add(new ServiceMeta(instance,
+                                Stream
+                                        .of(service.getMethods())
+                                        .filter(m -> Stream.of(m.getAnnotations()).anyMatch(
+                                                a -> a.annotationType().isAnnotationPresent(ActionType.class)))
+                                        .map(serviceMethod -> createServiceMeta(container, services, componentDefaults,
+                                                service, instance, serviceMethod))
+                                        .collect(toList())));
+                info("Added @Service " + service + " for container-id=" + container.getId());
+            });
 
             final ComponentContexts componentContexts = new ComponentContexts();
             container.set(ComponentContexts.class, componentContexts);

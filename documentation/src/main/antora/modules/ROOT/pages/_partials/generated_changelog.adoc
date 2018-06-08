@@ -5,11 +5,19 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-822[TCOMP-822^]: [Windows] deploy-in-studio & car copy jar command in mvn plugin - don't work if the studio is running
+- link:https://jira.talendforge.org/browse/TCOMP-844[TCOMP-844^]: Service default method forwarded to interface method instead of implementation one if exists
+- link:https://jira.talendforge.org/browse/TCOMP-848[TCOMP-848^]: [junit5] implicit mock collector and emitter are not resetted per method
+- link:https://jira.talendforge.org/browse/TCOMP-851[TCOMP-851^]: [form] UiSchema shouldn't have a JsonSchema
 
 
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-834[TCOMP-834^]: Ensure that component has only one configuration argument.
+- link:https://jira.talendforge.org/browse/TCOMP-845[TCOMP-845^]: [junit] ComponentsHandler misses findService
+- link:https://jira.talendforge.org/browse/TCOMP-846[TCOMP-846^]: [junit] allow to inject current plugin services in test class
+- link:https://jira.talendforge.org/browse/TCOMP-847[TCOMP-847^]: Support gzip in JUnit HTTP tooling
+- link:https://jira.talendforge.org/browse/TCOMP-849[TCOMP-849^]: [junit http] support to match the request payload
+- link:https://jira.talendforge.org/browse/TCOMP-850[TCOMP-850^]: MavenDecrypter should tolerate ${env.xxx} syntax
 
 
 === Work Item
@@ -18,6 +26,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-830[TCOMP-830^]: Move all configuration to Microprofile Config instead of DeltaSpike
 - link:https://jira.talendforge.org/browse/TCOMP-832[TCOMP-832^]: Provide a way to access lastUpdatedTimestamp in rest api
 - link:https://jira.talendforge.org/browse/TCOMP-833[TCOMP-833^]: Upgrade gradle+maven for the starter
+- link:https://jira.talendforge.org/browse/TCOMP-839[TCOMP-839^]: Add an API to load lazily the potential values of a list
+- link:https://jira.talendforge.org/browse/TCOMP-840[TCOMP-840^]: Upgrade icon bundle to 0.190.0
+- link:https://jira.talendforge.org/browse/TCOMP-841[TCOMP-841^]: Add validation of option names in the validator
+- link:https://jira.talendforge.org/browse/TCOMP-852[TCOMP-852^]: [dependency upgrade] Upgrade shrinkwrap-resolver-impl-maven to 3.1.3
 
 
 == Version 1.0.0

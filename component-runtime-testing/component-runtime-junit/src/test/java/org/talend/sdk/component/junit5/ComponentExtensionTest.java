@@ -35,7 +35,7 @@ import javax.json.bind.Jsonb;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.InjectedService;
+import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.junit.ComponentsHandler;
 import org.talend.sdk.component.junit.JoinInputFactory;
@@ -54,10 +54,10 @@ class ComponentExtensionTest {
     @Injected
     private ComponentsHandler handler;
 
-    @InjectedService
+    @Service
     private LocalConfiguration configuration;
 
-    @InjectedService
+    @Service
     private Jsonb jsonb;
 
     @Test

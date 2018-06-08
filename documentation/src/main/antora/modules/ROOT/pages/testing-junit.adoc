@@ -69,10 +69,10 @@ public class SimpleComponentRuleTest {
     @Rule <1>
     public final ServiceInjectionRule injections = new ServiceInjectionRule(COMPONENT_FACTORY, this); <2>
 
-    @InjectedService <3>
+    @Service <3>
     private LocalConfiguration configuration;
 
-    @InjectedService
+    @Service
     private Jsonb jsonb;
 
     @Test
@@ -85,7 +85,7 @@ public class SimpleComponentRuleTest {
 <1> The injection requires the test instance so it must be a `@Rule` and not a `@ClassRule`
 <2> We pass to the rule the `ComponentsController` which is the `SimpleComponentRule` for JUnit 4 and the test instance
 to inject services in
-<3> We mark all service fields with `@InjectedService` to let the rule inject them before the test is ran
+<3> We mark all service fields with `@Service` to let the rule inject them before the test is ran
 
 === JUnit 5
 
@@ -132,10 +132,10 @@ As for JUnit 4, you can go further, getting test class fields marked with `@Inje
 @WithComponents("...")
 class ComponentExtensionTest {
 
-    @InjectedService <1>
+    @Service <1>
     private LocalConfiguration configuration;
 
-    @InjectedService
+    @Service
     private Jsonb jsonb;
 
     @Test
@@ -145,7 +145,7 @@ class ComponentExtensionTest {
 }
 ----
 
-<1> We mark all service fields with `@InjectedService` to let the rule inject them before the test is ran
+<1> We mark all service fields with `@Service` to let the rule inject them before the test is ran
 
 === Mocking the output
 
