@@ -66,7 +66,7 @@
     <ziplock.version>7.0.4</ziplock.version>
     <johnzon.version>1.1.7</johnzon.version>
     <meecrowave.version>1.2.1</meecrowave.version>
-    <owb.version>2.0.5</owb.version>
+    <owb.version>2.0.6</owb.version>
     <tomcat.version>9.0.8</tomcat.version>
     <cxf.version>3.2.4</cxf.version>
     <log4j2.version>2.11.0</log4j2.version>
