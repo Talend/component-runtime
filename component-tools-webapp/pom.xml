@@ -95,7 +95,7 @@
                 <resource>
                   <directory>${project.parent.basedir}/component-kit.js/</directory>
                   <includes>
-                    <include>src/**</include>
+                    <include>lib/**</include>
                     <include>package.json</include>
                   </includes>
                 </resource>
