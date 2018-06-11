@@ -25,7 +25,6 @@ public class SimpleCollector implements Serializable {
 
     @ElementListener
     public synchronized void collect(final Object data) {
-        final SimpleComponentRule.State state = SimpleComponentRule.STATE.get();
-        state.collector.add(data);
+        BaseComponentsHandler.STATE.get().collector.add(data);
     }
 }
