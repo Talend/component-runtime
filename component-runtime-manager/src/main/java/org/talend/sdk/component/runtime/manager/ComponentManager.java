@@ -1098,6 +1098,7 @@ public class ComponentManager implements AutoCloseable {
                     }));
             // now we created all instances we can inject *then* postconstruct
             final Injector injector = Injector.class.cast(services.get(Injector.class));
+            services.putAll(userServices);
             userServices.forEach((service, instance) -> {
                 injector.inject(instance);
                 doInvoke(container.getId(), instance, PostConstruct.class);
