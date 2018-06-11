@@ -73,14 +73,13 @@ public class Github {
                     .submit(() -> Stream
                             .of("component-api", "component-runtime")
                             .flatMap(repo -> contributors(client, token,
-                                    "https://api.github.com/repos/talend/" + repo + "/contributors")
-                                            .parallel()
-                                            .collect(toMap(e -> normalizeLogin(e.login), identity(), (c1, c2) -> {
-                                                c1.contributions += c2.contributions;
-                                                return c1;
-                                            }))
-                                            .values()
-                                            .stream())
+                                    "https://api.github.com/repos/talend/" + repo + "/contributors").parallel())
+                            .collect(toMap(e -> normalizeLogin(e.login), identity(), (c1, c2) -> {
+                                c1.contributions += c2.contributions;
+                                return c1;
+                            }))
+                            .values()
+                            .stream()
                             .map(contributor -> {
                                 if (contributor.url == null) { // anon contributor
 
