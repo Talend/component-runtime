@@ -32,6 +32,9 @@ import org.talend.sdk.component.tools.CarBundler;
 @Mojo(name = "car", requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
 public class CarMojo extends DependencyAwareMojo {
 
+    @Parameter(defaultValue = "${project.packaging}")
+    private String packaging;
+
     @Parameter(defaultValue = "${project.build.directory}/${project.build.finalName}.car",
             property = "talend.car.output")
     private File output;
@@ -54,11 +57,25 @@ public class CarMojo extends DependencyAwareMojo {
     @Parameter
     private Map<String, String> metadata;
 
+    /**
+     * Should this execution be skipped.
+     */
+    @Parameter(defaultValue = "false", property = "talend.car.skip")
+    private boolean skip;
+
     @Component
     private MavenProjectHelper helper;
 
     @Override
     public void execute() {
+        if (skip) {
+            return;
+        }
+        if ("pom".equals(packaging)) {
+            getLog().info("Skipping car creation since the packaging is of type pom");
+            return;
+        }
+
         final CarBundler.Configuration configuration = new CarBundler.Configuration();
         configuration.setMainGav(mainGav());
         configuration.setOutput(output);
