@@ -41,7 +41,6 @@ import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
@@ -54,7 +53,9 @@ import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.Data;
 
@@ -79,6 +80,29 @@ class UiSpecServiceTest {
             // no-op
         }
     });
+
+    @Test
+    void optionsOrder() throws Exception {
+        final ConfigTypeNode node = load("optionsorder.json", ConfigTypeNode.class);
+        final SimplePropertyDefinition root = node
+                .getProperties()
+                .stream()
+                .filter(it -> it.getPath().equals("configuration"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("bad config"));
+        final String[] expectedOrder = root.getMetadata().get("ui::optionsorder::value").split(",");
+        final Ui payload = service.convert("FileIO", node, null).toCompletableFuture().get();
+        final List<String> actualOrder = payload
+                .getUiSchema()
+                .iterator()
+                .next()
+                .getItems()
+                .stream()
+                .map(UiSchema::getKey)
+                .map(s -> s.substring(s.lastIndexOf('.') + 1))
+                .collect(toList());
+        assertEquals(asList(expectedOrder), actualOrder);
+    }
 
     @Test
     void proposablePrimitives() throws Exception {

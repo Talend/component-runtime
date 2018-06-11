@@ -15,11 +15,16 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
+import static java.util.Arrays.asList;
+import static java.util.Comparator.comparing;
+import static java.util.Optional.ofNullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -36,12 +41,15 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
 
     private final String family;
 
+    private final List<String> order;
+
     public FieldSetWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
-            final Client client, final String family, final JsonSchema jsonSchema) {
+            final Client client, final String family, final JsonSchema jsonSchema, final String order) {
         super(schemas, properties, actions, jsonSchema);
         this.client = client;
         this.family = family;
+        this.order = ofNullable(order).map(it -> asList(it.split(","))).orElse(null);
     }
 
     @Override
@@ -56,10 +64,13 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
                     properties, client, jsonSchema, this.properties, actions);
 
             // Create Nested UI Items
+            final Stream<SimplePropertyDefinition> nestedProperties =
+                    this.properties.stream().filter(context::isDirectChild);
+            final Stream<SimplePropertyDefinition> sortedProperties =
+                    order == null ? nestedProperties.sorted(comparing(SimplePropertyDefinition::getPath))
+                            : nestedProperties.sorted(comparing(it -> order.indexOf(it.getName())));
             return CompletableFuture
-                    .allOf(this.properties
-                            .stream()
-                            .filter(context::isDirectChild)
+                    .allOf(sortedProperties
                             .map(it -> new PropertyContext<>(it, context.getRootContext()))
                             .map(CompletionStages::toStage)
                             .map(uiSchemaConverter::convert)

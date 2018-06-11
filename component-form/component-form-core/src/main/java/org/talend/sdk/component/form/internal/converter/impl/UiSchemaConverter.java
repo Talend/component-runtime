@@ -93,8 +93,9 @@ public class UiSchemaConverter implements PropertyConverter {
                                     : gridLayouts,
                             jsonSchema).convert(CompletableFuture.completedFuture(context));
                 }
-                return new FieldSetWidgetConverter(schemas, properties, actions, client, family, jsonSchema)
-                        .convert(CompletableFuture.completedFuture(context));
+                final String forcedOrder = context.getProperty().getMetadata().get("ui::optionsorder::value");
+                return new FieldSetWidgetConverter(schemas, properties, actions, client, family, jsonSchema,
+                        forcedOrder).convert(CompletableFuture.completedFuture(context));
             case "boolean":
                 includedProperties.add(context.getProperty());
                 return new ToggleWidgetConverter(schemas, properties, actions, jsonSchema)
