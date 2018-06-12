@@ -25,7 +25,7 @@ public class SimpleEmitter implements Serializable {
 
     @Producer
     public Object next() {
-        final SimpleComponentRule.State state = SimpleComponentRule.STATE.get();
-        return state.emitter.next();
+        final BaseComponentsHandler.State state = BaseComponentsHandler.STATE.get();
+        return state.emitter.hasNext() ? state.emitter.next() : null;
     }
 }
