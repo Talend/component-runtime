@@ -42,20 +42,20 @@ public class ProxyInitializer extends ChannelInitializer<SocketChannel> {
     protected void initChannel(final SocketChannel channel) {
         final ChannelPipeline pipeline = channel.pipeline();
         final ChannelInboundHandlerAdapter handler;
-        final boolean skipGzip;
+        final boolean degzip;
         if (Handlers.isActive("capture")) {
-            skipGzip = true;
+            degzip = true;
             handler = new DefaultResponseLocatorCapturingHandler(api);
         } else if (Handlers.isActive("passthrough")) {
-            skipGzip = true;
+            degzip = false;
             handler = new PassthroughHandler(api);
         } else {
-            skipGzip = false;
+            degzip = true;
             handler = new ServingProxyHandler(api);
         }
         pipeline.addLast("logging", new LoggingHandler(LogLevel.valueOf(api.getLogLevel()))).addLast("http-decoder",
                 new HttpRequestDecoder());
-        if (!skipGzip) {
+        if (degzip) {
             pipeline.addLast("gzip-decompressor", new HttpContentDecompressor());
         }
         pipeline
