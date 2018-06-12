@@ -29,10 +29,14 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLEngine;
@@ -97,6 +101,7 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
             // do the remote request with all the incoming data and save it
             // note: this request must be synchronous for now
             final Response resp;
+            final Map<String, String> otherHeaders = new HashMap<>();
             try {
                 final URL url = new URL(requestUri);
                 final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection(Proxy.NO_PROXY));
@@ -121,17 +126,11 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 final int responseCode = connection.getResponseCode();
                 final int defaultLength =
                         ofNullable(connection.getHeaderField("content-length")).map(Integer::parseInt).orElse(8192);
-                resp = new ResponseImpl(connection
-                        .getHeaderFields()
-                        .entrySet()
-                        .stream()
-                        .filter(e -> e.getKey() != null)
-                        .filter(h -> !api.getHeaderFilter().test(h.getKey()))
-                        .collect(toMap(Map.Entry::getKey, e -> e.getValue().stream().collect(Collectors.joining(",")),
-                                (a, b) -> a, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))),
-
-                        responseCode, responseCode <= 399 ? slurp(connection.getInputStream(), defaultLength)
+                resp = new ResponseImpl(collectHeaders(connection, api.getHeaderFilter().negate()), responseCode,
+                        responseCode <= 399 ? slurp(connection.getInputStream(), defaultLength)
                                 : slurp(connection.getErrorStream(), defaultLength));
+
+                otherHeaders.putAll(collectHeaders(connection, api.getHeaderFilter()));
 
                 beforeResponse(requestUri, request, resp,
                         new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER) {
@@ -156,12 +155,24 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
                     new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(resp.status()), bytes);
             HttpUtil.setContentLength(response, bytes.array().length);
 
-            ofNullable(resp.headers()).ifPresent(h -> h.forEach((k, v) -> response.headers().set(k, v)));
+            Stream.of(resp.headers(), otherHeaders).filter(Objects::nonNull).forEach(
+                    h -> h.forEach((k, v) -> response.headers().set(k, v)));
             ctx.writeAndFlush(response);
 
         } finally {
             request.release();
         }
+    }
+
+    private TreeMap<String, String> collectHeaders(final HttpURLConnection connection, final Predicate<String> filter) {
+        return connection
+                .getHeaderFields()
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey() != null)
+                .filter(h -> filter.test(h.getKey()))
+                .collect(toMap(Map.Entry::getKey, e -> e.getValue().stream().collect(Collectors.joining(",")),
+                        (a, b) -> a, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
     }
 
     protected void beforeResponse(final String requestUri, final FullHttpRequest request, final Response resp,
