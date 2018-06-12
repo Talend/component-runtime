@@ -17,7 +17,7 @@ package org.talend.sdk.component.junit.http.internal.impl;
 
 import org.talend.sdk.component.junit.http.api.HttpApiHandler;
 
-import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -41,25 +41,29 @@ public class ProxyInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(final SocketChannel channel) {
         final ChannelPipeline pipeline = channel.pipeline();
+        final ChannelInboundHandlerAdapter handler;
+        final boolean skipGzip;
+        if (Handlers.isActive("capture")) {
+            skipGzip = true;
+            handler = new DefaultResponseLocatorCapturingHandler(api);
+        } else if (Handlers.isActive("passthrough")) {
+            skipGzip = true;
+            handler = new PassthroughHandler(api);
+        } else {
+            skipGzip = false;
+            handler = new ServingProxyHandler(api);
+        }
+        pipeline.addLast("logging", new LoggingHandler(LogLevel.valueOf(api.getLogLevel()))).addLast("http-decoder",
+                new HttpRequestDecoder());
+        if (!skipGzip) {
+            pipeline.addLast("gzip-decompressor", new HttpContentDecompressor());
+        }
         pipeline
-                .addLast("logging", new LoggingHandler(LogLevel.valueOf(api.getLogLevel())))
-                .addLast("http-decoder", new HttpRequestDecoder())
-                .addLast("gzip-decompressor", new HttpContentDecompressor())
                 .addLast("http-encoder", new HttpResponseEncoder())
                 .addLast("gzip-compressor", new HttpContentCompressor())
                 .addLast("http-keepalive", new HttpServerKeepAliveHandler())
                 .addLast("aggregator", new HttpObjectAggregator(Integer.MAX_VALUE))
                 .addLast("chunked-writer", new ChunkedWriteHandler())
-                .addLast("talend-junit-api-server", newHandler());
-    }
-
-    private ChannelHandler newHandler() {
-        if (Handlers.isActive("capture")) {
-            return new DefaultResponseLocatorCapturingHandler(api);
-        }
-        if (Handlers.isActive("passthrough")) {
-            return new PassthroughHandler(api);
-        }
-        return new ServingProxyHandler(api);
+                .addLast("talend-junit-api-server", handler);
     }
 }
