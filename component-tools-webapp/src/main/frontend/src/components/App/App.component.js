@@ -47,7 +47,7 @@ export default class App extends React.Component {
         <Layout mode={'TwoColumns'} header={header} one={menu}>
           <Detail />
         </Layout>
-        <Notification notifications={this.props.notifications} leaveFn={this.notificationLeaveFn} />
+        {/* <Notification notifications={this.props.notifications} leaveFn={this.notificationLeaveFn} /> */}
       </div>
     );
   }

@@ -15,5 +15,8 @@
  */
 
 import Menu from './Menu.connect';
+import sagas from './Menu.sagas';
 
+Menu.sagas = sagas;
+console.log(sagas);
 export default Menu;

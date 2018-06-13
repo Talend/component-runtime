@@ -14,9 +14,7 @@
  *  limitations under the License.
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
+import cmf from '@talend/react-cmf';
 import '@talend/bootstrap-theme/src/theme/theme.scss';
 
 // code rendering
@@ -30,13 +28,12 @@ import 'brace/snippets/java';
 import 'brace/snippets/sql';
 import 'brace/snippets/python';
 
-import store from './store';
+// import store from './store';
 
-import App from './components/App';
+import components from './components';
+import TCompForm from 'component-kit.js/lib/TCompForm';
 
-ReactDOM.render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-  document.getElementById('component-kit-tools-webapp')
-);
+cmf.bootstrap({
+  components: { TCompForm, ...components },
+  appId: 'component-kit-tools-webapp',
+})

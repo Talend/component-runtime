@@ -26,15 +26,11 @@ class Menu extends React.Component {
 		this.noOp = () => {};
 	}
 
-	componentDidMount() {
-		this.props.getComponentsList();
-	}
-
 	onSelect(node) {
 		if (node.$$type ==='component' && node.selected) {
 			return;
 		}
-		this.props.selectComponent(node);
+		this.props.setState({ node });
 	}
 
 	render() {
