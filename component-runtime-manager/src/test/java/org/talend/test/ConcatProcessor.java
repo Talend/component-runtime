@@ -40,8 +40,9 @@ public class ConcatProcessor implements Serializable {
     public void cat(@Input("str1") final JsonObject str1, @Input("str2") final JsonObject str2,
             @Output final OutputEmitter<JsonObject> concat) {
 
-        if (str1 == null && str2 == null)
+        if (str1 == null && str2 == null) {
             return;
+        }
 
         final JsonObjectBuilder builder = factory.createObjectBuilder();
         if (str1 != null) {

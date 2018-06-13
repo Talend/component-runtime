@@ -17,6 +17,10 @@ package org.talend.test;
 
 import java.io.Serializable;
 
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
@@ -25,13 +29,26 @@ import org.talend.sdk.component.api.processor.Processor;
 @Processor(family = "chain", name = "count")
 public class CounterProcessor implements Serializable {
 
+    private final boolean multiple;
+
+    private final JsonBuilderFactory factory;
+
     private int previous = 0;
 
+    public CounterProcessor(@Option("multiple") final boolean multiple, final JsonBuilderFactory factory) {
+        this.multiple = multiple;
+        this.factory = factory;
+    }
+
     @ElementListener
-    public void length(final String data, @Output final OutputEmitter<Integer> main,
-            @Output("rejected") final OutputEmitter<String> rejects) {
+    public void length(final Object input, @Output final OutputEmitter<Integer> main,
+            @Output final OutputEmitter<JsonObject> mainJson, @Output("rejected") final OutputEmitter<String> rejects) {
+        final String data = input.toString();
         if (data.contains("reject")) {
             rejects.emit(data);
+        } else if (multiple) {
+            mainJson.emit(factory.createObjectBuilder().add("cumulatedSize", previous += data.length()).build());
+            mainJson.emit(factory.createObjectBuilder().add("cumulatedSize", previous += data.length()).build());
         } else {
             main.emit(previous += data.length());
         }

@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.manager.chain;
 import static java.net.URLEncoder.encode;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,8 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
+
+import javax.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -36,9 +40,10 @@ import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
+import org.talend.test.InMemCollector;
 
 @WithTemporaryFolder
-public class JobTest {
+class JobTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
@@ -105,20 +110,7 @@ public class JobTest {
         final String testName = info.getTestMethod().get().getName();
         final String plugin = testName + ".jar";
         final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
-        try (final ComponentManager manager =
-                new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
-
-                    {
-                        CONTEXTUAL_INSTANCE.set(this);
-                        addPlugin(jar.getAbsolutePath());
-                    }
-
-                    @Override
-                    public void close() {
-                        super.close();
-                        CONTEXTUAL_INSTANCE.set(null);
-                    }
-                }) {
+        try (final ComponentManager manager = newTestManager(jar)) {
 
             Job
                     .components()
@@ -146,26 +138,39 @@ public class JobTest {
     }
 
     @Test
+    void multipleEmitSupport(final TestInfo info, final TemporaryFolder temporaryFolder) {
+        final String testName = info.getTestMethod().get().getName();
+        final String plugin = testName + ".jar";
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
+        try (final ComponentManager manager = newTestManager(jar)) {
+            final Collection<JsonObject> outputs =
+                    InMemCollector.getShadedOutputs(manager.findPlugin(plugin).get().getLoader());
+            outputs.clear();
+            Job
+                    .components()
+                    .component("from", "single://input")
+                    .component("to", "chain://count?multiple=true")
+                    .component("end", "store://collect")
+                    .connections()
+                    .from("from")
+                    .to("to")
+                    .from("to")
+                    .to("end")
+                    .build()
+                    .run();
+            // {"cumulatedSize":15}.length x2
+            assertEquals(asList(15, 30), outputs.stream().map(json -> json.getInt("cumulatedSize")).collect(toList()));
+        }
+    }
+
+    @Test
     void defaultKeyProvider(final TestInfo info, final TemporaryFolder temporaryFolder) throws IOException {
         final String testName = info.getTestMethod().get().getName();
         final String plugin = testName + ".jar";
         final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
         final File out = new File(temporaryFolder.getRoot(), testName + "-out.txt");
 
-        try (final ComponentManager manager =
-                new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
-
-                    {
-                        CONTEXTUAL_INSTANCE.set(this);
-                        addPlugin(jar.getAbsolutePath());
-                    }
-
-                    @Override
-                    public void close() {
-                        super.close();
-                        CONTEXTUAL_INSTANCE.set(null);
-                    }
-                }) {
+        try (final ComponentManager manager = newTestManager(jar)) {
 
             Job
                     .components()
@@ -202,20 +207,7 @@ public class JobTest {
         final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
         final File out = new File(temporaryFolder.getRoot(), testName + "-out.txt");
 
-        try (final ComponentManager manager =
-                new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
-
-                    {
-                        CONTEXTUAL_INSTANCE.set(this);
-                        addPlugin(jar.getAbsolutePath());
-                    }
-
-                    @Override
-                    public void close() {
-                        super.close();
-                        CONTEXTUAL_INSTANCE.set(null);
-                    }
-                }) {
+        try (final ComponentManager manager = newTestManager(jar)) {
 
             Job
                     .components()
@@ -259,20 +251,7 @@ public class JobTest {
         final File jar = pluginGenerator.createChainPlugin(temporaryFolder.getRoot(), plugin);
         final File out = new File(temporaryFolder.getRoot(), testName + "-out.txt");
 
-        try (final ComponentManager manager =
-                new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
-
-                    {
-                        CONTEXTUAL_INSTANCE.set(this);
-                        addPlugin(jar.getAbsolutePath());
-                    }
-
-                    @Override
-                    public void close() {
-                        super.close();
-                        CONTEXTUAL_INSTANCE.set(null);
-                    }
-                }) {
+        try (final ComponentManager manager = newTestManager(jar)) {
 
             final GroupKeyProvider foreignKeyProvider =
                     (GroupKeyProvider) context -> context.getData().getString("userId");
@@ -308,5 +287,21 @@ public class JobTest {
             assertEquals(asList("emma strasbourg 1900", "sophia nantes 2000.5", "liam lyon 3055", "ava paris 2600.30"),
                     Files.readAllLines(out.toPath()));
         }
+    }
+
+    private ComponentManager newTestManager(final File jar) {
+        return new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
+
+            {
+                CONTEXTUAL_INSTANCE.set(this);
+                addPlugin(jar.getAbsolutePath());
+            }
+
+            @Override
+            public void close() {
+                super.close();
+                CONTEXTUAL_INSTANCE.set(null);
+            }
+        };
     }
 }

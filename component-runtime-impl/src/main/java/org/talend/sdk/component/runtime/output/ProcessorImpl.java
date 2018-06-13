@@ -78,8 +78,10 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             // (mojo)
             parameterBuilder = Stream.of(process.getParameters()).map(parameter -> {
                 if (parameter.isAnnotationPresent(Output.class)) {
-                    return (BiFunction<InputFactory, OutputFactory, Object>) (inputs, outputs) -> outputs
-                            .create(parameter.getAnnotation(Output.class).value());
+                    return (BiFunction<InputFactory, OutputFactory, Object>) (inputs, outputs) -> {
+                        final String name = parameter.getAnnotation(Output.class).value();
+                        return outputs.create(name);
+                    };
                 }
 
                 final Class<?> parameterType = parameter.getType();

@@ -341,7 +341,7 @@ public class JobImpl implements Job {
                         .map(component -> new AbstractMap.SimpleEntry<>(component.getId(), new AtomicBoolean(true)))
                         .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
                 processors.values().forEach(Lifecycle::start); // start processor
-                final Map<String, Map<String, TreeMap<String, JsonObject>>> flowData = new HashMap<>();
+                final Map<String, Map<String, Map<String, Collection<JsonObject>>>> flowData = new HashMap<>();
                 final AtomicBoolean running = new AtomicBoolean(true);
                 do {
                     levels.forEach((level, components) -> components.forEach((Component component) -> {
@@ -356,7 +356,11 @@ public class JobImpl implements Job {
                                     .apply(new GroupContextImpl(data, component.getId(), "__default__"));
                             flowData.computeIfAbsent(component.getId(), s -> new HashMap<>());
                             flowData.get(component.getId()).computeIfAbsent("__default__", s -> new TreeMap<>());
-                            flowData.get(component.getId()).get("__default__").put(key, data);
+                            flowData
+                                    .get(component.getId())
+                                    .get("__default__")
+                                    .computeIfAbsent(key, k -> new ArrayList<>())
+                                    .add(data);
                         } else {
                             final List<Edge> connections =
                                     getConnections(getEdges(), component, e -> e.getTo().getNode());
@@ -367,18 +371,19 @@ public class JobImpl implements Job {
                                 final String fromBranch = edge.getFrom().getBranch();
                                 final String toBranch = edge.getTo().getBranch();
 
-                                final JsonObject data = flowData.get(fromId) == null ? null
-                                        : pollFirst(flowData.get(fromId).get(fromBranch));
+                                final Map<String, Map<String, Collection<JsonObject>>> idData = flowData.get(fromId);
+                                final JsonObject data = idData == null ? null : pollFirst(idData.get(fromBranch));
                                 if (data != null) {
                                     dataInputFactory.withInput(toBranch, singletonList(data));
                                 }
                             } else { // need grouping
-                                final Map<String, Map<String, JsonObject>> availableDataForStep = new HashMap<>();
+                                final Map<String, Map<String, Collection<JsonObject>>> availableDataForStep =
+                                        new HashMap<>();
                                 connections.forEach(edge -> {
                                     final String fromId = edge.getFrom().getNode().getId();
                                     final String fromBranch = edge.getFrom().getBranch();
                                     final String toBranch = edge.getTo().getBranch();
-                                    final TreeMap<String, JsonObject> data =
+                                    final Map<String, Collection<JsonObject>> data =
                                             flowData.get(fromId) == null ? null : flowData.get(fromId).get(fromBranch);
                                     if (data != null && !data.isEmpty()) {
                                         availableDataForStep.put(toBranch, data);
@@ -388,8 +393,8 @@ public class JobImpl implements Job {
                                 final Map<String, String> joined = joinWithFusionSort(availableDataForStep);
                                 if (!joined.isEmpty() && connections.size() == joined.size()) {
                                     joined.forEach((k, v) -> {
-                                        dataInputFactory.withInput(k,
-                                                singletonList(availableDataForStep.get(k).remove(v)));
+                                        final Collection data = availableDataForStep.get(k).remove(v);
+                                        dataInputFactory.withInput(k, data);
                                     });
                                 }
                             }
@@ -401,17 +406,26 @@ public class JobImpl implements Job {
                                 return;
                             }
                             final Processor processor = processors.get(component.getId());
-                            DataOutputFactory dataOutputFactory = new DataOutputFactory();
+                            final DataOutputFactory dataOutputFactory = new DataOutputFactory(Jsonb.class.cast(manager
+                                    .findPlugin(processor.plugin())
+                                    .get()
+                                    .get(ComponentManager.AllServices.class)
+                                    .getServices()
+                                    .get(Jsonb.class)));
                             processor.beforeGroup();
                             processor.onNext(dataInputFactory, dataOutputFactory);
                             processor.afterGroup(dataOutputFactory);
-                            dataOutputFactory.getOutputs().forEach((branch, data) -> {
+                            dataOutputFactory.getOutputs().forEach((branch, data) -> data.forEach(item -> {
                                 final String key = getKeyProvider(component.getId())
-                                        .apply(new GroupContextImpl(data, component.getId(), branch));
+                                        .apply(new GroupContextImpl(item, component.getId(), branch));
                                 flowData.computeIfAbsent(component.getId(), s -> new HashMap<>());
                                 flowData.get(component.getId()).computeIfAbsent(branch, s -> new TreeMap<>());
-                                flowData.get(component.getId()).get(branch).put(key, data);
-                            });
+                                flowData
+                                        .get(component.getId())
+                                        .get(branch)
+                                        .computeIfAbsent(key, k -> new ArrayList<>())
+                                        .add(item);
+                            }));
                         }
                     }));
                 } while (running.get());
@@ -423,13 +437,14 @@ public class JobImpl implements Job {
             }
         }
 
-        private Map<String, String> joinWithFusionSort(final Map<String, Map<String, JsonObject>> dataByBranch) {
-            Map<String, String> join = new HashMap<>();
+        private Map<String, String>
+                joinWithFusionSort(final Map<String, Map<String, Collection<JsonObject>>> dataByBranch) {
+            final Map<String, String> join = new HashMap<>();
             dataByBranch.forEach((branch1, records1) -> {
                 dataByBranch.forEach((branch2, records2) -> {
                     if (!branch1.equals(branch2)) {
-                        for (String key1 : records1.keySet()) {
-                            for (String key2 : records2.keySet()) {
+                        for (final String key1 : records1.keySet()) {
+                            for (final String key2 : records2.keySet()) {
                                 if (key1.equals(key2)) {
                                     join.putIfAbsent(branch1, key1);
                                     join.putIfAbsent(branch2, key2);
@@ -444,8 +459,23 @@ public class JobImpl implements Job {
             return join;
         }
 
-        private JsonObject pollFirst(final TreeMap<String, JsonObject> data) {
-            return data == null || data.isEmpty() ? null : data.remove(data.firstKey());
+        private JsonObject pollFirst(final Map<String, Collection<JsonObject>> data) {
+            if (data == null || data.isEmpty()) {
+                return null;
+            }
+            while (!data.isEmpty()) {
+                final String key = data.keySet().iterator().next();
+                final Collection<JsonObject> items = data.get(key);
+                if (!items.isEmpty()) {
+                    final Iterator<JsonObject> iterator = items.iterator();
+                    final JsonObject item = iterator.next();
+                    iterator.remove();
+                    return item;
+                } else {
+                    data.remove(key);
+                }
+            }
+            return null;
         }
 
         private List<Job.Edge> getConnections(final List<Job.Edge> edges, final Job.Component step,
@@ -571,11 +601,26 @@ public class JobImpl implements Job {
     @Data
     private static class DataOutputFactory implements OutputFactory {
 
-        private final Map<String, JsonObject> outputs = new HashMap<>();
+        private final Jsonb jsonb;
+
+        private final Map<String, Collection<JsonObject>> outputs = new HashMap<>();
 
         @Override
         public OutputEmitter create(final String name) {
-            return value -> outputs.put(name, (JsonObject) value);
+            return new OutputEmitterImpl(name);
+        }
+
+        @AllArgsConstructor
+        private class OutputEmitterImpl implements OutputEmitter {
+
+            private final String name;
+
+            @Override
+            public void emit(final Object value) {
+                outputs.computeIfAbsent(name, k -> new ArrayList<>()).add(
+                        JsonObject.class.isInstance(value) ? JsonObject.class.cast(value)
+                                : jsonb.fromJson(jsonb.toJson(value), JsonObject.class));
+            }
         }
     }
 
