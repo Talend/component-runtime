@@ -34,7 +34,8 @@ import org.talend.sdk.component.tools.AsciidocDocumentationGenerator;
  * Generates an asiidoc documentation for the component,
  * it can also render it as HTML or PDF documents.
  */
-@Mojo(name = "asciidoc", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
+@Mojo(name = "asciidoc", defaultPhase = PROCESS_CLASSES, requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
+        threadSafe = true)
 public class AsciidocMojo extends ClasspathMojoBase {
 
     /**
