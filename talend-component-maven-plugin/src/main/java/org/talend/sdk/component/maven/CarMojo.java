@@ -29,7 +29,7 @@ import org.talend.sdk.component.tools.CarBundler;
 /**
  * Bundles the component as a component archive (.car).
  */
-@Mojo(name = "car", requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
+@Mojo(name = "car", requiresDependencyResolution = COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class CarMojo extends DependencyAwareMojo {
 
     @Parameter(defaultValue = "${project.packaging}")

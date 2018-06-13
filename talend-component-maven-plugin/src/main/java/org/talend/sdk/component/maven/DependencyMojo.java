@@ -34,7 +34,7 @@ import org.apache.maven.project.MavenProject;
 /**
  * Creates the file descriptor listing dependencies needed at runtime for the module.
  */
-@Mojo(name = "dependencies", requiresDependencyResolution = COMPILE_PLUS_RUNTIME)
+@Mojo(name = "dependencies", requiresDependencyResolution = COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class DependencyMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true)
