@@ -91,6 +91,7 @@ import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
+import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.Values;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
@@ -582,6 +583,17 @@ public class Generator {
             list.setItems(new ArrayList<>());
 
             final Values.Item item = new Values.Item();
+            item.setId("value");
+            item.setLabel("label");
+            list.getItems().add(item);
+
+            return new MapperBuilder().setPretty(false).build().writeObjectAsString(list);
+        }
+        if (returnedType == SuggestionValues.class) {
+            final SuggestionValues list = new SuggestionValues();
+            list.setItems(new ArrayList<>());
+
+            final SuggestionValues.Item item = new SuggestionValues.Item();
             item.setId("value");
             item.setLabel("label");
             list.getItems().add(item);
