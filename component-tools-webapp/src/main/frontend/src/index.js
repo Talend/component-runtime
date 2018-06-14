@@ -31,9 +31,11 @@ import 'brace/snippets/python';
 // import store from './store';
 
 import components from './components';
-import TCompForm from 'component-kit.js/lib/TCompForm';
+import ComponentForm from 'component-kit.js/lib/ComponentForm';
+import reducer from './store/reducers';
 
 cmf.bootstrap({
-  components: { TCompForm, ...components },
+  components: { ComponentForm, ...components },
+  reducer,
   appId: 'component-kit-tools-webapp',
-})
+});

@@ -1,5 +1,5 @@
 import ComponentForm from './ComponentForm.component';
-import sagas from './sagas';
+import sagas from './ComponentForm.sagas';
 
 ComponentForm.sagas = sagas;
 

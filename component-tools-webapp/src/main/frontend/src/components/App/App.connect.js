@@ -20,7 +20,7 @@ import { removeNotification } from '../../store/application/actions';
 
 import App from './App.component';
 
-export default connect(state => state.application, dispatch => {
+export default connect(state => state.app.application, dispatch => {
   return {
     removeNotification: bindActionCreators(removeNotification, dispatch)
   };

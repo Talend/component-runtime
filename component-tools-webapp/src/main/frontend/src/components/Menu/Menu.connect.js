@@ -14,27 +14,29 @@
  *  limitations under the License.
  */
 
-// import { bindActionCreators } from 'redux';
-// import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
-// import { getComponentsList } from '../../store/componentsList/actions';
-// import { selectComponent } from '../../store/component/actions';
-
-import { cmfConnect } from '@talend/react-cmf';
+import { getComponentsList } from '../../store/componentsList/actions';
+import { selectComponent } from '../../store/component/actions';
 import Menu from './Menu.component';
 
-// function mapDispatchToProps(dispatch) {
-// 	return {
-// 		getComponentsList: bindActionCreators(getComponentsList, dispatch),
-// 		selectComponent: bindActionCreators(selectComponent, dispatch),
-// 	}
-// }
-// function mapStateToProps(state) {
-// 	return state.componentsList;
-// }
+// import { cmfConnect } from '@talend/react-cmf';
 
-export default cmfConnect({
-	defaultProps: {
-		saga: 'Menu#default',
-	},
-})(Menu);
+// export default cmfConnect({
+// 	defaultProps: {
+// 		saga: 'Menu#default',
+// 	},
+// })(Menu);
+
+function mapDispatchToProps(dispatch) {
+	return {
+		getComponentsList: bindActionCreators(getComponentsList, dispatch),
+		selectComponent: bindActionCreators(selectComponent, dispatch),
+	}
+}
+function mapStateToProps(state) {
+	return state.app.componentsList || {};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Menu)

@@ -17,16 +17,16 @@
 import React from 'react';
 // import { CircularProgress } from '@talend/react-components';
 // import { UIForm } from '@talend/react-forms/lib/UIForm';
-import TCompForm from 'component-kit.js/lib/TCompForm';
+import ComponentForm from 'component-kit.js/lib/ComponentForm';
 
-// function NoSelectedComponent() {
-//   return (
-//     <div>
-//       <h1>No component selected</h1>
-//       <p>Click on a component to see its form</p>
-//     </div>
-//   );
-// }
+function NoSelectedComponent() {
+  return (
+    <div>
+      <h1>No component selected</h1>
+      <p>Click on a component to see its form</p>
+    </div>
+  );
+}
 
 class Detail extends React.Component {
   constructor(props) {
@@ -48,42 +48,26 @@ class Detail extends React.Component {
   // }
 
   render() {
-    return (
-      <TCompForm
-        definitionURL="/api/v1/forms/add"
-      />
-    );
-    // } else if (!this.props.uiSpec) {
-    //   return (<NoSelectedComponent/>);
-    // } else if (this.props.submitted) {
-    //     const configuration = kit.flatten(this.props.uiSpec.properties);
-    //   return (
-    //     <div>
-    //       <pre>{JSON.stringify(configuration, undefined, 2)}</pre>
-    //       <button className="btn btn-success" onClick={this.props.backToComponentEdit}>Back to form</button>
-    //     </div>
-    //   );
-    // } else {
-    //   return (
-    //     <UIForm
-    //       data={this.props.uiSpec}
-    //       onChange={this.props.onChange}
-    //       onErrors={this.props.onErrors}
-    //       onTrigger={this.onTrigger}
-    //       onSubmit={this.props.onSubmit}
-    //       actions={
-    //         [
-    //           {
-    //             bsStyle: 'primary',
-    //             label: 'Show Configuration',
-    //             type: 'submit',
-    //             widget: 'button',
-    //           }
-    //         ]
-    //       }
-    //     />
-    //   );
-    // }
+    if (!this.props.uiSpec) {
+      return (<NoSelectedComponent/>);
+    }  else if (this.props.submitted) {
+        const configuration = kit.flatten(this.props.uiSpec.properties);
+      return (
+        <div>
+          <pre>{JSON.stringify(configuration, undefined, 2)}</pre>
+          <button className="btn btn-success" onClick={this.props.backToComponentEdit}>Back to form</button>
+        </div>
+      );
+    } else {
+      return (
+        <ComponentForm
+          definitionURL="/api/v1/application/detail/c2VydmljZW5vdyNTZXJ2aWNlTm93I1NlcnZpY2VOb3dPdXRwdXQ"
+          triggerURL="/api/v1/application/action"
+          componentId="demo"
+          onSubmit={this.props.onSubmit}
+        />
+      );
+    }
   }
 }
 

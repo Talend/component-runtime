@@ -10,7 +10,6 @@ export const DEFAULT_STATE = new Map({
 	dirty: false,
 });
 
-
 class ComponentForm extends React.Component {
 	static displayName = 'ComponentForm';
 	static propTypes = {
@@ -20,6 +19,9 @@ class ComponentForm extends React.Component {
 		customTriggers: () => {},
 	};
 	static getCollectionId = componentId => `tcomp-form${componentId}`;
+	static TCOMP_FORM_ON_CHANGE = 'TCOMP_FORM_ON_CHANGE';
+	static TCOMP_FORM_ON_TRIGGER = 'TCOMP_FORM_ON_TRIGGER';
+	static DEFINITION_URL_CHANGED = 'TCOMP_DEFINITION_URL_CHANGED';
 
 	constructor(props) {
 		super(props);
@@ -27,16 +29,36 @@ class ComponentForm extends React.Component {
 		this.onTrigger = this.onTrigger.bind(this);
 		this.onChange = this.onChange.bind(this);
 		this.getUISpec = this.getUISpec.bind(this);
+		this.setupTrigger = this.setupTrigger.bind(this);
+		this.setupTrigger(props);
+	}
+
+	setupTrigger(props) {
 		this.trigger = createTriggers({
-			url: this.props.triggerURL,
-			customRegistry: this.props.customTriggers(this),
+			url: props.triggerURL,
+			customRegistry: props.customTriggers(this),
 		});
+	}
+
+	componentDidUpdate(props) {
+		if (
+			(props.triggerURL !== this.props.triggerURL) ||
+			(props.customTriggers !== this.props.customTriggers)
+		) {
+			this.trigger = setupTrigger(this.props);
+		}
+		if (this.props.definitionURL !== props.definitionURL) {
+			this.props.dispatch({
+				type: Component.DEFINITION_URL_CHANGED,
+				...this.props,
+			});
+		}
 	}
 
 	onChange(event, data) {
 		this.setState({ properties: data.properties });
 		this.props.dispatch({
-			type: 'TCOMP_FORM_ON_CHANGE',
+			type: ComponentForm.TCOMP_FORM_ON_CHANGE,
 			event: {
 				type: 'onChange',
 				component: 'TCompForm',
@@ -50,16 +72,21 @@ class ComponentForm extends React.Component {
 	}
 
 	onTrigger(event, payload) {
-		console.log('onTrigger');
 		this.trigger(event, payload).then(data => {
 			if (data.properties) {
 				this.setState({ properties: data.properties });
 			}
+			if (data.errors) {
+				this.props.setState({ errors: data.errors });
+			}
+			if (data.jsonSchema || data.uiSchema) {
+				this.props.setState(data);
+			}		
 			this.props.dispatch({
-				type: 'TCOMP_FORM_ON_TRIGGER',
+				type: ComponentForm.TCOMP_FORM_ON_TRIGGER,
 				event: {
 					type: 'onTrigger',
-					component: 'TCompForm',
+					component: ComponentForm,
 					componentId: this.props.componentId,
 					props: this.props,
 					state: this.state,
@@ -97,23 +124,11 @@ class ComponentForm extends React.Component {
 		if (this.state.properties) {
 			props.properties = this.state.properties;
 		}
+		if (this.props.state.get('errors')) {
+			props.errors = this.props.state.get('errors').toJS();
+		}
 		return <UIForm {...props} />;
 	}
-}
-
-export function mapStateToProps(state, ownProps) {
-	const props = {};
-	// if (ownProps.definitionURL) {
-	// 	let collectionPath = TCompForm.getCollectionId(ownProps.componentId);
-	// 	if (ownProps.uiSpecPath) {
-	// 		collectionPath = `${collectionPath}.${ownProps.uiSpecPath}`;
-	// 	}
-	// 	const schema = cmf.selectors.collections.toJS(state, collectionPath);
-	// 	if (schema) {
-	// 		Object.assign(props, schema);
-	// 	}
-	// }
-	return props;
 }
 
 export default cmfConnect({
@@ -121,5 +136,4 @@ export default cmfConnect({
 	defaultProps: {
 		saga: 'ComponentForm#default',
 	},
-	mapStateToProps,
 })(ComponentForm);

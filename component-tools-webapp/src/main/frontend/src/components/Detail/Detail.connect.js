@@ -26,7 +26,7 @@ import {
 import Detail from './Detail.component';
 
 function mapStateToProps(state) {
-	return state.component;
+	return state.app.component;
 }
 
 function mapDispatchToProps(dispatch) {
