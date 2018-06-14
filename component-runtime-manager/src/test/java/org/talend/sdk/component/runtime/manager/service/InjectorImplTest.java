@@ -26,15 +26,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.cache.LocalCache;
+import org.talend.sdk.component.api.service.injector.Injector;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 
-class InjectorTest {
+class InjectorImplTest {
 
     private Injector injector;
 
     @BeforeEach
     void init() {
-        injector = new Injector("LocalCacheServiceTest",
+        injector = new InjectorImpl("LocalCacheServiceTest",
                 singletonMap(LocalCache.class, new LocalCacheService("LocalCacheServiceTest")));
         DynamicContainerFinder.LOADERS.put("LocalCacheServiceTest", Thread.currentThread().getContextClassLoader());
         DynamicContainerFinder.SERVICES.put(Injector.class, injector);

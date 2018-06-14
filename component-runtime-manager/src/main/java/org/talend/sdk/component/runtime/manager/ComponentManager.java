@@ -111,9 +111,11 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.dependency.Resolver;
+import org.talend.sdk.component.api.service.factory.ObjectFactory;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.HttpClientFactory;
 import org.talend.sdk.component.api.service.http.Request;
+import org.talend.sdk.component.api.service.injector.Injector;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
@@ -134,9 +136,10 @@ import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
-import org.talend.sdk.component.runtime.manager.service.Injector;
+import org.talend.sdk.component.runtime.manager.service.InjectorImpl;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
+import org.talend.sdk.component.runtime.manager.service.ObjectFactoryImpl;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
@@ -832,7 +835,8 @@ public class ComponentManager implements AutoCloseable {
         services.put(ProxyGenerator.class, proxyGenerator);
         services.put(Resolver.class,
                 new ResolverImpl(container.getId(), container.getLocalDependencyRelativeResolver()));
-        services.put(Injector.class, new Injector(container.getId(), services));
+        services.put(Injector.class, new InjectorImpl(container.getId(), services));
+        services.put(ObjectFactory.class, new ObjectFactoryImpl(container.getId()));
     }
 
     protected Collection<LocalConfiguration> createRawLocalConfigurations() {

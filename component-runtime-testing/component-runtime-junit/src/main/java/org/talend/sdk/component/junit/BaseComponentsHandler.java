@@ -55,6 +55,7 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
 
 import org.apache.xbean.finder.filter.Filter;
+import org.talend.sdk.component.api.service.injector.Injector;
 import org.talend.sdk.component.junit.lang.StreamDecorator;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.input.Input;
@@ -64,7 +65,6 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
-import org.talend.sdk.component.runtime.manager.service.Injector;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.AllArgsConstructor;
