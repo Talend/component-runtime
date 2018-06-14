@@ -1,5 +1,6 @@
 = Wrapping a Beam I/O
 :page-partial:
+:toc:
 
 [[wrapping-a-beam-io__start]]
 == Limitations
@@ -123,6 +124,21 @@ as provided so never include it in compile scope - it would be ignored anyway.
 
 If you need a JSonCoder you can use `org.talend.sdk.component.runtime.beam.factory.service.PluginCoderFactory` service
 which gives you access the JSON-P and JSON-B coders.
+
+There is also an Avro coder using the `FileContainer` format to ensure it
+is self-contained for `IndexedRecord` and doesn't need - as default Apache Beam `AvroCoder` - to set the
+schema when creating a pipeline. It takes a bit more space and therefore is a bit slower
+but for `DoFn` it is fine since they shouldn't rely on serialization in a lot of cases.
+See `org.talend.sdk.component.runtime.beam.transform.avro.IndexedRecordCoder`.
+
+=== JsonObject to IndexedRecord
+
+The mainstream model is `JsonObject` but it is common to have a legacy system using
+`IndexedRecord`. To mitigate the transition you can use the following `PTransforms`:
+
+- `IndexedRecordToJson`: to convert from an `IndexedRecord` to a `JsonObject`
+- `JsonToIndexedRecord`: to convert from an `JsonObject` to a `IndexedRecord`
+
 
 === Sample
 

@@ -27,6 +27,8 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.beam</talend.build.name>
+
+    <avro-jackson.version>1.9.13</avro-jackson.version>
   </properties>
 
   <dependencies>
@@ -48,6 +50,18 @@
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-sdks-java-core</artifactId>
       <version>${beam.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-core-asl</artifactId>
+      <version>${avro-jackson.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>${avro-jackson.version}</version>
       <scope>provided</scope>
     </dependency>
 
