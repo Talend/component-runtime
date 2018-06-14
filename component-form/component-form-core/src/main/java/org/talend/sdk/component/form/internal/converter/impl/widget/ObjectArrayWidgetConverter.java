@@ -41,8 +41,8 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
     public ObjectArrayWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
             final Collection<SimplePropertyDefinition> nested, final String family, final Client client,
-            final String gridLayoutFilter, final JsonSchema jsonSchema) {
-        super(schemas, properties, actions, jsonSchema);
+            final String gridLayoutFilter, final JsonSchema jsonSchema, final String lang) {
+        super(schemas, properties, actions, jsonSchema, lang);
         this.nestedProperties = nested;
         this.family = family;
         this.client = client;
@@ -57,7 +57,7 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
             arraySchema.setItems(new ArrayList<>());
             arraySchema.setItemWidget("collapsibleFieldset");
             final UiSchemaConverter converter = new UiSchemaConverter(gridLayoutFilter, family, arraySchema.getItems(),
-                    new ArrayList<>(), client, jsonSchema, properties, actions);
+                    new ArrayList<>(), client, jsonSchema, properties, actions, lang);
             return CompletableFuture
                     .allOf(nestedProperties
                             .stream()

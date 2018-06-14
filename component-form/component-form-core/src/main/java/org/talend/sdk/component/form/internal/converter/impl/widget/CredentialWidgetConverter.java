@@ -28,8 +28,8 @@ public class CredentialWidgetConverter extends AbstractWidgetConverter {
 
     public CredentialWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
-            final JsonSchema jsonSchema) {
-        super(schemas, properties, actions, jsonSchema);
+            final JsonSchema jsonSchema, final String lang) {
+        super(schemas, properties, actions, jsonSchema, lang);
     }
 
     @Override

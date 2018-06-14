@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.server.front;
 
+import static java.util.Collections.emptyMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -46,7 +47,7 @@ class ActionResourceTest {
     @Test
     void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-        assertEquals(2, index.getItems().size());
+        assertEquals(3, index.getItems().size());
 
         final List<ActionItem> items = new ArrayList<>(index.getItems());
         items.sort(Comparator.comparing(ActionItem::getName));
@@ -64,7 +65,7 @@ class ActionResourceTest {
                 .queryParam("family", "chain")
                 .request(APPLICATION_JSON_TYPE)
                 .get(ActionList.class);
-        assertEquals(1, index.getItems().size());
+        assertEquals(2, index.getItems().size());
     }
 
     @Test
@@ -98,6 +99,20 @@ class ActionResourceTest {
                 }, APPLICATION_JSON_TYPE));
         assertEquals(200, error.getStatus());
         assertEquals(HealthCheckStatus.Status.OK, error.readEntity(HealthCheckStatus.class).getStatus());
+    }
+
+    @Test
+    void checkLangIsAvailable() {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "healthcheck")
+                .queryParam("family", "chain")
+                .queryParam("action", "langtest")
+                .queryParam("lang", "it")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE));
+        assertEquals(200, error.getStatus());
+        assertEquals("it", error.readEntity(HealthCheckStatus.class).getComment());
     }
 
     private void assertAction(final String component, final String type, final String name, final int params,

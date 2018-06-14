@@ -49,8 +49,8 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
     public GridLayoutWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
             final Client client, final String family, final Map<String, String> gridLayouts,
-            final JsonSchema jsonSchema) {
-        super(schemas, properties, actions, jsonSchema);
+            final JsonSchema jsonSchema, final String lang) {
+        super(schemas, properties, actions, jsonSchema, lang);
         this.client = client;
         this.family = family;
         this.layouts = gridLayouts;
@@ -126,7 +126,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
         return CompletableFuture.allOf(Stream.of(layout.split("\\|")).map(line -> line.split(",")).map(line -> {
             if (line.length == 1 && childProperties.containsKey(line[0])) {
                 return new UiSchemaConverter(layoutFilter, family, uiSchema.getItems(), visitedProperties, client,
-                        jsonSchema, properties, actions)
+                        jsonSchema, properties, actions, lang)
                                 .convert(completedFuture(
                                         new PropertyContext<>(childProperties.get(line[0]), root.getRootContext())))
                                 .thenApply(r -> uiSchema);
@@ -136,7 +136,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
                 schema.setItems(new ArrayList<>());
 
                 final UiSchemaConverter columnConverter = new UiSchemaConverter(layoutFilter, family, schema.getItems(),
-                        visitedProperties, client, jsonSchema, properties, actions);
+                        visitedProperties, client, jsonSchema, properties, actions, lang);
 
                 return CompletableFuture
                         .allOf(Stream

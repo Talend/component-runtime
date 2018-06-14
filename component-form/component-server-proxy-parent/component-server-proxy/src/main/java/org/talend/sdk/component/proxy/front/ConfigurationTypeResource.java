@@ -336,7 +336,7 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
         final Node configType = new Node(node.getId(), node.getDisplayName(), family.getId(), family.getDisplayName(),
                 icon, node.getEdges(), node.getVersion(), node.getName());
         return uiSpecService
-                .convert(family.getName(), modelEnricherService.enrich(node, language),
+                .convert(family.getName(), language, modelEnricherService.enrich(node, language),
                         new UiSpecContext(language, placeholderProvider))
                 .thenApply(uiSpec -> new UiNode(uiSpec, configType));
     }

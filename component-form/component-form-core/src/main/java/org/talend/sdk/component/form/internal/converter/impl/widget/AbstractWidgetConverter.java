@@ -54,9 +54,11 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
 
     protected final JsonSchema jsonSchema;
 
+    protected final String lang;
+
     protected <T> CompletionStage<List<UiSchema.NameValue>> loadDynamicValues(final Client<T> client,
             final String family, final String actionName, final T context) {
-        return client.action(family, "dynamic_values", actionName, emptyMap(), context).exceptionally(e -> {
+        return client.action(family, "dynamic_values", actionName, lang, emptyMap(), context).exceptionally(e -> {
             log.warn(e.getMessage(), e);
             return emptyMap();
         }).thenApply(

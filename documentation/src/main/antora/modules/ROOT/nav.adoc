@@ -68,6 +68,7 @@
 ** xref:documentation.adoc#_internationalization_api[Internationalization API]
 * xref:documentation.adoc#_providing_some_actions_for_consumers_clients[Providing some actions for consumers/clients]
 ** xref:documentation.adoc#_particular_action_types[Particular action types]
+** xref:documentation.adoc#_i18n[i18n]
 * xref:documentation.adoc#_built_in_services[Built in services]
 ** xref:documentation.adoc#_httpclient_usage[HttpClient usage]
 *** xref:documentation.adoc#_advanced_http_client_request_customization[Advanced HTTP client request customization]

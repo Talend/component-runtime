@@ -27,8 +27,8 @@ import java.util.concurrent.CompletionStage;
  */
 public interface Client<T> extends AutoCloseable {
 
-    CompletionStage<Map<String, Object>> action(String family, String type, String action, Map<String, Object> params,
-            T context);
+    CompletionStage<Map<String, Object>> action(String family, String type, String action, String lang,
+            Map<String, Object> params, T context);
 
     @Override
     void close();

@@ -75,7 +75,8 @@ public class UiSpecService<T> implements AutoCloseable {
      * @param context an optional custom context to propagate some parameters.
      * @return a Ui promise.
      */
-    public CompletionStage<Ui> convert(final String family, final ConfigTypeNode node, final T context) {
+    public CompletionStage<Ui> convert(final String family, final String lang, final ConfigTypeNode node,
+            final T context) {
         // extract root properties
         final Collection<String> rootProperties =
                 node.getProperties().stream().map(SimplePropertyDefinition::getPath).collect(toSet());
@@ -106,7 +107,8 @@ public class UiSpecService<T> implements AutoCloseable {
             isRootProperty = p -> rootProperties.contains(p.getPath());
         }
 
-        return convert(node::getDisplayName, () -> family, () -> props, node::getActions, isRootProperty, context);
+        return convert(node::getDisplayName, () -> family, () -> props, node::getActions, isRootProperty, context,
+                lang);
     }
 
     /**
@@ -116,15 +118,15 @@ public class UiSpecService<T> implements AutoCloseable {
      * @param context an optional custom context to propagate some parameters.
      * @return the uiSpec corresponding to the model.
      */
-    public CompletionStage<Ui> convert(final ComponentDetail detail, final T context) {
+    public CompletionStage<Ui> convert(final ComponentDetail detail, final String lang, final T context) {
         return convert(detail::getDisplayName, detail.getId()::getFamily, detail::getProperties, detail::getActions,
-                p -> p.getName().equals(p.getPath()), context);
+                p -> p.getName().equals(p.getPath()), context, lang);
     }
 
     private CompletionStage<Ui> convert(final Supplier<String> displayName, final Supplier<String> family,
             final Supplier<Collection<SimplePropertyDefinition>> properties,
             final Supplier<Collection<ActionReference>> actions,
-            final Predicate<SimplePropertyDefinition> isRootProperty, final T context) {
+            final Predicate<SimplePropertyDefinition> isRootProperty, final T context, final String lang) {
         final Collection<SimplePropertyDefinition> props = properties.get();
 
         final Ui ui = new Ui();
@@ -144,7 +146,7 @@ public class UiSpecService<T> implements AutoCloseable {
 
         final JsonSchemaConverter jsonSchemaConverter = new JsonSchemaConverter(jsonb, ui.getJsonSchema(), props);
         final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, family.get(), ui.getUiSchema(),
-                new ArrayList<>(), client, ui.getJsonSchema(), props, actions.get());
+                new ArrayList<>(), client, ui.getJsonSchema(), props, actions.get(), lang);
         final PropertiesConverter propertiesConverter =
                 new PropertiesConverter(jsonb, Map.class.cast(ui.getProperties()), props);
 

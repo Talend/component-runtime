@@ -35,8 +35,8 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
 
     ObjectWidgetConverter(final Collection<UiSchema> schemas, final Collection<SimplePropertyDefinition> properties,
-            final Collection<ActionReference> actions, final JsonSchema jsonSchema) {
-        super(schemas, properties, actions, jsonSchema);
+            final Collection<ActionReference> actions, final JsonSchema jsonSchema, final String lang) {
+        super(schemas, properties, actions, jsonSchema, lang);
     }
 
     protected void addActions(final PropertyContext root, final UiSchema uiSchema,

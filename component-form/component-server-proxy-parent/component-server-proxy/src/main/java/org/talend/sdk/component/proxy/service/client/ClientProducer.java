@@ -68,13 +68,14 @@ public class ClientProducer {
 
             @Override
             public CompletableFuture<Map<String, Object>> action(final String family, final String type,
-                    final String action, final Map<String, Object> params, final UiSpecContext context) {
+                    final String action, final String lang, final Map<String, Object> params,
+                    final UiSpecContext context) {
                 if (actionService.isBuiltin(action)) {
                     return actionService
                             .findBuiltInAction(action, context.getLanguage(), context.getPlaceholderProvider(), params)
                             .toCompletableFuture();
                 }
-                return super.action(family, type, action, params, context);
+                return super.action(family, type, action, lang, params, context);
             }
         };
     }

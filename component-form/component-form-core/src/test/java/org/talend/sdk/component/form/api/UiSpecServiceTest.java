@@ -65,7 +65,7 @@ class UiSpecServiceTest {
 
         @Override
         public CompletionStage<Map<String, Object>> action(final String family, final String type, final String action,
-                final Map<String, Object> params, final Object ignored) {
+                final String lang, final Map<String, Object> params, final Object ignored) {
             if ("jdbc".equals(family) && "dynamic_values".equals(type) && "driver".equals(action)) {
                 final Map<String, String> item = new HashMap<>();
                 item.put("id", "some.driver.Jdbc");
@@ -91,7 +91,7 @@ class UiSpecServiceTest {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("bad config"));
         final String[] expectedOrder = root.getMetadata().get("ui::optionsorder::value").split(",");
-        final Ui payload = service.convert("FileIO", node, null).toCompletableFuture().get();
+        final Ui payload = service.convert("FileIO", "en", node, null).toCompletableFuture().get();
         final List<String> actualOrder = payload
                 .getUiSchema()
                 .iterator()
@@ -107,7 +107,7 @@ class UiSpecServiceTest {
     @Test
     void proposablePrimitives() throws Exception {
         final ComponentDetail detail = load("multiSelectTagString.json", ComponentDetail.class);
-        final Ui payload = service.convert(detail, null).toCompletableFuture().get();
+        final Ui payload = service.convert(detail, "en", null).toCompletableFuture().get();
         final UiSchema proposable =
                 ((List<UiSchema>) payload.getUiSchema().iterator().next().getItems().iterator().next().getItems())
                         .get(1);
@@ -127,7 +127,7 @@ class UiSpecServiceTest {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No family"));
         final Ui payload = service
-                .convert(family,
+                .convert(family, "en",
                         load
                                 .getNodes()
                                 .values()
@@ -157,7 +157,7 @@ class UiSpecServiceTest {
 
     @Test
     void condition() throws Exception {
-        final Ui payload = service.convert(load("rest-api.json"), null).toCompletableFuture().get();
+        final Ui payload = service.convert(load("rest-api.json"), "en", null).toCompletableFuture().get();
         final UiSchema root = payload.getUiSchema().iterator().next();
         final Collection<UiSchema.Condition> conditions = root
                 .getItems()
@@ -185,7 +185,7 @@ class UiSpecServiceTest {
 
     @Test
     void guessSchema() throws Exception {
-        final Ui payload = service.convert(load("rest-api.json"), null).toCompletableFuture().get();
+        final Ui payload = service.convert(load("rest-api.json"), "en", null).toCompletableFuture().get();
         final UiSchema root = payload.getUiSchema().iterator().next();
         final UiSchema advanced =
                 root.getItems().stream().filter(i -> i.getTitle().equals("Advanced")).findFirst().get();
@@ -197,7 +197,7 @@ class UiSpecServiceTest {
 
     @Test
     void jsonSchemaArray() throws Exception {
-        final Ui payload = service.convert(load("rest-api.json"), null).toCompletableFuture().get();
+        final Ui payload = service.convert(load("rest-api.json"), "en", null).toCompletableFuture().get();
         final JsonSchema commonConfig = payload
                 .getJsonSchema()
                 .getProperties()
@@ -217,7 +217,7 @@ class UiSpecServiceTest {
 
     @Test
     void gridLayout() throws Exception {
-        final Ui payload = service.convert(load("rest-api.json"), null).toCompletableFuture().get();
+        final Ui payload = service.convert(load("rest-api.json"), "en", null).toCompletableFuture().get();
         final UiSchema tableDataSet = payload.getUiSchema().iterator().next();
         assertEquals(2, tableDataSet.getItems().size());
         final Iterator<UiSchema> tableDataSetIt = tableDataSet.getItems().iterator();
@@ -243,13 +243,13 @@ class UiSpecServiceTest {
 
     @Test
     void defaultValues() throws Exception {
-        final Ui payload = service.convert(load("rest-api.json"), null).toCompletableFuture().get();
+        final Ui payload = service.convert(load("rest-api.json"), "en", null).toCompletableFuture().get();
         assertEquals(10000., read(payload.getProperties(), "tableDataSet.limit"));
     }
 
     @Test
     void triggerRelativeParameters() throws Exception {
-        final Ui payload = service.convert(load("relative-params.json"), null).toCompletableFuture().get();
+        final Ui payload = service.convert(load("relative-params.json"), "en", null).toCompletableFuture().get();
         final Collection<UiSchema> schema = payload.getUiSchema();
         final UiSchema.Trigger driverTrigger = schema
                 .iterator()
@@ -280,7 +280,7 @@ class UiSpecServiceTest {
 
     @Test
     void jsonSchema() throws Exception {
-        final Ui payload = service.convert(load("jdbc.json"), null).toCompletableFuture().get();
+        final Ui payload = service.convert(load("jdbc.json"), "en", null).toCompletableFuture().get();
         final JsonSchema jsonSchema = payload.getJsonSchema();
         assertNotNull(jsonSchema);
         assertEquals("JDBC Input", jsonSchema.getTitle());
@@ -319,7 +319,7 @@ class UiSpecServiceTest {
 
     @Test
     void properties() throws Exception {
-        final Ui payload = service.convert(load("jdbc.json"), null).toCompletableFuture().get();
+        final Ui payload = service.convert(load("jdbc.json"), "en", null).toCompletableFuture().get();
         final Map<String, Object> properties = Map.class.cast(payload.getProperties());
         assertEquals(1, properties.size());
 
@@ -335,7 +335,7 @@ class UiSpecServiceTest {
 
     @Test
     void uiSchema() throws Exception {
-        final Ui payload = service.convert(load("jdbc.json"), null).toCompletableFuture().get();
+        final Ui payload = service.convert(load("jdbc.json"), "en", null).toCompletableFuture().get();
         final Collection<UiSchema> uiSchema = payload.getUiSchema();
         assertNotNull(uiSchema);
         assertEquals(1, uiSchema.size());
@@ -415,7 +415,7 @@ class UiSpecServiceTest {
     @Test
     @Disabled("debug test to log the produced model")
     void out() throws Exception {
-        final Ui payload = service.convert(load("jdbc.json"), null).toCompletableFuture().get();
+        final Ui payload = service.convert(load("jdbc.json"), "en", null).toCompletableFuture().get();
         System.out.println(JsonbBuilder.create(new JsonbConfig().withFormatting(true)).toJson(payload));
     }
 

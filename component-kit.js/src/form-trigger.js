@@ -28,8 +28,22 @@ function extractRequestPayload(parameters = [], properties) {
   return payload;
 }
 
+function getLang(lang) {
+  if (!lang) {
+    if (navigator) {
+      if (navigator.language) {
+        return navigator.language;
+      } else if (navigator.languages && navigator.languages.length > 0) {
+        return navigator.languages[0];
+      }
+    }
+  }
+  return lang || 'en';
+}
+
 // customRegistry can be used to add extensions or custom trigger (not portable accross integrations)
-export default function getDefaultTrigger({ url, customRegistry }) {
+export default function getDefaultTrigger({ url, customRegistry, lang }) {
+  const encodedLang = encodeURIComponent(getLang(lang));
   return function onDefaultTrigger(event, { trigger, schema, properties, errors }) {
     const services = {
       ...defaultRegistry,
@@ -37,7 +51,7 @@ export default function getDefaultTrigger({ url, customRegistry }) {
     };
     const payload = extractRequestPayload(trigger.parameters, properties);
     return fetch(
-      `${url}?action=${encodeURIComponent(trigger.action)}&family=${encodeURIComponent(trigger.family)}&type=${encodeURIComponent(trigger.type)}`,
+      `${url}?lang=${encodedLang}&action=${encodeURIComponent(trigger.action)}&family=${encodeURIComponent(trigger.family)}&type=${encodeURIComponent(trigger.type)}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
