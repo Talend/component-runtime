@@ -1,20 +1,20 @@
-= Generate a project using the component starter
+= Generating a project using the Component Kit starter
 :page-partial:
 
 [[tutorial-generate-project-using-starter]]
-The component starter let you design your components configuration and generate a ready to implement project structure.
+The Component Kit starter lets you design your components configuration and generates a ready-to-implement project structure.
 
-NOTE: In this tutorial, we will use the component starter to generate some components for MySQL database.
+This tutorial shows how to use the Component Kit starter to generate some components for MySQL databases.
 
-The starter is available at https://starter-toolkit.talend.io.
-
-== Project configuration
+== Configuring the project
 image::starter/starter_project-config.png[Project configuration]
-1. Choose your favorite build tool. we will use maven in this tutorial but you can select gradle if you prefer.
-2. We add the *test facet* to get some unit tests generated automatically for the component that we will create after.
-3. Complete the component description (family, and category).
-4. Complete the project metadata. the groupId, ArtifactId and the package.
-5. Click *ADD A COMPONENT* button to start designing your components.
+. Create a folder on your local machine to store the resource files of the component you want to create. For example, `C:/my_components`.
+. Open the https://starter-toolkit.talend.io[starter] in the web browser of your choice.
+. Select your build tool. This tutorial uses Maven, but you can select Gradle if you prefer.
+. Add the *test facet* to get some unit tests generated automatically for the component that we will create after.
+. Complete the component description (family, and category).
+. Complete the project metadata. the groupId, ArtifactId and the package.
+. Click *ADD A COMPONENT* button to start designing your components.
 
 == Create an input component
 Let's create an input component that will connect to a MySQL database, execute a SQL query and get the result.

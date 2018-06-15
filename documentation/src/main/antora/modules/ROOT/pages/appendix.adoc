@@ -1,9 +1,9 @@
-= Talend Component Appendix
+= Talend Component Kit Appendix
 :page-partial:
 
 == ContainerManager or the classloader manager
 
-The entry point of the API is the `ContainerManager`, it will enable
+The entry point of the API is the `ContainerManager`. It allows
 you to define what is the `Shared` classloader and to create children:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
@@ -24,14 +24,14 @@ try (final ContainerManager manager = new ContainerManager( <1>
 }
 ----
 
-<1> the `ContainerManager` is an `AutoCloseable` so you can use it in a try/finally block if desired.
-NOTE: it is recommended to keep it running if you can reuse plugins to avoid to recreate classloaders and to
-mutualize them. This manager has two main configuration entries: how to resolve dependencies for plugins from the plugin
-file/location and how to configure the classloaders (what is the parent classloader, how to handle the parent first/last
-delegation etc...).
+<1> The `ContainerManager` is `AutoCloseable`, which allows you to use it in a try or finally block if needed. +
+This manager has two main configuration entries: +
+* how to resolve dependencies for plugins from the plugin file/location
+* how to configure the classloaders (what is the parent classloader, how to handle the parent first/last delegation, and so on).
 
+NOTE: It is recommended to keep the manager running if you can reuse plugins in order to avoid recreating classloaders and to mutualize them.
 
-<2> the `DependenciesResolutionConfiguration` enables to pass a custom `Resolver` which will be used to build the plugin classloaders.
+<2> the `DependenciesResolutionConfiguration` enables to pass a custom `Resolver` which is used to build the plugin classloaders.
 For now the library only provides `MvnDependencyListLocalRepositoryResolver` which will read the output of `mvn dependencies:list`
 put in the plugin jar and will resolve from a *local* maven repository the dependencies. Note that `SNAPSHOT` are only resolved based on their name
 and not from metadata (only useful in development). To continue the comparison to a Servlet server, you can easily implement an unpacked war resolver if you want.
