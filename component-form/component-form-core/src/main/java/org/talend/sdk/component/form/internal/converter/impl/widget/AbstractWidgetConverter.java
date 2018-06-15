@@ -164,34 +164,10 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         schema.setRequired(ctx.isRequired());
         schema.setPlaceholder(ctx.getProperty().getPlaceholder());
         if (actions != null) {
-            final List<UiSchema.Trigger> triggers =
-                    Stream
-                            .concat(ofNullable(ctx.getProperty().getMetadata().get("action::validation"))
-                                    .flatMap(
-                                            v -> actions
-                                                    .stream()
-                                                    .filter(a -> a.getName().equals(v)
-                                                            && "validation".equals(a.getType()))
-                                                    .findFirst())
-                                    .map(ref -> Stream.of(toTrigger(properties, ctx.getProperty(), ref)))
-                                    .orElseGet(Stream::empty),
-                                    ctx
-                                            .getProperty()
-                                            .getMetadata()
-                                            .entrySet()
-                                            .stream()
-                                            .filter(it -> it.getKey().startsWith("action::")
-                                                    && !isBuiltInAction(it.getKey()))
-                                            .map(v -> actions
-                                                    .stream()
-                                                    .filter(a -> a.getName().equals(v.getValue())
-                                                            && v.getKey().substring("action::".length()).equals(
-                                                                    a.getType()))
-                                                    .findFirst()
-                                                    .map(ref -> toTrigger(properties, ctx.getProperty(), ref))
-                                                    .orElse(null))
-                                            .filter(Objects::nonNull))
-                            .collect(toList());
+            final List<UiSchema.Trigger> triggers = Stream
+                    .concat(Stream.concat(createValidationTrigger(ctx.getProperty()),
+                            createOtherActions(ctx.getProperty())), createSuggestionTriggers(ctx.getProperty()))
+                    .collect(toList());
             if (!triggers.isEmpty()) {
                 schema.setTriggers(triggers);
             }
@@ -200,11 +176,48 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         return schema;
     }
 
+    private Stream<UiSchema.Trigger> createSuggestionTriggers(final SimplePropertyDefinition property) {
+        return ofNullable(property.getMetadata().get("action::suggestions"))
+                .flatMap(v -> actions
+                        .stream()
+                        .filter(a -> a.getName().equals(v) && "suggestions".equals(a.getType()))
+                        .findFirst())
+                .map(ref -> Stream.of(toTrigger(properties, property, ref)).peek(
+                        trigger -> trigger.setOnEvent("focus")))
+                .orElseGet(Stream::empty);
+    }
+
+    private Stream<UiSchema.Trigger> createOtherActions(final SimplePropertyDefinition property) {
+        return property
+                .getMetadata()
+                .entrySet()
+                .stream()
+                .filter(it -> it.getKey().startsWith("action::") && !isBuiltInAction(it.getKey()))
+                .map(v -> actions
+                        .stream()
+                        .filter(a -> a.getName().equals(v.getValue())
+                                && v.getKey().substring("action::".length()).equals(a.getType()))
+                        .findFirst()
+                        .map(ref -> toTrigger(properties, property, ref))
+                        .orElse(null))
+                .filter(Objects::nonNull);
+    }
+
+    private Stream<UiSchema.Trigger> createValidationTrigger(final SimplePropertyDefinition property) {
+        return ofNullable(property.getMetadata().get("action::validation"))
+                .flatMap(v -> actions
+                        .stream()
+                        .filter(a -> a.getName().equals(v) && "validation".equals(a.getType()))
+                        .findFirst())
+                .map(ref -> Stream.of(toTrigger(properties, property, ref)))
+                .orElseGet(Stream::empty);
+    }
+
     // means the actions is processed in the converter in a custom fashion and doesn't need to be passthrough to the
     // client
     private boolean isBuiltInAction(final String key) {
         return key.equals("action::dynamic_values") || key.equals("action::healthcheck")
-                || key.equals("action::validation");
+                || key.equals("action::validation") || key.equals("action::suggestions");
     }
 
     protected List<UiSchema.Condition> createConditions(final PropertyContext ctx) {

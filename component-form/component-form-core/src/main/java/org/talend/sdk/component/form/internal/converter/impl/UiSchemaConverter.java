@@ -37,6 +37,7 @@ import org.talend.sdk.component.form.internal.converter.impl.widget.GridLayoutWi
 import org.talend.sdk.component.form.internal.converter.impl.widget.MultiSelectTagWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.NumberWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.ObjectArrayWidgetConverter;
+import org.talend.sdk.component.form.internal.converter.impl.widget.SuggestionWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.TextAreaWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.TextWidgetConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.ToggleWidgetConverter;
@@ -71,12 +72,12 @@ public class UiSchemaConverter implements PropertyConverter {
     @Override
     public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
-            final String type = context.getProperty().getType().toLowerCase(Locale.ROOT);
+            final SimplePropertyDefinition property = context.getProperty();
+            final String type = property.getType().toLowerCase(Locale.ROOT);
             switch (type) {
             case "object":
                 final Map<String, String> gridLayouts =
-                        context
-                                .getProperty()
+                        property
                                 .getMetadata()
                                 .entrySet()
                                 .stream()
@@ -95,24 +96,24 @@ public class UiSchemaConverter implements PropertyConverter {
                                     : gridLayouts,
                             jsonSchema, lang).convert(CompletableFuture.completedFuture(context));
                 }
-                final String forcedOrder = context.getProperty().getMetadata().get("ui::optionsorder::value");
+                final String forcedOrder = property.getMetadata().get("ui::optionsorder::value");
                 return new FieldSetWidgetConverter(schemas, properties, actions, client, family, jsonSchema,
                         forcedOrder, lang).convert(CompletableFuture.completedFuture(context));
             case "boolean":
-                includedProperties.add(context.getProperty());
+                includedProperties.add(property);
                 return new ToggleWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                         .convert(CompletableFuture.completedFuture(context));
             case "enum":
-                includedProperties.add(context.getProperty());
+                includedProperties.add(property);
                 return new DataListWidgetConverter(schemas, properties, actions, client, family, jsonSchema, lang)
                         .convert(CompletableFuture.completedFuture(context));
             case "number":
-                includedProperties.add(context.getProperty());
+                includedProperties.add(property);
                 return new NumberWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                         .convert(CompletableFuture.completedFuture(context));
             case "array":
-                includedProperties.add(context.getProperty());
-                final String nestedPrefix = context.getProperty().getPath() + "[].";
+                includedProperties.add(property);
+                final String nestedPrefix = property.getPath() + "[].";
                 final int from = nestedPrefix.length();
                 final Collection<SimplePropertyDefinition> nested = properties
                         .stream()
@@ -127,22 +128,24 @@ public class UiSchemaConverter implements PropertyConverter {
                         .convert(CompletableFuture.completedFuture(context));
             case "string":
             default:
-                if (context.getProperty().getPath().endsWith("[]")) {
+                if (property.getPath().endsWith("[]")) {
                     return CompletableFuture.completedFuture(context);
                 }
-                includedProperties.add(context.getProperty());
-                if ("true".equalsIgnoreCase(context.getProperty().getMetadata().get("ui::credential"))) {
+                includedProperties.add(property);
+                if ("true".equalsIgnoreCase(property.getMetadata().get("ui::credential"))) {
                     return new CredentialWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                             .convert(CompletableFuture.completedFuture(context));
-                } else if (context.getProperty().getMetadata().containsKey("ui::code::value")) {
+                } else if (property.getMetadata().containsKey("ui::code::value")) {
                     return new CodeWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                             .convert(CompletableFuture.completedFuture(context));
-                } else if (context.getProperty().getMetadata() != null
-                        && context.getProperty().getMetadata().containsKey("action::dynamic_values")) {
+                } else if (property.getMetadata().containsKey("action::suggestions")) {
+                    return new SuggestionWidgetConverter(schemas, properties, actions, jsonSchema, lang)
+                            .convert(CompletableFuture.completedFuture(context));
+                } else if (property.getMetadata().containsKey("action::dynamic_values")) {
                     return new DataListWidgetConverter(schemas, properties, actions, client, family, jsonSchema, lang)
                             .convert(CompletableFuture.completedFuture(context));
-                } else if (context.getProperty().getMetadata().containsKey("ui::textarea")
-                        && Boolean.valueOf(context.getProperty().getMetadata().get("ui::textarea"))) {
+                } else if (property.getMetadata().containsKey("ui::textarea")
+                        && Boolean.valueOf(property.getMetadata().get("ui::textarea"))) {
                     return new TextAreaWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                             .convert(CompletableFuture.completedFuture(context));
                 }

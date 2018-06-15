@@ -1211,7 +1211,7 @@ public class ComponentManager implements AutoCloseable {
                         .orElseGet(components::family);
                 if (component.isEmpty()) {
                     throw new IllegalArgumentException("No component for " + serviceMethod
-                            + ", maybe add a @Components on your package " + service.getDeclaringClass().getPackage());
+                            + ", maybe add a @Components on your package " + service.getPackage());
                 }
             } catch (final NoSuchMethodException | IllegalAccessException e) {
                 throw new IllegalStateException(e);

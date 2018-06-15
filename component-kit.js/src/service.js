@@ -95,9 +95,15 @@ function dynamic_values({ schema, body, properties, trigger }) {
   return { properties };
 }
 
+// TODO: not yet supported so ignore for now
+function suggestions({ properties }) {
+  return { properties };
+}
+
 export default {
   dynamic_values,
   healthcheck: validation,
   schema,
   validation,
+  suggestions,
 };

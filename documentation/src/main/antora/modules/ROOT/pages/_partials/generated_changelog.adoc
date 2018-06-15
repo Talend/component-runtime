@@ -40,6 +40,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-864[TCOMP-864^]: Mojo should be thread safe for car/dependencies.txt generation
 - link:https://jira.talendforge.org/browse/TCOMP-867[TCOMP-867^]: Expose Injector service
 - link:https://jira.talendforge.org/browse/TCOMP-868[TCOMP-868^]: Create an ObjectFactory service
+- link:https://jira.talendforge.org/browse/TCOMP-869[TCOMP-869^]: Ensure actions can get injected the requested lang
+- link:https://jira.talendforge.org/browse/TCOMP-870[TCOMP-870^]: Provide Beam DoFn to simplify the migration from IndexedRecord to JsonObject
 
 
 == Version 1.0.0

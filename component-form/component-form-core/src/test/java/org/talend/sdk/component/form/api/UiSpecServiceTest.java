@@ -279,6 +279,31 @@ class UiSpecServiceTest {
     }
 
     @Test
+    void suggestions() throws Exception {
+        final Ui payload = service
+                .convert("jdbc", "en", load("suggestions.json", ConfigTypeNode.class), null)
+                .toCompletableFuture()
+                .get();
+        final Collection<UiSchema> schema = payload.getUiSchema();
+        final UiSchema.Trigger driverTrigger = schema
+                .iterator()
+                .next()
+                .getItems()
+                .stream()
+                .filter(c -> c.getKey().equals("configuration.driver"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No driver"))
+                .getTriggers()
+                .iterator()
+                .next();
+        assertEquals("focus", driverTrigger.getOnEvent());
+        assertEquals("suggestions", driverTrigger.getType());
+        assertEquals("SuggestionForJdbcDrivers", driverTrigger.getAction());
+        assertEquals(singletonList("currentValue/configuration.driver"),
+                driverTrigger.getParameters().stream().map(it -> it.getKey() + '/' + it.getPath()).collect(toList()));
+    }
+
+    @Test
     void jsonSchema() throws Exception {
         final Ui payload = service.convert(load("jdbc.json"), "en", null).toCompletableFuture().get();
         final JsonSchema jsonSchema = payload.getJsonSchema();

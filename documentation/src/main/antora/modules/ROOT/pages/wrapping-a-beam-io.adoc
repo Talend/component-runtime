@@ -1,6 +1,5 @@
 = Wrapping a Beam I/O
 :page-partial:
-:toc:
 
 [[wrapping-a-beam-io__start]]
 == Limitations
