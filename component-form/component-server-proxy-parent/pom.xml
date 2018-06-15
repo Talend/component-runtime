@@ -31,6 +31,9 @@
     <scala.version>2.12</scala.version>
     <play2.version>2.6.15</play2.version>
     <playx.version>0.0.14</playx.version>
+    <!-- same than in play-ehcache -->
+    <ehcache.version>2.10.4</ehcache.version>
+    <ehcache-jcache.version>1.0.1</ehcache-jcache.version>
   </properties>
 
   <modules>

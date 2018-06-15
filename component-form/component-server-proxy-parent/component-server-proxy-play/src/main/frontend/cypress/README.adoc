@@ -1,0 +1,15 @@
+= Cypress Tests
+
+Required pre-steps:
+
+1. `mvn generate-resources` (setup node dependencies and binaries)
+2. `MAVEN_OPTS=-Dtalend.cypress.server.infinite=true mvn test -Dtest=CypressWithServerTest` (Starts a server and hangs until you kill it)
+
+Setup cypress environment:
+
+1. `cd src/main/frontend` (go into the frontend project)
+2. `export PATH=$PWD/.node/node:$PWD/node_modules/.bin:$PATH` (add node binaries into the path)
+3. `export CYPRESS_baseUrl=<url from required steps #2>`
+
+
+Launch cypress: `cypress run` or `cypress open` if you want the UI.
