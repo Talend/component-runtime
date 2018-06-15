@@ -27,19 +27,22 @@ try (final ContainerManager manager = new ContainerManager( <1>
 <1> The `ContainerManager` is `AutoCloseable`, which allows you to use it in a try or finally block if needed. +
 This manager has two main configuration entries: +
 * how to resolve dependencies for plugins from the plugin file/location
-* how to configure the classloaders (what is the parent classloader, how to handle the parent first/last delegation, and so on). +
-+
-NOTE: It is recommended to keep the manager running if you can reuse plugins in order to avoid recreating classloaders and to mutualize them.
+* how to configure the classloaders (what is the parent classloader, how to handle the parent first/last delegation, and so on).
 
 <2> `DependenciesResolutionConfiguration` allows you to pass a custom `Resolver` which is used to build the plugin classloaders. +
 Currently, the library only provides `MvnDependencyListLocalRepositoryResolver`, which reads the output of `mvn dependencies:list`. Add it to the plugin jar to resolve the dependencies from a *local* maven repository. +
 Note that `SNAPSHOT` are only resolved based on their name and not from the metadata (only useful in development). +
 To continue the comparison with a Servlet server, you can implement an unpacked war resolver.
+NOTE: It is recommended to keep the manager running if you can reuse plugins in order to avoid recreating classloaders and to mutualize them.
 
 <3> `ClassLoaderConfiguration` configures the behavior of the whole container/plugin pair, including: +
 * What the shared classloader is
 * Which classes are loaded from the shared loader first (intended to be used for API which shouldn't be loaded from the plugin loader)
 * Which classes are loaded from the parent classloader. This can be useful to prevent loading a "common" library from the parent classloader. For instance, it can be neat for guava, commons-lang3, an so on).
+<2> the `DependenciesResolutionConfiguration` enables to pass a custom `Resolver` which is used to build the plugin classloaders.
+For now the library only provides `MvnDependencyListLocalRepositoryResolver` which will read the output of `mvn dependencies:list`
+put in the plugin jar and will resolve from a *local* maven repository the dependencies. Note that `SNAPSHOT` are only resolved based on their name
+and not from metadata (only useful in development). To continue the comparison to a Servlet server, you can easily implement an unpacked war resolver if you want.
 
 == Creating plugins
 Once you have defined a manager, you can create plugins:

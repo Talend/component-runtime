@@ -5,6 +5,7 @@
 The Component Kit starter lets you design your components configuration and generates a ready-to-implement project structure.
 
 This tutorial shows you how to use the Component Kit starter to generate new components for MySQL databases. Before starting, make sure that you have correctly setup your environment. See <<getting-started.adoc#getting-started-system-requirements, this section>>.
+This tutorial shows how to use the Component Kit starter to generate some components for MySQL databases.
 
 == Configuring the project
 
@@ -21,7 +22,15 @@ This *Databases* category is used and displayed as the parent family of the MySQ
 . Complete the project metadata by entering the *Group*, *Artifact* and *Package*.
 . Click the *ADD A COMPONENT* button to start designing your components.
 
+== Configuring the project
 image::starter/starter_project-config.png[Project configuration]
+. Create a folder on your local machine to store the resource files of the component you want to create. For example, `C:/my_components`.
+. Open the https://starter-toolkit.talend.io[starter] in the web browser of your choice.
+. Select your build tool. This tutorial uses Maven, but you can select Gradle if you prefer.
+. Add the *test facet* to get some unit tests generated automatically for the component that we will create after.
+. Complete the component description (family, and category).
+. Complete the project metadata. the groupId, ArtifactId and the package.
+. Click *ADD A COMPONENT* button to start designing your components.
 
 == Creating an Input component
 When clicking *ADD A COMPONENT* in the starter, a new step that allows you to define a new component is created in your project. +
@@ -111,4 +120,8 @@ If you don't have Maven installed on your machine, you can use the Maven wrapper
 The generated project code contains documentation that can guide and help you implementing the component logic.
 Import the project to your favorite IDE to start the implementation.
 
+The generated project code contains documentation that will guide you to implement the component logic.
+so import the project to your favorite IDE and start implementing coding.
+
+In the next tutorial, we will explain how to implement an Input component in details.
 The next tutorial shows how to implement an Input component in details.
