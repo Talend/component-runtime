@@ -31,11 +31,13 @@ import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.OS;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.talend.sdk.component.proxy.test.WithServer;
 
 import play.test.TestServer;
 
 @WithServer
+@DisabledIfSystemProperty(named = "component.front.build.skip", matches = "true")
 class CypressWithServerTest {
 
     @Test
