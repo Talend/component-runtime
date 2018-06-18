@@ -27,7 +27,7 @@ travis_wait_*.log
 yarn-error.log
 component-form/component-form-demo/src/main/frontend/build/
 documentation/src/main/frontend/.antora-cache
-yarn-error.log
+dependency-reduced-pom.xml
 
 # generated from the filtered version
 component-kit.js/package.json
@@ -39,4 +39,3 @@ documentation/src/main/frontend/package.json
 documentation/src/main/antora/site.yml
 documentation/src/main/antora/site-dev.yml
 documentation/src/main/frontend/algolia/config.json
-**/dependency-reduced-pom.xml
