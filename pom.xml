@@ -484,6 +484,7 @@
             <exclude>**/src/test/resources/generated/**/*</exclude>
             <exclude>**/antora/**/*</exclude>
             <exclude>**/.antora-cache/**/*</exclude>
+            <exclude>**/dependency-reduced-pom.xml</exclude>
           </excludes>
         </configuration>
       </plugin>
