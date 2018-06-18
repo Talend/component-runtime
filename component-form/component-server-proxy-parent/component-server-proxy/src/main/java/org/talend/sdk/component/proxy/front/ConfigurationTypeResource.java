@@ -28,6 +28,7 @@ import static org.talend.sdk.component.proxy.service.ErrorProcessor.Constants.HE
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
@@ -71,6 +72,7 @@ import org.talend.sdk.component.proxy.service.PlaceholderProviderFactory;
 import org.talend.sdk.component.proxy.service.client.ComponentClient;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
 import org.talend.sdk.component.proxy.service.client.UiSpecContext;
+import org.talend.sdk.component.proxy.service.impl.HttpRequestContext;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
@@ -143,6 +145,18 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     }
 
     @Override
+    public CompletionStage<Map<String, String>> resolveConfiguration(final RequestContext context, final String id) {
+        return onFindByIdEvent.fireAsync(new OnFindById(context, id)).thenCompose(byId -> byId
+                .getFormId()
+                .thenCompose(formId -> configurationClient
+                        .getDetails(context.language(), formId, context::findPlaceholder)
+                        .thenCompose(detail -> configurationService.filterNestedConfigurations(context.language(),
+                                context::findPlaceholder, detail)))
+                .thenCompose(detail -> byId.getProperties().thenCompose(
+                        props -> configurationService.replaceReferences(context, detail, props))));
+    }
+
+    @Override
     public CompletionStage<Collection<SimplePropertyDefinition>> findProperties(final RequestContext context,
             final String id) {
         return configurationClient.getDetails(context.language(), id, context::findPlaceholder).thenApply(
@@ -161,18 +175,7 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     public CompletionStage<Nodes> getRootConfig(@Context final HttpServletRequest request) {
         final String language = getLang(request);
         final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-        return findRoots(new RequestContext() {
-
-            @Override
-            public String language() {
-                return language;
-            }
-
-            @Override
-            public String findPlaceholder(final String attributeName) {
-                return placeholderProvider.apply(attributeName);
-            }
-        });
+        return findRoots(new HttpRequestContext(language, placeholderProvider, request));
     }
 
     @ApiOperation(value = "Return a form description ( Ui Spec ) without a specific configuration ",
@@ -241,19 +244,23 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
                     description = ERROR_HEADER_DESC, response = Boolean.class))
     public CompletionStage<EntityRef> putConfiguration(@Context final HttpServletRequest request,
             @PathParam("id") final String id, final JsonObject payload) {
+        final String lang = getLang(request);
+        final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
+        final HttpRequestContext requestContext = new HttpRequestContext(lang, placeholderProvider, request);
         return onFindByIdEvent
-                .fireAsync(new OnFindById(request, id), notificationOptions)
-                .thenCompose(event -> configurationClient.getDetails(getLang(request), event.getFormId(),
-                        placeholderProviderFactory.newProvider(request)))
+                .fireAsync(new OnFindById(requestContext, id), notificationOptions)
+                .thenCompose(event -> event.getFormId().thenCompose(
+                        formId -> configurationClient.getDetails(lang, formId, placeholderProvider)))
                 .thenCompose(config -> {
-                    final JsonObject enrichment = modelEnricherService.extractEnrichment(config.getConfigurationType(),
-                            getLang(request), payload);
+                    final JsonObject enrichment =
+                            modelEnricherService.extractEnrichment(config.getConfigurationType(), lang, payload);
                     final JsonObject configuration = enrichment.isEmpty() ? payload
                             : payload.entrySet().stream().filter(it -> !enrichment.containsKey(it.getKey())).collect(
                                     toJsonObject());
                     return onEditEvent
-                            .fireAsync(new OnEdit(id, request, jsonb, enrichment, config.getProperties(),
+                            .fireAsync(new OnEdit(id, requestContext, jsonb, enrichment, config.getProperties(),
                                     configurationFormatter.flatten(configuration)), notificationOptions)
+                            .thenCompose(OnEdit::getCompletionListener)
                             .thenApply(edit -> new EntityRef(id));
                 });
     }
@@ -266,12 +273,19 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
     @Path("form/{id}")
     public CompletionStage<UiNode> getForm(@PathParam("id") final String id,
             @Context final HttpServletRequest request) {
-        return onFindByIdEvent.fireAsync(new OnFindById(request, id), notificationOptions).thenCompose(event -> {
-            final String language = getLang(request);
-            final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
-            return toUiSpecAndMetadata(language, placeholderProvider,
-                    configurationClient.getDetails(language, event.getFormId(), placeholderProvider), false);
-        });
+        final String lang = getLang(request);
+        final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
+        final HttpRequestContext requestContext = new HttpRequestContext(lang, placeholderProvider, request);
+        return onFindByIdEvent
+                .fireAsync(new OnFindById(requestContext, id), notificationOptions)
+                .thenCompose(event -> event
+                        .getFormId()
+                        .thenCompose(formId -> toUiSpecAndMetadata(lang, placeholderProvider,
+                                configurationClient.getDetails(lang, formId, placeholderProvider), false)
+                                        .thenCompose(uiNode -> event.getProperties().thenApply(props -> {
+                                            uiNode.getUi().setProperties(props);
+                                            return uiNode;
+                                        }))));
     }
 
     @ApiOperation(value = "Return the configuration icon file in png format", tags = "icon",
@@ -287,6 +301,8 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
 
     private CompletionStage<EntityRef> doSave(final HttpServletRequest request, final String lang,
             final JsonObject payload, final String formId) {
+        final Function<String, String> placeholderProvider = placeholderProviderFactory.newProvider(request);
+        final HttpRequestContext requestContext = new HttpRequestContext(lang, placeholderProvider, request);
         return configurationClient
                 .getDetails(lang, formId, placeholderProviderFactory.newProvider(request))
                 .thenCompose(node -> {
@@ -296,10 +312,11 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
                             : payload.entrySet().stream().filter(it -> !enrichment.containsKey(it.getKey())).collect(
                                     toJsonObject());
                     return onPersistEvent
-                            .fireAsync(new OnPersist(request, jsonb, node.getId(), enrichment, node.getProperties(),
-                                    configurationFormatter.flatten(configuration)), notificationOptions)
-                            .thenApply(persist -> {
-                                final String id = persist.getId();
+                            .fireAsync(new OnPersist(requestContext, jsonb, node.getId(), enrichment,
+                                    node.getProperties(), configurationFormatter.flatten(configuration)),
+                                    notificationOptions)
+                            .thenCompose(persist -> {
+                                final CompletionStage<String> id = persist.getId();
                                 if (id == null) { // wrong setup likely
                                     throw new WebApplicationException(Response
                                             .status(Response.Status.EXPECTATION_FAILED)
@@ -308,7 +325,7 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
                                                     "Entity was not persisted"))
                                             .build());
                                 }
-                                return new EntityRef(id);
+                                return id.thenApply(EntityRef::new);
                             });
                 });
     }

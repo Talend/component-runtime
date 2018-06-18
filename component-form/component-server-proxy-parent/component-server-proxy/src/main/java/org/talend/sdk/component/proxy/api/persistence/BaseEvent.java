@@ -17,16 +17,16 @@ package org.talend.sdk.component.proxy.api.persistence;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import javax.servlet.http.HttpServletRequest;
+import org.talend.sdk.component.proxy.api.service.RequestContext;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor(access = PROTECTED)
 public abstract class BaseEvent {
 
-    private final HttpServletRequest request;
+    private final RequestContext request;
 
     public <T> T getAttribute(final String key, final Class<T> type) {
-        return type.cast(request.getAttribute(key));
+        return type.cast(request.attribute(key));
     }
 }

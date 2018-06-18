@@ -452,6 +452,11 @@ __Type__ : object
 __Type__ : object
 
 
+[[_completionstagemapstringstring]]
+=== CompletionStageMapStringString
+__Type__ : object
+
+
 [[_completionstagenodes]]
 === CompletionStageNodes
 __Type__ : object

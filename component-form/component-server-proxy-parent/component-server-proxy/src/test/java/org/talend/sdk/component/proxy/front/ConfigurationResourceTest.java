@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 import javax.json.JsonBuilderFactory;
@@ -71,7 +73,7 @@ class ConfigurationResourceTest {
     }
 
     @Test
-    void save(final WebTarget client) {
+    void save(final WebTarget client) throws ExecutionException, InterruptedException {
         final Node config = client
                 .path("configurations")
                 .request(APPLICATION_JSON_TYPE)
@@ -97,12 +99,12 @@ class ConfigurationResourceTest {
 
         final OnPersist persist = database.getPersist().iterator().next();
         assertNotNull(persist);
-        assertEquals(ref.getId(), persist.getId());
+        assertEquals(ref.getId(), persist.getId().toCompletableFuture().get());
         assertEquals("New Connection", persist.getEnrichment(EnrichmentTestModel.class).getMetadata().getName());
     }
 
     @Test
-    void saveFromType(final WebTarget client) {
+    void saveFromType(final WebTarget client) throws ExecutionException, InterruptedException {
         final Node config = client
                 .path("configurations")
                 .request(APPLICATION_JSON_TYPE)
@@ -128,15 +130,15 @@ class ConfigurationResourceTest {
 
         final OnPersist persist = database.getPersist().iterator().next();
         assertNotNull(persist);
-        assertEquals(ref.getId(), persist.getId());
+        assertEquals(ref.getId(), persist.getId().toCompletableFuture().get());
         assertEquals(config.getId(), persist.getEnrichment(EnrichmentTestModel.class).getMetadata().getName());
     }
 
     @Test
-    void edit(final WebTarget client) {
+    void edit(final WebTarget client) throws ExecutionException, InterruptedException {
         save(client);
 
-        final String id = database.getPersist().iterator().next().getId();
+        final String id = database.getPersist().iterator().next().getId().toCompletableFuture().get();
 
         final EntityRef ref = client
                 .path("configurations/persistence/edit/{id}")
@@ -167,12 +169,12 @@ class ConfigurationResourceTest {
     }
 
     @Test
-    void getConfigDetails(final WebTarget proxyClient) {
+    void getConfigDetails(final WebTarget proxyClient) throws ExecutionException, InterruptedException {
         save(proxyClient);
 
         final UiNode uiNode = proxyClient
                 .path("configurations/form/{id}")
-                .resolveTemplate("id", database.getPersist().iterator().next().getId())
+                .resolveTemplate("id", database.getPersist().iterator().next().getId().toCompletableFuture().get())
                 .request(APPLICATION_JSON_TYPE)
                 .get(UiNode.class);
 
@@ -181,6 +183,7 @@ class ConfigurationResourceTest {
         assertNotNull(uiNode.getMetadata());
         assertEquals("defaulttest", uiNode.getMetadata().getName());
         assertEquals("badge", uiNode.getMetadata().getIcon());
+        assertEquals("http://", Map.class.cast(uiNode.getUi().getProperties()).get("url"));
     }
 
     @Test

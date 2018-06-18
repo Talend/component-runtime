@@ -15,25 +15,39 @@
  */
 package org.talend.sdk.component.proxy.api.persistence;
 
+import static java.util.concurrent.CompletableFuture.completedFuture;
+
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
-import javax.servlet.http.HttpServletRequest;
 
+import org.talend.sdk.component.proxy.api.Event;
+import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.Getter;
 
+@Event
 public class OnEdit extends PersistenceEvent {
 
     @Getter
     private final String id;
 
-    public OnEdit(final String id, final HttpServletRequest request, final Jsonb jsonb, final JsonObject enrichment,
+    @Getter
+    private CompletionStage<?> completionListener = completedFuture(null);
+
+    public OnEdit(final String id, final RequestContext request, final Jsonb jsonb, final JsonObject enrichment,
             final Collection<SimplePropertyDefinition> definitions, final Map<String, String> properties) {
         super(request, jsonb, enrichment, definitions, properties);
         this.id = id;
+    }
+
+    public synchronized OnEdit compose(final CompletionStage<?> composable) {
+        this.completionListener =
+                completionListener == null ? composable : completionListener.thenCompose(it -> composable);
+        return this;
     }
 }

@@ -16,35 +16,38 @@
 package org.talend.sdk.component.proxy.api.persistence;
 
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 
-import javax.servlet.http.HttpServletRequest;
+import org.talend.sdk.component.proxy.api.Event;
+import org.talend.sdk.component.proxy.api.service.RequestContext;
 
 import lombok.Getter;
 
+@Event
 @Getter
 public class OnFindById extends BaseEvent {
 
     private final String id;
 
-    private Map<String, String> properties;
+    private CompletionStage<Map<String, String>> properties;
 
-    private String formId;
+    private CompletionStage<String> formId;
 
-    public OnFindById(final HttpServletRequest request, final String id) {
+    public OnFindById(final RequestContext request, final String id) {
         super(request);
         this.id = id;
     }
 
-    public synchronized OnFindById setProperties(final Map<String, String> properties) {
-        if (this.properties != null && !this.properties.equals(properties)) {
+    public synchronized OnFindById composeProperties(final CompletionStage<Map<String, String>> properties) {
+        if (this.properties != null) {
             throw new IllegalArgumentException("Properties already set");
         }
         this.properties = properties;
         return this;
     }
 
-    public synchronized OnFindById setFormId(final String id) {
-        if (this.formId != null && !this.formId.equals(id)) {
+    public synchronized OnFindById composeFormId(final CompletionStage<String> id) {
+        if (this.formId != null) {
             throw new IllegalArgumentException("formId already set");
         }
         this.formId = id;

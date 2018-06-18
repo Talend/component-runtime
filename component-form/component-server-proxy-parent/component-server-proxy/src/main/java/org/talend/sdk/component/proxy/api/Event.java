@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.api.service;
+package org.talend.sdk.component.proxy.api;
 
-public interface RequestContext {
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-    /**
-     * @return the current request language.
-     */
-    String language();
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-    /**
-     * Used to handle placeholders in headers (see config doc).
-     *
-     * @param attributeName the name of the placeholder to find.
-     * @return the value for this placeholder.
-     */
-    String findPlaceholder(String attributeName);
-
-    /**
-     * Return a contextual attribute.
-     *
-     * @param key the attribute identifier.
-     * @return the attribute value or null if missing.
-     */
-    Object attribute(String key);
+/**
+ * Marker for events. Allows to find them easily in the IDE and know
+ * the contract to implement.
+ */
+@Target(TYPE)
+@Retention(RUNTIME)
+public @interface Event {
 }

@@ -21,6 +21,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
@@ -32,9 +33,13 @@ import javax.ws.rs.client.WebTarget;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
+import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.service.ActionService;
+import org.talend.sdk.component.proxy.service.ConfigurationService;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
+import org.talend.sdk.component.server.front.model.ComponentDetail;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -46,9 +51,28 @@ public class ClientProducer {
 
     @Produces
     @UiSpecProxy
-    public UiSpecService<UiSpecContext> uiSpecService(@UiSpecProxy final Client client,
-            @UiSpecProxy final Jsonb jsonb) {
-        return new UiSpecService<>(client, jsonb);
+    public UiSpecService<UiSpecContext> uiSpecService(@UiSpecProxy final Client client, @UiSpecProxy final Jsonb jsonb,
+            final ConfigurationService configurationService) {
+        return new UiSpecService<UiSpecContext>(client, jsonb) {
+
+            @Override
+            public CompletionStage<Ui> convert(final String family, final String lang, final ConfigTypeNode node,
+                    final UiSpecContext context) {
+                return configurationService
+                        .filterNestedConfigurations(lang, context.getPlaceholderProvider(), node)
+                        .thenCompose(config -> super.convert(family, lang, config, context));
+            }
+
+            @Override
+            public CompletionStage<Ui> convert(final ComponentDetail detail, final String lang,
+                    final UiSpecContext context) {
+                // todo if used:
+                // return configurationService.filterNestedConfigurations(lang, context.getPlaceholderProvider(),
+                // detail)
+                // .thenCompose(config -> super.convert(config, lang, context));
+                return super.convert(detail, lang, context);
+            }
+        };
     }
 
     public void destroyUiSpecService(@Disposes @UiSpecProxy final UiSpecService<UiSpecContext> client) {
