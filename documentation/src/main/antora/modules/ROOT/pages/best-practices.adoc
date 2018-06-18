@@ -1,11 +1,11 @@
-= Talend Component Best Practices
+= Talend Component Kit Best Practices
 :page-partial:
 
-== Organize your code
+== Organizing your code
 
-Few recommendations apply to the way a component packages are organized:
+Some recommendations apply to the way component packages are organized:
 
-. ensure to create a `package-info.java` with the component family/categories at the root of your component package:
+. Make sure to create a `package-info.java file` with the component family/categories at the root of your component package:
 
 [source,java]
 ----
@@ -16,36 +16,33 @@ import org.talend.sdk.component.api.component.Components;
 ----
 
 [start=2]
-. create a package for the configuration
-. create a package for the actions
-. create a package for the component and one subpackage by type of component (input, output, processors, ...)
+. Create a package for the configuration.
+. Create a package for the actions.
+. Create a package for the component and one sub-package by type of component (input, output, processors, and so on).
 
-== Model your configuration
+== Serialize your configuration
 
-It is recommended to ensure your configuration is serializable since
-it is likely you will pass it through your components which can be serialized.
+It is recommended to serialize your configuration in order to be able to pass it through other components.
 
 == I/O configuration
 
-The first step to build a component is to identify the way it must be configured.
+When building a new component, the first step is to identify the way it must be configured.
 
-It is generally split into two main big concepts:
+The two main concepts are:
 
-1. the _DataStore_ which is the way you can access the backend
-2. the _DataSet_ which is the way you interact with the backend
+1. The _DataStore_ which is the way you can access the backend.
+2. The _DataSet_ which is the way you interact with the backend.
 
-Here are some examples to let you get an idea of what you put in each categories:
+For example:
 
 [options="header,autowidth"]
 |====
 | Example description | DataStore | DataSet
-| Accessing a relational database like MySQL | the JDBC driver, url, username and password | the query to execute, row mapper, ...
-| Access a file system | the file pattern (or directory + file extension/prefix/...) | the file format, potentially the buffer size, ...
+| Accessing a relational database like MySQL | JDBC driver, URL, username, password | Query to execute, row mapper, and so on.
+| Accessing a file system | File pattern (or directory + file extension/prefix/...) | File format, buffer size, and so on.
 |====
 
-
-It is common to make the dataset including the datastore since both are required to work. However it is recommended to replace
-this pattern by composing both in a higher level configuration model:
+It is common to have the dataset including the datastore, because both are required to work. However, it is recommended to replace this pattern by defining both dataset and datastore in a higher level configuration model. For example:
 
 [source,java]
 ----
@@ -71,8 +68,7 @@ public class MyComponentConfiguration {
 
 == Processor configuration
 
-Processor configuration is simpler than I/O configuration since it is specific each time. For instance a mapper
-will take the mapping between the input and output model:
+Processor configuration is simpler than I/O configuration since it is specific for each component. For example, a mapper takes the mapping between the input and output models:
 
 [source,java]
 ----
@@ -89,8 +85,7 @@ public class MappingConfiguration {
 
 == I/O recommendations
 
-I/O are particular because they can be linked to a set of actions. It is recommended to wire all the ones you can apply
-to ensure the consumers of your component can provide a rich experience to their users.
+I/O are particular because they can be linked to a set of actions. It is recommended to wire all the ones you can apply to ensure the consumers of your component can provide a rich experience to their users.
 
 Here are the most common ones:
 

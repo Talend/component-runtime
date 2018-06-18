@@ -1,13 +1,9 @@
 = Gradle Plugin
 :page-partial:
 
-`gradle-talend-component` intends to help you to write components
-validating components match best practices. It is inspired from the Maven plugin
-and adds the ability to generate automatically the `dependencies.txt` file the SDK
-uses to build the component classpath. For more information on the configuration
-you can check out the maven properties matching the attributes.
+`gradle-talend-component` helps you write components that match the best practices. It is inspired from the Maven plugin and adds the ability to generate automatically the `dependencies.txt` file used by the SDK to build the component classpath. For more information on the configuration, refer to the Maven properties matching the attributes.
 
-Here is how to use it:
+You can use it as follows:
 
 [source,groovy]
 ----
