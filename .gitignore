@@ -27,7 +27,7 @@ travis_wait_*.log
 yarn-error.log
 component-form/component-form-demo/src/main/frontend/build/
 documentation/src/main/frontend/.antora-cache
-yarn-error.log
+dependency-reduced-pom.xml
 
 # generated from the filtered version
 component-kit.js/package.json
