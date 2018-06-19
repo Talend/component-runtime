@@ -351,7 +351,7 @@ The Mojo `generate` (maven plugin goal) of the same plugin also embeds a generat
 
 It is intended to be used from the command line (or IDE Maven integration):
 
-[source,sh]
+[source,bash]
 ----
 $ mvn talend-component:generate \
     -Dtalend.generator.type=[input|output] \ <1>
@@ -392,7 +392,7 @@ Note that this CAR is executable and exposes the command `studio-deploy` which t
 a Talend Studio home location. Executed it will install the dependencies into the studio and register the component
 in your instance. Here is a sample launch command:
 
-[source,sh]
+[source,bash]
 ----
 # for a studio
 java -jar mycomponent.car studio-deploy /path/to/my/studio
@@ -407,14 +407,14 @@ java -jar mycomponent.car maven-deploy --location /path/to/.m2/repository
 
 You can also upload the dependencies to your nexus server using the following command:
 
-[source,sh]
+[source,bash]
 ----
 java -jar mycomponent.car deploy-to-nexus --url <nexus url> --repo <repository name> --user <username> --pass <password> --threads <parallel threads number> --dir <temp directory>
 ----
 
 In this command Nexus Url and repository name are mandatory arguments. All other arguments are optional. If arguments contain spaces or special symbols, you need to quote the whole value of the argument, for example
 
-[source,sh]
+[source,bash]
 ----
 --pass "Y0u will \ not G4iess i' ^"
 ----

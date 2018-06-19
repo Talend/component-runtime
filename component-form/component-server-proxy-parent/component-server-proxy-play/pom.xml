@@ -239,14 +239,30 @@
           <version>${geronimo-annotation.version}</version>
         </dependency>
         <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+          <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
           <groupId>com.typesafe.play</groupId>
           <artifactId>play-ehcache_${scala.version}</artifactId>
           <version>${play2.version}</version>
         </dependency>
         <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-simple</artifactId>
-          <version>${slf4j.version}</version>
+          <groupId>net.sf.ehcache</groupId>
+          <artifactId>ehcache</artifactId>
+          <version>${ehcache.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.ehcache</groupId>
+          <artifactId>jcache</artifactId>
+          <version>${ehcache-jcache.version}</version>
+          <exclusions>
+            <exclusion>
+              <groupId>javax.cache</groupId>
+              <artifactId>cache-api</artifactId>
+            </exclusion>
+          </exclusions>
         </dependency>
       </dependencies>
 
@@ -321,7 +337,7 @@
               </execution>
             </executions>
           </plugin>
-          <plugin> <!-- mvn play2:run -PplayDev -Dconfig.file=conf/application.conf && curl http://localhost:9000-->
+          <plugin> <!-- mvn play2:run -PplayDev && curl http://localhost:9000-->
             <groupId>com.google.code.play2-maven-plugin</groupId>
             <artifactId>play2-maven-plugin</artifactId>
             <version>${play2.plugin.version}</version>

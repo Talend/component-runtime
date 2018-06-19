@@ -90,7 +90,7 @@ IMPORTANT: at that stage we assume previous steps have been *done*.
 
 Then, the release uses a standard Maven process, you should be able to do it in two steps:
 
-[source,sh]
+[source,bash]
 ----
 mvn release:prepare
 mvn release:perform

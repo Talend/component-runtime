@@ -79,7 +79,7 @@ Using the server zip (or https://github.com/Talend/component-runtime/blob/master
 you can configure HTTPS adding properties to `MEECROWAVE_OPTS`. Assuming you have a certificate in `/opt/certificates/component.p12`
 (don't forget to add/mount it in the Docker image if you use it) you can activate it through:
 
-[source,sh]
+[source,bash]
 ----
 # use -e for Docker
 #
