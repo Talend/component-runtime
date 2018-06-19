@@ -1,21 +1,18 @@
 = Components Definition
 :page-partial:
 
-Talend Component framework relies on several primitive components.
+Talend Component Kit framework relies on several primitive components.
 
-They can all use `@PostConstruct` and `@PreDestroy` to initialize/release
-some underlying resource at the beginning/end of the processing.
+All components can use `@PostConstruct` and `@PreDestroy` annotations to initialize or release some underlying resource at the beginning and the end of a processing.
 
-IMPORTANT: in distributed environments class' constructor will be called on cluster manager node, methods annotated with
-`@PostConstruct` and `@PreDestroy` annotations will be called on worker nodes. Thus, partition plan computation and pipeline task
-will be performed on different nodes.
+IMPORTANT: In distributed environments, class constructor are called on cluster manager node. Methods annotated with `@PostConstruct` and `@PreDestroy` are called on worker nodes. Thus, partition plan computation and pipeline tasks are performed on different nodes.
 
 ////
 [ditaa, generated-deployment-diagram, png]
 ....
                  /-------------------------\
-                 |       Create and        |
-                 |Submit task to cluster(1)|
+                 |    Create and submit    |
+                 |   task to cluster (1)   |
                  \-------------------------/
                              |
                              V
@@ -23,7 +20,7 @@ will be performed on different nodes.
                 |     Cluster manager       |
                 |---------------------------|
                 |     Partition plan        |
-                |     computation(2)        |
+                |     computation (2)       |
                 |                           |
                 +---------------------------+
                              ^
@@ -32,40 +29,39 @@ will be performed on different nodes.
                           instances
                              |
                              V
-                    +-----------------+
-                    |   Worker node   |
-                    |-----------------|
-                    |Flow Execution(3)|
-                    +-----------------+
+                    +------------------+
+                    |   Worker node    |
+                    |----------------- |
+                    |Flow Execution (3)|
+                    +------------------+
 ....
 ////
 image:deployment-diagram.png[]
 
-1. Created task consists of Jar file, containing class, which describes pipeline(flow) which should be processed in cluster.
-2. During partition plan computation step pipeline is analyzed and split into stages. Cluster Manager node instantiates mappers/processors
-gets estimated data size using mappers, splits created mappers according to the estimated data size. All instances are serialized and
-sent to Worker nodes afterwards.
-3. Serialized instances are received and deserialized, methods annotated with @PostConstruct annotation are called. After that,
-pipeline execution is started. Processor's @BeforeGroup annotated method is called before processing first element in chunk.
-After processing number of records estimated as chunk size, Processor's @AfterGroup annotated method called. Chunk size is calculated
-depending on environment the pipeline is processed by. After pipeline is processed, methods annotated with @PreDestroy annotation are called.
+1. The created task is a JAR file containing class information, which describes the pipeline (flow) that should be processed in cluster.
+2. During the partition plan computation step, the pipeline is analyzed and split into stages. The cluster manager node instantiates mappers/processors, gets estimated data size using mappers, and splits created mappers according to the estimated data size. +
+All instances are then serialized and sent to the worker node.
+3. Serialized instances are received and deserialized. Methods annotated with `@PostConstruct` are called. After that, pipeline execution starts. The @BeforeGroup annotated method of the processor is called before processing the first element in chunk. +
+After processing the number of records estimated as chunk size, the `@AfterGroup` annotated method of the processor is called. Chunk size is calculated depending on the environment the pipeline is processed by. Once the pipeline is processed, methods annotated with `@PreDestroy` are called.
+
+IMPORTANT: All the methods managed by the framework must be public. Private methods are ignored.
 
 ////
 [ditaa, generated-driver-processing-workflow, png]
 ....
-Partition plan computation(2)
+Partition plan computation (2)
     +----------------+
     | Create Mappers |
     +----------------+
             |
             V
-+-------------------------+
-|Compute partition plan(2)|
-+-------------------------+
++--------------------------+
+|Compute partition plan (2)|
++--------------------------+
             |
             V
   +----------------------+
-  |  Serialize splitted  |
+  |  Serialize split     |
   |mappers and processors|
   +----------------------+
 ....
@@ -75,7 +71,7 @@ image:driver-processing-workflow.png[]
 ////
 [ditaa, generated-worker-processing-workflow, png]
 ....
-Flow Execution(3)
+Flow Execution (3)
 +------------------+
 |  @PostConstruct  |
 |     methods      |
@@ -89,7 +85,7 @@ Flow Execution(3)
          |
          V
 +------------------+
-|   Perform task   |
+|   Performs task  |
 |   described in   |
 |     pipeline     |
 +------------------+
@@ -109,43 +105,37 @@ Flow Execution(3)
 ////
 image:worker-processing-workflow.png[]
 
-IMPORTANT: all framework managed methods `MUST` be public too. Private methods are ignored.
-
-NOTE: in term of design the framework tries to be as declarative as possible but also to stay extensible
-not using fixed interfaces or method signatures. This will allow to add incrementally new features of the underlying implementations.
+NOTE: The framework is designed to be as declarative as possible but also to stay extensible by not using fixed interfaces or method signatures. This allows to incrementally add new features of the underlying implementations.
 
 == PartitionMapper
 
-____
-A `PartitionMapper` is a component able to split itself to
-make the execution more efficient.
-____
+A `PartitionMapper` is a component able to split itself to make the execution more efficient.
 
-This concept is borrowed to big data world and useful only in this context (`BEAM` executions).
-Overall idea is to divide the work before executing it to try to reduce the overall execution time.
+This concept is borrowed from big data and useful in this context only (`BEAM` executions).
+The idea is to divide the work before executing it in order to reduce the overall execution time.
 
 The process is the following:
 
-1. Estimate the size of the data you will work on. This part is often heuristic and not very precise.
-2. From that size the execution engine (_runner_ for beam) will request the mapper to split _itself_ in _N_ mappers with a subset of the overall work.
-3. The _leaf_ (final) mappers will be used as a `Producer` (actual reader) factory.
+1. The size of the data you work on is estimated. This part can be heuristic and not very precise.
+2. From that size, the execution engine (_runner_ for beam) requests the mapper to split _itself_ in _N_ mappers with a subset of the overall work.
+3. The _leaf_ (final) mappers is used as a `Producer` (actual reader) factory.
 
-IMPORTANT: this kind of component `MUST` be `Serializable` to be distributable.
+IMPORTANT: This kind of component must be `Serializable` to be distributable.
 
-== Definition
+=== Definition
 
-A partition mapper requires 3 methods marked with specific annotations:
+A partition mapper requires three methods marked with specific annotations:
 
 1. `@Assessor` for the evaluating method
 2. `@Split` for the dividing method
 3. `@Emitter` for the `Producer` factory
 
-=== @Assessor
+==== @Assessor
 
-The assessor method will return the estimated size of the data related to the component (depending its configuration).
-It `MUST` return a `Number` and `MUST` not take any parameter.
+The Assessor method returns the estimated size of the data related to the component (depending its configuration).
+It must return a `Number` and must not take any parameter.
 
-Here is an example:
+For example:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
 ----
@@ -155,12 +145,11 @@ public long estimateDataSetByteSize() {
 }
 ----
 
-=== @Split
+==== @Split
 
-The split method will return a collection of partition mappers and can take optionally a `@PartitionSize` long
-value which is the requested size of the dataset per sub partition mapper.
+The Split method returns a collection of partition mappers and can take optionally a `@PartitionSize` long value as parameter, which is the requested size of the dataset per sub partition mapper.
 
-Here is an example:
+For example:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -170,12 +159,11 @@ public List<MyMapper> split(@PartitionSize final long desiredSize) {
 }
 ----
 
-=== @Emitter
+==== @Emitter
 
-The emitter method `MUST` not have any parameter and `MUST` return a producer. It generally uses the partition mapper configuration
-to instantiate/configure the producer.
+The Emitter method must not have any parameter and must return a producer. It uses the partition mapper configuration to instantiate and configure the producer.
 
-Here is an example:
+For example:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -187,11 +175,9 @@ public MyProducer create() {
 
 == Producer
 
-____
-A `Producer` is the component interacting with a physical source. It produces input data for the processing flow.
-____
+A `Producer` is a component interacting with a physical source. It produces input data for the processing flow.
 
-A producer is a very simple component which `MUST` have a `@Producer` method without any parameter and returning any data:
+A producer is a simple component that must have a `@Producer` method without any parameter. It can return any data:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -203,11 +189,9 @@ public MyData produces() {
 
 == Processor
 
-____
-A `Processor` is a component responsible to convert an incoming data to another model.
-____
+A `Processor` is a component converts incoming data to a different model.
 
-A processor `MUST` have a method decorated with `@ElementListener` taking an incoming data and returning the processed data:
+A processor must have a method decorated with `@ElementListener` taking an incoming data and returning the processed data:
 
 [source,java]
 ----
