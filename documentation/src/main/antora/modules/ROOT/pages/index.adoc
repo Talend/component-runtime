@@ -3,20 +3,21 @@
 
 ifeval::["{backend}" == "html5"]
 ifeval::["{page-origin-refname}" == "master"]
-IMPORTANT: this is a version under development which has not yet been deployed.
+
+IMPORTANT: This is a version under development which has not yet been deployed.
 You can however use it using the `-SNAPSHOT` version and Sonatype snapshot https://oss.sonatype.org/content/repositories/snapshots/[repository].
 
-TIP: if you want a PDF version of that page you can find it in our snapshots:
+TIP: If you want a PDF version of that page you can find it in our snapshots:
 https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation&v={page-component-version}-SNAPSHOT&e=pdf&c=all-in-one[PDF].
 endif::[]
 
 ifeval::["{page-origin-refname}" != "master"]
-NOTE: if you want a PDF version of that page just click on
+NOTE: If you want a PDF version of that page just click on
 this http://repo.apache.maven.org/maven2/org/talend/sdk/component/documentation/{page-component-version}/documentation-{page-component-version}-all-in-one.pdf[link].
 endif::[]
 endif::[]
 
-NOTE: if you prefer you can use the <<all-in-one.adoc#, single page>> documentation.
+NOTE: If you prefer you can use the <<all-in-one.adoc#, single page>> documentation.
 
 = Table Of Contents
 

@@ -1,83 +1,114 @@
-= Generate a project using the component starter
+= Generating a project using the Component Kit starter
 :page-partial:
 
 [[tutorial-generate-project-using-starter]]
-The component starter let you design your components configuration and generate a ready to implement project structure.
+The Component Kit starter lets you design your components configuration and generates a ready-to-implement project structure.
 
-NOTE: In this tutorial, we will use the component starter to generate some components for MySQL database.
+This tutorial shows you how to use the Component Kit starter to generate new components for MySQL databases. Before starting, make sure that you have correctly setup your environment. See <<getting-started.adoc#getting-started-system-requirements, this section>>.
 
-The starter is available at https://starter-toolkit.talend.io.
+== Configuring the project
 
-== Project configuration
+Before being able to create components, you need to define the general settings of the project:
+
+. Create a folder on your local machine to store the resource files of the component you want to create. For example, `C:/my_components`.
+. Open the https://starter-toolkit.talend.io[starter] in the web browser of your choice.
+. Select your build tool. This tutorial uses Maven, but you can select Gradle instead.
+. Add the *Talend Component Kit Testing* facet to your project to automatically generate unit tests for the components created later in this tutorial.
+. Enter the *Component Family* of the components you want to develop in the project. This name must be a valid java name and is recommended to be capitalized, for example 'MySQL'. +
+Once you have implemented your components in the Studio, this name is displayed in the Palette to group all of the MySQL-related components you develop, and is also part of your component name.
+. Select the *Category* of the components you want to create in the current project. As MySQL is a kind of database, select *Databases* in this tutorial. +
+This *Databases* category is used and displayed as the parent family of the MySQL group in the Palette of the Studio.
+. Complete the project metadata by entering the *Group*, *Artifact* and *Package*.
+. Click the *ADD A COMPONENT* button to start designing your components.
+
 image::starter/starter_project-config.png[Project configuration]
-1. Choose your favorite build tool. we will use maven in this tutorial but you can select gradle if you prefer.
-2. We add the *test facet* to get some unit tests generated automatically for the component that we will create after.
-3. Complete the component description (family, and category).
-4. Complete the project metadata. the groupId, ArtifactId and the package.
-5. Click *ADD A COMPONENT* button to start designing your components.
 
-== Create an input component
-Let's create an input component that will connect to a MySQL database, execute a SQL query and get the result.
+== Creating an Input component
+When clicking *ADD A COMPONENT* in the starter, a new step that allows you to define a new component is created in your project. +
+The intent in this tutorial is to create an input component that connects to a MySQL database, executes a SQL query and gets the result.
 
 image::starter/starter_input-config.png[Input configuration]
-1. We choose the component type. *INPUT* in this case.
-2. Give the component a cool name. _MySQLInput_ is good enough.
-3. This button will let us create the required configuration for our component. To be able to execute a SQL query, we will need a connection url, the username and the password for the database and the SQL query to be executed. Click the *(+)* button on the right to add a field and chose it type.
-4. Our component will be an ordinary (non streaming) component. so just let this toggle button off.
-5. Here we define the record type that this component will produce.
-we let it generic for now. as our component will generate some json records.
-You can also choose a custom type to define a POJO that will represent your records.
+. Choose the component type. *INPUT* in this case.
+. Enter the component name. For example, _MySQLInput_.
+. Click *CONFIGURATION MODEL*. This button lets you specify the required configuration for the component.
+. For each parameter that you need to add, click the *(\+)* button on the right panel. Enter the name and choose the type of the parameter, then click the tick button to save the changes. +
+In this tutorial, to be able to execute a SQL query on the Input MySQL database, the configuration requires the following parameters:+
+* a connection URL (string)
+* a username (string)
+* a password (string)
+* the SQL query to be executed (string). +
++
+NOTE: Closing the configuration panel on the right does *not* delete your configuration.
+. Specify whether the component issues a stream or not. In this tutorial, the MySQL input component created is an ordinary (non streaming) component. In this case, let the toggle button disabled.
+. Select the *Record Type* generated by the component. In this tutorial, select *Generic* because the component is designed to generate JSON records. +
+You can also select *Custom* to define a POJO that represents your records.
 
-== Create a Processor component
-In this step we will create a very simple processor component that will receive a record, log it and return it at is.
+Your input component is now defined. You can add another component or generate and download your project.
+
+== Creating a Processor component
+When clicking *ADD A COMPONENT* in the starter, a new step that allows you to define a new component is created in your project. +
+The intent in this tutorial is to create a simple processor component that receives a record, logs it and returns it at it is.
 
 image::starter/starter_processor-config.png[Processor configuration]
-1. Choose the component type. *PROCESSOR/OUTPUT* in this case.
-2. Give an explicit name to the component. _RecordLogger_, as our processor will log the records.
-3. This is the configuration button. this component don't need any configuration. so we just skip this step.
-4. Here we define the inputs of the component. so click *ADD INPUT* button to create an input. In this component we will have only one input that will receive the record to be log.
-5. click the input name to access it configuration. you can change the name and define the record model.
-Here we will use a generic record. otherwise you can use a POJO to represent the record.
-6. Click *ADD OUTPUT* to create an output for this processor. we will need only one output as our logger only emit the received record.
-NOTE: the outputs are also configurable in the same way as the inputs (as explained in *5*).
+. Choose the component type. *PROCESSOR/OUTPUT* in this case.
+. Enter the component name. For example, _RecordLogger_, as the processor created in this tutorial logs the records.
+. Specify the *CONFIGURATION MODEL* of the component. In this tutorial, the component doesn't need any specific configuration. Skip this step.
+. Define the *Input(s)* of the component. For each input that you need to define, click *ADD INPUT*. In this tutorial, only one input is needed to receive the record to log.
+. Click the input name to access its configuration. You can change the name of the input and define its structure using a POJO. If you added several inputs, repeat this step for each one of them. +
+The input in this tutorial is a generic record. Enable the *Generic* option.
+. Define the *Output(s)* of the component. For each output that you need to define, click *ADD OUTPUT*. In this tutorial, only one generic output is needed to return the received record. +
+Outputs can be configured the same way as inputs (see previous steps).
+. Make sure to check the configuration of inputs and outputs as they are not set to *Generic* by default.
 
-== Create an Output component
-Now we will create an output component that will receive a record and insert it into a database table.
+Your processor component is now defined. You can add another component or generate and download your project.
 
-NOTE: *Output* components are *Processors* without outputs. In other words, the output is a processor
-that don't produce any records.
+== Creating an Output component
+When clicking *ADD A COMPONENT* in the starter, a new step that allows you to define a new component is created in your project. +
+The intent in this tutorial is to create an output component that receives a record and inserts it into a MySQL database table.
+
+NOTE: *Output* components are *Processors* without any output. In other words, the output is a processor that does not produce any records.
 
 image::starter/starter_output-config.png[Output configuration]
-1. Choose the component type. *PROCESSOR/OUTPUT* in this case.
-2. Give the component a name. *MySQLOutput*
-3. Create the component configuration. in this case we will need the connection url, the credentials of the database and the table name to insert the record in.
-4. Like what we have done for the processor component above. we add an input
-5. We make our input generic as we want to handle generic records in this component.
-6. We don't create any outputs for this component as it will not produce any records. this is the only difference betweene an output an a processor.
+. Choose the component type. *PROCESSOR/OUTPUT* in this case.
+. Enter the component name. For example, _MySQLOutput_.
+. Click *CONFIGURATION MODEL*. This button lets you specify the required configuration for the component.
+. For each parameter that you need to add, click the *(\+)* button on the right panel. Enter the name and choose the type of the parameter, then click the tick button to save the changes. +
+In this tutorial, to be able to insert a record in the output MySQL database, the configuration requires the following parameters:+
+* a connection URL (string)
+* a username (string)
+* a password (string)
+* the name of the table to insert the record in (string). +
++
+NOTE: Closing the configuration panel on the right does *not* delete your configuration.
+. Define the *Input(s)* of the component. For each input that you need to define, click *ADD INPUT*. In this tutorial, only one input is needed.
+. Click the input name to access its configuration. You can change the name of the input and define its structure using a POJO. If you added several inputs, repeat this step for each one of them. +
+The input in this tutorial is a generic record. Enable the *Generic* option.
+. Do not create any output because the component does not produce any record. This is the only difference between an output an a processor component.
 
-== Generate and download the final project.
-In the previous steps we have configured a project and created 3 components of different types (input, processor and output).
-Now click the *GO TO FINISH* button beside the *ADD A COMPONENT* button.
-You will be redirected to a summary page that shows :
+Your output component is now defined. You can add another component or generate and download your project.
 
+== Generating and downloading the final project.
+Once your project is configured and all the components you need are created, you can generate and download the final project.
+In this tutorial, the project was configured and three components of different types (input, processor and output) have been defined.
+
+. Click *GO TO FINISH* at the bottom of the page. You are redirected to a page that summarizes the project. On the left panel, you can also see all the components that you added to the project.
++
 image::starter/starter_project-download.png[Output configuration]
-1. Project configuration summary.
-2. The list of the created components at the left panel.
-3. You have two options to get the generated project. Download it locally as a zip file using the *DOWNLOAD AS ZIP*
-4. Create a github repository and push the project to it using the button *CREATE ON GITHUB*.
+. Generate the project using one of the two options available:
+** Download it locally as a ZIP file using the *DOWNLOAD AS ZIP* button.
+** Create a Github repository and push the project to it using the *CREATE ON GITHUB* button.
 
-== Compile and explore the generated project files
-Download the project as a zip to your local machine or clone it if you have created a github project.
+In this tutorial, the project is downloaded to the local machine as a ZIP file.
 
-As we have created a maven project here, we will use maven command to compile the project.
-In the project directory we execute the command `mvn package`
+== Compiling and exploring the generated project files
+Once the package is available on your machine, you can compile it using the build tool selected when configuring the project.
 
-If you don't have Maven installed on your machine, you can use the maven wrapper provided in the generated project.
-All you need is to execute the command: `./mvnw package`
+* In the tutorial, *Maven* is the build tool selected for the project. +
+In the project directory, execute the `mvn package` command. +
+If you don't have Maven installed on your machine, you can use the Maven wrapper provided in the generated project, by executing the `./mvnw package` command.
+* If you have created a Gradle project, you can compile it using the `gradle build` command or using the Gradle wrapper: `./gradlew build`.
 
-NOTE: If you have created a gradle project you can compile with `gradle build` or use the gradle wrapper `./gradlew build`
+The generated project code contains documentation that can guide and help you implementing the component logic.
+Import the project to your favorite IDE to start the implementation.
 
-The generated project code contains documentation that will guide you to implement the component logic.
-so import the project to your favorite IDE and start implementing coding.
-
-In the next tutorial, we will explain how to implement an Input component in details.
+The next tutorial shows how to implement an Input component in details.
