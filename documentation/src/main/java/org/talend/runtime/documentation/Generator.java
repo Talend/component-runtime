@@ -165,8 +165,12 @@ public class Generator {
         final StringBuilder builder = new StringBuilder();
         processSection(asciidoctor.loadFile(new File(pages, "documentation.adoc"), options), builder,
                 "documentation.adoc");
-        processSection(asciidoctor.loadFile(new File(pages, "_partials/tutorials-index.adoc"), options), builder,
-                "tutorials-index.adoc");
+        builder
+                .append(".Tutorials\n")
+                .append(Files
+                        .lines(new File(pages, "_partials/tutorials-index.adoc").toPath(), StandardCharsets.UTF_8)
+                        .collect(joining("\n")))
+                .append("\n\n");
 
         // hardcoded for now while they are simple or externals
         builder.append(".Web\n" + "* xref:documentation-rest.adoc[Server]\n"

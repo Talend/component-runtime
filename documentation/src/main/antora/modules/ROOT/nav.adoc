@@ -119,6 +119,17 @@
 * xref:documentation.adoc#_secrets_passwords_and_maven[Secrets/Passwords and Maven]
 * xref:documentation.adoc#_generating_data[Generating data?]
 
+.Tutorials
+* xref:tutorial-generate-project-using-starter.adoc[Generate a component]
+* xref:tutorial-create-an-input-component.adoc[Create an input component]
+* xref:tutorial-create-an-output-component.adoc[Create an output component]
+* xref:tutorial-test-your-components.adoc[Test your components]
+* xref:tutorial-configuration-sensitive-data.adoc[Configuration and sensitive data]
+* xref:tutorial-create-components-rest-api.adoc[Create components for REST API]
+* xref:tutorial-test-rest-api.adoc[How to test a REST API]
+* xref:tutorial-dev-vs-ci-setup.adoc[Dev vs CI setup]
+* xref:tutorial-talend-intellij-plugin-usage.adoc[Talend Intellij plugin]
+
 .Web
 * xref:documentation-rest.adoc[Server]
 * xref:server-uispec.adoc[UiSpec Server]
