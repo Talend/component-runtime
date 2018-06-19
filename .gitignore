@@ -28,6 +28,7 @@ yarn-error.log
 component-form/component-form-demo/src/main/frontend/build/
 documentation/src/main/frontend/.antora-cache
 dependency-reduced-pom.xml
+rebuild.bat
 
 # generated from the filtered version
 component-kit.js/package.json
