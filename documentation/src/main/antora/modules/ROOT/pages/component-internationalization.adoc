@@ -1,7 +1,7 @@
 = Component internationalization
 :page-partial:
 
-In common cases, you can store messages using a properties file in your component module to use internationalization.
+In common cases, you can store messages using the `ResourceBundle` properties file in your component module to use internationalization.
 
 Store the properties file in the same package as the related components and name it `Messages`. For example, `org.talend.demo.MyComponent` uses `org.talend.demo.Messages[locale].properties`.
 
