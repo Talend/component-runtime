@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.proxy.service.client;
 
+import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -23,8 +24,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.json.bind.Jsonb;
 import javax.ws.rs.client.ClientBuilder;
@@ -32,6 +35,7 @@ import javax.ws.rs.client.WebTarget;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
+import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
 import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
@@ -52,8 +56,10 @@ public class ClientProducer {
     @Produces
     @UiSpecProxy
     public UiSpecService<UiSpecContext> uiSpecService(@UiSpecProxy final Client client, @UiSpecProxy final Jsonb jsonb,
-            final ConfigurationService configurationService) {
-        return new UiSpecService<UiSpecContext>(client, jsonb) {
+            final ConfigurationService configurationService,
+            final Instance<CustomPropertyConverter> customPropertyConverters) {
+
+        final UiSpecService<UiSpecContext> service = new UiSpecService<UiSpecContext>(client, jsonb) {
 
             @Override
             public CompletionStage<Ui> convert(final String family, final String lang, final ConfigTypeNode node,
@@ -73,6 +79,12 @@ public class ClientProducer {
                 return super.convert(detail, lang, context);
             }
         };
+        customPropertyConverters
+                .stream()
+                .sorted(comparing(
+                        it -> ofNullable(it.getClass().getAnnotation(Priority.class)).map(Priority::value).orElse(0)))
+                .forEach(service::withConverter);
+        return service;
     }
 
     public void destroyUiSpecService(@Disposes @UiSpecProxy final UiSpecService<UiSpecContext> client) {

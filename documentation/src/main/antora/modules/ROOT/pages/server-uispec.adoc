@@ -33,6 +33,17 @@ Note that if you don't specify a name, the path is used to deduce the name autom
 IMPORTANT: always ensure you define a root object (no dot in the `path` value) for these properties. It is recommanded
 to prefix it with a `$`.
 
+=== Add custom converters (select the widget or rendering)
+
+Developping a CDI `org.talend.sdk.component.form.internal.converter.CustomPropertyConverter`, the proxy
+will add it to the `UiSpecService` and use it with a high priority to convert the server model to a `UiSpec`.
+
+TIP: to make it a CDI bean add `@Dependent` on the class and if you use play integration, custom beans array: `playx.cdi.beans.customs +=  {className: org.talend.myapp.MyConverter}`
+
+This will allow to use custom `@Ui` API and advanced modelling when spceific to applications.
+
+TIP: the converters are sorted respecting `@Priority` value, default value if missing is `0`.
+
 === Client in Play!
 
 Also note that the client to connect to the Talend Component Kit server is

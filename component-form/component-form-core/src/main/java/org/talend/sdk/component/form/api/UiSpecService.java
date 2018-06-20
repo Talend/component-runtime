@@ -32,6 +32,7 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 
+import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter;
 import org.talend.sdk.component.form.internal.converter.impl.PropertiesConverter;
@@ -55,6 +56,8 @@ public class UiSpecService<T> implements AutoCloseable {
 
     private final boolean closeJsonb;
 
+    private final Collection<CustomPropertyConverter> customPropertyConverters = new ArrayList<>();
+
     public UiSpecService(final Client client) {
         this.client = client;
         this.jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
@@ -65,6 +68,11 @@ public class UiSpecService<T> implements AutoCloseable {
         this.client = client;
         this.jsonb = jsonb;
         this.closeJsonb = false;
+    }
+
+    public UiSpecService<T> withConverter(final CustomPropertyConverter converter) {
+        customPropertyConverters.add(converter);
+        return this;
     }
 
     /**
@@ -146,7 +154,7 @@ public class UiSpecService<T> implements AutoCloseable {
 
         final JsonSchemaConverter jsonSchemaConverter = new JsonSchemaConverter(jsonb, ui.getJsonSchema(), props);
         final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, family.get(), ui.getUiSchema(),
-                new ArrayList<>(), client, ui.getJsonSchema(), props, actions.get(), lang);
+                new ArrayList<>(), client, ui.getJsonSchema(), props, actions.get(), lang, customPropertyConverters);
         final PropertiesConverter propertiesConverter =
                 new PropertiesConverter(jsonb, Map.class.cast(ui.getProperties()), props);
 

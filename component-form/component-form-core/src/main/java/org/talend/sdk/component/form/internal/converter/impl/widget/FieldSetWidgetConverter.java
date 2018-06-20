@@ -27,6 +27,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.api.Client;
+import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
 import org.talend.sdk.component.form.internal.lang.CompletionStages;
@@ -43,13 +44,16 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
 
     private final List<String> order;
 
+    private final Collection<CustomPropertyConverter> customPropertyConverters;
+
     public FieldSetWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
             final Client client, final String family, final JsonSchema jsonSchema, final String order,
-            final String lang) {
+            final String lang, final Collection<CustomPropertyConverter> customPropertyConverters) {
         super(schemas, properties, actions, jsonSchema, lang);
         this.client = client;
         this.family = family;
+        this.customPropertyConverters = customPropertyConverters;
         this.order = ofNullable(order).map(it -> asList(it.split(","))).orElse(null);
     }
 
@@ -62,7 +66,7 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
 
             final List<SimplePropertyDefinition> properties = new ArrayList<>();
             final UiSchemaConverter uiSchemaConverter = new UiSchemaConverter(null, family, uiSchema.getItems(),
-                    properties, client, jsonSchema, this.properties, actions, lang);
+                    properties, client, jsonSchema, this.properties, actions, lang, customPropertyConverters);
 
             // Create Nested UI Items
             final Stream<SimplePropertyDefinition> nestedProperties =

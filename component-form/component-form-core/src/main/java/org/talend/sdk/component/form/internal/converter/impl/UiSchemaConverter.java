@@ -27,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.form.api.Client;
+import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
 import org.talend.sdk.component.form.internal.converter.impl.widget.CodeWidgetConverter;
@@ -69,89 +70,100 @@ public class UiSchemaConverter implements PropertyConverter {
 
     private final String lang;
 
+    private final Collection<CustomPropertyConverter> customConverters;
+
     @Override
     public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
-        return cs.thenCompose(context -> {
-            final SimplePropertyDefinition property = context.getProperty();
-            final String type = property.getType().toLowerCase(Locale.ROOT);
-            switch (type) {
-            case "object":
-                final Map<String, String> gridLayouts =
-                        property
+        return cs.thenCompose(context -> customConverters
+                .stream()
+                .filter(it -> it.supports(context))
+                .findFirst()
+                .map(it -> it.convert(cs))
+                .orElseGet(() -> {
+                    final SimplePropertyDefinition property = context.getProperty();
+                    final String type = property.getType().toLowerCase(Locale.ROOT);
+                    switch (type) {
+                    case "object":
+                        final Map<String, String> gridLayouts = property
                                 .getMetadata()
                                 .entrySet()
                                 .stream()
-                                .filter(e -> e.getKey().startsWith("ui::gridlayout::")
-                                        && e.getKey().endsWith("::value"))
+                                .filter(e -> e.getKey().startsWith("ui::gridlayout::") && e
+                                        .getKey()
+
+                                        .endsWith("::value"))
                                 .collect(toMap(
                                         e -> e.getKey().substring("ui::gridlayout::".length(),
                                                 e.getKey().length() - "::value".length()),
                                         Map.Entry::getValue, (a, b) -> {
                                             throw new IllegalArgumentException("Can't merge " + a + " and " + b);
                                         }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
-                if (!gridLayouts.isEmpty()) {
-                    return new GridLayoutWidgetConverter(schemas, properties, actions, client, family,
-                            gridLayoutFilter != null && gridLayouts.containsKey(gridLayoutFilter)
-                                    ? singletonMap(gridLayoutFilter, gridLayouts.get(gridLayoutFilter))
-                                    : gridLayouts,
-                            jsonSchema, lang).convert(CompletableFuture.completedFuture(context));
-                }
-                final String forcedOrder = property.getMetadata().get("ui::optionsorder::value");
-                return new FieldSetWidgetConverter(schemas, properties, actions, client, family, jsonSchema,
-                        forcedOrder, lang).convert(CompletableFuture.completedFuture(context));
-            case "boolean":
-                includedProperties.add(property);
-                return new ToggleWidgetConverter(schemas, properties, actions, jsonSchema, lang)
-                        .convert(CompletableFuture.completedFuture(context));
-            case "enum":
-                includedProperties.add(property);
-                return new DataListWidgetConverter(schemas, properties, actions, client, family, jsonSchema, lang)
-                        .convert(CompletableFuture.completedFuture(context));
-            case "number":
-                includedProperties.add(property);
-                return new NumberWidgetConverter(schemas, properties, actions, jsonSchema, lang)
-                        .convert(CompletableFuture.completedFuture(context));
-            case "array":
-                includedProperties.add(property);
-                final String nestedPrefix = property.getPath() + "[].";
-                final int from = nestedPrefix.length();
-                final Collection<SimplePropertyDefinition> nested = properties
-                        .stream()
-                        .filter(prop -> prop.getPath().startsWith(nestedPrefix)
-                                && prop.getPath().indexOf('.', from) < 0)
-                        .collect(toList());
-                if (!nested.isEmpty()) {
-                    return new ObjectArrayWidgetConverter(schemas, properties, actions, nested, family, client,
-                            gridLayoutFilter, jsonSchema, lang).convert(CompletableFuture.completedFuture(context));
-                }
-                return new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family, jsonSchema, lang)
-                        .convert(CompletableFuture.completedFuture(context));
-            case "string":
-            default:
-                if (property.getPath().endsWith("[]")) {
-                    return CompletableFuture.completedFuture(context);
-                }
-                includedProperties.add(property);
-                if ("true".equalsIgnoreCase(property.getMetadata().get("ui::credential"))) {
-                    return new CredentialWidgetConverter(schemas, properties, actions, jsonSchema, lang)
-                            .convert(CompletableFuture.completedFuture(context));
-                } else if (property.getMetadata().containsKey("ui::code::value")) {
-                    return new CodeWidgetConverter(schemas, properties, actions, jsonSchema, lang)
-                            .convert(CompletableFuture.completedFuture(context));
-                } else if (property.getMetadata().containsKey("action::suggestions")) {
-                    return new SuggestionWidgetConverter(schemas, properties, actions, jsonSchema, lang)
-                            .convert(CompletableFuture.completedFuture(context));
-                } else if (property.getMetadata().containsKey("action::dynamic_values")) {
-                    return new DataListWidgetConverter(schemas, properties, actions, client, family, jsonSchema, lang)
-                            .convert(CompletableFuture.completedFuture(context));
-                } else if (property.getMetadata().containsKey("ui::textarea")
-                        && Boolean.valueOf(property.getMetadata().get("ui::textarea"))) {
-                    return new TextAreaWidgetConverter(schemas, properties, actions, jsonSchema, lang)
-                            .convert(CompletableFuture.completedFuture(context));
-                }
-                return new TextWidgetConverter(schemas, properties, actions, jsonSchema, lang)
-                        .convert(CompletableFuture.completedFuture(context));
-            }
-        });
+                        if (!gridLayouts.isEmpty()) {
+                            return new GridLayoutWidgetConverter(schemas, properties, actions, client, family,
+                                    gridLayoutFilter != null && gridLayouts.containsKey(gridLayoutFilter)
+                                            ? singletonMap(gridLayoutFilter, gridLayouts.get(gridLayoutFilter))
+                                            : gridLayouts,
+                                    jsonSchema, lang, customConverters)
+                                            .convert(CompletableFuture.completedFuture(context));
+                        }
+                        final String forcedOrder = property.getMetadata().get("ui::optionsorder::value");
+                        return new FieldSetWidgetConverter(schemas, properties, actions, client, family, jsonSchema,
+                                forcedOrder, lang, customConverters)
+                                        .convert(CompletableFuture.completedFuture(context));
+                    case "boolean":
+                        includedProperties.add(property);
+                        return new ToggleWidgetConverter(schemas, properties, actions, jsonSchema, lang)
+                                .convert(CompletableFuture.completedFuture(context));
+                    case "enum":
+                        includedProperties.add(property);
+                        return new DataListWidgetConverter(schemas, properties, actions, client, family, jsonSchema,
+                                lang).convert(CompletableFuture.completedFuture(context));
+                    case "number":
+                        includedProperties.add(property);
+                        return new NumberWidgetConverter(schemas, properties, actions, jsonSchema, lang)
+                                .convert(CompletableFuture.completedFuture(context));
+                    case "array":
+                        includedProperties.add(property);
+                        final String nestedPrefix = property.getPath() + "[].";
+                        final int from = nestedPrefix.length();
+                        final Collection<SimplePropertyDefinition> nested = properties
+                                .stream()
+                                .filter(prop -> prop.getPath().startsWith(nestedPrefix)
+                                        && prop.getPath().indexOf('.', from) < 0)
+                                .collect(toList());
+                        if (!nested.isEmpty()) {
+                            return new ObjectArrayWidgetConverter(schemas, properties, actions, nested, family, client,
+                                    gridLayoutFilter, jsonSchema, lang, customConverters)
+                                            .convert(CompletableFuture.completedFuture(context));
+                        }
+                        return new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family,
+                                jsonSchema, lang).convert(CompletableFuture.completedFuture(context));
+                    case "string":
+                    default:
+                        if (property.getPath().endsWith("[]")) {
+                            return CompletableFuture.completedFuture(context);
+                        }
+                        includedProperties.add(property);
+                        if ("true".equalsIgnoreCase(property.getMetadata().get("ui::credential"))) {
+                            return new CredentialWidgetConverter(schemas, properties, actions, jsonSchema, lang)
+                                    .convert(CompletableFuture.completedFuture(context));
+                        } else if (property.getMetadata().containsKey("ui::code::value")) {
+                            return new CodeWidgetConverter(schemas, properties, actions, jsonSchema, lang)
+                                    .convert(CompletableFuture.completedFuture(context));
+                        } else if (property.getMetadata().containsKey("action::suggestions")) {
+                            return new SuggestionWidgetConverter(schemas, properties, actions, jsonSchema, lang)
+                                    .convert(CompletableFuture.completedFuture(context));
+                        } else if (property.getMetadata().containsKey("action::dynamic_values")) {
+                            return new DataListWidgetConverter(schemas, properties, actions, client, family, jsonSchema,
+                                    lang).convert(CompletableFuture.completedFuture(context));
+                        } else if (property.getMetadata().containsKey("ui::textarea")
+                                && Boolean.valueOf(property.getMetadata().get("ui::textarea"))) {
+                            return new TextAreaWidgetConverter(schemas, properties, actions, jsonSchema, lang)
+                                    .convert(CompletableFuture.completedFuture(context));
+                        }
+                        return new TextWidgetConverter(schemas, properties, actions, jsonSchema, lang)
+                                .convert(CompletableFuture.completedFuture(context));
+                    }
+                }));
     }
 }
