@@ -22,7 +22,10 @@ FROM openjdk:8-jre-alpine
 
 ARG SERVER_VERSION
 ARG ARTIFACT_ID=component-server
+ARG BEAM_ARTIFACT_ID=component-runtime-beam
+ARG BEAM_CLASSIFIER=dependencies
 ARG KAFKA_CLIENT_VERSION=1.1.0
+ARG CENTRAL=http://repo.apache.maven.org/maven2
 
 MAINTAINER tacokit@talend.com
 
@@ -43,6 +46,8 @@ ENV MEECROWAVE_BASE /opt/talend/component-kit
 RUN mkdir -p $MEECROWAVE_BASE
 WORKDIR $MEECROWAVE_BASE
 
+RUN date
+
 RUN set -ex && \
     echo "Preparing $ARTIFACT_ID v$SERVER_VERSION" && \
     [ -n "$SERVER_VERSION" ] || { echo "[ERROR] No version defined, set environment variable SERVER_VERSION when launching the image"; exit 1; } && \
@@ -54,13 +59,26 @@ RUN set -ex && \
     wget $DOWNLOAD_URL.asc -O $ARTIFACT_ID.zip.asc && \
     wget $DOWNLOAD_URL -O $ARTIFACT_ID.zip && \
     gpg --batch --verify $ARTIFACT_ID.zip.asc $ARTIFACT_ID.zip && \
-    unzip $ARTIFACT_ID.zip && \
-    mv $ARTIFACT_ID-distribution/* $MEECROWAVE_BASE && \
-    rm -Rf $ARTIFACT_ID-distribution && \
-    rm $ARTIFACT_ID.zip* && \
-    rm -f $MEECROWAVE_BASE/conf/log4j2.xml && \
+    unzip $ARTIFACT_ID.zip && mv $ARTIFACT_ID-distribution/* $MEECROWAVE_BASE && \
+    rm -Rf $ARTIFACT_ID-distribution $ARTIFACT_ID.zip* $MEECROWAVE_BASE/conf/log4j2.xml && \
     echo "$GROUP_ID:$ARTIFACT_ID:zip:$SERVER_VERSION" > conf/build.gav && \
     date > conf/build.date
+
+# add beam while we use beam based components
+RUN set -ex && \
+    if [ "component-server" != "$ARTIFACT_ID" ]; then exit 0; fi && \
+    echo "Adding $BEAM_ARTIFACT_ID v$SERVER_VERSION" && \
+    export NEXUS_BASE=${NEXUS_BASE:-https://oss.sonatype.org} && \
+    export GROUP_ID=${GROUP_ID:-org.talend.sdk.component} && \
+    export REPOSITORY=$([[ "${SERVER_VERSION%-SNAPSHOT}" != "$SERVER_VERSION" ]] && echo 'snapshots' || echo 'releases') && \
+    export BEAM_DOWNLOAD_URL="$NEXUS_BASE/service/local/artifact/maven/content?r=$REPOSITORY&g=$GROUP_ID&a=$BEAM_ARTIFACT_ID&v=$SERVER_VERSION&c=$BEAM_CLASSIFIER&e=zip" && \
+    wget $BEAM_DOWNLOAD_URL.asc -O $BEAM_ARTIFACT_ID.zip.asc && \
+    wget $BEAM_DOWNLOAD_URL -O $BEAM_ARTIFACT_ID.zip && \
+    gpg --batch --verify $BEAM_ARTIFACT_ID.zip.asc $BEAM_ARTIFACT_ID.zip && \
+    unzip $BEAM_ARTIFACT_ID.zip && \
+    mv $BEAM_ARTIFACT_ID-$SERVER_VERSION/*.jar $MEECROWAVE_BASE/lib && \
+    rm -Rf $BEAM_ARTIFACT_ID.zip $BEAM_ARTIFACT_ID-$SERVER_VERSION && \
+    echo "$GROUP_ID:$BEAM_ARTIFACT_ID:zip:$SERVER_VERSION" >> conf/build.gav
 
 # download kafka client jar for logs
 RUN set -ex && \
