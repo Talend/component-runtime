@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.server.configuration;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -44,7 +43,7 @@ public class ComponentServerConfiguration {
     @Inject
     @Documentation("A comma separated list of gav to locate the components")
     @ConfigProperty(name = "talend.component.server.component.coordinates")
-    private List<String> componentCoordinates;
+    private Optional<String> componentCoordinates;
 
     // property to list plugins like in a fatjar, ie value = gav. Nice for assemblies, less for demo/cli usage.
     @Inject

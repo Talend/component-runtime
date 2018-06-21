@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -99,7 +100,11 @@ public class ComponentManagerService {
         // note: we don't want to download anything from the manager, if we need to download any artifact we need
         // to ensure it is controlled (secured) and allowed so don't make it implicit but enforce a first phase
         // where it is cached locally (provisioning solution)
-        ofNullable(configuration.getComponentCoordinates()).orElse(emptyList()).forEach(this::deploy);
+        final List<String> coords = configuration
+                .getComponentCoordinates()
+                .map(it -> Stream.of(it.split(",")).map(String::trim).filter(i -> !i.isEmpty()).collect(toList()))
+                .orElse(emptyList());
+        coords.forEach(this::deploy);
         configuration.getComponentRegistry().map(File::new).filter(File::exists).ifPresent(registry -> {
             final Properties properties = new Properties();
             try (final InputStream is = new FileInputStream(registry)) {
@@ -111,7 +116,7 @@ public class ComponentManagerService {
                     .stringPropertyNames()
                     .stream()
                     .map(properties::getProperty)
-                    .filter(gav -> !configuration.getComponentCoordinates().contains(gav))
+                    .filter(gav -> !coords.contains(gav))
                     .forEach(this::deploy);
         });
     }
