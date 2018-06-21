@@ -156,7 +156,7 @@ onTrigger(event, payload) {
 
 == HTTP API
 
-include::{partialsdir}/generated_proxy-server-api.adoc[leveloffset=+1]
+include::{partialsdir}/generated_proxy-server-api.adoc[leveloffset=+2]
 
 TIP: as you can see there are two ways to call save endpoint. If you don't want to pass the form identifier
 and prefer to use a generic endpoint just passing the type of configuration you are configuring then you will

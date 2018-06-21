@@ -43,6 +43,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-868[TCOMP-868^]: Create an ObjectFactory service
 - link:https://jira.talendforge.org/browse/TCOMP-869[TCOMP-869^]: Ensure actions can get injected the requested lang
 - link:https://jira.talendforge.org/browse/TCOMP-870[TCOMP-870^]: Provide Beam DoFn to simplify the migration from IndexedRecord to JsonObject
+- link:https://jira.talendforge.org/browse/TCOMP-876[TCOMP-876^]: Allow custom converters in form-core
 
 
 == Version 1.0.0
