@@ -29,7 +29,7 @@ spec:
       path: /var/run/docker.sock
   - name: m2
     hostPath:
-      path: /tmp/jenkins/tdi/m2
+      path: /tmp/jenkins/component-kit/m2
 """
     }
   }
