@@ -1,4 +1,4 @@
-= Talend Component Kit Best Practices
+= Talend Component Kit best practices
 :page-partial:
 
 == Organizing your code
@@ -20,11 +20,13 @@ import org.talend.sdk.component.api.component.Components;
 . Create a package for the actions.
 . Create a package for the component and one sub-package by type of component (input, output, processors, and so on).
 
-== Serialize your configuration
+== Configuring components
+
+=== Serializing your configuration
 
 It is recommended to serialize your configuration in order to be able to pass it through other components.
 
-== I/O configuration
+=== Input and output components
 
 When building a new component, the first step is to identify the way it must be configured.
 
@@ -65,29 +67,11 @@ public class MyComponentConfiguration {
     private MyDataStore datastore;
 }
 ----
+==== About actions
 
-== Processor configuration
+Input and output components are particular because they can be linked to a set of actions. It is recommended to wire all the actions you can apply to ensure the consumers of your component can provide a rich experience to their users.
 
-Processor configuration is simpler than I/O configuration since it is specific for each component. For example, a mapper takes the mapping between the input and output models:
-
-[source,java]
-----
-public class MappingConfiguration {
-    @Option
-    private Map<String, String> fieldsMapping;
-
-    @Option
-    private boolean ignoreCase;
-
-    //...
-}
-----
-
-== I/O recommendations
-
-I/O are particular because they can be linked to a set of actions. It is recommended to wire all the ones you can apply to ensure the consumers of your component can provide a rich experience to their users.
-
-Here are the most common ones:
+The most common actions are the following ones:
 
 [cols="1,1,2,6,6"]
 |====
@@ -95,7 +79,7 @@ Here are the most common ones:
 
 | DataStore
 | `@Checkable`
-| Expose a way to ensure the datastore/connection works
+| Exposes a way to ensure the datastore/connection works
 a|
 [source,java]
 ----
@@ -134,29 +118,47 @@ public HealthCheckStatus healthCheck(@Option("datastore") JdbcDataStore datastor
 |====
 
 
-== I/O limitations
+==== Limitations
 
-Until the studio integration is complete, it is recommended to limit processors to 1 input.
+Until the studio integration is complete, it is recommended to limit processors to one input.
 
-== Handle UI interactions
+=== Processor components
 
-It is also recommended to provide as much information as possible to let the UI work with the data during its edition.
+Configuring processor components is simpler than configuring input and output components because it is specific for each component. For example, a mapper takes the mapping between the input and output models:
+
+[source,java]
+----
+public class MappingConfiguration {
+    @Option
+    private Map<String, String> fieldsMapping;
+
+    @Option
+    private boolean ignoreCase;
+
+    //...
+}
+----
+
+
+
+== Handling UI interactions
+
+It is recommended to provide as much information as possible to let the UI work with the data during its edition.
 
 === Validations
 
 ==== Light validations
 
-The light validations are all the validations you can execute on the client side. They are listed in the <<documentation.adoc#documentation-ui-hints, UI hint>> part.
+Light validations are all the validations you can execute on the client side. They are listed in the <<documentation.adoc#documentation-ui-hints, UI hint>> section.
 
-This is the ones to use first before going with custom validations since they will be more efficient.
+Use light validations first before going with custom validations because they are more efficient.
 
 ==== Custom validations
 
-These ones will enforce custom code to be executed, they are more heavy so try to avoid to use them for simple validations
-you can do with the previous part.
+Custom validations enforce custom code to be executed, they are more heavy to process, so prefer using light validations when possible.
 
-Here you define an action taking some parameters needed for the validation and you link the option you want to validate to this action.
-Here is an example to validate a dataset. For example for our JDBC driver we could have:
+Define an action with the parameters needed for the validation and link the option you want to validate to this action.
+For example, to validate a dataset for a JDBC driver:
 
 [source,java]
 ----
@@ -180,11 +182,11 @@ public ValidationResult validateDriver(@Option("value") String driver) {
 }
 ----
 
-Note that you can also make a class validable and you can use it to validate a form if you put it on your whole configuration:
+You can also define a Validable class and use it to validate a form by setting it on your whole configuration:
 
 [source,java]
 ----
-// note: some part of the API were removed for brievity
+// Note: some parts of the API were removed for clarity
 
 public class MyConfiguration {
 
@@ -208,14 +210,13 @@ public ValidationResult validateDriver(@Option("value") MyConfiguration configur
 }
 ----
 
-IMPORTANT: the parameter binding of the validation method uses the same logic than the component configuration
-injection. Therefore the `@Option` specifies the prefix to use to reference a parameter. It is recommended to
-use `@Option("value")` until you know exactly why you don't use it. This way the consumer can match the configuration
-model and just prefix it with `value.` to send the instance to validate.
+NOTE: The parameter binding of the validation method uses the same logic as the component configuration injection. Therefore, the `@Option` method specifies the prefix to use to reference a parameter. +
+It is recommended to use `@Option("value")` until you know exactly why you don't use it. This way, the consumer can match the configuration model and just prefix it with `value.` to send the instance to validate.
 
 === Completion
 
-It can be neat and user friendly to provide completion on some fields. Here an example for the available drivers:
+It can be handy and user-friendly to provide completion on some fields.
+For example, to define completion for available drivers:
 
 [source,java]
 ----
@@ -236,7 +237,7 @@ public CompletionList findDrivers() {
 }
 ----
 
-=== Don't forget the component representation
+=== Component representation
 
 Each component must have its own icon:
 
@@ -249,11 +250,11 @@ public class JdbcPartitionMapper
 }
 ----
 
-TIP: you can use http://talend.surge.sh/icons/ to identify the one you want to use.
+TIP: You can use http://talend.surge.sh/icons/ to find the icon you want to use.
 
-== Version and component
+== Enforcing versioning on components
 
-Not mandatory for the first version but recommended: enforce the version of your component.
+It is recommended to enforce the version of your component, event though it is not mandatory for the first version.
 
 [source,java]
 ----
@@ -264,10 +265,10 @@ public class JdbcPartitionMapper
 }
 ----
 
-If you break a configuration entry in a later version ensure to:
+If you break a configuration entry in a later version;  make sure to:
 
-1. upgrade the version
-2. support a migration of the configuration
+1. Upgrade the version.
+2. Support a migration of the configuration.
 
 [source,java]
 ----
@@ -283,11 +284,10 @@ public class JdbcPartitionMapper
 ----
 
 
-== Don't forget to test
+== Testing components
 
-Testing the components is crucial, you can use unit tests and simple standalone JUnit but it is highly recommended
-to have a few Beam tests to ensure your component works in Big Data world.
+Testing your components is critical. You can use unit and simple standalone JUnit tests, but it is also highly recommended to have Beam tests in order to make sure that your component works in Big Data.
 
-== Contribute to this guide
+// == Contribute to this guide
 
-Don't hesitate to send your feedback on writing component and best practices you can encounter.
+// Don't hesitate to send your feedback on writing component and best practices you can encounter.
