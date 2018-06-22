@@ -1,5 +1,7 @@
 = Component Server in Docker
 
+IMPORTANT: component-server docker will move to root `Dockerfile` as soon as possible.
+
 == Build
 You can build a docker image of component server following those instructions :
 ```
