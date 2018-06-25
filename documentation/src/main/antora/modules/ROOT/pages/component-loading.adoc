@@ -1,21 +1,17 @@
 = Component Loading
 :page-partial:
 
-Talend Component scanning is based on a plugin concept. To ensure plugins can be developped in parallel and avoid conflicts
-it requires to isolate plugins (components or component grouped in a single jar/plugin).
+Talend Component scanning is based on plugins. To make sure that plugins can be developed in parallel and avoid conflicts, plugins need to be isolated (component or group of components in a single jar/plugin).
 
-Here we have multiple options which are (high level):
+Multiple options are available:
 
-- flat classpath: listed for completeness but rejected _by design_ because it doesn't match at all this requirement.
-- tree classloading: a shared classloader inherited by plugin classloaders but plugin classloader classes
-are not seen by the shared classloader nor by other plugins.
-- graph classloading: this one allows you to link the plugins and dependencies together dynamically in any direction.
+- Graph classloading: this option allows you to link the plugins and dependencies together dynamically in any direction. +
+For example, the graph classloading can be illustrated by OSGi containers.
+- Tree classloading: a shared classloader inherited by plugin classloaders. However, plugin classloader classes are not seen by the shared classloader, nor by other plugins. +
+For example, he tree classloading is commonly used by Servlet containers where plugins are web applications.
+- Flat classpath: listed for completeness but rejected _by design_ because it doesn't comply with this requirement.
 
-If you want to map it to concrete common examples, the tree classloading is commonly used by Servlet containers where plugins are web applications
-and the graph classloading can be illustrated by OSGi containers.
-
-In the spirit of avoiding a lot of complexity added by this layer, Talend Component relies on a tree classloading. The advantage
-is you don't need to define the relationship with other plugins/dependencies (it is built-in).
+In order to avoid much complexity added by this layer, Talend Component Kit relies on a tree classloading. The advantage is that you don't need to define the relationship with other plugins/dependencies, because it is built-in.
 
 Here is a representation of this solution:
 
@@ -34,17 +30,16 @@ Here is a representation of this solution:
 ////
 image:classloader-layout.png[]
 
-The interesting part is the _shared_ area will contain Talend Component API which is the only (by default) shared classes accross the whole plugins.
+The _shared_ area contains Talend Component Kit API, which only contains by default the classes shared by the plugins.
 
-Then each plugins will be loaded in their own classloader with their dependencies.
+Then, each plugin is loaded with its own classloader and dependencies.
 
 
 == Packaging a plugin
 
-NOTE: this part explains the overall way to handle dependecnies but the Talend Maven plugin provides a shortcut for that.
+NOTE: This section explains the overall way to handle dependencies but the Talend Maven plugin provides a shortcut for that.
 
-A plugin is just a jar which was enriched with the list of its dependencies. By default Talend Component runtime is able to
-read the output of `maven-dependency-plugin` in `TALEND-INF/dependencies.txt` location so you just need to ensure your component defines the following plugin:
+A plugin is a JAR file that was enriched with the list of its dependencies. By default, Talend Component Kit runtime is able to read the output of `maven-dependency-plugin` in `TALEND-INF/dependencies.txt`. You just need to make sure that your component defines the following plugin:
 
 [source,xml]
 ----
@@ -67,7 +62,7 @@ read the output of `maven-dependency-plugin` in `TALEND-INF/dependencies.txt` lo
 </plugin>
 ----
 
-If you check your jar once built you will see that the file contains something like:
+Once build, check the JAR file and look for the following lines:
 
 [source,bash]
 ----
@@ -82,11 +77,11 @@ The following files have been resolved:
 
 ----
 
-What is important to see is the scope associated to the artifacts:
+What is important to see is the scope related to the artifacts:
 
-- the API (`component-api` and `geronimo-annotation_1.3_spec`) are `provided` because you can consider them to be there when executing (it comes with the framework)
-- your specific dependencies (`awesome-project`) is `compile`: it will be included as a needed dependency by the framework (note that using `runtime` works too).
-- the other dependencies will be ignored (`test` dependencies)
+- The APIs (`component-api` and `geronimo-annotation_1.3_spec`) are `provided` because you can consider them to be there when executing (they come with the framework).
+- Your specific dependencies (`awesome-project` in the example above) are marked as `compile`: they are included as needed dependencies by the framework (note that using `runtime` works too).
+- the other dependencies are ignored. For example, `test` dependencies.
 
 == Packaging an application
 
@@ -94,7 +89,7 @@ Even if a flat classpath deployment is possible, it is not recommended because i
 
 === Dependencies
 
-The way the framework resolves dependencies is based on a local maven repository layout. As a quick reminder it looks like:
+The way the framework resolves dependencies is based on a local Maven repository layout. As a quick reminder, it looks like:
 
 [source]
 ----
@@ -111,20 +106,19 @@ The way the framework resolves dependencies is based on a local maven repository
             └── artifactId2-version1.jar
 ----
 
-This is all the layout the framework will use. Concretely the logic will convert the t-uple {groupId, artifactId, version, type (jar)}
-to the path in the repository.
+This is all the layout the framework uses. The logic converts `t-uple {groupId, artifactId, version, type (jar)}` to the path in the repository.
 
-Talend Component runtime has two ways to find an artifact:
+Talend Component Kit runtime has two ways to find an artifact:
 
-- from the file system based on a configure maven 2 repository.
-- from a fatjar (uber jar) with a nested maven repository under `MAVEN-INF/repository`.
+- From the file system based on a configured Maven 2 repository.
+- From a fat JAR (uber JAR) with a nested Maven repository under `MAVEN-INF/repository`.
 
-The first option will use either - by default - `${user.home}/.m2/repository` or a specific path configured when creating a `ComponentManager`.
-The nested repository option will need some configuration during the packaging to ensure the repository is well created.
+The first option uses either `${user.home}/.m2/repository` default) or a specific path configured when creating a `ComponentManager`.
+The nested repository option needs some configuration during the packaging to ensure the repository is correctly created.
 
-==== Create a nested maven repository with maven-shade-plugin
+==== Creating a nested Maven repository with maven-shade-plugin
 
-To create the nested `MAVEN-INF/repository` repository you can use `nested-maven-repository` extension:
+To create the nested `MAVEN-INF/repository` repository, you can use the `nested-maven-repository` extension:
 
 [source,xml,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -159,11 +153,9 @@ To create the nested `MAVEN-INF/repository` repository you can use `nested-maven
 
 === Listing needed plugins
 
-Plugin are programmatically registered in general but if you want to make some of them automatically available you
-need to generate a `TALEND-INF/plugins.properties` which will map a plugin name to coordinates found with the maven mecanism
-we just talked about.
+Plugins are usually programmatically registered. If you want to make some of them automatically available, you need to generate a `TALEND-INF/plugins.properties` file that maps a plugin name to coordinates found with the Maven mechanism described above.
 
-Here again we can enrich `maven-shade-plugin` to do it:
+You can enrich `maven-shade-plugin` to do it:
 
 [source,xml,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -198,7 +190,7 @@ Here again we can enrich `maven-shade-plugin` to do it:
 
 === `maven-shade-plugin` extensions
 
-Here is a final job/application bundle based on maven shade plugin:
+Here is a final job/application bundle based on maven-shade-plugin:
 
 [source,xml,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -265,32 +257,31 @@ Here is a final job/application bundle based on maven shade plugin:
 </plugin>
 ----
 
-NOTE: the configuration unrelated to transformers can depend your application.
+NOTE: The configuration unrelated to transformers depends on your application.
 
-`ContainerDependenciesTransformer` is the one to embed a maven repository and `PluginTransformer` to create a file listing (one per line)
-a list of artifacts (representing plugins).
+`ContainerDependenciesTransformer` embeds a Maven repository and `PluginTransformer` to create a file that lists (one per line) artifacts (representing plugins).
 
 Both transformers share most of their configuration:
 
 - `session`: must be set to `${session}`. This is used to retrieve dependencies.
-- `scope`: a comma separated list of scope to include in the artifact filtering (note that the default will rely on `provided` but you can replace it by `compile`, `runtime`, `runtime+compile`, `runtime+system`, `test`).
-- `include`: a comma separated list of artifact to include in the artifact filtering.
-- `exclude`: a comma separated list of artifact to exclude in the artifact filtering.
-- `userArtifacts`: a list of artifacts (groupId, artifactId, version, type - optional, file - optional for plugin transformer, scope - optional) which can be forced inline - mainly useful for `PluginTransformer`.
-- `includeTransitiveDependencies`: should transitive dependencies of the components be included, true by default.
-- `includeProjectComponentDependencies`: should project component dependencies be included, false by default (normally a job project uses isolation for components so this is not needed).
+- `scope`: a comma-separated list of scopes to include in the artifact filtering (note that the default will rely on `provided` but you can replace it by `compile`, `runtime`, `runtime+compile`, `runtime+system` or `test`).
+- `include`: a comma-separated list of artifacts to include in the artifact filtering.
+- `exclude`: a comma-separated list of artifacts to exclude in the artifact filtering.
+- `userArtifacts`: a list of artifacts (groupId, artifactId, version, type - optional, file - optional for plugin transformer, scope - optional) which can be forced inline. This parameter is mainly useful for `PluginTransformer`.
+- `includeTransitiveDependencies`: should transitive dependencies of the components be included. Set to `true` by default.
+- `includeProjectComponentDependencies`: should project component dependencies be included. Set to `false` by default. It is not needed when a job project uses isolation for components.
 - `userArtifacts`: set of component artifacts to include.
 
-IMPORTANT: to use with the component tooling, it is recommended to keep default locations. Also if you feel you need to use project dependencies,
-you can need to refactor your project structure to ensure you keep component isolation. Talend component let you handle that part but the recommended
-practise is to use `userArtifacts` for the components and not the project `<dependencies>`.
+IMPORTANT: With the component tooling, it is recommended to keep default locations. +
+Also if you need to use project dependencies, you can need to refactor your project structure to ensure component isolation. +
+Talend Component Kit lets you handle that part but the recommended practice is to use `userArtifacts` for the components instead of project `<dependencies>`.
 
 ==== ContainerDependenciesTransformer
 
-`ContainerDependenciesTransformer` specific configuration is the following one:
+`ContainerDependenciesTransformer` specific configuration is as follows:
 
-- `repositoryBase`: base repository location (default to `MAVEN-INF/repository`).
-- `ignoredPaths`: a comma separated list of folder to not create in the output jar, this is common for the ones already created by other transformers/build parts.
+- `repositoryBase`: base repository location (`MAVEN-INF/repository` by default).
+- `ignoredPaths`: a comma-separated list of folders not to create in the output JAR. This is common for folders already created by other transformers/build parts.
 
 ==== PluginTransformer
 
@@ -298,7 +289,7 @@ practise is to use `userArtifacts` for the components and not the project `<depe
 
 - `pluginListResource`: base repository location (default to TALEND-INF/plugins.properties`).
 
-Example: if you want to list only the plugins you use you can configure this transformer like that:
+For example, if you want to list only the plugins you use, you can configure this transformer as follows:
 
 [source,xml,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -310,9 +301,8 @@ Example: if you want to list only the plugins you use you can configure this tra
 
 == Component scanning rules and default exclusions
 
-The framework uses two kind of filtering when scanning your component. One based on the jar name
-and one based on the package name. Ensure your component definitions (including services)
-are in a scanned module if not registered manually using `ComponentManager.instance().addPlugin()`
-and that its package is not excluded.
+The framework uses two kind of filterings when scanning your component. One based on the JAR name
+and one based on the package name. Make sure that your component definitions (including services)
+are in a scanned module if they are not registered manually using `ComponentManager.instance().addPlugin()`, and that the component package is not excluded.
 
 include::{partialsdir}/generated_scanning-exclusions.adoc[leveloffset=+2]
