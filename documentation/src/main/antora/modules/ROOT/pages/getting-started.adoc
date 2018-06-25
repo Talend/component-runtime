@@ -24,7 +24,7 @@ In order to use Talend Component Kit, you need the following tools installed on 
 
 Developing new components using the framework includes:
 
-. Creating a project using the https://starter-toolkit.talend.io/[starter]
+. Creating a project using the https://starter-toolkit.talend.io/[starter] or the <<tutorial-talend-intellij-plugin-usage.adoc,Talend IntelliJ plugin>>.
 .. Defining the general configuration model for each component in your project
 .. Generating and downloading the project's archive from the starter
 .. Compiling the project

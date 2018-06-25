@@ -89,4 +89,3 @@ The cache will be invalidated and the component refreshed.
 IMPORTANT: you still need to add/remove the components to see the changes.
 
 This feature is very useful to see some updates in components without having to restart the studio completly.
-
