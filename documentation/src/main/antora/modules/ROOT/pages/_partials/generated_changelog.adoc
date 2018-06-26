@@ -44,6 +44,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-869[TCOMP-869^]: Ensure actions can get injected the requested lang
 - link:https://jira.talendforge.org/browse/TCOMP-870[TCOMP-870^]: Provide Beam DoFn to simplify the migration from IndexedRecord to JsonObject
 - link:https://jira.talendforge.org/browse/TCOMP-876[TCOMP-876^]: Allow custom converters in form-core
+- link:https://jira.talendforge.org/browse/TCOMP-878[TCOMP-878^]: Add beam in the docker image OOTB
+- link:https://jira.talendforge.org/browse/TCOMP-879[TCOMP-879^]: CarMojo doesn't use car extension to attach the artifact
 
 
 == Version 1.0.0
