@@ -49,6 +49,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-880[TCOMP-880^]: [dependency upgrade] Maven 3.5.4
 - link:https://jira.talendforge.org/browse/TCOMP-881[TCOMP-881^]: [dependency upgrade] CXF 3.2.5
 - link:https://jira.talendforge.org/browse/TCOMP-882[TCOMP-882^]: [dependency upgrade] Tomcat 9.0.10
+- link:https://jira.talendforge.org/browse/TCOMP-884[TCOMP-884^]: [dependency upgrade] Upgrade to icon bundle 0.197.0
 
 
 == Version 1.0.0
