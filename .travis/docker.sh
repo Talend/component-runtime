@@ -6,6 +6,8 @@ export IMAGE=$(echo "talend/component-kit:$(echo $SERVER_VERSION | sed "s/-SNAPS
 
 echo "Prebuilding the project"
 mvn clean install -e -q $DEPLOY_OPTS
+mv component-runtime-beam/target/component-runtime-beam-${SERVER_VERSION}-dependencies.zip beam.zip
+mv component-server-parent/component-server/target/component-server-meecrowave-distribution.zip server.zip
 
 echo "Grabbing kafka client"
 mvn dependency:copy -Dartifact=org.apache.kafka:kafka-clients:$KAFKA_VERSION -DoutputDirectory=.
