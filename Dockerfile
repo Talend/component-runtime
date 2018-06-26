@@ -25,7 +25,7 @@ RUN mkdir -p $MEECROWAVE_BASE
 WORKDIR $MEECROWAVE_BASE
 
 ADD kafka-clients-$KAFKA_CLIENT_VERSION.jar kafka.jar
-ADD component-runtime-beam/target/component-runtime-beam-1.0.1-SNAPSHOT-dependencies.zip beam.zip
+ADD component-runtime-beam/target/component-runtime-beam-${SERVER_VERSION}-dependencies.zip beam.zip
 ADD component-server-parent/component-server/target/component-server-meecrowave-distribution.zip server.zip
 
 RUN unzip server.zip && mv component-server-distribution/* . && rm -Rf component-server-distribution server.zip && \
