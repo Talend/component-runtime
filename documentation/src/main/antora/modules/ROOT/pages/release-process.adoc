@@ -3,20 +3,17 @@
 
 Version: {page-component-version}
 
-This page gives some hints about how to release the repository.
+This page describes how to release the repository.
 
-= Setup
+[[generate-gpg-key]]
+== Installing GPG and generating a key
 
-== Gpg key
+Before configuring Maven, you need to have a GPG key.
+Install GPG and import an existing key or generate a new one using `gpg --gen-key`.
 
-Before configuring Maven you need to have a GPG key.
-Once you installed GPG, you can either import an existing key or generate
-one using `gpg --gen-key`.
+== Configuring settings.xml
 
-== Settings.xml
-
-Then a few entries into your maven `settings.xml` are needed to provide the needed credentials
-for the release. Here is the overall template:
+Add the required credentials to your Maven `settings.xml` file for the release. The overall template is as follows:
 
 [source,xml]
 ----
@@ -68,27 +65,26 @@ for the release. Here is the overall template:
 </settings>
 ----
 
-NOTE: all the environment variables should be either set in your environment or hardcoded inline. Note that it is more than highly recommended
-to use maven encryption: https://maven.apache.org/guides/mini/guide-encryption.html.
+NOTE: All the environment variables should be either set in your environment or hardcoded inline. It is highly recommended to use Maven encryption: https://maven.apache.org/guides/mini/guide-encryption.html.
 
-1. The OSSH variables are your Sonatype OSS repository credential with the permissions to deploy on org.talend.
-If you don't have it already you can ask for one at https://issues.sonatype.org/projects/OSSRH using your talend address.
-2. The GITHUB variables are your Github account credentials. It is mainly used to update the documentation.
+1. The OSSH variables are your Sonatype OSS repository credentials with the permissions to deploy on org.talend.
+If you don't have them already, you can ask for them at https://issues.sonatype.org/projects/OSSRH using your Talend address.
+2. The GitHub variables are your GitHub account credentials. they are mainly used to update the documentation.
 3. The JIRA variables are your Talend account credentials with read permissions on https://jira.talendforge.org/projects/TCOMP/.
 4. The Blackduck configuration is used for security scans.
-5. The GPG variables reference the key you created in previous part.
+5. The GPG variables reference the key mentioned in <<generate-gpg-key>>.
 
-== Clean up JIRA
+== Cleaning up JIRA
 
-The release contacts JIRA to create the release notes. It uses all `TCOMP` issues which have the label `changelog`.
-Before any release don't forget to go through all issues of the version you will release and add/remove the label
-depending the issue you want to appear into the release note.
+The release connects to JIRA to retrieve and create the release notes. It uses all `TCOMP` issues which have the `changelog` label.
 
-== Do the release
+Before any release, go through all the issues of the version to release and add or remove the `changelog` label depending on the issues that need to appear in the release notes.
 
-IMPORTANT: at that stage we assume previous steps have been *done*.
+== Releasing
 
-Then, the release uses a standard Maven process, you should be able to do it in two steps:
+IMPORTANT: At that stage, it is assumed that all previous steps have been *done*.
+
+The release uses a standard Maven process. You should be able to do it in two steps:
 
 [source,bash]
 ----
@@ -96,15 +92,15 @@ mvn release:prepare
 mvn release:perform
 ----
 
-Once these commands passed, you need to do/ensure:
+Once these commands are passed, you need to:
 
-1. Rebuild the project which is now on the new SNAPSHOT version (to update site metadata and versions for next iteration). Commit the diff.
-2. The git tag corresponding to the release was pushed upstream (on github.com/Talend/component-runtime), if not,
-execute `git push --follow-tags`?
+. Rebuild the project which is now on the new SNAPSHOT version, in order to update site metadata and versions for the next iteration.
+. Commit the diff.
+. Make sure that the git tag corresponding to the release was pushed upstream (on github.com/Talend/component-runtime). If that is not the case, execute `git push --follow-tags`.
 
 == After the release
 
-After a moment - it can take a few hours - the binaries will be available on central (http://repo.apache.maven.org/maven2/).
-Don't forget to check it to ensure there was no issue during the release process.
+After releasing - it can take up to a few hours - the binaries become available on Maven Central Repository (http://repo.apache.maven.org/maven2/).
+Check it to make sure that there was no issue during the release process.
 
-You can also validate that the release deployed the new version (into the version menu) for the website.
+You can also validate that the release correctly deployed the new version from the Version menu of the website.

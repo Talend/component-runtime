@@ -117,7 +117,7 @@ The idea is to divide the work before executing it in order to reduce the overal
 The process is the following:
 
 1. The size of the data you work on is estimated. This part can be heuristic and not very precise.
-2. From that size, the execution engine (_runner_ for beam) requests the mapper to split _itself_ in _N_ mappers with a subset of the overall work.
+2. From that size, the execution engine (_runner_ for Beam) requests the mapper to split _itself_ in _N_ mappers with a subset of the overall work.
 3. The _leaf_ (final) mappers is used as a `Producer` (actual reader) factory.
 
 IMPORTANT: This kind of component must be `Serializable` to be distributable.
@@ -189,7 +189,7 @@ public MyData produces() {
 
 == Processor
 
-A `Processor` is a component converts incoming data to a different model.
+A `Processor` is a component that converts incoming data to a different model.
 
 A processor must have a method decorated with `@ElementListener` taking an incoming data and returning the processed data:
 
