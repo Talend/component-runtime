@@ -64,12 +64,6 @@ jobs:
 
     - stage: master_build
       env:
-      - STEP=Blackduck Analysis
-      script: echo true
-      after_success: node .travis/heartbeat.js mvn clean verify -e -q -Dhub-detect.skip=false -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -Dgpg.skip=true -e -q --batch-mode $DEPLOY_OPTS
-
-    - stage: master_build
-      env:
       - STEP=Update Documentation
       script:
       - rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache

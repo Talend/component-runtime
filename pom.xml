@@ -355,61 +355,6 @@
         <version>3.1.0</version>
       </plugin>
       <plugin>
-        <groupId>org.talend.tools</groupId>
-        <artifactId>talend-tools-maven-plugin</artifactId>
-        <version>1.0.4</version>
-        <executions>
-          <execution>
-            <id>hub-detect</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>hub-detect</goal>
-            </goals>
-          </execution>
-          <!-- not yet
-          <execution>
-            <id>blackduck-validate</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>validate</goal>
-            </goals>
-          </execution>
-          -->
-        </executions>
-        <configuration>
-          <blackduckUrl>https://blackduck.talend.com</blackduckUrl>
-          <blackduckName>Talend Component (TCOMP)</blackduckName>
-          <systemVariables>
-            <detect.output.path>$rootProject/.blackduck</detect.output.path>
-          </systemVariables>
-          <!--
-            exclude volatiles or well known or not deliveries folders
-            to avoid false positives
-            -->
-          <exclusions>
-            /gpg/,
-            /javadoc/,
-            /antrun/,
-            /apidocs/,
-            /asciidoctor-reveal.js-*/,
-            /.blackduck/,
-            /blackduck/,
-            /documentation-*/,
-            /documentation/,
-            /gradle-*/,
-            /index-files/,
-            /it/,
-            /jacoco*/,
-            /local-repo/,
-            /maven-*/,
-            /${project.version}/,
-            /reveal.js-*/,
-            /site/,
-            /test-dependencies/
-          </exclusions>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>com.github.rmannibucau</groupId>
         <artifactId>common-maven-plugin</artifactId>
         <version>${common-plugin.version}</version>
