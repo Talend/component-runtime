@@ -41,6 +41,10 @@ function getLang(lang) {
   return lang || 'en';
 }
 
+const FALLBACK_HANDLER = function ({ error, trigger }) {
+  console.log(`${JSON.stringify(trigger)} failed with error ${error || '-'}`);
+};
+
 // customRegistry can be used to add extensions or custom trigger (not portable accross integrations)
 export default function getDefaultTrigger({ url, customRegistry, lang }) {
   const encodedLang = encodeURIComponent(getLang(lang));
@@ -57,12 +61,20 @@ export default function getDefaultTrigger({ url, customRegistry, lang }) {
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(payload),
         credentials: 'include'
-      }
-    )
+      })
       .then(resp => resp.json())
       .then(body => {
-        return services[trigger.type]({
+        return (services[trigger.type] ||  FALLBACK_HANDLER)({
           body,
+          errors,
+          properties,
+          schema,
+          trigger,
+        });
+      })
+      .catch(error => {
+        (services['error'] || FALLBACK_HANDLER)({
+          error,
           errors,
           properties,
           schema,
