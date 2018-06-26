@@ -46,6 +46,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-876[TCOMP-876^]: Allow custom converters in form-core
 - link:https://jira.talendforge.org/browse/TCOMP-878[TCOMP-878^]: Add beam in the docker image OOTB
 - link:https://jira.talendforge.org/browse/TCOMP-879[TCOMP-879^]: CarMojo doesn't use car extension to attach the artifact
+- link:https://jira.talendforge.org/browse/TCOMP-880[TCOMP-880^]: [dependency upgrade] Maven 3.5.4
+- link:https://jira.talendforge.org/browse/TCOMP-881[TCOMP-881^]: [dependency upgrade] CXF 3.2.5
+- link:https://jira.talendforge.org/browse/TCOMP-882[TCOMP-882^]: [dependency upgrade] Tomcat 9.0.10
 
 
 == Version 1.0.0
