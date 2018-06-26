@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
+import static java.util.Collections.emptyList;
+
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -37,11 +39,17 @@ public class SuggestionWidgetConverter extends AbstractWidgetConverter {
     public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
             final UiSchema schema = newUiSchema(context);
-            schema.setWidget("suggestion");
+            schema.setWidget("datalist");
+            schema.setTitleMap(emptyList());
 
             final JsonSchema jsonSchema = findJsonSchema(context);
-            if (jsonSchema != null && jsonSchema.getType() == null) {
-                jsonSchema.setType("string");
+            if (jsonSchema != null) {
+                if (jsonSchema.getType() == null) {
+                    jsonSchema.setType("string");
+                }
+                if (jsonSchema.getEnumValues() == null) {
+                    jsonSchema.setEnumValues(emptyList());
+                }
             }
             return CompletableFuture.completedFuture(context);
         });
