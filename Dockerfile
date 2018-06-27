@@ -32,9 +32,9 @@ RUN unzip server.zip && mv component-server-distribution/* . && rm -Rf component
     unzip beam.zip && mv component-runtime-beam-$SERVER_VERSION/* . && rm -Rf component-runtime-beam-$SERVER_VERSION beam.zip && \
     mv kafka.jar lib/
 
-COPY .docker/conf/log4j2-component-server-*.xml $MEECROWAVE_BASE/conf/
-COPY .docker/conf/meecrowave.properties $MEECROWAVE_BASE/conf/meecrowave.properties
-COPY .docker/bin/* $MEECROWAVE_BASE/bin/
+COPY conf/log4j2-component-server-*.xml $MEECROWAVE_BASE/conf/
+COPY conf/meecrowave.properties $MEECROWAVE_BASE/conf/meecrowave.properties
+COPY bin/* $MEECROWAVE_BASE/bin/
 
 RUN set -ex && sed -i "s/artifactId/component-server/" $MEECROWAVE_BASE/bin/setenv.sh && chmod +x bin/*.sh
 
@@ -44,8 +44,20 @@ FROM openjdk:8-jre-alpine
 
 ARG SERVER_VERSION
 ARG KAFKA_CLIENT_VERSION
+ARG BUILD_DATE
 
-MAINTAINER tacokit@talend.com
+LABEL com.talend.maintainer="Talend <support@talend.com>" \
+      com.talend.build-date="$BUILD_DATE" \
+      com.talend.name="Talend Component Kit Server" \
+      com.talend.application="component-server" \
+      com.talend.service="component-server" \
+      com.talend.description="Talend Component Kit Backend Server" \
+      com.talend.url="https://www.talend.com" \
+      com.talend.vendor="Talend" \
+      com.talend.version="$DOCKER_IMAGE_VERSION" \
+      com.talend.docker.cmd="docker run -d -p 8080:8080 tacokit/component-kit:$DOCKER_IMAGE_VERSION" \
+      com.talend.docker.params="MEECROWAVE_OPTS=<JVM options (system properties etc), ex: -Dtalend.component.server.component.registry=/path/to/component-registry.propertes -Dtalend.component.server.maven.repository=/path/to/m2> CONSOLE_LOG_LEVEL=<INFO, default to OFF. Allows to get console log on 'run'>" \
+      com.talend.docker.healthcheck="curl --fail http://localhost:8080/api/v1/environment"
 
 ENV LC_ALL en_US.UTF-8
 

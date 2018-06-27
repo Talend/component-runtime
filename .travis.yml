@@ -74,8 +74,8 @@ jobs:
     - stage: master_build
       env:
       - STEP=Docker Deployment
-      before_install: chmod +x ./.travis/docker.sh
-      script: node .travis/heartbeat.js ./.travis/docker.sh
+      before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
+      script: chmod +x ./.travis/docker.sh && node .travis/heartbeat.js ./.travis/docker.sh
 
 stages:
   - name: master_build
