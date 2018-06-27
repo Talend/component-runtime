@@ -16,7 +16,7 @@ DOCKER_TMP_DIR=docker_workdir
 # assumed set DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE
 
 echo "Prebuilding the project"
-#mvn clean install -e -q $DEPLOY_OPTS
+mvn clean install -e -q $DEPLOY_OPTS -T2C
 
 # if we don't set up a custom buildcontext dir the whole project is taken as buildcontext and it makes gigs!
 echo "Setting up buildcontext"
