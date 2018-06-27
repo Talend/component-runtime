@@ -28,7 +28,6 @@ cache:
   - "$HOME/build/Talend/component-runtime/documentation/.node"
   - "$HOME/build/Talend/component-runtime/documentation/src/main/frontend/node_modules"
   - "$HOME/build/Talend/component-runtime/talend-component-kit-intellij-plugin/.cache"
-  - "$HOME/build/Talend/component-runtime/.blackduck"
   - "$HOME/build/Talend/component-runtime/.ci-cache"
 notifications:
   email: false
