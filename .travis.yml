@@ -12,6 +12,7 @@ before_cache:
   - rm -Rf $HOME/build/Talend/component-runtime/component-runtime/component-form/component-form-demo/src/main/frontend/node_modules/component-kit.js
   - rm -Rf $HOME/build/Talend/component-runtime/component-runtime/component-tools-webapp/src/main/frontend/node_modules/component-kit.js
 cache:
+  timeout: 1000
   directories:
   - "$HOME/.m2"
   - "$HOME/.cache/yarn"

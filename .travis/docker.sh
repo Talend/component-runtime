@@ -31,7 +31,7 @@ cd $DOCKER_TMP_DIR
 echo "Grabbing kafka client"
 mvn dependency:copy -Dartifact=org.apache.kafka:kafka-clients:$KAFKA_VERSION -DoutputDirectory=.
 
-echo "Building image $IMAGE"
+echo "Building image >$IMAGE<"
 docker build --tag "$IMAGE" \
   --build-arg SERVER_VERSION=$SERVER_VERSION \
   --build-arg DOCKER_IMAGE_VERSION=$DOCKER_IMAGE_VERSION \
