@@ -15,13 +15,30 @@
  */
 
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import flatten from './flatten';
 import defaultRegistry from './service';
 
-function extractRequestPayload(parameters = [], properties) {
+function normalizePath(specPath, contextualPathItems) {
+  if (!specPath || !contextualPathItems) {
+    return specPath;
+  }
+  const segments = specPath.split('.');
+  let keyIndex = 0;
+  for (var i = 0; i < segments.length; i++) {
+    if (keyIndex < contextualPathItems.length && segments[i].indexOf('[]') == segments[i].length - '[]'.length) {
+      keyIndex++; // browse the index and then we are back aligned on the object browsing
+      segments[i] = `${segments[i].substring(0, segments[i].length - '[]'.length)}[${contextualPathItems[keyIndex]}]`;
+    }
+    keyIndex++;
+  }
+  return segments.join('.');
+}
+
+function extractRequestPayload(parameters, properties, schema) {
   const payload = {};
   for (const param of parameters) {
-    const value = get(properties, param.path);
+    const value = get(properties, normalizePath(param.path, schema.key));
     Object.assign(payload, flatten(value, param.key));
   }
 
@@ -42,18 +59,36 @@ function getLang(lang) {
 }
 
 const FALLBACK_HANDLER = function ({ error, trigger }) {
-  console.log(`${JSON.stringify(trigger)} failed with error ${error || '-'}`);
+  console.error(`${JSON.stringify(trigger)} failed with error ${error || '-'}`);
 };
+
+function isCacheable(triggerType) {
+  return triggerType === 'suggestions';
+}
+
+function createCacheKey(trigger) {
+  const cacheKeyParams = (trigger.parameters || []).map(it => it.path).join('#');
+  return `trigger.type#trigger.family#trigger.action##${cacheKeyParams}`;
+}
 
 // customRegistry can be used to add extensions or custom trigger (not portable accross integrations)
 export default function getDefaultTrigger({ url, customRegistry, lang }) {
   const encodedLang = encodeURIComponent(getLang(lang));
+  const cache = {};
   return function onDefaultTrigger(event, { trigger, schema, properties, errors }) {
     const services = {
       ...defaultRegistry,
       ...customRegistry
     };
-    const payload = extractRequestPayload(trigger.parameters, properties);
+    const payload = extractRequestPayload(trigger.parameters, properties, schema);
+    const cacheKey = isCacheable(trigger.type) ? createCacheKey(trigger) : undefined;
+    if (cacheKey) {
+       if (cache[cacheKey] && cache[cacheKey].result && isEqual(cache[cacheKey].parameters, payload)) {
+         return Promise.resolve(cache[cacheKey].result);
+       } else if (cache[cacheKey]) {
+         delete cache[cacheKey];
+       }
+    }
     return fetch(
       `${url}?lang=${encodedLang}&action=${encodeURIComponent(trigger.action)}&family=${encodeURIComponent(trigger.family)}&type=${encodeURIComponent(trigger.type)}`,
       {
@@ -64,13 +99,20 @@ export default function getDefaultTrigger({ url, customRegistry, lang }) {
       })
       .then(resp => resp.json())
       .then(body => {
-        return (services[trigger.type] ||  FALLBACK_HANDLER)({
+        const result = (services[trigger.type] ||  FALLBACK_HANDLER)({
           body,
           errors,
           properties,
           schema,
           trigger,
         });
+        if (body.cacheable) {
+          cache[cacheKey] = {
+            parameters: payload,
+            result: result
+          };
+        }
+        return result;
       })
       .catch(error => {
         (services['error'] || FALLBACK_HANDLER)({

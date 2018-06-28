@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.test.valid;
+package org.talend.test.failure.aftergroup;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
 import java.io.Serializable;
+
+import javax.json.JsonObject;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -26,6 +28,8 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 
 @Documentation("super my component")
@@ -44,13 +48,13 @@ public class MyComponent implements Serializable {
     }
 
     @ElementListener
-    public Foo passthrough(final Foo item) {
+    public Foo passthrough(final Foo item, final @Output("out1") OutputEmitter<JsonObject> out) {
         return item;
     }
 
 
     @AfterGroup
-    public void afterGroup(){
+    public void afterGroup(final JsonObject data){
 
     }
 

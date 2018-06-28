@@ -2,30 +2,32 @@
 :page-partial:
 :toc:
 
-TIP: a test environment is available on Heroku and browable using Talend Component Kit Server
-link:https://talend-component-kit.restlet.io[Restlet Studio^] instance.
+TIP: A test environment is available on Heroku and can be browsed using Talend Component Kit Server instance on link:https://talend-component-kit.restlet.io[Restlet Studio^].
 
 == HTTP API
 
-The HTTP API intends to expose over HTTP most of Talend Component features, it is a standalone Java HTTP server.
+The HTTP API intends to expose most Talend Component Kit features over HTTP. It is a standalone Java HTTP server.
 
-TIP: WebSocket protocol is activated for the endpoints as well, instead of `/api/v1` they uses the base `/websocket/v1`, see WebSocket part for more details.
+TIP: The WebSocket protocol is activated for the endpoints. Endpoints then use `/websocket/v1` as base instead of `/api/v1`. See <<websocket-transport,WebSocket>> for more details.
 
 Here is the API:
 
 include::{partialsdir}/generated_rest-resources.adoc[leveloffset=+2]
 
-IMPORTANT: to ensure the migration can be activated you need to set in the execution configuration you send to the server
-the version it was created with (component version, it is in component detail endpoint) with the key `tcomp::component::version`.
+IMPORTANT: To make sure that the migration can be enabled, you need to set the version the component was created with in the execution configuration that you send to the server (component version is in component the detail endpoint). To do that, use `tcomp::component::version` key.
 
 === Deprecated endpoints
 
-If some endpoints are intended to disappear they will be deprecated. In practise it means a header `X-Talend-Warning`
-will be returned with some message as value.
+Endpoints that are intended to disappear will be deprecated. A `X-Talend-Warning` header will be returned with a message as value.
 
+[[websocket-transport]]
 === WebSocket transport
 
-You can connect on any endpoint replacing `/api` by `/websocket` and appending `/<http method>` for the URL and formatting the request as:
+You can connect yo any endpoint by:
+
+. Replacing `/api` with `/websocket`
+. Appending `/<http method>` to the URL
+. Formatting the request as:
 
 [source]
 ----
@@ -36,7 +38,7 @@ destination: <endpoint after v1>
 <payload>^@
 ----
 
-For instance:
+For example:
 
 [source]
 ----
@@ -47,7 +49,7 @@ Accept: application/json
 ^@
 ----
 
-The response is formatted as follow:
+The response is formatted as follows:
 
 [source]
 ----
@@ -58,10 +60,10 @@ status: <http status code>
 <payload>^@
 ----
 
-TIP: if you have a doubt about the endpoint, they are all logged during startup and you can find them in the logs.
+TIP: All endpoints are logged at startup. You can then find them in the logs if you have a doubt about which one to use.
 
-If you don't want to create a pool of connection per endpoint/verb you can use the bus endpoint: `/websocket/v1/bus`.
-This endpoint requires that you add the header `destinationMethod` to each request with the verb value - default would be `GET`:
+If you don't want to create a pool of connections per endpoint/verb, you can use the bus endpoint: `/websocket/v1/bus`.
+This endpoint requires that you add the `destinationMethod` header to each request with the verb value (`GET` by default):
 
 [source]
 ----
@@ -75,23 +77,21 @@ Accept: application/json
 
 == HTTPS activation
 
-Using the server zip (or https://github.com/Talend/component-runtime/blob/master/.docker/Dockerfile[Docker image])
-you can configure HTTPS adding properties to `MEECROWAVE_OPTS`. Assuming you have a certificate in `/opt/certificates/component.p12`
-(don't forget to add/mount it in the Docker image if you use it) you can activate it through:
+Using the server ZIP (or https://github.com/Talend/component-runtime/blob/master/.docker/Dockerfile[Docker image]), you can configure HTTPS by adding properties to `MEECROWAVE_OPTS`. Assuming that you have a certificate in `/opt/certificates/component.p12` (don't forget to add/mount it in the Docker image if you use it), you can activate it as follows:
 
 [source,bash]
 ----
 # use -e for Docker
 #
-# this will skip the http port binding to only bind https on the port 8443 and setup the right certificate
+# this skips the http port binding and only binds https on the port 8443, and setups the correct certificate
 export MEECROWAVE_OPTS="-Dskip-http=true -Dssl=true -Dhttps=8443 -Dkeystore-type=PKCS12 -Dkeystore-alias=talend -Dkeystore-password=talend -Dkeystore-file=/opt/certificates/component.p12"
 ----
 
 == Web forms and REST API
 
-`component-form` library provides a way to build a component REST API facade compatible with react form library.
+The `component-form` library provides a way to build a component REST API facade that is compatible with React form library.
 
-A trivial facade can be:
+for example:
 
 [source,java]
 ----
@@ -196,18 +196,16 @@ public class ComponentFacade {
 }
 ----
 
-NOTE: the `Client` can be created using `ClientFactory.createDefault(System.getProperty("app.components.base", "http://localhost:8080/api/v1"))`
-and the service can be a simple `new UiSpecService<>()`. The factory uses JAX-RS if the API is available (assuming a JSON-B provider is registered) otherwise it tries to use Spring.
+NOTE: the `Client` can be created using `ClientFactory.createDefault(System.getProperty("app.components.base", "http://localhost:8080/api/v1"))` and the service can be a simple `new UiSpecService<>()`. The factory uses JAX-RS if the API is available (assuming a JSON-B provider is registered). Otherwise, it tries to use Spring.
 
-All the conversion between component model (REST API) and uiSpec model is done through the `UiSpecService`. It is based on the object model
-which will be mapped to a ui model. The advantage to have a flat model in the component REST API is to make these layers easy to customize.
+The conversion from the component model (REST API) to the uiSpec model is done through  `UiSpecService`. It is based on the object model which is mapped to a UI model. Having a flat model in the component REST API allows to customize layers easily.
 
-You can completely control the available components, tune the rendering switching the `uiSchema` if desired or add/remove part of the form.
-You can also add custom actions/buttons for specific needs of the application.
+You can completely control the available components, tune the rendering by switching the `uiSchema`, and add or remove parts of the form.
+You can also add custom actions and buttons for specific needs of the application.
 
-NOTE: the  `/migrate` endpoint has nothing special so was not shown in previous snippet but if you need it you must add it as well.
+NOTE: The `/migrate` endpoint was not shown in the previous snippet but if you need it, add it as well.
 
-=== Use UiSpec model without all the tooling
+=== Using the UiSpec model without the tooling
 
 [source,xml]
 ----
@@ -218,10 +216,9 @@ NOTE: the  `/migrate` endpoint has nothing special so was not shown in previous
 </dependency>
 ----
 
-This maven dependency provides the UISpec model classes. You can use the `Ui` API (with or without the builders)
-to create UiSpec representations.
+This Maven dependency provides the UISpec model classes. You can use the `Ui` API (with or without the builders) to create UiSpec representations.
 
-Example:
+For Example:
 
 [source,java]
 ----
@@ -233,7 +230,7 @@ final Ui form1 = ui()
         .withKey("multiSelectTag")
         .withRestricted(false)
         .withTitle("Simple multiSelectTag")
-        .withDescription("This datalist accepts values that are not in the list of suggestions")
+        .withDescription("This data list accepts values that are not in the list of suggestions")
         .withWidget("multiSelectTag")
         .build())
     // (3)
@@ -244,14 +241,12 @@ final Ui form1 = ui()
 final String json = jsonb.toJson(form1);
 ----
 
-1. We extract the `JsonSchema` from reflection on the class `Form1`. Note that `@JsonSchemaIgnore` allows
-to ignore a field and `@JsonSchemaProperty` allows to rename a property,
-2. We build programmatically using the builder API a `UiSchema`,
-3. We pass an instance of the form to let the serializer extracts it JSON model,
-4. We serialize the `Ui` model which can be used by UiSpec compatible front widgets.
+<1> The `JsonSchema` is extracted from reflection on the `Form1` class. Note that `@JsonSchemaIgnore` allows to ignore a field and `@JsonSchemaProperty` allows to rename a property.
+<2> A `UiSchema` is programmatically built using the builder API.
+<3> An instance of the form is passed to let the serializer extract its JSON model.
+<4> The `Ui` model, which can be used by UiSpec compatible front widgets, is serialized.
 
-IMPORTANT: the model uses JSON-B API to define the binding, ensure to have an implementation in your classpath.
-This can be done adding these dependencies:
+The model uses the JSON-B API to define the binding. Make sure to have an implementation in your classpath. To do that, add the following dependencies:
 
 [source,xml]
 ----
@@ -272,11 +267,11 @@ This can be done adding these dependencies:
 </dependency>
 ----
 
-=== Javascript integration
+=== JavaScript integration
 
-Default javascript integration goes through link:https://github.com/Talend/ui/tree/master/packages/forms[Talend UI Forms] library.
+Default JavaScript integration goes through the link:https://github.com/Talend/ui/tree/master/packages/forms[Talend UI Forms] library.
 
-It is bundled as a NPM module called  `component-kit.js`. It provides a default trigger implementation for the `UIForm`.
+It is bundled as a NPM module called `component-kit.js`. It provides a default trigger implementation for `UIForm`.
 
 Here is how to use it:
 
@@ -318,8 +313,7 @@ export default class ComponentKitForm extends React.Component {
 
 == Logging
 
-The logging uses Log4j2, you can specify a custom configuration using the system property `-Dlog4j.configurationFile`
-or adding a `log4j2.xml` file into the classpath.
+The logging uses Log4j2. You can specify a custom configuration by using the `-Dlog4j.configurationFile` system property or by adding a `log4j2.xml` file to the classpath.
 
 Here are some common configurations:
 
@@ -342,7 +336,7 @@ Here are some common configurations:
 </Configuration>
 ----
 
-This outputs messages looking like:
+Output messages look like:
 
 [source]
 ----
@@ -379,7 +373,7 @@ Output messages look like:
 {"severity":"INFO","logMessage":"Initializing ProtocolHandler [\"http-nio-46421\"]","logTimestamp":"2017-11-20T16:04:01,763","eventUUID":"8b998e17-7045-461c-8acb-c43f21d995ff","@version":"1","logger.name":"org.apache.coyote.http11.Http11NioProtocol","host.name":"TLND-RMANNIBUCAU","threadName":"main","stackTrace":""}
 ----
 
-- Rolling file appender
+- Rolling file appender:
 
 [source,xml]
 ----
@@ -402,9 +396,8 @@ Output messages look like:
 </Configuration>
 ----
 
-More details are available on link:https://logging.apache.org/log4j/2.x/manual/appenders.html#RollingFileAppender[RollingFileAppender] documentation.
+More details are available in the link:https://logging.apache.org/log4j/2.x/manual/appenders.html#RollingFileAppender[RollingFileAppender] documentation.
 
-
-TIP: of course you can compose previous layout (message format) and appenders (where logs are written).
+TIP: You can compose previous layout (message format) and appenders (where logs are written).
 
 include::server-uispec.adoc[leveloffset=+1]

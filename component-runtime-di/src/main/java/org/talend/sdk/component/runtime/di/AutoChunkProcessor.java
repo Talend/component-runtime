@@ -25,10 +25,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AutoChunkProcessor implements Lifecycle {
 
-    private static final OutputFactory FAILING_OUTPUT_FACTORY = name -> {
-        throw new IllegalArgumentException("Output from @AfterGroup is not supported here");
-    };
-
     private final int chunkSize;
 
     private final Processor processor;
@@ -45,19 +41,21 @@ public class AutoChunkProcessor implements Lifecycle {
         } finally {
             if (processedItemCount == chunkSize) {
                 processor.afterGroup(outs);
+                processedItemCount = 0;
             }
+        }
+    }
+
+    public void flush(final OutputFactory outs) {
+        if (processedItemCount > 0) {
+            processor.afterGroup(outs);
+            processedItemCount = 0;
         }
     }
 
     @Override
     public void stop() {
-        try {
-            if (processedItemCount > 0) {
-                processor.afterGroup(FAILING_OUTPUT_FACTORY);
-            }
-        } finally {
-            processor.stop();
-        }
+        processor.stop();
     }
 
     @Override

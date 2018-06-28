@@ -2,9 +2,12 @@
 
 date
 
+# travis helper
+mvn dependency:copy -Dartifact=com.github.rmannibucau:maven-travis-output:1.0.0 -DoutputDirectory=/tmp
+
 # maven
 echo "Resolving maven dependencies and plugins"
-MAVEN_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=info $MAVEN_OPTS" mvn dependency:resolve dependency:resolve-plugins --batch-mode -e -q -T2C
+MAVEN_OPTS="-Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar -Dorg.slf4j.simpleLogger.defaultLogLevel=warn $MAVEN_OPTS" mvn dependency:resolve dependency:resolve-plugins --batch-mode -e -q
 
 # front
 for i in component-tools-webapp component-starter-server component-tools; do

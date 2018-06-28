@@ -46,8 +46,7 @@ import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-@ExtendWith(ComponentValidatorTest.ValidatorExtension.class)
-class ComponentValidatorTest {
+@ExtendWith(ComponentValidatorTest.ValidatorExtension.class) class ComponentValidatorTest {
 
     @Data
     static class ExceptionSpec {
@@ -321,6 +320,13 @@ class ComponentValidatorTest {
         expectedException.expectMessage(
                 "- Root configuration can't contains a nested DataSet `class org.talend.test.failure.nesteddataset.MyComponent$DataSetWithNestedDataSet`\n"
                         + "- Root configuration can't contains a nested DataSet `class org.talend.test.failure.nesteddataset.MyComponent$SimpleWithNested`");
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.aftergroup")
+    void testFailureAfterGroup(final ExceptionSpec expectedException) {
+        expectedException.expectMessage("- @Output parameter must be of type OutputEmitter\n"
+                + "- Parameter of AfterGroup method need to be annotated with Output");
     }
 
     @Test

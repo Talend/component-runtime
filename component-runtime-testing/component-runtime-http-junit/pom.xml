@@ -113,6 +113,15 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>forced-clean</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration> <!-- ensure shade works even if already done and "clean" is not called -->
           <filesets>
             <fileset>

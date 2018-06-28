@@ -36,7 +36,7 @@ function Detail(props) {
 		form = (
 			<Inject
 				component="ComponentForm"
-				definitionURL={`/api/v1/${props.definitionURL}`}
+				definitionURL={`/api/v1${props.definitionURL}`}
 				triggerURL="/api/v1/application/action"
 				onSubmit={props.onSubmit}
 			/>

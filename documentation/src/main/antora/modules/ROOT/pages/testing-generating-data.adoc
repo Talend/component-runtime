@@ -1,29 +1,26 @@
-= Generating data?
+= Generating data
 :page-partial:
 
-Several data generator exists if you want to populate objects with a semantic a bit more evolved than a plain random string
-like `commons-lang3`:
+Several data generators exist if you want to populate objects with a semantic that is more evolved than a plain random string like `commons-lang3`:
 
 * https://github.com/Codearte/jfairy
 * https://github.com/DiUS/java-faker
 * https://github.com/andygibson/datafactory
-* ...
+* etc.
 
-A bit more advanced, these ones allow to bind directly generic data on a model - but data quality is not always there:
+Even more advanced, the following generators allow to directly bind generic data on a model. However, data quality is not always optimal:
 
 * https://github.com/devopsfolks/podam
 * https://github.com/benas/random-beans
-* ...
+* etc.
 
-Note there are two main kind of implementations:
+There are two main kinds of implementation:
 
-* the one using a _pattern_ and random generated data
-* a set of precomputed data extrapolated to create new values
+* Implementations using a _pattern_ and random generated data.
+* Implementations using a set of precomputed data extrapolated to create new values.
 
-Check against your use case to know which one is the best.
+Check your use case to know which one fits best.
 
-NOTE: an interesting alternative to data generation is to import _real_ data and use Talend Studio to sanitize the data (remove sensitive information replacing them by generated data or anonymized data)
-and just inject that file into the system.
+NOTE: An alternative to data generation can be to import _real_ data and use Talend Studio to sanitize the data, by removing sensitive information and replacing it with generated or anonymized data. Then you just need to inject that file into the system.
 
-If you are using JUnit 5, you can have a look to https://glytching.github.io/junit-extensions/randomBeans
-which is pretty good on that topic.
+If you are using JUnit 5, you can have a look at https://glytching.github.io/junit-extensions/randomBeans.

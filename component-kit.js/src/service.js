@@ -90,14 +90,13 @@ function schema({ schema, body, properties, trigger, errors }) {
   };
 }
 
-function dynamic_values({ schema, body, properties, trigger }) {
+function dynamic_values({ properties }) {
   // for now it is set on the server side so no-op is ok
   return { properties };
 }
 
-// TODO: not yet supported so ignore for now
-function suggestions({ properties }) {
-  return { properties };
+function suggestions({ body }) {
+  return { titleMap: (body.items || []).map(item => ({ name: item.label, value: item.id })) };
 }
 
 export default {

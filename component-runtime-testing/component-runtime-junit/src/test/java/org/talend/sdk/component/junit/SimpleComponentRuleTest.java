@@ -39,6 +39,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
+import org.talend.sdk.component.junit.component.BatchTransform;
+import org.talend.sdk.component.junit.component.DuplicateEmitTransform;
 import org.talend.sdk.component.junit.component.Source;
 import org.talend.sdk.component.junit.component.Transform;
 import org.talend.sdk.component.runtime.input.Input;
@@ -156,5 +158,29 @@ public class SimpleComponentRuleTest {
         assertEquals(2, outputs.size());
         assertEquals(asList(2, 3), outputs.get(Integer.class, "size"));
         assertEquals(asList("a1", "bb2"), outputs.get(String.class, "value"));
+    }
+
+    @Test
+    public void batchProcessorCollector() {
+        final Processor processor = COMPONENT_FACTORY.createProcessor(BatchTransform.class, null);
+        final SimpleComponentRule.Outputs outputs = COMPONENT_FACTORY.collect(processor,
+                new JoinInputFactory()
+                        .withInput("__default__", asList(new BatchTransform.Record("a"), new Transform.Record("bb")))
+                        .withInput("second", asList(new BatchTransform.Record("1"), new Transform.Record("2"))));
+        assertEquals(2, outputs.size());
+        assertEquals(asList(2, 3), outputs.get(Integer.class, "size"));
+        assertEquals(asList("a1", "bb2"), outputs.get(String.class, "value"));
+    }
+
+    @Test
+    public void multipleEmitProcessorCollector() {
+        final Processor processor = COMPONENT_FACTORY.createProcessor(DuplicateEmitTransform.class, null);
+        final SimpleComponentRule.Outputs outputs = COMPONENT_FACTORY.collect(processor,
+                new JoinInputFactory()
+                        .withInput("__default__", asList(new DuplicateEmitTransform.Record("a"), new Transform.Record("bb")))
+                        .withInput("second", asList(new DuplicateEmitTransform.Record("1"), new Transform.Record("2"))));
+        assertEquals(2, outputs.size());
+        assertEquals(asList(2, 3), outputs.get(Integer.class, "size"));
+        assertEquals(asList("a1", "a1", "bb2", "bb2"), outputs.get(String.class, "value"));
     }
 }
