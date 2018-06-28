@@ -1,7 +1,8 @@
+[[component-runtime-http-junit]]
 == component-runtime-http-junit
 :page-partial:
 
-The HTTP JUnit module allows you to mock REST API very easily. Here are its coordinates:
+The HTTP JUnit module allows you to mock REST API very simply. The module coordinates are:
 
 [source,xml]
 ----
@@ -13,24 +14,23 @@ The HTTP JUnit module allows you to mock REST API very easily. Here are its coor
 </dependency>
 ----
 
-TIP: this module uses Apache Johnzon and Netty, if you have any conflict (in particular with netty) you can add the classifier `shaded`
-to the dependency and the two dependencies are shaded avoiding the conflicts with your component.
+TIP: This module uses Apache Johnzon and Netty. If you have any conflict (in particular with Netty), you can add the `shaded` classifier to the dependency. This way, both dependencies are shaded, which avoids conflicts with your component.
 
-It supports JUnit 4 and JUnit 5 as well but the overall concept is the exact same one: the extension/rule
+It supports both JUnit 4 and JUnit 5. The concept is the exact same one: the extension/rule
 is able to serve precomputed responses saved in the classpath.
 
-You can plug your own `ResponseLocator` to map a request to a response but the default implementation - which should be sufficient
-in most cases - will look in `talend/testing/http/<class name>_<method name>.json`. Note that you can also put it
-in `talend/testing/http/<request path>.json`.
+You can plug your own `ResponseLocator` to map a request to a response, but the default implementation - which should be sufficient in most cases - looks in `talend/testing/http/<class name>_<method name>.json`. Note that you can also put it in `talend/testing/http/<request path>.json`.
 
 === JUnit 4
 
-JUnit 4 setup is done through two rules: `JUnit4HttpApi` which is responsible to start the server and `JUnit4HttpApiPerMethodConfigurator`
-which is responsible to configure the server per test and also handle the capture mode (see later).
+JUnit 4 setup is done through two rules:
 
-IMPORTANT: if you don't use the `JUnit4HttpApiPerMethodConfigurator`, the capture feature will be deactivated and the per test mocking will not be available.
+* `JUnit4HttpApi`, which is starts the server.
+* `JUnit4HttpApiPerMethodConfigurator`, which configures the server per test and also handles the capture mode.
 
-Most of the test will look like:
+IMPORTANT: If you don't use the `JUnit4HttpApiPerMethodConfigurator`, the capture feature is disabled and the per test mocking is not available.
+
+.Test example
 
 [source,java]
 ----
@@ -50,9 +50,9 @@ public class MyRESTApiTest {
 
 ==== SSL
 
-For tests using SSL based services, you will need to use `activeSsl()` on the `JUnit4HttpApi` rule.
+For tests using SSL-based services, you need to use `activeSsl()` on the `JUnit4HttpApi` rule.
 
-If you need to access the server ssl socket factory you can do it from the `HttpApiHandler` (the rule):
+You can access the client SSL socket factory through the API handler:
 
 [source,java]
 [subs=+quotes]
@@ -70,8 +70,7 @@ public void test() throws Exception {
 
 === JUnit 5
 
-JUnit 5 uses a JUnit 5 extension based on the `HttpApi` annotation you can put on your test class. You can inject
-the test handler (which has some utilities for advanced cases) through `@HttpApiInject`:
+JUnit 5 uses a JUnit 5 extension based on the `HttpApi` annotation that you can add to your test class. You can inject the test handler - which has some utilities for advanced cases - through `@HttpApiInject`:
 
 [source,java]
 ----
@@ -87,13 +86,13 @@ class JUnit5HttpApiTest {
 }
 ----
 
-NOTE: the injection is optional and the `@HttpApi` allows you to configure several behaviors of the test.
+NOTE: The injection is optional and the `@HttpApi` annotation allows you to configure several test behaviors.
 
 ==== SSL
 
-For tests using SSL based services, you will need to use `@HttpApi(useSsl = true)`.
+For tests using SSL-based services, you need to use `@HttpApi(useSsl = true)`.
 
-You can access the client SSL socket factory through the api handler:
+You can access the client SSL socket factory through the API handler:
 
 [source,java]
 [subs=+quotes]
@@ -114,11 +113,10 @@ class MyHttpsApiTest {
 
 === Capturing mode
 
-The strength of this implementation is to run a small proxy server and auto configure the JVM:
-`http[s].proxyHost`, `http[s].proxyPort`, `HttpsURLConnection#defaultSSLSocketFactory` and `SSLContext#default`
-are auto configured to work out of the box with the proxy.
+The strength of this implementation is to run a small proxy server and to auto-configure the JVM:
+`http[s].proxyHost`, `http[s].proxyPort`, `HttpsURLConnection#defaultSSLSocketFactory` and `SSLContext#default` are auto-configured to work out-of-the-box with the proxy.
 
-It allows you to keep in your tests the native and real URLs. For instance this test is perfectly valid:
+It allows you to keep the native and real URLs in your tests. For example, the following test is valid:
 
 [source,java]
 ----
@@ -140,19 +138,13 @@ public class GoogleTest {
 }
 ----
 
-If you execute this test, it will fail with a HTTP 400 because the proxy doesn't find the mocked response.
-You can create it manually as seen in the introduction of the module but you can also set the property `talend.junit.http.capture`
-to the folder where to store the captures. It must be the root folder and not the folder where the json are (ie not prefixed by `talend/testing/http` by default).
+If you execute this test, it fails with an HTTP 400 error because the proxy does not find the mocked response. +
+You can create it manually, as described in <<component-runtime-http-junit>>, but you can also set the `talend.junit.http.capture` property to the folder storing the captures. It must be the root folder and not the folder where the JSON files are located (not prefixed by `talend/testing/http` by default).
 
-Generally you will want to use `src/test/resources`. If `new File("src/test/resources")` resolves to the valid folder when executing your test (Maven default),
-then you can just set the system property to true, otherwise you need to adjust accordingly the system property value.
+In most cases, use `src/test/resources`. If `new File("src/test/resources")` resolves the valid folder when executing your test (Maven default), then you can just set the system property to `true`. Otherwise, you need to adjust accordingly the system property value.
 
-Once you ran the tests with this system property, the testing framework will have created the correct mock response files and you can
-remove the system property. The test will still pass, using `google.com`...even if you disconnect your machine from the internet.
-
-The rule (extension) is doing all the work for you :).
+When the tests run with this system property, the testing framework creates the correct mock response files. After that, you can remove the system property. The tests will still pass, using `google.com`, even if you disconnect your machine from the Internet.
 
 === Passthrough mode
 
-Setting `talend.junit.http.passthrough` system property to `true`, the server will just be a proxy and will execute each request
-to the actual server - like in capturing mode.
+If you set the `talend.junit.http.passthrough` system property to `true`, the server acts as a proxy and executes each request to the actual server - similarly to the capturing mode.

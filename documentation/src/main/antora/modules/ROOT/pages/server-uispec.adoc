@@ -36,9 +36,8 @@ When developing a `org.talend.sdk.component.form.internal.converter.CustomProper
 
 TIP: To make it a CDI bean, add `@Dependent` to the class and if you use the <<play-integration,Play integration>>, customize the bean array: `playx.cdi.beans.customs +=  {className: org.talend.myapp.MyConverter}.`
 
-This allows to use a custom `@Ui` API and advanced modeling when specific to applications.
-
-TIP: Converters are sorted respecting to the `@Priority` value. If the annotation is missing, the priority defaults to `0`.
+This allows to use a custom `@Ui` API and advanced modeling when specific to applications. +
+Converters are sorted respecting to the `@Priority` value. If the annotation is missing, the priority defaults to `0`.
 
 === Client in Play
 
