@@ -32,7 +32,7 @@ public class OutputsHandler extends BaseIOHandler {
             if (ref != null && value != null) {
                 final String jsonValue = JsonValue.class.isInstance(value) ? JsonValue.class.cast(value).toString()
                         : jsonb.toJson(value);
-                ref.getValue().set(jsonb.fromJson(jsonValue, ref.getType()));
+                ref.add(jsonb.fromJson(jsonValue, ref.getType()));
             }
         };
     }

@@ -18,14 +18,13 @@ package org.talend.sdk.component.runtime.di;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.json.bind.Jsonb;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -54,7 +53,7 @@ public abstract class BaseIOHandler {
     }
 
     public void addConnection(final String connectorName, final Class<?> type) {
-        connections.put(connectorName, new IO<>(new AtomicReference<>(), type, false));
+        connections.put(connectorName, new IO<>(type));
     }
 
     public void reset() {
@@ -62,29 +61,50 @@ public abstract class BaseIOHandler {
     }
 
     public <T> T getValue(final String connectorName, final Class<T> type) {
-        return type.cast(connections.get(connectorName).value.get());
+        return type.cast(connections.get(connectorName).next());
+    }
+
+    public boolean hasMoreData() {
+        return connections.entrySet().stream().anyMatch(e -> e.getValue().hasNext());
     }
 
     protected String getActualName(final String name) {
         return "__default__".equals(name) ? "FLOW" : name;
     }
 
-    @AllArgsConstructor
-    @Data
+    @RequiredArgsConstructor
     static class IO<T> {
 
-        private final AtomicReference<T> value;
+        private final Queue<T> values = new LinkedList<>();
 
         private final Class<T> type;
 
-        private boolean mutated;
-
         private void reset() {
-            try {
-                value.set(type.getConstructor().newInstance());
-            } catch (Exception e) {
-                throw new IllegalStateException("Can't create an instance of " + type, e);
+            values.clear();
+        }
+
+        boolean hasNext() {
+            return values.size() != 0;
+        }
+
+        T next() {
+            if (hasNext()) {
+                return values.poll();
+            } else {
+                try {
+                    return type.getConstructor().newInstance();
+                } catch (final Exception e) {
+                    throw new IllegalStateException("Can't create an instance of " + type, e);
+                }
             }
+        }
+
+        void add(final T e) {
+            values.add(e);
+        }
+
+        Class<T> getType() {
+            return type;
         }
     }
 

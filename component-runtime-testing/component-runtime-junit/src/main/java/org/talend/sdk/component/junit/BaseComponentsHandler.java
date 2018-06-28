@@ -65,6 +65,7 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
+import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.AllArgsConstructor;
@@ -159,13 +160,15 @@ public class BaseComponentsHandler implements ComponentsHandler {
         final AutoChunkProcessor autoChunkProcessor = new AutoChunkProcessor(bundleSize, processor);
         autoChunkProcessor.start();
         final Outputs outputs = new Outputs();
+        final OutputFactory outputFactory = name -> value -> {
+            final List aggregator = outputs.data.computeIfAbsent(name, n -> new ArrayList<>());
+            aggregator.add(value);
+        };
         try {
             while (inputs.hasMoreData()) {
-                autoChunkProcessor.onElement(inputs, name -> value -> {
-                    final List aggregator = outputs.data.computeIfAbsent(name, n -> new ArrayList<>());
-                    aggregator.add(value);
-                });
+                autoChunkProcessor.onElement(inputs, outputFactory);
             }
+            autoChunkProcessor.flush(outputFactory);
         } finally {
             autoChunkProcessor.stop();
         }
@@ -529,10 +532,10 @@ public class BaseComponentsHandler implements ComponentsHandler {
                                 manager.getJsonpParserFactory(), manager.getJsonpWriterFactory(),
                                 manager.getJsonpBuilderFactory(), manager.getJsonpGeneratorFactory(),
                                 manager.getJsonpReaderFactory())) // reuses
-                                                                  // the
-                                                                  // same
-                                                                  // memory
-                                                                  // buffering
+                        // the
+                        // same
+                        // memory
+                        // buffering
                         .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
                         .build();
             }
