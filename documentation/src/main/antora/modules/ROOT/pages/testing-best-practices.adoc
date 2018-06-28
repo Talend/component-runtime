@@ -1,18 +1,15 @@
-= Best practises
+= Testing best practices
 :page-partial:
 
-NOTE: this part is mainly around tools usable with JUnit. You can use most of these techniques with TestNG
-as well, check out the documentation if you need to use TestNG.
+This section mainly concerns tools that can be used with JUnit. You can use most of these best practices with TestNG as well.
 
 == Parameterized tests
 
-This is a great solution to repeat the same test multiple times. Overall idea
-is to define a test scenario (`I test function F`) and to make the input/output data
-dynamic.
+Parameterized tests are a great solution to repeat the same test multiple times. This method of testing requires defining a test scenario (`I test function F`) and making the input/output data dynamic.
 
 === JUnit 4
 
-Here is an example. Let's assume we have this test which validates the connection URI using `ConnectionService`:
+Here is a test example, which validates a connection URI using `ConnectionService`:
 
 [source,java]
 ----
@@ -29,8 +26,7 @@ public class MyConnectionURITest {
 }
 ----
 
-We clearly identify the test method is always the same except the value. It can therefore be rewritter
-using JUnit `Parameterized` runner like that:
+The testing method is always the same. Only values are changing. It can therefore be rewritten using JUnit `Parameterized` runner, as follows:
 
 [source,java]
 ----
@@ -54,19 +50,19 @@ public class MyConnectionURITest {
 }
 ----
 
-<1> `Parameterized` is the runner understanding `@Parameters` and how to use it. Note that you can generate random data here if desired.
-<2> by default the name of the executed test is the index of the data, here we customize it using the first parameter `toString()` value to have something more readable
-<3> the `@Parameters` method `MUST` be static and return an array or iterable of the data used by the tests
-<4> you can then inject the current data using `@Parameter` annotation, it can take a parameter if you use an array of array instead of an iterable of object in `@Parameterized` and you can select which item you want injected this way
-<5> the `@Test` method will be executed using the contextual data, in this sample we'll get executed twice with the 2 specified urls
+<1> `Parameterized` is the runner that understands `@Parameters` and how to use it. If needed, you can generate random data here.
+<2> By default the name of the executed test is the index of the data. Here, it is customized using the first `toString()` parameter value to have something more readable.
+<3> The `@Parameters` method must be static and return an array or iterable of the data used by the tests.
+<4> You can then inject the current data using the `@Parameter` annotation. It can take a parameter if you use an array of array instead of an iterable of object in `@Parameterized`. You can select which item you want to inject.
+<5> The `@Test` method is executed using the contextual data. In this sample, it gets executed twice with the two specified URIs.
 
-TIP: you don't have to define a single `@Test` method, if you define multiple, each of them will be executed with all the data (ie if we add a test in previous example you will get 4 tests execution - 2 per data, ie 2x2)
+TIP: You don't have to define a single `@Test` method. If you define multiple methods, each of them is executed with all the data. For example, if another test is added to the previous example, four tests are executed - 2 per data).
 
 === JUnit 5
 
-JUnit 5 reworked this feature to make it way easier to use. The full documentation is available at http://junit.org/junit5/docs/current/user-guide/#writing-tests-parameterized-tests.
+With JUnit 5, parameterized tests are easier to use. The full documentation is available at http://junit.org/junit5/docs/current/user-guide/#writing-tests-parameterized-tests.
 
-The main difference is you can also define inline on the test method that it is a parameterized test and which are the values:
+The main difference with JUnit 4 is that you can also define inline that the test method is a parameterized test as well as the values to use:
 
 [source,java]
 ----
@@ -77,7 +73,7 @@ void mytest(String currentValue) {
 }
 ----
 
-However you can still use the previous behavior using a method binding configuration:
+However, you can still use the previous behavior with a method binding configuration:
 
 [source,java]
 ----
@@ -92,6 +88,6 @@ static Stream<String> stringProvider() {
 }
 ----
 
-This last option allows you to inject any type of value - not only primitives - which is very common to define scenarii.
+This last option allows you to inject any type of value - not only primitives - which is common to define scenarios.
 
-IMPORTANT: don't forget to add `junit-jupiter-params` dependency to benefit from this feature.
+IMPORTANT: Add the `junit-jupiter-params` dependency to benefit from this feature.

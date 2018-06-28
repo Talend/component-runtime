@@ -1,17 +1,16 @@
-= Advanced: define a custom API
+= Advanced: defining a custom API
 :page-partial:
 
-It is possible to extend the Component API for custom front features.
+It is possible to extend the https://talend.github.io/component-runtime/apidocs/api/index.html[Component API] for custom front features.
 
-What is important here is to keep in mind you should do it
-only if it targets not portable components (only used by the Studio or Beam).
+What is important here is to keep in mind that you should do it only if it targets not portable components (only used by the Studio or Beam).
 
-In term of organization it is recommended to create a custom `xxxx-component-api` module with the new set of annotations.
+It is recommended to create a custom `xxxx-component-api` module with the new set of annotations.
 
 == Extending the UI
 
-To extend the UI just add an annotation which can be put on `@Option` fields which is decorated with `@Ui`.
-All its members will be put in the metadata of the parameter. Example:
+To extend the UI, add an annotation that can be put on `@Option` fields, and that is decorated with `@Ui`.
+All its members are then put in the metadata of the parameter. For example:
 
 [source,java]
 ----
