@@ -27,27 +27,41 @@ function NoSelectedComponent() {
 }
 
 function Detail(props) {
+	let notSelected = null;
+	let submited = null;
+	let form = null;
 	if (!props.definitionURL) {
-		return (<NoSelectedComponent/>);
-	}  else if (props.submitted) {
-			const configuration = kit.flatten(props.uiSpec.properties);
-		return (
-			<div>
-				<pre>{JSON.stringify(configuration, undefined, 2)}</pre>
-				<button className="btn btn-success" onClick={props.backToComponentEdit}>Back to form</button>
-			</div>
-		);
-	} else {
-		return (
+		notSelected = (<NoSelectedComponent/>);
+	}  else {
+		form = (
 			<Inject
 				component="ComponentForm"
 				definitionURL={`/api/v1/${props.definitionURL}`}
 				triggerURL="/api/v1/application/action"
-				componentId="demo"
 				onSubmit={props.onSubmit}
 			/>
 		);
+		if (props.submitted) {
+			const configuration = kit.flatten(props.uiSpec.properties);
+			submited = (
+				<div>
+					<pre>{JSON.stringify(configuration, undefined, 2)}</pre>
+					<button className="btn btn-success" onClick={props.backToComponentEdit}>Back to form</button>
+				</div>
+			);
+		}
 	}
+	return (
+		<div>
+			<div className="col-md-6">
+				{notSelected}
+				{form}
+			</div>
+			<div className="col-md-6">
+				{submited}
+			</div>
+		</div>
+	);
 }
 
 export default Detail;
