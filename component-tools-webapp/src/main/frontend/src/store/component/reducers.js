@@ -21,6 +21,7 @@ import {
 	GET_COMPONENT_OK,
 	BACK_TO_COMPONENT_EDIT,
 	SUBMIT_COMPONENT,
+	SELECT_COMPONENT_NODE,
 } from '../constants';
 
 export default (state = {}, action) => {

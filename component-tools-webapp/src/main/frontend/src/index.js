@@ -28,14 +28,12 @@ import 'brace/snippets/java';
 import 'brace/snippets/sql';
 import 'brace/snippets/python';
 
-// import store from './store';
-
 import components from './components';
-import ComponentForm from 'component-kit.js/lib/ComponentForm';
+import kit from '@talend/react-components-kit';
 import reducer from './store/reducers';
 
 cmf.bootstrap({
-  components: { ComponentForm, ...components },
+  components: { ...kit, ...components },
   reducer,
   appId: 'component-kit-tools-webapp',
 });

@@ -15,60 +15,39 @@
  */
 
 import React from 'react';
-// import { CircularProgress } from '@talend/react-components';
-// import { UIForm } from '@talend/react-forms/lib/UIForm';
-import ComponentForm from 'component-kit.js/lib/ComponentForm';
+import { Inject } from '@talend/react-cmf';
 
 function NoSelectedComponent() {
-  return (
-    <div>
-      <h1>No component selected</h1>
-      <p>Click on a component to see its form</p>
-    </div>
-  );
+	return (
+		<div>
+			<h1>No component selected</h1>
+			<p>Click on a component to see its form</p>
+		</div>
+	);
 }
 
-class Detail extends React.Component {
-  constructor(props) {
-    super(props);
-    // this.trigger = kit.createTriggers({ url: 'api/v1/application/action' });
-    // this.onTrigger = this.onTrigger.bind(this);
-  }
-
-  // onTrigger(event, payload) {
-  //   return this.trigger(event, payload)
-  //     .then(triggerResult => {
-  //       if (triggerResult.properties) {
-  //         this.props.onChange(event, triggerResult);
-  //       }
-  //       if (triggerResult.errors) {
-  //         this.props.onErrors(event, triggerResult.errors);
-  //       }
-  //     });
-  // }
-
-  render() {
-    if (!this.props.uiSpec) {
-      return (<NoSelectedComponent/>);
-    }  else if (this.props.submitted) {
-        const configuration = kit.flatten(this.props.uiSpec.properties);
-      return (
-        <div>
-          <pre>{JSON.stringify(configuration, undefined, 2)}</pre>
-          <button className="btn btn-success" onClick={this.props.backToComponentEdit}>Back to form</button>
-        </div>
-      );
-    } else {
-      return (
-        <ComponentForm
-          definitionURL="/api/v1/application/detail/c2VydmljZW5vdyNTZXJ2aWNlTm93I1NlcnZpY2VOb3dPdXRwdXQ"
-          triggerURL="/api/v1/application/action"
-          componentId="demo"
-          onSubmit={this.props.onSubmit}
-        />
-      );
-    }
-  }
+function Detail(props) {
+	if (!props.definitionURL) {
+		return (<NoSelectedComponent/>);
+	}  else if (props.submitted) {
+			const configuration = kit.flatten(props.uiSpec.properties);
+		return (
+			<div>
+				<pre>{JSON.stringify(configuration, undefined, 2)}</pre>
+				<button className="btn btn-success" onClick={props.backToComponentEdit}>Back to form</button>
+			</div>
+		);
+	} else {
+		return (
+			<Inject
+				component="ComponentForm"
+				definitionURL={`/api/v1/${props.definitionURL}`}
+				triggerURL="/api/v1/application/action"
+				componentId="demo"
+				onSubmit={props.onSubmit}
+			/>
+		);
+	}
 }
 
 export default Detail;
