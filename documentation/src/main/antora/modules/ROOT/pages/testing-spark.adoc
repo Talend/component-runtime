@@ -1,7 +1,7 @@
 == component-runtime-testing-spark
 :page-partial:
 
-The folowing artifact will allow you to test against a spark cluster:
+The following artifact allows you to test against a Spark cluster:
 
 [source,xml]
 ----
@@ -15,15 +15,12 @@ The folowing artifact will allow you to test against a spark cluster:
 
 === JUnit 4
 
-The usage relies on a JUnit `TestRule`. It is recommended to use it as a `@ClassRule` to ensure
-a single instance of a spark cluster is built but you can also use it as a simple `@Rule` which means
-it will be created per method instead of per test class.
+The testing relies on a JUnit `TestRule`. It is recommended to use it as a `@ClassRule`, to make sure that a single instance of a Spark cluster is built. You can also use it as a simple `@Rule`, to create the Spark cluster instances per method instead of per test class.
 
-It takes as parameter the spark and scala version to use. It will then fork a master and N slaves.
-Finally it will give you `submit*` method allowing you to send jobs either from the test classpath
-or from a shade if you run it as an integration test.
+The `@ClassRule` takes the Spark and Scala versions to use as parameters. It then forks a master and N slaves.
+Finally, the `submit*` method allows you to send jobs either from the test classpath or from a shade if you run it as an integration test.
 
-Here is a sample:
+For example:
 
 [source,java]
 ----
@@ -36,20 +33,18 @@ public class SparkClusterRuleTest {
     public void classpathSubmit() throws IOException {
         SPARK.submitClasspath(SubmittableMain.class, getMainArgs());
 
-        // do wait the test passed
+        // wait for the test to pass
     }
 }
 ----
 
-TIP: this is working with `@Parameterized` so you can submit a bunch of jobs with different args and even combine it with beam `TestPipeline` if you make it `transient`!
+TIP: This testing methodology works with `@Parameterized`. You can submit several jobs with different arguments and even combine it with Beam `TestPipeline` if you make it `transient`.
 
 === JUnit 5
 
-The integration with JUnit 5 of that spark cluster logic uses `@WithSpark` marker for the extension
-and let you, optionally, inject through `@SparkInject`, the `BaseSpark<?>` handler to access te spark cluster
-meta information - like its host/port.
+The integration of that Spark cluster logic with JUnit 5 is done using the `@WithSpark` marker for the extension. Optionally, it allows you to inject—through `@SparkInject`—the `BaseSpark<?>` handler to access the Spark cluster meta information. For example, its host/port.
 
-Here is a basic test using it:
+.Example
 
 [source,java]
 ----
@@ -74,14 +69,11 @@ class SparkExtensionTest {
 }
 ----
 
-=== How to know the job is done
+=== Checking the job execution status
 
-In current state, `SparkClusterRule` doesn't allow to know a job execution is done - even if it exposes the webui url so
-you can poll it to check. The best at the moment is to ensure the output of your job exists and contains the right value.
+Currently, `SparkClusterRule` does not allow to know when a job execution is done, even by exposing and polling the web UI URL to check. The best solution at the moment is to make sure that the output of your job exists and contains the right value.
 
-`awaitability` or equivalent library can help you to write such logic.
-
-Here are the coordinates of the artifact:
+`awaitability` or any equivalent library can help you to implement such logic:
 
 [source,xml]
 ----
@@ -93,7 +85,7 @@ Here are the coordinates of the artifact:
 </dependency>
 ----
 
-And here is how to wait a file exists and its content (for instance) is the expected one:
+To wait until a file exists and check that its content (for example) is the expected one, you can use the following logic:
 
 [source,java]
 ----

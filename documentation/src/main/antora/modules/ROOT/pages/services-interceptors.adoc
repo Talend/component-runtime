@@ -1,12 +1,11 @@
 = Services and interceptors
 :page-partial:
 
-For common concerns like caching, auditing etc, it can be fancy to use interceptor like API. It is enabled by the framework
-on services.
+For common concerns such as caching, auditing, and so on, you can use an interceptor-like API. It is enabled on services by the framework.
 
-An interceptor defines an annotation marked with `@Intercepts` which defines the implementation of the interceptor (an `InterceptorHandler`).
+An interceptor defines an annotation marked with `@Intercepts`, which defines the implementation of the interceptor (`InterceptorHandler`).
 
-Here is an example:
+For example:
 
 [source,java]
 ----
@@ -18,13 +17,11 @@ public @interface Logged {
 }
 ----
 
-Then handler is created from its constructor and can take service injections (by type). The first parameter, however, can be
-a `BiFunction<Method, Object[], Object>` which representes the invocation chain if your interceptor can be used with others.
+The handler is created from its constructor and can take service injections (by type). The first parameter, however, can be `BiFunction<Method, Object[], Object>`, which represents the invocation chain if your interceptor can be used with others.
 
-IMPORTANT: if you do a generic interceptor it is important to pass the invoker as first parameter. If you don't do so
-you can't combine interceptors at all.
+IMPORTANT: If you make a generic interceptor, pass the invoker as first parameter. Otherwise you cannot combine interceptors at all.
 
-Here is an interceptor implementation for our `@Logged` API:
+Here is an example of interceptor implementation for the `@Logged` API:
 
 [source,java]
 ----
@@ -50,8 +47,6 @@ public class LoggingHandler implements InterceptorHandler {
 }
 ----
 
-This implementation is compatible with interceptor chains since it takes the invoker as first constructor parameter
-and it also takes a service injection. Then the implementation just does what is needed - logging the invoked method here.
+This implementation is compatible with interceptor chains because it takes the invoker as first constructor parameter and it also takes a service injection. Then, the implementation simply does what is needed, which is logging the invoked method in this case.
 
-NOTE: the `findAnnotation` annotation - inherited from `InterceptorHandler` is an utility method to find an annotation on a method
-or class (in this order).
+NOTE: The `findAnnotation` annotation, inherited from `InterceptorHandler`, is an utility method to find an annotation on a method or class (in this order).
