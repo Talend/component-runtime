@@ -18,6 +18,7 @@
 const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const extractCSS = new ExtractTextPlugin({ filename: '[name]-[hash].css' });
 
@@ -88,6 +89,9 @@ module.exports = {
       filename: './index.html',
       template: './src/public/index.html',
       title: 'Talend Components Dev Tester',
-    })
-  ],
+    }),
+    new CopyWebpackPlugin([
+      { from: 'src/assets' },
+    ]),
+],
 };

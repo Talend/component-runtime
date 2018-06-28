@@ -19,7 +19,6 @@ import { connect } from 'react-redux';
 
 import { getComponentsList } from '../../store/componentsList/actions';
 import { selectComponent } from '../../store/component/actions';
-
 import Menu from './Menu.component';
 
 function mapDispatchToProps(dispatch) {
@@ -29,6 +28,7 @@ function mapDispatchToProps(dispatch) {
 	}
 }
 function mapStateToProps(state) {
-	return state.componentsList;
+	return state.app.componentsList || {};
 }
-export default connect(mapStateToProps, mapDispatchToProps)(Menu);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Menu)
