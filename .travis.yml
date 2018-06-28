@@ -3,7 +3,7 @@ jdk:
 - oraclejdk8
 env:
    global:
-    - MAVEN_OPTS="-Dformatter.skip=true -Dsurefire.useFile=false -Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=info -Dinvoker.streamLogs=false"
+    - MAVEN_OPTS="-Dformatter.skip=true -Dsurefire.useFile=false -Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dinvoker.streamLogs=false"
     - DEPLOY_OPTS="-Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true --batch-mode --settings $HOME/build/Talend/component-runtime/.travis/settings.xml -Possrh -Prelease"
     - BUILD_ARGS="clean install -e -q --batch-mode --settings $HOME/build/Talend/component-runtime/.travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true"
 before_cache:
@@ -44,7 +44,7 @@ addons:
       # for nodegit@antora
       - libstdc++-4.9-dev
 
-install: chmod +x ./.travis/install.sh && node .travis/heartbeat.js ./.travis/install.sh
+#install: chmod +x ./.travis/install.sh && node .travis/heartbeat.js ./.travis/install.sh
 
 jobs:
   include:
@@ -58,26 +58,26 @@ jobs:
       - STEP=Build
       script: node .travis/heartbeat.js mvn $BUILD_ARGS
 
-    - stage: master_build
-      env:
-      - STEP=Deploy Artifacts
-      before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-      script: node .travis/heartbeat.js mvn clean deploy -e -q $DEPLOY_OPTS
+#    - stage: master_build
+#      env:
+#      - STEP=Deploy Artifacts
+#      before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
+#      script: node .travis/heartbeat.js mvn clean deploy -e -q $DEPLOY_OPTS
 
-    - stage: master_build
-      env:
-      - STEP=Update Documentation
-      script:
-      - rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache
-      - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
-      - cd documentation && node ../.travis/heartbeat.js mvn clean verify pre-site -e -q -Pgh-pages -Dgpg.skip=true $DEPLOY_OPTS && cd -
-      - cd documentation && node ../.travis/heartbeat.js mvn gplus:execute@groovy-scripts rmannibucau-common:filter@filter-algolia frontend:yarn@algolia-index && cd -
+#    - stage: master_build
+#      env:
+#      - STEP=Update Documentation
+#      script:
+#      - rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache
+#      - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
+#      - cd documentation && node ../.travis/heartbeat.js mvn clean verify pre-site -e -q -Pgh-pages -Dgpg.skip=true $DEPLOY_OPTS && cd -
+#      - cd documentation && node ../.travis/heartbeat.js mvn gplus:execute@groovy-scripts rmannibucau-common:filter@filter-algolia frontend:yarn@algolia-index && cd -
 
-    - stage: master_build
-      env:
-      - STEP=Docker Deployment
-      before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
-      script: chmod +x ./.travis/docker.sh && node .travis/heartbeat.js ./.travis/docker.sh
+#    - stage: master_build
+#      env:
+#      - STEP=Docker Deployment
+#      before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
+#      script: chmod +x ./.travis/docker.sh && node .travis/heartbeat.js ./.travis/docker.sh
 
 stages:
   - name: master_build

@@ -4,6 +4,7 @@
 
 ifdef::env-github[]
 image:https://travis-ci.org/{gh-name}.svg?branch={gh-branch}["Build Status", link="https://travis-ci.org/{gh-name}"]
+image:https://api.codacy.com/project/badge/Grade/80f713eb1eef45eb842eb22d796b441d["Codacy Badge", link="https://www.codacy.com/app/rmannibucau/component-runtime?utm_source=github.com&amp;utm_medium=referral&amp;utm_content={gh-name}&amp;utm_campaign=Badge_Grade"]
 endif::env-github[]
 
 This brick provides all the integration around `component-api` to run components.
