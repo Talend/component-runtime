@@ -44,4 +44,4 @@ addons:
       # for nodegit@antora
       - libstdc++-4.9-dev
 
-install: chmod +x ./.travis/install.sh && node .travis/heartbeat.js ./.travis/install.sh
+install: node .travis/heartbeat.js mvn clean install -DskipTests -Dinvoker.skip=true

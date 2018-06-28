@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
+import org.talend.sdk.component.form.internal.converter.impl.widget.path.AbsolutePathResolver;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
@@ -45,6 +46,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @AllArgsConstructor
 public abstract class AbstractWidgetConverter implements PropertyConverter {
+
+    private final AbsolutePathResolver pathResolver = new AbsolutePathResolver();
 
     protected final Collection<UiSchema> schemas;
 
@@ -100,7 +103,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 return Stream.empty();
             }
             final String parameterPrefix = expectedProperties.next().getPath();
-            final String propertiesPrefix = resolveProperty(prop, normalizeParamRef(paramRef));
+            final String propertiesPrefix = pathResolver.resolveProperty(prop.getPath(), paramRef);
             final List<UiSchema.Parameter> resolvedParams = properties
                     .stream()
                     .filter(p -> p.getPath().startsWith(propertiesPrefix))
@@ -109,7 +112,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                         final UiSchema.Parameter parameter = new UiSchema.Parameter();
                         final String key = parameterPrefix + o.getPath().substring(propertiesPrefix.length());
                         parameter.setKey(key.replace("[]", "")); // not a jsonpath otherwise
-                        parameter.setPath(o.getPath().replace("[]", ""));
+                        parameter.setPath(o.getPath());
                         return parameter;
                     })
                     .collect(toList());
@@ -119,34 +122,6 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             }
             return resolvedParams.stream();
         }).collect(toList())).orElse(null);
-    }
-
-    // ensure it is aligned with org.talend.sdk.component.studio.model.parameter.SettingsCreator.computeTargetPath()
-    private String resolveProperty(final SimplePropertyDefinition prop, final String paramRef) {
-        if (".".equals(paramRef)) {
-            return prop.getPath();
-        }
-        if (paramRef.startsWith("..")) {
-            String current = prop.getPath();
-            String ref = paramRef;
-            while (ref.startsWith("..")) {
-                final int lastDot = current.lastIndexOf('.');
-                if (lastDot < 0) {
-                    ref = "";
-                    break;
-                }
-                current = current.substring(0, lastDot);
-                ref = ref.substring("..".length(), ref.length());
-                if (ref.startsWith("/")) {
-                    ref = ref.substring(1);
-                }
-            }
-            return current + (!ref.isEmpty() ? "." : "") + ref.replace('/', '.');
-        }
-        if (paramRef.startsWith(".") || paramRef.startsWith("./")) {
-            return prop.getPath() + '.' + paramRef.replaceFirst("\\./?", "").replace('/', '/');
-        }
-        return paramRef;
     }
 
     protected UiSchema newUiSchema(final PropertyContext ctx) {
@@ -232,7 +207,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                     final String valueKey =
                             "condition::if::value" + (split.length == 4 ? "::" + split[split.length - 1] : "");
                     final String paramRef = e.getValue();
-                    final String path = resolveProperty(ctx.getProperty(), normalizeParamRef(paramRef));
+                    final String path = pathResolver.resolveProperty(ctx.getProperty().getPath(), paramRef);
                     final SimplePropertyDefinition definition =
                             properties.stream().filter(p -> p.getPath().equals(path)).findFirst().orElse(null);
                     final Function<String, Object> converter = findStringValueMapper(definition);
@@ -245,10 +220,6 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                             .build();
                 })
                 .collect(toList());
-    }
-
-    private String normalizeParamRef(final String paramRef) {
-        return (!paramRef.contains(".") ? "../" : "") + paramRef;
     }
 
     private Function<String, Object> findStringValueMapper(final SimplePropertyDefinition definition) {

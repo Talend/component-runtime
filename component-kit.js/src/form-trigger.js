@@ -19,10 +19,26 @@ import isEqual from 'lodash/isEqual';
 import flatten from './flatten';
 import defaultRegistry from './service';
 
-function extractRequestPayload(parameters = [], properties) {
+function normalizePath(specPath, contextualPathItems) {
+  if (!specPath || !contextualPathItems) {
+    return specPath;
+  }
+  const segments = specPath.split('.');
+  let keyIndex = 0;
+  for (var i = 0; i < segments.length; i++) {
+    if (keyIndex < contextualPathItems.length && segments[i].indexOf('[]') == segments[i].length - '[]'.length) {
+      keyIndex++; // browse the index and then we are back aligned on the object browsing
+      segments[i] = `${segments[i].substring(0, segments[i].length - '[]'.length)}[${contextualPathItems[keyIndex]}]`;
+    }
+    keyIndex++;
+  }
+  return segments.join('.');
+}
+
+function extractRequestPayload(parameters, properties, schema) {
   const payload = {};
   for (const param of parameters) {
-    const value = get(properties, param.path);
+    const value = get(properties, normalizePath(param.path, schema.key));
     Object.assign(payload, flatten(value, param.key));
   }
 
@@ -64,7 +80,7 @@ export default function getDefaultTrigger({ url, customRegistry, lang }) {
       ...defaultRegistry,
       ...customRegistry
     };
-    const payload = extractRequestPayload(trigger.parameters, properties);
+    const payload = extractRequestPayload(trigger.parameters, properties, schema);
     const cacheKey = isCacheable(trigger.type) ? createCacheKey(trigger) : undefined;
     if (cacheKey) {
        if (cache[cacheKey] && cache[cacheKey].result && isEqual(cache[cacheKey].parameters, payload)) {
