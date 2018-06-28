@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.di;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
@@ -53,7 +54,7 @@ public abstract class BaseIOHandler {
     }
 
     public void addConnection(final String connectorName, final Class<?> type) {
-        connections.put(connectorName, new IO<>(type, false));
+        connections.put(connectorName, new IO<>(type));
     }
 
     public void reset() {
@@ -75,11 +76,9 @@ public abstract class BaseIOHandler {
     @RequiredArgsConstructor
     static class IO<T> {
 
-        private final Queue<T> values = new ConcurrentLinkedQueue<>();
+        private final Queue<T> values = new LinkedList<>();
 
         private final Class<T> type;
-
-        private final boolean mutated;
 
         private void reset() {
             values.clear();
