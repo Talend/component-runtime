@@ -1,22 +1,46 @@
-= Talend Component Getting Started
+= Getting started with Talend Component Kit
 :page-partial:
 
-[[getting-started-introducing-talend-component]]
-== Introducing Talend Component
+//[[getting-started-introducing-talend-component]]
+//== Introducing Talend Component Kit
 
-_Talend Component_ intends to simplify the development of connectors at two main levels:
+_Talend Component Kit_ is a framework designed to simplify the development of components at two levels:
 
-Runtime:: how to inject the specific component code into a job or pipeline. It should unify as much as possible the code required to run in DI and BEAM environments.
-Graphical interfaces:: unify the code required to be able to render in a browser (web) or the eclipse based Studio (SWT).
+* **Runtime**: Runtime is about injecting the specific component code into a job or pipeline. The framework helps unify as much as possible the code required to run in Data Integration (DI) and BEAM environments.
+* **Graphical interface**: The framework helps unify the code required to be able to render the component in a browser (web) or in the Eclipse-based Studio (SWT).
 
 [[getting-started-system-requirements]]
-== Talend Component System Requirement
+== System Requirements
 
-Talend Component requires Java 8. You can download it on http://www.oracle.com/technetwork/pt/java/javase/downloads/jdk8-downloads-2133151.html[Oracle] website.
+In order to use Talend Component Kit, you need the following tools installed on your machine:
 
-To develop a component or the project itself it is recommended to use Apache Maven 3.5.0. you can download it on https://maven.apache.org/download.cgi?Preferred=ftp%3A%2F%2Fmirror.reverse.net%2Fpub%2Fapache%2F[Apache Maven] website.
+* Java JDK 1.8.x. You can download it from http://www.oracle.com/technetwork/pt/java/javase/downloads/jdk8-downloads-2133151.html[Oracle] website.
+* Apache Maven 3.5.x is recommended to develop a component or the project itself. You can download it from https://maven.apache.org/download.cgi?Preferred=ftp%3A%2F%2Fmirror.reverse.net%2Fpub%2Fapache%2F[Apache Maven] website. You can also use Gradle.
+* A Java Integrated Development Environment such as Eclipse or IntelliJ.
+* The version of your Studio is 7.0 and onwards.
 
-[[getting-started-first-quick-start]]
-== Quick Start
+[[getting-started-principles]]
+== Main principles
+
+Developing new components using the framework includes:
+
+. Creating a project using the https://starter-toolkit.talend.io/[starter] or the <<tutorial-talend-intellij-plugin-usage.adoc,Talend IntelliJ plugin>>.
+.. Defining the general configuration model for each component in your project
+.. Generating and downloading the project's archive from the starter
+.. Compiling the project
+. Implementing the components
+.. Registering the components family
+.. Defining the layout and configurable part of the components
+.. Defining the partition mapper for Input components
+.. Implementing the source logic for Input components
+.. Defining the processor for Output components
+. Testing the components
+
+Some additional configuration steps can be necessary according to your requirements:
 
 include::{partialsdir}/tutorials-index.adoc[]
+
+//[[getting-started-first-quick-start]]
+//== Quick Start
+
+//include::{partialsdir}/tutorials-index.adoc[]

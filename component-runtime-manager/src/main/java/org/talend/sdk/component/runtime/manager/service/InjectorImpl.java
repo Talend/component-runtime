@@ -22,18 +22,20 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.injector.Injector;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
 import lombok.AllArgsConstructor;
 
 // internal service for now, we can refactor it later to expose it if needed
 @AllArgsConstructor
-public class Injector implements Serializable {
+public class InjectorImpl implements Serializable, Injector {
 
     private final String plugin;
 
     private final Map<Class<?>, Object> services;
 
+    @Override
     public <T> T inject(final T instance) {
         if (instance == null) {
             return null;

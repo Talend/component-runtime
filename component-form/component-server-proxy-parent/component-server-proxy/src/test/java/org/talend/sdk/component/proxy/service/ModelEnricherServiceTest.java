@@ -117,7 +117,7 @@ class ModelEnricherServiceTest {
         final ConfigTypeNode configTypeNode = newConfig("type-proposals", newProperty());
         final ConfigTypeNode configType = modelEnricherService.enrich(configTypeNode, "en");
         final Ui ui = uiSpecService
-                .convert("someDamily", configType, new UiSpecContext("en", k -> null))
+                .convert("someDamily", "en", configType, new UiSpecContext("en", k -> null))
                 .toCompletableFuture()
                 .get();
 

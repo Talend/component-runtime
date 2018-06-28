@@ -1,0 +1,89 @@
+/**
+ * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.talend.sdk.component.runtime.manager.service;
+
+import static java.util.Locale.ROOT;
+import static java.util.stream.Collectors.toSet;
+
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.util.Map;
+
+import org.apache.xbean.recipe.ObjectRecipe;
+import org.apache.xbean.recipe.Option;
+import org.talend.sdk.component.api.service.factory.ObjectFactory;
+import org.talend.sdk.component.runtime.serialization.SerializableService;
+
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
+public class ObjectFactoryImpl implements ObjectFactory, Serializable {
+
+    private final String plugin;
+
+    @Override
+    public ObjectFactoryInstance createInstance(final String type) {
+        final ObjectRecipe recipe = new ObjectRecipe(type);
+        return new ObjectFactoryInstanceImpl(recipe);
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        return new SerializableService(plugin, ObjectFactory.class.getName());
+    }
+
+    @AllArgsConstructor
+    private static class ObjectFactoryInstanceImpl implements ObjectFactoryInstance {
+
+        private final ObjectRecipe recipe;
+
+        @Override
+        public ObjectFactoryInstance withFieldInjection() {
+            recipe.allow(Option.FIELD_INJECTION);
+            recipe.allow(Option.PRIVATE_PROPERTIES);
+            return this;
+        }
+
+        @Override
+        public ObjectFactoryInstance ignoreUnknownProperties() {
+            recipe.allow(Option.IGNORE_MISSING_PROPERTIES);
+            return this;
+        }
+
+        @Override
+        public ObjectFactoryInstance withProperties(final Map<String, ?> map) {
+            recipe.setAllProperties(map);
+            return this;
+        }
+
+        @Override
+        public <T> T create(final Class<T> aClass) {
+            if (recipe
+                    .getProperties()
+                    .keySet()
+                    .stream()
+                    .map(it -> it.toLowerCase(ROOT))
+                    .collect(toSet())
+                    .size() == recipe.getProperties().size()) {
+                recipe.allow(Option.CASE_INSENSITIVE_PROPERTIES);
+            }
+            try {
+                return aClass.cast(recipe.create(Thread.currentThread().getContextClassLoader()));
+            } catch (final RuntimeException re) {
+                throw new IllegalArgumentException(re);
+            }
+        }
+    }
+}

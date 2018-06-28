@@ -2,14 +2,14 @@ const spawn = require('child_process').spawn;
 const command = process.argv[2];
 const args = process.argv.slice(3);
 const child = spawn(command, args);
-console.log(`heartbeat: running command ${command} with args ${args}`);
+console.log(`> running command ${command} with args ${args}`);
  
 const heartbeat = setInterval(() => {
   console.log('❤️');
 }, 1000 * 60);
  
 const timeout = setTimeout(() => {
-  console.log('heartbeat: child process timed out after 60 min');
+  console.log('> heartbeat: child process timed out after 60 min');
   clearInterval(heartbeat);
   process.exit(1);
 }, 1000 * 60 * 60);

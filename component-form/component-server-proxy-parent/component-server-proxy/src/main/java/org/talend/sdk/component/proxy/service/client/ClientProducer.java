@@ -15,15 +15,19 @@
  */
 package org.talend.sdk.component.proxy.service.client;
 
+import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
+import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.json.bind.Jsonb;
 import javax.ws.rs.client.ClientBuilder;
@@ -31,10 +35,15 @@ import javax.ws.rs.client.WebTarget;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
+import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
 import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
+import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 import org.talend.sdk.component.proxy.service.ActionService;
+import org.talend.sdk.component.proxy.service.ConfigurationService;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
+import org.talend.sdk.component.server.front.model.ComponentDetail;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -46,9 +55,36 @@ public class ClientProducer {
 
     @Produces
     @UiSpecProxy
-    public UiSpecService<UiSpecContext> uiSpecService(@UiSpecProxy final Client client,
-            @UiSpecProxy final Jsonb jsonb) {
-        return new UiSpecService<>(client, jsonb);
+    public UiSpecService<UiSpecContext> uiSpecService(@UiSpecProxy final Client client, @UiSpecProxy final Jsonb jsonb,
+            final ConfigurationService configurationService,
+            final Instance<CustomPropertyConverter> customPropertyConverters) {
+
+        final UiSpecService<UiSpecContext> service = new UiSpecService<UiSpecContext>(client, jsonb) {
+
+            @Override
+            public CompletionStage<Ui> convert(final String family, final String lang, final ConfigTypeNode node,
+                    final UiSpecContext context) {
+                return configurationService
+                        .filterNestedConfigurations(lang, context.getPlaceholderProvider(), node)
+                        .thenCompose(config -> super.convert(family, lang, config, context));
+            }
+
+            @Override
+            public CompletionStage<Ui> convert(final ComponentDetail detail, final String lang,
+                    final UiSpecContext context) {
+                // todo if used:
+                // return configurationService.filterNestedConfigurations(lang, context.getPlaceholderProvider(),
+                // detail)
+                // .thenCompose(config -> super.convert(config, lang, context));
+                return super.convert(detail, lang, context);
+            }
+        };
+        customPropertyConverters
+                .stream()
+                .sorted(comparing(
+                        it -> ofNullable(it.getClass().getAnnotation(Priority.class)).map(Priority::value).orElse(0)))
+                .forEach(service::withConverter);
+        return service;
     }
 
     public void destroyUiSpecService(@Disposes @UiSpecProxy final UiSpecService<UiSpecContext> client) {
@@ -68,13 +104,14 @@ public class ClientProducer {
 
             @Override
             public CompletableFuture<Map<String, Object>> action(final String family, final String type,
-                    final String action, final Map<String, Object> params, final UiSpecContext context) {
+                    final String action, final String lang, final Map<String, Object> params,
+                    final UiSpecContext context) {
                 if (actionService.isBuiltin(action)) {
                     return actionService
                             .findBuiltInAction(action, context.getLanguage(), context.getPlaceholderProvider(), params)
                             .toCompletableFuture();
                 }
-                return super.action(family, type, action, params, context);
+                return super.action(family, type, action, lang, params, context);
             }
         };
     }

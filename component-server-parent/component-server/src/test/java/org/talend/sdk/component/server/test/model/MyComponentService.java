@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.test.model;
 
 import java.util.Date;
 
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
@@ -30,6 +31,11 @@ public class MyComponentService {
             throw new IllegalStateException("simulating an unexpected error");
         }
         return new HealthCheckStatus(HealthCheckStatus.Status.OK, "All good");
+    }
+
+    @HealthCheck(family = "chain", value = "langtest")
+    public HealthCheckStatus doCheckWithLang(@Option("$lang") final String lang) {
+        return new HealthCheckStatus(HealthCheckStatus.Status.OK, lang);
     }
 
     public void logTime() { // usable by components

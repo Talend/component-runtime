@@ -91,6 +91,7 @@ import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
+import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.Values;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
@@ -164,8 +165,12 @@ public class Generator {
         final StringBuilder builder = new StringBuilder();
         processSection(asciidoctor.loadFile(new File(pages, "documentation.adoc"), options), builder,
                 "documentation.adoc");
-        processSection(asciidoctor.loadFile(new File(pages, "_partials/tutorials-index.adoc"), options), builder,
-                "tutorials-index.adoc");
+        builder
+                .append(".Tutorials\n")
+                .append(Files
+                        .lines(new File(pages, "_partials/tutorials-index.adoc").toPath(), StandardCharsets.UTF_8)
+                        .collect(joining("\n")))
+                .append("\n\n");
 
         // hardcoded for now while they are simple or externals
         builder.append(".Web\n" + "* xref:documentation-rest.adoc[Server]\n"
@@ -582,6 +587,17 @@ public class Generator {
             list.setItems(new ArrayList<>());
 
             final Values.Item item = new Values.Item();
+            item.setId("value");
+            item.setLabel("label");
+            list.getItems().add(item);
+
+            return new MapperBuilder().setPretty(false).build().writeObjectAsString(list);
+        }
+        if (returnedType == SuggestionValues.class) {
+            final SuggestionValues list = new SuggestionValues();
+            list.setItems(new ArrayList<>());
+
+            final SuggestionValues.Item item = new SuggestionValues.Item();
             item.setId("value");
             item.setLabel("label");
             list.getItems().add(item);

@@ -8,9 +8,11 @@ endif::env-github[]
 
 This brick provides all the integration around `component-api` to run components.
 
+Maven 3.5 is required to build this project.
+
 Documentation is in documentation module.
 
-== Toubleshouting
+== Troubleshooting
 
 === Documentation doesn't build
 
@@ -22,3 +24,20 @@ It is due to the crypto changes on Github, you can fix it by configuring your OS
 
 - https://support.microsoft.com/en-gb/help/3140245/update-to-enable-tls-1-1-and-tls-1-2-as-a-default-secure-protocols-in
 - https://developercommunity.visualstudio.com/content/problem/201457/unable-to-connect-to-github-due-to-tls-12-only-cha.html
+
+If you encounter this error message on a linux system:
+
+`[ERROR] <snip>/nodegit/vendor/libssh2/missing: Unknown `--is-lightweight' option`
+
+You can fix it by installing the following packages:
+
+- (Ubuntu/Debian) `sudo apt-get install libssl-dev`
+- (RHEL/Fedora) `sudo dnf install openssl-devel`
+
+If you encounter this error message on a linux system:
+
+`[ERROR] Error: libcurl-gnutls.so.4: cannot open shared object file: No such file or directory`
+
+You can fix it by creating the symlink yourself (see https://github.com/nodegit/nodegit/issues/1246):
+
+* `sudo ln -s /usr/lib64/libcurl.so.4 /usr/lib64/libcurl-gnutls.so.4`

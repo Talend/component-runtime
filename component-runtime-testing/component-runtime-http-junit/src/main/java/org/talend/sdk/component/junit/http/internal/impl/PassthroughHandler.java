@@ -181,6 +181,10 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
     }
 
     private byte[] slurp(final InputStream inputStream, final int defaultLen) throws IOException {
+        if (inputStream == null) {
+            return null;
+        }
+
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(defaultLen);
         final byte[] bytes = new byte[defaultLen];
         int read;

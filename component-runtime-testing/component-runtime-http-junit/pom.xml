@@ -13,7 +13,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>component-runtime-testing</artifactId>
     <groupId>org.talend.sdk.component</groupId>
@@ -111,6 +112,20 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <configuration> <!-- ensure shade works even if already done and "clean" is not called -->
+          <filesets>
+            <fileset>
+              <directory>${project.build.directory}</directory>
+              <includes>
+                <include>${project.build.finalName}/${project.packaging}</include>
+              </includes>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${javadoc-plugin.version}</version>
         <executions>
@@ -133,18 +148,16 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <shadedClassifierName>shaded</shadedClassifierName>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <dependencyReducedPomLocation>${project.build.directory}/reduced-pom.xml</dependencyReducedPomLocation>
+              <createDependencyReducedPom>true</createDependencyReducedPom>
               <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
               </transformers>
               <artifactSet>
-                <excludes>
-                  <exclude>org.projectlombok:*</exclude>
-                  <exclude>org.slf4j:*</exclude>
-                  <exclude>junit:*</exclude>
-                </excludes>
+                <includes>
+                  <include>io.netty:*</include>
+                  <include>org.apache.geronimo.specs:*</include>
+                  <include>org.apache.johnzon:*</include>
+                </includes>
               </artifactSet>
               <relocations>
                 <relocation>

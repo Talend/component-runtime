@@ -28,8 +28,26 @@ function extractRequestPayload(parameters = [], properties) {
   return payload;
 }
 
+function getLang(lang) {
+  if (!lang) {
+    if (navigator) {
+      if (navigator.language) {
+        return navigator.language;
+      } else if (navigator.languages && navigator.languages.length > 0) {
+        return navigator.languages[0];
+      }
+    }
+  }
+  return lang || 'en';
+}
+
+const FALLBACK_HANDLER = function ({ error, trigger }) {
+  console.log(`${JSON.stringify(trigger)} failed with error ${error || '-'}`);
+};
+
 // customRegistry can be used to add extensions or custom trigger (not portable accross integrations)
-export default function getDefaultTrigger({ url, customRegistry }) {
+export default function getDefaultTrigger({ url, customRegistry, lang }) {
+  const encodedLang = encodeURIComponent(getLang(lang));
   return function onDefaultTrigger(event, { trigger, schema, properties, errors }) {
     const services = {
       ...defaultRegistry,
@@ -37,18 +55,26 @@ export default function getDefaultTrigger({ url, customRegistry }) {
     };
     const payload = extractRequestPayload(trigger.parameters, properties);
     return fetch(
-      `${url}?action=${encodeURIComponent(trigger.action)}&family=${encodeURIComponent(trigger.family)}&type=${encodeURIComponent(trigger.type)}`,
+      `${url}?lang=${encodedLang}&action=${encodeURIComponent(trigger.action)}&family=${encodeURIComponent(trigger.family)}&type=${encodeURIComponent(trigger.type)}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(payload),
         credentials: 'include'
-      }
-    )
+      })
       .then(resp => resp.json())
       .then(body => {
-        return services[trigger.type]({
+        return (services[trigger.type] ||  FALLBACK_HANDLER)({
           body,
+          errors,
+          properties,
+          schema,
+          trigger,
+        });
+      })
+      .catch(error => {
+        (services['error'] || FALLBACK_HANDLER)({
+          error,
           errors,
           properties,
           schema,

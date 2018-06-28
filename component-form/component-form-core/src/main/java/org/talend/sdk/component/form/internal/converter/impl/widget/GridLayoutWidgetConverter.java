@@ -30,6 +30,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.api.Client;
+import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
 import org.talend.sdk.component.form.internal.lang.CompletionStages;
@@ -46,14 +47,18 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
 
     private final Map<String, String> layouts;
 
+    private final Collection<CustomPropertyConverter> customPropertyConverters;
+
     public GridLayoutWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
             final Client client, final String family, final Map<String, String> gridLayouts,
-            final JsonSchema jsonSchema) {
-        super(schemas, properties, actions, jsonSchema);
+            final JsonSchema jsonSchema, final String lang,
+            final Collection<CustomPropertyConverter> customPropertyConverters) {
+        super(schemas, properties, actions, jsonSchema, lang);
         this.client = client;
         this.family = family;
         this.layouts = gridLayouts;
+        this.customPropertyConverters = customPropertyConverters;
     }
 
     @Override
@@ -126,7 +131,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
         return CompletableFuture.allOf(Stream.of(layout.split("\\|")).map(line -> line.split(",")).map(line -> {
             if (line.length == 1 && childProperties.containsKey(line[0])) {
                 return new UiSchemaConverter(layoutFilter, family, uiSchema.getItems(), visitedProperties, client,
-                        jsonSchema, properties, actions)
+                        jsonSchema, properties, actions, lang, customPropertyConverters)
                                 .convert(completedFuture(
                                         new PropertyContext<>(childProperties.get(line[0]), root.getRootContext())))
                                 .thenApply(r -> uiSchema);
@@ -136,7 +141,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
                 schema.setItems(new ArrayList<>());
 
                 final UiSchemaConverter columnConverter = new UiSchemaConverter(layoutFilter, family, schema.getItems(),
-                        visitedProperties, client, jsonSchema, properties, actions);
+                        visitedProperties, client, jsonSchema, properties, actions, lang, customPropertyConverters);
 
                 return CompletableFuture
                         .allOf(Stream

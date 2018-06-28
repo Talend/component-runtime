@@ -52,3 +52,18 @@ Some actions are that common and need a clear contract so they are defined as AP
 for instance. Here is the list of all actions:
 
 include::{partialsdir}/generated_actions.adoc[]
+
+== i18n
+
+Internationalization is supported through the injection of the parameter `$lang` which will allow you to get the correct locale
+to use with an `@Internationalized` service:
+
+[source]
+----
+public SuggestionValues findSuggestions(@Option("someParameter") final String param,
+                                        @Option("$lang") final String lang) {
+    return ...;
+}
+----
+
+TIP: you can combine the `$lang` option with `@Internationalized` and `@Language` parameter.

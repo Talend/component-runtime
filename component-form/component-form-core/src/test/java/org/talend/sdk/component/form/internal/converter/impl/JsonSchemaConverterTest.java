@@ -77,7 +77,7 @@ class JsonSchemaConverterTest {
                         Thread.currentThread().getContextClassLoader().getResourceAsStream("config.json")) {
             final ConfigTypeNodes nodes = jsonb.fromJson(stream, ConfigTypeNodes.class);
             final Ui payload = new UiSpecService<>(null, jsonb)
-                    .convert("test", nodes.getNodes().get("U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl"), null)
+                    .convert("test", "en", nodes.getNodes().get("U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl"), null)
                     .toCompletableFuture()
                     .get();
             final JsonSchema jsonSchema = payload.getJsonSchema();
@@ -102,7 +102,8 @@ class JsonSchemaConverterTest {
 
                 @Override
                 public CompletionStage<Map<String, Object>> action(final String family, final String type,
-                        final String action, final Map<String, Object> params, final Object ignored) {
+                        final String action, final String lang, final Map<String, Object> params,
+                        final Object ignored) {
                     if ("test".equals(family) && "dynamic_values".equals(type) && "GetTableFields".equals(action)) {
                         final Map<String, String> item = new HashMap<>();
                         item.put("id", "some");
@@ -117,7 +118,7 @@ class JsonSchemaConverterTest {
                     // no-op
                 }
             }, jsonb)
-                    .convert("test", nodes.getNodes().get("U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl"), null)
+                    .convert("test", "en", nodes.getNodes().get("U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl"), null)
                     .toCompletableFuture()
                     .get();
             final JsonSchema jsonSchema = payload.getJsonSchema();

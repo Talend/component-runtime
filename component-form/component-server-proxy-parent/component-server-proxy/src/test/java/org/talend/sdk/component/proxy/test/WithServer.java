@@ -186,7 +186,7 @@ public @interface WithServer {
                         Runtime.getRuntime().addShutdownHook(
                                 new Thread(ENV.get()::close, "proxy-test-servers-shutdown"));
 
-                        tacokit.prepare();
+                        tacokit.prepare(extensionContext.getTestClass().get());
                         tacokit.launch();
                         store.put(Tacokit.class, tacokit);
 
@@ -352,11 +352,11 @@ public @interface WithServer {
             }
         }
 
-        private void prepare() {
+        private void prepare(final Class<?> marker) {
             if (isSkipped()) {
                 return;
             }
-            final File target = jarLocation(Tacokit.class).getParentFile();
+            final File target = jarLocation(marker).getParentFile();
             final File distrib = new File(target.getParentFile(),
                     "../../../component-server-parent/component-server/target/component-server-meecrowave-distribution.zip");
             if (!distrib.exists()) {

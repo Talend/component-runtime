@@ -15,16 +15,23 @@
  */
 package org.talend.sdk.component.proxy.test;
 
+import static java.util.concurrent.CompletableFuture.completedFuture;
+import static java.util.stream.Collectors.toMap;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
 
 import org.talend.sdk.component.proxy.api.persistence.OnEdit;
+import org.talend.sdk.component.proxy.api.persistence.OnFindByFormId;
 import org.talend.sdk.component.proxy.api.persistence.OnFindById;
 import org.talend.sdk.component.proxy.api.persistence.OnPersist;
+import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
 
 import lombok.Getter;
 
@@ -36,8 +43,11 @@ public class InMemoryTestPersistence {
 
     private final Collection<OnEdit> edit = new ArrayList<>();
 
+    @Inject
+    private ConfigurationClient client;
+
     void on(@ObservesAsync final OnPersist event) {
-        persist.add(event.setId(UUID.randomUUID().toString()));
+        persist.add(event.composeId(completedFuture(UUID.randomUUID().toString())));
     }
 
     void on(@ObservesAsync final OnEdit event) {
@@ -45,10 +55,31 @@ public class InMemoryTestPersistence {
     }
 
     void on(@ObservesAsync final OnFindById event) {
-        final OnPersist persisted =
-                persist.stream().filter(it -> it.getId().equals(event.getId())).findFirst().orElseThrow(
-                        () -> new IllegalArgumentException("No persisted entries matching id #" + event.getId()));
-        event.setProperties(persisted.getProperties()).setFormId(persisted.getFormId());
+        final OnPersist persisted = persist.stream().filter(it -> {
+            try {
+                return it.getId().toCompletableFuture().get().equals(event.getId());
+            } catch (final InterruptedException | ExecutionException e) {
+                throw new IllegalStateException(e);
+            }
+        }).findFirst().orElseThrow(
+                () -> new IllegalArgumentException("No persisted entries matching id #" + event.getId()));
+        event.composeProperties(completedFuture(persisted.getProperties())).composeFormId(
+                completedFuture(persisted.getFormId()));
+    }
+
+    void on(@ObservesAsync final OnFindByFormId event) {
+        client
+                .getAllConfigurations("en", k -> null)
+                .thenApply(nodes -> nodes.getNodes().get(event.getFormId()))
+                .thenApply(node -> event.composeResult(
+                        completedFuture(persist.stream().filter(it -> it.getFormId().equals(event.getFormId())).collect(
+                                toMap(persist -> {
+                                    try {
+                                        return persist.getId().toCompletableFuture().get();
+                                    } catch (final InterruptedException | ExecutionException e) {
+                                        throw new IllegalStateException(e);
+                                    }
+                                }, it -> node.getDisplayName())))));
     }
 
     public void clear() {

@@ -231,6 +231,8 @@ public class UiSchema {
 
         private String type;
 
+        private String onEvent;
+
         private Collection<Option> options;
 
         private Collection<Parameter> parameters;
@@ -243,9 +245,16 @@ public class UiSchema {
 
             private String type;
 
+            private String onEvent;
+
             private Collection<Option> options;
 
             private Collection<Parameter> parameters;
+
+            public Builder withOnEvent(final String onEvent) {
+                this.onEvent = onEvent;
+                return this;
+            }
 
             public Builder withAction(final String action) {
                 this.action = action;
@@ -301,6 +310,7 @@ public class UiSchema {
                 parameter.setType(type);
                 parameter.setParameters(parameters);
                 parameter.setOptions(options);
+                parameter.setOnEvent(onEvent);
                 return parameter;
             }
         }

@@ -21,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.form.api.Client;
+import org.talend.sdk.component.form.internal.converter.CustomPropertyConverter;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.impl.UiSchemaConverter;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
@@ -38,15 +39,19 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
 
     private final Collection<SimplePropertyDefinition> nestedProperties;
 
+    private final Collection<CustomPropertyConverter> customPropertyConverters;
+
     public ObjectArrayWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
             final Collection<SimplePropertyDefinition> nested, final String family, final Client client,
-            final String gridLayoutFilter, final JsonSchema jsonSchema) {
-        super(schemas, properties, actions, jsonSchema);
+            final String gridLayoutFilter, final JsonSchema jsonSchema, final String lang,
+            final Collection<CustomPropertyConverter> customPropertyConverters) {
+        super(schemas, properties, actions, jsonSchema, lang);
         this.nestedProperties = nested;
         this.family = family;
         this.client = client;
         this.gridLayoutFilter = gridLayoutFilter;
+        this.customPropertyConverters = customPropertyConverters;
     }
 
     @Override
@@ -57,7 +62,7 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
             arraySchema.setItems(new ArrayList<>());
             arraySchema.setItemWidget("collapsibleFieldset");
             final UiSchemaConverter converter = new UiSchemaConverter(gridLayoutFilter, family, arraySchema.getItems(),
-                    new ArrayList<>(), client, jsonSchema, properties, actions);
+                    new ArrayList<>(), client, jsonSchema, properties, actions, lang, customPropertyConverters);
             return CompletableFuture
                     .allOf(nestedProperties
                             .stream()

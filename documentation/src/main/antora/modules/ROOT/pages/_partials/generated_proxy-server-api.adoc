@@ -452,6 +452,11 @@ __Type__ : object
 __Type__ : object
 
 
+[[_completionstagemapstringstring]]
+=== CompletionStageMapStringString
+__Type__ : object
+
+
 [[_completionstagenodes]]
 === CompletionStageNodes
 __Type__ : object
@@ -625,6 +630,8 @@ __optional__|A human readable message to help understanding the error|string
 |**action** +
 __optional__|string
 |**family** +
+__optional__|string
+|**onEvent** +
 __optional__|string
 |**options** +
 __optional__|< <<_option,Option>> > array

@@ -241,12 +241,13 @@
                   def swaggerJson = new File(project.build.outputDirectory, 'META-INF/resources/documentation/swagger.json')
                   def content = swaggerJson.text
 
-                  def swaggerDemo = new File(project.build.directory, 'swagger-heroku.json')
+                  def swaggerDemo = new File(project.build.directory, 'swagger-openshift.json')
                   swaggerDemo.text = content
-                    .replace('"host": "",', '"host": "talend-component-kit-demo.herokuapp.com",')
+                    .replace('"host": "",', '"host": "talend-component-kit-demo-server-talend-component-kit.193b.starter-ca-central-1.openshiftapps.com",')
                     .replace("\"title\": \"${project.name}\"", '"title": "Talend Component Kit Server Demo"')
+                    .replace('    "schemes": [\n        "http",\n        "https"\n    ],', '    "schemes": [\n        "http"\n    ],')
                   // and attach it to the release
-                  session.container.lookup(MavenProjectHelper).attachArtifact(project, 'json', 'swagger-heroku', swaggerDemo);
+                  session.container.lookup(MavenProjectHelper).attachArtifact(project, 'json', 'swagger-openshift', swaggerDemo);
 
                   // copy icon (in svg) for the topbar logo
                   def icon = Thread.currentThread().getContextClassLoader().getResourceAsStream('icons/svg/component-kit-positive.svg')
@@ -299,6 +300,7 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>${groovy.version}</version>
+            <type>pom</type>
           </dependency>
           <dependency>
             <groupId>org.apache.tomee</groupId>
