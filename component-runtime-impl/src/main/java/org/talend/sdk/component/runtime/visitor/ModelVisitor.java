@@ -31,7 +31,6 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.PartitionSize;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.input.Split;
-import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
@@ -158,14 +157,11 @@ public class ModelVisitor {
             throw new IllegalArgumentException(input + " doesn't have the input parameter on its producer method");
         }
 
-        Stream
-                .of(input.getMethods())
-                .filter(m -> m.isAnnotationPresent(BeforeGroup.class) || m.isAnnotationPresent(AfterGroup.class))
-                .forEach(m -> {
-                    if (m.getParameterCount() > 0) {
-                        throw new IllegalArgumentException(m + " must not have any parameter");
-                    }
-                });
+        Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(BeforeGroup.class)).forEach(m -> {
+            if (m.getParameterCount() > 0) {
+                throw new IllegalArgumentException(m + " must not have any parameter");
+            }
+        });
     }
 
     private Stream<Class<? extends Annotation>> getPartitionMapperMethods() {
