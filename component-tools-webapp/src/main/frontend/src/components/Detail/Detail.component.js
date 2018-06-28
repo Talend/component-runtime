@@ -46,7 +46,6 @@ function Detail(props) {
 			submited = (
 				<div>
 					<pre>{JSON.stringify(configuration, undefined, 2)}</pre>
-					<button className="btn btn-success" onClick={props.backToComponentEdit}>Back to form</button>
 				</div>
 			);
 		}
