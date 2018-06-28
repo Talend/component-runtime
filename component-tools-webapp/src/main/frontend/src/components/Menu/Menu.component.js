@@ -27,7 +27,7 @@ class Menu extends React.Component {
 	}
 
 	componentDidMount() {
-			this.props.getComponentsList();
+		this.props.getComponentsList();
 	}
 
 	onSelect(node) {
