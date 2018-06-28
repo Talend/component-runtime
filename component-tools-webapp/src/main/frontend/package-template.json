@@ -10,8 +10,9 @@
   "dependencies": {
     "@talend/bootstrap-theme": "${talend-ui.version}",
     "@talend/icons": "${talend-ui.version}",
-    "@talend/react-components": "${talend-ui.version}",
-    "@talend/react-forms": "${talend-ui.version}",
+    "@talend/react-components": "0.198.0-tacokit-0",
+    "@talend/react-forms": "0.198.0-tacokit-0",
+    "@talend/react-components-kit": "0.1.1",
     "bootstrap-sass": "3.3.7",
     "classnames": "2.2.5",
     "i18next": "10.0.7",
