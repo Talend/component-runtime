@@ -45,11 +45,13 @@ public class BatchTransform implements Serializable {
     @ElementListener
     public void process(final Record first, @Input("second") final Record second) {
 
-        records.add(new AbstractMap.SimpleEntry<>(first.value.length() + second.value.length(), first.value + second.value));
+        records.add(new AbstractMap.SimpleEntry<>(first.value.length() + second.value.length(),
+                first.value + second.value));
     }
 
     @AfterGroup
-    public void afterGroup(@Output("size") final OutputEmitter<Integer> size, @Output("value") final OutputEmitter<String> value) {
+    public void afterGroup(@Output("size") final OutputEmitter<Integer> size,
+            @Output("value") final OutputEmitter<String> value) {
         records.forEach(r -> {
             size.emit(r.getKey());
             value.emit(r.getValue());

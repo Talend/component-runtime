@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.json.bind.Jsonb;
 
