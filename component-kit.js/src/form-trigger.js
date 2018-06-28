@@ -15,6 +15,7 @@
  */
 
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import flatten from './flatten';
 import defaultRegistry from './service';
 
@@ -42,18 +43,36 @@ function getLang(lang) {
 }
 
 const FALLBACK_HANDLER = function ({ error, trigger }) {
-  console.log(`${JSON.stringify(trigger)} failed with error ${error || '-'}`);
+  console.error(`${JSON.stringify(trigger)} failed with error ${error || '-'}`);
 };
+
+function isCacheable(triggerType) {
+  return triggerType === 'suggestions';
+}
+
+function createCacheKey(trigger) {
+  const cacheKeyParams = (trigger.parameters || []).map(it => it.path).join('#');
+  return `trigger.type#trigger.family#trigger.action##${cacheKeyParams}`;
+}
 
 // customRegistry can be used to add extensions or custom trigger (not portable accross integrations)
 export default function getDefaultTrigger({ url, customRegistry, lang }) {
   const encodedLang = encodeURIComponent(getLang(lang));
+  const cache = {};
   return function onDefaultTrigger(event, { trigger, schema, properties, errors }) {
     const services = {
       ...defaultRegistry,
       ...customRegistry
     };
     const payload = extractRequestPayload(trigger.parameters, properties);
+    const cacheKey = isCacheable(trigger.type) ? createCacheKey(trigger) : undefined;
+    if (cacheKey) {
+       if (cache[cacheKey] && cache[cacheKey].result && isEqual(cache[cacheKey].parameters, payload)) {
+         return Promise.resolve(cache[cacheKey].result);
+       } else if (cache[cacheKey]) {
+         delete cache[cacheKey];
+       }
+    }
     return fetch(
       `${url}?lang=${encodedLang}&action=${encodeURIComponent(trigger.action)}&family=${encodeURIComponent(trigger.family)}&type=${encodeURIComponent(trigger.type)}`,
       {
@@ -64,13 +83,20 @@ export default function getDefaultTrigger({ url, customRegistry, lang }) {
       })
       .then(resp => resp.json())
       .then(body => {
-        return (services[trigger.type] ||  FALLBACK_HANDLER)({
+        const result = (services[trigger.type] ||  FALLBACK_HANDLER)({
           body,
           errors,
           properties,
           schema,
           trigger,
         });
+        if (body.cacheable) {
+          cache[cacheKey] = {
+            parameters: payload,
+            result: result
+          };
+        }
+        return result;
       })
       .catch(error => {
         (services['error'] || FALLBACK_HANDLER)({
