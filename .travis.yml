@@ -1,3 +1,5 @@
+dist: trusty
+sudo: false
 language: java
 jdk:
 - oraclejdk8
@@ -8,7 +10,6 @@ env:
     - BUILD_ARGS="clean install -e -q --batch-mode --settings $HOME/build/Talend/component-runtime/.travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true"
 before_cache:
   - rm -Rf $HOME/.m2/repository/org/talend/sdk/component
-  - rm -Rf $HOME/.m2/repository/org/apache/beam
   - rm -Rf $HOME/build/Talend/component-runtime/component-runtime/component-form/component-server-proxy-parent/component-server-proxy-play/src/main/frontend/node_modules/component-kit.js
   - rm -Rf $HOME/build/Talend/component-runtime/component-runtime/component-tools-webapp/src/main/frontend/node_modules/component-kit.js
 cache:
@@ -44,4 +45,43 @@ addons:
       # for nodegit@antora
       - libstdc++-4.9-dev
 
-install: node .travis/heartbeat.js mvn clean install -DskipTests -Dinvoker.skip=true
+install: chmod +x ./.travis/install.sh && node .travis/heartbeat.js ./.travis/install.sh
+
+jobs:
+  include:
+    # PR profile
+    - stage: pullrequest_build
+      script: node .travis/heartbeat.js mvn $BUILD_ARGS
+
+    # master profile
+    - stage: master_build
+      env:
+      - STEP=Build
+      script: node .travis/heartbeat.js mvn $BUILD_ARGS
+
+    - stage: master_build
+      env:
+      - STEP=Deploy Artifacts
+      before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
+      script: node .travis/heartbeat.js mvn clean deploy -e -q $DEPLOY_OPTS
+
+    - stage: master_build
+      env:
+      - STEP=Update Documentation
+      script:
+      - rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache
+      - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
+      - cd documentation && node ../.travis/heartbeat.js mvn clean verify pre-site -e -q -Pgh-pages -Dgpg.skip=true $DEPLOY_OPTS && cd -
+      - cd documentation && node ../.travis/heartbeat.js mvn gplus:execute@groovy-scripts rmannibucau-common:filter@filter-algolia frontend:yarn@algolia-index && cd -
+
+    - stage: master_build
+      env:
+      - STEP=Docker Deployment
+      before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
+      script: chmod +x ./.travis/docker.sh && node .travis/heartbeat.js ./.travis/docker.sh
+
+stages:
+  - name: master_build
+    if: branch = master AND type != pull_request
+  - name: pullrequest_build
+    if: type = pull_request
