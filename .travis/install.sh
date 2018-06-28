@@ -4,7 +4,7 @@ date
 
 # maven
 echo "Resolving maven dependencies and plugins"
-MAVEN_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=warn $MAVEN_OPTS" mvn dependency:resolve dependency:resolve-plugins --batch-mode -e -q -T2C
+MAVEN_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=warn $MAVEN_OPTS" mvn dependency:resolve dependency:resolve-plugins --batch-mode -e -q
 
 # front
 for i in component-tools-webapp component-starter-server component-tools; do
