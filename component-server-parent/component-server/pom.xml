@@ -143,6 +143,19 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>sample-beam</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-runtime-beam</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -483,6 +496,10 @@
               <excludes>
                 <exclude>**/beam/*Test.java</exclude>
               </excludes>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>org.talend.sdk.component:sample-beam</classpathDependencyExclude>
+                <classpathDependencyExclude>org.talend.sdk.component:component-runtime-beam</classpathDependencyExclude>
+              </classpathDependencyExcludes>
             </configuration>
           </execution>
           <execution>
@@ -502,9 +519,11 @@
                 <components.sample.beam.version>${project.version}</components.sample.beam.version>
                 <components.sample.beam.location>${sample.beam.location}</components.sample.beam.location>
               </systemPropertyVariables>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>org.talend.sdk.component:sample-beam</classpathDependencyExclude>
+              </classpathDependencyExcludes>
               <additionalClasspathElements>
                 <additionalClasspathElement>${sample.beam.location}${file.separator}deps${file.separator}beam-sdks-java-core.jar</additionalClasspathElement>
-                <additionalClasspathElement>${sample.beam.location}${file.separator}deps${file.separator}component-runtime-beam.jar</additionalClasspathElement>
               </additionalClasspathElements>
             </configuration>
           </execution>
