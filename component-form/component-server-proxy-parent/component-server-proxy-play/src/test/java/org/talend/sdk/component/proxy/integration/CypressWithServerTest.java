@@ -29,6 +29,7 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.OS;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
@@ -37,7 +38,8 @@ import org.talend.sdk.component.proxy.test.WithServer;
 import play.test.TestServer;
 
 @WithServer
-@DisabledIfSystemProperty(named = "component.front.build.skip", matches = "true")
+// @DisabledIfSystemProperty(named = "component.front.build.skip", matches = "true")
+@Disabled("This module will be reworked, no need to run that until we have the final delivery")
 class CypressWithServerTest {
 
     @Test

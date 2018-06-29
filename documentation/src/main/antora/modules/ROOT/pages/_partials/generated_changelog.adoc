@@ -12,6 +12,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-862[TCOMP-862^]: [form-core] ".." path is not correctly resolved
 - link:https://jira.talendforge.org/browse/TCOMP-863[TCOMP-863^]: Job DSL doesn't support multiple outputs
 - link:https://jira.talendforge.org/browse/TCOMP-873[TCOMP-873^]: Fix shade junit-http module : remove shaded dependencies from generated artifact
+- link:https://jira.talendforge.org/browse/TCOMP-889[TCOMP-889^]: [form] arrays are lost in trigger paths
 
 
 === New Feature
@@ -23,6 +24,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-849[TCOMP-849^]: [junit http] support to match the request payload
 - link:https://jira.talendforge.org/browse/TCOMP-850[TCOMP-850^]: MavenDecrypter should tolerate ${env.xxx} syntax
 - link:https://jira.talendforge.org/browse/TCOMP-861[TCOMP-861^]: Ensure Car Mojo can be skipped
+- link:https://jira.talendforge.org/browse/TCOMP-887[TCOMP-887^]: [studio] add chunk size advanced common param for processors & output
 
 
 === Work Item

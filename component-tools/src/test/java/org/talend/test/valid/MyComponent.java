@@ -39,7 +39,7 @@ public class MyComponent implements Serializable {
     }
 
     @BeforeGroup
-    public void beforeGroup(){
+    public void beforeGroup() {
 
     }
 
@@ -48,9 +48,8 @@ public class MyComponent implements Serializable {
         return item;
     }
 
-
     @AfterGroup
-    public void afterGroup(){
+    public void afterGroup() {
 
     }
 

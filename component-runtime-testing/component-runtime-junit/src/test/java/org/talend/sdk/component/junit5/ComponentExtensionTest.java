@@ -173,10 +173,9 @@ class ComponentExtensionTest {
     @Test
     void multipleProcessorCollector() {
         final Processor processor = handler.createProcessor(DuplicateEmitTransform.class, null);
-        final SimpleComponentRule.Outputs outputs = handler.collect(processor,
-                new JoinInputFactory()
-                        .withInput("__default__", asList(new DuplicateEmitTransform.Record("a"), new Transform.Record("bb")))
-                        .withInput("second", asList(new DuplicateEmitTransform.Record("1"), new Transform.Record("2"))));
+        final SimpleComponentRule.Outputs outputs = handler.collect(processor, new JoinInputFactory()
+                .withInput("__default__", asList(new DuplicateEmitTransform.Record("a"), new Transform.Record("bb")))
+                .withInput("second", asList(new DuplicateEmitTransform.Record("1"), new Transform.Record("2"))));
         assertEquals(2, outputs.size());
         assertEquals(asList(2, 3), outputs.get(Integer.class, "size"));
         assertEquals(asList("a1", "a1", "bb2", "bb2"), outputs.get(String.class, "value"));

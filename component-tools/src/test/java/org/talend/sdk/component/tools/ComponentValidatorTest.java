@@ -46,7 +46,8 @@ import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-@ExtendWith(ComponentValidatorTest.ValidatorExtension.class) class ComponentValidatorTest {
+@ExtendWith(ComponentValidatorTest.ValidatorExtension.class)
+class ComponentValidatorTest {
 
     @Data
     static class ExceptionSpec {

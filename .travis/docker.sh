@@ -11,7 +11,7 @@ IMAGE=$(echo "$DOCKER_LOGIN/component-server:$DOCKER_IMAGE_VERSION")
 DOCKER_TMP_DIR=docker_workdir
 
 echo "Prebuilding the project"
-mvn clean install -e -q $DEPLOY_OPTS -T2C
+mvn clean install -pl component-server-parent/component-server -am -e -q $DEPLOY_OPTS -T2C
 
 # if we don't set up a custom buildcontext dir the whole project is taken as buildcontext and it makes gigs!
 echo "Setting up buildcontext"

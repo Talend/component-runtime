@@ -1,14 +1,14 @@
 ++++
 [
   {
-    "commits":1315,
+    "commits":1336,
     "description":"Joined the Apache EE family (TomEE, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":229,
+    "commits":233,
     "description":"I am a software developer at @Talend\r\nFor my personal projects you can check them @khabali \n\nBlog: https://khabali.github.io",
     "gravatar":"https://avatars3.githubusercontent.com/u/25590305?v=4",
     "id":"akhabali",
@@ -22,10 +22,11 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":32,
+    "commits":39,
     "description":"",
     "gravatar":"https://avatars1.githubusercontent.com/u/39913705?v=4",
-    "id":"florentlb"
+    "id":"florentlb",
+    "name":"Florent LB"
   },
   {
     "commits":22,
@@ -42,6 +43,13 @@
     "name":"ypiel"
   },
   {
+    "commits":16,
+    "description":"",
+    "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
+    "id":"jmfrancois",
+    "name":"Jean-Michel FRANCOIS"
+  },
+  {
     "commits":9,
     "description":"Java and Javascript developer",
     "gravatar":"https://avatars2.githubusercontent.com/u/10761073?v=4",
@@ -53,13 +61,6 @@
     "description":"",
     "gravatar":"https://avatars0.githubusercontent.com/u/7744819?v=4",
     "id":"RyanSkraba"
-  },
-  {
-    "commits":1,
-    "description":"",
-    "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
-    "id":"jmfrancois",
-    "name":"Jean-Michel FRANCOIS"
   }
 ]
 ++++
