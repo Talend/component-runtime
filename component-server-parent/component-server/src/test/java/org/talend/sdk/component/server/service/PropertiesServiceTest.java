@@ -65,15 +65,15 @@ class PropertiesServiceTest {
         final String[] i18nPackages = { Config.class.getPackage().getName() };
 
         final ParameterMeta host = new ParameterMeta(null, Config.class, ParameterMeta.Type.STRING,
-                "configuration.host", "host", i18nPackages, emptyList(), null, emptyMap());
+                "configuration.host", "host", i18nPackages, emptyList(), null, emptyMap(), false);
         final ParameterMeta port = new ParameterMeta(null, Config.class, ParameterMeta.Type.NUMBER,
-                "configuration.port", "port", i18nPackages, emptyList(), null, emptyMap());
+                "configuration.port", "port", i18nPackages, emptyList(), null, emptyMap(), false);
         final ParameterMeta username = new ParameterMeta(null, Config.class, ParameterMeta.Type.STRING,
-                "configuration.username", "username", i18nPackages, emptyList(), null, emptyMap());
+                "configuration.username", "username", i18nPackages, emptyList(), null, emptyMap(), false);
         final ParameterMeta password = new ParameterMeta(null, Config.class, ParameterMeta.Type.STRING,
-                "configuration.password", "password", i18nPackages, emptyList(), null, emptyMap());
+                "configuration.password", "password", i18nPackages, emptyList(), null, emptyMap(), false);
         final ParameterMeta config = new ParameterMeta(null, Config.class, ParameterMeta.Type.OBJECT, "configuration",
-                "configuration", i18nPackages, asList(host, port, username, password), null, emptyMap());
+                "configuration", i18nPackages, asList(host, port, username, password), null, emptyMap(), false);
 
         final List<SimplePropertyDefinition> props = propertiesService
                 .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.getDefault(), null)
@@ -93,10 +93,10 @@ class PropertiesServiceTest {
     void validateProp() {
         assertThrows(IllegalArgumentException.class, () -> {
             ParameterMeta attribute = new ParameterMeta(null, BadConfig.class, ParameterMeta.Type.STRING,
-                    "configuration.attribute", "attribute", null, emptyList(), null, emptyMap());
+                    "configuration.attribute", "attribute", null, emptyList(), null, emptyMap(), false);
 
             ParameterMeta config = new ParameterMeta(null, Config.class, ParameterMeta.Type.OBJECT, "configuration",
-                    "configuration", null, singletonList(attribute), null, emptyMap());
+                    "configuration", null, singletonList(attribute), null, emptyMap(), false);
 
             propertiesService
                     .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.ROOT, null)

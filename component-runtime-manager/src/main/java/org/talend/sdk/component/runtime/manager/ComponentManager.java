@@ -1246,7 +1246,7 @@ public class ComponentManager implements AutoCloseable {
 
             return new ServiceMeta.ActionMeta(component, actionType.value(), name,
                     serviceMethod.getGenericParameterTypes(),
-                    parameterModelService.buildParameterMetas(serviceMethod,
+                    parameterModelService.buildServiceParameterMetas(serviceMethod,
                             ofNullable(serviceMethod.getDeclaringClass().getPackage()).map(Package::getName).orElse(
                                     "")),
                     invoker);

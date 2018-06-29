@@ -57,7 +57,7 @@ public class SimpleFactory {
 
         private ParameterMeta build(final String name, final String prefix, final Type genericType,
                 final Annotation[] annotations, final Collection<String> i18nPackages) {
-            return super.buildParameter(name, prefix, null, genericType, annotations, i18nPackages);
+            return super.buildParameter(name, prefix, null, genericType, annotations, i18nPackages, false);
         }
     }
 
