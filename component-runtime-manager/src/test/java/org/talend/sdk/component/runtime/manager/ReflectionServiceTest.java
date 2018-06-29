@@ -17,14 +17,17 @@ package org.talend.sdk.component.runtime.manager;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -32,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -39,6 +43,10 @@ import javax.json.bind.JsonbBuilder;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.constraint.Max;
+import org.talend.sdk.component.api.configuration.constraint.Min;
+import org.talend.sdk.component.api.configuration.constraint.Pattern;
+import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
@@ -50,19 +58,120 @@ import lombok.Data;
 
 class ReflectionServiceTest {
 
-    private final ReflectionService reflectionService = new ReflectionService(new ParameterModelService());
+    private final ParameterModelService parameterModelService = new ParameterModelService();
+
+    private final ReflectionService reflectionService = new ReflectionService(parameterModelService);
+
+    @Test
+    void validationRequiredStringOk() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig.class);
+        {
+            SomeConfig.class.cast(factory.apply(new HashMap<String, String>() {
+
+                {
+                    put("root.requiredString", "set");
+                    put("root.integer", "5");
+                }
+            })[0]).isSet("set", 5);
+        }
+        {
+            SomeConfig.class.cast(factory.apply(new HashMap<String, String>() {
+
+                {
+                    put("root.requiredString", "set2");
+                    put("root.integer", "10");
+                }
+            })[0]).isSet("set2", 10);
+        }
+    }
+
+    @Test
+    void validationRequiredStringKo() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig.class);
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(emptyMap()));
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(singletonMap("root.integer", "5")));
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.requiredString", "set");
+                put("root.integer", "4");
+            }
+        }));
+    }
+
+    @Test
+    void validationMinListKo() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig2.class);
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.integers[0]", "1");
+                put("root.integers[1]", "2");
+            }
+        }));
+    }
+
+    @Test
+    void validationMinListOk() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig2.class);
+        assertEquals(1,
+                SomeConfig2.class.cast(factory.apply(singletonMap("root.integers[0]", "1"))[0]).integers.size());
+    }
+
+    @Test
+    void validationNestedObjectOk() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig3.class);
+        assertEquals("somevalue",
+                SomeConfig3.class.cast(factory.apply(singletonMap("root.nested.value", "somevalue"))[0]).nested.value);
+    }
+
+    @Test
+    void validationNestedObjectKo() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig3.class);
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(singletonMap("root.nested.value", "short")));
+    }
+
+    @Test
+    void validationRegexOk() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig5.class);
+        assertEquals("somevalue",
+                SomeConfig5.class.cast(factory.apply(singletonMap("root.regex", "somevalue"))[0]).regex);
+    }
+
+    @Test
+    void validationRegexKo() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig5.class);
+        assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.regex", "short and another word")));
+    }
+
+    @Test
+    void validationNestedListOk() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig4.class);
+        assertEquals("somevalue",
+                SomeConfig4.class.cast(factory.apply(singletonMap("root.nesteds[0].value", "somevalue"))[0]).nesteds
+                        .iterator()
+                        .next().value);
+    }
+
+    @Test
+    void validationNestedListKo() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig4.class);
+        assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.nesteds[0].value", "short")));
+    }
 
     @Test
     void copiable() throws NoSuchMethodException {
-        final HashMap<Class<?>, Object> precomputed = new HashMap<>();
+        final Map<Class<?>, Object> precomputed = new HashMap<>();
         precomputed.put(UserHttpClient.class,
-                new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
-                        JsonbBuilder.create(), emptyMap()).create(UserHttpClient.class, "http://foo"));
+                new HttpClientFactoryImpl("test", reflectionService, JsonbBuilder.create(), emptyMap())
+                        .create(UserHttpClient.class, "http://foo"));
         final Method httpMtd = TableOwner.class.getMethod("http", UserHttpClient.class);
-        final HttpClient client1 =
-                HttpClient.class.cast(reflectionService.parameterFactory(httpMtd, precomputed).apply(emptyMap())[0]);
-        final HttpClient client2 =
-                HttpClient.class.cast(reflectionService.parameterFactory(httpMtd, precomputed).apply(emptyMap())[0]);
+        final HttpClient client1 = HttpClient.class
+                .cast(reflectionService.parameterFactory(httpMtd, precomputed, null).apply(emptyMap())[0]);
+        final HttpClient client2 = HttpClient.class
+                .cast(reflectionService.parameterFactory(httpMtd, precomputed, null).apply(emptyMap())[0]);
         assertNotSame(client1, client2);
         final InvocationHandler handler1 = Proxy.getInvocationHandler(client1);
         final InvocationHandler handler2 = Proxy.getInvocationHandler(client2);
@@ -76,7 +185,7 @@ class ReflectionServiceTest {
             final Object[] params = reflectionService
                     .parameterFactory(
                             MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class),
-                            emptyMap())
+                            emptyMap(), null)
                     .apply(new HashMap<String, String>() {
 
                         {
@@ -93,7 +202,7 @@ class ReflectionServiceTest {
             final Object[] params = reflectionService
                     .parameterFactory(
                             MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class),
-                            emptyMap())
+                            emptyMap(), null)
                     .apply(new HashMap<String, String>() {
 
                         {
@@ -108,7 +217,7 @@ class ReflectionServiceTest {
             final Object[] params = reflectionService
                     .parameterFactory(
                             MethodsHolder.class.getMethod("primitives", String.class, String.class, int.class),
-                            emptyMap())
+                            emptyMap(), null)
                     .apply(new HashMap<String, String>() {
 
                         {
@@ -123,7 +232,7 @@ class ReflectionServiceTest {
     void collection() throws NoSuchMethodException {
         final Object[] params = reflectionService
                 .parameterFactory(MethodsHolder.class.getMethod("collections", List.class, List.class, Map.class),
-                        emptyMap())
+                        emptyMap(), null)
                 .apply(new HashMap<String, String>() {
 
                     {
@@ -151,7 +260,7 @@ class ReflectionServiceTest {
     @Test
     void array() throws NoSuchMethodException {
         final Object[] params = reflectionService
-                .parameterFactory(MethodsHolder.class.getMethod("array", MethodsHolder.Array.class), emptyMap())
+                .parameterFactory(MethodsHolder.class.getMethod("array", MethodsHolder.Array.class), emptyMap(), null)
                 .apply(new HashMap<String, String>() {
 
                     {
@@ -170,7 +279,7 @@ class ReflectionServiceTest {
         final Object[] params =
                 reflectionService
                         .parameterFactory(MethodsHolder.class.getMethod("object", MethodsHolder.Config.class,
-                                MethodsHolder.Config.class), emptyMap())
+                                MethodsHolder.Config.class), emptyMap(), null)
                         .apply(new HashMap<String, String>() {
 
                             {
@@ -204,7 +313,7 @@ class ReflectionServiceTest {
     void nestedObject() throws NoSuchMethodException {
         final Object[] params = reflectionService
                 .parameterFactory(MethodsHolder.class.getMethod("nested", MethodsHolder.ConfigOfConfig.class),
-                        emptyMap())
+                        emptyMap(), null)
                 .apply(new HashMap<String, String>() {
 
                     {
@@ -242,7 +351,7 @@ class ReflectionServiceTest {
     void tables() throws NoSuchMethodException {
         final Method factory = TableOwner.class.getMethod("factory", TableOwner.class);
         final Object[] tests =
-                new ReflectionService(new ParameterModelService()).parameterFactory(factory, emptyMap()).apply(
+                new ReflectionService(new ParameterModelService()).parameterFactory(factory, emptyMap(), null).apply(
                         new HashMap<String, String>() {
 
                             {
@@ -282,6 +391,13 @@ class ReflectionServiceTest {
         }
     }
 
+    private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param)
+            throws NoSuchMethodException {
+        final Constructor<FakeComponent> constructor = FakeComponent.class.getConstructor(param);
+        return reflectionService.parameterFactory(constructor, emptyMap(), parameterModelService
+                .buildParameterMetas(constructor, constructor.getDeclaringClass().getPackage().getName()));
+    }
+
     @Data
     public static class TableOwner {
 
@@ -317,5 +433,86 @@ class ReflectionServiceTest {
 
         @Request
         String get();
+    }
+
+    public static class SomeConfig {
+
+        @Option
+        @Required
+        private String requiredString;
+
+        @Option
+        @Min(5)
+        private int integer;
+
+        void isSet(final String rs, final int i) {
+            assertEquals(requiredString, rs);
+            assertEquals(integer, i);
+        }
+    }
+
+    public static class SomeConfig2 {
+
+        @Option
+        private String someOtherParam;
+
+        @Option
+        @Max(1)
+        private List<String> integers;
+    }
+
+    public static class SomeNestedConfig {
+
+        @Option
+        @Min(6)
+        private String value;
+    }
+
+    public static class SomeConfig3 {
+
+        @Option
+        private String someOtherParam;
+
+        @Option
+        private SomeNestedConfig nested;
+    }
+
+    public static class SomeConfig4 {
+
+        @Option
+        private String someOtherParam;
+
+        @Option
+        private List<SomeNestedConfig> nesteds;
+    }
+
+    public static class SomeConfig5 {
+
+        @Option
+        @Pattern("/^[a-z]+$/")
+        private String regex;
+    }
+
+    public static class FakeComponent {
+
+        public FakeComponent(@Option("root") final SomeConfig config) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final SomeConfig2 config2) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final SomeConfig3 config3) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final SomeConfig4 config4) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final SomeConfig5 config5) {
+            // no-op
+        }
     }
 }

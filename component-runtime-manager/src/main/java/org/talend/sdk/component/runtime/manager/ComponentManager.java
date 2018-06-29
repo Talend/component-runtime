@@ -933,8 +933,8 @@ public class ComponentManager implements AutoCloseable {
     }
 
     private Function<Map<String, String>, Object[]> createParametersFactory(final String plugin,
-            final Executable method, final Map<Class<?>, Object> services) {
-        return executeInContainer(plugin, () -> reflections.parameterFactory(method, services));
+            final Executable method, final Map<Class<?>, Object> services, final List<ParameterMeta> metas) {
+        return executeInContainer(plugin, () -> reflections.parameterFactory(method, services, metas));
     }
 
     public enum ComponentType {
@@ -1231,7 +1231,11 @@ public class ComponentManager implements AutoCloseable {
             }).filter(Objects::nonNull).findFirst().orElse("default");
 
             final Function<Map<String, String>, Object[]> parameterFactory =
-                    createParametersFactory(container.getId(), serviceMethod, services);
+                    /*
+                     * think user flow in a form, we can't validate these actions. Maybe we need to add an API for that
+                     * later
+                     */
+                    createParametersFactory(container.getId(), serviceMethod, services, null);
             final Object actionInstance = Modifier.isStatic(serviceMethod.getModifiers()) ? null : instance;
             final Function<Map<String, String>, Object> invoker = arg -> executeInContainer(container.getId(), () -> {
                 try {
@@ -1349,8 +1353,10 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onPartitionMapper(final Class<?> type, final PartitionMapper partitionMapper) {
             final Constructor<?> constructor = findConstructor(type);
+            final List<ParameterMeta> parameterMetas =
+                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             final Function<Map<String, String>, Object[]> parameterFactory =
-                    createParametersFactory(plugin, constructor, services.getServices());
+                    createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(partitionMapper.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
             final ComponentFamilyMeta component = getOrCreateComponent(partitionMapper.family());
 
@@ -1365,8 +1371,6 @@ public class ComponentManager implements AutoCloseable {
                             : config -> new PartitionMapperImpl(component.getName(), name, null, plugin,
                                     partitionMapper.infinite(), doInvoke(constructor, parameterFactory.apply(config)));
 
-            final List<ParameterMeta> parameterMetas =
-                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             component.getPartitionMappers().put(name,
                     new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
                             type, parameterMetas, instantiator,
@@ -1377,8 +1381,10 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onEmitter(final Class<?> type, final Emitter emitter) {
             final Constructor<?> constructor = findConstructor(type);
+            final List<ParameterMeta> parameterMetas =
+                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             final Function<Map<String, String>, Object[]> parameterFactory =
-                    createParametersFactory(plugin, constructor, services.getServices());
+                    createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(emitter.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
             final ComponentFamilyMeta component = getOrCreateComponent(emitter.family());
             final Function<Map<String, String>, Mapper> instantiator =
@@ -1391,8 +1397,6 @@ public class ComponentManager implements AutoCloseable {
                                                     component.getName(), name), Mapper.class))
                             : config -> new LocalPartitionMapper(component.getName(), name, plugin,
                                     doInvoke(constructor, parameterFactory.apply(config)));
-            final List<ParameterMeta> parameterMetas =
-                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             component.getPartitionMappers().put(name,
                     new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
                             type, parameterMetas, instantiator,
@@ -1403,8 +1407,10 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onProcessor(final Class<?> type, final Processor processor) {
             final Constructor<?> constructor = findConstructor(type);
+            final List<ParameterMeta> parameterMetas =
+                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             final Function<Map<String, String>, Object[]> parameterFactory =
-                    createParametersFactory(plugin, constructor, services.getServices());
+                    createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(processor.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
             final ComponentFamilyMeta component = getOrCreateComponent(processor.family());
             final Function<Map<String, String>, org.talend.sdk.component.runtime.output.Processor> instantiator =
@@ -1420,8 +1426,6 @@ public class ComponentManager implements AutoCloseable {
                                                             org.talend.sdk.component.runtime.output.Processor.class))
                                     : config -> new ProcessorImpl(this.component.getName(), name, plugin,
                                             doInvoke(constructor, parameterFactory.apply(config)));
-            final List<ParameterMeta> parameterMetas =
-                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             component.getProcessors().put(name,
                     new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type), type,
                             parameterMetas, instantiator,

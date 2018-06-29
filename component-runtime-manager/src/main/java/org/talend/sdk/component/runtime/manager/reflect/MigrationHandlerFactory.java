@@ -99,7 +99,8 @@ public class MigrationHandlerFactory {
                         .findFirst())
                 .map(t -> services.getServices().computeIfAbsent(t.getDeclaringClass(), k -> {
                     try {
-                        return t.newInstance(reflections.parameterFactory(t, services.getServices()).apply(emptyMap()));
+                        return t.newInstance(
+                                reflections.parameterFactory(t, services.getServices(), null).apply(emptyMap()));
                     } catch (final InstantiationException | IllegalAccessException e) {
                         throw new IllegalArgumentException(e);
                     } catch (final InvocationTargetException e) {
