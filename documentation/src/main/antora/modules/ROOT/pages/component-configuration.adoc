@@ -138,6 +138,10 @@ include::{partialsdir}/generated_constraints.adoc[]
 
 IMPORTANT: When using the programmatic API, metadata is prefixed by `tcomp::`. This prefix is stripped in the web for convenience, and the table above uses the web keys.
 
+Also note that these validations are executed before the runtime is started
+(when loading the component instance) and that the execution will fail if they don't pass.
+If somehow it breaks your application you can disable that validation on the JVM by setting the system property `talend.component.configuration.validation.skip` to `true`.
+
 == Marking a configuration as a particular type of data
 
 It is common to classify the incoming data. It is similar to tagging data with several types. Data can commonly be categorized as follows:
