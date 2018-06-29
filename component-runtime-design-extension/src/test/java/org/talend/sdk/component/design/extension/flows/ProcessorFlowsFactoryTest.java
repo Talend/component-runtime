@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collection;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
@@ -53,6 +54,15 @@ class ProcessorFlowsFactoryTest {
         assertTrue(outputs.contains("OUTPUT"));
     }
 
+    @Test
+    void testGetMergeOutputFlows() {
+        final ProcessorFlowsFactory factory = new ProcessorFlowsFactory(TestProcessorMergeOutputs.class);
+        final Collection<String> outputs = factory.getOutputFlows();
+        assertEquals(2, outputs.size());
+        assertTrue(outputs.contains("__default__"));
+        assertTrue(outputs.contains("OUTPUT"));
+    }
+
     @Processor
     private static class TestProcessor {
 
@@ -61,6 +71,22 @@ class ProcessorFlowsFactoryTest {
                 @Output final OutputEmitter<OutputData1> output1,
                 @Output("OUTPUT") final OutputEmitter<OutputData2> output2) {
             // no-op
+        }
+
+    }
+
+    @Processor
+    private static class TestProcessorMergeOutputs {
+
+        @ElementListener
+        public void map(@Input final InputData1 input1, @Output final OutputEmitter<OutputData1> output1) {
+            // no-op
+        }
+
+        @AfterGroup
+        public void afterGroup(@Output final OutputEmitter<OutputData1> output1,
+                @Output("OUTPUT") final OutputEmitter<OutputData2> output2) {
+
         }
 
     }
