@@ -87,9 +87,6 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
                     });
                 } else {
                     schema.setTitleMap(emptyList());
-                    if (jsonSchema.getEnumValues() == null) {
-                        jsonSchema.setEnumValues(emptyList());
-                    }
                 }
             }
             return CompletableFuture.completedFuture(context);

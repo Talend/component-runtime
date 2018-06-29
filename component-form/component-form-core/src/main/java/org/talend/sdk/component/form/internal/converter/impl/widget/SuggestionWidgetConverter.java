@@ -47,9 +47,8 @@ public class SuggestionWidgetConverter extends AbstractWidgetConverter {
                 if (jsonSchema.getType() == null) {
                     jsonSchema.setType("string");
                 }
-                if (jsonSchema.getEnumValues() == null) {
-                    jsonSchema.setEnumValues(emptyList());
-                }
+                // avoid to validate against the enum since we don't udpate it at suggestion time
+                jsonSchema.setEnumValues(null);
             }
             return CompletableFuture.completedFuture(context);
         });

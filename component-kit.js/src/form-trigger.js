@@ -38,7 +38,7 @@ function normalizePath(specPath, contextualPathItems) {
 function extractRequestPayload(parameters, properties, schema) {
   const payload = {};
   for (const param of parameters) {
-    const value = get(properties, normalizePath(param.path, schema.key));
+    const value = get(properties, schema && schema.key ? normalizePath(param.path, schema.key) : param.path);
     Object.assign(payload, flatten(value, param.key));
   }
 
