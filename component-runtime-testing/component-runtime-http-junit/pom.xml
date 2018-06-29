@@ -115,8 +115,8 @@
         <artifactId>maven-clean-plugin</artifactId>
         <executions>
           <execution>
-            <id>forced-clean</id>
-            <phase>prepare-package</phase>
+            <id>auto-clean</id><!-- needed for shade plugin -->
+            <phase>initialize</phase>
             <goals>
               <goal>clean</goal>
             </goals>
