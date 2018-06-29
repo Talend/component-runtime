@@ -56,7 +56,7 @@ class ProcessorFlowsFactoryTest {
 
     @Test
     void testGetMergeOutputFlows() {
-        final ProcessorFlowsFactory factory = new ProcessorFlowsFactory(TestProcessor.class);
+        final ProcessorFlowsFactory factory = new ProcessorFlowsFactory(TestProcessorMergeOutputs.class);
         final Collection<String> outputs = factory.getOutputFlows();
         assertEquals(2, outputs.size());
         assertTrue(outputs.contains("__default__"));
@@ -84,7 +84,8 @@ class ProcessorFlowsFactoryTest {
         }
 
         @AfterGroup
-        public void afterGroup(@Output("OUTPUT") final OutputEmitter<OutputData2> output) {
+        public void afterGroup(@Output final OutputEmitter<OutputData1> output1,
+                @Output("OUTPUT") final OutputEmitter<OutputData2> output2) {
 
         }
 
