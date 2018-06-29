@@ -120,18 +120,19 @@
             <goals>
               <goal>clean</goal>
             </goals>
+            <configuration> <!-- ensure shade works even if already done and "clean" is not called -->
+              <excludeDefaultDirectories>true</excludeDefaultDirectories>
+              <filesets>
+                <fileset>
+                  <directory>${project.build.directory}</directory>
+                  <includes>
+                    <include>${project.build.finalName}.${project.packaging}</include>
+                  </includes>
+                </fileset>
+              </filesets>
+            </configuration>
           </execution>
         </executions>
-        <configuration> <!-- ensure shade works even if already done and "clean" is not called -->
-          <filesets>
-            <fileset>
-              <directory>${project.build.directory}</directory>
-              <includes>
-                <include>${project.build.finalName}/${project.packaging}</include>
-              </includes>
-            </fileset>
-          </filesets>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
