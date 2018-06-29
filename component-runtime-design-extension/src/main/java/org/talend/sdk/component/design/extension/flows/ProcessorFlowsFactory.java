@@ -17,12 +17,15 @@ package org.talend.sdk.component.design.extension.flows;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
@@ -54,35 +57,33 @@ class ProcessorFlowsFactory implements FlowsFactory {
     @Override
     public Collection<String> getOutputFlows() {
         Method listener = getListener();
-        return Stream
-                .concat(listener.getReturnType().equals(Void.TYPE) ? Stream.empty()
-                        : Stream.of(Branches.DEFAULT_BRANCH),
-                        Stream.of(listener.getParameters()).filter(p -> p.isAnnotationPresent(Output.class)).map(
-                                p -> p.getAnnotation(Output.class).value()))
-                .collect(toList());
+        return concat(
+                concat(listener.getReturnType().equals(Void.TYPE) ? Stream.empty() : of(Branches.DEFAULT_BRANCH),
+                        of(listener.getParameters()).filter(p -> p.isAnnotationPresent(Output.class)).map(
+                                p -> p.getAnnotation(Output.class).value())),
+                of(type.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).flatMap(
+                        m -> of(m.getParameters()).filter(p -> p.isAnnotationPresent(Output.class)).map(
+                                p -> p.getAnnotation(Output.class).value()))).collect(toList());
     }
 
     /**
      * Returns Processor class method annotated with {@link ElementListener}
-     * 
+     *
      * @return listener method
      */
     private Method getListener() {
-        return Stream
-                .of(type.getMethods())
-                .filter(m -> m.isAnnotationPresent(ElementListener.class))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No @ElementListener method in " + type));
+        return of(type.getMethods()).filter(m -> m.isAnnotationPresent(ElementListener.class)).findFirst().orElseThrow(
+                () -> new IllegalArgumentException("No @ElementListener method in " + type));
     }
 
     /**
      * Returns all {@link ElementListener} method parameters, which are not
      * annotated with {@link Output}
-     * 
+     *
      * @return listener method input parameters
      */
     private Stream<Parameter> getListenerParameters() {
-        return Stream.of(getListener().getParameters()).filter(
-                p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
+        return of(getListener().getParameters())
+                .filter(p -> p.isAnnotationPresent(Input.class) || !p.isAnnotationPresent(Output.class));
     }
 }
