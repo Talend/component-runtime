@@ -1,64 +1,70 @@
-= Installation and usage of Talend Intellij plugin
+= Installing and using the Talend Component Kit IntelliJ plugin
 :page-partial:
 
 [[tutorial-talend-intellij-plugin-usage]]
 
-Talend Intellij plugin is a plugin for the IDE Intellij that add some support to Talend components project.
+The Talend Component Kit IntelliJ plugin is a plugin for the IntelliJ Java IDE. It adds support for the Talend Component Kit project creation.
 
 Main features:
 
-* New project generation support.
-* i18n completion for component configuration.
+* Project generation support.
+* Internationalization completion for component configuration.
 
-== How to install the plugin in Intellij
+== Installing the IntelliJ plugin
 
-In the Intellij IDEA :
+In the Intellij IDEA:
 
-* Go to File -> Settings...
-* On the left panel click on Plugins.
-* Click on Browse repositories...
+. Go to *File* > *Settings...*
+. On the left panel, select *Plugins*.
+. Select *Browse repositories...*
 
 image::intellij/plugin/1-plugins.png[Plugins]
 
-* Type `Talend` in the search field then choose `Talend Component Kit - Intellij Plugin`.
-* Click on the Install button on the right.
+[start=4]
+. Enter `Talend` in the search field and choose `Talend Component Kit - Intellij Plugin`.
+. Select *Install* on the right.
 
 image::intellij/plugin/2-browse-talend.png[Browse talend plugin]
 
-Click on the restart Intellij IDEA button.
+[start=6]
+. Click the *Restart IntelliJ IDEA* button.
 
 image::intellij/plugin/3-restart.png[IDEA restart]
 
-Confirm the IDEA restart to complete the installation.
+[start=7]
+. Confirm the IDEA restart to complete the installation.
 
 image::intellij/plugin/4-restart.png[IDEA restart]
 
-The plugin is now installed into your Intellij IDEA, you can start using it.
+The plugin is now installed on your IntelliJ IDEA. You can start using it.
 
-== How to generate a project using the plugin
-Once the plugin installed, you can generate Talend component project by going to File -> New -> Project.
+== Generating a project using the plugin
+Once the plugin installed, you can generate a component project.
 
-In the New Project wizard choose Talend Component then click Next.
+. Select *File* > *New* > *Project*.
+. In the *New Project* wizard, choose *Talend Component* and click *Next*.
 
 image::intellij/plugin/new-project_1.png[New Talend Project]
 
-The plugin will load the component starter and let you design your components.
-For more information about the component kit starter, you can check xref:tutorial-generate-project-using-starter.adoc[this tutorial]
+The plugin loads the component starter and lets you design your components.
+For more information about the Talend Component Kit starter, check xref:tutorial-generate-project-using-starter.adoc[this tutorial].
 
 image::intellij/plugin/new-project_2.png[New Talend Project]
 
-When you finish designing your project Next then click Finish.
+[start=3]
+. Once your project is configured, select *Next*, then click *Finish*.
 
 image::intellij/plugin/new-project_3.png[New Talend Project]
 
-The project will be automatically imported into the IDEA using the build tool that you have chosen.
+The project is automatically imported into the IDEA using the build tool that you have chosen.
 
-== How the i18n completion works
-This feature offer auto completion for configuration i18n.
-Talend component configuration let you setup translatable, user friendly labels for you configuration using properties file.
-This plugin will provide some completion in those properties file for the configuration keys and default values.
+== About the internationalization completion
 
-Let's say that you have simple configuration class for a basic authentication that you will use in your component.
+The plugin offers auto-completion for the configuration internationalization.
+The Talend component configuration lets you setup translatable and user-friendly labels for your configuration using a property file.
+Auto-completion in possible for the configuration keys and default values in the property file.
+
+For example, you can internationalize a simple configuration class for a basic authentication that you use in your component:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes",]
 ----
@@ -82,19 +88,12 @@ public class BasicAuthConfig implements Serializable {
 }
 ----
 
-This configuration classs contains 3 properties that you may want to attach some user friendly labels to them.
+This configuration class contains three properties which you can attach a user-friendly label to.
 
-For example: You may want the `url` option to have a label like `My awesome server URL`.
+For example, you can define a label like `My server URL` for the `url` option:
 
-For this you will need to create a `Messages.properties` file in the project resources to be able to add your labels.
-
-The plugin will automatically detect you configuration and provide you with keys completion in the properties file.
-
-Click Ctrl+Space to see the keys suggestions.
+. Create a `Messages.properties` file in the project resources and add the label to that file.
+The plugin automatically detects your configuration and provides you with key completion in the property file.
+. Press *Ctrl*+*Space* to see the key suggestions.
 
 image::intellij/plugin/suggestion_1.png[Keys suggestion]
-
-
-
-
-
