@@ -255,6 +255,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("junit-");
             add("junit5-");
             add("jwt");
+            add("jython");
             add("kafka");
             add("kahadb-");
             add("kotlin-runtime");
@@ -341,6 +342,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("reflectasm-");
             add("registry-");
             add("resources.jar");
+            add("rhino");
             add("ribbon");
             add("rmock-");
             add("RoaringBitmap-");
