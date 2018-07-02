@@ -13,6 +13,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-863[TCOMP-863^]: Job DSL doesn't support multiple outputs
 - link:https://jira.talendforge.org/browse/TCOMP-873[TCOMP-873^]: Fix shade junit-http module : remove shaded dependencies from generated artifact
 - link:https://jira.talendforge.org/browse/TCOMP-889[TCOMP-889^]: [form] arrays are lost in trigger paths
+- link:https://jira.talendforge.org/browse/TCOMP-890[TCOMP-890^]: Merge the component outputs (by name) from @AfterGroup and @ElementListener
 - link:https://jira.talendforge.org/browse/TCOMP-893[TCOMP-893^]: Don't log a warning for services when parameters don't have i18n support
 
 
@@ -26,6 +27,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-850[TCOMP-850^]: MavenDecrypter should tolerate ${env.xxx} syntax
 - link:https://jira.talendforge.org/browse/TCOMP-861[TCOMP-861^]: Ensure Car Mojo can be skipped
 - link:https://jira.talendforge.org/browse/TCOMP-887[TCOMP-887^]: [studio] add chunk size advanced common param for processors & output
+- link:https://jira.talendforge.org/browse/TCOMP-892[TCOMP-892^]: Validate runtime configuration before executing the runtime
 
 
 === Work Item
@@ -53,6 +55,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-881[TCOMP-881^]: [dependency upgrade] CXF 3.2.5
 - link:https://jira.talendforge.org/browse/TCOMP-882[TCOMP-882^]: [dependency upgrade] Tomcat 9.0.10
 - link:https://jira.talendforge.org/browse/TCOMP-884[TCOMP-884^]: [dependency upgrade] Upgrade to icon bundle 0.197.0
+- link:https://jira.talendforge.org/browse/TCOMP-894[TCOMP-894^]: [dependency upgrade] Johnzon 1.1.8
 
 
 == Version 1.0.0

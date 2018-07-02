@@ -7,11 +7,15 @@ DOCKER_IMAGE_VERSION="$SERVER_VERSION"
 if [[ "$DOCKER_IMAGE_VERSION" = *"SNAPSHOT" ]]; then
     DOCKER_IMAGE_VERSION=$(echo $SERVER_VERSION | sed "s/-SNAPSHOT//")_$(date +%Y%m%d%I%M%S)
 fi
-IMAGE=$(echo "$DOCKER_LOGIN/component-server:$DOCKER_IMAGE_VERSION")
-DOCKER_TMP_DIR=docker_workdir
+IMAGE=$(echo "${DOCKER_LOGIN:-tacokit}/component-server:$DOCKER_IMAGE_VERSION")
+DOCKER_TMP_DIR=/tmp/docker_workdir
 
 echo "Prebuilding the project"
-mvn clean install -pl component-server-parent/component-server -am -e -q $DEPLOY_OPTS -T2C
+if [ "x${COMPONENT_SERVER_DOCKER_BUILD_ONLY}" != "xtrue" ]; then
+    mvn clean install -pl component-server-parent/component-server -am -e -q -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -T2C
+else
+    echo "Assuming build is done as requested through \$COMPONENT_SERVER_DOCKER_BUILD_ONLY"
+fi
 
 # if we don't set up a custom buildcontext dir the whole project is taken as buildcontext and it makes gigs!
 echo "Setting up buildcontext"
@@ -32,11 +36,15 @@ docker build --tag "$IMAGE" \
   --build-arg DOCKER_IMAGE_VERSION=$DOCKER_IMAGE_VERSION \
   --build-arg KAFKA_CLIENT_VERSION=$KAFKA_VERSION \
   --build-arg BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) . && \
-docker tag "$IMAGE" "$DOCKER_REGISTRY/$IMAGE" || exit 1
+docker tag "$IMAGE" "${DOCKER_REGISTRY:-docker.io}/$IMAGE" || exit 1
 
-echo "Pushing the tag $IMAGE"
-# retry cause if the server has a bad time during the first push
-echo "$DOCKER_PASSWORD" | docker login "$DOCKER_REGISTRY" -u "$DOCKER_LOGIN" --password-stdin
-for i in {1..5}; do
-    docker push "$DOCKER_REGISTRY/$IMAGE" && exit 0
-done
+if [ "x${COMPONENT_SERVER_DOCKER_BUILD_ONLY}" != "xtrue" ]; then
+    echo "Pushing the tag $IMAGE"
+    # retry cause if the server has a bad time during the first push
+    echo "$DOCKER_PASSWORD" | docker login "$DOCKER_REGISTRY" -u "$DOCKER_LOGIN" --password-stdin
+    for i in {1..5}; do
+        docker push "$DOCKER_REGISTRY/$IMAGE" && exit 0
+    done
+else
+    echo "Not pushing the tasg as request through \$COMPONENT_SERVER_DOCKER_BUILD_ONLY"
+fi

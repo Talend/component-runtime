@@ -29,7 +29,7 @@ ADD beam.zip beam.zip
 ADD server.zip server.zip
 
 RUN unzip server.zip && mv component-server-distribution/* . && rm -Rf component-server-distribution server.zip && \
-    unzip beam.zip && mv component-runtime-beam-$SERVER_VERSION/* . && rm -Rf component-runtime-beam-$SERVER_VERSION beam.zip && \
+    unzip beam.zip && mv component-runtime-beam-$SERVER_VERSION/* lib && rm -Rf component-runtime-beam-$SERVER_VERSION beam.zip && \
     mv kafka.jar lib/
 
 COPY conf/log4j2-component-server-*.xml $MEECROWAVE_BASE/conf/
