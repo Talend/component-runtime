@@ -21,10 +21,7 @@
 FROM openjdk:8-jre-alpine
 
 ARG SERVER_VERSION
-ARG ARTIFACT_ID=component-server
-ARG BEAM_ARTIFACT_ID=component-runtime-beam
-ARG BEAM_CLASSIFIER=dependencies
-ARG KAFKA_CLIENT_VERSION=1.1.0
+ARG ARTIFACT_ID=component-starter-server
 ARG CENTRAL=http://repo.apache.maven.org/maven2
 
 MAINTAINER tacokit@talend.com
@@ -32,17 +29,16 @@ MAINTAINER tacokit@talend.com
 ENV LC_ALL en_US.UTF-8
 
 RUN set -xe && \
-    [ "component-server" != "$ARTIFACT_ID" ] || export KAFKA_PGP_KEYS="461D2D1B577F40C58EC2FE060CF65F72E4609424 99369B56 7F1183BD E0A61EEA D0A67B5A AB55EF5C 27A7289E 9054F6FA 3B417B9B 518830CF" && \
     apk add --no-cache gnupg ca-certificates openssl && \
     update-ca-certificates && \
-    for key in E16448E7EC79DD12245C4ADFFA5FA52B5B7B42F0 CF80A055A2AD28E9EFBF942A73129F58DE61ECBD $KAFKA_PGP_KEYS; do \
+    for key in E16448E7EC79DD12245C4ADFFA5FA52B5B7B42F0 CF80A055A2AD28E9EFBF942A73129F58DE61ECBD; do \
         gpg --keyserver keyserver.ubuntu.com --recv-keys $key || \
         gpg --keyserver ha.pool.sks-keyservers.net --recv-keys $key || \
         gpg --keyserver pgp.mit.edu --recv-keys $key || \
         gpg --keyserver keyserver.pgp.com --recv-keys $key; \
     done
 
-ENV MEECROWAVE_BASE /opt/talend/component-kit
+ENV MEECROWAVE_BASE /opt/talend/$ARTIFACT_ID
 RUN mkdir -p $MEECROWAVE_BASE
 WORKDIR $MEECROWAVE_BASE
 
@@ -63,34 +59,6 @@ RUN set -ex && \
     rm -Rf $ARTIFACT_ID-distribution $ARTIFACT_ID.zip* $MEECROWAVE_BASE/conf/log4j2.xml && \
     echo "$GROUP_ID:$ARTIFACT_ID:zip:$SERVER_VERSION" > conf/build.gav && \
     date > conf/build.date
-
-# add beam while we use beam based components
-RUN set -ex && \
-    if [ "component-server" != "$ARTIFACT_ID" ]; then exit 0; fi && \
-    echo "Adding $BEAM_ARTIFACT_ID v$SERVER_VERSION" && \
-    export NEXUS_BASE=${NEXUS_BASE:-https://oss.sonatype.org} && \
-    export GROUP_ID=${GROUP_ID:-org.talend.sdk.component} && \
-    export REPOSITORY=$([[ "${SERVER_VERSION%-SNAPSHOT}" != "$SERVER_VERSION" ]] && echo 'snapshots' || echo 'releases') && \
-    export BEAM_DOWNLOAD_URL="$NEXUS_BASE/service/local/artifact/maven/content?r=$REPOSITORY&g=$GROUP_ID&a=$BEAM_ARTIFACT_ID&v=$SERVER_VERSION&c=$BEAM_CLASSIFIER&e=zip" && \
-    wget $BEAM_DOWNLOAD_URL.asc -O $BEAM_ARTIFACT_ID.zip.asc && \
-    wget $BEAM_DOWNLOAD_URL -O $BEAM_ARTIFACT_ID.zip && \
-    gpg --batch --verify $BEAM_ARTIFACT_ID.zip.asc $BEAM_ARTIFACT_ID.zip && \
-    unzip $BEAM_ARTIFACT_ID.zip && \
-    mv $BEAM_ARTIFACT_ID-$SERVER_VERSION/*.jar $MEECROWAVE_BASE/lib && \
-    rm -Rf $BEAM_ARTIFACT_ID.zip $BEAM_ARTIFACT_ID-$SERVER_VERSION && \
-    echo "$GROUP_ID:$BEAM_ARTIFACT_ID:zip:$SERVER_VERSION" >> conf/build.gav
-
-# download kafka client jar for logs
-RUN set -ex && \
-    if [ "component-server" != "$ARTIFACT_ID" ]; then exit 0; fi && \
-    echo "downloading kafka-clients:"$KAFKA_CLIENT_VERSION".jar" && \
-    export KAFKA_REPO_BASE=${NEXUS_BASE:-http://repo.maven.apache.org/maven2} && \
-    export KAFKA_DOWNLOAD_URL="$KAFKA_REPO_BASE/org/apache/kafka/kafka-clients/$KAFKA_CLIENT_VERSION/kafka-clients-$KAFKA_CLIENT_VERSION.jar" && \
-    wget  $KAFKA_DOWNLOAD_URL.asc -O kafka-clients.jar.asc && \
-    wget  $KAFKA_DOWNLOAD_URL -O kafka-clients-$KAFKA_CLIENT_VERSION.jar && \
-    gpg --batch --verify kafka-clients.jar.asc kafka-clients-$KAFKA_CLIENT_VERSION.jar && \
-    mv kafka-clients-$KAFKA_CLIENT_VERSION.jar $MEECROWAVE_BASE/lib/ && \
-    rm kafka-clients*
 
 COPY conf/log4j2-$ARTIFACT_ID-*.xml $MEECROWAVE_BASE/conf/
 COPY conf/meecrowave.properties $MEECROWAVE_BASE/conf/meecrowave.properties

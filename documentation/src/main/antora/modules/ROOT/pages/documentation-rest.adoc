@@ -401,3 +401,139 @@ More details are available in the link:https://logging.apache.org/log4j/2.x/manu
 TIP: You can compose previous layout (message format) and appenders (where logs are written).
 
 include::server-uispec.adoc[leveloffset=+1]
+
+== Docker
+
+The server image is deployed on Docker. Its version is suffixed with a timestamp to ensure
+images are not overriden and can break your usage. You can check the available version on Docker hub.
+
+
+=== Run
+
+You can run the docker image by executing this command :
+
+[source,sh]
+----
+$ sudo docker run -p 8080:8080 tacokit/component-starter
+----
+
+=== Configure
+
+You can set the env variable `MEECROWAVE_OPTS` to customize the server, by default it is installed in `/opt/talend/component-kit`.
+
+=== Maven repository
+
+The maven repository is the default one of the machine, you can change it setting the system property
+`talend_component_server_maven_repository=/path/to/your/m2`.
+
+==== Deploy components to the server
+
+If you want to deploy some components you can configure which ones in MEECROWAVE_OPTS (see server doc online)
+and redirect your local m2:
+
+[source,sh]
+----
+$ docker run \
+       -p 8080:8080 \
+       -v ~/.m2:/root/.m2 \
+       -e MEECROWAVE_OPTS="-Dtalend.component.server.component.coordinates=g:a:v,g2:a2:v2,..." \
+       component-server
+----
+
+=== Logging
+
+The component server docker image comes with two log4j2 profile `default` and `kafka`.
+The logging profile can be changed by setting the environment variable `TALEND_COMPONENT_LOG4J2_PROFILE` to `kafka`
+the `default` profile is active by default.
+
+==== default profile
+
+The *default* profile has file and console logging capabilities.
+The console logging is off by default and you can activate it by setting `CONSOLE_LOG_LEVEL` environment variable
+to `DEBUG`, `INFO`, `WARN` or any other log level supported by log4j2. In practise and during development you will want
+to see the logs without connecting to the server by activating console logging.
+
+Run docker image with console logging
+
+[source,sh]
+----
+sudo docker run -p 8080:8080 \
+	-e CONSOLE_LOG_LEVEL=INFO \
+	component-server
+----
+
+==== Kafka profile
+
+*Kafka* profile let you send log to Kafka servers. The log are formatted in json and follow the layout defined by Talend
+and described here https://github.com/Talend/daikon/tree/master/daikon-logging/logging-event-layout
+
+This profile require two environment variables
+
+* `LOG_KAFKA_TOPIC` : Kafka topic.
+* `LOG_KAFKA_URL`   : A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
+This list should be in the form `url:port` separated by `,`
+
+Run docker image with kafka profile
+
+[source,sh]
+----
+sudo docker run -p 8080:8080 \
+    -e TALEND_COMPONENT_LOG4J2_PROFILE=kafka \
+    -e LOG_KAFKA_URL=`log kafka url:port` \
+    -e LOG_KAFKA_TOPIC=`log kafka topic` \
+	-e TRACING_KAFKA_URL=`tracing kafka url:port` \
+	-e TRACING_KAFKA_TOPIC=`tracing kafka topic` \
+	tacokit/component-server
+----
+
+*Note* : `LOG_KAFKA_TOPIC` will receive the application and the access logs
+and `TRACING_KAFKA_TOPIC` will receive brave tracing logs.
+
+==== Tracing (Brave Monitoring)
+
+The component server use https://github.com/openzipkin/brave to monitor request.
+
+The tracing can be activated by setting environment variable `TRACING_ON` to `true`.
+
+You can choose the reporter type by setting `talend_component_server_monitoring_brave_reporter_type` environment variable
+to `log` (this is the default value in this docker image) or to `noop`
+which will deactivate the tracing. __Other type of reporter may be added in the future.__
+
+The tracing rate is configurable by setting environment variable `TRACING_SAMPLING_RATE`.
+This is the default sample rate for all the endpoints and has a default value of 0.1
+
+You can define more accurate rate for every component server endpoint using those environment variables :
+
+[options="header,autowidth"]
+|===
+| Environment variable | Endpoint
+| `talend_component_server_monitoring_brave_sampling_environment_rate`          | `/api/v1/environment`
+| `talend_component_server_monitoring_brave_sampling_configurationtype_rate`    | `/api/v1/configurationtype`
+| `talend_component_server_monitoring_brave_sampling_component_rate`            | `/api/v1/component`
+| `talend_component_server_monitoring_brave_sampling_documentation_rate`        | `/api/v1/documentation`
+| `talend_component_server_monitoring_brave_sampling_action_rate`               | `/api/v1/action`
+| `talend_component_server_monitoring_brave_sampling_execution_rate`            | `/api/v1/execution`
+|===
+
+Run docker image with tracing on
+
+[source,sh]
+----
+sudo docker run -p 8080:8080 \
+	-e TRACING_ON=true \
+	-e TRACING_SAMPLING_RATE = 0.1 \
+	tacokit/component-server
+----
+
+=== Build the image yourself
+
+You can build component starter server in docker following those instructions :
+
+[source,sh]
+----
+docker build --build-arg ARTIFACT_ID=component-starter-server \
+             --build-arg SERVER_VERSION=`component starter server version` \
+             --tag tacokit/component-server .
+----
+
+IMPORTANT: this assumes the project is built before you run that command.
