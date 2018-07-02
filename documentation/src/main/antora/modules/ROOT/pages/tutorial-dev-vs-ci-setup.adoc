@@ -146,17 +146,15 @@ image::jenkins/6_jenkins_build_cmd.png[Build Section]
 . Choose your Maven version and enter the Maven build command. In this case: `clean install`. Then, click *Save*.
 +
 image::jenkins/6_jenkins_build_cmd_2.png[Build Section]
-
++
 The `-Dtalend.junit.http.passthrough=true` option is part of the build command.
 This option tells the API simulation proxy to run in `passthrough` mode. This way, all the HTTP requests made in the test are forwarded to the real API server.
-
++
 The `MavenDecrypterRule` rule allows to get the real credentials.
-
++
 TIP: You can configure the *passthrough* mode globally on your CI server by setting the `talend.junit.http.passthrough` environment variable to `true`.
-
-[start="8"]
 . Test the job by selecting *Build now*, and check that the job has built correctly.
-
++
 image::jenkins/7_jenkins_build_result.png[Test the job]
 
 
