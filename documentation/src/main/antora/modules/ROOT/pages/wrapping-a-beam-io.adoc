@@ -4,14 +4,14 @@
 [[wrapping-a-beam-io__start]]
 == Limitations
 
-This part is limited to particular kinds of link:https://beam.apache.org/[Beam] `PTransform`:
+This part is limited to specific kinds of link:https://beam.apache.org/[Beam] `PTransform`:
 
-- the `PTransform<PBegin, PCollection<?>>` for the inputs
-- the `PTransform<PCollection<?>, PDone>` for the outputs. The outputs also must use a single (composite or not) `DoFn` in their `apply` method.
+- `PTransform<PBegin, PCollection<?>>` for inputs.
+- `PTransform<PCollection<?>, PDone>` for outputs. Outputs must use a single (composite or not) `DoFn` in their `apply` method.
 
-== Wrap an input
+== Wrapping an input
 
-Assume you want to wrap an input like this one (based on existing Beam ones):
+To illustrate the input wrapping, this procedure uses the following input as a starting point (based on existing Beam inputs):
 
 [source,java]
 ----
@@ -30,9 +30,7 @@ public abstract [static] class Read extends PTransform<PBegin, PCollection<Strin
 }
 ----
 
-To wrap the Read in a framework component you create a transform delegating to this one with a `@PartitionMapper` annotation
-at least (you likely want to follow the best practices as well adding `@Icon` and `@Version`) and using `@Option` constructor injections
-to configure the component:
+To wrap the `Read` in a framework component, create a transform delegating to that Read with at least a `@PartitionMapper` annotation and using `@Option` constructor injections to configure the component. Also make sure to follow the best practices and to specify `@Icon` and `@Version`.
 
 [source,java]
 ----
@@ -53,9 +51,9 @@ public class WrapRead extends PTransform<PBegin, PCollection<String>> {
 }
 ----
 
-== Wrap an output
+== Wrapping an output
 
-Assume you want to wrap an output like this one (based on existing Beam ones):
+To illustrate the output wrapping, this procedure uses the following output as a starting point (based on existing Beam outputs):
 
 [source,java]
 ----
@@ -75,15 +73,15 @@ public abstract [static] class Write extends PTransform<PCollection<String>, PDo
 }
 ----
 
-You can wrap this output exactly the same way than for the inputs but using `@Processor` this time:
+You can wrap this output exactly the same way you wrap an input, but using `@Processor` instead of:
 
 [source,java]
 ----
-@PartitionMapper(family = "myfamily", name = "myname")
-public class WrapRead extends PTransform<PCollection<String>, PDone> {
+@Processor(family = "myfamily", name = "myname")
+public class WrapWrite extends PTransform<PCollection<String>, PDone> {
   private PTransform<PCollection<String>, PDone> delegate;
 
-  public WrapRead(@Option("dataset") final WrapReadDataSet dataset) {
+  public WrapWrite(@Option("dataset") final WrapWriteDataSet dataset) {
     delegate = TheIO.write().withConfiguration(this.createConfigurationFrom(dataset));
   }
 
@@ -98,8 +96,7 @@ public class WrapRead extends PTransform<PCollection<String>, PDone> {
 
 == Tip
 
-Note that the class `org.talend.sdk.component.runtime.beam.transform.DelegatingTransform` fully delegates
-to another transform the "expansion". Therefore you can extend it and just implement the configuration mapping:
+Note that the `org.talend.sdk.component.runtime.beam.transform.DelegatingTransform` class fully delegates the "expansion" to another transform. Therefore, you can extend it and implement the configuration mapping:
 
 [source,java]
 ----
@@ -116,32 +113,30 @@ public class BeamFileOutput extends DelegatingTransform<PCollection<String>, PDo
 
 == Advanced
 
-In terms of classloading, when you write an IO all the Beam SDK Java core stack is assumed in Talend Component Kit runtime
-as provided so never include it in compile scope - it would be ignored anyway.
+In terms of classloading, when you write an I/O, the Beam SDK Java core stack is assumed as provided in Talend Component Kit runtime. This way, you don't need to include it in the compile scope, it would be ignored anyway.
 
 === Coder
 
-If you need a JSonCoder you can use `org.talend.sdk.component.runtime.beam.factory.service.PluginCoderFactory` service
-which gives you access the JSON-P and JSON-B coders.
+If you need a JSonCoder, you can use the `org.talend.sdk.component.runtime.beam.factory.service.PluginCoderFactory` service,
+which gives you access to the JSON-P and JSON-B coders.
 
-There is also an Avro coder using the `FileContainer` format to ensure it
-is self-contained for `IndexedRecord` and doesn't need - as default Apache Beam `AvroCoder` - to set the
-schema when creating a pipeline. It takes a bit more space and therefore is a bit slower
-but for `DoFn` it is fine since they shouldn't rely on serialization in a lot of cases.
+There is also an Avro coder, which uses the `FileContainer`. It ensures it
+is self-contained for `IndexedRecord` and it does not require—as the default Apache Beam `AvroCoder`—to set the schema when creating a pipeline. +
+It consumes more space and therefore is slightly slower, but it is fine for `DoFn`, since it does not rely on serialization in most cases.
 See `org.talend.sdk.component.runtime.beam.transform.avro.IndexedRecordCoder`.
 
 === JsonObject to IndexedRecord
 
 The mainstream model is `JsonObject` but it is common to have a legacy system using
-`IndexedRecord`. To mitigate the transition you can use the following `PTransforms`:
+`IndexedRecord`. To mitigate the transition, you can use the following `PTransforms`:
 
-- `IndexedRecordToJson`: to convert from an `IndexedRecord` to a `JsonObject`
-- `JsonToIndexedRecord`: to convert from an `JsonObject` to a `IndexedRecord`
+- `IndexedRecordToJson`: to convert an `IndexedRecord` to a `JsonObject`.
+- `JsonToIndexedRecord`: to convert a `JsonObject` to an `IndexedRecord`.
 
 
 === Sample
 
-Here is a sample input based on beam Kafka:
+.Sample input based on Beam Kafka
 
 [source,java]
 ----
@@ -185,7 +180,6 @@ public class KafkaInput extends PTransform<PBegin, PCollection<JsonObject>> { <1
             context.output(toJson(context.element()));
         }
 
-        // todo: we shouldnt be typed string/string so make it evolving
         private JsonObject toJson(final KafkaRecord<byte[], byte[]> element) {
             return builder.createObjectBuilder().add("key", new String(element.getKV().getKey()))
                     .add("value", new String(element.getKV().getValue())).build();
@@ -194,10 +188,8 @@ public class KafkaInput extends PTransform<PBegin, PCollection<JsonObject>> { <1
 }
 ----
 
-<1> the `PTransform` generics define it is an input (`PBegin` marker)
-<2> the `expand` method chains the native IO with a custom mapper (`RecordToJson`)
-<3> the mapper uses the JSON-P coder automatically created from the contextual component
+<1> The `PTransform` generics define that the component is an input (`PBegin` marker).
+<2> The `expand` method chains the native I/O with a custom mapper (`RecordToJson`).
+<3> The mapper uses the JSON-P coder automatically created from the contextual component.
 
-Since the Beam wrapper doesn't respect the standard Kit programming Model (no `@Emitter` for instance)
-you need to set `<talend.validation.component>false</talend.validation.component>` property in your `pom.xml`
-(or equivalent for Gradle) to skip the Kit component programming model validations.
+Because the Beam wrapper does not respect the standard Talend Component Kit programming model ( for example, there is no `@Emitter`), you need to set the `<talend.validation.component>false</talend.validation.component>` property in your `pom.xml` file (or equivalent for Gradle) to skip the component programming model validations of the framework.
