@@ -1,30 +1,26 @@
-= Create components for REST API
+= Creating components for REST API
 :page-partial:
 
 [[tutorial-create-components-rest-api]]
 
-In this tutorial we will show how to create components that consume a REST API.
+This tutorial shows how to create components that consume a REST API.
 
-As an example, we will develop an input component that will provide a search functionality for Zendesk using there
-https://developer.zendesk.com/rest_api/docs/core/search[Search API].
+The component developed as example in this tutorial is an input component that provides a search functionality for Zendesk using its https://developer.zendesk.com/rest_api/docs/core/search[Search API]. +
+https://projectlombok.org/[Lombok] is used to avoid writing getter, setter and constructor methods.
 
-NOTE: We use lombok. to get ride of getters, setters and constructors from our classes.
-
-TIP: You can generate a project using the components kit starter as described in
+You can generate a project using the Talend Components Kit starter, as described in
 xref:tutorial-generate-project-using-starter.adoc[this tutorial].
 
-== Http client setup
-As our input component will relay on Zendesk Search API. We will need an http client to consume it.
+== Setting up the HTTP client
+The input component relies on Zendesk Search API and requires an HTTP client to consume it.
 
-Zendesk Search API takes the following query parameters on this endpoint `/api/v2/search.json`.
+The Zendesk Search API takes the following parameters on the `/api/v2/search.json` endpoint.
 
 * *query*     : The search query.
-* *sort_by*   : One of `updated_at`, `created_at`, `priority`, `status`, or `ticket_type`. Defaults to sorting by `relevance`.
-* *sort_order*: One of `asc` or `desc`. Defaults to `desc`.
+* *sort_by*   : The sorting type of the query result. Possible values are `updated_at`, `created_at`, `priority`, `status`, `ticket_type`, or `relevance`. It defaults to `relevance`.
+* *sort_order*: The sorting order of the query result. Possible values are `asc` (for ascending) or `desc` (for descending). It defaults to `desc`.
 
-So let's create our http client according to that.
-
-Talend component kit provides a built-in service to create an easy to use http client in a declarative manner using java annotations.
+Talend Component Kit provides a built-in service to create an easy-to-use HTTP client in a declarative manner, using Java annotations.
 [source,java,indent=0,subs="verbatim,quotes,attributes",]
 ----
 public interface SearchClient extends HttpClient { <1>
@@ -39,29 +35,27 @@ public interface SearchClient extends HttpClient { <1>
     );
 }
 ----
-<1> Our interface need to extend `org.talend.sdk.component.api.service.http.HttpClient`
-to be known as an http client by the component framework.
-This interface also provides `void base(String base)` method that will let us set the base uri for the http request. In our case, it will be the Zendesk instance url.
-<2> `@Request` annotation let us define two things. the http request path and method (`GET`, `POST`, `PUT`,...).
-<3> At this line we have two important things. The method return type and a header param. At this point we will explain the method return
-that is of type `Response<JsonObject>`. The `Response` object let us access
-to the http response status code, headers, error payload and the response body that will be of type `JsonObject` here.
-The response body will be decoded according to the content type returned by the API. The component framework provides codec for json content.
-If you want to consume specific content type, you will need to provide your personalized codec using the `@Codec` annotation.
-<4> We define the `Authorization` http request header that will let us provide the authorization token.
-<5> We define another http request header to provide the content type.
-<6> We define the query parameters using the `@Query` annotation that will provide the parameter name.
+<1> The interface needs to extend `org.talend.sdk.component.api.service.http.HttpClient` to be recognized as an HTTP client by the component framework.
+This interface also provides the `void base(String base)` method, that allows to set the base URI for the HTTP request. In this tutorial, it is the Zendesk instance URL.
+<2> The `@Request` annotation allows to define the HTTP request path and method (`GET`, `POST`, `PUT`, and so on).
+<3> The method return type and a header parameter are defined. +
+The method return type is a JSON object: `Response<JsonObject>`. The `Response` object allows to access the HTTP response status code, headers, error payload and the response body that are of the `JsonObject` type in this case. +
+The response body is decoded according to the content type returned by the API. The component framework provides the codec to decode JSON content. +
+If you want to consume specific content types, you need to specify your custom codec using the `@Codec` annotation.
+<4> The `Authorization` HTTP request header allows to provide the authorization token.
+<5> Another HTTP request header defined to provide the content type.
+<6> Query parameters are defined using the `@Query` annotation that provides the parameter name.
 
-And that all what we need to do to create our http client. No implementation is needed for the interface,
-as it will be provided by the component framework according to what we have defined.
+No additional implementation is needed for the interface, as it is provided by the component framework, according to what is defined above.
 
-TIP: This http client can be injected into a mapper or a processor to perform http requests.
+TIP: This HTTP client can be injected into a mapper or a processor to perform HTTP requests.
 
-== Component Configuration
-NOTE: For the sake of simplicity, we will use the basic authentication supported by the API.
+== Configuring the component
+This example uses the basic authentication that supported by the API.
 
-Let's start setting up the configuration for the basic authentication.
-To be able to consume the Search API, we will need to provide the Zendesk instance URL, the username and the password.
+=== Configuring basic authentication
+The first step is to set up the configuration for the basic authentication.
+To be able to consume the Search API, the Zendesk instance URL, the username and the password are needed.
 
 [source,java,indent=0,subs="verbatim,quotes,attributes",]
 ----
@@ -97,18 +91,15 @@ public class BasicAuth {
     }
 }
 ----
-<1> As This configuration class provide the authentication information. We can type it as `Datastore`,
-so that it can be validated using services (a kind of _test connection_ feature)
-or used by Talend studio or web application metadata.
-<2> This is the UI layout of this configuration.
-<3> We mark the password as `Credential` to that it can be handled as sensitive data in Talend Studio and web application.
-xref:tutorial-configuration-sensitive-data.adoc[Read more about sensitive data handling].
-<4> This method generate a basic authentication token using the username and the password. This token will be used
-to authenticate our http call to the Search API.
+<1> This configuration class provides the authentication information. Type it as `Datastore` so that it can be validated using services (similar to connection test) and used by Talend Studio or web application metadata.
+<2> `@GridLayout` defines the UI layout of this configuration.
+<3> The password is marked as `Credential` so that it is handled as sensitive data in Talend Studio and web applications. xref:tutorial-configuration-sensitive-data.adoc[Read more about sensitive data handling].
+<4> This method generates a basic authentication token using the username and the password. This token is used to authenticate the HTTP call on the Search API.
 
-Now that we have our data store configuration. that will provide us with the basic authentication token.
-We need to setup our data set configuration.
-i.e the search query that will define the records that our input component will provide.
+The data store is now configured. It provides a basic authentication token.
+
+=== Configuring the dataset
+Once the data store is configured, you can define the dataset by configuring the search query. It is that query that defines the records processed by the input component.
 [source,java,indent=0,subs="verbatim,quotes,attributes",]
 ----
 @Data
@@ -118,7 +109,7 @@ i.e the search query that will define the records that our input component will 
         @GridLayout.Row({ "query" }),
         @GridLayout.Row({ "sortBy", "sortOrder" })
 })
-@Documentation("Data set that define a search query for Zendesk Search API. See api reference https://developer.zendesk.com/rest_api/docs/core/search")
+@Documentation("Data set that defines a search query for Zendesk Search API. See API reference https://developer.zendesk.com/rest_api/docs/core/search")
 public class SearchQuery {
 
     @Option
@@ -141,18 +132,17 @@ public class SearchQuery {
     private final String sortOrder;
 }
 ----
-<1> This mark this configuration class as a `DataSet` type.
-xref:component-configuration.adoc#_marking_a_configuration_as_a_particular_type_of_data [Read more about configuration type].
-<2> The UI layout of this configuration.
-<3> We bind a text area widget to the search query field. xref:gallery.adoc[See all the available widgets].
-<4> Note the usage of `@Documentation` annotation. this annotation let us document our component (configuration in this scope).
-There is a Talend component maven plugin that can be used to generate the component documentation with all the configuration description and the default values.
-<5> Here we give the field a default value.
+<1> The configuration class is marked as a `DataSet`. xref:component-configuration.adoc#_marking_a_configuration_as_a_particular_type_of_data [Read more about configuration types].
+<2> `@GridLayout` defines the UI layout of this configuration.
+<3> A text area widget is bound to the *Search query* field. xref:gallery.adoc[See all the available widgets].
+<4> The `@Documentation` annotation is used to document the component (configuration in this scope).
+A Talend Component Kit Maven plugin can be used to generate the component documentation with all the configuration description and the default values.
+<5> A default value is defined for sorting the query result.
 
-That's all for the configuration part. Let's create the component logic.
+Your component is configured. You can now create the component logic.
 
-== The component mapper
-NOTE: We will not split the http calls on many workers. so our mappers will not implement the split part.
+== Defining the component mapper
+NOTE: Mappers defined with this tutorial don't implement the split part because HTTP calls are not split on many workers in this case.
 [source,java,indent=0,subs="verbatim,quotes,attributes",]
 ----
 @Version
@@ -190,14 +180,14 @@ public class SearchMapper implements Serializable {
     }
 }
 ----
-<1> The component configuration, that will be injected by the component framework
-<2> The http client that we have created above. it will also be injected by the framework via the mapper constructor.
-<3> We setup the base URL of our http client using the configuration url.
-<4> As we will not split the http requests we return this mapper in the split method.
-<5> We create a source that will perform the http request and return the search result.
+<1> The component configuration that is injected by the component framework
+<2> The HTTP client created earlier in this tutorial. It is also injected by the framework via the mapper constructor.
+<3> The base URL of the HTTP client is defined using the configuration URL.
+<4> The mapper is returned in the split method because HTTP requests are not split.
+<5> A source is created to perform the HTTP request and return the search result.
 
-== The component source
-Now we create the source that will perform the http request to the search api and convert the result to JsonObject records.
+== Defining the component source
+Once the component logic implemented, you can create the source in charge of performing the HTTP request to the search API and converting the result to `JsonObject` records.
 [source,java,indent=0,subs="verbatim,quotes,attributes",]
 ----
 public class SearchSource implements Serializable {
@@ -277,16 +267,14 @@ public class SearchSource implements Serializable {
 }
 ----
 <1> The component configuration injected from the component mapper.
-<2> The http client injected from the component mapper.
-<3> A buffer utility that we will use to buffer search result and iterate on theme one by one
-<4> In the init method we initialize our record buffer by providing the logic to iterate on the search result.
-we get the first result page and convert the results to json records. The buffer will retrieve the next result page if needed.
-<5> This method return the next record from the buffer. when no more record is present the buffer return `null`.
-<6> In this method we use the http client to perform the http request to the search api.
-According to the http response status code we get get the results or we throw an error if needed.
-<7> This method let us extract the media type returned by the API.
+<2> The HTTP client injected from the component mapper.
+<3> A utility used to buffer search results and iterate on them one after another.
+<4> The record buffer is initialized with the `init` by providing the logic to iterate on the search result. The logic consists in getting the first result page and converting the result into JSON records. The buffer then retrieves the next result page, if needed, and so on.
+<5> The `next` method returns the next record from the buffer. When there is no record left, the buffer returns `null`.
+<6> In this method, the HTTP client is used to perform the HTTP request to the search API. +
+Depending on the HTTP response status code, the results are retrieved or an error is thrown.
+<7> The `extractMediaType` method allows to extract the media type returned by the API.
 
-That all you will need to do to create a simple Talend component that consume a REST API.
+You now have created a simple Talend component that consumes a REST API.
 
-In a next tutorial, we will show how to test this kind of component and use the component framework API simulation tools
-to create unit tests.
+To learn how to test this component, refer to xref:tutorial-test-rest-api.adoc[this tutorial].
