@@ -84,7 +84,7 @@ public class ServerInfo {
     private SAXParserFactory saxFactory;
 
     @PostConstruct
-    void init() {
+    private void init() {
         saxFactory = SAXParserFactory.newInstance();
         doUpdate(() -> Thread.currentThread().getContextClassLoader().getResourceAsStream(
                 "starter-versions.properties"));
@@ -142,7 +142,7 @@ public class ServerInfo {
 
     // here we grab the starter latest version from central, then we grab the associated version metadata
     // and if we are not up to date we update that
-    void refresh() {
+    private void refresh() {
         final Client client = ClientBuilder.newClient();
         final WebTarget base =
                 client.target("http://repo.maven.apache.org/maven2/org/talend/sdk/component/component-starter-server/");
