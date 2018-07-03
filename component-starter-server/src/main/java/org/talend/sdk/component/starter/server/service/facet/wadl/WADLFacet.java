@@ -17,7 +17,6 @@ package org.talend.sdk.component.starter.server.service.facet.wadl;
 
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.joining;
-import static org.talend.sdk.component.starter.server.Versions.CXF;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,12 +26,14 @@ import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
+import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 
 @ApplicationScoped
 public class WADLFacet implements FacetGenerator {
@@ -40,6 +41,9 @@ public class WADLFacet implements FacetGenerator {
     private String specification;
 
     private Collection<Dependency> dependencies;
+
+    @Inject
+    private ServerInfo versions;
 
     void register(@Observes final GeneratorRegistration init) {
         try (final BufferedReader reader = new BufferedReader(
@@ -50,7 +54,7 @@ public class WADLFacet implements FacetGenerator {
             throw new IllegalStateException(e);
         }
 
-        dependencies = singleton(new Dependency("org.apache.cxf", "cxf-rt-rs-client", CXF, "compile"));
+        dependencies = singleton(new Dependency("org.apache.cxf", "cxf-rt-rs-client", versions.getCxf(), "compile"));
 
         init.registerFacetType(this);
     }
