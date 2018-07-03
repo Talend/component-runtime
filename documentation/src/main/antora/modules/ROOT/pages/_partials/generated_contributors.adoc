@@ -1,7 +1,7 @@
 ++++
 [
   {
-    "commits":1351,
+    "commits":1356,
     "description":"Joined the Apache EE family (TomEE, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
@@ -43,7 +43,7 @@
     "name":"ypiel"
   },
   {
-    "commits":16,
+    "commits":17,
     "description":"",
     "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
     "id":"jmfrancois",
@@ -61,6 +61,13 @@
     "description":"",
     "gravatar":"https://avatars0.githubusercontent.com/u/7744819?v=4",
     "id":"RyanSkraba"
+  },
+  {
+    "commits":2,
+    "description":"",
+    "gravatar":"https://avatars0.githubusercontent.com/u/7931535?v=4",
+    "id":"amaumont",
+    "name":"Axel MAUMONT"
   }
 ]
 ++++
