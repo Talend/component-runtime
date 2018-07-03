@@ -232,6 +232,7 @@ These jars use the following prefix:
 - junit-
 - junit5-
 - jwt
+- jython
 - kafka
 - kahadb-
 - kotlin-runtime
@@ -317,6 +318,7 @@ These jars use the following prefix:
 - reflectasm-
 - registry-
 - resources.jar
+- rhino
 - ribbon
 - rmock-
 - routes-compiler
