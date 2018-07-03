@@ -39,7 +39,7 @@ COPY bin/* $MEECROWAVE_BASE/bin/
 RUN set -ex && \
   sed -i "s/artifactId/component-server/" $MEECROWAVE_BASE/bin/setenv.sh && \
   chmod +x bin/*.sh && \
-  rm -Rf $MEECROWAVE_BASE/conf/log4j2.xml
+  rm $MEECROWAVE_BASE/conf/log4j2.xml
 
 
 # not used cause of licensing
