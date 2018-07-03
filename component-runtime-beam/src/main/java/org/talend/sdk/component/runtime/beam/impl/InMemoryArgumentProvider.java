@@ -100,12 +100,12 @@ public class InMemoryArgumentProvider implements DoFnInvoker.ArgumentProvider {
 
     @Override
     public Instant timestamp(final DoFn doFn) {
-        throw new UnsupportedOperationException("Unsupported");
+        return Instant.now();
     }
 
     @Override
     public TimeDomain timeDomain(final DoFn doFn) {
-        throw new UnsupportedOperationException("Unsupported");
+        return TimeDomain.PROCESSING_TIME;
     }
 
     @Override
