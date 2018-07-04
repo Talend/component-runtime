@@ -891,11 +891,11 @@
   <repositories>
     <repository>
       <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
     <repository>
       <id>TalendOpenSourceSnapshot</id>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
@@ -938,11 +938,11 @@
   <pluginRepositories>
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </pluginRepository>
     <pluginRepository>
       <id>TalendOpenSourceSnapshot</id>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
