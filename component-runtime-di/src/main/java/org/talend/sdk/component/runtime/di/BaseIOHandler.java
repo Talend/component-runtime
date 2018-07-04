@@ -60,8 +60,8 @@ public abstract class BaseIOHandler {
         connections.values().forEach(IO::reset);
     }
 
-    public <T> T getValue(final String connectorName, final Class<T> type) {
-        return type.cast(connections.get(connectorName).next());
+    public <T> T getValue(final String connectorName) {
+        return (T) connections.get(connectorName).next();
     }
 
     public boolean hasMoreData() {
@@ -89,14 +89,10 @@ public abstract class BaseIOHandler {
 
         T next() {
             if (hasNext()) {
-                return values.poll();
-            } else {
-                try {
-                    return type.getConstructor().newInstance();
-                } catch (final Exception e) {
-                    throw new IllegalStateException("Can't create an instance of " + type, e);
-                }
+                return type.cast(values.poll());
             }
+
+            return null;
         }
 
         void add(final T e) {
