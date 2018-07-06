@@ -68,7 +68,7 @@ spec:
     stage('Run maven') {
       steps {
         container('maven') {
-          sh 'mvn clean install -T1C'
+          sh 'mvn clean install'
         }
       }
     }
