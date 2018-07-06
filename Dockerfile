@@ -49,6 +49,7 @@ FROM openjdk:8-jre-alpine
 ARG SERVER_VERSION
 ARG KAFKA_CLIENT_VERSION
 ARG BUILD_DATE
+ARG DOCKER_IMAGE_VERSION
 
 LABEL com.talend.maintainer="Talend <support@talend.com>" \
       com.talend.build-date="$BUILD_DATE" \
