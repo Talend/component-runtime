@@ -38,7 +38,7 @@
     <dependency> <!-- avoid windows bugs so let's control this version -->
       <groupId>org.jruby</groupId>
       <artifactId>jruby-complete</artifactId>
-      <version>9.1.14.0</version>
+      <version>${jruby.version}</version>
     </dependency>
     <dependency>
       <groupId>org.asciidoctor</groupId>

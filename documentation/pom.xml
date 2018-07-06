@@ -44,7 +44,6 @@
     <!-- alpha-16 in mvn, alpha.16 in gem -->
     <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
     <jsoup.version>1.11.2</jsoup.version>
-    <jruby.version>9.1.14.0</jruby.version>
   </properties>
 
   <dependencies>
