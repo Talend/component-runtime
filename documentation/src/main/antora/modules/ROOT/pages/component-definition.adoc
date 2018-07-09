@@ -107,6 +107,7 @@ image:worker-processing-workflow.png[]
 
 NOTE: The framework is designed to be as declarative as possible but also to stay extensible by not using fixed interfaces or method signatures. This allows to incrementally add new features of the underlying implementations.
 
+[[partition-mapper]]
 == PartitionMapper
 
 A `PartitionMapper` is a component able to split itself to make the execution more efficient.
