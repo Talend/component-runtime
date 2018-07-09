@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -38,7 +38,7 @@
     <dependency> <!-- avoid windows bugs so let's control this version -->
       <groupId>org.jruby</groupId>
       <artifactId>jruby-complete</artifactId>
-      <version>9.1.14.0</version>
+      <version>${jruby.version}</version>
     </dependency>
     <dependency>
       <groupId>org.asciidoctor</groupId>

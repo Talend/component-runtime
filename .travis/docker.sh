@@ -2,7 +2,7 @@
 
 KAFKA_VERSION=1.1.0
 SERVER_VERSION=$(grep "<version>" pom.xml  | head -n 1 | sed "s/.*>\\(.*\\)<.*/\\1/")
-DOCKER_IMAGE_VERSION="$SERVER_VERSION"
+DOCKER_IMAGE_VERSION=${DOCKER_IMAGE_VERSION:-$SERVER_VERSION}
 # if snapshot use the date as version
 if [[ "$DOCKER_IMAGE_VERSION" = *"SNAPSHOT" ]]; then
     DOCKER_IMAGE_VERSION=$(echo $SERVER_VERSION | sed "s/-SNAPSHOT//")_$(date +%Y%m%d%I%M%S)

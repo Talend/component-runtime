@@ -44,7 +44,7 @@ public class ContainerTest {
 
     @Test
     void lastTimestamp(
-            @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.8:runtime") final Container container) {
+            @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.9:runtime") final Container container) {
         final Date lastModifiedTimestamp = container.getLastModifiedTimestamp();
         assertTrue(lastModifiedTimestamp.getTime() > new Date(0).getTime());
         assertTrue(lastModifiedTimestamp.compareTo(container.getCreated()) <= 0);
@@ -52,8 +52,8 @@ public class ContainerTest {
 
     @Test
     void findDependencies(
-            @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.8:runtime") final Container xbeanFinder) {
-        assertEquals(singletonList("org.apache.xbean:xbean-finder:jar:4.8"),
+            @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.9:runtime") final Container xbeanFinder) {
+        assertEquals(singletonList("org.apache.xbean:xbean-finder:jar:4.9"),
                 xbeanFinder.findDependencies().map(Artifact::toCoordinate).collect(toList()));
     }
 
@@ -83,7 +83,7 @@ public class ContainerTest {
 
     @Test
     void proxying(
-            @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.8:runtime") final Container xbeanFinder) {
+            @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.9:runtime") final Container xbeanFinder) {
         final Supplier<Filter> supplier = () -> xbeanFinder.executeAndContextualize(() -> {
             try {
                 return Thread

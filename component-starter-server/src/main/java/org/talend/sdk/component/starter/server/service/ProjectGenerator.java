@@ -43,7 +43,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.service.build.BuildGenerator;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
@@ -52,6 +51,7 @@ import org.talend.sdk.component.starter.server.service.event.CreateProject;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.component.ComponentGenerator;
+import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 import lombok.Getter;
@@ -79,6 +79,9 @@ public class ProjectGenerator {
 
     @Inject
     private TemplateRenderer tpl;
+
+    @Inject
+    private ServerInfo versions;
 
     private List<String> scopesOrdering;
 
@@ -120,8 +123,9 @@ public class ProjectGenerator {
             return o1.getArtifact().compareTo(o2.getArtifact());
         });
         // force component-api and force it first
-        dependencies.remove(Dependency.componentApi());
-        dependencies.add(0, Dependency.componentApi());
+        final Dependency componentApi = Dependency.componentApi(versions.getApiKit());
+        dependencies.remove(componentApi);
+        dependencies.add(0, componentApi);
 
         // create the build to be able to generate the files
         final Build build =
@@ -161,8 +165,8 @@ public class ProjectGenerator {
             }
             return s1;
         }).filter(s -> !s.isEmpty()).ifPresent(scope -> {
-            dependencies.add(
-                    new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", Versions.LOG4J2_VERSION, scope));
+            dependencies
+                    .add(new Dependency("org.apache.logging.log4j", "log4j-slf4j-impl", versions.getLog4j2(), scope));
             files.put(
                     ("test".equals(scope) ? build.getTestResourcesDirectory() : build.getMainResourcesDirectory())
                             + "/log4j2.xml",

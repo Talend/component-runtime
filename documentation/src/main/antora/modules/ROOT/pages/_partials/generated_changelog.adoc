@@ -1,5 +1,17 @@
 
 
+== Version 1.0.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-899[TCOMP-899^]: Update Beam 2.5.0 compatibility
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-898[TCOMP-898^]: Ensure starter will be able to auto update its versions to avoid redeployments
+
+
 == Version 1.0.1
 
 === Bug
@@ -54,8 +66,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-880[TCOMP-880^]: [dependency upgrade] Maven 3.5.4
 - link:https://jira.talendforge.org/browse/TCOMP-881[TCOMP-881^]: [dependency upgrade] CXF 3.2.5
 - link:https://jira.talendforge.org/browse/TCOMP-882[TCOMP-882^]: [dependency upgrade] Tomcat 9.0.10
+- link:https://jira.talendforge.org/browse/TCOMP-883[TCOMP-883^]: [dependency upgrade] Beam 2.5.0
 - link:https://jira.talendforge.org/browse/TCOMP-884[TCOMP-884^]: [dependency upgrade] Upgrade to icon bundle 0.197.0
 - link:https://jira.talendforge.org/browse/TCOMP-894[TCOMP-894^]: [dependency upgrade] Johnzon 1.1.8
+- link:https://jira.talendforge.org/browse/TCOMP-895[TCOMP-895^]: [dependency upgrade] xbean 4.9
 
 
 == Version 1.0.0

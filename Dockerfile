@@ -36,7 +36,11 @@ COPY conf/log4j2-component-server-*.xml $MEECROWAVE_BASE/conf/
 COPY conf/meecrowave.properties $MEECROWAVE_BASE/conf/meecrowave.properties
 COPY bin/* $MEECROWAVE_BASE/bin/
 
-RUN set -ex && sed -i "s/artifactId/component-server/" $MEECROWAVE_BASE/bin/setenv.sh && chmod +x bin/*.sh
+RUN set -ex && \
+  sed -i "s/artifactId/component-server/" $MEECROWAVE_BASE/bin/setenv.sh && \
+  chmod +x bin/*.sh && \
+  rm $MEECROWAVE_BASE/conf/log4j2.xml
+
 
 # not used cause of licensing
 # FROM anapsix/alpine-java:8_server-jre_unlimited
@@ -45,6 +49,7 @@ FROM openjdk:8-jre-alpine
 ARG SERVER_VERSION
 ARG KAFKA_CLIENT_VERSION
 ARG BUILD_DATE
+ARG DOCKER_IMAGE_VERSION
 
 LABEL com.talend.maintainer="Talend <support@talend.com>" \
       com.talend.build-date="$BUILD_DATE" \

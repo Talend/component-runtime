@@ -17,7 +17,6 @@ package org.talend.sdk.component.starter.server.service.build;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static org.talend.sdk.component.starter.server.Versions.CXF;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +28,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.service.Resources;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
@@ -37,6 +35,7 @@ import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
+import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 import lombok.Data;
@@ -46,6 +45,9 @@ public class GradleBuildGenerator implements BuildGenerator {
 
     @Inject
     private TemplateRenderer tpl;
+
+    @Inject
+    private ServerInfo versions;
 
     void register(@Observes final GeneratorRegistration init) {
         init.registerBuildType("Gradle", this);
@@ -63,7 +65,7 @@ public class GradleBuildGenerator implements BuildGenerator {
         final Set<String> javaMainSourceSets = new TreeSet<>();
 
         if (facets.contains(WADLFacet.Constants.NAME)) {
-            buildDependencies.add("org.apache.cxf:cxf-tools-wadlto-jaxrs:" + CXF);
+            buildDependencies.add("org.apache.cxf:cxf-tools-wadlto-jaxrs:" + versions.getCxf());
             imports.add("org.apache.cxf.tools.common.ToolContext");
             imports.add("org.apache.cxf.tools.wadlto.WADLToJava");
 
@@ -77,7 +79,7 @@ public class GradleBuildGenerator implements BuildGenerator {
             javaMainSourceSets.add("project.tasks.compileJava.dependsOn project.tasks.generateWadlClient");
         }
 
-        final GradleBuild model = new GradleBuild(Versions.KIT, buildConfiguration,
+        final GradleBuild model = new GradleBuild(versions.getKit(), buildConfiguration,
                 dependencies
                         .stream()
                         .map(d -> "test".equals(d.getScope()) ? new Dependency(d, "testCompile") : d)

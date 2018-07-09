@@ -63,4 +63,12 @@ public class StarterConfiguration {
     @ConfigProperty(name = "talend.component.starter.security.csp",
             defaultValue = "default-src 'self' data: ; frame-ancestors 'none'")
     private String csp;
+
+    @Inject
+    @ConfigProperty(name = "talend.component.starter.autorefresh.active", defaultValue = "true")
+    private Boolean autoRefresh;
+
+    @Inject
+    @ConfigProperty(name = "talend.component.starter.autorefresh.delayMs", defaultValue = "60000")
+    private Long refreshDelayMs;
 }

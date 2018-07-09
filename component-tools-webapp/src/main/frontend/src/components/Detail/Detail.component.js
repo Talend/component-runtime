@@ -16,6 +16,7 @@
 
 import React from 'react';
 import { Inject } from '@talend/react-cmf';
+import kit from 'component-kit.js';
 
 function NoSelectedComponent() {
 	return (

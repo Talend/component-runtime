@@ -40,7 +40,7 @@
 *** xref:documentation.adoc#_dependencies[Dependencies]
 **** xref:documentation.adoc#_creating_a_nested_maven_repository_with_maven_shade_plugin[Creating a nested Maven repository with maven-shade-plugin]
 *** xref:documentation.adoc#_listing_needed_plugins[Listing needed plugins]
-*** xref:documentation.adoc#_code_maven_shade_plugin_code_extensions[<code>maven-shade-plugin</code> extensions]
+*** xref:documentation.adoc#_maven_shade_plugin_extensions[<code>maven-shade-plugin</code> extensions]
 **** xref:documentation.adoc#_containerdependenciestransformer[ContainerDependenciesTransformer]
 **** xref:documentation.adoc#_plugintransformer[PluginTransformer]
 ** xref:documentation.adoc#_component_scanning_rules_and_default_exclusions[Component scanning rules and default exclusions]
@@ -73,12 +73,12 @@
 * xref:documentation.adoc#_services_and_interceptors[Services and interceptors]
 * xref:documentation.adoc#_creating_a_job_pipeline[Creating a job pipeline]
 ** xref:documentation.adoc#_job_builder[Job Builder]
-*** xref:documentation.adoc#_environment_runner[Environment/Runner]
+*** xref:documentation.adoc#_environmentrunner[Environment/Runner]
 *** xref:documentation.adoc#_key_provider[Key Provider]
 ** xref:documentation.adoc#_beam_case[Beam case]
 *** xref:documentation.adoc#_inputs_and_outputs[Inputs and Outputs]
 *** xref:documentation.adoc#_processors[Processors]
-*** xref:documentation.adoc#_converting_a_beam_io_into_a_component_i_o[Converting a Beam.io into a component I/O]
+*** xref:documentation.adoc#_converting_a_beam_io_into_a_component_io[Converting a Beam.io into a component I/O]
 * xref:documentation.adoc#_advanced_defining_a_custom_api[Advanced: defining a custom API]
 ** xref:documentation.adoc#_extending_the_ui[Extending the UI]
 
@@ -114,7 +114,7 @@
 ** xref:documentation.adoc#_provided_environments[Provided environments]
 ** xref:documentation.adoc#_configuring_environments[Configuring environments]
 *** xref:documentation.adoc#_advanced_usage[Advanced usage]
-* xref:documentation.adoc#_secrets_passwords_and_maven[Secrets/Passwords and Maven]
+* xref:documentation.adoc#_secretspasswords_and_maven[Secrets/Passwords and Maven]
 * xref:documentation.adoc#_generating_data[Generating data]
 
 .Tutorials

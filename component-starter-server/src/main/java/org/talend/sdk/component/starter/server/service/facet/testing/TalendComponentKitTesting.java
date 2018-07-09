@@ -31,17 +31,17 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.util.NameConventions;
+import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 @ApplicationScoped
-public class TalendComponentKitTesting implements FacetGenerator, Versions {
+public class TalendComponentKitTesting implements FacetGenerator {
 
     @Inject
     private TemplateRenderer tpl;
@@ -49,12 +49,15 @@ public class TalendComponentKitTesting implements FacetGenerator, Versions {
     @Inject
     private NameConventions names;
 
+    @Inject
+    private ServerInfo versions;
+
     private Collection<Dependency> dependencies;
 
     void register(@Observes final GeneratorRegistration init) {
         init.registerFacetType(this);
         dependencies = asList(Dependency.junit(),
-                new Dependency("org.talend.sdk.component", "component-runtime-junit", KIT, "test"));
+                new Dependency("org.talend.sdk.component", "component-runtime-junit", versions.getKit(), "test"));
     }
 
     @Override

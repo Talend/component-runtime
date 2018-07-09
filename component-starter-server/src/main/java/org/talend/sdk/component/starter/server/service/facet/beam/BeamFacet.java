@@ -32,17 +32,17 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.util.NameConventions;
+import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 @ApplicationScoped
-public class BeamFacet implements FacetGenerator, Versions {
+public class BeamFacet implements FacetGenerator {
 
     @Inject
     private TemplateRenderer tpl;
@@ -50,16 +50,19 @@ public class BeamFacet implements FacetGenerator, Versions {
     @Inject
     private NameConventions names;
 
+    @Inject
+    private ServerInfo versions;
+
     private List<Dependency> dependencies;
 
     void register(@Observes final GeneratorRegistration init) {
         init.registerFacetType(this);
         dependencies = asList(Dependency.junit(),
-                new Dependency("org.talend.sdk.component", "component-runtime-beam", KIT, "test"),
-                new Dependency("org.talend.sdk.component", "component-runtime-junit", KIT, "test"),
-                new Dependency("org.talend.sdk.component", "component-runtime-beam-junit", KIT, "test"),
+                new Dependency("org.talend.sdk.component", "component-runtime-beam", versions.getKit(), "test"),
+                new Dependency("org.talend.sdk.component", "component-runtime-junit", versions.getKit(), "test"),
+                new Dependency("org.talend.sdk.component", "component-runtime-beam-junit", versions.getKit(), "test"),
                 new Dependency("org.hamcrest", "hamcrest-all", "1.3", "test"),
-                new Dependency("org.apache.beam", "beam-runners-direct-java", BEAM, "test"));
+                new Dependency("org.apache.beam", "beam-runners-direct-java", versions.getBeam(), "test"));
     }
 
     @Override

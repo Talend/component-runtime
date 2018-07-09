@@ -1,14 +1,14 @@
 ++++
 [
   {
-    "commits":1347,
+    "commits":1368,
     "description":"Joined the Apache EE family (TomEE, Johnzon, BatchEE...) in 2011.\r\nMy goal is to make development a detail of an idea becoming reality.\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars0.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":235,
+    "commits":236,
     "description":"I am a software developer at @Talend\r\nFor my personal projects you can check them @khabali \n\nBlog: https://khabali.github.io",
     "gravatar":"https://avatars3.githubusercontent.com/u/25590305?v=4",
     "id":"akhabali",
@@ -22,7 +22,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":39,
+    "commits":46,
     "description":"",
     "gravatar":"https://avatars1.githubusercontent.com/u/39913705?v=4",
     "id":"florentlb",
@@ -43,7 +43,7 @@
     "name":"ypiel"
   },
   {
-    "commits":16,
+    "commits":17,
     "description":"",
     "gravatar":"https://avatars2.githubusercontent.com/u/19857479?v=4",
     "id":"jmfrancois",
@@ -55,6 +55,13 @@
     "gravatar":"https://avatars2.githubusercontent.com/u/10761073?v=4",
     "id":"jsomsanith",
     "name":"Jimmy Somsanith"
+  },
+  {
+    "commits":3,
+    "description":"",
+    "gravatar":"https://avatars0.githubusercontent.com/u/7931535?v=4",
+    "id":"amaumont",
+    "name":"Axel MAUMONT"
   },
   {
     "commits":2,

@@ -31,7 +31,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.talend.sdk.component.starter.server.Versions;
 import org.talend.sdk.component.starter.server.service.Resources;
 import org.talend.sdk.component.starter.server.service.domain.Build;
 import org.talend.sdk.component.starter.server.service.domain.Dependency;
@@ -39,6 +38,7 @@ import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;
 import org.talend.sdk.component.starter.server.service.event.GeneratorRegistration;
 import org.talend.sdk.component.starter.server.service.facet.FacetGenerator;
 import org.talend.sdk.component.starter.server.service.facet.wadl.WADLFacet;
+import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 import org.talend.sdk.component.starter.server.service.template.TemplateRenderer;
 
 import lombok.Data;
@@ -48,6 +48,9 @@ public class MavenBuildGenerator implements BuildGenerator {
 
     @Inject
     private TemplateRenderer renderer;
+
+    @Inject
+    private ServerInfo versions;
 
     private Map<String, Collection<Plugin>> plugins;
 
@@ -66,7 +69,7 @@ public class MavenBuildGenerator implements BuildGenerator {
                 renderer.render("generator/maven/pom.xml",
                         new Pom(buildConfiguration, dependencies,
                                 createPlugins(facets, packageBase, plugins.get(buildConfiguration.getPackaging())),
-                                Versions.KIT)),
+                                versions.getKit())),
                 "target", generateWrapperFiles());
     }
 
@@ -74,8 +77,8 @@ public class MavenBuildGenerator implements BuildGenerator {
             final Collection<Plugin> plugins) {
         final Collection<Plugin> buildPlugins = new ArrayList<>(plugins);
 
-        buildPlugins.add(new Plugin("org.apache.maven.plugins", "maven-surefire-plugin", Versions.SUREFIRE, emptySet(),
-                new LinkedHashMap<String, String>() {
+        buildPlugins.add(new Plugin("org.apache.maven.plugins", "maven-surefire-plugin", versions.getSurefire(),
+                emptySet(), new LinkedHashMap<String, String>() {
 
                     {
                         put("trimStackTrace", "false");
@@ -84,7 +87,7 @@ public class MavenBuildGenerator implements BuildGenerator {
                 }.entrySet()));
 
         if (facets.contains(WADLFacet.Constants.NAME)) {
-            buildPlugins.add(new Plugin("org.apache.cxf", "cxf-wadl2java-plugin", Versions.CXF,
+            buildPlugins.add(new Plugin("org.apache.cxf", "cxf-wadl2java-plugin", versions.getCxf(),
                     singleton(new Execution("generate-http-client-from-wadl", "generate-sources", "wadl2java")),
                     new LinkedHashMap<String, String>() {
 
