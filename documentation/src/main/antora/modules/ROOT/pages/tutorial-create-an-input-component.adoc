@@ -117,7 +117,7 @@ public class HazelcastMapper implements Serializable {
 - Other parameters are considered as services and are injected by the component framework. Services can be local (classes annotated with `@Service`) or provided by the component framework.
 <5> The method annotated with `@PostConstruct` is executed once on the driver node in a distributed environment and can be used for initialization.
 Here, the goal is to get the Hazelcast instance according to the provided configuration.
-<6> The method annotated with `@PreDestroy` is used to clean resources at the end of the execution of the partition mapper.
+<6> The method annotated with `@PreDestroy` is used to clean resources at the end of the execution of the partition mapper. +
 In the context of this tutorial, the Hazelcast instance loaded in the post Construct method is shut down.
 <7> The method annotated with `@Assessor` is responsible for calculating the size of  the dataset containing the Hazelcast members.
 <8> The method annotated with `@Split` is responsible for splitting this mapper according to the bundle size requested by the runner and to the hole dataset size.
@@ -529,4 +529,4 @@ In this case, the Hazelcast instance created in the post construct method is shu
 
 To learn more about producers, refer to xref:component-definition.adoc#_producer[this document].
 
-You have now created a complete working input. You can follow  xref:tutorial-test-your-components.adoc[this tutorial] to learn how to create unit tests for your new component.
+You have now created a complete working input component. You can follow  xref:tutorial-test-your-components.adoc[this tutorial] to learn how to create unit tests for your new component.
