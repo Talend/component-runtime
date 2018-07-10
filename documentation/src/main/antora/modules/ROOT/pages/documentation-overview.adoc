@@ -12,11 +12,11 @@ If you don't know about Talend Component Kit, you can get started by going throu
   <<getting-started.adoc#getting-started-introducing-talend-component, Overview>> |
   <<getting-started.adoc#getting-started-system-requirements, Requirements>>
 * *Step-by-step tutorial:*
-  <<getting-started.adoc#getting-started-first-quick-start, Code>>
+  <<getting-started.adoc#getting-started-principles, Code>>
 
 //== Learning about Talend Component features
 
 * *Learning about core features:*
-  <<documentation.adoc#_components_definitions, Overview>>
+  <<component-definition.adoc#, Overview>>
 * *Advanced:*
-  <<documentation-testing.adoc, Testing>>
+  <<documentation-testing.adoc#, Testing>>

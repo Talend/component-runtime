@@ -1,7 +1,7 @@
 = Registering components
 :page-partial:
 
-As you may have read in the <<getting-started.adoc#getting-started-first-quick-start, Getting Started>>, you need an annotation to register your component through the `family` method. Multiple components can use the same `family` value but the `family` + `name` pair must be unique for the system.
+As you may have read in the <<getting-started.adoc#getting-started-principles, Getting Started>>, you need an annotation to register your component through the `family` method. Multiple components can use the same `family` value but the `family` + `name` pair must be unique for the system.
 
 In order to share the same component family name and to avoid repetitions in all `family` methods,
 you can use the `@Components` annotation on the root package of your component. It allows you to define the component family and the categories the component belongs to (`Misc` by default if not set).
