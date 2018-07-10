@@ -16,8 +16,6 @@
 package org.talend.sdk.component.runtime.beam.transform.avro;
 
 import javax.json.JsonObject;
-import javax.json.JsonWriterFactory;
-import javax.json.spi.JsonProvider;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
@@ -27,7 +25,6 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.talend.sdk.component.runtime.manager.ComponentManager;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -39,9 +36,7 @@ public class JsonToIndexedRecord extends PTransform<PCollection<JsonObject>, PCo
 
     @Override
     public PCollection<IndexedRecord> expand(final PCollection<JsonObject> input) {
-        final ComponentManager manager = ComponentManager.instance();
-        return input.apply("IndexedRecordToJson",
-                ParDo.of(new Fn(manager.getJsonpWriterFactory(), manager.getJsonpProvider(), outputSchema.toString())));
+        return input.apply("JsonToIndexedRecord", ParDo.of(new Fn(outputSchema.toString())));
     }
 
     @Override
@@ -51,10 +46,6 @@ public class JsonToIndexedRecord extends PTransform<PCollection<JsonObject>, PCo
 
     @RequiredArgsConstructor
     public static class Fn extends DoFn<JsonObject, IndexedRecord> {
-
-        private final JsonWriterFactory factory;
-
-        private final JsonProvider provider;
 
         private final String schemaJson;
 

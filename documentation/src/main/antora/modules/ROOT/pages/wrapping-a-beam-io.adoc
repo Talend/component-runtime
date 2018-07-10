@@ -132,6 +132,7 @@ The mainstream model is `JsonObject` but it is common to have a legacy system us
 
 - `IndexedRecordToJson`: to convert an `IndexedRecord` to a `JsonObject`.
 - `JsonToIndexedRecord`: to convert a `JsonObject` to an `IndexedRecord`.
+- `SchemalessJsonToIndexedRecord`: to convert a `JsonObject` to an `IndexedRecord` with AVRO schema inference.
 
 
 === Sample
