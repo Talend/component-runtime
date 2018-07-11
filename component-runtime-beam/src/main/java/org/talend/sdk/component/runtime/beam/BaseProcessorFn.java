@@ -35,32 +35,79 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.serialization.ContainerFinder;
+import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
-abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
+abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
 
     protected Processor processor;
+
+    @Setter
+    protected int maxBatchSize = 1000;
+
+    protected int currentCount = 0;
+
+    protected volatile JsonBuilderFactory factory;
+
+    protected volatile Jsonb jsonb;
 
     BaseProcessorFn(final Processor processor) {
         this.processor = processor;
     }
+
+    protected abstract Consumer<JsonObject> toEmitter(ProcessContext context);
+
+    protected abstract OutputFactory getFinishBundleOutputFactory(FinishBundleContext context);
 
     @Setup
     public void setup() throws Exception {
         processor.start();
     }
 
-    @StartBundle
-    public void startBundle(final StartBundleContext context) throws Exception {
-        processor.beforeGroup();
+    @ProcessElement
+    public void processElement(final ProcessContext context) {
+        ensureInit();
+        if (currentCount == 0) {
+            processor.beforeGroup();
+        }
+        final BeamOutputFactory output = new BeamOutputFactory(toEmitter(context), factory, jsonb);
+        processor.onNext(new BeamInputFactory(context), output);
+        output.postProcessing();
+        currentCount++;
+        if (maxBatchSize > 0 && currentCount >= maxBatchSize) {
+            currentCount = 0;
+            processor.afterGroup(output);
+        }
+    }
+
+    @FinishBundle
+    public void finishBundle(final FinishBundleContext context) {
+        if (currentCount > 0) {
+            ensureInit();
+            processor.afterGroup(getFinishBundleOutputFactory(context));
+        }
     }
 
     @Teardown
-    public void tearDown() throws Exception {
+    public void tearDown() {
         processor.stop();
+    }
+
+    private void ensureInit() {
+        if (factory == null) {
+            synchronized (this) {
+                if (factory == null) {
+                    final LightContainer container = ContainerFinder.Instance.get().find(processor.plugin());
+                    factory = container.findService(JsonBuilderFactory.class);
+                    jsonb = container.findService(Jsonb.class);
+                }
+            }
+        }
     }
 
     protected static final class BeamInputFactory implements InputFactory {

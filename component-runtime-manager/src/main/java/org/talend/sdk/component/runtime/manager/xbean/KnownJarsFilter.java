@@ -112,6 +112,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("component-api");
             add("component-form");
             add("component-runtime");
+            add("components-adapter-beam");
             add("components-api");
             add("components-common");
             add("component-server");
@@ -204,6 +205,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("idb-");
             add("idea_rt.jar");
             add("instrumentation-api");
+            add("ion-java");
             add("isoparser-");
             add("istack-commons-runtime-");
             add("ivy-");
@@ -318,6 +320,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("minlog");
             add("mockito-core");
             add("mqtt-client-");
+            add("multitenant-core");
             add("multiverse-core-");
             add("mx4j-");
             add("myfaces-");
@@ -433,8 +436,10 @@ public class KnownJarsFilter implements Predicate<String> {
             add("tachyon-");
             add("tagsoup-");
             add("talend-icon");
+            add("test-agent");
             add("test-interface");
             add("testng-");
+            add("threetenbp");
             add("tika-");
             add("tomcat");
             add("tomee-");
@@ -444,9 +449,10 @@ public class KnownJarsFilter implements Predicate<String> {
             add("tyrex");
             add("uncommons");
             add("unused");
+            add("util");
             add("validation-api-");
             add("velocity-");
-            add("wadou-");
+            add("wandou");
             add("wagon-");
             add("webbeans-");
             add("websocket");

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 
@@ -45,9 +44,9 @@ import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 import org.talend.sdk.component.runtime.beam.coder.NoCheckpointCoder;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
-import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -121,7 +120,9 @@ public final class TalendIO {
         }
     }
 
-    public static class Write extends Base<PCollection<JsonObject>, PDone, Processor> {
+    public static class Write extends Base<PCollection<JsonObject>, PDone, Processor> implements TalendProcessor {
+
+        private int maxBatchSize;
 
         private Write(final Processor delegate) {
             super(delegate);
@@ -129,47 +130,38 @@ public final class TalendIO {
 
         @Override
         public PDone expand(final PCollection<JsonObject> incoming) {
-            incoming.apply(ParDo.of(new WriteFn(delegate)));
+            final WriteFn fn = new WriteFn(delegate);
+            if (maxBatchSize > 0) {
+                fn.setMaxBatchSize(maxBatchSize);
+            }
+            incoming.apply(ParDo.of(fn));
             return PDone.in(incoming.getPipeline());
+        }
+
+        @Override
+        public void setMaxBatchSize(final int max) {
+            maxBatchSize = max;
         }
     }
 
     @NoArgsConstructor
-    private static class WriteFn extends BaseProcessorFn<JsonObject, Void> {
+    private static class WriteFn extends BaseProcessorFn<Void> {
 
         private static final Consumer<JsonObject> NOOP_CONSUMER = record -> {
         };
-
-        private volatile JsonBuilderFactory factory;
-
-        private volatile Jsonb jsonb;
 
         WriteFn(final Processor processor) {
             super(processor);
         }
 
-        @ProcessElement
-        public void processElement(final ProcessContext context) throws Exception {
-            ensureInit();
-            processor.onNext(new BeamInputFactory(context), new BeamOutputFactory(NOOP_CONSUMER, factory, jsonb));
+        @Override
+        protected Consumer<JsonObject> toEmitter(final ProcessContext context) {
+            return NOOP_CONSUMER;
         }
 
-        @FinishBundle
-        public void finishBundle(final FinishBundleContext context) throws Exception {
-            ensureInit();
-            processor.afterGroup(new BeamOutputFactory(NOOP_CONSUMER, factory, jsonb));
-        }
-
-        private void ensureInit() {
-            if (factory == null) {
-                synchronized (this) {
-                    if (factory == null) {
-                        final LightContainer container = ContainerFinder.Instance.get().find(processor.plugin());
-                        factory = container.findService(JsonBuilderFactory.class);
-                        jsonb = container.findService(Jsonb.class);
-                    }
-                }
-            }
+        @Override
+        protected OutputFactory getFinishBundleOutputFactory(final FinishBundleContext context) {
+            return new BeamOutputFactory(NOOP_CONSUMER, factory, jsonb);
         }
     }
 
@@ -181,18 +173,17 @@ public final class TalendIO {
 
         @Override
         public List<? extends BoundedSource<JsonObject>> split(final long desiredBundleSizeBytes,
-                final PipelineOptions options) throws Exception {
+                final PipelineOptions options) {
             mapper.start();
             try {
-                return mapper.split(desiredBundleSizeBytes).stream().map(i -> new BoundedSourceImpl(i)).collect(
-                        toList());
+                return mapper.split(desiredBundleSizeBytes).stream().map(BoundedSourceImpl::new).collect(toList());
             } finally {
                 mapper.stop();
             }
         }
 
         @Override
-        public long getEstimatedSizeBytes(final PipelineOptions options) throws Exception {
+        public long getEstimatedSizeBytes(final PipelineOptions options) {
             mapper.start();
             try {
                 return mapper.assess();
@@ -202,7 +193,7 @@ public final class TalendIO {
         }
 
         @Override
-        public BoundedReader<JsonObject> createReader(final PipelineOptions options) throws IOException {
+        public BoundedReader<JsonObject> createReader(final PipelineOptions options) {
             mapper.start();
             try {
                 return new BoundedReaderImpl<>(this, mapper.create());
@@ -233,7 +224,7 @@ public final class TalendIO {
                 split(final int desiredNumSplits, final PipelineOptions options) {
             mapper.start();
             try {
-                return mapper.split(desiredNumSplits).stream().map(i -> new UnBoundedSourceImpl(i)).collect(toList());
+                return mapper.split(desiredNumSplits).stream().map(UnBoundedSourceImpl::new).collect(toList());
             } finally {
                 mapper.stop();
             }
@@ -241,7 +232,7 @@ public final class TalendIO {
 
         @Override
         public UnboundedReader<JsonObject> createReader(final PipelineOptions options,
-                final UnboundedSource.CheckpointMark checkpointMark) throws IOException {
+                final UnboundedSource.CheckpointMark checkpointMark) {
             return new UnBoundedReaderImpl<>(this, mapper.create());
         }
 
@@ -278,7 +269,7 @@ public final class TalendIO {
         }
 
         @Override
-        public boolean advance() throws IOException {
+        public boolean advance() {
             final Object next = input.next();
             if (next != null && !JsonObject.class.isInstance(next)) {
                 if (jsonb == null) {
@@ -301,7 +292,7 @@ public final class TalendIO {
         }
 
         @Override
-        public void close() throws IOException {
+        public void close() {
             input.stop();
         }
 
@@ -327,7 +318,7 @@ public final class TalendIO {
         }
 
         @Override
-        public boolean start() throws IOException {
+        public boolean start() {
             input.start();
             return advance();
         }
@@ -356,7 +347,7 @@ public final class TalendIO {
         }
 
         @Override
-        public void close() throws IOException {
+        public void close() {
             input.stop();
         }
 
