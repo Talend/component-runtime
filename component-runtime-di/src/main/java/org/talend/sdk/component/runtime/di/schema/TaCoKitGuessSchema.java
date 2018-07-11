@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toMap;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -402,14 +403,18 @@ public class TaCoKitGuessSchema {
         }
     }
 
-    private String getTalendType(final JsonValue value) {
+    protected String getTalendType(final JsonValue value) {
         switch (value.getValueType()) {
         case TRUE:
         case FALSE:
             return javaTypesManager.BOOLEAN.getId();
         case NUMBER:
-            if (JsonNumber.class.cast(value).isIntegral()) {
+            final Number number = JsonNumber.class.cast(value).numberValue();
+            if (Long.class.isInstance(number)) {
                 return javaTypesManager.LONG.getId();
+            }
+            if (BigDecimal.class.isInstance(number)) {
+                return javaTypesManager.BIGDECIMAL.getId();
             } else {
                 return javaTypesManager.DOUBLE.getId();
             }
