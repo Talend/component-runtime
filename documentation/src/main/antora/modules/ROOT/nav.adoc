@@ -1,6 +1,6 @@
 .Programming Model
 * xref:documentation.adoc#_component_definition[Component definition]
-** xref:documentation.adoc#_partitionmapper[PartitionMapper]
+** xref:documentation.adoc#partition-mapper[PartitionMapper]
 *** xref:documentation.adoc#_definition[Definition]
 **** xref:documentation.adoc#_assessor[@Assessor]
 **** xref:documentation.adoc#_split[@Split]
@@ -27,7 +27,7 @@
 * xref:documentation.adoc#_registering_components[Registering components]
 ** xref:documentation.adoc#_components_metadata[Components metadata]
 *** xref:documentation.adoc#_managing_version_configuration[Managing version configuration]
-*** xref:documentation.adoc#_partitionmapper_2[@PartitionMapper]
+*** xref:documentation.adoc#_partitionmapper[@PartitionMapper]
 **** xref:documentation.adoc#_emitter_2[@Emitter]
 *** xref:documentation.adoc#_processor_2[@Processor]
 * xref:documentation.adoc#_component_internationalization[Component internationalization]

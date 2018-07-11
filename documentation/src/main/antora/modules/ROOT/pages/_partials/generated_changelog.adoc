@@ -10,6 +10,8 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-898[TCOMP-898^]: Ensure starter will be able to auto update its versions to avoid redeployments
+- link:https://jira.talendforge.org/browse/TCOMP-905[TCOMP-905^]: Enrich scanning exclusion set
+- link:https://jira.talendforge.org/browse/TCOMP-906[TCOMP-906^]: Minimalist JsonObject to IndexeredRecord utilities for beam
 
 
 == Version 1.0.1
