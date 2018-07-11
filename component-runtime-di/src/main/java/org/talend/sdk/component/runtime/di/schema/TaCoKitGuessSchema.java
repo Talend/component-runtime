@@ -86,8 +86,8 @@ public class TaCoKitGuessSchema {
 
     private static final String EMPTY = ""; //$NON-NLS-1$
 
-    public TaCoKitGuessSchema(final PrintStream out, final Map<String, String> configuration, final String plugin, final String family,
-            final String componentName, final String action) {
+    public TaCoKitGuessSchema(final PrintStream out, final Map<String, String> configuration, final String plugin,
+            final String family, final String componentName, final String action) {
         this.out = out;
         this.lineLimit = 50;
         this.lineCount = -1;
