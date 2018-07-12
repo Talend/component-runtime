@@ -26,7 +26,6 @@ import org.apache.beam.sdk.transforms.windowing.GlobalWindow;
 import org.apache.beam.sdk.values.PCollection;
 import org.joda.time.Instant;
 import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
-import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.NoArgsConstructor;
@@ -54,8 +53,8 @@ public final class TalendFn {
         }
 
         @Override
-        protected OutputFactory getFinishBundleOutputFactory(final FinishBundleContext context) {
-            return new BeamOutputFactory(record -> context.output(record, Instant.now(), GlobalWindow.INSTANCE),
+        protected BeamOutputFactory getFinishBundleOutputFactory(final FinishBundleContext context) {
+            return new BeamMultiOutputFactory(record -> context.output(record, Instant.now(), GlobalWindow.INSTANCE),
                     factory, jsonb);
         }
     }

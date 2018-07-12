@@ -18,11 +18,14 @@ package org.talend.sdk.component.runtime.beam;
 import static java.util.Collections.emptyIterator;
 import static java.util.stream.Collectors.toMap;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
@@ -62,7 +65,7 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
 
     protected abstract Consumer<JsonObject> toEmitter(ProcessContext context);
 
-    protected abstract OutputFactory getFinishBundleOutputFactory(FinishBundleContext context);
+    protected abstract BeamOutputFactory getFinishBundleOutputFactory(FinishBundleContext context);
 
     @Setup
     public void setup() throws Exception {
@@ -75,13 +78,15 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
         if (currentCount == 0) {
             processor.beforeGroup();
         }
-        final BeamOutputFactory output = new BeamOutputFactory(toEmitter(context), factory, jsonb);
+        final BeamOutputFactory output = new BeamSingleOutputFactory(toEmitter(context), factory, jsonb);
         processor.onNext(new BeamInputFactory(context), output);
         output.postProcessing();
         currentCount++;
         if (maxBatchSize > 0 && currentCount >= maxBatchSize) {
             currentCount = 0;
+            final BeamOutputFactory ago = new BeamMultiOutputFactory(toEmitter(context), factory, jsonb);
             processor.afterGroup(output);
+            ago.postProcessing();
         }
     }
 
@@ -89,7 +94,10 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
     public void finishBundle(final FinishBundleContext context) {
         if (currentCount > 0) {
             ensureInit();
-            processor.afterGroup(getFinishBundleOutputFactory(context));
+            currentCount = 0;
+            final BeamOutputFactory output = getFinishBundleOutputFactory(context);
+            processor.afterGroup(output);
+            output.postProcessing();
         }
     }
 
@@ -127,13 +135,13 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
     }
 
     @RequiredArgsConstructor
-    protected static final class BeamOutputFactory implements OutputFactory {
+    protected static abstract class BeamOutputFactory implements OutputFactory {
 
-        private final Consumer<JsonObject> emit;
+        protected final Consumer<JsonObject> emit;
 
-        private final JsonBuilderFactory factory;
+        protected final JsonBuilderFactory factory;
 
-        private final Jsonb jsonb;
+        protected final Jsonb jsonb;
 
         private Map<String, JsonArrayBuilder> outputs = new HashMap<>();
 
@@ -142,6 +150,24 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
             return new BeamOutputEmitter(outputs.computeIfAbsent(name, k -> factory.createArrayBuilder()), jsonb);
         }
 
+        public abstract void postProcessing();
+    }
+
+    protected static final class BeamSingleOutputFactory extends BeamOutputFactory {
+
+        private Map<String, JsonArrayBuilder> outputs = new HashMap<>();
+
+        protected BeamSingleOutputFactory(final Consumer<JsonObject> emit, final JsonBuilderFactory factory,
+                final Jsonb jsonb) {
+            super(emit, factory, jsonb);
+        }
+
+        @Override
+        public OutputEmitter create(final String name) {
+            return new BeamOutputEmitter(outputs.computeIfAbsent(name, k -> factory.createArrayBuilder()), jsonb);
+        }
+
+        @Override
         public void postProcessing() {
             if (!outputs.isEmpty()) {
                 emit.accept(outputs
@@ -150,6 +176,40 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
                         .collect(factory::createObjectBuilder, (a, o) -> a.add(o.getKey(), o.getValue()),
                                 JsonObjectBuilder::addAll)
                         .build());
+            }
+        }
+    }
+
+    protected static final class BeamMultiOutputFactory extends BeamOutputFactory {
+
+        private final Collection<JsonObject> outputs = new ArrayList<>();
+
+        protected BeamMultiOutputFactory(final Consumer<JsonObject> emit, final JsonBuilderFactory factory,
+                final Jsonb jsonb) {
+            super(emit, factory, jsonb);
+        }
+
+        @Override
+        public OutputEmitter create(final String name) {
+            return value -> {
+                final JsonArrayBuilder values = factory.createArrayBuilder();
+                new BeamOutputEmitter(values, jsonb) {
+
+                    @Override
+                    public void emit(final Object value) {
+                        super.emit(value);
+                        final JsonArray array = values.build();
+                        if (!array.isEmpty()) {
+                            outputs.add(factory.createObjectBuilder().add(name, array).build());
+                        }
+                    }
+                }.emit(value);
+            };
+        }
+
+        public void postProcessing() {
+            if (!outputs.isEmpty()) {
+                outputs.forEach(emit::accept);
             }
         }
     }
@@ -163,8 +223,15 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
 
         @Override
         public void emit(final Object value) {
-            builder.add(JsonObject.class.isInstance(value) ? JsonObject.class.cast(value)
-                    : jsonb.fromJson(jsonb.toJson(value), JsonObject.class));
+            if (value == null) {
+                return;
+            }
+            builder.add(toJson(value));
+        }
+
+        private JsonObject toJson(final Object value) {
+            return JsonObject.class.isInstance(value) ? JsonObject.class.cast(value)
+                    : jsonb.fromJson(jsonb.toJson(value), JsonObject.class);
         }
     }
 }

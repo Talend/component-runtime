@@ -39,12 +39,12 @@ import org.apache.beam.sdk.values.PDone;
 import org.apache.beam.sdk.values.PInput;
 import org.apache.beam.sdk.values.POutput;
 import org.joda.time.Instant;
+import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 import org.talend.sdk.component.runtime.beam.coder.NoCheckpointCoder;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
-import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 
@@ -150,6 +150,23 @@ public final class TalendIO {
         private static final Consumer<JsonObject> NOOP_CONSUMER = record -> {
         };
 
+        private static final OutputEmitter NOOP_OUTPUT_EMITTER = value -> {
+            // no-op
+        };
+
+        private static final BeamOutputFactory NOOP_OUTPUT_FACTORY = new BeamOutputFactory(null, null, null) {
+
+            @Override
+            public OutputEmitter create(final String name) {
+                return NOOP_OUTPUT_EMITTER;
+            }
+
+            @Override
+            public void postProcessing() {
+                // no-op
+            }
+        };
+
         WriteFn(final Processor processor) {
             super(processor);
         }
@@ -160,8 +177,8 @@ public final class TalendIO {
         }
 
         @Override
-        protected OutputFactory getFinishBundleOutputFactory(final FinishBundleContext context) {
-            return new BeamOutputFactory(NOOP_CONSUMER, factory, jsonb);
+        protected BeamOutputFactory getFinishBundleOutputFactory(final FinishBundleContext context) {
+            return NOOP_OUTPUT_FACTORY;
         }
     }
 
