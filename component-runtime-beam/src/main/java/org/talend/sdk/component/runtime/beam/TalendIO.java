@@ -120,9 +120,7 @@ public final class TalendIO {
         }
     }
 
-    public static class Write extends Base<PCollection<JsonObject>, PDone, Processor> implements TalendProcessor {
-
-        private int maxBatchSize;
+    public static class Write extends Base<PCollection<JsonObject>, PDone, Processor> {
 
         private Write(final Processor delegate) {
             super(delegate);
@@ -131,16 +129,8 @@ public final class TalendIO {
         @Override
         public PDone expand(final PCollection<JsonObject> incoming) {
             final WriteFn fn = new WriteFn(delegate);
-            if (maxBatchSize > 0) {
-                fn.setMaxBatchSize(maxBatchSize);
-            }
             incoming.apply(ParDo.of(fn));
             return PDone.in(incoming.getPipeline());
-        }
-
-        @Override
-        public void setMaxBatchSize(final int max) {
-            maxBatchSize = max;
         }
     }
 

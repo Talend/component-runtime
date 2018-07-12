@@ -59,8 +59,7 @@ public final class TalendFn {
         }
     }
 
-    private static class ProcessorTransform extends PTransform<PCollection<JsonObject>, PCollection<JsonObject>>
-            implements TalendProcessor {
+    private static class ProcessorTransform extends PTransform<PCollection<JsonObject>, PCollection<JsonObject>> {
 
         private final ProcessorFn fn;
 
@@ -76,11 +75,6 @@ public final class TalendFn {
         @Override
         protected Coder<?> getDefaultOutputCoder() {
             return JsonpJsonObjectCoder.of(fn.processor.plugin());
-        }
-
-        @Override
-        public void setMaxBatchSize(final int max) {
-            fn.setMaxBatchSize(max);
         }
     }
 }

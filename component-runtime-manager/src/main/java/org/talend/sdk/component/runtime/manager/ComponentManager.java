@@ -50,6 +50,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -1416,15 +1417,22 @@ public class ComponentManager implements AutoCloseable {
             final Function<Map<String, String>, org.talend.sdk.component.runtime.output.Processor> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(
                             org.talend.sdk.component.runtime.output.Processor.class)
-                                    ? config -> executeInContainer(plugin,
-                                            () -> context
-                                                    .getOwningExtension()
-                                                    .convert(
-                                                            new ComponentInstanceImpl(doInvoke(constructor,
-                                                                    parameterFactory.apply(config)), plugin,
-                                                                    component.getName(), name),
-                                                            org.talend.sdk.component.runtime.output.Processor.class))
+                                    ? config -> executeInContainer(
+                                            plugin,
+                                            () -> context.getOwningExtension().convert(
+                                                    new ComponentInstanceImpl(
+                                                            doInvoke(constructor, parameterFactory.apply(config)),
+                                                            plugin, component.getName(), name),
+                                                    org.talend.sdk.component.runtime.output.Processor.class))
                                     : config -> new ProcessorImpl(this.component.getName(), name, plugin,
+                                            ofNullable(config)
+                                                    .map(it -> it
+                                                            .entrySet()
+                                                            .stream()
+                                                            .filter(e -> e.getKey().startsWith("$")
+                                                                    || e.getKey().contains(".$"))
+                                                            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)))
+                                                    .orElseGet(Collections::emptyMap),
                                             doInvoke(constructor, parameterFactory.apply(config)));
             component.getProcessors().put(name,
                     new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type), type,

@@ -4,8 +4,15 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-888[TCOMP-888^]: Designer pipeline records counter are wrong for tacokit components with multiples outputs
 - link:https://jira.talendforge.org/browse/TCOMP-899[TCOMP-899^]: Update Beam 2.5.0 compatibility
+- link:https://jira.talendforge.org/browse/TCOMP-903[TCOMP-903^]: [tacokit studio integration] - Guess schema - better handling of number types recognition 
 - link:https://jira.talendforge.org/browse/TCOMP-904[TCOMP-904^]: [tacokit studio integration] - fix job classpath generation 
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-900[TCOMP-900^]: [tacokit studio integration] - Handle conditional outputs
 
 
 === Work Item

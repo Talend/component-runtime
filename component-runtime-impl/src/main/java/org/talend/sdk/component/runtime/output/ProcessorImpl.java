@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -66,12 +67,20 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     private boolean forwardReturn;
 
-    public ProcessorImpl(final String rootName, final String name, final String plugin, final Serializable delegate) {
+    private Map<String, String> internalConfiguration;
+
+    public ProcessorImpl(final String rootName, final String name, final String plugin,
+            final Map<String, String> internalConfiguration, final Serializable delegate) {
         super(delegate, rootName, name, plugin);
+        this.internalConfiguration = internalConfiguration;
     }
 
     protected ProcessorImpl() {
         // no-op
+    }
+
+    public Map<String, String> getInternalConfiguration() {
+        return ofNullable(internalConfiguration).orElseGet(Collections::emptyMap);
     }
 
     @Override
@@ -174,7 +183,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     }
 
     Object writeReplace() throws ObjectStreamException {
-        return new SerializationReplacer(plugin(), rootName(), name(), serializeDelegate());
+        return new SerializationReplacer(plugin(), rootName(), name(), internalConfiguration, serializeDelegate());
     }
 
     protected static Serializable loadDelegate(final byte[] value, final String plugin)
@@ -194,11 +203,13 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
         private final String name;
 
+        private final Map<String, String> internalConfiguration;
+
         private final byte[] value;
 
         Object readResolve() throws ObjectStreamException {
             try {
-                return new ProcessorImpl(component, name, plugin, loadDelegate(value, plugin));
+                return new ProcessorImpl(component, name, plugin, internalConfiguration, loadDelegate(value, plugin));
             } catch (final IOException | ClassNotFoundException e) {
                 throw new InvalidObjectException(e.getMessage());
             }

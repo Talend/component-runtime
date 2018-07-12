@@ -38,13 +38,16 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor
 abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
 
@@ -61,6 +64,23 @@ abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
 
     BaseProcessorFn(final Processor processor) {
         this.processor = processor;
+        if (ProcessorImpl.class.isInstance(processor)) {
+            ProcessorImpl.class
+                    .cast(processor)
+                    .getInternalConfiguration()
+                    .entrySet()
+                    .stream()
+                    .filter(it -> it.getKey().endsWith("$maxBatchSize") && it.getValue() != null
+                            && !it.getValue().trim().isEmpty())
+                    .findFirst()
+                    .ifPresent(val -> {
+                        try {
+                            maxBatchSize = Integer.parseInt(val.getValue().trim());
+                        } catch (final NumberFormatException nfe) {
+                            log.warn("Invalid configuratoin: " + val);
+                        }
+                    });
+        }
     }
 
     protected abstract Consumer<JsonObject> toEmitter(ProcessContext context);
