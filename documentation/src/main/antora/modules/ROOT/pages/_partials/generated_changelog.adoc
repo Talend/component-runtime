@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-899[TCOMP-899^]: Update Beam 2.5.0 compatibility
+- link:https://jira.talendforge.org/browse/TCOMP-904[TCOMP-904^]: [tacokit studio integration] - fix job classpath generation 
 
 
 === Work Item
@@ -12,6 +13,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-898[TCOMP-898^]: Ensure starter will be able to auto update its versions to avoid redeployments
 - link:https://jira.talendforge.org/browse/TCOMP-905[TCOMP-905^]: Enrich scanning exclusion set
 - link:https://jira.talendforge.org/browse/TCOMP-906[TCOMP-906^]: Minimalist JsonObject to IndexeredRecord utilities for beam
+- link:https://jira.talendforge.org/browse/TCOMP-907[TCOMP-907^]: Support maxBatchSize as in the studio in Beam
 
 
 == Version 1.0.1
