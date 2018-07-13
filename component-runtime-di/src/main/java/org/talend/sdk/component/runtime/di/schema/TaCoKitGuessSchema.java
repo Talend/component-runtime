@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toMap;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
@@ -66,8 +68,6 @@ public class TaCoKitGuessSchema {
 
     private Map<Class, JavaType> class2JavaTypeMap;
 
-    private Map<String, Object> globalMap = null;
-
     private Set<String> keysNoTypeYet;
 
     private final int lineLimit;
@@ -86,14 +86,12 @@ public class TaCoKitGuessSchema {
 
     private static final String EMPTY = ""; //$NON-NLS-1$
 
-    public TaCoKitGuessSchema(final PrintStream out, final Map<String, Object> globalMap,
-            final Map<String, String> configuration, final String plugin, final String family,
-            final String componentName, final String action) {
+    public TaCoKitGuessSchema(final PrintStream out, final Map<String, String> configuration, final String plugin,
+            final String family, final String componentName, final String action) {
         this.out = out;
         this.lineLimit = 50;
         this.lineCount = -1;
         this.componentManager = ComponentManager.instance();
-        this.globalMap = globalMap;
         this.configuration = configuration;
         this.plugin = plugin;
         this.family = family;
@@ -378,7 +376,7 @@ public class TaCoKitGuessSchema {
             if (result == null) {
                 continue;
             }
-            String type = null;
+            String type;
             if (isJsonObject) {
                 // can't judge by the result variable, since common map may contains JsonValue
                 type = getTalendType((JsonValue) result);
@@ -405,13 +403,21 @@ public class TaCoKitGuessSchema {
         }
     }
 
-    private String getTalendType(final JsonValue value) {
+    protected String getTalendType(final JsonValue value) {
         switch (value.getValueType()) {
         case TRUE:
         case FALSE:
             return javaTypesManager.BOOLEAN.getId();
         case NUMBER:
-            return javaTypesManager.DOUBLE.getId();
+            final Number number = JsonNumber.class.cast(value).numberValue();
+            if (Long.class.isInstance(number)) {
+                return javaTypesManager.LONG.getId();
+            }
+            if (BigDecimal.class.isInstance(number)) {
+                return javaTypesManager.BIGDECIMAL.getId();
+            } else {
+                return javaTypesManager.DOUBLE.getId();
+            }
         case STRING:
             return javaTypesManager.STRING.getId();
         case NULL:

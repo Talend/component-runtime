@@ -15,11 +15,10 @@
  */
 package org.talend.sdk.component.runtime.beam;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
+import java.util.function.Consumer;
 
-import org.apache.beam.sdk.coders.CannotProvideCoderException;
+import javax.json.JsonObject;
+
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -28,8 +27,6 @@ import org.apache.beam.sdk.values.PCollection;
 import org.joda.time.Instant;
 import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 import org.talend.sdk.component.runtime.output.Processor;
-import org.talend.sdk.component.runtime.serialization.ContainerFinder;
-import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.NoArgsConstructor;
 
@@ -44,41 +41,21 @@ public final class TalendFn {
     }
 
     @NoArgsConstructor
-    private static class ProcessorFn extends BaseProcessorFn<JsonObject, JsonObject> {
-
-        private volatile JsonBuilderFactory factory;
-
-        private volatile Jsonb jsonb;
+    private static class ProcessorFn extends BaseProcessorFn<JsonObject> {
 
         ProcessorFn(final Processor processor) {
             super(processor);
         }
 
-        @ProcessElement
-        public void processElement(final ProcessContext context) throws Exception {
-            ensureInit();
-            final BeamOutputFactory output = new BeamOutputFactory(context::output, factory, jsonb);
-            processor.onNext(new BeamInputFactory(context), output);
-            output.postProcessing();
+        @Override
+        protected Consumer<JsonObject> toEmitter(final ProcessContext context) {
+            return context::output;
         }
 
-        @FinishBundle
-        public void finishBundle(final FinishBundleContext context) throws Exception {
-            ensureInit();
-            processor.afterGroup(new BeamOutputFactory(
-                    record -> context.output(record, Instant.now(), GlobalWindow.INSTANCE), factory, jsonb));
-        }
-
-        private void ensureInit() {
-            if (factory == null) {
-                synchronized (this) {
-                    if (factory == null) {
-                        final LightContainer container = ContainerFinder.Instance.get().find(processor.plugin());
-                        factory = container.findService(JsonBuilderFactory.class);
-                        jsonb = container.findService(Jsonb.class);
-                    }
-                }
-            }
+        @Override
+        protected BeamOutputFactory getFinishBundleOutputFactory(final FinishBundleContext context) {
+            return new BeamMultiOutputFactory(record -> context.output(record, Instant.now(), GlobalWindow.INSTANCE),
+                    factory, jsonb);
         }
     }
 
@@ -96,7 +73,7 @@ public final class TalendFn {
         }
 
         @Override
-        protected Coder<?> getDefaultOutputCoder() throws CannotProvideCoderException {
+        protected Coder<?> getDefaultOutputCoder() {
             return JsonpJsonObjectCoder.of(fn.processor.plugin());
         }
     }
