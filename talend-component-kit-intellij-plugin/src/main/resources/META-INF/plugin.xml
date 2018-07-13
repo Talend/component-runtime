@@ -20,7 +20,7 @@
   <idea-version since-build="172"/>
   <vendor email="contact@talend.com" url="https://www.talend.com">Talend</vendor>
 
-  <description>A plugin allowing to create new Talend Component Kit based Talend components and enables i18n completion
+  <description>This plugin allows to create new Talend components based on the Talend Component Kit framework. It also enables i18n completion
     for the components.
   </description>
   <change-notes>

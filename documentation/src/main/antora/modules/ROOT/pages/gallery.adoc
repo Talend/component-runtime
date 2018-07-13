@@ -1,4 +1,4 @@
-= Gallery
+= Widget and validation gallery
 :page-partial:
 
 == Widgets
@@ -166,8 +166,8 @@ public HealthCheckStatus testConnection(){
 
 |===
 
-There are also other types of validation similar to `@Pattern` that you can use :
+You can also use other types of validation that are similar to `@Pattern`:
 
 * `@Min`, `@Max` for numbers.
-* `@Unique` for collection values
-* `@Required` for required configuration
+* `@Unique` for collection values.
+* `@Required` for a required configuration.

@@ -15,73 +15,53 @@
  */
 
 import React from 'react';
-import { CircularProgress } from '@talend/react-components';
-import { UIForm } from '@talend/react-forms/lib/UIForm';
+import { Inject } from '@talend/react-cmf';
 import kit from 'component-kit.js';
 
 function NoSelectedComponent() {
-  return (
-    <div>
-      <h1>No component selected</h1>
-      <p>Click on a component to see its form</p>
-    </div>
-  );
+	return (
+		<div>
+			<h1>No component selected</h1>
+			<p>Click on a component to see its form</p>
+		</div>
+	);
 }
 
-class Detail extends React.Component {
-  constructor(props) {
-    super(props);
-    this.trigger = kit.createTriggers({ url: 'api/v1/application/action' });
-    this.onTrigger = this.onTrigger.bind(this);
-  }
-
-  onTrigger(event, payload) {
-    return this.trigger(event, payload)
-      .then(triggerResult => {
-        if (triggerResult.properties) {
-          this.props.onChange(event, triggerResult);
-        }
-        if (triggerResult.errors) {
-          this.props.onErrors(event, triggerResult.errors);
-        }
-      });
-  }
-
-  render() {
-    if (this.props.isLoading) {
-      return (<CircularProgress />);
-    } else if (!this.props.uiSpec) {
-      return (<NoSelectedComponent/>);
-    } else if (this.props.submitted) {
-        const configuration = kit.flatten(this.props.uiSpec.properties);
-      return (
-        <div>
-          <pre>{JSON.stringify(configuration, undefined, 2)}</pre>
-          <button className="btn btn-success" onClick={this.props.backToComponentEdit}>Back to form</button>
-        </div>
-      );
-    } else {
-      return (
-        <UIForm
-          data={this.props.uiSpec}
-          onChange={this.props.onChange}
-          onErrors={this.props.onErrors}
-          onTrigger={this.onTrigger}
-          onSubmit={this.props.onSubmit}
-          actions={
-            [
-              {
-                bsStyle: 'primary',
-                label: 'Show Configuration',
-                type: 'submit',
-                widget: 'button',
-              }
-            ]
-          }
-        />
-      );
-    }
-  }
+function Detail(props) {
+	let notSelected = null;
+	let submited = null;
+	let form = null;
+	if (!props.definitionURL) {
+		notSelected = (<NoSelectedComponent/>);
+	}  else {
+		form = (
+			<Inject
+				component="ComponentForm"
+				definitionURL={`/api/v1${props.definitionURL}`}
+				triggerURL="/api/v1/application/action"
+				onSubmit={props.onSubmit}
+			/>
+		);
+		if (props.submitted) {
+			const configuration = kit.flatten(props.uiSpec.properties);
+			submited = (
+				<div>
+					<pre>{JSON.stringify(configuration, undefined, 2)}</pre>
+				</div>
+			);
+		}
+	}
+	return (
+		<div>
+			<div className="col-md-6">
+				{notSelected}
+				{form}
+			</div>
+			<div className="col-md-6">
+				{submited}
+			</div>
+		</div>
+	);
 }
 
 export default Detail;

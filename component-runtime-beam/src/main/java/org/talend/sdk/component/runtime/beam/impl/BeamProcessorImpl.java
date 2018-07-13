@@ -40,6 +40,7 @@ import org.apache.beam.sdk.state.Timer;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.splittabledofn.RestrictionTracker;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
+import org.joda.time.Instant;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.Serializer;
 import org.talend.sdk.component.runtime.output.InputFactory;
@@ -119,9 +120,7 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
             final Collection<Supplier<Object>> argSupplier = Stream.of(processElement.getParameters()).map(p -> {
                 final Class<?> type = p.getType();
                 if (DoFn.ProcessContext.class == type) {
-                    return (Supplier<Object>) () -> argumentProvider.processContext(
-
-                            delegate);
+                    return (Supplier<Object>) () -> argumentProvider.processContext(delegate);
                 }
                 if (DoFn.OnTimerContext.class == type) {
                     return (Supplier<Object>) () -> argumentProvider.onTimerContext(delegate);
@@ -146,6 +145,18 @@ public class BeamProcessorImpl implements Processor, Serializable, Delegated {
                             ofNullable(p.getAnnotation(DoFn.StateId.class)).map(DoFn.StateId::value).orElseThrow(
                                     () -> new IllegalArgumentException("Missing @StateId on " + p.getName()));
                     return (Supplier<Object>) () -> argumentProvider.state(id);
+                }
+                if (p.isAnnotationPresent(DoFn.Element.class)) {
+                    return (Supplier<Object>) () -> argumentProvider.element(null);
+                }
+                if (p.isAnnotationPresent(DoFn.Timestamp.class)) {
+                    return (Supplier<Object>) Instant::now;
+                }
+                if (p.getType() == DoFn.OutputReceiver.class) {
+                    return (Supplier<Object>) () -> argumentProvider.outputReceiver(null);
+                }
+                if (p.getType() == DoFn.MultiOutputReceiver.class) {
+                    return (Supplier<Object>) () -> argumentProvider.taggedOutputReceiver(null);
                 }
                 throw new IllegalArgumentException("unsupported parameter of type " + type);
             }).collect(toList());

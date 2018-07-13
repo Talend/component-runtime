@@ -17,13 +17,17 @@
   <parent>
     <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>component-tools-webapp</artifactId>
   <name>Component Runtime :: Tools WebApp</name>
   <description>Light web application allowing to provide a light HTTP server to test components locally.</description>
+
+  <properties>
+    <yarn.environment>production</yarn.environment>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -172,7 +176,7 @@
               <skip>${component.front.build.skip}</skip>
               <arguments>run build</arguments>
               <environmentVariables>
-                <NODE_ENV>production</NODE_ENV>
+                <NODE_ENV>${yarn.environment}</NODE_ENV>
               </environmentVariables>
             </configuration>
           </execution>

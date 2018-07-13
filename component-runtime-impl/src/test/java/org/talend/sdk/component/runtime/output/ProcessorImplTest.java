@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.output;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -56,7 +57,7 @@ class ProcessorImplTest {
 
     @Test
     void serialization() throws IOException, ClassNotFoundException {
-        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", new SampleOutput());
+        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", emptyMap(), new SampleOutput());
         final Processor copy = Serializer.roundTrip(processor);
         assertNotSame(copy, processor);
         assertEquals("Root", copy.rootName());
@@ -65,7 +66,7 @@ class ProcessorImplTest {
     }
 
     private void assertLifecycle(final Base delegate) {
-        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", delegate);
+        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", emptyMap(), delegate);
         assertEquals(emptyList(), delegate.stack);
 
         processor.start();

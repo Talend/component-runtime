@@ -1,20 +1,20 @@
-= Create an input component
+= Implementing an input component
 :page-partial:
 
 [[tutorial-create-an-input-component]]
-In this tutorial we will create a complete working input component for xref:https://hazelcast.org/[hazelcast].
+This tutorial shows how to create a complete working input component for xref:https://hazelcast.org/[Hazelcast], including:
 
-This will include :
+1. Registering the component family.
+2. Defining the configurable part and the layout of the component.
+3. Configuring the partition mapper, to let the input split itself to work in a distributed environment.
+4. Configuring the source that is responsible for connecting and reading data from the data source.
 
-1. The component family registration.
-2. The component configuration and the UI layout
-3. The partition mapper that let the input split it self to work in a distributed environment.
-4. The source that is responsible for connecting and reading data from the data source.
+NOTE: Getter and Setter methods are omitted for simplicity in this tutorial.
 
-NOTE: Getter and Setter methods are omitted for simplicity in this tutorial
+The following procedures assume that you have already generated the component package from the Talend Component Kit starter. See xref:tutorial-generate-project-using-starter.adoc[this tutorial] to learn how to generate this package.
 
-== The component family registration
-We register the component family via a the `package-info.java` file in the package of the component.
+== Registering the component family
+Register the component family via a the `package-info.java` file in the package of the component.
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Icon(value = Icon.IconType.CUSTOM, custom = "hazelcast") <1>
@@ -25,10 +25,11 @@ package org.talend.hazelcast;
 <2> In this line we define the component family and the component categories.
 Those information are used in the web and studio applications to group the components.
 
-== The component configuration
-The component configuration define the configurable part of the component in addition to the configuration type and the UI layout.
-The configuration is a simple POJO class decorated with annotations from the component framework.
-Here is the configuration of our component, that we will explain in details.
+== Defining the configurable part and the layout of the component
+The component configuration includes defining the part of the components that can be configured once integrated to Talend solutions, in addition to the configuration type and the UI layout.
+
+The configuration is a POJO class decorated with annotations from the component framework.
+In this case, the component is configured as follows:
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @GridLayout({ <1>
@@ -56,23 +57,27 @@ public class HazelcastConfiguration implements Serializable {
     }
 }
 ----
-<1> In this part we define the UI layout of the configuration.
-This layout will be used to show and organize the configuration in the web and Talend Studio applications.
-<2> All the attributes annotated by `@Option` are known as configuration and will be bind to a default widget according to there types,
-at least a specific widget is explicitly declared xref:gallery.adoc[See widgets gallery for more details] .
-<3> The hazelcast xml configuration file path.
-<4> The name of the map to be read.
-<5> The name of the executor service with a default name: `default`.
-<6> This only a simple utility method that convert our configuration to a hazelcast client configuration object
+<1> UI layout of the configurable part of the component.
+This layout is used to show and organize the configuration Talend applications. +
+In the example above, *hazelcastXml* and *mapName* are displayed on the same row and all rows are displayed in the default basic configuration tab of the component.
+<2> All the attributes annotated with `@Option` are recognized as configuration elements and are bound to a default widget according to their type, unless a specific widget is explicitly declared. For more details, see the xref:gallery.adoc[widget gallery].
+<3> Path of the Hazelcast XML configuration file.
+<4> Name of the map to be read.
+<5> Executor service name, with a default value set to `default` in this case.
+<6> Utility method that converts the configuration into a Hazelcast client configuration object.
 
-xref:component-configuration.adoc[Read more about the component configuration...]
+Read more about component configuration in xref:component-configuration.adoc[this document].
 
-== The Partition Mapper
-As our component need to work first in distributed environments. Every input component has to define a partition mapper
-that will be responsible of calculating the number of sources to be created according to the hole dataset size and the
-requested bundle size by the targeted runner.
+== Configuring The Partition Mapper
+The Hazelcast component created through this tutorial needs to work first in distributed environments.
 
-Let's first start examining the skeleton of our partition mapper. Then we will implement every method one by one.
+Every input component has to define a partition mapper class.
+
+At runtime, this class heuristically estimates the size of the data to be handled. Based on this estimation and on the capacity of the execution engine of your component, it divides the work of your component to reduce the overall execution time.
+
+For more information about the partition mapper class, see xref:component-definition.adoc#partition-mapper[Partition mapper].
+
+The skeleton of the partition mapper looks as follows:
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Version(1) <1>
@@ -104,23 +109,23 @@ public class HazelcastMapper implements Serializable {
     @Emitter
     public HazelcastSource createSource() {}  <9>
 ----
-<1> `@Version` annotation indicate the version of the component. it will be used to migrate the component configuration if needed.
-<2> `@Icon` annotation indicate the icon of the component. here we have defined a custom icon that need to be bundled in the component jar under `resources/icons`.
-<3> `@PartitionMapper` annotation indicate that this class is the partition mapper and give it's name.
-<4> This constructor of the mapper is responsible of injecting the component configuration and services. Configuration parameter are annotated by `@Option`.
-and other parameters are considered as services and will be injected by the component framework. The service may be local services (class annotated with `@Service`)
-or some services provided by the component framework.
-<5> The method annotated with `@PostConstruct` is executed once on the driver node in a distributed environment and can be used to do some initialization.
-Here we will get the hazelcast instance according to the provided configuration.
-<6>  The method annotated with `@PreDestroy` is used to clean resource at the end of the execution of the partition mapper.
-here we will shutdown the hazelcast instance loaded in the post Construct method.
-<7> The method annotated with `@Assessor` is responsible of calculating the dataset size. Here we will get the size of all the hazelcast members.
-<8> the method annotated with `@Split` is responsible of split of this mapper according to the requested bundles size by the runner and the hole dataset size.
-<9> The method annotated with `@Emitter` is responsible of creating the producer instance that will read the data from the data source (hazelcast in this case).
+<1> The `@Version` annotation specifies the version of the component. it is used to migrate the component configuration if needed.
+<2> The `@Icon` annotation specifies the icon of the component. In this case, a custom icon is used and needs to be bundled in the component JAR under `resources/icons`.
+<3> The `@PartitionMapper` annotation indicates that this class is the partition mapper and defines its name.
+<4> This constructor of the mapper is responsible for injecting the component configuration and services.
+- Configuration parameters are annotated with `@Option`.
+- Other parameters are considered as services and are injected by the component framework. Services can be local (classes annotated with `@Service`) or provided by the component framework.
+<5> The method annotated with `@PostConstruct` is executed once on the driver node in a distributed environment and can be used for initialization.
+Here, the goal is to get the Hazelcast instance according to the provided configuration.
+<6> The method annotated with `@PreDestroy` is used to clean resources at the end of the execution of the partition mapper. +
+In the context of this tutorial, the Hazelcast instance loaded in the post Construct method is shut down.
+<7> The method annotated with `@Assessor` is responsible for calculating the size of  the dataset containing the Hazelcast members.
+<8> The method annotated with `@Split` is responsible for splitting this mapper according to the bundle size requested by the runner and to the hole dataset size.
+<9> The method annotated with `@Emitter` is responsible for creating the producer instance that reads the data from the data source (Hazelcast in this case).
 
-Now that we know what we need to implement and why. Let's start coding those methods one by one.
+Each of the methods mentioned above now needs to be created.
 
-=== The constructor
+=== Defining the constructor method
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 private final Collection<String> members; <1>
@@ -146,27 +151,30 @@ protected HazelcastMapper(final HazelcastConfiguration configuration,
     this.members = members;
 }
 ----
-<1> We will need the list of hazecast members later. So we add a collection attribute to the mapper
-<2> The component public constructor, responsible for injecting configuration and services.
-<3> An internal constructor that get a collection of members in addition to previous parameters. This will be useful later in this tutorial.
+<1> Add a collection attribute to the mapper. The list of Hazelcast members is needed later in the process.
+<2> Define the component public constructor, which is responsible for injecting configuration and services.
+<3> Add an internal constructor to get the collection of the Hazelcast cluster members.
 
-=== The PostConstruct method
+=== Defining the PostConstruct method
+The @PostConstruct method is used to initialize a Hazelcast client instance.
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 private transient HazelcastInstance instance; <1>
 
 @PostConstruct
+The method annotated with @PostConstruct is used to initialize a Hazelcast client instance.
+
 public void init() throws IOException {
     instance = service.findInstance(configuration.newConfig()); <2>
 }
 ----
-<1> We will need Hazelcast instance. we add this as an attribute to the mapper.
-<2> Here we create an instance of hazelcast according to the provided configuration.
-You can notice that we use the injected HazelcastService instance to perform that.
-This service is implemented in the project.
+<1> Declare the Hazelcast instance as an attribute for the mapper.
+<2> Create an instance of Hazelcast according to the provided configuration.
+In this case, the injected HazelcastService instance is used. This service is implemented in the project.
 
-Here is the HazelcastService implementation.
-Every class annotated with `@Service` can be injected to the component via it's constructor.
+The HazelcastService is implemented as follows.
+Every class annotated with `@Service` can be injected to the component via its constructor.
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 import org.talend.sdk.component.api.service.Service;
@@ -178,9 +186,11 @@ public class HazelcastService {
     }
 }
 ----
-<1> We create a new instance of hazelcast client.
+<1> Create a new instance of the Hazelcast client.
 
-=== The PreDestroy method
+=== Defining the PreDestroy method
+The method annotated with @PreDestroy cleans up the resources at the end of the execution of the partition mapper.
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 private transient IExecutorService executorService; <1>
@@ -191,10 +201,12 @@ public void close() { <2>
     executorService = null;
 }
 ----
-<1> This execution service will be used in our mapper. So we add it as an attribute.
-<2> Here we shutdown the instance that we have created in the PostConstruct. and we also free the executorService reference
+<1> Declare the execution service as an attribute for the mapper.
+<2> Shut down the Hazelcast client instance created by the method annotated with `@PostConstruct` and thus free the `executorService` reference.
 
-=== The Assessor method
+=== Defining the Assessor method
+The method annotated with @Assessor is used to estimate the volume of the dataset to be handled.
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Assessor
@@ -205,13 +217,12 @@ public long estimateSize() {
                     .sum(); <3>
 }
 ----
-<1> We get the size of all members by calling the method `getSizeByMembers`.
-This method submit a task to the cluster member that will calculate the member size locally and asynchronously.
-<2> We get the the size of the member from the callable task that we have submitted.
-<3> We sum the size of all the members
+<1> The `getSizeByMembers()` method submits a task to each Hazelcast member to calculate the member size locally and asynchronously..
+<2> The `mapToLong()` method gets the size calculated by that task.
+<3> The `sum()` method calculates the total size of all the members.
 
 
-Here is the implementation of the two methods used above
+Then, you can Implement the methods annotated with @PreDestroy and @Accessor to create a map of the volumes of the Hazelcast cluster members.
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 private Map<Member, Future<Long>> getSizeByMembers() {
@@ -240,12 +251,17 @@ private IExecutorService getExecutorService() {
 }
 ----
 
-=== The Split method
+=== Defining the Split method
+The method annotated with `@Split` dynamically splits the partition mapper into a collection of sub-mappers according to:
+
+- the bundle size required by the execution engine to be used.
+- to the volume of the dataset to handle.
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 
 @Split
-public List<HazelcastMapper> split(@PartitionSize final long bundleSize) { <1>
+public List<HazelcastMapper> split(@PartitionSize final long bundleSize) {
     final List<HazelcastMapper> partitions = new ArrayList<>();
     final Collection<Member> members = new ArrayList<>();
     long current = 0;
@@ -272,9 +288,10 @@ public List<HazelcastMapper> split(@PartitionSize final long bundleSize) { <1>
     return partitions;
 }
 ----
-<1>  This method create a collection of mapper according to the requested bundleSize and the dataset size.
 
 === The Emitter method
+The method annotated with `@Emitter` generates producers using the component configuration. It can be used to load data to the processing flow of a Talend Job. Each sub-mapper generates one producer.
+
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 @Emitter
@@ -282,12 +299,10 @@ public HazelcastSource createSource() {
     return new HazelcastSource(configuration, jsonFactory, jsonb, service, members); <1>
 }
 ----
-<1> After we have split the mapper. now every mapper will create a producer
-that will read the records according to the provided configuration.
+<1> After splitting the mapper, every mapper creates a producer that reads the records according to the provided configuration.
 
-=== The full implementation of the Partition Mapper
-Here is the full code source for the partition mapper to have a global view of it.
-xref:component-definition.adoc#_partitionmapper[Read more about partition mapper...]
+=== Full implementation of the Partition Mapper
+Once implemented, the Partition Mapper configuration is as follows. For more information about Partition Mappers, refer to xref:component-definition.adoc#_partitionmapper[this document].
 [source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
 ----
 @Version(1) <1>
@@ -326,28 +341,28 @@ public class HazelcastMapper implements Serializable {
 
     @PostConstruct
     public void init() throws IOException {
-        // Here we create an instance of hazelcast according to the provided configuration
-        // Here you can notice that we use the injected HazelcastService instance to perform that.
-        // This service is implemented in the project. See the implementation in <1>
+        // Creates an instance of Hazelcast according to the provided configuration.
+        // Uses the injected HazelcastService instance to perform that.
+        // This service is implemented in the project. See the implementation in <1>.
         instance = service.findInstance(configuration.newConfig());
     }
 
     @PreDestroy
     public void close() {
-        // Here we shutdown the instance that we have created in the PostConstruct. and we free the executorService reference
+        // Shuts down the instance created in the PostConstruct and frees the executorService reference.
         instance.getLifecycleService().shutdown();
         executorService = null;
     }
 
     @Assessor
     public long estimateSize() {
-        // Here we calculate the hole size of all memebers
+        // Calculates the whole size of all members.
         return getSizeByMembers().values().stream()
                 .mapToLong(this::getFutureValue)
                 .sum();
     }
 
-    // This method return a map of size by memeber of hazelcast cluster
+    // This method returns a map of size by member of Hazelcast cluster
     private Map<Member, Future<Long>> getSizeByMembers() {
         final IExecutorService executorService = getExecutorService();
         final SerializableTask<Long> sizeComputation = new SerializableTask<Long>() {
@@ -358,7 +373,7 @@ public class HazelcastMapper implements Serializable {
                 return localInstance.getMap(configuration.getMapName()).getLocalMapStats().getHeapCost();
             }
         };
-        if (members.isEmpty()) { // == if no specific memebers defined, apply on all the cluster
+        if (members.isEmpty()) { // == if no specific memebers defined, applies to all the cluster
             return executorService.submitToAllMembers(sizeComputation);
         }
         final Set<Member> members = instance.getCluster().getMembers().stream()
@@ -367,7 +382,7 @@ public class HazelcastMapper implements Serializable {
         return executorService.submitToMembers(sizeComputation, members);
     }
 
-    // This method create a collection of mapper according to the requested bundleSize and the dataset size
+    // This method creates a collection of mappers according to the requested bundleSize and the dataset size.
     @Split
     public List<HazelcastMapper> split(@PartitionSize final long bundleSize) {
         final List<HazelcastMapper> partitions = new ArrayList<>();
@@ -381,7 +396,7 @@ public class HazelcastMapper implements Serializable {
             } else if (current + memberSize > bundleSize) {
                 partitions.add(
                         new HazelcastMapper(configuration, jsonFactory, jsonb, service, toIdentifiers(members)));
-                // reset current iteration
+                // Resets current iteration
                 members.clear();
                 current = 0;
             }
@@ -390,14 +405,14 @@ public class HazelcastMapper implements Serializable {
             partitions.add(new HazelcastMapper(configuration, jsonFactory, jsonb, service, toIdentifiers(members)));
         }
 
-        if (partitions.isEmpty()) { // just execute this if no plan (= no distribution)
+        if (partitions.isEmpty()) { // just executes this if no plan (= no distribution)
             partitions.add(this);
         }
         return partitions;
     }
 
-    //After we have splited the mapper. now every mapper will create an emitter that
-    // will read the records according to the provided configuration
+    //After splitting the mapper, every mappers creates an emitter that
+    // reads the records according to the provided configuration.
     @Emitter
     public HazelcastSource createSource() {
         return new HazelcastSource(configuration, jsonFactory, jsonb, service, members);
@@ -426,10 +441,10 @@ public class HazelcastMapper implements Serializable {
 }
 ----
 
-== The Producer (Source)
-Now that we have setup our component configuration and written our partition mapper that will create our producers.
-Let implement the source logic that will use the configuration provided by the mapper to read the records from the data source.
-To implement a source we need to implement the producer method that will produce a record every time it's invoked.
+== Configuring the Producer (Source)
+The component configuration and the partition mapper in charge of creating the producers are now defined. At this point, you can implement the source logic that uses the configuration provided by the mapper to read the records from the data source.
+
+To implement a source, you need to define the producer method that creates a record every time it is invoked.
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
 public class HazelcastSource implements Serializable {
@@ -441,7 +456,7 @@ public class HazelcastSource implements Serializable {
     private transient HazelcastInstance instance;
     private transient BufferizedProducerSupport<JsonObject> buffer; <1>
 
-    // The constructor was omited to reduce the code
+    // The constructor is omitted on purpose to reduce the length of this sample code
 
     @PostConstruct <2>
     public void createInstance() throws IOException {
@@ -456,7 +471,7 @@ public class HazelcastSource implements Serializable {
                 return null;
             }
             final Member member = memberIterators.next();
-            // note: this works if this jar is deployed on the hz cluster
+            // Note: this works if this JAR is deployed on the Hazelcast cluster
             try {
                 return instance.getExecutorService(configuration.getExecutorService())
                         .submitToMember(new SerializableTask<Map<String, String>>() {
@@ -500,22 +515,18 @@ public class HazelcastSource implements Serializable {
 
     @PreDestroy <4>
     public void destroyInstance() {
-        //We shutdown the hazelcast instance
+        // Shutdown of the Hazelcast instance
         instance.getLifecycleService().shutdown();
     }
 }
 ----
-<1> This BufferizedProducerSupport is a utility class that encapsulate the buffering logic so that you need only to provide
-how to load the data and note the logic to iterate on it. Here in this case the buffer will be created in the PostConstruct method and loaded once,
-then used to produce records one by one.
-<2> the method annotated with `@PostConstruct` is invoked once on the node. so here we can create some connection, do some initialisation of buffering.
-In our case we are creating a buffer of records in this method using the BufferizedProducerSupport class.
-<3> The method annotated with `@Producer` is responsible of producing record. this method return `null` when there is no more record to read
-<4> The method annotated with `@PreDestroy` is called before the Source destruction and it used to clean up all the resources used in the Source.
-In our case we are shutting down the hazelcast instance that we have created in the post construct method.
+<1> BufferizedProducerSupport is a utility class that encapsulates the buffering logic. It allows to only provide instructions on how to load the data rather than the logic to iterate on it. In this case, the buffer is created in the `@PostConstruct` method and loaded once, and is then used to produce records one by one.
+<2> The method annotated with `@PostConstruct` is invoked once on the node. It allows to create some connections and to initialize the buffering.
+In this case, the BufferizedProducerSupport class is used to create a buffer of records in this method.
+<3> The method annotated with `@Producer` is responsible for producing records. This method returns `null` when there is no more record to read.
+<4> The method annotated with `@PreDestroy` is called before the Source destruction and is used to clean up all the resources used in the Source.
+In this case, the Hazelcast instance created in the post construct method is shut down.
 
-xref:component-definition.adoc#_producer[Read more about source ...]
+To learn more about producers, refer to xref:component-definition.adoc#_producer[this document].
 
-
-We have seen how to create a complete working input in this tutorial. xref:tutorial-test-your-components.adoc[In the next one we will explain how to create some unit
-tests for it].
+You have now created a complete working input component. You can follow  xref:tutorial-test-your-components.adoc[this tutorial] to learn how to create unit tests for your new component.

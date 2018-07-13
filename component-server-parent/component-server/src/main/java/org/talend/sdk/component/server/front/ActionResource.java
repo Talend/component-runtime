@@ -23,6 +23,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -82,13 +83,15 @@ public class ActionResource {
      * @param family the component family.
      * @param type the type of action.
      * @param action the action name.
+     * @param lang the requested language (as in a Locale) if supported by the action.
      * @param params the action parameters as a flat map of strings.
      * @return the action result payload.
      */
     @POST
     @Path("execute")
     public Response execute(@QueryParam("family") final String family, @QueryParam("type") final String type,
-            @QueryParam("action") final String action, final Map<String, String> params) {
+            @QueryParam("action") final String action, @QueryParam("lang") final String lang,
+            final Map<String, String> params) {
         if (action == null) {
             throw new WebApplicationException(Response
                     .status(Response.Status.BAD_REQUEST)
@@ -103,7 +106,9 @@ public class ActionResource {
                     .build());
         }
         try {
-            final Object result = actionMeta.getInvoker().apply(params);
+            final Map<String, String> runtimeParams = ofNullable(params).map(HashMap::new).orElseGet(HashMap::new);
+            runtimeParams.put("$lang", localeMapper.mapLocale(lang).getLanguage());
+            final Object result = actionMeta.getInvoker().apply(runtimeParams);
             return Response.ok(result).type(APPLICATION_JSON_TYPE).build();
         } catch (final RuntimeException re) {
             log.warn(re.getMessage(), re);

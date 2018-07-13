@@ -82,6 +82,8 @@ public class ParameterMeta {
 
     private final Map<String, String> metadata;
 
+    private final boolean logMissingResourceBundle;
+
     private final ConcurrentMap<Locale, ParameterBundle> bundles = new ConcurrentHashMap<>();
 
     public ParameterBundle findBundle(final ClassLoader loader, final Locale locale) {
@@ -108,7 +110,9 @@ public class ParameterMeta {
                                 .filter(Objects::nonNull)
                                 .toArray(ResourceBundle[]::new);
                 if (bundles.length == 0) {
-                    log.warn(noBundleMessage());
+                    if (logMissingResourceBundle) {
+                        log.warn(noBundleMessage());
+                    }
                     return NO_PARAMETER_BUNDLE;
                 }
 
@@ -133,7 +137,9 @@ public class ParameterMeta {
                 }
                 return new ParameterBundle(bundles, path + '.', fallbacks.toArray(new String[fallbacks.size()]));
             } catch (final MissingResourceException mre) {
-                log.warn(noBundleMessage());
+                if (logMissingResourceBundle) {
+                    log.warn(noBundleMessage());
+                }
                 log.debug(mre.getMessage(), mre);
                 return NO_PARAMETER_BUNDLE;
             }

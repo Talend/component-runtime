@@ -17,32 +17,34 @@ package org.talend.sdk.component.proxy.api.persistence;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
-import javax.servlet.http.HttpServletRequest;
 
+import org.talend.sdk.component.proxy.api.Event;
+import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.Getter;
 
+@Event
 public class OnPersist extends PersistenceEvent {
 
     @Getter
     private final String formId;
 
     @Getter
-    private String id;
+    private CompletionStage<String> id;
 
-    public OnPersist(final HttpServletRequest request, final Jsonb jsonb, final String formId,
-            final JsonObject enrichment, final Collection<SimplePropertyDefinition> definitions,
-            final Map<String, String> properties) {
+    public OnPersist(final RequestContext request, final Jsonb jsonb, final String formId, final JsonObject enrichment,
+            final Collection<SimplePropertyDefinition> definitions, final Map<String, String> properties) {
         super(request, jsonb, enrichment, definitions, properties);
         this.formId = formId;
     }
 
-    public synchronized OnPersist setId(final String id) {
-        if (this.id != null && !this.id.equals(id)) {
+    public synchronized OnPersist composeId(final CompletionStage<String> id) {
+        if (this.id != null) {
             throw new IllegalArgumentException("Id already set");
         }
         this.id = id;

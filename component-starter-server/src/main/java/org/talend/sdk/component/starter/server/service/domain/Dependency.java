@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.starter.server.service.domain;
 
-import static org.talend.sdk.component.starter.server.Versions.API_KIT;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +25,6 @@ import lombok.RequiredArgsConstructor;
 public class Dependency {
 
     private static final Dependency JUNIT = new Dependency("junit", "junit", "4.12", "test");
-
-    private static final Dependency COMPONENT =
-            new Dependency("org.talend.sdk.component", "component-api", API_KIT, "provided");
 
     private final String group;
 
@@ -52,8 +47,8 @@ public class Dependency {
                 source.getClassifier());
     }
 
-    public static Dependency componentApi() {
-        return COMPONENT;
+    public static Dependency componentApi(final String version) {
+        return new Dependency("org.talend.sdk.component", "component-api", version, "provided");
     }
 
     public static Dependency junit() {

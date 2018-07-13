@@ -17,12 +17,17 @@ package org.talend.sdk.component.runtime.beam.impl;
 
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.state.State;
+import org.apache.beam.sdk.state.TimeDomain;
 import org.apache.beam.sdk.state.Timer;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.reflect.DoFnInvoker;
 import org.apache.beam.sdk.transforms.splittabledofn.RestrictionTracker;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.transforms.windowing.GlobalWindow;
+import org.apache.beam.sdk.transforms.windowing.PaneInfo;
+import org.apache.beam.sdk.values.TupleTag;
+import org.joda.time.Instant;
+import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 
@@ -65,6 +70,42 @@ public class InMemoryArgumentProvider implements DoFnInvoker.ArgumentProvider {
     @Override
     public DoFn.FinishBundleContext finishBundleContext(final DoFn doFn) {
         return contextImplGenericsHolder.newFinishContext(options, outputs);
+    }
+
+    @Override
+    public PaneInfo paneInfo(final DoFn doFn) {
+        return PaneInfo.NO_FIRING;
+    }
+
+    @Override
+    public Object element(final DoFn doFn) {
+        return inputs.read(Branches.DEFAULT_BRANCH);
+    }
+
+    @Override
+    public DoFn.OutputReceiver outputReceiver(final DoFn doFn) {
+        return new OutputReceiver(outputs, Branches.DEFAULT_BRANCH);
+    }
+
+    @Override
+    public DoFn.MultiOutputReceiver taggedOutputReceiver(final DoFn doFn) {
+        return new DoFn.MultiOutputReceiver() {
+
+            @Override
+            public <T> DoFn.OutputReceiver<T> get(final TupleTag<T> tag) {
+                return new OutputReceiver(outputs, tag.getId());
+            }
+        };
+    }
+
+    @Override
+    public Instant timestamp(final DoFn doFn) {
+        return Instant.now();
+    }
+
+    @Override
+    public TimeDomain timeDomain(final DoFn doFn) {
+        return TimeDomain.PROCESSING_TIME;
     }
 
     @Override

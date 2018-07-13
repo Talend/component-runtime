@@ -85,17 +85,5 @@ export function selectNode(node) {
 }
 
 export function selectComponent(node) {
-	return dispatch => {
-		dispatch(selectNode(node));
-
-		if (node.$$type !== 'component') {
-			return;
-		}
-
-		dispatch(isLoadingComponent());
-		fetch(`api/v1${node.$$detail}`)
-			.then(resp => resp.json())
-			.then(resp => dispatch(getComponentOK(resp)))
-			.catch(error => dispatch(getComponentERROR(error)))
-	};
+	return selectNode(node);
 }

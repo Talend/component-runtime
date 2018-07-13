@@ -2,8 +2,7 @@
 :toc:
 
 The UiSpec server is a companion application for the Component Server.
-It provides a client to the Component Server which serves UiSpec payload to integrate
-with the client Javascript `UiForm` library.
+It provides a client to the Component Server which serves UiSpec payload to integrate with the client JavaScript `UiForm` library.
 
 == Coordinates
 
@@ -16,35 +15,39 @@ with the client Javascript `UiForm` library.
 </dependency>
 ----
 
-== Configuration
+== Configuring the UiSpec server
 
 include::{partialsdir}/generated_proxy-server-configuration.adoc[]
 
-=== Add custom entries in the forms
+=== Adding custom entries to the forms
 
-As seen in the previous table you can customize the forms by type. The format is reusing Talend Component Kit
-rest API (properties model) and defines two main types of extension:
+As shown in the table above, you can customize the forms by type. The format reuses Talend Component Kit REST API (properties model) and defines two main types of extensions:
 
-1. `prependProperties`: which will list all the model of properties added to the form *before* the actual underlying form
-2. `appendProperties`: which will list all the model of properties added to the form *after* the actual underlying form
+1. `prependProperties`: Lists all the models of properties added to the form *before* the actual underlying form.
+2. `appendProperties`: Lists all the models of properties added to the form *after* the actual underlying form.
 
-Note that if you don't specify a name, the path is used to deduce the name automatically.
+If you don't specify a name, the path is used to deduce the name automatically.
 
-IMPORTANT: always ensure you define a root object (no dot in the `path` value) for these properties. It is recommanded
-to prefix it with a `$`.
+IMPORTANT: Always make sure to define a root object for these properties. Do not use dots in the `path` value. It is recommended to prefix it with a `$` character.
 
-=== Client in Play!
+=== Adding custom converters (selecting the widget or rendering)
 
-Also note that the client to connect to the Talend Component Kit server is
-CXF client using HttpClient HC (NIO) transport. It can be configured with its standard properties
-prefixed by `talend.component.proxy.` when you use the play module.
+When developing a `org.talend.sdk.component.form.internal.converter.CustomPropertyConverter` CDI, the proxy adds it to the `UiSpecService` service and uses it with a high priority to convert the server model to a `UiSpec` model.
 
-More info available on link:http://cxf.apache.org/docs/asynchronous-client-http-transport.html[CXF] website.
+TIP: To make it a CDI bean, add `@Dependent` to the class and if you use the <<play-integration,Play integration>>, customize the bean array: `playx.cdi.beans.customs +=  {className: org.talend.myapp.MyConverter}.`
 
-=== Dropdown with all root configurations
+This allows to use a custom `@Ui` API and advanced modeling when specific to applications. +
+Converters are sorted respecting to the `@Priority` value. If the annotation is missing, the priority defaults to `0`.
 
-TIP: the special `dynamic_values` action `builtin::roots` can be used for a drop down which will
-be filled with all available root types.
+=== Client in Play
+
+The client to use to connect to the Talend Component Kit server is the CXF client, using HttpClient HC (NIO) transport. When you use the Play module, it can be configured with its standard properties prefixed by `talend.component.proxy.`.
+
+You can find more information on link:http://cxf.apache.org/docs/asynchronous-client-http-transport.html[CXF] website.
+
+=== Defining a dropdown with all root configurations
+
+The special `dynamic_values` action `builtin::roots` can be used for a dropdown filled with all available root types.
 
 Here is a sample patch file:
 
@@ -68,9 +71,9 @@ Here is a sample patch file:
 }
 ----
 
-=== Reload the form based on the selected root
+=== Reloading the form based on the selected root
 
-As a companion of previous action there is the `builtin::root::reloadFromId` action of type `jsonpatch` which
+The `builtin::root::reloadFromId` action, with the `jsonpatch` type,
 allows to reload the whole form:
 
 [source,json]
@@ -87,12 +90,12 @@ allows to reload the whole form:
 }
 ----
 
-<1> Prepopulate the dropdown with the list of datastore
-<2> On the selection of a datastore refresh the form with the new parameters
+<1> Prepopulating the dropdown with the list of datastores.
+<2> On selection of a datastore, refreshing the form with the new parameters.
 
-Here we use both to have a dropdown with the list of roots and to reload the form when one is selected.
+It is common to have a dropdown with the list of roots and to reload the form when one is selected.
 
-Here is how the `UIForm` (javascript side) part can be implemented:
+For example, the `UIForm` part (JavaScript side) can be implemented as follows:
 
 [source,javascript]
 ----
@@ -138,19 +141,18 @@ onTrigger(event, payload) {
 }
 ----
 
-<1> Add a custom handler for the specific `reloadForm` action
-<2> Pass the `uiSchema` and `jsonSchema` back to the next step in the response processing chain
-<3> Reset the dynamic part of the form (= keep only the static part)
-<4> Merge back the result of the handler into the current state (you can use redux or cmf as well)
+<1> Adding a custom handler for the specific `reloadForm` action.
+<2> Passing the `uiSchema` and `jsonSchema` to the next step in the response processing chain.
+<3> Resetting the dynamic part of the form. Only the static part is kept.
+<4> Merging back the result of the handler into the current state. You can use `redux` or `cmf`.
 
 == HTTP API
 
-include::{partialsdir}/generated_proxy-server-api.adoc[leveloffset=+1]
+include::{partialsdir}/generated_proxy-server-api.adoc[leveloffset=+2]
 
-TIP: as you can see there are two ways to call save endpoint. If you don't want to pass the form identifier
-and prefer to use a generic endpoint just passing the type of configuration you are configuring then you will
-need to modify your enrichment configuration to ensure the form identier is present and to specify which form field it is.
-To do that just add to the metadata the boolean `proxyserver::formId`:
+There are two ways to call the `save` endpoint. If you don't want to pass the form identifier and prefer to use a generic endpoint that simply passes the type of configuration you are configuring, then you need to modify your `enrichment` configuration to ensure that the form identifier is present and to specify which form field it is.
+
+To do that, add the `proxyserver::formId` Boolean to the metadata:
 
 [source,json]
 ----
@@ -165,14 +167,14 @@ To do that just add to the metadata the boolean `proxyserver::formId`:
 }
 ----
 
-IMPORTANT: only the first property with `proxyserver::formId` set to `"true"` is used. Also the path can't contain any array.
+IMPORTANT: Only the first property with `proxyserver::formId` set to `"true"` is used. The path cannot contain any array.
 
-== Play Integration
+[[play-integration]]
+== Integrating with Play
 
-Thanks to https://github.com/rmannibucau/playx[Playx] you can deploy this server
-in a Play! application.
+Thanks to https://github.com/rmannibucau/playx[Playx], you can deploy this server in a Play! application.
 
-The first step is to import the play integration (which mainly imports pre-configuration):
+. Import the pre-configuration of the Play integration.
 
 [source,xml]
 ----
@@ -183,7 +185,8 @@ The first step is to import the play integration (which mainly imports pre-confi
 </dependency>
 ----
 
-Then you can configure it in your `application.conf` - see configuration for more details:
+[start=2]
+. Configure the integration in your `application.conf` file:
 
 [source,config]
 ----
@@ -203,34 +206,32 @@ X-ID = ${someRequestAttributeNameForTheId}
 }
 ----
 
-<1> Imports the global configuration mapping the endpoints on `/componentproxy/*`
-<2> Customize the configuration to specialize it for the current deployment
+<1> Importing the global configuration that maps the endpoints on `/componentproxy/*`.
+<2> Customizing the configuration to specialize it for the current deployment.
 
 === If you are using Guice
 
-`org.talend.sdk.component.guice.ComponentUiSpecServerModule` Guice module allows
-to import `Services` from the server and to use some of them locally for the part
-out of scope of the endpoint delivery like:
+The `org.talend.sdk.component.guice.ComponentUiSpecServerModule` Guice module allows to import `Services` from the server and to use some of them locally for the parts that are out of the scope of the endpoint delivery. For example:
 
-- Converting `JsonObject` to `Map<String, String>` and the opposite
-- Getting the properties model for a configuration or component (used in previous item)
+- Converting `JsonObject` to `Map<String, String>` and the other way around.
+- Getting the properties model for a configuration or component.
 
-IMPORTANT: it is important to use a `Provider<T>` injection to keep it lazy.
+IMPORTANT: Use a `Provider<T>` injection to keep it lazy.
 
-The server doesn't handle two layers you will likely need to add:
+The server does not handle two layers. It is possible that you need to add:
 
-1. security
-2. persistence
+1. Security.
+2. Persistence.
 
-For the first layer it is recommended to create a Play filter you configure before the proxy one (`ServletFilter`).
-You will need to ensure you pass all contextual data in the request attributes to be able to get them back after.
+For the security layer, it is recommended to create a Play filter that you configure before the proxy (`ServletFilter`). +
+Make sure that you pass all contextual data in the request attributes to be able to get them back after.
 
-For the persistence, the framework will fire particular events `OnPersist`, `OnEdit` and `OnFindById` you should observe
-to implement the persistence as you wish. If you reused the CDI context of the server just a plain CDI observer works
-but if you used the Guice/CDI setup (using the play module of the integration) you will need to write Guice observers:
+For the persistence layer, the framework fires particular events (`OnPersist`, `OnEdit` and `OnFindById`) that you should observe in order to implement the persistence as you wish. +
+Reusing the CDI context of the server just a plain CDI observer works, but if you used the Guice/CDI setup (using the Play module of the integration) you need to write Guice observers.
 
-IMPORTANT: `OnPersist` will need to become identifier aware of the created entity, ensure to call `setId` please. Similarly,
-`OnFindById` requires you to pass the found instance with `setProperties()` and `setFormId()`.
+IMPORTANT: `OnPersist` needs to become identifier-aware of the created entity. Make sure to call `composeId`. In a similar way, `OnFindById` requires you to pass the found instance with `composeProperties()` and `composeFormId()`.
+
+Optionally, you can implement `OnFindByFormId`, which allows to have completion for references. If your application does not allow to edit references, you can bypass this event. If you implement it, make sure to call `composeResult` no more than once.
 
 [source,java]
 ----
@@ -238,7 +239,7 @@ IMPORTANT: `OnPersist` will need to become identifier aware of the created entit
 public class PersistenceHandler {
     @Subscribe
     public void onPersist(final OnPersist event) {
-        // do persist, ensure to call event.setId(...)
+        // do persist, ensure to call event.composeId(...)
     }
 
     @Subscribe
@@ -250,18 +251,22 @@ public class PersistenceHandler {
     public void onFind(final OnFindById event) {
         // do find
     }
+
+    @Subscribe
+    public void onFindByFormId(final OnFindByFormId event) {
+        // do find
+    }
 }
 ----
 
-NOTE: the deletion is not handled by the server since there is not encapsulation of any format at that moment.
+NOTE: Deletion is not handled by the server because there is no encapsulation of any format at that moment.
 
+== Configuring the server module
 
-== Server Configuration
+The server module contains several configurations that you can set in:
 
-The server module contains several configuration you can set in:
-
-- Environment variables
-- System properties
-- A file located based on the `--component-configuration` CLI option
+- Environment variables.
+- System properties.
+- A file located based on the `--component-configuration` CLI option.
 
 include::{partialsdir}/generated_server-configuration.adoc[]

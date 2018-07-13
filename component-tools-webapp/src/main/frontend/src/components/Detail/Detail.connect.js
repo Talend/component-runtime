@@ -16,6 +16,7 @@
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import get from 'lodash/get';
 import {
 	backToComponentEdit,
 	onComponentPropertiesChange,
@@ -26,7 +27,10 @@ import {
 import Detail from './Detail.component';
 
 function mapStateToProps(state) {
-	return state.component;
+	return {
+		definitionURL: get(state, 'app.componentsList.selectedNode.$$detail'),
+		...state.app.component,
+	}
 }
 
 function mapDispatchToProps(dispatch) {

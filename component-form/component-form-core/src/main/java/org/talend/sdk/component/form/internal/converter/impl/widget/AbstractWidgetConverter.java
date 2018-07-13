@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
+import org.talend.sdk.component.form.internal.converter.impl.widget.path.AbsolutePathResolver;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
@@ -46,6 +47,8 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public abstract class AbstractWidgetConverter implements PropertyConverter {
 
+    private final AbsolutePathResolver pathResolver = new AbsolutePathResolver();
+
     protected final Collection<UiSchema> schemas;
 
     protected final Collection<SimplePropertyDefinition> properties;
@@ -54,9 +57,11 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
 
     protected final JsonSchema jsonSchema;
 
+    protected final String lang;
+
     protected <T> CompletionStage<List<UiSchema.NameValue>> loadDynamicValues(final Client<T> client,
             final String family, final String actionName, final T context) {
-        return client.action(family, "dynamic_values", actionName, emptyMap(), context).exceptionally(e -> {
+        return client.action(family, "dynamic_values", actionName, lang, emptyMap(), context).exceptionally(e -> {
             log.warn(e.getMessage(), e);
             return emptyMap();
         }).thenApply(
@@ -98,7 +103,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 return Stream.empty();
             }
             final String parameterPrefix = expectedProperties.next().getPath();
-            final String propertiesPrefix = resolveProperty(prop, normalizeParamRef(paramRef));
+            final String propertiesPrefix = pathResolver.resolveProperty(prop.getPath(), paramRef);
             final List<UiSchema.Parameter> resolvedParams = properties
                     .stream()
                     .filter(p -> p.getPath().startsWith(propertiesPrefix))
@@ -107,7 +112,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                         final UiSchema.Parameter parameter = new UiSchema.Parameter();
                         final String key = parameterPrefix + o.getPath().substring(propertiesPrefix.length());
                         parameter.setKey(key.replace("[]", "")); // not a jsonpath otherwise
-                        parameter.setPath(o.getPath().replace("[]", ""));
+                        parameter.setPath(o.getPath());
                         return parameter;
                     })
                     .collect(toList());
@@ -117,34 +122,6 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             }
             return resolvedParams.stream();
         }).collect(toList())).orElse(null);
-    }
-
-    // ensure it is aligned with org.talend.sdk.component.studio.model.parameter.SettingsCreator.computeTargetPath()
-    private String resolveProperty(final SimplePropertyDefinition prop, final String paramRef) {
-        if (".".equals(paramRef)) {
-            return prop.getPath();
-        }
-        if (paramRef.startsWith("..")) {
-            String current = prop.getPath();
-            String ref = paramRef;
-            while (ref.startsWith("..")) {
-                final int lastDot = current.lastIndexOf('.');
-                if (lastDot < 0) {
-                    ref = "";
-                    break;
-                }
-                current = current.substring(0, lastDot);
-                ref = ref.substring("..".length(), ref.length());
-                if (ref.startsWith("/")) {
-                    ref = ref.substring(1);
-                }
-            }
-            return current + (!ref.isEmpty() ? "." : "") + ref.replace('/', '.');
-        }
-        if (paramRef.startsWith(".") || paramRef.startsWith("./")) {
-            return prop.getPath() + '.' + paramRef.replaceFirst("\\./?", "").replace('/', '/');
-        }
-        return paramRef;
     }
 
     protected UiSchema newUiSchema(final PropertyContext ctx) {
@@ -162,34 +139,10 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         schema.setRequired(ctx.isRequired());
         schema.setPlaceholder(ctx.getProperty().getPlaceholder());
         if (actions != null) {
-            final List<UiSchema.Trigger> triggers =
-                    Stream
-                            .concat(ofNullable(ctx.getProperty().getMetadata().get("action::validation"))
-                                    .flatMap(
-                                            v -> actions
-                                                    .stream()
-                                                    .filter(a -> a.getName().equals(v)
-                                                            && "validation".equals(a.getType()))
-                                                    .findFirst())
-                                    .map(ref -> Stream.of(toTrigger(properties, ctx.getProperty(), ref)))
-                                    .orElseGet(Stream::empty),
-                                    ctx
-                                            .getProperty()
-                                            .getMetadata()
-                                            .entrySet()
-                                            .stream()
-                                            .filter(it -> it.getKey().startsWith("action::")
-                                                    && !isBuiltInAction(it.getKey()))
-                                            .map(v -> actions
-                                                    .stream()
-                                                    .filter(a -> a.getName().equals(v.getValue())
-                                                            && v.getKey().substring("action::".length()).equals(
-                                                                    a.getType()))
-                                                    .findFirst()
-                                                    .map(ref -> toTrigger(properties, ctx.getProperty(), ref))
-                                                    .orElse(null))
-                                            .filter(Objects::nonNull))
-                            .collect(toList());
+            final List<UiSchema.Trigger> triggers = Stream
+                    .concat(Stream.concat(createValidationTrigger(ctx.getProperty()),
+                            createOtherActions(ctx.getProperty())), createSuggestionTriggers(ctx.getProperty()))
+                    .collect(toList());
             if (!triggers.isEmpty()) {
                 schema.setTriggers(triggers);
             }
@@ -198,11 +151,48 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         return schema;
     }
 
+    private Stream<UiSchema.Trigger> createSuggestionTriggers(final SimplePropertyDefinition property) {
+        return ofNullable(property.getMetadata().get("action::suggestions"))
+                .flatMap(v -> actions
+                        .stream()
+                        .filter(a -> a.getName().equals(v) && "suggestions".equals(a.getType()))
+                        .findFirst())
+                .map(ref -> Stream.of(toTrigger(properties, property, ref)).peek(
+                        trigger -> trigger.setOnEvent("focus")))
+                .orElseGet(Stream::empty);
+    }
+
+    private Stream<UiSchema.Trigger> createOtherActions(final SimplePropertyDefinition property) {
+        return property
+                .getMetadata()
+                .entrySet()
+                .stream()
+                .filter(it -> it.getKey().startsWith("action::") && !isBuiltInAction(it.getKey()))
+                .map(v -> actions
+                        .stream()
+                        .filter(a -> a.getName().equals(v.getValue())
+                                && v.getKey().substring("action::".length()).equals(a.getType()))
+                        .findFirst()
+                        .map(ref -> toTrigger(properties, property, ref))
+                        .orElse(null))
+                .filter(Objects::nonNull);
+    }
+
+    private Stream<UiSchema.Trigger> createValidationTrigger(final SimplePropertyDefinition property) {
+        return ofNullable(property.getMetadata().get("action::validation"))
+                .flatMap(v -> actions
+                        .stream()
+                        .filter(a -> a.getName().equals(v) && "validation".equals(a.getType()))
+                        .findFirst())
+                .map(ref -> Stream.of(toTrigger(properties, property, ref)))
+                .orElseGet(Stream::empty);
+    }
+
     // means the actions is processed in the converter in a custom fashion and doesn't need to be passthrough to the
     // client
     private boolean isBuiltInAction(final String key) {
         return key.equals("action::dynamic_values") || key.equals("action::healthcheck")
-                || key.equals("action::validation");
+                || key.equals("action::validation") || key.equals("action::suggestions");
     }
 
     protected List<UiSchema.Condition> createConditions(final PropertyContext ctx) {
@@ -217,7 +207,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                     final String valueKey =
                             "condition::if::value" + (split.length == 4 ? "::" + split[split.length - 1] : "");
                     final String paramRef = e.getValue();
-                    final String path = resolveProperty(ctx.getProperty(), normalizeParamRef(paramRef));
+                    final String path = pathResolver.resolveProperty(ctx.getProperty().getPath(), paramRef);
                     final SimplePropertyDefinition definition =
                             properties.stream().filter(p -> p.getPath().equals(path)).findFirst().orElse(null);
                     final Function<String, Object> converter = findStringValueMapper(definition);
@@ -230,10 +220,6 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                             .build();
                 })
                 .collect(toList());
-    }
-
-    private String normalizeParamRef(final String paramRef) {
-        return (!paramRef.contains(".") ? "../" : "") + paramRef;
     }
 
     private Function<String, Object> findStringValueMapper(final SimplePropertyDefinition definition) {

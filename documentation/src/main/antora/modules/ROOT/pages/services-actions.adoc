@@ -1,10 +1,10 @@
-= Providing some actions for consumers/clients
+= Providing actions for consumers
 :page-partial:
 
-In some cases you will desire to add some actions unrelated to the runtime. A simple example
-is to enable clients - the users of the plugin/library - to test if a connection works. Even more concretely: _does my database is up?_.
+In some cases you can need to add some actions that are not related to the runtime. For example,
+enabling clients - the users of the plugin/library - to test if a connection works properly.
 
-To do so you need to define an `@Action` which is a method with a name (representing the event name) in a class decorated with `@Service`:
+To do so, you need to define an `@Action`, which is a method with a name (representing the event name), in a class decorated with `@Service`:
 
 [source,java]
 ----
@@ -17,11 +17,9 @@ public class MyDbTester {
 }
 ----
 
-IMPORTANT: services are singleton so if you need some thread safety ensure they match that requirement. They
-shouldn't store any state too (state is held by the component) since they can be serialized any time.
+IMPORTANT: Services are singleton. If you need some thread safety, make sure that they match that requirement. Services should not store any status either because they can be serialized at any time. Status are held by the component.
 
-TIP: services are usable in components as well (matched by type) and allow to reuse some shared logic like a client. Here is a sample
-with a service used to access files:
+Services can be used in components as well (matched by type). They allow to reuse some shared logic, like a client. Here is a sample with a service used to access files:
 
 [source,java]
 ----
@@ -44,11 +42,24 @@ public class PersonReader implements Serializable {
 }
 ----
 
-TIP: service is passed to constructor automatically, it can be used as a bean. Only call of service's method is required.
+The service is automatically passed to the constructor. It can be used as a bean. In that case, it is only necessary to call the service method.
 
 == Particular action types
 
-Some actions are that common and need a clear contract so they are defined as API first citizen, this is the case for wizards or healthchecks
-for instance. Here is the list of all actions:
+Some common actions need a clear contract so they are defined as API first-class citizen. For example, this is the case for wizards or health checks. Here is the list of the available actions:
 
 include::{partialsdir}/generated_actions.adoc[]
+
+== Internationalization
+
+Internationalization is supported through the injection of the `$lang` parameter, which allows you to get the correct locale to use with an `@Internationalized` service:
+
+[source]
+----
+public SuggestionValues findSuggestions(@Option("someParameter") final String param,
+                                        @Option("$lang") final String lang) {
+    return ...;
+}
+----
+
+TIP: You can combine the `$lang` option with the `@Internationalized` and `@Language` parameters.

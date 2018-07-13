@@ -324,6 +324,13 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage("org.talend.test.failure.aftergroup")
+    void testFailureAfterGroup(final ExceptionSpec expectedException) {
+        expectedException.expectMessage("- @Output parameter must be of type OutputEmitter\n"
+                + "- Parameter of AfterGroup method need to be annotated with Output");
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.valid", success = true, validateDocumentation = true)
     void testFullValidation() {
         // no-op

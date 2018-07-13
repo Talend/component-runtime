@@ -1,21 +1,19 @@
-= Internationalization
+= Internationalizing services
 :page-partial:
 
-Recommanded practise for internationalization are:
+Internationalization requires following several best practices:
 
-* store messages using `ResourceBundle` properties file in your component module
-* the location of the properties are in the same package than the related component(s) and is named `Messages` (ex: `org.talend.demo.MyComponent` will use `org.talend.demo.Messages[locale].properties`)
-* for your own messages use the internationalization API
+* Storing messages using `ResourceBundle` properties file in your component module.
+* The location of the properties is in the same package than the related components and is named `Messages`. For example, `org.talend.demo.MyComponent` uses `org.talend.demo.Messages[locale].properties`.
+* Use the internationalization API for your own messages.
 
 == Internationalization API
 
-Overal idea is to design its messages as methods returning `String` values
-and back the template by a `ResourceBundle` located in the same package than the interface
-defining these methods and named `Messages`.
+The Internationalization API is the mechanism to use to internationalize your own messages in your own components.
 
-IMPORTANT: this is the mecanism to use to internationalize your own messages in your own components.
+The principle of the API is to design messages as methods returning `String` values and get back a template using a `ResourceBundle` named `Messages` and located in the same package than the interface that defines these methods.
 
-To ensure you internationalization API is identified you need to mark it with `@Internationalized`:
+To ensure your internationalization API is identified, you need to mark it with the `@Internationalized` annotation:
 
 [source,java]
 ----
@@ -27,9 +25,12 @@ public interface Translator {
     String templatizedMessage(String arg0, int arg1); <2>
 
     String localized(String arg0, @Language Locale locale); <3>
+
+    String localized(String arg0, @Language String locale); <4>
 }
 ----
 
-<1> `@Internationalized` allows to mark a class as a i18n service
-<2> you can pass parameters and the message will use `MessageFormat` syntax to be resolved based on the `ResourceBundle` template
-<3> you can use `@Language` on a `Locale` parameter to specify manually the locale to use, note that a single value will be used (the first parameter tagged as such).
+<1> `@Internationalized` allows to mark a class as an internationalized service.
+<2> You can pass parameters. The message uses the `MessageFormat` syntax to be resolved, based on the `ResourceBundle` template.
+<3> You can use `@Language` on a `Locale` parameter to specify manually the locale to use. Note that a single value is used (the first parameter tagged as such).
+<4> `@Language` also supports the `String` type.

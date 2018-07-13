@@ -23,6 +23,8 @@ import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.processor.AfterGroup;
+import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 
@@ -36,9 +38,19 @@ public class MyComponent implements Serializable {
         // no-op
     }
 
+    @BeforeGroup
+    public void beforeGroup() {
+
+    }
+
     @ElementListener
     public Foo passthrough(final Foo item) {
         return item;
+    }
+
+    @AfterGroup
+    public void afterGroup() {
+
     }
 
     public static class Foo {

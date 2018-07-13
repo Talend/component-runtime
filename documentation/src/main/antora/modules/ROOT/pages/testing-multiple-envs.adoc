@@ -1,16 +1,12 @@
-= Multiple environments for the same tests
+= Testing on multiple environments
 :page-partial:
 
-JUnit (4 or 5) already provides some ways to parameterized tests and execute the same "test logic"
-against several data. However it is not that convenient to test multiple environments.
+JUnit (4 or 5) already provides ways to parameterize tests and execute the same "test logic"
+against several sets of data. However, it is not very convenient for testing multiple environments.
 
-For instance, with Beam, you can desire to test against multiple runners your code
-and it requires to solve conflicts between runner dependencies, setup the correct classloaders
-etc...It is a lot of work!
+For example, with Beam, you can test your code against multiple runners. But it requires resolving conflicts between runner dependencies, setting the correct classloaders, and so on.
 
-To simplify such cases, the framework provides you a multi-environment support for your tests.
-
-It is in the junit module and is usable with JUnit 4 and JUnit 5.
+To simplify such cases, the framework provides you a multi-environment support for your tests, through the JUnit module, which works with both JUnit 4 and JUnit 5.
 
 == JUnit 4
 
@@ -27,15 +23,13 @@ public class TheTest {
 }
 ----
 
-The `MultiEnvironmentsRunner` will execute the test(s) for each defined environments. It means it will
-run `test1` for `Env1` and `Env2` in previous example.
+The `MultiEnvironmentsRunner` executes the tests for each defined environments. With the example above, it means that it runs `test1` for `Env1` and `Env2`.
 
-By default `JUnit4` runner will be used to execute the tests in one environment but you can use `@DelegateRunWith`
-to use another runner.
+By default, the `JUnit4` runner is used to execute the tests in one environment, but you can use `@DelegateRunWith` to use another runner.
 
 == JUnit 5
 
-JUnit 5 configuration is close to JUnit 4 one:
+The multi-environment configuration with JUnit 5 is similar to JUnit 4:
 
 [source,java]
 ----
@@ -50,15 +44,13 @@ class TheTest {
 }
 ----
 
-The main difference is you don't use a runner (it doesn't exist in JUnit 5) and you replace `@Test` by `@EnvironmentalTest`.
+The main differences are that no runner is used because they do not exist in JUnit 5, and that you need to replace `@Test` by `@EnvironmentalTest`.
 
-IMPORTANT: the main difference with JUnit 4 integration is that the tests are execute one after each other for all environments
-instead of running all tests in each environments sequentially. It means, for instance, that `@BeforeAll` and `@AfterAll` are executed
-once for all runners.
+IMPORTANT: With JUnit5, tests are executed one after another for all environments, while tests are ran sequentially in each environments with JUnit 4. For example, this means that `@BeforeAll` and `@AfterAll` are executed once for all runners.
 
 == Provided environments
 
-The provided environment setup the contextual classloader to load the related runner of Apache Beam.
+The provided environment sets the contextual classloader in order to load the related runner of Apache Beam.
 
 Package: `org.talend.sdk.component.junit.environment.builtin.beam`
 
@@ -66,8 +58,7 @@ include::{partialsdir}/generated_junit-environments.adoc[]
 
 == Configuring environments
 
-If the environment extends `BaseEnvironmentProvider` and therefore defines an environment name - which is the case of the default ones, you can use `EnvironmentConfiguration`
-to customize the system properties used for that environment:
+If the environment extends `BaseEnvironmentProvider` and therefore defines an environment name - which is the case of the default ones - you can use `EnvironmentConfiguration` to customize the system properties used for that environment:
 
 [source,java]
 ----
@@ -94,13 +85,15 @@ class MyBeamTest {
 }
 ----
 
-TIP: if you set the system property `<environment name>.skip=true` then the environment related executions will be skipped.
+TIP: If you set the `<environment name>.skip` system property to `true`, the environment-related executions are skipped.
 
 === Advanced usage
 
-WARNING: this usage assumes Beam 2.4.0 is in used and the classloader fix about the `PipelineOptions` is merged.
+This usage assumes that Beam 2.4.0 is used.
 
-Dependencies:
+The following dependencies bring the JUnit testing toolkit, the Beam integration and the multi-environment testing toolkit for JUnit into the test scope.
+
+.Dependencies
 
 [source,java]
 ----
@@ -129,11 +122,9 @@ Dependencies:
 </dependencies>
 ----
 
-These dependencies brings into the test scope the JUnit testing toolkit,
-the Beam integration and the multi-environment testing toolkit for JUnit.
+Using the fluent DSL to define jobs, you can write a test as follows:
 
-Then using the fluent DSL to define jobs - which assumes your job is linear and
-each step sends a single value (no multi-input/multi-output), you can write this kind of test:
+NOTE: Your job must be linear and each step must send a single value (no multi-input or multi-output).
 
 [source,java]
 ----
@@ -151,7 +142,7 @@ class TheComponentTest {
 }
 ----
 
-It will execute the chain twice:
+It executes the chain twice:
 
-1. with a standalone environment to simulate the studio
-2. with a beam (direct runner) environment to ensure the portability of your job
+1. With a standalone environment to simulate the Studio.
+2. With a Beam (direct runner) environment to ensure the portability of your job.

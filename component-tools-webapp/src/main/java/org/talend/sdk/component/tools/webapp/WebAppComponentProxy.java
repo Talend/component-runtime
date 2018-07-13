@@ -16,13 +16,16 @@
 package org.talend.sdk.component.tools.webapp;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletionException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -33,6 +36,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.form.api.ActionService;
@@ -68,8 +72,9 @@ public class WebAppComponentProxy {
     @Path("action")
     public void action(@Suspended final AsyncResponse response, @QueryParam("family") final String family,
             @QueryParam("type") final String type, @QueryParam("action") final String action,
-            final Map<String, Object> params) {
-        client.action(family, type, action, params, null).handle((r, e) -> {
+            final Map<String, Object> params, @Context final HttpServletRequest request) {
+        final String lang = ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en");
+        client.action(family, type, action, lang, params, null).handle((r, e) -> {
             if (e != null) {
                 onException(response, e);
             } else {
@@ -110,7 +115,8 @@ public class WebAppComponentProxy {
     @GET
     @Path("detail/{id}")
     public void getDetail(@Suspended final AsyncResponse response,
-            @QueryParam("language") @DefaultValue("en") final String language, @PathParam("id") final String id) {
+            @QueryParam("language") @DefaultValue("en") final String language, @PathParam("id") final String id,
+            @Context final HttpServletRequest request) {
         target
                 .path("component/details")
                 .queryParam("language", language)
@@ -119,7 +125,8 @@ public class WebAppComponentProxy {
                 .rx()
                 .get(ComponentDetailList.class)
                 .toCompletableFuture()
-                .thenCompose(result -> uiSpecService.convert(result.getDetails().iterator().next(), null))
+                .thenCompose(result -> uiSpecService.convert(result.getDetails().iterator().next(),
+                        ofNullable(request.getLocale()).map(Locale::getLanguage).orElse("en"), null))
                 .handle((result, e) -> {
                     if (e != null) {
                         onException(response, e);

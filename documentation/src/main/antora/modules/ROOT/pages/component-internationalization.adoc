@@ -1,37 +1,37 @@
-= Internationalization
+= Component internationalization
 :page-partial:
 
-In the simplest case you should store messages using `ResourceBundle` properties file in your component module to use internationalization.
-The location of the properties file should be in the same package as the related component(s) and is named `Messages` (ex: `org.talend.demo.MyComponent` will use `org.talend.demo.Messages[locale].properties`).
+In common cases, you can store messages using a properties file in your component module to use internationalization.
+
+Store the properties file in the same package as the related components and name it `Messages`. For example, `org.talend.demo.MyComponent` uses `org.talend.demo.Messages[locale].properties`.
 
 == Default components keys
 
-Out of the box components are internationalized using the same location logic for the resource bundle and here is the list
-of supported keys:
+Out of the box components are internationalized using the same location logic for the resource bundle. The supported keys are:
 
 [options="header,autowidth"]
 |====
 |Name Pattern|Description
-|${family}._displayName|the display name of the family
-|${family}.${configurationType}.${name}._displayName|the display name of a configuration type (dataStore or dataSet)
-|${family}.${component_name}._displayName|the display name of the component (used by the GUIs)
-|${property_path}._displayName|the display name of the option.
-|${simple_class_name}.${property_name}._displayName|the display name of the option using it class name.
-|${enum_simple_class_name}.${enum_name}._displayName|the display name of the `enum_name` enum value of the enum `enum_simple_class_name`.
-|${property_path}._placeholder|the placeholder of the option.
+|${family}._displayName| Display name of the family
+|${family}.${configurationType}.${name}._displayName| Display name of a configuration type (dataStore or dataSet)
+|${family}.${component_name}._displayName| Display name of the component (used by the GUIs)
+|${property_path}._displayName| Display name of the option.
+|${simple_class_name}.${property_name}._displayName| Display name of the option using its class name.
+|${enum_simple_class_name}.${enum_name}._displayName| Display name of the `enum_name` value of the `enum_simple_class_name` enumeration.
+|${property_path}._placeholder| Placeholder of the option.
 |====
 
-Example of configuration for a component named `list` belonging to the family `memory` (`@Emitter(family = "memory", name = "list")`):
+Example of configuration for a component named `list` and belonging to the `memory` family (`@Emitter(family = "memory", name = "list")`):
 
 [source]
 ----
 memory.list._displayName = Memory List
 ----
 
-Configuration class are also translatable using the simple class name in the messages properties file.
-This useful when you have some common configuration shared within multiple components.
+Configuration classes can be translated using the simple class name in the messages properties file.
+This is useful in case of common configurations shared by multiple components.
 
-If you have a configuration class like :
+For example, if you have a configuration class as follows :
 [source,java]
 ----
 public class MyConfig {
@@ -44,7 +44,8 @@ public class MyConfig {
 }
 ----
 
-You can give it a translatable display name by adding ${simple_class_name}.${property_name}._displayName to Messages.properties under the same package as the config class.
+You can give it a translatable display name by adding `${simple_class_name}.${property_name}._displayName` to `Messages.properties` under the same package as the configuration class.
+
 [source]
 ----
 MyConfig.host._displayName = Server Host Name
@@ -54,5 +55,4 @@ MyConfig.port._displayName = Server Port
 MyConfig.port._placeholder = Enter Server Port...
 ----
 
-IMPORTANT: If you have a display name using the property path, it will override the display name defined using the simple class name.
-this rule apply also to placeholders
+NOTE: If you have a display name using the property path, it overrides the display name defined using the simple class name. This rule also applies to placeholders.

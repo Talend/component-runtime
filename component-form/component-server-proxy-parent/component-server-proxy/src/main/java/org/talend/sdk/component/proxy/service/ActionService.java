@@ -103,7 +103,7 @@ public class ActionService {
         if ("dynamic_values".equals(type)) {
             return self.findProposable(family, type, action, context.getLanguage(), context.getPlaceholderProvider());
         }
-        return client.action(family, type, action, params, context);
+        return client.action(family, type, action, context.getLanguage(), params, context);
     }
 
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.actions.proposables",
@@ -111,7 +111,7 @@ public class ActionService {
     public CompletionStage<Map<String, Object>> findProposable(final String family, final String type,
             final String action, final String lang, final Function<String, String> placeholders) {
         // we recreate the context and don't pass it as a param to ensure the cache key is right
-        return client.action(family, type, action, emptyMap(), new UiSpecContext(lang, placeholders));
+        return client.action(family, type, action, lang, emptyMap(), new UiSpecContext(lang, placeholders));
     }
 
     public boolean isBuiltin(final String action) {
@@ -169,7 +169,7 @@ public class ActionService {
 
     private CompletionStage<UiNode> toUiNode(final String lang, final Function<String, String> placeholderProvider,
             final ConfigTypeNode detail, final ComponentIndices iconComponents, final ConfigTypeNode family) {
-        return toUiSpec(detail, family, new UiSpecContext(lang, placeholderProvider))
+        return toUiSpec(detail, family, new UiSpecContext(lang, placeholderProvider), lang)
                 .thenApply(ui -> new UiNode(ui,
                         new Node(detail.getId(), detail.getDisplayName(), family.getId(), family.getDisplayName(),
                                 ofNullable(family.getId())
@@ -187,8 +187,8 @@ public class ActionService {
     }
 
     private CompletionStage<Ui> toUiSpec(final ConfigTypeNode detail, final ConfigTypeNode family,
-            final UiSpecContext context) {
-        return uiSpecService.convert(family.getName(), detail, context).thenApply(ui -> {
+            final UiSpecContext context, final String language) {
+        return uiSpecService.convert(family.getName(), language, detail, context).thenApply(ui -> {
             // drop properties for this particular callback since they are ignored on client side
             ui.setProperties(null);
             return ui;

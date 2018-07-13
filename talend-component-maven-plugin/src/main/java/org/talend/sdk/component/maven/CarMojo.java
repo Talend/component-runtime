@@ -84,7 +84,7 @@ public class CarMojo extends DependencyAwareMojo {
         configuration.setCustomMetadata(metadata);
         new CarBundler(configuration, getLog()).run();
         if (attach) {
-            helper.attachArtifact(project, output, classifier);
+            helper.attachArtifact(project, "car", classifier, output);
             getLog().info("Attached " + output + " with classifier " + classifier);
         }
     }

@@ -1,56 +1,59 @@
-= Built in services
+= Built-in services
 :page-partial:
 
-The framework provides some built-in services you can inject by type in components and actions out of the box.
+The framework provides built-in services that you can inject by type in components and actions.
 
 Here is the list:
 
 [options="header,autowidth"]
 |===
 | Type | Description
-a| `org.talend.sdk.component.api.service.cache.LocalCache` | Provides a small abstraction to cache data which don't need to be recomputed very often. Commonly used by actions for the UI interactions.
+a| `org.talend.sdk.component.api.service.cache.LocalCache` | Provides a small abstraction to cache data that does not need to be recomputed very often. Commonly used by actions for UI interactions.
 a| `org.talend.sdk.component.api.service.dependency.Resolver` a| Allows to resolve a dependency from its Maven coordinates.
-a| `javax.json.bind.Jsonb` a| A JSON-B instance. If your model is static and you don't want to handle the serialization manually using JSON-P you can inject that instance.
+a| `javax.json.bind.Jsonb` a| A JSON-B instance. If your model is static and you don't want to handle the serialization manually using JSON-P, you can inject that instance.
 a| `javax.json.spi.JsonProvider` a| A JSON-P instance. Prefer other JSON-P instances if you don't exactly know why you use this one.
-a| `javax.json.JsonBuilderFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one for memory/speed optimizations.
-a| `javax.json.JsonWriterFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one for memory/speed optimizations.
-a| `javax.json.JsonReaderFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one for memory/speed optimizations.
-a| `javax.json.stream.JsonParserFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one for memory/speed optimizations.
-a| `javax.json.stream.JsonGeneratorFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one for memory/speed optimizations.
-a| `org.talend.sdk.component.api.service.configuration.LocalConfiguration` a| Represents the local configuration which can be used during the design.
+a| `javax.json.JsonBuilderFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.
+a| `javax.json.JsonWriterFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.
+a| `javax.json.JsonReaderFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.
+a| `javax.json.stream.JsonParserFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.
+a| `javax.json.stream.JsonGeneratorFactory` a| A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.
+a| `org.talend.sdk.component.api.service.configuration.LocalConfiguration` a| Represents the local configuration that can be used during the design.
+a| `org.talend.sdk.component.api.service.dependency.Resolver` a| Allows to resolve files from Maven coordinates (like `dependencies.txt` for component). Note that it assumes that the files are available in the component Maven repository.
+a| `org.talend.sdk.component.api.service.injector.Injector` a| Utility to inject services in fields marked with `@Service`.
+a| `org.talend.sdk.component.api.service.factory.ObjectFactory` a| Allows to instantiate an object from its class name and properties.
 
-WARNING: it is not recommended to use it for the runtime since the local configuration is generally different and the instances are distincts.
+It is not recommended to use it for the runtime because the local configuration is usually different and the instances are distinct.
 
-TIP: you can also use the local cache as an interceptor with `@Cached`
-a| Every interface that extends `HttpClient` and that contains methods annotated with `@Request` a| This let you define an http client in a declarative manner using an annotated interface.
+You can also use the local cache as an interceptor with `@Cached`
 
-TIP: See the <<_httpclient_usage>> for details.
+a| Every interface that extends `HttpClient` and that contains methods annotated with `@Request` a| Lets you define an HTTP client in a declarative manner using an annotated interface.
+
+See the <<httpclient_usage>> for more details.
 
 |===
 
-IMPORTANT: all these *injected* instances are serializable which is important for the big data environment, if you create the instances
-yourself you will not benefit from that features and the memory optimization done by the runtime so try to prefer to reuse the framework
-instances over custom ones.
+IMPORTANT: All these *injected* services are serializable, which is important for big data environments. If you create the instances yourself, you cannot benefit from these features, nor from the memory optimization done by the runtime. Prefer reusing the framework instances over custom ones.
 
-== HttpClient usage
+[[httpclient_usage]]
+== Using HttpClient
 
-Let assume that we have a REST API defined like below, and that it requires a basic authentication header.
+The HttpClient usage is described in this section by using the REST API example below. It is assume that it requires a basic authentication header.
 
 |===
 | GET     `/api/records/{id}` | -
-| POST    `/api/records`      | with a json playload to be created `{"id":"some id", "data":"some data"}`
+| POST    `/api/records`      | JSON payload to be created: `{"id":"some id", "data":"some data"}`
 |===
 
-To create an http client able to consume this REST API, we will define an interface that extends `HttpClient`,
+To create an HTTP client that is able to consume the REST API above, you need to define an interface that extends `HttpClient`.
 
-The `HttpClient` interface lets you set the `base` for the http address that our client will hit.
+The `HttpClient` interface lets you set the `base` for the HTTP address that the client will hit.
 
-The `base` is the part of the address that we will need to add to the request path to hit the api.
+The `base` is the part of the address that needs to be added to the request path to hit the API.
 
-Every method annotated with `@Request` of our interface will define an http request.
-Also every request can have `@Codec` that let us encode/decode the request/response playloads.
+Every method annotated with `@Request` in the interface defines an HTTP request.
+Every request can have a `@Codec` parameter that allows to encode or decode the request/response payloads.
 
-TIP: if your payload(s) is(are) `String` or `Void` you can ignore the coder/decoder.
+TIP: You can ignore the encoding/decoding for `String` and `Void` payloads.
 
 [source,java]
 ----
@@ -65,12 +68,12 @@ public interface APIClient extends HttpClient {
 }
 ----
 
-IMPORTANT: The interface should extends `HttpClient`.
+IMPORTANT: The interface should extend `HttpClient`.
 
-In the codec classes (class that implement Encoder/Decoder) you can inject any of your services annotated with `@Service` or `@Internationalized` into the constructor.
-The i18n services can be useful to have i18n messages for errors handling for example.
+In the codec classes (that implement Encoder/Decoder), you can inject any of your service annotated with `@Service` or `@Internationalized` into the constructor.
+Internationalization services can be useful to have internationalized messages for errors handling.
 
-This interface can be injected into our Components classes or Services to consume the defined api.
+The interface can be injected into component classes or services to consume the defined API.
 [source,java]
 ----
 @Service
@@ -94,15 +97,13 @@ public class MyService {
 }
 ----
 
-Note: by default `*/*+json` are mapped to JSON-P and `*/*+xml` to JAX-B if the model has a `@XmlRootElement` annotation.
+NOTE: By default, `*/*+json` are mapped to JSON-P and `*/*+xml` to JAX-B if the model has a `@XmlRootElement` annotation.
 
-=== Advanced HTTP client request customization
+=== Customizing HTTP client requests
 
-For advanced cases you can customize the `Connection` directly using `@UseConfigurer` on the method.
-It will call your custom instance of `Configurer`. Note that you can use some `@ConfigurerOption` in the method
-signature to pass some configurer configuration.
+For advanced cases, you can customize the `Connection` by directly using `@UseConfigurer` on the method. It calls your custom instance of `Configurer`. Note that you can use `@ConfigurerOption` in the method signature to pass some `Configurer` configurations.
 
-For instance if you have this configurer:
+For example, if you have the following `Configurer`:
 
 [source,java]
 ----

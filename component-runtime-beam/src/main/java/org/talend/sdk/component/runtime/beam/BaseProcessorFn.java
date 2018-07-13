@@ -18,11 +18,14 @@ package org.talend.sdk.component.runtime.beam;
 import static java.util.Collections.emptyIterator;
 import static java.util.stream.Collectors.toMap;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
@@ -35,32 +38,104 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.output.ProcessorImpl;
+import org.talend.sdk.component.runtime.serialization.ContainerFinder;
+import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor
-abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
+abstract class BaseProcessorFn<O> extends DoFn<JsonObject, O> {
 
     protected Processor processor;
 
+    @Setter
+    protected int maxBatchSize = 1000;
+
+    protected int currentCount = 0;
+
+    protected volatile JsonBuilderFactory factory;
+
+    protected volatile Jsonb jsonb;
+
     BaseProcessorFn(final Processor processor) {
         this.processor = processor;
+        if (ProcessorImpl.class.isInstance(processor)) {
+            ProcessorImpl.class
+                    .cast(processor)
+                    .getInternalConfiguration()
+                    .entrySet()
+                    .stream()
+                    .filter(it -> it.getKey().endsWith("$maxBatchSize") && it.getValue() != null
+                            && !it.getValue().trim().isEmpty())
+                    .findFirst()
+                    .ifPresent(val -> {
+                        try {
+                            maxBatchSize = Integer.parseInt(val.getValue().trim());
+                        } catch (final NumberFormatException nfe) {
+                            log.warn("Invalid configuratoin: " + val);
+                        }
+                    });
+        }
     }
+
+    protected abstract Consumer<JsonObject> toEmitter(ProcessContext context);
+
+    protected abstract BeamOutputFactory getFinishBundleOutputFactory(FinishBundleContext context);
 
     @Setup
     public void setup() throws Exception {
         processor.start();
     }
 
-    @StartBundle
-    public void startBundle(final StartBundleContext context) throws Exception {
-        processor.beforeGroup();
+    @ProcessElement
+    public void processElement(final ProcessContext context) {
+        ensureInit();
+        if (currentCount == 0) {
+            processor.beforeGroup();
+        }
+        final BeamOutputFactory output = new BeamSingleOutputFactory(toEmitter(context), factory, jsonb);
+        processor.onNext(new BeamInputFactory(context), output);
+        output.postProcessing();
+        currentCount++;
+        if (maxBatchSize > 0 && currentCount >= maxBatchSize) {
+            currentCount = 0;
+            final BeamOutputFactory ago = new BeamMultiOutputFactory(toEmitter(context), factory, jsonb);
+            processor.afterGroup(output);
+            ago.postProcessing();
+        }
+    }
+
+    @FinishBundle
+    public void finishBundle(final FinishBundleContext context) {
+        if (currentCount > 0) {
+            ensureInit();
+            currentCount = 0;
+            final BeamOutputFactory output = getFinishBundleOutputFactory(context);
+            processor.afterGroup(output);
+            output.postProcessing();
+        }
     }
 
     @Teardown
-    public void tearDown() throws Exception {
+    public void tearDown() {
         processor.stop();
+    }
+
+    private void ensureInit() {
+        if (factory == null) {
+            synchronized (this) {
+                if (factory == null) {
+                    final LightContainer container = ContainerFinder.Instance.get().find(processor.plugin());
+                    factory = container.findService(JsonBuilderFactory.class);
+                    jsonb = container.findService(Jsonb.class);
+                }
+            }
+        }
     }
 
     protected static final class BeamInputFactory implements InputFactory {
@@ -80,13 +155,13 @@ abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
     }
 
     @RequiredArgsConstructor
-    protected static final class BeamOutputFactory implements OutputFactory {
+    protected static abstract class BeamOutputFactory implements OutputFactory {
 
-        private final Consumer<JsonObject> emit;
+        protected final Consumer<JsonObject> emit;
 
-        private final JsonBuilderFactory factory;
+        protected final JsonBuilderFactory factory;
 
-        private final Jsonb jsonb;
+        protected final Jsonb jsonb;
 
         private Map<String, JsonArrayBuilder> outputs = new HashMap<>();
 
@@ -95,6 +170,24 @@ abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
             return new BeamOutputEmitter(outputs.computeIfAbsent(name, k -> factory.createArrayBuilder()), jsonb);
         }
 
+        public abstract void postProcessing();
+    }
+
+    protected static final class BeamSingleOutputFactory extends BeamOutputFactory {
+
+        private Map<String, JsonArrayBuilder> outputs = new HashMap<>();
+
+        protected BeamSingleOutputFactory(final Consumer<JsonObject> emit, final JsonBuilderFactory factory,
+                final Jsonb jsonb) {
+            super(emit, factory, jsonb);
+        }
+
+        @Override
+        public OutputEmitter create(final String name) {
+            return new BeamOutputEmitter(outputs.computeIfAbsent(name, k -> factory.createArrayBuilder()), jsonb);
+        }
+
+        @Override
         public void postProcessing() {
             if (!outputs.isEmpty()) {
                 emit.accept(outputs
@@ -103,6 +196,40 @@ abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
                         .collect(factory::createObjectBuilder, (a, o) -> a.add(o.getKey(), o.getValue()),
                                 JsonObjectBuilder::addAll)
                         .build());
+            }
+        }
+    }
+
+    protected static final class BeamMultiOutputFactory extends BeamOutputFactory {
+
+        private final Collection<JsonObject> outputs = new ArrayList<>();
+
+        protected BeamMultiOutputFactory(final Consumer<JsonObject> emit, final JsonBuilderFactory factory,
+                final Jsonb jsonb) {
+            super(emit, factory, jsonb);
+        }
+
+        @Override
+        public OutputEmitter create(final String name) {
+            return value -> {
+                final JsonArrayBuilder values = factory.createArrayBuilder();
+                new BeamOutputEmitter(values, jsonb) {
+
+                    @Override
+                    public void emit(final Object value) {
+                        super.emit(value);
+                        final JsonArray array = values.build();
+                        if (!array.isEmpty()) {
+                            outputs.add(factory.createObjectBuilder().add(name, array).build());
+                        }
+                    }
+                }.emit(value);
+            };
+        }
+
+        public void postProcessing() {
+            if (!outputs.isEmpty()) {
+                outputs.forEach(emit::accept);
             }
         }
     }
@@ -116,8 +243,15 @@ abstract class BaseProcessorFn<I, O> extends DoFn<I, O> {
 
         @Override
         public void emit(final Object value) {
-            builder.add(JsonObject.class.isInstance(value) ? JsonObject.class.cast(value)
-                    : jsonb.fromJson(jsonb.toJson(value), JsonObject.class));
+            if (value == null) {
+                return;
+            }
+            builder.add(toJson(value));
+        }
+
+        private JsonObject toJson(final Object value) {
+            return JsonObject.class.isInstance(value) ? JsonObject.class.cast(value)
+                    : jsonb.fromJson(jsonb.toJson(value), JsonObject.class);
         }
     }
 }

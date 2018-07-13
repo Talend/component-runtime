@@ -99,10 +99,10 @@ class RepositoryModelBuilderTest {
                                         put("tcomp::configurationtype::type", "datastore");
                                         put("tcomp::configurationtype::name", "testDatastore");
                                     }
-                                });
+                                }, false);
                         final ParameterMeta wrapper =
                                 new ParameterMeta(null, WrappingStore.class, ParameterMeta.Type.OBJECT, "config",
-                                        "config", new String[0], singletonList(store), emptyList(), emptyMap());
+                                        "config", new String[0], singletonList(store), emptyList(), emptyMap(), false);
                         getPartitionMappers().put("test", new PartitionMapperMeta(this, "mapper", "noicon", 1,
                                 PartitionMapper1.class, singletonList(wrapper), m -> null, (a, b) -> null, true) {
                         });

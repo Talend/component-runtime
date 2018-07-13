@@ -28,8 +28,8 @@ public class ToggleWidgetConverter extends AbstractWidgetConverter {
 
     public ToggleWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
-            final JsonSchema jsonSchema) {
-        super(schemas, properties, actions, jsonSchema);
+            final JsonSchema jsonSchema, final String lang) {
+        super(schemas, properties, actions, jsonSchema, lang);
     }
 
     @Override

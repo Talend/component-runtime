@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.output;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,8 +26,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import javax.json.JsonObject;
@@ -53,18 +59,28 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     private transient Method process;
 
-    private transient List<BiFunction<InputFactory, OutputFactory, Object>> parameterBuilder;
+    private transient List<BiFunction<InputFactory, OutputFactory, Object>> parameterBuilderProcess;
+
+    private transient Map<Method, List<Function<OutputFactory, Object>>> parameterBuilderAfterGroup;
 
     private transient Jsonb jsonb;
 
     private boolean forwardReturn;
 
-    public ProcessorImpl(final String rootName, final String name, final String plugin, final Serializable delegate) {
+    private Map<String, String> internalConfiguration;
+
+    public ProcessorImpl(final String rootName, final String name, final String plugin,
+            final Map<String, String> internalConfiguration, final Serializable delegate) {
         super(delegate, rootName, name, plugin);
+        this.internalConfiguration = internalConfiguration;
     }
 
     protected ProcessorImpl() {
         // no-op
+    }
+
+    public Map<String, String> getInternalConfiguration() {
+        return ofNullable(internalConfiguration).orElseGet(Collections::emptyMap);
     }
 
     @Override
@@ -76,25 +92,39 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
             // IMPORTANT: ensure you call only once the create(....), see studio integration
             // (mojo)
-            parameterBuilder = Stream.of(process.getParameters()).map(parameter -> {
-                if (parameter.isAnnotationPresent(Output.class)) {
-                    return (BiFunction<InputFactory, OutputFactory, Object>) (inputs, outputs) -> {
-                        final String name = parameter.getAnnotation(Output.class).value();
-                        return outputs.create(name);
-                    };
-                }
-
-                final Class<?> parameterType = parameter.getType();
-                final boolean isGeneric = JsonObject.class.isAssignableFrom(parameterType);
-                final String inputName = ofNullable(parameter.getAnnotation(Input.class)).map(Input::value).orElse(
-                        Branches.DEFAULT_BRANCH);
-                return (BiFunction<InputFactory, OutputFactory, Object>) (inputs,
-                        outputs) -> doConvertInput(parameterType, isGeneric, inputs.read(inputName));
-            }).collect(toList());
+            parameterBuilderProcess =
+                    Stream.of(process.getParameters()).map(this::buildProcessParamBuilder).collect(toList());
+            parameterBuilderAfterGroup = afterGroup
+                    .stream()
+                    .map(after -> new AbstractMap.SimpleEntry<>(after,
+                            Stream.of(after.getParameters()).map(this::toOutputParamBuilder).collect(toList())))
+                    .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
             forwardReturn = process.getReturnType() != void.class;
         }
 
         beforeGroup.forEach(this::doInvoke);
+    }
+
+    private BiFunction<InputFactory, OutputFactory, Object> buildProcessParamBuilder(final Parameter parameter) {
+        if (parameter.isAnnotationPresent(Output.class)) {
+            return (inputs, outputs) -> {
+                final String name = parameter.getAnnotation(Output.class).value();
+                return outputs.create(name);
+            };
+        }
+
+        final Class<?> parameterType = parameter.getType();
+        final boolean isGeneric = JsonObject.class.isAssignableFrom(parameterType);
+        final String inputName =
+                ofNullable(parameter.getAnnotation(Input.class)).map(Input::value).orElse(Branches.DEFAULT_BRANCH);
+        return (inputs, outputs) -> doConvertInput(parameterType, isGeneric, inputs.read(inputName));
+    }
+
+    private Function<OutputFactory, Object> toOutputParamBuilder(final Parameter parameter) {
+        return (outputs) -> {
+            final String name = parameter.getAnnotation(Output.class).value();
+            return outputs.create(name);
+        };
     }
 
     private Object doConvertInput(final Class<?> parameterType, final boolean isGeneric, final Object data) {
@@ -134,13 +164,14 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     @Override
     public void afterGroup(final OutputFactory output) {
-        afterGroup.forEach(this::doInvoke);
+        afterGroup.forEach(after -> doInvoke(after,
+                parameterBuilderAfterGroup.get(after).stream().map(b -> b.apply(output)).toArray(Object[]::new)));
     }
 
     @Override
     public void onNext(final InputFactory inputFactory, final OutputFactory outputFactory) {
         final Object out = doInvoke(process,
-                parameterBuilder.stream().map(b -> b.apply(inputFactory, outputFactory)).toArray(Object[]::new));
+                parameterBuilderProcess.stream().map(b -> b.apply(inputFactory, outputFactory)).toArray(Object[]::new));
         if (forwardReturn) {
             outputFactory.create(Branches.DEFAULT_BRANCH).emit(out);
         }
@@ -152,7 +183,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     }
 
     Object writeReplace() throws ObjectStreamException {
-        return new SerializationReplacer(plugin(), rootName(), name(), serializeDelegate());
+        return new SerializationReplacer(plugin(), rootName(), name(), internalConfiguration, serializeDelegate());
     }
 
     protected static Serializable loadDelegate(final byte[] value, final String plugin)
@@ -172,11 +203,13 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
         private final String name;
 
+        private final Map<String, String> internalConfiguration;
+
         private final byte[] value;
 
         Object readResolve() throws ObjectStreamException {
             try {
-                return new ProcessorImpl(component, name, plugin, loadDelegate(value, plugin));
+                return new ProcessorImpl(component, name, plugin, internalConfiguration, loadDelegate(value, plugin));
             } catch (final IOException | ClassNotFoundException e) {
                 throw new InvalidObjectException(e.getMessage());
             }

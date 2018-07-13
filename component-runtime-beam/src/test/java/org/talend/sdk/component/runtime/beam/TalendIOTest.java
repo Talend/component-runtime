@@ -18,6 +18,8 @@ package org.talend.sdk.component.runtime.beam;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
@@ -34,7 +36,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
@@ -45,11 +50,13 @@ import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.PCollection;
 import org.junit.Rule;
 import org.junit.Test;
 import org.talend.sdk.component.runtime.beam.coder.JsonbCoder;
 import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
+import org.talend.sdk.component.runtime.beam.transform.RecordNormalizer;
 import org.talend.sdk.component.runtime.beam.transform.ViewsMappingTransform;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -106,13 +113,7 @@ public class TalendIOTest implements Serializable {
         Output.DATA.clear();
         pipeline
                 .apply(Create.of(new Sample("a"), new Sample("b")).withCoder(JsonbCoder.of(Sample.class, PLUGIN)))
-                .apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Sample, JsonObject>() {
-
-                    @ProcessElement
-                    public void toData(final ProcessContext sample) {
-                        sample.output(JSONB.fromJson(JSONB.toJson(sample.element()), JsonObject.class));
-                    }
-                }))
+                .apply(UUID.randomUUID().toString(), toJson())
                 .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
                 .apply(new ViewsMappingTransform(emptyMap(), PLUGIN))
                 .apply(TalendIO.write(new BaseTestProcessor() {
@@ -131,13 +132,7 @@ public class TalendIOTest implements Serializable {
     public void processor() {
         final PCollection<SampleLength> out = pipeline
                 .apply(Create.of(new Sample("a"), new Sample("bb")).withCoder(JsonbCoder.of(Sample.class, PLUGIN)))
-                .apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Sample, JsonObject>() {
-
-                    @ProcessElement
-                    public void toData(final ProcessContext sample) {
-                        sample.output(JSONB.fromJson(JSONB.toJson(sample.element()), JsonObject.class));
-                    }
-                }))
+                .apply(UUID.randomUUID().toString(), toJson())
                 .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
                 .apply(new ViewsMappingTransform(emptyMap(), PLUGIN))
                 .apply(TalendFn.asFn(new BaseTestProcessor() {
@@ -150,21 +145,54 @@ public class TalendIOTest implements Serializable {
                     }
                 }))
                 .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
-                .apply(ParDo.of(new DoFn<JsonObject, SampleLength>() {
+                .apply(toSampleLength());
+        PAssert.that(out.apply(UUID.randomUUID().toString(), toInt())).containsInAnyOrder(1, 2);
+        assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
+    }
 
-                    @ProcessElement
-                    public void onElement(final ProcessContext ctx) {
-                        ctx.output(JSONB.fromJson(ctx.element().getJsonArray("__default__").getJsonObject(0).toString(),
-                                SampleLength.class));
+    @Test
+    public void processorBulk() {
+        final List<Sample> data = IntStream
+                .range(0, 1000)
+                .mapToObj(i -> IntStream.range(0, i).mapToObj(j -> "a").collect(joining("")))
+                .map(Sample::new)
+                .collect(toList());
+        final PCollection<Integer> out = pipeline
+                .apply(UUID.randomUUID().toString(), Create.of(data).withCoder(JsonbCoder.of(Sample.class, PLUGIN)))
+                .apply(UUID.randomUUID().toString(), toJson())
+                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .apply(UUID.randomUUID().toString(), RecordNormalizer.of(PLUGIN))
+                .apply(UUID.randomUUID().toString(), TalendFn.asFn(new BaseTestProcessor() {
+
+                    private final Collection<SampleLength> objects = new ArrayList<>();
+
+                    @Override
+                    public void beforeGroup() {
+                        objects.clear();
                     }
-                }));
-        PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<SampleLength, Integer>() {
 
-            @ProcessElement
-            public void toInt(final ProcessContext pc) {
-                pc.output(pc.element().len);
-            }
-        }))).containsInAnyOrder(1, 2);
+                    @Override
+                    public void afterGroup(final OutputFactory output) {
+                        objects.forEach(output.create(Branches.DEFAULT_BRANCH)::emit);
+                    }
+
+                    @Override
+                    public void onNext(final InputFactory input, final OutputFactory factory) {
+                        final String value =
+                                JSONB.fromJson(input.read(Branches.DEFAULT_BRANCH).toString(), Sample.class).data;
+                        objects.add(new SampleLength(value.length()));
+                    }
+                }))
+                .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
+                .apply(UUID.randomUUID().toString(), toSampleLength())
+                .apply(UUID.randomUUID().toString(), toInt());
+
+        final List<Integer> expected = data.stream().map(Sample::getData).map(String::length).collect(toList());
+        PAssert.that(out).satisfies((SerializableFunction<Iterable<Integer>, Void>) input -> {
+            final List<Integer> actual = StreamSupport.stream(input.spliterator(), false).sorted().collect(toList());
+            assertEquals(expected, actual);
+            return null;
+        });
         assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
     }
 
@@ -172,13 +200,7 @@ public class TalendIOTest implements Serializable {
     public void processorMulti() {
         final PCollection<SampleLength> out = pipeline
                 .apply(Create.of(new Sample("a"), new Sample("bb")).withCoder(JsonbCoder.of(Sample.class, PLUGIN)))
-                .apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Sample, JsonObject>() {
-
-                    @ProcessElement
-                    public void toData(final ProcessContext sample) {
-                        sample.output(JSONB.fromJson(JSONB.toJson(sample.element()), JsonObject.class));
-                    }
-                }))
+                .apply(UUID.randomUUID().toString(), toJson())
                 .setCoder(JsonpJsonObjectCoder.of(PLUGIN))
                 .apply(new ViewsMappingTransform(emptyMap(), PLUGIN))
                 .apply(TalendFn.asFn(new BaseTestProcessor() {
@@ -190,22 +212,40 @@ public class TalendIOTest implements Serializable {
                                         .length()));
                     }
                 }))
-                .apply(ParDo.of(new DoFn<JsonObject, SampleLength>() {
+                .apply(toSampleLength());
+        PAssert.that(out.apply(UUID.randomUUID().toString(), toInt())).containsInAnyOrder(1, 2);
+        assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
+    }
 
-                    @ProcessElement
-                    public void onElement(final ProcessContext ctx) {
-                        ctx.output(JSONB.fromJson(ctx.element().getJsonArray("__default__").getJsonObject(0).toString(),
-                                SampleLength.class));
-                    }
-                }));
-        PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<SampleLength, Integer>() {
+    private ParDo.SingleOutput<SampleLength, Integer> toInt() {
+        return ParDo.of(new DoFn<SampleLength, Integer>() {
 
             @ProcessElement
             public void toInt(final ProcessContext pc) {
                 pc.output(pc.element().len);
             }
-        }))).containsInAnyOrder(1, 2);
-        assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
+        });
+    }
+
+    private ParDo.SingleOutput<JsonObject, SampleLength> toSampleLength() {
+        return ParDo.of(new DoFn<JsonObject, SampleLength>() {
+
+            @ProcessElement
+            public void onElement(final ProcessContext ctx) {
+                final JsonArray array = ctx.element().getJsonArray("__default__");
+                ctx.output(JSONB.fromJson(array.getJsonObject(0).toString(), SampleLength.class));
+            }
+        });
+    }
+
+    private ParDo.SingleOutput<Sample, JsonObject> toJson() {
+        return ParDo.of(new DoFn<Sample, JsonObject>() {
+
+            @ProcessElement
+            public void toData(final ProcessContext sample) {
+                sample.output(JSONB.fromJson(JSONB.toJson(sample.element()), JsonObject.class));
+            }
+        });
     }
 
     private static final class Output {

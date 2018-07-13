@@ -1,0 +1,6 @@
+{
+  "routes": {
+    "path": "/",
+    "component": "App"
+  }
+}

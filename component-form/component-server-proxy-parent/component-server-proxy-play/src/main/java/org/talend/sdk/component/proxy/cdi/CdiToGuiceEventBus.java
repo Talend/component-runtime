@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import com.google.common.eventbus.EventBus;
 
 import org.talend.sdk.component.proxy.api.persistence.OnEdit;
+import org.talend.sdk.component.proxy.api.persistence.OnFindByFormId;
 import org.talend.sdk.component.proxy.api.persistence.OnFindById;
 import org.talend.sdk.component.proxy.api.persistence.OnPersist;
 
@@ -62,5 +63,9 @@ public class CdiToGuiceEventBus {
 
     public void onFindById(@ObservesAsync final OnFindById onFindById) {
         eventBus.post(onFindById);
+    }
+
+    public void onFindById(@ObservesAsync final OnFindByFormId onFindByFormId) {
+        eventBus.post(onFindByFormId);
     }
 }

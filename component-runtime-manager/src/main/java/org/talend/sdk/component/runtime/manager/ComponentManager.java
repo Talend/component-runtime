@@ -50,6 +50,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -111,9 +112,11 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.dependency.Resolver;
+import org.talend.sdk.component.api.service.factory.ObjectFactory;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.HttpClientFactory;
 import org.talend.sdk.component.api.service.http.Request;
+import org.talend.sdk.component.api.service.injector.Injector;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
@@ -134,9 +137,10 @@ import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
-import org.talend.sdk.component.runtime.manager.service.Injector;
+import org.talend.sdk.component.runtime.manager.service.InjectorImpl;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
+import org.talend.sdk.component.runtime.manager.service.ObjectFactoryImpl;
 import org.talend.sdk.component.runtime.manager.service.ResolverImpl;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.spi.ContainerListenerExtension;
@@ -832,7 +836,8 @@ public class ComponentManager implements AutoCloseable {
         services.put(ProxyGenerator.class, proxyGenerator);
         services.put(Resolver.class,
                 new ResolverImpl(container.getId(), container.getLocalDependencyRelativeResolver()));
-        services.put(Injector.class, new Injector(container.getId(), services));
+        services.put(Injector.class, new InjectorImpl(container.getId(), services));
+        services.put(ObjectFactory.class, new ObjectFactoryImpl(container.getId()));
     }
 
     protected Collection<LocalConfiguration> createRawLocalConfigurations() {
@@ -929,8 +934,8 @@ public class ComponentManager implements AutoCloseable {
     }
 
     private Function<Map<String, String>, Object[]> createParametersFactory(final String plugin,
-            final Executable method, final Map<Class<?>, Object> services) {
-        return executeInContainer(plugin, () -> reflections.parameterFactory(method, services));
+            final Executable method, final Map<Class<?>, Object> services, final List<ParameterMeta> metas) {
+        return executeInContainer(plugin, () -> reflections.parameterFactory(method, services, metas));
     }
 
     public enum ComponentType {
@@ -1207,7 +1212,7 @@ public class ComponentManager implements AutoCloseable {
                         .orElseGet(components::family);
                 if (component.isEmpty()) {
                     throw new IllegalArgumentException("No component for " + serviceMethod
-                            + ", maybe add a @Components on your package " + service.getDeclaringClass().getPackage());
+                            + ", maybe add a @Components on your package " + service.getPackage());
                 }
             } catch (final NoSuchMethodException | IllegalAccessException e) {
                 throw new IllegalStateException(e);
@@ -1227,7 +1232,11 @@ public class ComponentManager implements AutoCloseable {
             }).filter(Objects::nonNull).findFirst().orElse("default");
 
             final Function<Map<String, String>, Object[]> parameterFactory =
-                    createParametersFactory(container.getId(), serviceMethod, services);
+                    /*
+                     * think user flow in a form, we can't validate these actions. Maybe we need to add an API for that
+                     * later
+                     */
+                    createParametersFactory(container.getId(), serviceMethod, services, null);
             final Object actionInstance = Modifier.isStatic(serviceMethod.getModifiers()) ? null : instance;
             final Function<Map<String, String>, Object> invoker = arg -> executeInContainer(container.getId(), () -> {
                 try {
@@ -1242,7 +1251,7 @@ public class ComponentManager implements AutoCloseable {
 
             return new ServiceMeta.ActionMeta(component, actionType.value(), name,
                     serviceMethod.getGenericParameterTypes(),
-                    parameterModelService.buildParameterMetas(serviceMethod,
+                    parameterModelService.buildServiceParameterMetas(serviceMethod,
                             ofNullable(serviceMethod.getDeclaringClass().getPackage()).map(Package::getName).orElse(
                                     "")),
                     invoker);
@@ -1345,8 +1354,10 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onPartitionMapper(final Class<?> type, final PartitionMapper partitionMapper) {
             final Constructor<?> constructor = findConstructor(type);
+            final List<ParameterMeta> parameterMetas =
+                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             final Function<Map<String, String>, Object[]> parameterFactory =
-                    createParametersFactory(plugin, constructor, services.getServices());
+                    createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(partitionMapper.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
             final ComponentFamilyMeta component = getOrCreateComponent(partitionMapper.family());
 
@@ -1361,8 +1372,6 @@ public class ComponentManager implements AutoCloseable {
                             : config -> new PartitionMapperImpl(component.getName(), name, null, plugin,
                                     partitionMapper.infinite(), doInvoke(constructor, parameterFactory.apply(config)));
 
-            final List<ParameterMeta> parameterMetas =
-                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             component.getPartitionMappers().put(name,
                     new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
                             type, parameterMetas, instantiator,
@@ -1373,8 +1382,10 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onEmitter(final Class<?> type, final Emitter emitter) {
             final Constructor<?> constructor = findConstructor(type);
+            final List<ParameterMeta> parameterMetas =
+                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             final Function<Map<String, String>, Object[]> parameterFactory =
-                    createParametersFactory(plugin, constructor, services.getServices());
+                    createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(emitter.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
             final ComponentFamilyMeta component = getOrCreateComponent(emitter.family());
             final Function<Map<String, String>, Mapper> instantiator =
@@ -1387,8 +1398,6 @@ public class ComponentManager implements AutoCloseable {
                                                     component.getName(), name), Mapper.class))
                             : config -> new LocalPartitionMapper(component.getName(), name, plugin,
                                     doInvoke(constructor, parameterFactory.apply(config)));
-            final List<ParameterMeta> parameterMetas =
-                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             component.getPartitionMappers().put(name,
                     new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
                             type, parameterMetas, instantiator,
@@ -1399,25 +1408,32 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onProcessor(final Class<?> type, final Processor processor) {
             final Constructor<?> constructor = findConstructor(type);
+            final List<ParameterMeta> parameterMetas =
+                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             final Function<Map<String, String>, Object[]> parameterFactory =
-                    createParametersFactory(plugin, constructor, services.getServices());
+                    createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(processor.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
             final ComponentFamilyMeta component = getOrCreateComponent(processor.family());
             final Function<Map<String, String>, org.talend.sdk.component.runtime.output.Processor> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(
                             org.talend.sdk.component.runtime.output.Processor.class)
-                                    ? config -> executeInContainer(plugin,
-                                            () -> context
-                                                    .getOwningExtension()
-                                                    .convert(
-                                                            new ComponentInstanceImpl(doInvoke(constructor,
-                                                                    parameterFactory.apply(config)), plugin,
-                                                                    component.getName(), name),
-                                                            org.talend.sdk.component.runtime.output.Processor.class))
+                                    ? config -> executeInContainer(
+                                            plugin,
+                                            () -> context.getOwningExtension().convert(
+                                                    new ComponentInstanceImpl(
+                                                            doInvoke(constructor, parameterFactory.apply(config)),
+                                                            plugin, component.getName(), name),
+                                                    org.talend.sdk.component.runtime.output.Processor.class))
                                     : config -> new ProcessorImpl(this.component.getName(), name, plugin,
+                                            ofNullable(config)
+                                                    .map(it -> it
+                                                            .entrySet()
+                                                            .stream()
+                                                            .filter(e -> e.getKey().startsWith("$")
+                                                                    || e.getKey().contains(".$"))
+                                                            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)))
+                                                    .orElseGet(Collections::emptyMap),
                                             doInvoke(constructor, parameterFactory.apply(config)));
-            final List<ParameterMeta> parameterMetas =
-                    parameterModelService.buildParameterMetas(constructor, getPackage(type));
             component.getProcessors().put(name,
                     new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type), type,
                             parameterMetas, instantiator,

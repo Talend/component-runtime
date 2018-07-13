@@ -52,7 +52,7 @@ public class JAXRSClient<T> implements Client<T> {
 
     @Override
     public CompletableFuture<Map<String, Object>> action(final String family, final String type, final String action,
-            final Map<String, Object> params, final T context) {
+            final String lang, final Map<String, Object> params, final T context) {
         final Map<Object, Object> payload =
                 params.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
         return target
@@ -60,6 +60,7 @@ public class JAXRSClient<T> implements Client<T> {
                 .queryParam("family", family)
                 .queryParam("type", type)
                 .queryParam("action", action)
+                .queryParam("lang", lang)
                 .request(APPLICATION_JSON_TYPE)
                 .rx()
                 .post(entity(payload, APPLICATION_JSON_TYPE), mapType)

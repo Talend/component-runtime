@@ -14,9 +14,7 @@
  *  limitations under the License.
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
+import cmf from '@talend/react-cmf';
 import '@talend/bootstrap-theme/src/theme/theme.scss';
 
 // code rendering
@@ -30,13 +28,12 @@ import 'brace/snippets/java';
 import 'brace/snippets/sql';
 import 'brace/snippets/python';
 
-import store from './store';
+import components from './components';
+import kit from '@talend/react-components-kit';
+import reducer from './store/reducers';
 
-import App from './components/App';
-
-ReactDOM.render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-  document.getElementById('component-kit-tools-webapp')
-);
+cmf.bootstrap({
+  components: { ...kit, ...components },
+  reducer,
+  appId: 'component-kit-tools-webapp',
+});

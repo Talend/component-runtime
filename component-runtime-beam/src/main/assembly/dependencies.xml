@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+   Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="
+            http://maven.apache.org/ASSEMBLY/2.0.0
+            http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+  <id>dependencies</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>/</outputDirectory>
+      <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+      <includes>
+        <include>*:jar:*</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>/</outputDirectory>
+      <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+      <scope>provided</scope>
+      <includes> <!-- beam stack -->
+        <include>org.apache.beam:*:jar:*</include>
+        <include>org.apache.avro:*:jar:*</include>
+        <include>com.fasterxml.jackson.core:*:jar:*</include>
+        <include>org.codehaus.jackson:*:jar:*</include>
+        <include>joda-time:*:jar:*</include>
+        <include>org.xerial.snappy:*:jar:*</include>
+        <include>org.apache.commons:*:jar:*</include>
+        <include>com.thoughtworks.paranamer:*:jar:*</include>
+        <include>org.tukaani:*:jar:*</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+</assembly>

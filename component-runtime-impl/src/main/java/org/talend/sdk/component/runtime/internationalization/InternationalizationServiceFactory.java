@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.internationalization;
 
+import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 
 import java.lang.reflect.InvocationHandler;
@@ -135,6 +136,9 @@ public class InternationalizationServiceFactory {
                 Parameter p = parameters[i];
                 if (p.isAnnotationPresent(Language.class)) {
                     final int idx = i;
+                    if (String.class == p.getType()) {
+                        return params -> new Locale(ofNullable(params[idx]).map(String::valueOf).orElse("en"));
+                    }
                     return params -> Locale.class.cast(params[idx]);
                 }
             }

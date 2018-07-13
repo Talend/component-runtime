@@ -88,7 +88,7 @@ public class SpringRestClient<T> implements Client<T> {
 
     @Override
     public CompletableFuture<Map<String, Object>> action(final String family, final String type, final String action,
-            final Map<String, Object> params, final T context) {
+            final String lang, final Map<String, Object> params, final T context) {
         return toCompletionStage(delegate.exchange(
                 UriComponentsBuilder
                         .fromHttpUrl(base)
@@ -96,6 +96,7 @@ public class SpringRestClient<T> implements Client<T> {
                         .queryParam("family", family)
                         .queryParam("type", type)
                         .queryParam("action", action)
+                        .queryParam("lang", lang)
                         .build()
                         .toUriString(),
                 HttpMethod.POST,

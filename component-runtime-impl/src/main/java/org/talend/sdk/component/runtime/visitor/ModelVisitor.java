@@ -19,6 +19,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -142,30 +143,38 @@ public class ModelVisitor {
             throw new IllegalArgumentException(input + " must have a single @ElementListener method");
         }
 
-        if (Stream.of(producers.get(0).getParameters()).filter(p -> {
-            if (p.isAnnotationPresent(Output.class)) {
-                if (!ParameterizedType.class.isInstance(p.getParameterizedType())) {
-                    throw new IllegalArgumentException("@Output parameter must be of type OutputEmitter");
-                }
-                final ParameterizedType pt = ParameterizedType.class.cast(p.getParameterizedType());
-                if (OutputEmitter.class != pt.getRawType()) {
-                    throw new IllegalArgumentException("@Output parameter must be of type OutputEmitter");
-                }
-                return false;
+        if (Stream.of(producers.get(0).getParameters()).peek(p -> {
+            if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
+                throw new IllegalArgumentException("@Output parameter must be of type OutputEmitter");
             }
-            return true;
-        }).count() < 1) {
+        }).filter(p -> !p.isAnnotationPresent(Output.class)).count() < 1) {
             throw new IllegalArgumentException(input + " doesn't have the input parameter on its producer method");
         }
 
-        Stream
-                .of(input.getMethods())
-                .filter(m -> m.isAnnotationPresent(BeforeGroup.class) || m.isAnnotationPresent(AfterGroup.class))
-                .forEach(m -> {
-                    if (m.getParameterCount() > 0) {
-                        throw new IllegalArgumentException(m + " must not have any parameter");
-                    }
-                });
+        Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(BeforeGroup.class)).forEach(m -> {
+            if (m.getParameterCount() > 0) {
+                throw new IllegalArgumentException(m + " must not have any parameter");
+            }
+        });
+
+        Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).forEach(m -> {
+            final List<Parameter> invalidParams = Stream.of(m.getParameters()).peek(p -> {
+                if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
+                    throw new IllegalArgumentException("@Output parameter must be of type OutputEmitter");
+                }
+            }).filter(p -> !p.isAnnotationPresent(Output.class)).collect(toList());
+            if (!invalidParams.isEmpty()) {
+                throw new IllegalArgumentException("Parameter of AfterGroup method need to be annotated with Output");
+            }
+        });
+    }
+
+    private boolean validOutputParam(final Parameter p) {
+        if (!ParameterizedType.class.isInstance(p.getParameterizedType())) {
+            return false;
+        }
+        final ParameterizedType pt = ParameterizedType.class.cast(p.getParameterizedType());
+        return OutputEmitter.class == pt.getRawType();
     }
 
     private Stream<Class<? extends Annotation>> getPartitionMapperMethods() {

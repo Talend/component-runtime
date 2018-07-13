@@ -13,13 +13,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>component-server-proxy-parent</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -29,10 +27,6 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.server.proxy</talend.build.name>
-
-    <!-- same than in play-ehcache -->
-    <ehcache.version>2.10.4</ehcache.version>
-    <ehcache-jcache.version>1.0.1</ehcache-jcache.version>
   </properties>
 
   <dependencies>
@@ -176,6 +170,18 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <!-- not working since we use the reactive (@Suspended) pattern
       <plugin>
         <groupId>com.sebastian-daschner</groupId>

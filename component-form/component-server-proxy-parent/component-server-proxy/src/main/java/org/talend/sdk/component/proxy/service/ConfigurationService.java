@@ -23,6 +23,7 @@ import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static org.talend.sdk.component.proxy.model.ProxyErrorDictionary.NO_FAMILY_FOR_CONFIGURATION;
 
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -31,6 +32,7 @@ import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
@@ -47,6 +49,29 @@ public class ConfigurationService {
 
     @Inject
     private ConfigurationClient client;
+
+    @Inject
+    private PropertiesService propertiesService;
+
+    public CompletionStage<ConfigTypeNode> filterNestedConfigurations(final String lang,
+            final Function<String, String> placeholders, final ConfigTypeNode node) {
+        return propertiesService
+                .filterProperties(lang, placeholders, node.getProperties())
+                .thenApply(props -> new ConfigTypeNode(node.getId(), node.getVersion(), node.getParentId(),
+                        node.getConfigurationType(), node.getName(), node.getDisplayName(), node.getEdges(), props,
+                        node.getActions()));
+    }
+
+    /*
+     * for components it looks like:
+     * public CompletionStage<ComponentDetail> filterNestedConfigurations(final String lang,
+     * final Function<String, String> placholders, final ComponentDetail node) {
+     * return propertiesService.filterProperties(lang, placholders, node.getProperties())
+     * .thenApply(props -> new ComponentDetail(node.getId(), node.getDisplayName(), node.getIcon(), node.getType(),
+     * node.getVersion(), props, node.getActions(), node.getInputFlows(), node.getOutputFlows(),
+     * node.getLinks()));
+     * }
+     */
 
     public Nodes getRootConfiguration(final ConfigTypeNodes configs, final Function<String, String> iconProvider) {
         final Map<String, ConfigTypeNode> families = ofNullable(configs)
@@ -102,5 +127,10 @@ public class ConfigurationService {
                         .build()))
                 .getIconFamily()
                 .getIcon();
+    }
+
+    public CompletionStage<Map<String, String>> replaceReferences(final RequestContext context,
+            final ConfigTypeNode detail, final Map<String, String> props) {
+        return propertiesService.replaceReferences(context, detail.getProperties(), props);
     }
 }

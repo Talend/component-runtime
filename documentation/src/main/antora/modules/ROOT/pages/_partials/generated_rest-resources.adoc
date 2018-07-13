@@ -1,5 +1,5 @@
 = REST resources of Component Runtime :: Server Parent :: Server
-1.0.1-SNAPSHOT
+1.0.2-SNAPSHOT
 
 == `POST api/v1/action/execute`
 
@@ -12,13 +12,14 @@ as a flat key value set using the same kind of mapping than for components (opti
 *Request Body*: (`java.util.Map<java.lang.String, java.lang.String>`)
 *Query Param*: `action`, `java.lang.String` + 
 *Query Param*: `family`, `java.lang.String` + 
+*Query Param*: `lang`, `java.lang.String` + 
 *Query Param*: `type`, `java.lang.String` + 
 
 === Response
 *Content-Type*: `application/json`
 
 ==== `200 OK`
-*Response Body*: (`java.lang.RuntimeException`)
+*Response Body*: (``)
 
 ==== `400 Bad Request`
 *Response Body*: (`org.talend.sdk.component.server.front.model.error.ErrorPayload`)

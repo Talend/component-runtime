@@ -41,8 +41,8 @@ public class MultiSelectTagWidgetConverter extends AbstractWidgetConverter {
 
     public MultiSelectTagWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
-            final Client client, final String family, final JsonSchema jsonSchema) {
-        super(schemas, properties, actions, jsonSchema);
+            final Client client, final String family, final JsonSchema jsonSchema, final String lang) {
+        super(schemas, properties, actions, jsonSchema, lang);
         this.client = client;
         this.family = family;
     }
@@ -74,9 +74,6 @@ public class MultiSelectTagWidgetConverter extends AbstractWidgetConverter {
                 });
             } else {
                 schema.setTitleMap(emptyList());
-                if (jsonSchema.getEnumValues() == null) {
-                    jsonSchema.setEnumValues(emptyList());
-                }
             }
             return CompletableFuture.completedFuture(context);
         });

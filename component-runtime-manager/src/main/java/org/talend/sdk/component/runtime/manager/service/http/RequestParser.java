@@ -307,7 +307,7 @@ public class RequestParser {
                                 try {
                                     final Constructor<?> constructor = Constructors.findConstructor(encoder);
                                     final Function<Map<String, String>, Object[]> paramFactory =
-                                            reflections.parameterFactory(constructor, services);
+                                            reflections.parameterFactory(constructor, services, null);
                                     return Encoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
                                 } catch (final InstantiationException | IllegalAccessException e) {
                                     throw new IllegalArgumentException(e);
@@ -346,7 +346,7 @@ public class RequestParser {
                                 try {
                                     final Constructor<?> constructor = Constructors.findConstructor(decoder);
                                     final Function<Map<String, String>, Object[]> paramFactory =
-                                            reflections.parameterFactory(constructor, services);
+                                            reflections.parameterFactory(constructor, services, null);
                                     return Decoder.class.cast(constructor.newInstance(paramFactory.apply(emptyMap())));
                                 } catch (final InstantiationException | IllegalAccessException e) {
                                     throw new IllegalArgumentException(e);

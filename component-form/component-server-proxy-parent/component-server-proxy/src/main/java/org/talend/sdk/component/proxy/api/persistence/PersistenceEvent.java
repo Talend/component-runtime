@@ -20,10 +20,10 @@ import java.util.Map;
 
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
-import javax.servlet.http.HttpServletRequest;
 
 import org.talend.sdk.component.proxy.api.configuration.ConfigurationReader;
 import org.talend.sdk.component.proxy.api.configuration.ConfigurationVisitor;
+import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.Getter;
@@ -39,7 +39,7 @@ public abstract class PersistenceEvent extends BaseEvent {
 
     private final Collection<SimplePropertyDefinition> definitions;
 
-    protected PersistenceEvent(final HttpServletRequest request, final Jsonb jsonb, final JsonObject enrichment,
+    protected PersistenceEvent(final RequestContext request, final Jsonb jsonb, final JsonObject enrichment,
             final Collection<SimplePropertyDefinition> definitions, final Map<String, String> properties) {
         super(request);
         this.properties = properties;

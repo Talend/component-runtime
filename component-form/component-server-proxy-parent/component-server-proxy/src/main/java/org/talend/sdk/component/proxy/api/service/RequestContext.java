@@ -29,4 +29,12 @@ public interface RequestContext {
      * @return the value for this placeholder.
      */
     String findPlaceholder(String attributeName);
+
+    /**
+     * Return a contextual attribute.
+     *
+     * @param key the attribute identifier.
+     * @return the attribute value or null if missing.
+     */
+    Object attribute(String key);
 }

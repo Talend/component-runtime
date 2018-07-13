@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.processor;
 
+import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -37,7 +38,7 @@ class AdvancedProcessorImplTest {
 
     @Test
     void serialization() throws IOException, ClassNotFoundException {
-        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", new SampleOutput());
+        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", emptyMap(), new SampleOutput());
         final Processor copy = Serializer.roundTrip(processor);
         assertNotSame(copy, processor);
         assertEquals("Root", copy.rootName());
@@ -47,7 +48,7 @@ class AdvancedProcessorImplTest {
 
     @Test
     void subclassing() {
-        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", new SampleOutput());
+        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", emptyMap(), new SampleOutput());
         final AtomicReference<Object> ref = new AtomicReference<>();
         processor.beforeGroup(); // just to enforce the init
         processor.onNext(name -> new Whatever(1), name -> value -> assertTrue(ref.compareAndSet(null, value)));

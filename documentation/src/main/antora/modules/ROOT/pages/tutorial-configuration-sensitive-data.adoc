@@ -1,21 +1,14 @@
-= Mask your configuration sensitive data
+= Masking sensitive data in your configuration
 :page-partial:
 
 [[tutorial-configuration-sensitive-data]]
-In this tutorial we will see how to ensure the sensitive data of a component configuration
-is correctly handled.
+This tutorial shows how to correctly mask the sensitive data of a component configuration.
 
-== The component configuration
+//== The component configuration
 
-It is very common to define credentials in a component configuration. Most known use cases will be:
+It is very common to define credentials when configuring a component. Most common cases can include *passwords*, *secrets*, *keys* (it is also common to show them in plain text in a textarea), and *tokens*.
 
-1. Passwords,
-2. Secrets,
-3. Potentially keys (it is also common to show them in plain text in a textarea),
-4. Tokens
-
-To illustrate that we will use a REST client configuration which takes a
-username, password and token to connect to the REST API:
+For example, this REST client configuration specifies that a username, a password and a token are needed to connect to the REST API:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -37,24 +30,24 @@ public class RestApiConfiguration implements Serializable {
 }
 ----
 
-This simple configuration defines three `String` without any specific widget
-so they will be represented as plain inputs.
+This configuration defines that these credentials are three simple `String`, represented as plain inputs, which causes severe security concerns:
 
-There are two major consequences you probably want to avoid:
+* The password and token are clearly readable in all Talend user interfaces (Studio or Web),
+* The password and token are potentially stored in clear.
 
-1. The password and token will be clearly readable in all Talend user interfaces (Studio or Web),
-2. The password and token will be potentially stored in clear.
+To avoid this behavior, you need to mark sensitive data as `@Credential`.
 
-== Mark sensitive data
+== Marking sensitive data
 
-To solve that, Talend Component Kit provides you `@Credential` marker you can use
-on any `@Option`. This marker will have two effects:
+Talend Component Kit provides you with the `@Credential` marker, that you can use
+on any `@Option`. This marker has two effects:
 
-1. Replace the default input widget by a password oriented one (xref:gallery.adoc[See widgets gallery for screenshots]),
-2. Request the Studio or the Talend Cloud products to store the data as sensitive data (as encrypted values).
+* It Replaces the default input widget by a password oriented widget
+//(xref:gallery.adoc[See widgets gallery for screenshots]),
+* It Requests the Studio or the Talend Cloud products to store the data as sensitive data (as encrypted values).
 
-To ensure our `password` and `token` are never stored in clear or shown in the code
-we migrate our previous model to the following one:
+In order to ensure that the `password` and `token` are never stored in clear or shown in the code,
+add the `@Credential` marker to the sensitive data. For example:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -78,7 +71,7 @@ public class RestApiConfiguration implements Serializable {
 }
 ----
 
-And that it is! Now your password and token will not be accessible by error anymore :).
+Your password and token (or any other sensitive data that you need to mask) are not accessible by error anymore.
 
-
-xref:component-configuration.adoc[Read more about the component configuration...]
+== Related links
+xref:component-configuration.adoc[Learn more about configuring a component]

@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -85,6 +85,7 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>${groovy.version}</version>
+            <type>pom</type>
           </dependency>
           <dependency>
             <groupId>org.jetbrains.intellij</groupId>
@@ -170,6 +171,7 @@
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
                 <version>${groovy.version}</version>
+                <type>pom</type>
               </dependency>
               <dependency>
                 <groupId>org.codehaus.groovy</groupId>

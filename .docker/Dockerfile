@@ -21,27 +21,28 @@
 FROM openjdk:8-jre-alpine
 
 ARG SERVER_VERSION
-ARG ARTIFACT_ID=component-server
-ARG KAFKA_CLIENT_VERSION=1.1.0
+ARG ARTIFACT_ID=component-starter-server
+ARG CENTRAL=http://repo.apache.maven.org/maven2
 
 MAINTAINER tacokit@talend.com
 
 ENV LC_ALL en_US.UTF-8
 
 RUN set -xe && \
-    [ "component-server" != "$ARTIFACT_ID" ] || export KAFKA_PGP_KEYS="461D2D1B577F40C58EC2FE060CF65F72E4609424 99369B56 7F1183BD E0A61EEA D0A67B5A AB55EF5C 27A7289E 9054F6FA 3B417B9B 518830CF" && \
     apk add --no-cache gnupg ca-certificates openssl && \
     update-ca-certificates && \
-    for key in E16448E7EC79DD12245C4ADFFA5FA52B5B7B42F0 CF80A055A2AD28E9EFBF942A73129F58DE61ECBD $KAFKA_PGP_KEYS; do \
+    for key in E16448E7EC79DD12245C4ADFFA5FA52B5B7B42F0 CF80A055A2AD28E9EFBF942A73129F58DE61ECBD; do \
         gpg --keyserver keyserver.ubuntu.com --recv-keys $key || \
         gpg --keyserver ha.pool.sks-keyservers.net --recv-keys $key || \
         gpg --keyserver pgp.mit.edu --recv-keys $key || \
         gpg --keyserver keyserver.pgp.com --recv-keys $key; \
     done
 
-ENV MEECROWAVE_BASE /opt/talend/component-kit
+ENV MEECROWAVE_BASE /opt/talend/$ARTIFACT_ID
 RUN mkdir -p $MEECROWAVE_BASE
 WORKDIR $MEECROWAVE_BASE
+
+RUN date
 
 RUN set -ex && \
     echo "Preparing $ARTIFACT_ID v$SERVER_VERSION" && \
@@ -54,25 +55,10 @@ RUN set -ex && \
     wget $DOWNLOAD_URL.asc -O $ARTIFACT_ID.zip.asc && \
     wget $DOWNLOAD_URL -O $ARTIFACT_ID.zip && \
     gpg --batch --verify $ARTIFACT_ID.zip.asc $ARTIFACT_ID.zip && \
-    unzip $ARTIFACT_ID.zip && \
-    mv $ARTIFACT_ID-distribution/* $MEECROWAVE_BASE && \
-    rm -Rf $ARTIFACT_ID-distribution && \
-    rm $ARTIFACT_ID.zip* && \
-    rm -f $MEECROWAVE_BASE/conf/log4j2.xml && \
+    unzip $ARTIFACT_ID.zip && mv $ARTIFACT_ID-distribution/* $MEECROWAVE_BASE && \
+    rm -Rf $ARTIFACT_ID-distribution $ARTIFACT_ID.zip* $MEECROWAVE_BASE/conf/log4j2.xml && \
     echo "$GROUP_ID:$ARTIFACT_ID:zip:$SERVER_VERSION" > conf/build.gav && \
     date > conf/build.date
-
-# download kafka client jar for logs
-RUN set -ex && \
-    if [ "component-server" != "$ARTIFACT_ID" ]; then exit 0; fi && \
-    echo "downloading kafka-clients:"$KAFKA_CLIENT_VERSION".jar" && \
-    export KAFKA_REPO_BASE=${NEXUS_BASE:-http://repo.maven.apache.org/maven2} && \
-    export KAFKA_DOWNLOAD_URL="$KAFKA_REPO_BASE/org/apache/kafka/kafka-clients/$KAFKA_CLIENT_VERSION/kafka-clients-$KAFKA_CLIENT_VERSION.jar" && \
-    wget  $KAFKA_DOWNLOAD_URL.asc -O kafka-clients.jar.asc && \
-    wget  $KAFKA_DOWNLOAD_URL -O kafka-clients-$KAFKA_CLIENT_VERSION.jar && \
-    gpg --batch --verify kafka-clients.jar.asc kafka-clients-$KAFKA_CLIENT_VERSION.jar && \
-    mv kafka-clients-$KAFKA_CLIENT_VERSION.jar $MEECROWAVE_BASE/lib/ && \
-    rm kafka-clients*
 
 COPY conf/log4j2-$ARTIFACT_ID-*.xml $MEECROWAVE_BASE/conf/
 COPY conf/meecrowave.properties $MEECROWAVE_BASE/conf/meecrowave.properties

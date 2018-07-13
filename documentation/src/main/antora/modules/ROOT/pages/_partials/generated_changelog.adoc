@@ -1,5 +1,28 @@
 
 
+== Version 1.0.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-888[TCOMP-888^]: Designer pipeline records counter are wrong for tacokit components with multiples outputs
+- link:https://jira.talendforge.org/browse/TCOMP-899[TCOMP-899^]: Update Beam 2.5.0 compatibility
+- link:https://jira.talendforge.org/browse/TCOMP-903[TCOMP-903^]: [tacokit studio integration] - Guess schema - better handling of number types recognition 
+- link:https://jira.talendforge.org/browse/TCOMP-904[TCOMP-904^]: [tacokit studio integration] - fix job classpath generation 
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-900[TCOMP-900^]: [tacokit studio integration] - Handle conditional outputs
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-898[TCOMP-898^]: Ensure starter will be able to auto update its versions to avoid redeployments
+- link:https://jira.talendforge.org/browse/TCOMP-905[TCOMP-905^]: Enrich scanning exclusion set
+- link:https://jira.talendforge.org/browse/TCOMP-906[TCOMP-906^]: Minimalist JsonObject to IndexeredRecord utilities for beam
+- link:https://jira.talendforge.org/browse/TCOMP-907[TCOMP-907^]: Support maxBatchSize as in the studio in Beam
+
+
 == Version 1.0.1
 
 === Bug
@@ -10,6 +33,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-851[TCOMP-851^]: [form] UiSchema shouldn't have a JsonSchema
 - link:https://jira.talendforge.org/browse/TCOMP-858[TCOMP-858^]: @OptionsOrder not respected by form-core
 - link:https://jira.talendforge.org/browse/TCOMP-862[TCOMP-862^]: [form-core] ".." path is not correctly resolved
+- link:https://jira.talendforge.org/browse/TCOMP-863[TCOMP-863^]: Job DSL doesn't support multiple outputs
+- link:https://jira.talendforge.org/browse/TCOMP-873[TCOMP-873^]: Fix shade junit-http module : remove shaded dependencies from generated artifact
+- link:https://jira.talendforge.org/browse/TCOMP-889[TCOMP-889^]: [form] arrays are lost in trigger paths
+- link:https://jira.talendforge.org/browse/TCOMP-890[TCOMP-890^]: Merge the component outputs (by name) from @AfterGroup and @ElementListener
+- link:https://jira.talendforge.org/browse/TCOMP-893[TCOMP-893^]: Don't log a warning for services when parameters don't have i18n support
 
 
 === New Feature
@@ -21,6 +49,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-849[TCOMP-849^]: [junit http] support to match the request payload
 - link:https://jira.talendforge.org/browse/TCOMP-850[TCOMP-850^]: MavenDecrypter should tolerate ${env.xxx} syntax
 - link:https://jira.talendforge.org/browse/TCOMP-861[TCOMP-861^]: Ensure Car Mojo can be skipped
+- link:https://jira.talendforge.org/browse/TCOMP-887[TCOMP-887^]: [studio] add chunk size advanced common param for processors & output
+- link:https://jira.talendforge.org/browse/TCOMP-892[TCOMP-892^]: Validate runtime configuration before executing the runtime
 
 
 === Work Item
@@ -30,12 +60,27 @@
 - link:https://jira.talendforge.org/browse/TCOMP-832[TCOMP-832^]: Provide a way to access lastUpdatedTimestamp in rest api
 - link:https://jira.talendforge.org/browse/TCOMP-833[TCOMP-833^]: Upgrade gradle+maven for the starter
 - link:https://jira.talendforge.org/browse/TCOMP-839[TCOMP-839^]: Add an API to load lazily the potential values of a list
-- link:https://jira.talendforge.org/browse/TCOMP-840[TCOMP-840^]: Upgrade icon bundle to 0.190.0
+- link:https://jira.talendforge.org/browse/TCOMP-840[TCOMP-840^]: Upgrade icon bundle to 0.190.2
 - link:https://jira.talendforge.org/browse/TCOMP-841[TCOMP-841^]: Add validation of option names in the validator
 - link:https://jira.talendforge.org/browse/TCOMP-852[TCOMP-852^]: [dependency upgrade] Upgrade shrinkwrap-resolver-impl-maven to 3.1.3
 - link:https://jira.talendforge.org/browse/TCOMP-855[TCOMP-855^]: Support service injections in services
 - link:https://jira.talendforge.org/browse/TCOMP-856[TCOMP-856^]: [dependency upgrade] OpenWebBeans 2.0.6
 - link:https://jira.talendforge.org/browse/TCOMP-857[TCOMP-857^]: SimpleCollector must not depend on junit 4
+- link:https://jira.talendforge.org/browse/TCOMP-864[TCOMP-864^]: Mojo should be thread safe for car/dependencies.txt generation
+- link:https://jira.talendforge.org/browse/TCOMP-867[TCOMP-867^]: Expose Injector service
+- link:https://jira.talendforge.org/browse/TCOMP-868[TCOMP-868^]: Create an ObjectFactory service
+- link:https://jira.talendforge.org/browse/TCOMP-869[TCOMP-869^]: Ensure actions can get injected the requested lang
+- link:https://jira.talendforge.org/browse/TCOMP-870[TCOMP-870^]: Provide Beam DoFn to simplify the migration from IndexedRecord to JsonObject
+- link:https://jira.talendforge.org/browse/TCOMP-876[TCOMP-876^]: Allow custom converters in form-core
+- link:https://jira.talendforge.org/browse/TCOMP-878[TCOMP-878^]: Add beam in the docker image OOTB
+- link:https://jira.talendforge.org/browse/TCOMP-879[TCOMP-879^]: CarMojo doesn't use car extension to attach the artifact
+- link:https://jira.talendforge.org/browse/TCOMP-880[TCOMP-880^]: [dependency upgrade] Maven 3.5.4
+- link:https://jira.talendforge.org/browse/TCOMP-881[TCOMP-881^]: [dependency upgrade] CXF 3.2.5
+- link:https://jira.talendforge.org/browse/TCOMP-882[TCOMP-882^]: [dependency upgrade] Tomcat 9.0.10
+- link:https://jira.talendforge.org/browse/TCOMP-883[TCOMP-883^]: [dependency upgrade] Beam 2.5.0
+- link:https://jira.talendforge.org/browse/TCOMP-884[TCOMP-884^]: [dependency upgrade] Upgrade to icon bundle 0.197.0
+- link:https://jira.talendforge.org/browse/TCOMP-894[TCOMP-894^]: [dependency upgrade] Johnzon 1.1.8
+- link:https://jira.talendforge.org/browse/TCOMP-895[TCOMP-895^]: [dependency upgrade] xbean 4.9
 
 
 == Version 1.0.0

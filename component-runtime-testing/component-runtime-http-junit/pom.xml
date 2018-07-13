@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-runtime-testing</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -111,6 +111,30 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>forced-clean</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <configuration> <!-- ensure shade works even if already done and "clean" is not called -->
+              <excludeDefaultDirectories>true</excludeDefaultDirectories>
+              <filesets>
+                <fileset>
+                  <directory>${project.build.directory}</directory>
+                  <includes>
+                    <include>${project.build.finalName}.${project.packaging}</include>
+                  </includes>
+                </fileset>
+              </filesets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${javadoc-plugin.version}</version>
         <executions>
@@ -133,18 +157,16 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <shadedClassifierName>shaded</shadedClassifierName>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <dependencyReducedPomLocation>${project.build.directory}/reduced-pom.xml</dependencyReducedPomLocation>
+              <createDependencyReducedPom>true</createDependencyReducedPom>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
               </transformers>
               <artifactSet>
-                <excludes>
-                  <exclude>org.projectlombok:*</exclude>
-                  <exclude>org.slf4j:*</exclude>
-                  <exclude>junit:*</exclude>
-                </excludes>
+                <includes>
+                  <include>io.netty:*</include>
+                  <include>org.apache.geronimo.specs:*</include>
+                  <include>org.apache.johnzon:*</include>
+                </includes>
               </artifactSet>
               <relocations>
                 <relocation>

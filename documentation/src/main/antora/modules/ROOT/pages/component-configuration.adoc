@@ -1,16 +1,20 @@
 = Configuring components
 :page-partial:
 
-Component are configured through their constructor parameters. They can all be marked with `@Option`
-which will let you give a name to parameters (if not it will use the bytecode name which can require you to compile with `-parameter` flag
-to not have `arg0`, `arg1`, ... as names). It is highly recommanded to use a hava friendly name and it is forbidden to include `.` character in
-it. Also note that starting with a `$` is forbidden too.
+Components are configured using their constructor parameters. They can all be marked with the `@Option` property, which lets you give a name to parameters.
 
-The parameter types can be _primitives_ or complex objects with fields decorated with `@Option` exactly like method parameters.
+For the name to be correct, you must follow these guidelines:
 
-IMPORTANT: it is recommended to use simple models which can be serialized by components to avoid headaches when implementing serialized components.
+* Use a valid Java name.
+* Do not include any `.` character in it.
+* Do not start the name with a `$`.
+* Defining a name is optional. If you don't set a specific name, it defaults to the bytecode name, which can require you to compile with a `-parameter` flag to not end up with names such as `arg0`, `arg1`, and so on.
 
-Here is an example:
+Parameter types can be _primitives_ or complex objects with fields decorated with `@Option` exactly like method parameters.
+
+IMPORTANT: It is recommended to use simple models which can be serialized in order to ease serialized component implementations.
+
+For example:
 
 [source,java]
 ----
@@ -29,11 +33,11 @@ public MyFileReader(@Option("file-path") final File file,
 }
 ----
 
-Using this kind of API makes the configuration extensible and component oriented letting the user define all he needs.
+Using this kind of API makes the configuration extensible and component-oriented, which allows you to define all you need.
 
-The instantiation of the parameters is done from the properties passed to the component (see next part).
+The instantiation of the parameters is done from the properties passed to the component.
 
-== Is my option valid?
+Examples of option names:
 
 [cols="<,^",options="header"]
 |===
@@ -46,11 +50,9 @@ The instantiation of the parameters is done from the properties passed to the co
 
 == Primitives
 
-What is considered as a primitive in this mecanism is a class which can be directly converted from a `String` to the expected type.
+A primitive is a class which can be directly converted from a `String` to the expected type.
 
-It obviously includes all java primitives, `String` type itself but also all the types with a `org.apache.xbean.propertyeditor.Converter`.
-
-This includes out of the box:
+It includes all Java primitives, like the `String` type itself, but also all types with a `org.apache.xbean.propertyeditor.Converter`:
 
 - `BigDecimal`
 - `BigInteger`
@@ -63,7 +65,9 @@ This includes out of the box:
 
 == Complex object mapping
 
-The conversion from properties to object is using the dotted notation. For instance:
+The conversion from property to object uses the Dot notation.
+
+For example, assuming the method parameter was configured with `@Option("file")`:
 
 [source,properties]
 ----
@@ -71,7 +75,7 @@ file.path = /home/user/input.csv
 file.format = CSV
 ----
 
-will match
+matches
 
 [source,java]
 ----
@@ -84,12 +88,11 @@ public class FileOptions {
 }
 ----
 
-assuming the method parameter was configured with `@Option("file")`.
-
 === List case
 
-Lists use the same syntax but to define their elements their rely on an indexed syntax. Assuming the list parameter is named `files`
-and the elements are of  `FileOptions` type, here is how to define a list of 2 elements:
+Lists rely on an indexed syntax to define their elements.
+
+For example, assuming that the list parameter is named `files` and that the elements are of the  `FileOptions` type, you can define a list of two elements as follows:
 
 [source,properties]
 ----
@@ -101,7 +104,7 @@ files[1].format = EXCEL
 
 === Map case
 
-Inspired from the list case, the map uses `.key[index]` and `.value[index]` to represent its key and values:
+Similarly to the list case, the map uses `.key[index]` and `.value[index]` to represent its keys and values:
 
 [source,properties]
 ----
@@ -125,53 +128,53 @@ files.key[1].type = EXCEL
 files.value[1] = second-file
 ----
 
-IMPORTANT: don't abuse of map type. If not needed for your configuration (= if you can configure your component
-with an object) don't use it.
+IMPORTANT: Avoid using the Map type. For example, if you can configure your component with an object instead.
 
-== Constraints and validation on the configuration/input
+== Defining Constraints and validations on the configuration
 
-It is common to need to add as metadata a field is required, another has a minimum size etc. This is done with the
-validation in `org.talend.sdk.component.api.configuration.constraint` package:
+You can use metadata to specify that a field is required or has a minimum size, and so on. This is done using the `validation` metadata in the `org.talend.sdk.component.api.configuration.constraint` package:
 
 include::{partialsdir}/generated_constraints.adoc[]
 
-IMPORTANT: using the programmatic API the metadata are prefixed by `tcomp::` but this prefix is stripped in the web for convenience,
-the previous table uses the web keys.
+IMPORTANT: When using the programmatic API, metadata is prefixed by `tcomp::`. This prefix is stripped in the web for convenience, and the table above uses the web keys.
+
+Also note that these validations are executed before the runtime is started
+(when loading the component instance) and that the execution will fail if they don't pass.
+If somehow it breaks your application you can disable that validation on the JVM by setting the system property `talend.component.configuration.validation.skip` to `true`.
 
 == Marking a configuration as a particular type of data
 
-It is common to classify the incoming data. You can see it as tagging them in several types. The most common ones
-are the:
+It is common to classify the incoming data. It is similar to tagging data with several types. Data can commonly be categorized as follows:
 
-- datastore: all the data you need to connect to the backend
-- dataset: a datastore coupled with all the data you need to execute an action
+- Datastore: The data you need to connect to the backend.
+- Dataset: A datastore coupled with the data you need to execute an action.
 
 include::{partialsdir}/generated_configuration-types.adoc[]
 
-IMPORTANT: the component family associated with a configuration type (datastore/dataset) is always the one related
-to the component using that configuration.
+IMPORTANT: The component family associated with a configuration type (datastore/dataset) is always the one related to the component using that configuration.
 
-Those configuration types can be composed to provide one configuration item. For example a dataset type will often need a datastore
-type to be provided. and a datastore type (that provides the connection information) will be used to create a dataset type.
+Those configuration types can be composed to provide one configuration item. For example, a dataset type often needs a datastore type to be provided. A datastore type (that provides the connection information) is used to create a dataset type.
 
-Those configuration types will also be used at design time to create shared configuration that can be stored and used at runtime.
+Those configuration types are also used at design time to create shared configurations that can be stored and used at runtime.
 
-For example, we can think about a relational database that support JDBC:
+For example, in the case of a relational database that supports JDBC:
 
-- A datastore may provide:
-* jdbc url, username, password
-- A dataset may be:
-* datastore (that will provide the connection data to the database)
-* table name, data []
+- A datastore can be made of:
+* a JDBC URL
+* a username
+* a password.
+- A dataset can be made of:
+* a datastore (that provides the data required to connect to the database)
+* a table name
+* data.
 
-The component server will scan all those configuration types and provide a configuration type index. This index can be used for the integration
-into the targeted platforms (studio, web applications...)
+The component server scans all configuration types and returns a configuration type index. This index can be used for the integration into the targeted platforms (Studio, web applications, and so on).
 
-The configuration type index is represented as a flat tree that contains all the configuration types represented as nodes and indexed by their ids.
+The configuration type index is represented as a flat tree that contains all the configuration types, which themselves are represented as nodes and indexed by ID.
 
-Also, every node can point to other nodes. This relation is represented as an array of edges that provide the childes ids.
+Every node can point to other nodes. This relation is represented as an array of edges that provides the child IDs.
 
-For example, a configuration type index for the above example will be:
+As an illustration, a configuration type index for the example above can be defined as follows:
 
 [source,json]
 ----
@@ -182,29 +185,27 @@ For example, a configuration type index for the above example will be:
 }
 ----
 
-== Define links between properties
+== Defining links between properties
 
-It can be needed to define a binding between properties, a set of annotations allows to do it:
+If you need to define a binding between properties, you can use a set of annotations:
 
 include::{partialsdir}/generated_conditions.adoc[]
 
-Target element location is specified as a relative path to current location using Unix path characters.
-Configuration class delimiter is `/`. Parent configuration class is specified by `..`.
-Thus `../targetProperty` denotes a property, which is located in parent configuration class and has name `targetProperty`.
+The target element location is specified as a relative path to the current location, using Unix path characters.
+The configuration class delimiter is `/`. +
+The parent configuration class is specified by `..`. +
+Thus, `../targetProperty` denotes a property, which is located in the parent configuration class and is named `targetProperty`.
 
-IMPORTANT: using the programmatic API the metadata are prefixed by `tcomp::` but this prefix is stripped in the web for convenience,
-the previous table uses the web keys.
+IMPORTANT: When using the programmatic API, metadata is prefixed with `tcomp::`. This prefix is stripped in the web for convenience, and the previous table uses the web keys.
 
 [[documentation-ui-hints]]
-== Add hints about the rendering based on configuration/component knowledge
+== Adding hints about the rendering based on configuration/component knowledge
 
-In some case it can be needed to add some metadata about the configuration to let the UI render properly the configuration.
-A simple example is a password value must be hidden and not a simple clear input box. For these cases - when the component developper
-wants to influence the UI rendering - you can use a particular set of annotations:
+In some cases, you may need to add metadata about the configuration to let the UI render that configuration properly. +
+For example, a password value that must be hidden and not a simple clear input box. For these cases - if you want to change the UI rendering - you can use a particular set of annotations:
 
 include::{partialsdir}/generated_ui.adoc[]
 
-IMPORTANT: using the programmatic API the metadata are prefixed by `tcomp::` but this prefix is stripped in the web for convenience,
-the previous table uses the web keys.
+IMPORTANT: When using the programmatic API, metadata is prefixed with `tcomp::`. This prefix is stripped in the web for convenience, and the previous table uses the web keys.
 
-NOTE: target support should cover `org.talend.core.model.process.EParameterFieldType` but we need to ensure web renderers is able to handle the same widgets.
+Target support should cover `org.talend.core.model.process.EParameterFieldType` but you need to ensure that the web renderer is able to handle the same widgets.
