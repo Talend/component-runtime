@@ -74,10 +74,14 @@ class ActionResourceTest {
         assertEquals(new HashMap<String, String>() {
 
             {
-                put("VGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ", "Connection-1");
-                put("VGhlVGVzdEZhbWlseSNkYXRhc3RvcmUjQ29ubmVjdGlvbi0y", "Connection-2");
-                put("VGhlVGVzdEZhbWlseSNkYXRhc3RvcmUjQ29ubmVjdGlvbi0z", "Connection-3");
-                put("VGhlVGVzdEZhbWlseSN0ZXN0I2RlZmF1bHR0ZXN0", "defaulttest");
+                put("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMSNvcmcudGFsZW5kLnRlc3Q6dGVzdC1jb21wb25lbnQ6MS4wLjA",
+                        "Connection-1");
+                put("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseSNkYXRhc3RvcmUjQ29ubmVjdGlvbi0yI29yZy50YWxlbmQudGVzdDp0ZXN0LWNvbXBvbmVudDoxLjAuMA",
+                        "Connection-2");
+                put("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseSNkYXRhc3RvcmUjQ29ubmVjdGlvbi0zI29yZy50YWxlbmQudGVzdDp0ZXN0LWNvbXBvbmVudDoxLjAuMA",
+                        "Connection-3");
+                put("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseSN0ZXN0I2RlZmF1bHR0ZXN0I29yZy50YWxlbmQudGVzdDp0ZXN0LWNvbXBvbmVudDoxLjAuMA",
+                        "defaulttest");
             }
         }, itemsMap);
     }
@@ -90,7 +94,8 @@ class ActionResourceTest {
                 .queryParam("type", "reloadForm")
                 .queryParam("action", "builtin::root::reloadFromId")
                 .request(APPLICATION_JSON_TYPE)
-                .post(entity(singletonMap("id", "VGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ"),
+                .post(entity(singletonMap("id",
+                        "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMSNvcmcudGFsZW5kLnRlc3Q6dGVzdC1jb21wb25lbnQ6MS4wLjA"),
                         APPLICATION_JSON_TYPE), mapType);
 
         assertEquals(3, wrapper.size());

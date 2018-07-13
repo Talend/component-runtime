@@ -88,7 +88,7 @@ class RepositoryModelBuilderTest {
     @Test
     void notRootConfig() {
         final RepositoryModel model = new RepositoryModelBuilder().create(new ComponentManager.AllServices(emptyMap()),
-                singleton(new ComponentFamilyMeta("test", emptyList(), "noicon", "test", "test") {
+                singleton(new ComponentFamilyMeta("test", "test", emptyList(), "noicon", "test", "test") {
 
                     {
                         final ParameterMeta store = new ParameterMeta(null, DataStore1.class, ParameterMeta.Type.OBJECT,
@@ -121,7 +121,8 @@ class RepositoryModelBuilderTest {
 
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null)) {
-            manager.addPlugin(pluginJar.getAbsolutePath());
+            final String location = pluginJar.getAbsolutePath();
+            manager.addPlugin(location);
             Container pluginContainer =
                     manager.findPlugin(pluginName).orElseThrow(() -> new Exception("test plugin don't exist"));
             assertNotNull(pluginContainer);
@@ -129,14 +130,14 @@ class RepositoryModelBuilderTest {
             assertNotNull(rm);
             assertEquals(1, rm.getFamilies().size());
             Family family = rm.getFamilies().get(0);
-            String ds1Id = IdGenerator.get("family1", "datastore", "dataStore1");
+            String ds1Id = IdGenerator.get("test", "family1", "datastore", "dataStore1", location);
             Config dataStore1Config =
                     family.getConfigs().stream().filter(c -> c.getId().equals(ds1Id)).findFirst().get();
             assertNotNull(dataStore1Config);
             assertEquals(1, dataStore1Config.getChildConfigs().size());
             assertEquals("configuration1", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
 
-            String ds2Id = IdGenerator.get("family1", "datastore", "dataStore2");
+            String ds2Id = IdGenerator.get("test", "family1", "datastore", "dataStore2", location);
             Config dataStore2Config =
                     family.getConfigs().stream().filter(c -> c.getId().equals(ds2Id)).findFirst().get();
             assertNotNull(dataStore2Config);

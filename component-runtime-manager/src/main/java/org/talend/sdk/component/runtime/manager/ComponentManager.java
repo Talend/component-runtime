@@ -985,6 +985,8 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onCreate(final Container container) {
             final ConfigurableClassLoader loader = container.getLoader();
+            final OriginalId originalId = OriginalId.class.cast(container.get(OriginalId.class));
+
             final AnnotationFinder finder;
             Archive archive = null;
             try {
@@ -992,8 +994,7 @@ public class ComponentManager implements AutoCloseable {
                  * container.findExistingClasspathFiles() - we just scan the root module for
                  * now, no need to scan all the world
                  */
-                archive = toArchive(container.getRootModule(), OriginalId.class.cast(container.get(OriginalId.class)),
-                        loader);
+                archive = toArchive(container.getRootModule(), originalId, loader);
 
                 // undocumented scanning config for now since we would document it only if
                 // proven useful
@@ -1145,8 +1146,9 @@ public class ComponentManager implements AutoCloseable {
                             }
                         });
 
-                        final ComponentMetaBuilder builder = new ComponentMetaBuilder(container.getId(), allServices,
-                                components, componentDefaults.get(getAnnotatedElementCacheKey(type)), context,
+                        final ComponentMetaBuilder builder = new ComponentMetaBuilder(container.getId(),
+                                ofNullable(originalId).map(OriginalId::getValue).orElse(null), allServices, components,
+                                componentDefaults.get(getAnnotatedElementCacheKey(type)), context,
                                 migrationHandlerFactory);
 
                         final Thread thread = Thread.currentThread();
@@ -1339,6 +1341,8 @@ public class ComponentManager implements AutoCloseable {
 
         private final String plugin;
 
+        private final String pluginLocation;
+
         private final AllServices services;
 
         private final Components components;
@@ -1467,7 +1471,7 @@ public class ComponentManager implements AutoCloseable {
                 throw new IllegalArgumentException("Missing component");
             }
             return this.component == null || !component.equals(this.component.getName())
-                    ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()),
+                    ? (this.component = new ComponentFamilyMeta(pluginLocation, plugin, asList(components.categories()),
                             findIcon(familyAnnotationElement), comp,
                             Class.class.isInstance(familyAnnotationElement)
                                     ? getPackage(Class.class.cast(familyAnnotationElement))

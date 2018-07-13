@@ -127,13 +127,18 @@ class PropertiesServiceTest {
                         newProperty("configuration.something", "OBJECT", metadata("dataset-1", "dataset")),
                         newProperty("configuration.something.value", "STRING", emptyMap()));
 
-        final OnPersist event = new OnPersist(null, null, "VGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE", null, srcProps
-                .stream()
-                .filter(it -> it.getPath().startsWith("configuration.something"))
-                .map(it -> new SimplePropertyDefinition(it.getPath().substring("configuration.".length()), it.getName(),
-                        it.getDisplayName(), it.getType(), it.getDefaultValue(), it.getValidation(), it.getMetadata(),
-                        it.getPlaceholder(), it.getProposalDisplayNames()))
-                .collect(toList()), new HashMap<String, String>() {
+        final OnPersist event = new OnPersist(null, null,
+                "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTEjb3JnLnRhbGVuZC50ZXN0OnRlc3QtY29tcG9uZW50OjEuMC4w",
+                null,
+                srcProps
+                        .stream()
+                        .filter(it -> it.getPath().startsWith("configuration.something"))
+                        .map(it -> new SimplePropertyDefinition(it.getPath().substring("configuration.".length()),
+                                it.getName(), it.getDisplayName(), it.getType(), it.getDefaultValue(),
+                                it.getValidation(), it.getMetadata(), it.getPlaceholder(),
+                                it.getProposalDisplayNames()))
+                        .collect(toList()),
+                new HashMap<String, String>() {
 
                     {
                         put("something.value", "somevalue");
@@ -161,13 +166,18 @@ class PropertiesServiceTest {
                         newProperty("configuration.something", "OBJECT", metadata("dataset-1", "dataset")),
                         newProperty("configuration.something.value", "STRING", emptyMap()));
 
-        final OnPersist event = new OnPersist(null, null, "VGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE", null, srcProps
-                .stream()
-                .filter(it -> it.getPath().startsWith("configuration.something"))
-                .map(it -> new SimplePropertyDefinition(it.getPath().substring("configuration.".length()), it.getName(),
-                        it.getDisplayName(), it.getType(), it.getDefaultValue(), it.getValidation(), it.getMetadata(),
-                        it.getPlaceholder(), it.getProposalDisplayNames()))
-                .collect(toList()), new HashMap<String, String>() {
+        final OnPersist event = new OnPersist(null, null,
+                "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTEjb3JnLnRhbGVuZC50ZXN0OnRlc3QtY29tcG9uZW50OjEuMC4w",
+                null,
+                srcProps
+                        .stream()
+                        .filter(it -> it.getPath().startsWith("configuration.something"))
+                        .map(it -> new SimplePropertyDefinition(it.getPath().substring("configuration.".length()),
+                                it.getName(), it.getDisplayName(), it.getType(), it.getDefaultValue(),
+                                it.getValidation(), it.getMetadata(), it.getPlaceholder(),
+                                it.getProposalDisplayNames()))
+                        .collect(toList()),
+                new HashMap<String, String>() {
 
                     {
                         put("config.value", "somevalue");

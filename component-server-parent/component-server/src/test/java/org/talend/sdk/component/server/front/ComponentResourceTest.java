@@ -289,7 +289,9 @@ class ComponentResourceTest {
         final Link link = data.getLinks().iterator().next();
         assertEquals("Detail", link.getName());
         assertEquals("/component/details?identifiers=" + Base64.getUrlEncoder().withoutPadding().encodeToString(
-                (plugin + "#" + family + "#" + name).getBytes(StandardCharsets.UTF_8)), link.getPath());
+                (plugin + "#" + family + "#" + name + "#" + System.getProperty(plugin + ".location"))
+                        .getBytes(StandardCharsets.UTF_8)),
+                link.getPath());
         assertEquals(MediaType.APPLICATION_JSON, link.getContentType());
 
         if ("jdbc".equals(data.getId().getFamily()) && "input".equals(data.getId().getName())) {
