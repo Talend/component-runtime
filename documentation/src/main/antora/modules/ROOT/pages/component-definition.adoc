@@ -5,7 +5,7 @@ Talend Component Kit framework relies on several primitive components.
 
 All components can use `@PostConstruct` and `@PreDestroy` annotations to initialize or release some underlying resource at the beginning and the end of a processing.
 
-IMPORTANT: In distributed environments, class constructor are called on cluster manager node. Methods annotated with `@PostConstruct` and `@PreDestroy` are called on worker nodes. Thus, partition plan computation and pipeline tasks are performed on different nodes.
+IMPORTANT: In distributed environments, class constructor are called on cluster manager nodes. Methods annotated with `@PostConstruct` and `@PreDestroy` are called on worker nodes. Thus, partition plan computation and pipeline tasks are performed on different nodes.
 
 ////
 [ditaa, generated-deployment-diagram, png]
@@ -188,6 +188,7 @@ public MyData produces() {
 }
 ----
 
+[[component-type-processor]]
 == Processor
 
 A `Processor` is a component that converts incoming data to a different model.
@@ -257,7 +258,7 @@ public void endBatch() {
 }
 ----
 
-IMPORTANT: It is a good practice to support a `maxBatchSize` here and to commit before the end of the group, in case of a computed size that is way too big for your backend to handle.
+You can optimize the data batch processing by using the `maxBatchSize` parameter. This parameter is automatically implemented on the component when it is deployed to a Talend application. Only the logic needs to be implemented. Learn how to implement chunking/bulking in xref:tutorial-how-to-implement-bulking.adoc[this document].
 
 == Multiple outputs
 
