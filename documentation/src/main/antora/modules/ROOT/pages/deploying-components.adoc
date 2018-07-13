@@ -1,0 +1,10 @@
+= Deploying components to Talend applications
+:page-partial:
+
+:toc:
+
+include::documentation-rest.adoc[leveloffset=+1]
+
+include::server-uispec.adoc[leveloffset=+1]
+
+include::studio.adoc[leveloffset=+1]

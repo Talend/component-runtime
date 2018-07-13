@@ -1,0 +1,24 @@
+= Talend Component Kit methodology
+:page-partial:
+
+[[getting-started-principles]]
+
+Developing new components using the framework includes:
+
+. Creating a project using the https://starter-toolkit.talend.io/[starter] or the xref:tutorial-talend-intellij-plugin-usage.adoc[Talend IntelliJ plugin].
+.. Defining the general configuration model for each component in your project
+.. Generating and downloading the project archive from the starter
+.. Compiling the project
+. Implementing the components
+.. Registering the components family
+.. Defining the layout and configurable part of the components
+.. Defining the partition mapper for Input components
+.. Implementing the source logic for Input components
+.. Defining the processor for Output components
+. Testing the components
+. Deploying the components to Talend Studio or Cloud applications
+
+Some additional configuration steps can be necessary according to your requirements:
+
+- Defining services
+- Masking sensitive data

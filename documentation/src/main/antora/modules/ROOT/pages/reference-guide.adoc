@@ -1,0 +1,6 @@
+= Talend Component Kit Reference guide
+:page-partial:
+
+:toc:
+
+include::gallery.adoc[leveloffset=+1]

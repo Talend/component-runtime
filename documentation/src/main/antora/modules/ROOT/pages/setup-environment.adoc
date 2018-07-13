@@ -1,0 +1,10 @@
+= Setting up your environment
+:page-partial:
+
+:toc:
+
+include::system-prerequisites.adoc[leveloffset=+1]
+
+include::tutorial-talend-intellij-plugin-usage.adoc[leveloffset=+1]
+
+include::build-tools.adoc[leveloffset=+1]

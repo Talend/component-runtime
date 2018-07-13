@@ -1,0 +1,10 @@
+= Getting Started with Talend Component Kit
+:page-partial:
+
+:toc:
+
+include::what-is-a-talend-component.adoc[leveloffset=+1]
+
+include::tck-framework-overview.adoc[leveloffset=+1]
+
+include::methodology-creating-components.adoc[leveloffset=+1]

@@ -1,20 +1,18 @@
 = Talend Component Kit Developer Reference Guide
 v{page-component-version}
 
-include::design.adoc[leveloffset=+1]
+include::getting-started-with-tck.adoc[leveloffset=+1]
 
-include::documentation-overview.adoc[leveloffset=+1]
+include::setup-environment.adoc[leveloffset=+1]
 
-include::getting-started.adoc[leveloffset=+1]
+include::creating-components.adoc[leveloffset=+1]
 
-include::documentation.adoc[leveloffset=+1]
+include::testing-components.adoc[leveloffset=+1]
 
-include::documentation-testing.adoc[leveloffset=+1]
+include::defining-services.adoc[leveloffset=+1]
 
-include::best-practices.adoc[leveloffset=+1]
+include::deploying-components.adoc[leveloffset=+1]
 
-include::documentation-rest.adoc[leveloffset=+1]
+include::tutorials.adoc[leveloffset=+1]
 
-include::wrapping-a-beam-io.adoc[leveloffset=+1]
-
-include::appendix.adoc[leveloffset=+1]
+include::reference-guide.adoc[leveloffset=+1]
