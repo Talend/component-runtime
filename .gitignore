@@ -39,3 +39,4 @@ documentation/src/main/frontend/package.json
 documentation/src/main/antora/site.yml
 documentation/src/main/antora/site-dev.yml
 documentation/src/main/frontend/algolia/config.json
+documentation/rebuild.bat
