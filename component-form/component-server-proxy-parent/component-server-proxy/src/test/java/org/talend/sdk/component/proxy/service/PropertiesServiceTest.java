@@ -128,8 +128,7 @@ class PropertiesServiceTest {
                         newProperty("configuration.something.value", "STRING", emptyMap()));
 
         final OnPersist event = new OnPersist(null, null,
-                "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTEjb3JnLnRhbGVuZC50ZXN0OnRlc3QtY29tcG9uZW50OjEuMC4w",
-                null,
+                "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE", null,
                 srcProps
                         .stream()
                         .filter(it -> it.getPath().startsWith("configuration.something"))
@@ -167,8 +166,7 @@ class PropertiesServiceTest {
                         newProperty("configuration.something.value", "STRING", emptyMap()));
 
         final OnPersist event = new OnPersist(null, null,
-                "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTEjb3JnLnRhbGVuZC50ZXN0OnRlc3QtY29tcG9uZW50OjEuMC4w",
-                null,
+                "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE", null,
                 srcProps
                         .stream()
                         .filter(it -> it.getPath().startsWith("configuration.something"))

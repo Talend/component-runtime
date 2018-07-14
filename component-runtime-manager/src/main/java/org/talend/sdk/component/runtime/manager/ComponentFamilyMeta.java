@@ -65,8 +65,6 @@ public class ComponentFamilyMeta {
 
     private final String id;
 
-    private final String pluginLocation;
-
     private final String plugin;
 
     private final Collection<String> categories;
@@ -83,10 +81,9 @@ public class ComponentFamilyMeta {
 
     private final ConcurrentMap<Locale, FamilyBundle> bundles = new ConcurrentHashMap<>();
 
-    public ComponentFamilyMeta(final String pluginLocation, final String plugin, final Collection<String> categories,
-            final String icon, final String name, final String packageName) {
-        this.id = IdGenerator.get(name, pluginLocation);
-        this.pluginLocation = pluginLocation;
+    public ComponentFamilyMeta(final String plugin, final Collection<String> categories, final String icon,
+            final String name, final String packageName) {
+        this.id = IdGenerator.get(plugin, name);
         this.plugin = plugin;
         this.categories = categories;
         this.icon = icon;
@@ -164,7 +161,7 @@ public class ComponentFamilyMeta {
             this.instantiator = instantiator;
             this.validated = validated;
 
-            this.id = IdGenerator.get(parent.getPlugin(), parent.getName(), name, parent.getPluginLocation());
+            this.id = IdGenerator.get(parent.getPlugin(), parent.getName(), name);
 
         }
 

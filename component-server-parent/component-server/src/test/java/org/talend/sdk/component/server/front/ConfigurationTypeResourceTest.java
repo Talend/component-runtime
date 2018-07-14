@@ -49,18 +49,15 @@ class ConfigurationTypeResourceTest {
         final ConfigTypeNodes index =
                 ws.read(ConfigTypeNodes.class, "get", "/configurationtype/index?lightPayload=false", "");
         System.out.println(index.getNodes().keySet());
-        validateConsistencyBetweenNamesAndKeys(index.getNodes().get(
-                "amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmMjb3JnLnRhbGVuZC5jb21wOmpkYmMtY29tcG9uZW50OmphcjowLjAuMTpjb21waWxl"));
+        validateConsistencyBetweenNamesAndKeys(index.getNodes().get("amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM"));
     }
 
     @Test
     void webSocketDetail() {
         final ConfigTypeNodes index = ws.read(ConfigTypeNodes.class, "get",
-                "/configurationtype/details?identifiers=amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYyNvcmcudGFsZW5kLmNvbXA6amRiYy1jb21wb25lbnQ6amFyOjAuMC4xOmNvbXBpbGU",
-                "");
+                "/configurationtype/details?identifiers=amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYw", "");
         assertEquals(1, index.getNodes().size());
-        final ConfigTypeNode jdbcConnection = index.getNodes().get(
-                "amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYyNvcmcudGFsZW5kLmNvbXA6amRiYy1jb21wb25lbnQ6amFyOjAuMC4xOmNvbXBpbGU");
+        final ConfigTypeNode jdbcConnection = index.getNodes().get("amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYw");
         assertNotNull(jdbcConnection);
         assertEquals("[{\"description\":\"D1\",\"driver\":\"d1\"},{\"description\":\"D2\",\"driver\":\"d2\"}]",
                 jdbcConnection
@@ -76,8 +73,7 @@ class ConfigurationTypeResourceTest {
     @Test
     void migrate() {
         final Map<String, String> config = ws.read(Map.class, "post",
-                "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmMjb3JnLnRhbGVuZC5jb21wOmpkYmMtY29tcG9uZW50OmphcjowLjAuMTpjb21waWxl/1",
-                "{}");
+                "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/1", "{}");
         assertEquals("true", config.get("migrated"));
         assertEquals("1", config.get("size"));
     }
@@ -99,26 +95,19 @@ class ConfigurationTypeResourceTest {
     }
 
     private void validateJdbcHierarchy(final ConfigTypeNodes index) {
-        final ConfigTypeNode jdbcRoot =
-                index.getNodes().get("amRiYyNvcmcudGFsZW5kLmNvbXA6amRiYy1jb21wb25lbnQ6amFyOjAuMC4xOmNvbXBpbGU");
+        final ConfigTypeNode jdbcRoot = index.getNodes().get("amRiYy1jb21wb25lbnQjamRiYw");
         assertNotNull(jdbcRoot);
-        assertEquals(singleton(
-                "amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYyNvcmcudGFsZW5kLmNvbXA6amRiYy1jb21wb25lbnQ6amFyOjAuMC4xOmNvbXBpbGU"),
-                jdbcRoot.getEdges());
+        assertEquals(singleton("amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYw"), jdbcRoot.getEdges());
         assertEquals("jdbc", jdbcRoot.getName());
 
-        final ConfigTypeNode jdbcConnection = index.getNodes().get(
-                "amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYyNvcmcudGFsZW5kLmNvbXA6amRiYy1jb21wb25lbnQ6amFyOjAuMC4xOmNvbXBpbGU");
+        final ConfigTypeNode jdbcConnection = index.getNodes().get("amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYw");
         assertNotNull(jdbcConnection);
-        assertEquals(singleton(
-                "amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmMjb3JnLnRhbGVuZC5jb21wOmpkYmMtY29tcG9uZW50OmphcjowLjAuMTpjb21waWxl"),
-                jdbcConnection.getEdges());
+        assertEquals(singleton("amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM"), jdbcConnection.getEdges());
         assertEquals("jdbc", jdbcConnection.getName());
         assertEquals("JDBC DataStore", jdbcConnection.getDisplayName());
         assertEquals("datastore", jdbcConnection.getConfigurationType());
 
-        final ConfigTypeNode jdbcDataSet = index.getNodes().get(
-                "amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmMjb3JnLnRhbGVuZC5jb21wOmpkYmMtY29tcG9uZW50OmphcjowLjAuMTpjb21waWxl");
+        final ConfigTypeNode jdbcDataSet = index.getNodes().get("amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM");
         assertNotNull(jdbcDataSet);
         assertEquals(-1, jdbcDataSet.getVersion());
         assertEquals("jdbc", jdbcDataSet.getName());

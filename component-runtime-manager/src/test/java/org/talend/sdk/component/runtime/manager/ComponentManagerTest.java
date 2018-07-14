@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.management.ManagementFactory;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -62,33 +60,6 @@ import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 class ComponentManagerTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
-
-    @Test
-    void idHasRawPluginLocation(final TemporaryFolder temporaryFolder) throws IOException {
-        final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
-        pluginFolder.mkdirs();
-
-        final File plugin1 = pluginGenerator.createPlugin(pluginFolder, "plugin1.jar",
-                "org.apache.tomee:openejb-itests-beans:jar:7.0.4:runtime");
-
-        try (final ComponentManager manager = newManager()) {
-            manager.addPlugin(plugin1.getAbsolutePath());
-
-            final Container plugin1Container = manager.findPlugin("plugin1").get();
-            final ComponentFamilyMeta family =
-                    plugin1Container.get(ContainerComponentRegistry.class).getComponents().values().iterator().next();
-            final String pluginIdValue =
-                    new String(Base64.getDecoder().decode(family.getId()), StandardCharsets.UTF_8).split("#")[1];
-            assertEquals(plugin1Container.get(ComponentManager.OriginalId.class).getValue(), pluginIdValue);
-        } finally { // clean temp files
-            DynamicContainerFinder.LOADERS.clear();
-
-            Stream.of(pluginFolder.listFiles()).forEach(File::delete);
-            if (ofNullable(pluginFolder.listFiles()).map(f -> f.length == 0).orElse(true)) {
-                pluginFolder.delete();
-            }
-        }
-    }
 
     private ComponentManager newManager() {
         return new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies",
