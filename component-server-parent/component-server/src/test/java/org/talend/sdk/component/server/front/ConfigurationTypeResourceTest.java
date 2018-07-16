@@ -48,7 +48,6 @@ class ConfigurationTypeResourceTest {
     void ensureConsistencyBetweenPathsAndNames() {
         final ConfigTypeNodes index =
                 ws.read(ConfigTypeNodes.class, "get", "/configurationtype/index?lightPayload=false", "");
-        System.out.println(index.getNodes().keySet());
         validateConsistencyBetweenNamesAndKeys(index.getNodes().get("amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM"));
     }
 
