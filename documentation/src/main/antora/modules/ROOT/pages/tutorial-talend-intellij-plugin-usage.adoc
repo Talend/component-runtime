@@ -1,4 +1,4 @@
-= Installing and using the Talend Component Kit IntelliJ plugin
+= Installing the Talend Component Kit IntelliJ plugin
 :page-partial:
 
 [[tutorial-talend-intellij-plugin-usage]]
@@ -36,27 +36,7 @@ image::intellij/plugin/3-restart.png[IDEA restart]
 
 image::intellij/plugin/4-restart.png[IDEA restart]
 
-The plugin is now installed on your IntelliJ IDEA. You can start using it.
-
-== Generating a project using the plugin
-Once the plugin installed, you can generate a component project.
-
-. Select *File* > *New* > *Project*.
-. In the *New Project* wizard, choose *Talend Component* and click *Next*.
-
-image::intellij/plugin/new-project_1.png[New Talend Project]
-
-The plugin loads the component starter and lets you design your components.
-For more information about the Talend Component Kit starter, check xref:tutorial-generate-project-using-starter.adoc[this tutorial].
-
-image::intellij/plugin/new-project_2.png[New Talend Project]
-
-[start=3]
-. Once your project is configured, select *Next*, then click *Finish*.
-
-image::intellij/plugin/new-project_3.png[New Talend Project]
-
-The project is automatically imported into the IDEA using the build tool that you have chosen.
+The plugin is now installed on your IntelliJ IDEA. You can xref:generating-project-using-intellij-plugin.adoc[start using it].
 
 == About the internationalization completion
 

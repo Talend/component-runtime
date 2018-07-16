@@ -5,20 +5,23 @@
 
 Developing new components using the framework includes:
 
-. Creating a project using the https://starter-toolkit.talend.io/[starter] or the xref:tutorial-talend-intellij-plugin-usage.adoc[Talend IntelliJ plugin].
+. xref:map-generating-project.adoc[Creating a project] using the https://starter-toolkit.talend.io/[starter] or the xref:tutorial-talend-intellij-plugin-usage.adoc[Talend IntelliJ plugin]. This step includes:
 .. Defining the general configuration model for each component in your project
 .. Generating and downloading the project archive from the starter
 .. Compiling the project
-. Implementing the components
+. Importing the compiled project in your IDE. This step is not required if you have generated the project using the IntelliJ plugin.
+. xref:map-creating-components.adoc[Implementing the components], including:
 .. Registering the components family
 .. Defining the layout and configurable part of the components
 .. Defining the partition mapper for Input components
 .. Implementing the source logic for Input components
 .. Defining the processor for Output components
-. Testing the components
-. Deploying the components to Talend Studio or Cloud applications
+. xref:map-testing-components.adoc[Testing the components]
+. xref:map-deploying-components.adoc[Deploying the components] to Talend Studio or Cloud applications
 
 Some additional configuration steps can be necessary according to your requirements:
 
-- Defining services
-- Masking sensitive data
+- xref:map-defining-services.adoc[Defining services]
+- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+
+image:methodo.png[]

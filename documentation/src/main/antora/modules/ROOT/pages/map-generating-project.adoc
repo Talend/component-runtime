@@ -1,0 +1,5 @@
+= Generating a project
+:page-partial:
+
+include:tutorial-generate-project-using-starter.adoc[leveloffset=+1]
+include:generate-project-using-intellij-plugin.adoc[leveloffset=+1]

@@ -22,6 +22,7 @@ NOTE: If you prefer you can use the <<all-in-one.adoc#, single page>> documentat
 
 - xref:map-getting-started-with-tck.adoc[Getting Started]
 - xref:map-setup-environment.adoc[Setting up your environment]
+- xref:map-generating-project.adoc[Generating a project]
 - xref:map-creating-components.adoc[Creating components]
 - xref:map-defining-services.adoc[Defining services]
 - xref:map-testing-components.adoc[Testing components]
