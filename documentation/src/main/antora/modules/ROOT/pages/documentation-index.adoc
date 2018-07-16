@@ -8,27 +8,24 @@ This framework unifies the way components are built to ensure they are standardi
 ifeval::["{backend}" == "html5"]
 ifeval::["{page-origin-refname}" == "master"]
 
-IMPORTANT: This is a version under development which has not yet been deployed.
-You can however use it using the `-SNAPSHOT` version and Sonatype snapshot https://oss.sonatype.org/content/repositories/snapshots/[repository].
+IMPORTANT: This is a version under development which has not yet been deployed. You can however use it using the `-SNAPSHOT` version and Sonatype snapshot https://oss.sonatype.org/content/repositories/snapshots/[repository].
 
-TIP: If you want a PDF version of that page you can find it in our snapshots:
-https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation&v={page-component-version}-SNAPSHOT&e=pdf&c=all-in-one[PDF].
+TIP: If you want a PDF version of that page you can find it in our snapshots: https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation&v={page-component-version}-SNAPSHOT&e=pdf&c=all-in-one[PDF].
 endif::[]
 
 ifeval::["{page-origin-refname}" != "master"]
-NOTE: If you want a PDF version of that page just click on
-this http://repo.apache.maven.org/maven2/org/talend/sdk/component/documentation/{page-component-version}/documentation-{page-component-version}-all-in-one.pdf[link].
+NOTE: If you want a PDF version of that page just click this http://repo.apache.maven.org/maven2/org/talend/sdk/component/documentation/{page-component-version}/documentation-{page-component-version}-all-in-one.pdf[link].
 endif::[]
 endif::[]
 
 NOTE: If you prefer you can use the <<all-in-one.adoc#, single page>> documentation.
 
-- xref:getting-started-with-tck.adoc[Getting Started]
-- xref:setup-environment.adoc[Setting up your environment]
-- xref:creating-components.adoc[Creating components]
-- xref:defining-services.adoc[Defining services]
-- xref:testing-components.adoc[Testing components]
-- xref:deploying-components.adoc[Deploying components to Talend applications]
-- xref:tutorials.adoc[Tutorials]
-- xref:reference-guide.adoc[Reference Guide]
+- xref:map-getting-started-with-tck.adoc[Getting Started]
+- xref:map-setup-environment.adoc[Setting up your environment]
+- xref:map-creating-components.adoc[Creating components]
+- xref:map-defining-services.adoc[Defining services]
+- xref:map-testing-components.adoc[Testing components]
+- xref:map-deploying-components.adoc[Deploying components to Talend applications]
+- xref:map-tutorials.adoc[Tutorials]
+- xref:map-reference-guide.adoc[Reference Guide]
 - xref:apidocs.adoc[Javadocs]

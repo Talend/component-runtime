@@ -1,0 +1,48 @@
+= Talend Component Kit Reference guide
+:page-partial:
+
+:toc:
+
+include::gallery.adoc[leveloffset=+1]
+
+== Actions
+
+include::{partialsdir}/generated_actions.adoc[leveloffset=+1]
+
+== Conditions
+
+include::{partialsdir}/generated_conditions.adoc[leveloffset=+1]
+
+== Configuration types
+
+include::{partialsdir}/generated_configuration-types.adoc[leveloffset=+1]
+
+== Constraints
+
+include::{partialsdir}/generated_constraints.adoc[leveloffset=+1]
+
+== Junit environments
+
+include::{partialsdir}/generated_junit-environments.adoc[leveloffset=+1]
+
+== Proxy server API
+
+include::{partialsdir}/generated_proxy-server-api.adoc[leveloffset=+2]
+
+== Proxy server configuration
+
+include::{partialsdir}/generated_proxy-server-configuration.adoc[leveloffset=+1]
+
+include::{partialsdir}/generated_rest-resources.adoc[leveloffset=+1]
+
+== Scanning
+
+include::{partialsdir}/generated_scanning-exclusions.adoc[leveloffset=+2]
+
+== Server configuration
+
+include::{partialsdir}/generated_server-configuration.adoc[leveloffset=+1]
+
+== UI API
+
+include::{partialsdir}/generated_ui.adoc[leveloffset=+1]

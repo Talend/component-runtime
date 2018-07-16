@@ -16,3 +16,5 @@ include::component-loading.adoc[leveloffset=+1]
 include::tutorial-configuration-sensitive-data[leveloffset=+1]
 
 include::best-practices.adoc[leveloffset=+1]
+
+include::mapsub-build-tools.adoc[leveloffset=+1]
