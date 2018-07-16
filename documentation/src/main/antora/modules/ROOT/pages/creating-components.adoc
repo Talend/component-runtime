@@ -7,8 +7,6 @@ include::component-definition.adoc[leveloffset=+1]
 
 include::component-configuration.adoc[leveloffset=+1]
 
-include::gallery.adoc[leveloffset=+1]
-
 include::component-registering.adoc[leveloffset=+1]
 
 include::component-internationalization.adoc[leveloffset=+1]
