@@ -114,7 +114,7 @@ Then we must ensure docker images are deployed and the site
 0. Ensure you pushed the tag if not already done : `git push --follow-tags`
 1. Checkout the tag: `git checkout -b component-runtime-$release component-runtime-$release`
 2. Build the tag: `mvn clean install -DskipTests -Dinvoker.skip=true -T1C`
-3. Deploy the component-starter-server on Docker Hub (assumes your credentials are set up): `export RELEASE_VERSION=$(grep "<version>" pom.xml  | head -n 1 | sed "s/.*>\\(.*\\)<.*/\\1/") && cd .docker && docker build --build-arg SERVER_VERSION=$RELEASE_VERSION --build-arg ARTIFACT_ID=component-starter-server --tag tacokit/component-starter-server:$RELEASE_VERSION . && docker push tacokit/component-starter-server:$RELEASED_VERSION && cd -`.
-4. Deploy the component-server on Docker Hub: `COMPONENT_SERVER_DOCKER_BUILD_ONLY=false ./.travis/docker.sh`
+3. Deploy the component-starter-server on Docker Hub (assumes your credentials are set up): `export RELEASE_VERSION=$(grep "<version>" pom.xml  | head -n 1 | sed "s/.*>\\(.*\\)<.*/\\1/") && cd .docker && docker build --build-arg SERVER_VERSION=$RELEASE_VERSION --build-arg ARTIFACT_ID=component-starter-server --tag tacokit/component-starter-server:$RELEASE_VERSION . && docker push tacokit/component-starter-server:$RELEASE_VERSION && cd -`.
+4. Deploy the component-server on Docker Hub: `COMPONENT_SERVER_DOCKER_BUILD_ONLY=true ./.travis/docker.sh` and then push the produced image (its name was logged but should be tacokit/component-server:$REALEASE_VERSION).
 5. Rebuild the new master and push the updated files from the doc module (otherwise we'll get a conflict with the tag): `mvn clean install -DskipTests -Dinvoker.skip=true -T1C && git commit -a -m "Updating doc for new dev round" && git push`
-6. (optional) Redeploy manually the doc to not wait for travis: `cd documentation && mvn clean install pre-site -Pgh-pages && cd-`
+6. (optional) Redeploy manually the doc to not wait for travis: `cd documentation && mvn clean install pre-site -Pgh-pages && cd -`

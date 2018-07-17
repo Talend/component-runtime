@@ -48,5 +48,5 @@ if [ "x${COMPONENT_SERVER_DOCKER_BUILD_ONLY}" != "xtrue" ]; then
         docker push "$DOCKER_REGISTRY/$IMAGE" && exit 0
     done
 else
-    echo "Not pushing the tasg as request through \$COMPONENT_SERVER_DOCKER_BUILD_ONLY"
+    echo "Not pushing the tag as request through \$COMPONENT_SERVER_DOCKER_BUILD_ONLY"
 fi
