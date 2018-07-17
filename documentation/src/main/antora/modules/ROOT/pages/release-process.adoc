@@ -111,8 +111,6 @@ You can also validate that the release correctly deployed the new version from t
 
 Then we must ensure docker images are deployed and the site
 
-IMPORTANT: all commands assume the environment variable RELEASED_VERSION is set to the release you just did and you built the release locally before running the command (from the tag).
-
 0. Ensure you pushed the tag if not already done : `git push --follow-tags`
 1. Checkout the tag: `git checkout -b component-runtime-$release component-runtime-$release`
 2. Build the tag: `mvn clean install -DskipTests -Dinvoker.skip=true -T1C`
