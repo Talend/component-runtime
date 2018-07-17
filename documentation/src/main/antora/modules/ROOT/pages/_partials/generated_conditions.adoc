@@ -1,5 +1,5 @@
 
-[role="table-striped table-hover table-ordered",options="header,autowidth"]
+[role="table-striped table-bordered table-hover table-ordered",options="header,autowidth"]
 |====
 |API|Name|Description|Metadata Sample
 |@org.talend.sdk.component.api.configuration.condition.ActiveIf|if|If the evaluation of the element at the location matches value then the element is considered active, otherwise it is deactivated.|{"condition::if::target":"test","condition::if::value":"value1,value2"}

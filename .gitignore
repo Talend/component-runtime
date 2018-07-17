@@ -39,4 +39,5 @@ component-form/component-server-proxy-parent/component-server-proxy-play/src/mai
 documentation/src/main/frontend/package.json
 documentation/src/main/antora/site.yml
 documentation/src/main/antora/site-dev.yml
+documentation/src/main/antora/site-dev-poc.yml
 documentation/src/main/frontend/algolia/config.json

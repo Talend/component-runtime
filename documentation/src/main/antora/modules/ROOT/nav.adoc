@@ -40,7 +40,7 @@
 *** xref:documentation.adoc#_dependencies[Dependencies]
 **** xref:documentation.adoc#_creating_a_nested_maven_repository_with_maven_shade_plugin[Creating a nested Maven repository with maven-shade-plugin]
 *** xref:documentation.adoc#_listing_needed_plugins[Listing needed plugins]
-*** xref:documentation.adoc#_maven_shade_plugin_extensions[<code>maven-shade-plugin</code> extensions]
+*** xref:documentation.adoc#_maven_shade_plugin_extensions[maven-shade-plugin extensions]
 **** xref:documentation.adoc#_containerdependenciestransformer[ContainerDependenciesTransformer]
 **** xref:documentation.adoc#_plugintransformer[PluginTransformer]
 ** xref:documentation.adoc#_component_scanning_rules_and_default_exclusions[Component scanning rules and default exclusions]

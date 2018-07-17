@@ -1,0 +1,18 @@
+<article class="doc">
+    {{#if page.attributes.talend_landing}}
+        {{>landing page}}
+    {{else}}
+      {{#if page.title}}
+          <h1>{{{page.title}}}</h1>
+      {{/if}}
+      {{#if page.attributes.talend_contributors}}
+          {{>contributors page}}
+      {{else if page.attributes.talend_search}}
+          {{>search this}}
+      {{else if page.attributes.talend_documentationindex}}
+          {{>documentationindex this}}
+      {{else}}
+          {{{page.contents}}}
+      {{/if}}
+    {{/if}}
+</article>

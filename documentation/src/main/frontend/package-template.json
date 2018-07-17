@@ -12,7 +12,7 @@
   },
   "scripts": {
     "antora:build": "antora --stacktrace ../antora/site.yml",
-    "antora:dev": "antora --stacktrace ../antora/site-dev.yml",
+    "antora:${antora.dev.site.mode}": "antora --stacktrace ../antora/site-${antora.dev.site.mode}.yml",
     "algolia:index": "algolia-webcrawler --config algolia/config.json"
   }
 }

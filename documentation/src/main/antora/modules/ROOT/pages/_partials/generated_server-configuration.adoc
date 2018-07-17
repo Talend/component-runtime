@@ -1,7 +1,7 @@
 
 NOTE: the configuration is read from system properties, environment variables, ....
 
-[role="table-striped table-hover table-ordered",options="header,autowidth"]
+[role="table-striped table-bordered table-hover table-ordered",options="header,autowidth"]
 |====
 |Key|Description|Default
 |talend.component.server.component.coordinates|A comma separated list of gav to locate the components|-

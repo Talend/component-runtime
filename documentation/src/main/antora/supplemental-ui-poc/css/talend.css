@@ -1,0 +1,331 @@
+/**
+ *  Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+.contributors {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.contributor {
+  margin: 1rem;
+  width: 138px !important;
+}
+.contributor > div > img {
+  max-width: 138px;
+  max-height: 138px;
+}
+h3.contributor-name {
+  word-wrap: break-word;
+  font-size: 18px !important;
+  text-align: center;
+}
+h3.contributor-commits {
+  font-style: italic;
+  font-size: 15px !important;
+  margin: 0.5rem !important;
+  text-align: center;
+}
+.contributor-description {
+  font-size: 12px !important;
+  margin-bottom: 1rem !important;
+  text-align: center;
+}
+
+#pagination {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+.search-result-container > p {
+   overflow: hidden;
+   text-overflow: ellipsis;
+   display: -webkit-box;
+   line-height: 16px;
+   max-height: 64px;
+   -webkit-line-clamp: 4;
+   -webkit-box-orient: vertical;
+}
+.ais-search-box {
+  width: 100%;
+  max-width: 100% !important;
+}
+.ais-search-box--input {
+  -moz-border-radius: 25px;
+  -webkit-border-radius: 25px;
+  border-radius: 25px;
+}
+.global-search {
+  line-height: 1.5;
+  padding: .5rem 1rem;
+  position: relative
+}
+.navbar-search {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem
+}
+.search-result-container {
+  padding-top: 1rem;
+}
+input.rounded {
+  border: 1px solid #ccc;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  font-size: 13px;
+  padding: 2px 4px;
+  outline: 0;
+  -webkit-appearance: none;
+}
+
+.gallery td.tableblock > div.imageblock {
+  max-width: 400px;
+  max-height: 400px;
+  padding: 10px;
+}
+.gallery div.imageblock > div.content > a > img {
+  max-width: 400px;
+  max-height: 400px;
+}
+.gallery tr>td:nth-child(2) {
+	min-width: 500px;
+}
+
+.global-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  min-height: 100%;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+}
+h1 {
+  font-size: 28px;
+}
+h2 {
+  font-size: 26px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 22px;
+}
+h5 {
+  font-size: 20px;
+}
+h6 {
+  font-size: 18px;
+}
+header,
+footer {
+  flex: none;
+}
+body > .main {
+  padding: 50px 0px 0px 0;
+}
+.navbar-form {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+#searchInput {
+  color: white;
+}
+.grey-background {
+  background-color: #f5f5f5;
+  padding: 0;
+}
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+main {
+  display: flex;
+  overflow-y: scroll;
+  flex: auto;
+}
+div.navigation-container {
+  display: inline-flex;
+}
+.maincontent {
+  padding-left: 0;
+  padding-right: 0;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+article.doc {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.caret {
+  border-top-color: white !important;
+  border-right-color: white !important;
+  box-shadow: 1px -1px 0 white !important;
+}
+@media (min-width: 768px) {
+.navbar-right {
+  margin-right: -5px !important;
+}}
+.dropdown-menu {
+  right: 0;
+  left: auto;
+}
+.navbar-default, .navbar-brand,
+.navbar-default .navbar-nav>li>a, .navbar-default .navbar-text {
+  color: white !important;
+}
+a.menu-link {
+  padding: 0px 0 3px 0 !important;
+}
+.nav-list {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-bottom: 0;
+}
+.footer ul, .footer li {
+  margin: 0;
+  padding: 0;
+}
+.footer-links li {
+  display: inline;
+}
+.footer-links li:not(:first-child):before {
+  content: " | ";
+}
+.footer-links {
+  list-style: none;
+  margin: 0;
+  text-align: center;
+}
+.footer-copyright {
+  text-align: center;
+  margin: 0;
+}
+.navbar,
+footer.footer,
+.footer a {
+  background-color: #0675c1;
+  color: white;
+}
+.navbar-end .navbar-link:hover,
+.navbar-end > a.navbar-item:hover,
+.navbar-item.has-dropdown:hover .navbar-link {
+  background-color: #0093c9;
+  color: white;
+}
+nav.navbar {
+  border-bottom: solid 3px #82bd41;
+}
+.footer {
+  border-top: solid 2px #82bd41;
+}
+
+.code-handle-base {
+  position: absolute;
+  padding-left: 0.15rem;
+  padding-top: 0;
+  margin-top: -0.3rem;
+}
+.code-handle-base:before {
+  content: '▶';
+  left: 0;
+  display: inline-block;
+  color: #ddd;
+}
+.code-open-handle:before {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+.mediumvioletred {
+  color:mediumvioletred;
+}
+.green {
+  color:green;
+}
+
+.crumb > a {
+  background-color: inherit !important;
+}
+
+pre {
+  background-color: white;
+  padding: 0;
+}
+
+.admonitionblock {
+  margin: 1.4rem 0 0;
+  padding: 1rem;
+}
+.admonitionblock td.content > :first-child {
+  margin: 0;
+}
+.admonitionblock > table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  position: relative;
+  width: 100%;
+}
+.admonitionblock td.content {
+  padding: 1rem 1rem 0.75rem;
+  background-color: #fafafa;
+  width: 100%;
+}
+.admonitionblock .icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0 0.5rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 0.45rem;
+  color: #fff;
+  transform: translate(-0.5rem, -50%);
+}
+.admonitionblock.caution .icon {
+  background-color: #a0439c;
+}
+.admonitionblock.important .icon {
+  background-color: #d32f2f;
+}
+.admonitionblock.note .icon {
+  background-color: #217ee7;
+}
+.admonitionblock.tip .icon {
+  background-color: #41af46;
+}
+.admonitionblock.warning .icon {
+  background-color: #e18114;
+}
+.admonitionblock .icon i {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+}
+.admonitionblock .icon i::after {
+  content: attr(title);
+  hyphens: none;
+}
