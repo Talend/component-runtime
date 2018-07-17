@@ -3,7 +3,7 @@ NOTE: the configuration is read from system properties, environment variables, .
 If you use `playx-microprofile-config`, you can also use typesafe configuration.
 
 
-[role="table-striped table-bordered table-hover table-ordered",options="header,autowidth"]
+[role="table-striped table-hover table-ordered",options="header,autowidth"]
 |====
 |Key|Description|Default
 |talend.component.proxy.actions.proposable.cached|If true the proposable (suggestion lists only depending on the server state) will be cached, otherwise they will be requested for each form rendering.|true

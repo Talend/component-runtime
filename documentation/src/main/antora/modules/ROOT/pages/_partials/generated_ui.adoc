@@ -1,5 +1,5 @@
 
-[role="table-striped table-bordered table-hover table-ordered",options="header,autowidth"]
+[role="table-striped table-hover table-ordered",options="header,autowidth"]
 |====
 |API|Description|Generated property metadata
 |@org.talend.sdk.component.api.configuration.ui.DefaultValue|Provide a default value the UI can use - only for primitive fields.|{"ui::defaultvalue::value":"test"}

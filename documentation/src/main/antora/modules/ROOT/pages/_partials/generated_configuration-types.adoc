@@ -1,5 +1,5 @@
 
-[role="table-striped table-bordered table-hover table-ordered",options="header,autowidth"]
+[role="table-striped table-hover table-ordered",options="header,autowidth"]
 |====
 |API|Type|Description|Metadata sample
 |org.talend.sdk.component.api.configuration.type.DataSet|dataset|Mark a model (complex object) as being a dataset.|{"tcomp::configurationtype::type":"dataset","tcomp::configurationtype::name":"test"}

@@ -749,7 +749,8 @@ public class Generator {
     }
 
     private static String extractDoc(final Class<?> validation) {
-        return ofNullable(validation.getAnnotation(Documentation.class)).map(Documentation::value).orElse("-");
+        return ofNullable(validation.getAnnotation(Documentation.class)).map(Documentation::value).orElse("-").replace(
+                "|", "\\|");
     }
 
     private static String getParamType(final Class<?> validation) {

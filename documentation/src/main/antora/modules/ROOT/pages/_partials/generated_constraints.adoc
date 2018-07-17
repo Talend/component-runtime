@@ -1,5 +1,5 @@
 
-[role="table-striped table-bordered table-hover table-ordered",options="header,autowidth"]
+[role="table-striped table-hover table-ordered",options="header,autowidth"]
 |====
 |API|Name|Parameter Type|Description|Supported Types|Metadata sample
 |@org.talend.sdk.component.api.configuration.constraint.Max|maxLength|double|Ensure the decorated option size is validated with a higher bound.|CharSequence|{"validation::maxLength":"12.34"}
