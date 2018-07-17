@@ -29,6 +29,16 @@ class AbsolutePathResolverTest {
     }
 
     @Test
+    void resolveSiblingFromParent() {
+        assertEquals("dummy.foo.sibling", resolver.resolveProperty("dummy.foo.bar", "../sibling"));
+    }
+
+    @Test
+    void resolveSiblingChild() {
+        assertEquals("dummy.foo.sibling.child", resolver.resolveProperty("dummy.foo.bar", "../sibling/child"));
+    }
+
+    @Test
     void resolveSiblingArray() {
         assertEquals("dummy.foo[].sibling", resolver.resolveProperty("dummy.foo[].bar", "sibling"));
     }
@@ -41,5 +51,15 @@ class AbsolutePathResolverTest {
     @Test
     void resolveParent() {
         assertEquals("dummy", resolver.resolveProperty("dummy.foo", ".."));
+    }
+
+    @Test
+    void resolveChild() {
+        assertEquals("dummy.foo.child", resolver.resolveProperty("dummy.foo", "./child"));
+    }
+
+    @Test
+    void resolveGrandChild() {
+        assertEquals("dummy.foo.child.grandchild", resolver.resolveProperty("dummy.foo", "./child/grandchild"));
     }
 }

@@ -83,7 +83,7 @@ public class ComponentFamilyMeta {
 
     public ComponentFamilyMeta(final String plugin, final Collection<String> categories, final String icon,
             final String name, final String packageName) {
-        this.id = IdGenerator.get(name);
+        this.id = IdGenerator.get(plugin, name);
         this.plugin = plugin;
         this.categories = categories;
         this.icon = icon;

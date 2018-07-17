@@ -1,0 +1,20 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function () {
+  // menu
+  $('label.tree-toggler').click(function () { // on click, open it
+    $(this).parent().children('ul.tree').toggle(200);
+  });
+  $('a.menu-link').each(function () {
+    var href = $(this).attr('href');
+    if (href == window.location.pathname || href == window.location.hash){
+      $(this).addClass("current");
+    }
+  });
+
+  // syntax highlighting
+  hljs.initHighlighting();
+});
+</script>

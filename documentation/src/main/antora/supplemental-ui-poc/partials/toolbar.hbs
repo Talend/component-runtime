@@ -1,0 +1,19 @@
+<div class="toolbar" role="navigation">
+    {{#if siteRootUrl}}
+        <a href="{{siteRootUrl}}" class="home-link{{#if page.home}} is-current{{/if}}"></a>
+    {{/if}}
+
+    {{#if page.breadcrumbs}}
+    <ol class="breadcrumb grey-background">
+      {{#each page.breadcrumbs}}
+      <li class="crumb{{#if @last}} active{{/if}}">
+      {{~#if (and ./url (eq ./urlType 'internal'))~}}
+      <a href="{{{relativize @root.page.url ./url}}}">{{{./content}}}</a>
+      {{~else~}}
+      <a href="#">{{{./content}}}</a>
+      {{~/if~}}
+      </li>
+      {{/each}}
+    </ol>
+    {{/if}}
+</div>

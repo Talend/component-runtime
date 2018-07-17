@@ -1,0 +1,41 @@
+<div id="search-box"></div>
+<div id="hits"></div>
+<div id="pagination"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/2.8.0/instantsearch.min.js" integrity="sha256-Hm4RBFjKfiWuW4jEqvejJKKchi6330ApaZPq1Tn9vv0=" crossorigin="anonymous"></script>
+<script type="text/javascript">
+var pathname = window.location.pathname;
+var docVersion = pathname.indexOf('/component-runtime') === 0 ?
+    pathname.replace(/\/component\-runtime\/[^\/]+\/([0-9\.]+)\/.*/g, '$1') :
+    pathname.replace(/\/[^\/]+\/([0-9\.]+)\/.*/g, '$1');
+var searchInput = document.getElementById('searchInput');
+var search = instantsearch({
+  appId: 'LJ50FMU1OP',
+  apiKey: 'ca1017132e0722c761956d71c305b7af',
+  indexName: 'githubantora',
+  searchParameters: {
+    hitsPerPage: 10,
+    facetFilters: ['version:' + docVersion]
+  },
+  routing: {
+    router: instantsearch.routers.history({ writeDelay: 350 })
+  }
+});
+
+search.addWidget(instantsearch.widgets.searchBox({
+  container: '#search-box',
+  placeholder: 'Search for products'
+}));
+search.addWidget(instantsearch.widgets.hits({
+  container: '#hits',
+  templates: {
+    empty: '<div class="text-center">No results matching <strong>\{{query}}</strong> found.</div>',
+    item: '<div class="search-result-container"><a href="\{{url}}">\{{title}}</a><p>\{{text}}</p></div>'
+  },
+}));
+search.addWidget(instantsearch.widgets.pagination({
+  container: '#pagination'
+}));
+
+search.start();
+</script>

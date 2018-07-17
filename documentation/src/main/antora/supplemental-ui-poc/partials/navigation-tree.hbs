@@ -1,0 +1,16 @@
+{{#if navigation.length}}
+<ul class="nav nav-list tree" {{#cond level '>' 0}} style="display:none"{{/cond}}>
+  {{#each navigation}}
+  <li data-depth="{{or ../level 0}}">
+  {{#if ./items.length}}
+    <label class="tree-toggler nav-header">{{{./content}}}</label>
+    {{> navigation-tree navigation=./items level=(increment ../level)}}
+  {{else}}
+    <a class="menu-link" href="
+      {{~#if (eq ./urlType 'internal')}}{{{relativize @root.page.url ./url}}}
+      {{~else}}{{{./url}}}{{~/if}}">{{{./content}}}</a>
+  {{/if}}
+  </li>
+  {{/each}}
+</ul>
+{{/if}}
