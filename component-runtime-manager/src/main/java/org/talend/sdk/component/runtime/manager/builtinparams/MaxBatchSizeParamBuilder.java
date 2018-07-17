@@ -53,7 +53,7 @@ public class MaxBatchSizeParamBuilder {
             public Class<?> declaringClass() {
                 return MaxBatchSizeParamBuilder.class;
             }
-        }, Integer.class, ParameterMeta.Type.NUMBER, root.getPath() + "."  + name, name,
+        }, Integer.class, ParameterMeta.Type.NUMBER, root.getPath() + "." + name, name,
                 concat(Stream.of(MaxBatchSizeParamBuilder.class.getPackage().getName()),
                         Stream.of(ofNullable(root.getI18nPackages()).orElse(new String[0]))).toArray(String[]::new),
                 emptyList(), emptyList(), new HashMap<String, String>() {
