@@ -1,5 +1,5 @@
-= Talend Component Kit Documentation
-:page-partial:
+= Talend Component Kit Developer Guide
+:page-talend_documentationindex: true
 
 Talend Component Kit is a framework designed to help you create Talend components for both Talend Studio and Cloud applications.
 
@@ -30,3 +30,4 @@ NOTE: If you prefer you can use the <<all-in-one.adoc#, single page>> documentat
 - xref:map-tutorials.adoc[Tutorials]
 - xref:map-reference-guide.adoc[Reference Guide]
 - xref:apidocs.adoc[Javadocs]
+- xref:changelog.adoc[Changelogs]

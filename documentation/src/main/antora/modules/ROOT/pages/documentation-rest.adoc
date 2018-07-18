@@ -1,4 +1,4 @@
-= Talend Component REST API Documentation
+= Talend Component Kit REST API Documentation
 :page-partial:
 
 TIP: A test environment is available on Heroku and can be browsed using Talend Component Kit Server instance on link:https://talend-component-kit.restlet.io[Restlet Studio^].
@@ -222,24 +222,19 @@ For Example:
 [source,java]
 ----
 final Ui form1 = ui()
-    // (1)
-    .withJsonSchema(JsonSchema.jsonSchemaFrom(Form1.class).build())
-    // (2)
-    .withUiSchema(uiSchema()
+    .withJsonSchema(JsonSchema.jsonSchemaFrom(Form1.class).build()) <1>
+    .withUiSchema(uiSchema() <2>
         .withKey("multiSelectTag")
         .withRestricted(false)
         .withTitle("Simple multiSelectTag")
         .withDescription("This data list accepts values that are not in the list of suggestions")
         .withWidget("multiSelectTag")
         .build())
-    // (3)
-    .withProperties(myFormInstance)
+    .withProperties(myFormInstance) <3>
     .build();
 
-// (4)
-final String json = jsonb.toJson(form1);
+final String json = jsonb.toJson(form1); <4>
 ----
-
 <1> The `JsonSchema` is extracted from reflection on the `Form1` class. Note that `@JsonSchemaIgnore` allows to ignore a field and `@JsonSchemaProperty` allows to rename a property.
 <2> A `UiSchema` is programmatically built using the builder API.
 <3> An instance of the form is passed to let the serializer extract its JSON model.

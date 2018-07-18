@@ -14,7 +14,7 @@ The component API is declarative (through annotations) to ensure it is:
 . Evolutive. It can get new features without breaking old code.
 . As static as possible.
 
-=== Evolution
+=== Evolutive
 
 Because it is fully declarative, any new API can be added iteratively without requiring
 any change to existing components.

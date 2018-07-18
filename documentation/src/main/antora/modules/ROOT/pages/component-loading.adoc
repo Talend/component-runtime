@@ -1,7 +1,7 @@
 = Component Loading
 :page-partial:
 
-Talend Component scanning is based on plugins. To make sure that plugins can be developed in parallel and avoid conflicts, plugins need to be isolated (component or group of components in a single jar/plugin).
+Talend Component scanning is based on plugins. To make sure that plugins can be developed in parallel and avoid conflicts, they need to be isolated (component or group of components in a single jar/plugin).
 
 Multiple options are available:
 

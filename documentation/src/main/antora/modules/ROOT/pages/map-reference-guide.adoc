@@ -43,6 +43,6 @@ include::{partialsdir}/generated_scanning-exclusions.adoc[leveloffset=+2]
 
 include::{partialsdir}/generated_server-configuration.adoc[leveloffset=+1]
 
-== UI API
+== User Interface API
 
 include::{partialsdir}/generated_ui.adoc[leveloffset=+1]
