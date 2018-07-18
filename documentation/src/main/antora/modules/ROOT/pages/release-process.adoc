@@ -39,9 +39,19 @@ Add the required credentials to your Maven `settings.xml` file for the release. 
       <password>${env.TLND_JIRA_PASS}</password>
     </server>
     <server>
-      <id>blackduck</id>
-      <username>${env.TLND_BLACKDUCK_USER}</username>
-      <password>${env.TLND_BLACKDUCK_PASS}</password>
+      <id>npm</id>
+      <username>${env.NPM_USER}</username>
+      <password>${env.NPM_PASS}</password>
+    </server>
+    <server>
+      <id>jetbrains</id>
+      <username>${env.JETBRAINS_USER}</username>
+      <password>${env.JETBRAINS_PASS}</password>
+    </server>
+    <server> <!-- optional, only if you want to pre-index the search for the doc -->
+      <id>algolia_admin_key</id>
+      <username>algolia</username>
+      <password>${env.ALGOLIA_ADMIN_KEY}</password>
     </server>
   </servers>
 
@@ -92,15 +102,20 @@ mvn release:prepare
 mvn release:perform
 ----
 
-Once these commands are passed, you need to:
-
-. Rebuild the project which is now on the new SNAPSHOT version, in order to update site metadata and versions for the next iteration.
-. Commit the diff.
-. Make sure that the git tag corresponding to the release was pushed upstream (on github.com/Talend/component-runtime). If that is not the case, execute `git push --follow-tags`.
-
 == After the release
 
 After releasing - it can take up to a few hours - the binaries become available on Maven Central Repository (http://repo.apache.maven.org/maven2/).
 Check it to make sure that there was no issue during the release process.
 
 You can also validate that the release correctly deployed the new version from the Version menu of the website.
+
+Then we must ensure docker images are deployed and the site
+
+0. Ensure you pushed the tag if not already done : `git push --follow-tags`
+1. Checkout the tag: `git checkout -b component-runtime-$release component-runtime-$release`
+2. Build the tag: `mvn clean install -DskipTests -Dinvoker.skip=true -T1C`
+3. Deploy the component-starter-server on Docker Hub (assumes your credentials are set up): `export RELEASE_VERSION=$(grep "<version>" pom.xml  | head -n 1 | sed "s/.*>\\(.*\\)<.*/\\1/") && cd .docker && docker build --build-arg SERVER_VERSION=$RELEASE_VERSION --build-arg ARTIFACT_ID=component-starter-server --tag tacokit/component-starter-server:$RELEASE_VERSION . && docker push tacokit/component-starter-server:$RELEASE_VERSION && cd -`.
+4. Deploy the component-server on Docker Hub: `COMPONENT_SERVER_DOCKER_BUILD_ONLY=true ./.travis/docker.sh` and then push the produced image (its name was logged but should be tacokit/component-server:$REALEASE_VERSION).
+5. Rebuild the new master and push the updated files from the doc module (otherwise we'll get a conflict with the tag): `mvn clean install -DskipTests -Dinvoker.skip=true -T1C && git commit -a -m "Updating doc for new dev round" && git push`
+6. (optional) Redeploy manually the doc to not wait for travis: `cd documentation && mvn clean install pre-site -Pgh-pages && cd -`
+7. (optional) Update Algolia (doc search index) if you redeployed the documentation - note that it crawls the website so you can need to wait for github to redeploy the website: `cd documentation && mvn gplus:execute@groovy-scripts rmannibucau-common:filter@filter-algolia frontend:yarn@algolia-index && cd -`

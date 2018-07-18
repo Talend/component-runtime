@@ -23,6 +23,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-906[TCOMP-906^]: Minimalist JsonObject to IndexeredRecord utilities for beam
 - link:https://jira.talendforge.org/browse/TCOMP-907[TCOMP-907^]: Support maxBatchSize as in the studio in Beam
 - link:https://jira.talendforge.org/browse/TCOMP-910[TCOMP-910^]: Add maxbatchsize as built in parameter to Processor meta model
+- link:https://jira.talendforge.org/browse/TCOMP-915[TCOMP-915^]: Upgrade Apache Meecrowave to 1.2.2
 
 
 == Version 1.0.1
