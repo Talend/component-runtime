@@ -1,4 +1,4 @@
 = Proxy server API
 :page-partial:
 
-include::{partialsdir}/generated_proxy-server-api.adoc[leveloffset=+2]
+include::{partialsdir}/generated_proxy-server-api.adoc[leveloffset=+1]

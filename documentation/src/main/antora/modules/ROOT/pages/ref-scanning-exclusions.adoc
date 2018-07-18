@@ -1,4 +1,4 @@
 = Scanning
 :page-partial:
 
-include::{partialsdir}/generated_scanning-exclusions.adoc[leveloffset=+2]
+include::{partialsdir}/generated_scanning-exclusions.adoc[leveloffset=+1]
