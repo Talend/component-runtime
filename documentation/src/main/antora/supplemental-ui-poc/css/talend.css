@@ -44,6 +44,13 @@ h3.contributor-commits {
   text-align: center;
 }
 
+.dependency-sample {
+  padding-top: 0 !important;
+}
+.dependency-sample-code, .dependency-sample-code code {
+  min-height: 6rem;
+}
+
 .documentationindex-before {
   display: flex;
 }
