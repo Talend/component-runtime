@@ -15,8 +15,10 @@
  */
 package org.talend.runtime.documentation;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 import static java.util.Locale.ENGLISH;
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.groupingBy;
@@ -51,6 +53,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -78,6 +81,7 @@ import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.AttributesBuilder;
 import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.SafeMode;
+import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
@@ -108,6 +112,7 @@ import org.talend.sdk.component.runtime.reflect.Defaults;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -123,9 +128,10 @@ public class Generator {
             return;
         }
 
+        final Asciidoctor asciidoctor = Asciidoctor.Factory.create();
         final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
-        generateNav();
+        generateNav(asciidoctor);
         generatedTypes(generatedDir);
         generatedConstraints(generatedDir);
         generatedConditions(generatedDir);
@@ -135,6 +141,7 @@ public class Generator {
         generatedProxyServerConfiguration(generatedDir);
         generatedJUnitEnvironment(generatedDir);
         generatedScanningExclusions(generatedDir);
+        generatedDocumentationIndex(generatedDir, asciidoctor);
 
         final boolean offline = "offline=true".equals(args[4]);
         if (offline) {
@@ -145,8 +152,53 @@ public class Generator {
         generatedJira(generatedDir, args[1], args[2], args[3]);
     }
 
-    private static void generateNav() throws IOException {
-        final Asciidoctor asciidoctor = Asciidoctor.Factory.create();
+    private static void generatedDocumentationIndex(final File generatedDir, final Asciidoctor asciidoctor)
+            throws Exception {
+        final File baseDir = jarLocation(Generator.class).getParentFile().getParentFile();
+        final File pages = new File(baseDir, "src/main/antora/modules/ROOT/pages/");
+
+        final Collection<DocumentationItem> items = Stream
+                .of(requireNonNull(pages.listFiles(), "Missing pages"))
+                .filter(f -> f.getName().endsWith(".adoc"))
+                .map(file -> {
+                    final Document document = asciidoctor.loadFile(file, emptyMap());
+                    if (document.getAttributes().keySet().stream().noneMatch(
+                            it -> it.startsWith("page-documentationindex"))) {
+                        return null;
+                    }
+                    final String name = file.getName();
+                    return new DocumentationItem(
+                            ofNullable(document.getAttribute("page-documentationindex-index"))
+                                    .map(String::valueOf)
+                                    .map(Integer::parseInt)
+                                    .orElse(Integer.MAX_VALUE),
+                            ofNullable(document.getAttribute("page-documentationindex-icon"))
+                                    .map(String::valueOf)
+                                    .orElse("link"),
+                            ofNullable(document.getAttribute("page-documentationindex-label"))
+                                    .map(String::valueOf)
+                                    .orElseGet(document::getTitle),
+                            ofNullable(document.getAttribute("page-documentationindex-description"))
+                                    .map(String::valueOf)
+                                    .orElseGet(() -> ofNullable(document.getDoctitle()).orElse(document.getTitle())),
+                            name.substring(0, name.length() - ".adoc".length()) + ".html");
+                })
+                .filter(Objects::nonNull)
+                .sorted(comparing(DocumentationItem::getIndex))
+                .collect(toList());
+
+        final File file = new File(generatedDir, "generated_documentationindex.adoc");
+        try (final Jsonb jsonb = JsonbBuilder.create(
+                new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL).withFormatting(
+                        true));
+                final OutputStream writer = new WriteIfDifferentStream(file)) {
+            writer.write("++++\n<jsonArray>".getBytes(StandardCharsets.UTF_8));
+            writer.write(jsonb.toJson(items).getBytes(StandardCharsets.UTF_8));
+            writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    private static void generateNav(final Asciidoctor asciidoctor) throws IOException {
         final File baseDir = jarLocation(Generator.class).getParentFile().getParentFile();
         final File pages = new File(baseDir, "src/main/antora/modules/ROOT/pages/");
         final Map<String, Object> options = OptionsBuilder
@@ -312,9 +364,9 @@ public class Generator {
                 new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL).withFormatting(
                         true));
                 final OutputStream writer = new WriteIfDifferentStream(file)) {
-            writer.write("++++\n".getBytes(StandardCharsets.UTF_8));
-            jsonb.toJson(contributors, writer);
-            writer.write("\n++++".getBytes(StandardCharsets.UTF_8));
+            writer.write("++++\n<jsonArray>".getBytes(StandardCharsets.UTF_8));
+            writer.write(jsonb.toJson(contributors).getBytes(StandardCharsets.UTF_8));
+            writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
         }
     }
 
@@ -995,6 +1047,22 @@ public class Generator {
         private Status status;
 
         private Collection<JiraVersion> fixVersions;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DocumentationItem {
+
+        private int index;
+
+        private String icon;
+
+        private String label;
+
+        private String description;
+
+        private String link;
     }
 
     @Data

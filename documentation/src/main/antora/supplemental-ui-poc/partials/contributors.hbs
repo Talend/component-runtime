@@ -1,5 +1,5 @@
 <div class="row contributors">
-    {{#readContributors contents}}
+    {{#readJSON contents 'contributors'}}
     <div class="contributor">
         <div>
             <img alt="{{name}}" src="{{gravatar}}">
@@ -10,5 +10,5 @@
             <p class="contributor-description">{{description}}</p>
         </div>
     </div>
-    {{/readContributors}}
+    {{/readJSON}}
 </div>
