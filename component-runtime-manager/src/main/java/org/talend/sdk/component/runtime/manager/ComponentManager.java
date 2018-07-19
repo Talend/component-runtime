@@ -255,10 +255,10 @@ public class ComponentManager implements AutoCloseable {
     private final Level logInfoLevelMapping;
 
     /**
-     * @param m2                   the maven repository location if on the file system.
+     * @param m2 the maven repository location if on the file system.
      * @param dependenciesResource the resource path containing dependencies.
-     * @param jmxNamePattern       a pattern to register the plugins (containers) in JMX, null
-     *                             otherwise.
+     * @param jmxNamePattern a pattern to register the plugins (containers) in JMX, null
+     * otherwise.
      */
     public ComponentManager(final File m2, final String dependenciesResource, final String jmxNamePattern) {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
@@ -300,14 +300,14 @@ public class ComponentManager implements AutoCloseable {
                 .resolver(new MvnDependencyListLocalRepositoryResolver(dependenciesResource))
                 .rootRepositoryLocation(m2)
                 .create(), defaultClassLoaderConfiguration, container -> {
-            // if a beam component then ensure to use beam specific filtering
-            // since it becomes part of the container
-            if (container.getDependencies() != null && Stream.of(container.getDependencies()).anyMatch(
-                    a -> a.getGroup().startsWith("org.apache.beam")
-                            || a.getArtifact().startsWith("beam-sdks-java-"))) {
-                container.set(ContainerManager.ClassLoaderConfiguration.class, beamClassLoaderConfiguration);
-            }
-        }, logInfoLevelMapping);
+                    // if a beam component then ensure to use beam specific filtering
+                    // since it becomes part of the container
+                    if (container.getDependencies() != null && Stream.of(container.getDependencies()).anyMatch(
+                            a -> a.getGroup().startsWith("org.apache.beam")
+                                    || a.getArtifact().startsWith("beam-sdks-java-"))) {
+                        container.set(ContainerManager.ClassLoaderConfiguration.class, beamClassLoaderConfiguration);
+                    }
+                }, logInfoLevelMapping);
         this.container.registerListener(new Updater());
         ofNullable(jmxNamePattern).map(String::trim).filter(n -> !n.isEmpty()).ifPresent(p -> this.container
                 .registerListener(new JmxManager(container, p, ManagementFactory.getPlatformMBeanServer())));
@@ -675,16 +675,16 @@ public class ComponentManager implements AutoCloseable {
                 pluginContainer -> Stream
                         .of(pluginContainer.get(ContainerComponentRegistry.class).getComponents().get(
                                 container.buildAutoIdFromName(plugin))))
-                .filter(Objects::nonNull)
-                .map(component -> ofNullable(component.getPartitionMappers().get(name))
-                        .map(mapper -> mapper
-                                .getInstantiator()
-                                .apply(configuration == null ? null
-                                        : mapper.getMigrationHandler().migrate(version,
-                                        configuration)))
-                        .map(Mapper.class::cast))
-                .findFirst()
-                .flatMap(identity());
+                                        .filter(Objects::nonNull)
+                                        .map(component -> ofNullable(component.getPartitionMappers().get(name))
+                                                .map(mapper -> mapper
+                                                        .getInstantiator()
+                                                        .apply(configuration == null ? null
+                                                                : mapper.getMigrationHandler().migrate(version,
+                                                                        configuration)))
+                                                .map(Mapper.class::cast))
+                                        .findFirst()
+                                        .flatMap(identity());
     }
 
     public Optional<org.talend.sdk.component.runtime.output.Processor> findProcessor(final String plugin,
@@ -692,15 +692,15 @@ public class ComponentManager implements AutoCloseable {
         return find(
                 pluginContainer -> Stream.of(pluginContainer.get(ContainerComponentRegistry.class).getComponents().get(
                         container.buildAutoIdFromName(plugin))))
-                .filter(Objects::nonNull)
-                .map(component -> ofNullable(component.getProcessors().get(name))
-                        .map(proc -> proc
-                                .getInstantiator()
-                                .apply(configuration == null ? null
-                                        : proc.getMigrationHandler().migrate(version, configuration)))
-                        .map(org.talend.sdk.component.runtime.output.Processor.class::cast))
-                .findFirst()
-                .flatMap(identity());
+                                .filter(Objects::nonNull)
+                                .map(component -> ofNullable(component.getProcessors().get(name))
+                                        .map(proc -> proc
+                                                .getInstantiator()
+                                                .apply(configuration == null ? null
+                                                        : proc.getMigrationHandler().migrate(version, configuration)))
+                                        .map(org.talend.sdk.component.runtime.output.Processor.class::cast))
+                                .findFirst()
+                                .flatMap(identity());
     }
 
     public boolean hasPlugin(final String plugin) {
@@ -941,12 +941,14 @@ public class ComponentManager implements AutoCloseable {
 
     public enum ComponentType {
         MAPPER {
+
             @Override
             Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
                 return family.getPartitionMappers();
             }
         },
         PROCESSOR {
+
             @Override
             Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(final ComponentFamilyMeta family) {
                 return family.getProcessors();
@@ -1364,13 +1366,13 @@ public class ComponentManager implements AutoCloseable {
             final Function<Map<String, String>, Mapper> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(Mapper.class)
                             ? config -> executeInContainer(plugin,
-                            () -> context
-                                    .getOwningExtension()
-                                    .convert(new ComponentInstanceImpl(
-                                            doInvoke(constructor, parameterFactory.apply(config)), plugin,
-                                            component.getName(), name), Mapper.class))
+                                    () -> context
+                                            .getOwningExtension()
+                                            .convert(new ComponentInstanceImpl(
+                                                    doInvoke(constructor, parameterFactory.apply(config)), plugin,
+                                                    component.getName(), name), Mapper.class))
                             : config -> new PartitionMapperImpl(component.getName(), name, null, plugin,
-                            partitionMapper.infinite(), doInvoke(constructor, parameterFactory.apply(config)));
+                                    partitionMapper.infinite(), doInvoke(constructor, parameterFactory.apply(config)));
 
             component.getPartitionMappers().put(name,
                     new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
@@ -1391,13 +1393,13 @@ public class ComponentManager implements AutoCloseable {
             final Function<Map<String, String>, Mapper> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(Mapper.class)
                             ? config -> executeInContainer(plugin,
-                            () -> context
-                                    .getOwningExtension()
-                                    .convert(new ComponentInstanceImpl(
-                                            doInvoke(constructor, parameterFactory.apply(config)), plugin,
-                                            component.getName(), name), Mapper.class))
+                                    () -> context
+                                            .getOwningExtension()
+                                            .convert(new ComponentInstanceImpl(
+                                                    doInvoke(constructor, parameterFactory.apply(config)), plugin,
+                                                    component.getName(), name), Mapper.class))
                             : config -> new LocalPartitionMapper(component.getName(), name, plugin,
-                            doInvoke(constructor, parameterFactory.apply(config)));
+                                    doInvoke(constructor, parameterFactory.apply(config)));
             component.getPartitionMappers().put(name,
                     new ComponentFamilyMeta.PartitionMapperMeta(component, name, findIcon(type), findVersion(type),
                             type, parameterMetas, instantiator,
@@ -1418,23 +1420,23 @@ public class ComponentManager implements AutoCloseable {
             final Function<Map<String, String>, org.talend.sdk.component.runtime.output.Processor> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(
                             org.talend.sdk.component.runtime.output.Processor.class)
-                            ? config -> executeInContainer(
-                            plugin,
-                            () -> context.getOwningExtension().convert(
-                                    new ComponentInstanceImpl(
-                                            doInvoke(constructor, parameterFactory.apply(config)),
-                                            plugin, component.getName(), name),
-                                    org.talend.sdk.component.runtime.output.Processor.class))
-                            : config -> new ProcessorImpl(this.component.getName(), name, plugin,
-                            ofNullable(config)
-                                    .map(it -> it
-                                            .entrySet()
-                                            .stream()
-                                            .filter(e -> e.getKey().startsWith("$")
-                                                    || e.getKey().contains(".$"))
-                                            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)))
-                                    .orElseGet(Collections::emptyMap),
-                            doInvoke(constructor, parameterFactory.apply(config)));
+                                    ? config -> executeInContainer(
+                                            plugin,
+                                            () -> context.getOwningExtension().convert(
+                                                    new ComponentInstanceImpl(
+                                                            doInvoke(constructor, parameterFactory.apply(config)),
+                                                            plugin, component.getName(), name),
+                                                    org.talend.sdk.component.runtime.output.Processor.class))
+                                    : config -> new ProcessorImpl(this.component.getName(), name, plugin,
+                                            ofNullable(config)
+                                                    .map(it -> it
+                                                            .entrySet()
+                                                            .stream()
+                                                            .filter(e -> e.getKey().startsWith("$")
+                                                                    || e.getKey().contains(".$"))
+                                                            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)))
+                                                    .orElseGet(Collections::emptyMap),
+                                            doInvoke(constructor, parameterFactory.apply(config)));
             component.getProcessors().put(name,
                     new ComponentFamilyMeta.ProcessorMeta(component, name, findIcon(type), findVersion(type), type,
                             parameterMetas, instantiator,
@@ -1503,10 +1505,10 @@ public class ComponentManager implements AutoCloseable {
             }
             return this.component == null || !component.equals(this.component.getName())
                     ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()),
-                    findIcon(familyAnnotationElement), comp,
-                    Class.class.isInstance(familyAnnotationElement)
-                            ? getPackage(Class.class.cast(familyAnnotationElement))
-                            : ""))
+                            findIcon(familyAnnotationElement), comp,
+                            Class.class.isInstance(familyAnnotationElement)
+                                    ? getPackage(Class.class.cast(familyAnnotationElement))
+                                    : ""))
                     : this.component;
         }
 
