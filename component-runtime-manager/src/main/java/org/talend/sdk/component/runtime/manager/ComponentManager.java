@@ -493,12 +493,7 @@ public class ComponentManager implements AutoCloseable {
 
     protected static File findM2() {
         return ofNullable(System.getProperty("talend.component.manager.m2.repository")).map(File::new).orElseGet(() -> {
-            // check if we
-            // are in the
-            // studio and
-            // if so just
-            // grab the the
-            // studio config,
+            // check if we are in the studio process if so just grab the the studio config
             final String m2Repo = System.getProperty("maven.repository");
             if (!"global".equals(m2Repo)) {
                 final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2");
@@ -522,7 +517,11 @@ public class ComponentManager implements AutoCloseable {
                 final Document document = builder.parse(settings);
                 final XPathFactory xpf = XPathFactory.newInstance();
                 final XPath xp = xpf.newXPath();
-                return new File(xp.evaluate("//settings/localRepository/text()", document.getDocumentElement()));
+                final String localM2RepositoryFromSettings =
+                        xp.evaluate("//settings/localRepository/text()", document.getDocumentElement());
+                if (localM2RepositoryFromSettings != null && !localM2RepositoryFromSettings.isEmpty()) {
+                    return new File(localM2RepositoryFromSettings);
+                }
             } catch (final Exception ignore) {
                 // fallback on default local path
             }
