@@ -5,6 +5,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-919[TCOMP-919^]: Starter doesn't synchronize correctly with central versions
+- link:https://jira.talendforge.org/browse/TCOMP-920[TCOMP-920^]: Use Meecrowave 1.2.3
 
 
 == Version 1.0.2
