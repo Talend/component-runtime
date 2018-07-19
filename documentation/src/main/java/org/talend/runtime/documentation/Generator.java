@@ -541,7 +541,8 @@ public class Generator {
                     .forEach(type -> {
                         final ActionType actionType = type.getAnnotation(ActionType.class);
                         final Class<?> returnedType = actionType.expectedReturnedType();
-                        stream.println("|@" + type.getName() + "|" + actionType.value() + "|" + extractDoc(type) + "|"
+                        stream.println("|@" + sanitizeType(type.getName()) + "|" + actionType.value() + "|"
+                                + extractDoc(type) + "|"
                                 + (returnedType == Object.class ? "any" : returnedType.getSimpleName()) + "|"
                                 + (returnedType != Object.class ? "`" + sample(returnedType).replace("\n", "") + "`"
                                         : "-"));
@@ -556,9 +557,10 @@ public class Generator {
         final File file = new File(generatedDir, "generated_ui.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println();
-            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
+            stream.println(
+                    "[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\",separator=¦]");
             stream.println("|====");
-            stream.println("|API|Description|Generated property metadata");
+            stream.println("¦API¦Description¦Generated property metadata");
             final File api = jarLocation(Ui.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
@@ -572,8 +574,8 @@ public class Generator {
                                 .entrySet()
                                 .stream()
                                 .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue));
-                        stream.println("|@" + type.getName() + "|" + extractDoc(type) + "|"
-                                + mapper.writeObjectAsString(meta).replace("|", "\\|"));
+                        stream.println("¦@" + sanitizeType(type.getName()) + "¦" + extractDoc(type) + "¦"
+                                + mapper.writeObjectAsString(meta));
                     });
             stream.println("|====");
             stream.println();
@@ -657,7 +659,7 @@ public class Generator {
                     .findAnnotatedClasses(Condition.class)
                     .stream()
                     .sorted(comparing(Class::getName))
-                    .forEach(type -> stream.println("|@" + type.getName() + "|"
+                    .forEach(type -> stream.println("|@" + sanitizeType(type.getName()) + "|"
                             + type.getAnnotation(Condition.class).value() + "|" + extractDoc(type) + "|"
                             + mapper
                                     .writeObjectAsString(enricher.onParameterAnnotation("test", String.class,
@@ -686,7 +688,7 @@ public class Generator {
                     .findAnnotatedClasses(ConfigurationType.class)
                     .stream()
                     .sorted(comparing(Class::getName))
-                    .forEach(type -> stream.println("|" + type.getName() + "|"
+                    .forEach(type -> stream.println("|" + sanitizeType(type.getName()) + "|"
                             + type.getAnnotation(ConfigurationType.class).value() + "|" + extractDoc(type) + "|"
                             + mapper.writeObjectAsString(
                                     enricher.onParameterAnnotation("value", String.class, generateAnnotation(type)))));
@@ -740,7 +742,7 @@ public class Generator {
     }
 
     private static String sanitizeType(final String s) {
-        return s.replace("java.lang.", "").replace("java.util.", "");
+        return s.replace("java.lang.", "").replace("java.util.", "").replace("org.talend.sdk.component", "o.t.s.c.");
     }
 
     private static Constraint createConstraint(final Class<?> validation, final Validation val) {

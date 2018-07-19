@@ -109,7 +109,7 @@ input.rounded {
   justify-content: center;
 }
 
-html, body {
+html {
   margin: 0;
   height: 100%;
   min-height: 100%;
@@ -118,6 +118,8 @@ body {
   display: flex;
   flex-direction: column;
   font-size: 16px;
+  line-height: normal !important;
+  min-height: 100vh;
 }
 h1 {
   font-size: 28px;
@@ -276,6 +278,10 @@ pre {
   padding: 0;
 }
 
+.table-hover > tbody > tr:hover {
+  font-weight: inherit;
+}
+
 .admonitionblock {
   margin: 1.4rem 0 0;
   padding: 1rem;
@@ -328,4 +334,79 @@ pre {
 .admonitionblock .icon i::after {
   content: attr(title);
   hyphens: none;
+}
+
+.article-content {
+  position: relative;
+}
+
+.top {
+	display: none;
+	font-weight: bold;
+	font-family: tahoma;
+	font-size: 10px;
+	width: 70px;
+  height: 1rem;
+	color: #563d7c;
+	font-size: 11px;
+	text-decoration: none;
+	position: fixed;
+	right: 15px;
+	bottom: 10px;
+}
+
+.article-side-panel {
+  position: relative;
+}
+.article-anchors {
+	position: fixed;
+  width: 33.333%;
+}
+.article-anchors ul {
+  list-style: none;
+  padding: 0;
+}
+.article-anchors a {
+  color: #535353;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+  width: 100%;
+}
+.article-anchors > ul ul {
+  display: none;
+}
+.article-anchors li.active > ul {
+  display: block;
+}
+.article-anchors > ul > li > a {
+  padding-left: 15px;
+}
+.article-anchors > ul > li > ul > li > a {
+  padding-left: 30px;
+}
+.article-anchors > ul > li > ul > li > ul > li > a {
+  padding-left: 45px;
+}
+.article-anchors > ul > li > ul > li > ul > li > ul > li > a {
+  padding-left: 60px;
+}
+.article-anchors > ul > li > ul > li > ul > li > ul > li > ul > li > a {
+  padding-left: 75px;
+}
+.article-anchors > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > a {
+  padding-left: 90px;
+}
+.article-anchors li.active > a {
+  left: 0;
+  color: #0675c1;
+  background-color: transparent;
+  border-left: 2px solid #0675c1;
+}
+.article-anchors > ul > li.active > a {
+  font-weight: 500;
+}
+.article-anchors > ul > li > ul li.active {
+  font-weight: 400;
 }

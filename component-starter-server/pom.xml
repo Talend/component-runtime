@@ -162,7 +162,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
-            <talend.component.starter.autorefresh..active>false</talend.component.starter.autorefresh..active>
+            <talend.component.starter.autorefresh.active>false</talend.component.starter.autorefresh.active>
             <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
           </systemPropertyVariables>
         </configuration>
