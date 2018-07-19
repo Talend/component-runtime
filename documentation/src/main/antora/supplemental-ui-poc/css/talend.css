@@ -44,6 +44,9 @@ h3.contributor-commits {
   text-align: center;
 }
 
+.documentationindex-before {
+  display: flex;
+}
 .documentationindex-items {
   display: flex;
   flex-wrap: wrap;
