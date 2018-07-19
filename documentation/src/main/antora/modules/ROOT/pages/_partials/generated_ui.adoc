@@ -1,17 +1,17 @@
 
-[separator=¦,role="table-striped table-hover table-ordered",options="header,autowidth"]
+[role="table-striped table-hover table-ordered",options="header,autowidth",separator=¦]
 |====
 ¦API¦Description¦Generated property metadata
-¦@org.talend.sdk.component.api.configuration.ui.DefaultValue¦Provide a default value the UI can use - only for primitive fields.¦{"ui::defaultvalue::value":"test"}
-¦@org.talend.sdk.component.api.configuration.ui.OptionsOrder¦Allows to sort a class properties.¦{"ui::optionsorder::value":"value1,value2"}
-¦@org.talend.sdk.component.api.configuration.ui.layout.AutoLayout¦Request the rendered to do what it thinks is best.¦{"ui::autolayout":"true"}
-¦@org.talend.sdk.component.api.configuration.ui.layout.GridLayout¦Advanced layout to place properties by row, this is exclusive with `@OptionsOrder`.¦{"ui::gridlayout::value1::value":"first\¦second,third","ui::gridlayout::value2::value":"first\¦second,third"}
-¦@org.talend.sdk.component.api.configuration.ui.layout.GridLayouts¦Allow to configure multiple grid layouts on the same class, qualified with a classifier (name)¦{"ui::gridlayout::Advanced::value":"another","ui::gridlayout::Main::value":"first\¦second,third"}
-¦@org.talend.sdk.component.api.configuration.ui.layout.HorizontalLayout¦Put on a configuration class it notifies the UI an horizontal layout is preferred.¦{"ui::horizontallayout":"true"}
-¦@org.talend.sdk.component.api.configuration.ui.layout.VerticalLayout¦Put on a configuration class it notifies the UI a vertical layout is preferred.¦{"ui::verticallayout":"true"}
-¦@org.talend.sdk.component.api.configuration.ui.widget.Code¦Mark a field as being represented by some code widget (vs textarea for instance).¦{"ui::code::value":"test"}
-¦@org.talend.sdk.component.api.configuration.ui.widget.Credential¦Mark a field as being a credential. It is typically used to hide the value in the UI.¦{"ui::credential":"true"}
-¦@org.talend.sdk.component.api.configuration.ui.widget.Structure¦Mark a List<String> or Map<String, String> field as being represented as the component data selector (field names generally or field names as key and type as value).¦{"ui::structure::type":"null","ui::structure::discoverSchema":"test","ui::structure::value":"test"}
-¦@org.talend.sdk.component.api.configuration.ui.widget.TextArea¦Mark a field as being represented by a textarea(multiline text input).¦{"ui::textarea":"true"}
+¦@o.t.s.c..api.configuration.ui.DefaultValue¦Provide a default value the UI can use - only for primitive fields.¦{"ui::defaultvalue::value":"test"}
+¦@o.t.s.c..api.configuration.ui.OptionsOrder¦Allows to sort a class properties.¦{"ui::optionsorder::value":"value1,value2"}
+¦@o.t.s.c..api.configuration.ui.layout.AutoLayout¦Request the rendered to do what it thinks is best.¦{"ui::autolayout":"true"}
+¦@o.t.s.c..api.configuration.ui.layout.GridLayout¦Advanced layout to place properties by row, this is exclusive with `@OptionsOrder`.¦{"ui::gridlayout::value1::value":"first|second,third","ui::gridlayout::value2::value":"first|second,third"}
+¦@o.t.s.c..api.configuration.ui.layout.GridLayouts¦Allow to configure multiple grid layouts on the same class, qualified with a classifier (name)¦{"ui::gridlayout::Advanced::value":"another","ui::gridlayout::Main::value":"first|second,third"}
+¦@o.t.s.c..api.configuration.ui.layout.HorizontalLayout¦Put on a configuration class it notifies the UI an horizontal layout is preferred.¦{"ui::horizontallayout":"true"}
+¦@o.t.s.c..api.configuration.ui.layout.VerticalLayout¦Put on a configuration class it notifies the UI a vertical layout is preferred.¦{"ui::verticallayout":"true"}
+¦@o.t.s.c..api.configuration.ui.widget.Code¦Mark a field as being represented by some code widget (vs textarea for instance).¦{"ui::code::value":"test"}
+¦@o.t.s.c..api.configuration.ui.widget.Credential¦Mark a field as being a credential. It is typically used to hide the value in the UI.¦{"ui::credential":"true"}
+¦@o.t.s.c..api.configuration.ui.widget.Structure¦Mark a List<String> or Map<String, String> field as being represented as the component data selector (field names generally or field names as key and type as value).¦{"ui::structure::type":"null","ui::structure::discoverSchema":"test","ui::structure::value":"test"}
+¦@o.t.s.c..api.configuration.ui.widget.TextArea¦Mark a field as being represented by a textarea(multiline text input).¦{"ui::textarea":"true"}
 |====
 

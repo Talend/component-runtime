@@ -541,7 +541,8 @@ public class Generator {
                     .forEach(type -> {
                         final ActionType actionType = type.getAnnotation(ActionType.class);
                         final Class<?> returnedType = actionType.expectedReturnedType();
-                        stream.println("|@" + sanitizeType(type.getName()) + "|" + actionType.value() + "|" + extractDoc(type) + "|"
+                        stream.println("|@" + sanitizeType(type.getName()) + "|" + actionType.value() + "|"
+                                + extractDoc(type) + "|"
                                 + (returnedType == Object.class ? "any" : returnedType.getSimpleName()) + "|"
                                 + (returnedType != Object.class ? "`" + sample(returnedType).replace("\n", "") + "`"
                                         : "-"));
@@ -556,7 +557,8 @@ public class Generator {
         final File file = new File(generatedDir, "generated_ui.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println();
-            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\",separator=¦]");
+            stream.println(
+                    "[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\",separator=¦]");
             stream.println("|====");
             stream.println("¦API¦Description¦Generated property metadata");
             final File api = jarLocation(Ui.class);
@@ -740,8 +742,7 @@ public class Generator {
     }
 
     private static String sanitizeType(final String s) {
-        return s.replace("java.lang.", "").replace("java.util.", "")
-                .replace("org.talend.sdk.component", "o.t.s.c.");
+        return s.replace("java.lang.", "").replace("java.util.", "").replace("org.talend.sdk.component", "o.t.s.c.");
     }
 
     private static Constraint createConstraint(final Class<?> validation, final Validation val) {

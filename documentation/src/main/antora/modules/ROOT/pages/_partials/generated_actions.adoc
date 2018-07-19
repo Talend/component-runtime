@@ -2,11 +2,11 @@
 [role="table-striped table-hover table-ordered",options="header,autowidth"]
 |====
 |API|Type|Description|Return type|Sample returned type
-|@org.talend.sdk.component.api.service.completion.DynamicValues|dynamic_values|Mark a method as being useful to fill potential values of a string option for a property denoted by its value. You can link a field as being completable using @Proposable(value). The resolution of the completion action is then done through the component family and value of the action. The callback doesn't take any parameter.|Values|`{"items":[{"id":"value","label":"label"}]}`
-|@org.talend.sdk.component.api.service.healthcheck.HealthCheck|healthcheck|This class marks an action doing a connection test|HealthCheckStatus|`{"comment":"Something went wrong","status":"KO"}`
-|@org.talend.sdk.component.api.service.schema.DiscoverSchema|schema|Mark an action as returning a discovered schema. Its parameter MUST be the type decorated with `@Structure`.|Schema|`{"entries":[{"name":"column1","type":"STRING"}]}`
-|@org.talend.sdk.component.api.service.completion.Suggestions|suggestions|Mark a method as being useful to fill potential values of a string option. You can link a field as being completable using @Suggestable(value). The resolution of the completion action is then done when the user requests it (generally by clicking on a button or entering the field depending the environment).|SuggestionValues|`{"cacheable":false,"items":[{"id":"value","label":"label"}]}`
-|@org.talend.sdk.component.api.service.Action|user|-|any|-
-|@org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation|validation|Mark a method as being used to validate a configuration. IMPORTANT: this is a server validation so only use it if you can't use other client side validation to implement it.|ValidationResult|`{"comment":"Something went wrong","status":"KO"}`
+|@o.t.s.c..api.service.completion.DynamicValues|dynamic_values|Mark a method as being useful to fill potential values of a string option for a property denoted by its value. You can link a field as being completable using @Proposable(value). The resolution of the completion action is then done through the component family and value of the action. The callback doesn't take any parameter.|Values|`{"items":[{"id":"value","label":"label"}]}`
+|@o.t.s.c..api.service.healthcheck.HealthCheck|healthcheck|This class marks an action doing a connection test|HealthCheckStatus|`{"comment":"Something went wrong","status":"KO"}`
+|@o.t.s.c..api.service.schema.DiscoverSchema|schema|Mark an action as returning a discovered schema. Its parameter MUST be the type decorated with `@Structure`.|Schema|`{"entries":[{"name":"column1","type":"STRING"}]}`
+|@o.t.s.c..api.service.completion.Suggestions|suggestions|Mark a method as being useful to fill potential values of a string option. You can link a field as being completable using @Suggestable(value). The resolution of the completion action is then done when the user requests it (generally by clicking on a button or entering the field depending the environment).|SuggestionValues|`{"cacheable":false,"items":[{"id":"value","label":"label"}]}`
+|@o.t.s.c..api.service.Action|user|-|any|-
+|@o.t.s.c..api.service.asyncvalidation.AsyncValidation|validation|Mark a method as being used to validate a configuration. IMPORTANT: this is a server validation so only use it if you can't use other client side validation to implement it.|ValidationResult|`{"comment":"Something went wrong","status":"KO"}`
 |====
 
