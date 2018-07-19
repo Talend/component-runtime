@@ -1,12 +1,6 @@
 = Talend Component Kit Overview
 :page-partial:
 
-[[getting-started-introducing-talend-component]]
-_Talend Component Kit_ is a framework designed to simplify the development of components at two levels:
-
-* **Runtime**: Runtime is about injecting the specific component code into a job or pipeline. The framework helps unify as much as possible the code required to run in Data Integration (DI) and BEAM environments.
-* **Graphical interface**: The framework helps unify the code required to be able to render the component in a browser (web) or in the Eclipse-based Studio (SWT).
-
 == Component API
 
 The component API is declarative (through annotations) to ensure it is:
@@ -133,3 +127,10 @@ Icons (`@Icon`) are based on a fixed set. Custom icons can be used but their dis
 
 TIP: Once you know exactly how you will deploy your component in the Studio, then you
 can use `@Icon(value = CUSTOM, custom = "...") to use a custom icon file.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read next?
+- xref:what-is-a-talend-component.adoc[What is a Talend component]
+- xref:methodology-creating-components.adoc[Methodology for creating components]
+endif::[]

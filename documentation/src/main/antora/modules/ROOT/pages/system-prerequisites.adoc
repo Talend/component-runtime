@@ -11,3 +11,9 @@ In order to use Talend Component Kit, you need the following tools installed on 
 - You can also use Gradle, but at the moment certain features are not supported, such as validations.
 * A Java Integrated Development Environment such as Eclipse or IntelliJ. IntelliJ is recommended as a Talend Component Kit plugin is available.
 * The version of your Studio is 7.0.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:tutorial-talend-intellij-plugin-usage.adoc[IntelliJ plugin]
+endif::[]

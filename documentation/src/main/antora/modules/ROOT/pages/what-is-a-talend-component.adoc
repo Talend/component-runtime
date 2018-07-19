@@ -10,3 +10,10 @@ Graphically, a component is an icon that you can drag and drop from the Palette 
 Technically, a component is a snippet of generated Java code that is part of a Job which is a Java class. A Job is made of one or more components or connectors. The job name will be the class name and each component in a job will be translated to a snippet of generated Java code. The Java code will be compiled automatically when you save the job.
 
 *Talend Component Kit* helps you creating your own components.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read next?
+- xref:tck-framework-overview.adoc[Talend Component Kit framework overview]
+- xref:methodology-creating-components.adoc[Methodology for creating components]
+endif::[]

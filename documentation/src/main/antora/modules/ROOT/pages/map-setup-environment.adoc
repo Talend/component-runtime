@@ -1,7 +1,9 @@
 = Setting up your environment
 :page-partial:
-
-:toc:
+:page-documentationindex-index: 3000
+:page-documentationindex-label: Setup
+:page-documentationindex-icon: cog
+:page-documentationindex-description: Install the right tools and set up your environment
 
 include::system-prerequisites.adoc[leveloffset=+1]
 

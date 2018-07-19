@@ -1,7 +1,10 @@
 = Creating a component
 :page-partial:
+:page-documentationindex-index: 5000
+:page-documentationindex-label: Generating a project
+:page-documentationindex-icon: wrench
+:page-documentationindex-description: Implement components using your Java IDE
 
-:toc:
 
 include::component-definition.adoc[leveloffset=+1]
 

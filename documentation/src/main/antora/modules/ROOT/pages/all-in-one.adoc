@@ -5,6 +5,8 @@ include::map-getting-started-with-tck.adoc[leveloffset=+1]
 
 include::map-setup-environment.adoc[leveloffset=+1]
 
+include::map-generating-project.adoc[leveloffset=+1]
+
 include::map-creating-components.adoc[leveloffset=+1]
 
 include::map-testing-components.adoc[leveloffset=+1]

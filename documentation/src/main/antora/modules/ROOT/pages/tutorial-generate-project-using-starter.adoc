@@ -112,3 +112,13 @@ The generated project code contains documentation that can guide and help you im
 Import the project to your favorite IDE to start the implementation.
 
 The next tutorial shows how to implement an Input component in details.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:methodology-creating-components.adoc[Methodology]
+- xref:tutorial-create-an-input-component.adoc[Creating a Hazelcast input component]
+- xref:tutorial-create-an-output-component.adoc[Creating a Hazelcast output component]
+- xref:tutorial-create-components-rest-api.adoc[Creating a Zendesk REST API connector]
+- xref:component-definition.adoc[Defining a component]
+endif::[]

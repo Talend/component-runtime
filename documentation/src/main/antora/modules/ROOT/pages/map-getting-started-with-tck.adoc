@@ -1,10 +1,12 @@
 = Getting Started with Talend Component Kit
 :page-partial:
-
-:toc:
+:page-documentationindex-index: 2000
+:page-documentationindex-label: Getting Started
+:page-documentationindex-icon: play-circle
+:page-documentationindex-description: Learn the basics about Talend Component Kit
 
 include::what-is-a-talend-component.adoc[leveloffset=+1]
 
-include::tck-framework-overview.adoc[leveloffset=+1]
-
 include::methodology-creating-components.adoc[leveloffset=+1]
+
+include::tck-framework-overview.adoc[leveloffset=+1]

@@ -1,8 +1,8 @@
 .TACOKIT
 * xref:map-getting-started-with-tck.adoc[Getting Started]
 ** xref:what-is-a-talend-component.adoc[What is a Talend Component]
-** xref:tck-framework-overview.adoc[Framework Overview]
 ** xref:methodology-creating-components.adoc[Methodology]
+** xref:tck-framework-overview.adoc[Framework Overview]
 * xref:map-setup-environment.adoc[Setting up your environment]
 ** xref:system-prerequisites.adoc.adoc[System requirements]
 ** xref:tutorial-talend-intellij-plugin-usage.adoc[IntelliJ plugin]
