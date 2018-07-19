@@ -1,5 +1,12 @@
 
 
+== Version 1.0.3
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-919[TCOMP-919^]: Starter doesn't synchronize correctly with central versions
+
+
 == Version 1.0.2
 
 === Bug
