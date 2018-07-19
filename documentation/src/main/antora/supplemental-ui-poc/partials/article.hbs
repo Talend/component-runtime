@@ -2,17 +2,33 @@
     {{#if page.attributes.talend_landing}}
         {{>landing page}}
     {{else}}
-      {{#if page.title}}
-          <h1>{{{page.title}}}</h1>
-      {{/if}}
       {{#if page.attributes.talend_contributors}}
+          <h1>{{{page.title}}}</h1>
           {{>contributors page}}
       {{else if page.attributes.talend_search}}
+          <h1>{{{page.title}}}</h1>
           {{>search this}}
       {{else if page.attributes.talend_documentationindex}}
+          <h1>{{{page.title}}}</h1>
           {{>documentationindex this}}
       {{else}}
-          {{{page.contents}}}
+          <div class="row">
+            <div class="col-sm-9 row">
+              {{#if page.title}}
+                <h1>{{{page.title}}}</h1>
+              {{/if}}
+              <div class="article-content">
+                {{{page.contents}}}
+              </div>
+            </div>
+            <div class="col-sm-3 container article-side-panel">
+              <nav class="article-anchors">
+                <h1>On this page</h1>
+              </nav>
+            </div>
+            <a href="#top" class="top">Scroll to top</a>
+          </div>
+          <script>(window.talend = (window.talend || {})).article = true;</script>
       {{/if}}
     {{/if}}
 </article>
