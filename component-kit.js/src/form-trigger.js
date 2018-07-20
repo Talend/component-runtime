@@ -72,9 +72,10 @@ function createCacheKey(trigger) {
 }
 
 // customRegistry can be used to add extensions or custom trigger (not portable accross integrations)
-export default function getDefaultTrigger({ url, customRegistry, lang }) {
+export default function getDefaultTrigger({ url, customRegistry, lang, headers }) {
   const encodedLang = encodeURIComponent(getLang(lang));
   const cache = {};
+  const actualHeaders = headers || { 'Content-Type': 'application/json', 'Accept': 'application/json' };
   return function onDefaultTrigger(event, { trigger, schema, properties, errors }) {
     const services = {
       ...defaultRegistry,
@@ -93,11 +94,24 @@ export default function getDefaultTrigger({ url, customRegistry, lang }) {
       `${url}?lang=${encodedLang}&action=${encodeURIComponent(trigger.action)}&family=${encodeURIComponent(trigger.family)}&type=${encodeURIComponent(trigger.type)}`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: actualHeaders,
         body: JSON.stringify(payload),
         credentials: 'include'
       })
-      .then(resp => resp.json())
+      .then(resp => {
+        if (!resp.ok || resp.status >= 300) {
+          return resp.text().then(error => {
+            let json;
+            try {
+              json = JSON.parse(error);
+            } catch (e) {
+              json = { error };
+            }
+            throw json;
+          });
+        }
+        return resp.json();
+      })
       .then(body => {
         const result = (services[trigger.type] ||  FALLBACK_HANDLER)({
           body,

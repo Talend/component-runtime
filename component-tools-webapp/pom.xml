@@ -95,6 +95,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.basedir}/src/main/frontend/node_modules/component-kit.js</outputDirectory>
+              <overwrite>true</overwrite>
               <resources>
                 <resource>
                   <directory>${project.parent.basedir}/component-kit.js/</directory>
