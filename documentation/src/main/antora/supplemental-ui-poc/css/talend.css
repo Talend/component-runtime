@@ -221,13 +221,13 @@ div.navigation-container {
   display: inline-flex;
 }
 .maincontent {
-  margin-left: 2rem;
-  padding-left: 0;
   padding-right: 0;
   flex-grow: 1;
   overflow-y: auto;
+  padding-left: 0;
 }
 article.doc {
+  margin-left: 2rem;
   padding-left: 15px;
   padding-right: 15px;
 }
