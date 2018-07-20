@@ -51,7 +51,7 @@ h3.contributor-commits {
   min-height: 6rem;
 }
 
-.documentationindex-before {
+.documentationindex-before .admonitionblocks {
   display: flex;
 }
 .documentationindex-items {
@@ -221,6 +221,7 @@ div.navigation-container {
   display: inline-flex;
 }
 .maincontent {
+  margin-left: 2rem;
   padding-left: 0;
   padding-right: 0;
   flex-grow: 1;
