@@ -19,7 +19,7 @@
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.0.4-SNAPSHOT</version>
   <name>Component Runtime</name>
   <description>Talend Component Kit Runtime</description>
   <url>https://talend.github.io/component-runtime/</url>
@@ -62,7 +62,7 @@
     <junit.version>4.12</junit.version>
     <ziplock.version>7.0.4</ziplock.version>
     <johnzon.version>1.1.8</johnzon.version>
-    <meecrowave.version>1.2.3-SNAPSHOT</meecrowave.version>
+    <meecrowave.version>1.2.3</meecrowave.version>
     <owb.version>2.0.6</owb.version>
     <tomcat.version>9.0.10</tomcat.version>
     <cxf.version>3.2.5</cxf.version>
@@ -939,6 +939,10 @@
         <enabled>true</enabled>
       </releases>
     </repository>
+    <repository>
+      <id>owb-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1044/</url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -969,6 +973,10 @@
     <pluginRepository>
       <id>asf-snapshot</id>
       <url>http://repository.apache.org/snapshots</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>owb-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1044/</url>
     </pluginRepository>
   </pluginRepositories>
 </project>

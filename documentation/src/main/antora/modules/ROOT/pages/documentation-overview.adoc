@@ -1,0 +1,26 @@
+= Talend Component Kit Overview
+:page-partial:
+:page-documentationindex-index: 1000
+:page-documentationindex-label: Overview
+:page-documentationindex-icon: highlighter
+:page-documentationindex-description: What is the framework.
+
+//== Getting help
+
+//Talend Component framework is under the responsability of Mike Hirt team.
+
+//== First steps
+If you don't know about Talend Component Kit, you can get started by going through the following links:
+
+* *Starting from scratch:*
+  <<getting-started.adoc#getting-started-introducing-talend-component, Overview>> |
+  <<getting-started.adoc#getting-started-system-requirements, Requirements>>
+* *Step-by-step tutorial:*
+  <<getting-started.adoc#getting-started-principles, Code>>
+
+//== Learning about Talend Component features
+
+* *Learning about core features:*
+  <<component-definition.adoc#, Overview>>
+* *Advanced:*
+  <<documentation-testing.adoc#, Testing>>

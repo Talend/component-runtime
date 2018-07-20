@@ -190,7 +190,19 @@ public class ContainerManager implements Lifecycle {
             }
         }
 
-        return new File(rootRepositoryLocation, path);
+        final File file = new File(rootRepositoryLocation, path);
+        if (file.exists()) {
+            return file;
+        }
+
+        // from job lib folder
+        final File libFile = new File(rootRepositoryLocation, path.substring(path.lastIndexOf('/') + 1));
+        if (libFile.exists()) {
+            return libFile;
+        }
+
+        // will be filtered later
+        return file;
     }
 
     public ContainerBuilder builder(final String module) {

@@ -44,6 +44,56 @@ h3.contributor-commits {
   text-align: center;
 }
 
+.dependency-sample {
+  padding-top: 0 !important;
+}
+.dependency-sample-code, .dependency-sample-code code {
+  min-height: 6rem;
+}
+
+.documentationindex-before {
+  display: flex;
+}
+.documentationindex-items {
+  display: flex;
+  flex-wrap: wrap;
+  text-align: center;
+  padding-bottom: 2rem;
+  padding-top: 1rem;
+}
+.documentationindex-icon {
+  padding-top: 1rem;
+  margin-bottom: 25px;
+  vertical-align: middle;
+}
+.documentationindex-icon > i {
+  background: linear-gradient(45deg, #0d78bb, #579667, #afbb09);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+}
+.documentationindex-item {
+  display: flex;
+  padding: 0.5rem !important;
+}
+.documentationindex-item a {
+  border: 1px solid #ddd;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+.documentationindex-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+.documentationindex-description {
+  padding: 0.5rem;
+}
+
 #pagination {
   margin-top: 2rem;
   display: flex;
