@@ -1,4 +1,49 @@
 = Talend Component Kit
 :page-talend_landing: true
 
-TODO: something which roxx
+[#landing-teaser]
+= Talend Component Kit
+
+Customize your connectivity and integrate with thousands of components harmlessly
+to get the best of your data quckly!
+
+= Create your first component
+:page-partial:
+
+[role="col-sm-6 landing-curl-text"]
+--
+Talend Component Kit is easy to use,
+but don’t take our word for free, try it out using our https://starter-toolkit.talend.io
+generator or just using `curl`!
+
+And go on http://localhost:8080 to see your component!
+--
+
+[role="console col-sm-6"]
+[source, shell]
+----
+$ curl https://starter-toolkit.talend.io/api/project/zip \
+   -o gettingstarted-component.zip -H 'Content-Type: application/json' \
+   -d @- &lt;&lt;EOF
+{
+  "group":"com.gettingstarted", "artifact":"gettingstarted-component",
+  "family":"GettingStarted", "category":"Dev",
+  "sources":[ {
+    "name":"MyFirstInput", "genericOutput":true,
+    "configurationStructure":{
+      "entries":[ { "name":"name", "type":"string" } ]
+    }
+  } ]
+}
+EOF
+$ unzip gettingstarted-component.zip
+$ cd gettingstarted-component/
+$ chmod +x mvnw && ./mvnw install talend-component:web
+----
+
+
+[#landing-doc-link]
+= What's next?
+
+You got your component? Let's see how to enhance it and deploy it in Talend
+Applications thanks to our link:tutorials-index.html[Tutorials].

@@ -91,7 +91,9 @@ $(document).ready(function () {
   });
 
   // syntax highlighting
-  hljs.initHighlighting();
+  if (!window.talend || !window.talend.skipHighlightJs) {
+    hljs.initHighlighting();
+  }
 
   // anchors based menu on the right
   if (window.talend && window.talend.article) {
