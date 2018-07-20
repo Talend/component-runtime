@@ -123,7 +123,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Generator {
 
     public static void main(final String[] args) throws Exception {
-        if (Boolean.parseBoolean(args[7])) {
+        if (Boolean.parseBoolean(args[7]) || Boolean.getBoolean(System.getenv("TRAVIS"))) {
             log.info("Skipping doc generation as requested");
             return;
         }

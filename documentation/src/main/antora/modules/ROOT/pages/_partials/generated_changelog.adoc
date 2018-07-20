@@ -1,5 +1,12 @@
 
 
+== Version 1.0.4
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-922[TCOMP-922^]: component manager : support loading dependencies from job lib folder.
+
+
 == Version 1.0.3
 
 === Work Item
