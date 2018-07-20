@@ -73,5 +73,14 @@ public class RestApiConfiguration implements Serializable {
 
 Your password and token (or any other sensitive data that you need to mask) are not accessible by error anymore.
 
-== Related links
-xref:component-configuration.adoc[Learn more about configuring a component]
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
+- xref:component-definition.adoc[Defining a component]
+- xref:component-configuration.adoc[Configuring a component]
+- xref:component-registering.adoc[Registering a component]
+- xref:component-internationalization.adoc[Internationalizing a component]
+- xref:component-loading.adoc[Loading a component]
+- xref:best-practices.adoc[Best practices]
+endif::[]

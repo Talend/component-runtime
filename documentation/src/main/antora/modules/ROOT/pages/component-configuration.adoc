@@ -209,3 +209,15 @@ include::{partialsdir}/generated_ui.adoc[]
 IMPORTANT: When using the programmatic API, metadata is prefixed with `tcomp::`. This prefix is stripped in the web for convenience, and the previous table uses the web keys.
 
 Target support should cover `org.talend.core.model.process.EParameterFieldType` but you need to ensure that the web renderer is able to handle the same widgets.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
+- xref:component-definition.adoc[Defining a component]
+- xref:component-registering.adoc[Registering a component]
+- xref:component-internationalization.adoc[Internationalizing a component]
+- xref:component-loading.adoc[Loading a component]
+- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+- xref:best-practices.adoc[Best practices]
+endif::[]

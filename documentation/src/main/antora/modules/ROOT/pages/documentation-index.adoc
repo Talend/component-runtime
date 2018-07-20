@@ -1,9 +1,9 @@
 = Talend Component Kit Developer Guide
 :page-talend_documentationindex: true
 
-Talend Component Kit is a framework designed to help you create Talend components for both Talend Studio and Cloud applications.
+//Talend Component Kit is a framework designed to help you create Talend components for both Talend Studio and Cloud applications.
 
-This framework unifies the way components are built to ensure they are standardized and easy to deploy in different environments, as well as 'upgrade-compliant' as Talend applications are getting updated on a regular basis.
+//This framework unifies the way components are built to ensure they are standardized and easy to deploy in different environments, as well as 'upgrade-compliant' as Talend applications are getting updated on a regular basis.
 
 ifeval::["{backend}" == "html5"]
 ifeval::["{page-origin-refname}" == "master"]
@@ -18,16 +18,5 @@ NOTE: If you want a PDF version of that page just click this http://repo.apache.
 endif::[]
 endif::[]
 
-NOTE: If you prefer you can use the <<all-in-one.adoc#, single page>> documentation.
-
-- xref:map-getting-started-with-tck.adoc[Getting Started]
-- xref:map-setup-environment.adoc[Setting up your environment]
-- xref:map-generating-project.adoc[Generating a project]
-- xref:map-creating-components.adoc[Creating components]
-- xref:map-defining-services.adoc[Defining services]
-- xref:map-testing-components.adoc[Testing components]
-- xref:map-deploying-components.adoc[Deploying components to Talend applications]
-- xref:map-tutorials.adoc[Tutorials]
-- xref:map-reference-guide.adoc[Reference Guide]
-- xref:apidocs.adoc[Javadocs]
-- xref:changelog.adoc[Changelogs]
+[role="json"]
+include::{partialsdir}/generated_documentationindex.adoc[]

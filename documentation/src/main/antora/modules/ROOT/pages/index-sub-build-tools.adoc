@@ -8,4 +8,5 @@ A Talend Component Kit plugin is available for each of the supported build tools
 :toc:
 
 include::build-tools-maven.adoc[leveloffset=+1]
+
 include::build-tools-gradle.adoc[leveloffset=+1]

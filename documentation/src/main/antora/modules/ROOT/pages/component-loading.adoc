@@ -306,3 +306,15 @@ and one based on the package name. Make sure that your component definitions (in
 are in a scanned module if they are not registered manually using `ComponentManager.instance().addPlugin()`, and that the component package is not excluded.
 
 include::{partialsdir}/generated_scanning-exclusions.adoc[leveloffset=+2]
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
+- xref:component-definition.adoc[Defining a component]
+- xref:component-configuration.adoc[Configuring a component]
+- xref:component-registering.adoc[Registering a component]
+- xref:component-internationalization.adoc[Internationalizing a component]
+- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+- xref:best-practices.adoc[Best practices]
+endif::[]

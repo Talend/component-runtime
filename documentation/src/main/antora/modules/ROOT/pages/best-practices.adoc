@@ -288,6 +288,16 @@ public class JdbcPartitionMapper
 
 Testing your components is critical. You can use unit and simple standalone JUnit tests, but it is also highly recommended to have Beam tests in order to make sure that your component works in Big Data.
 
-// == Contribute to this guide
-
-// Don't hesitate to send your feedback on writing component and best practices you can encounter.
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
+- xref:component-definition.adoc[Defining a component]
+- xref:component-configuration.adoc[Configuring a component]
+- xref:component-registering.adoc[Registering a component]
+- xref:component-internationalization.adoc[Internationalizing a component]
+- xref:component-loading.adoc[Loading a component]
+- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+- xref:index-defining-services.adoc[Defining services]
+- xref:index-testing-components.adoc[Testing components]
+endif::[]

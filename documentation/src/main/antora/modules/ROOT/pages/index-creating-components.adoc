@@ -1,9 +1,9 @@
-= Creating a component
+= Implementing components
 :page-partial:
 :page-documentationindex-index: 5000
-:page-documentationindex-label: Generating a project
+:page-documentationindex-label: Implementing components
 :page-documentationindex-icon: wrench
-:page-documentationindex-description: Implement components using your Java IDE
+:page-documentationindex-description: Define the logic and UI of your components using a Java IDE
 
 
 include::component-definition.adoc[leveloffset=+1]
@@ -20,6 +20,6 @@ include::tutorial-configuration-sensitive-data[leveloffset=+1]
 
 include::best-practices.adoc[leveloffset=+1]
 
-include::mapsub-build-tools.adoc[leveloffset=+1]
+include::index-sub-build-tools.adoc[leveloffset=+1]
 
 include::wrapping-a-beam-io.adoc[leveloffset=+1]

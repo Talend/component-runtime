@@ -5,7 +5,7 @@
 
 include::testing-best-practices.adoc[leveloffset=+1]
 
-include::mapsub-testing-runtime.adoc[leveloffset=+1]
+include::index-sub-testing-runtime.adoc[leveloffset=+1]
 
 include::testing-beam.adoc[leveloffset=+1]
 

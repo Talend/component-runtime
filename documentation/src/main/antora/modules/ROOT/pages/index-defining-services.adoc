@@ -1,5 +1,9 @@
 = Services
 :page-partial:
+:page-documentationindex-index: 6000
+:page-documentationindex-label: Defining services
+:page-documentationindex-icon: share-alt
+:page-documentationindex-description: Create configurations that can be reused across several components
 
 :toc:
 
