@@ -28,7 +28,6 @@
     <module>container</module>
     <module>component-spi</module>
     <module>sample-parent</module>
-    <module>component-runtime-di</module>
     <module>component-runtime-beam</module>
     <module>component-runtime-impl</module>
     <module>component-runtime-manager</module>
@@ -45,6 +44,7 @@
     <module>component-kit.js</module>
     <module>talend-component-kit-intellij-plugin</module>
     <module>documentation</module>
+    <module>component-studio</module>
   </modules>
 
   <properties>
