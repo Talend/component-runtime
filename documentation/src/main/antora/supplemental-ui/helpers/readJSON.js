@@ -13,8 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-module.exports = (text, options) => {
-  const cacheName = 'contributors';
+module.exports = (text, cacheName, options) => {
   let list = text.toString('utf-8').trim();
   const start = list.indexOf('<jsonArray>');
   if (start >= 0) {
@@ -27,4 +26,3 @@ module.exports = (text, options) => {
             .map(i => options.fn(i))
             .reduce((a, v) => a + v, '');
 };
-

@@ -13,18 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-module.exports = (text, options) => {
-  const cacheName = 'contributors';
-  let list = text.toString('utf-8').trim();
-  const start = list.indexOf('<jsonArray>');
-  if (start >= 0) {
-    list = list.substring(start + '<jsonArray>'.length, list.indexOf('</jsonArray>')).trim();
+function extract(text, pos) {
+  const content = text.toString('utf-8').trim();
+  switch (pos) {
+    case 'before':
+      const start = content.indexOf('<jsonArray>');
+      return start > 0 ? content.substring(0, start) : '';
+    default:
+      const end = content.indexOf('</jsonArray>');
+      return end + '</jsonArray>'.length < content.length ? content.substring(end + '</jsonArray>'.length) : '';
   }
-  if (!options.data.root[cacheName]) {
-    options.data.root[cacheName] = JSON.parse(list);
-  }
-  return options.data.root[cacheName]
-            .map(i => options.fn(i))
-            .reduce((a, v) => a + v, '');
-};
+}
 
+module.exports = (text, pos, options) => {
+  const content = extract(text, pos);
+  return content.length === 0 ? '' : options.fn(content);
+};
