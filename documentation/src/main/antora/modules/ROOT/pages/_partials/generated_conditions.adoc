@@ -3,6 +3,7 @@
 |====
 |API|Name|Description|Metadata Sample
 |@o.t.s.c.api.configuration.condition.ActiveIf|if|If the evaluation of the element at the location matches value then the element is considered active, otherwise it is deactivated. a|
+[source,js]
 ----
 {
   "condition::if::target":"test",
@@ -13,6 +14,7 @@
 ----
 
 |@o.t.s.c.api.configuration.condition.ActiveIfs|ifs|Allows to set multiple visibility conditions on the same property. a|
+[source,js]
 ----
 {
   "condition::if::value::0":"value1,value2",

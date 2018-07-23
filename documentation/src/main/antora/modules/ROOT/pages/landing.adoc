@@ -5,7 +5,7 @@
 = Talend Component Kit
 
 Customize your connectivity and integrate with thousands of components harmlessly
-to get the best of your data quckly!
+to get the best of your data quickly!
 
 = Create your first component
 :page-partial:
@@ -45,5 +45,10 @@ $ chmod +x mvnw && ./mvnw install talend-component:web
 [#landing-doc-link]
 = What's next?
 
+icon:book-open[role="col-sm-offset-1 col-sm-2 fa-5x documentationindex-icon"]
+
+[role="col-sm-6 landing-doc-link-text"]
+--
 You got your component? Let's see how to enhance it and deploy it in Talend
 Applications thanks to our link:tutorials-index.html[Tutorials].
+--
