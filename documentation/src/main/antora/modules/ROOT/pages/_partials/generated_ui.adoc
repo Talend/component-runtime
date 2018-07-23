@@ -70,8 +70,8 @@
 #@o.t.s.c.api.configuration.ui.widget.Structure#Mark a List<String> or Map<String, String> field as being represented as the component data selector (field names generally or field names as key and type as value). a#
 ----
 {
-  "ui::structure::type":"null",
   "ui::structure::discoverSchema":"test",
+  "ui::structure::type":"IN",
   "ui::structure::value":"test"
 }
 ----
