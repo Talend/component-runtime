@@ -1,5 +1,9 @@
 = Talend Component Kit Reference guide
 :page-partial:
+:page-documentationindex-index: 8000
+:page-documentationindex-label: Reference Guide
+:page-documentationindex-icon: code
+:page-documentationindex-description: The detailed references for building your components
 
 :toc:
 

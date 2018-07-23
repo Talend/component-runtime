@@ -1,10 +1,10 @@
 = Deploying components to Talend applications
 :page-partial:
+:page-documentationindex-index: 7500
+:page-documentationindex-label: Integrating components
+:page-documentationindex-icon: share-square
+:page-documentationindex-description: Learn how to deploy your custom components to the Studio and Talend applications
 
 :toc:
-
-include::documentation-rest.adoc[leveloffset=+1]
-
-include::server-uispec.adoc[leveloffset=+1]
 
 include::studio.adoc[leveloffset=+1]
