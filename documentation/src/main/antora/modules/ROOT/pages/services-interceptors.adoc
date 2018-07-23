@@ -50,3 +50,12 @@ public class LoggingHandler implements InterceptorHandler {
 This implementation is compatible with interceptor chains because it takes the invoker as first constructor parameter and it also takes a service injection. Then, the implementation simply does what is needed, which is logging the invoked method in this case.
 
 NOTE: The `findAnnotation` annotation, inherited from `InterceptorHandler`, is an utility method to find an annotation on a method or class (in this order).
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:services-internationalization.adoc[Internationalizing a service]
+- xref:services-actions.adoc[Providing actions through a service]
+- xref:services-built-in.adoc[Built-in services]
+- xref:services-custom-api.adoc[Defining a custom API]
+endif::[]

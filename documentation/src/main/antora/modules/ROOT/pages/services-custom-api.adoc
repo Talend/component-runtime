@@ -20,3 +20,12 @@ All its members are then put in the metadata of the parameter. For example:
 public @interface MyLayout {
 }
 ----
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:services-internationalization.adoc[Internationalizing a service]
+- xref:services-actions.adoc[Providing actions through a service]
+- xref:services-built-in.adoc[Built-in services]
+- xref:services-interceptors.adoc[Services and interceptors]
+endif::[]

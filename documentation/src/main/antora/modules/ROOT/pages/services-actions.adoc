@@ -63,3 +63,12 @@ public SuggestionValues findSuggestions(@Option("someParameter") final String pa
 ----
 
 TIP: You can combine the `$lang` option with the `@Internationalized` and `@Language` parameters.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:services-internationalization.adoc[Internationalizing a service]
+- xref:services-built-in.adoc[Built-in services]
+- xref:services-interceptors.adoc[Services and interceptors]
+- xref:services-custom-api.adoc[Defining a custom API]
+endif::[]
