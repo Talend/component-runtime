@@ -22,11 +22,11 @@ fi
 # if we don't set up a custom buildcontext dir the whole project is taken as buildcontext and it makes gigs!
 echo "Setting up buildcontext"
 mkdir -p "$DOCKER_TMP_DIR"
-cp component-runtime-beam/target/component-runtime-beam-${SERVER_VERSION}-dependencies.zip $DOCKER_TMP_DIR/beam.zip
-cp component-server-parent/component-server/target/component-server-meecrowave-distribution.zip $DOCKER_TMP_DIR/server.zip
-cp Dockerfile $DOCKER_TMP_DIR/Dockerfile
-cp -r .docker/conf $DOCKER_TMP_DIR/conf
-cp -r .docker/bin $DOCKER_TMP_DIR/bin
+cp -v component-runtime-beam/target/component-runtime-beam-${SERVER_VERSION}-dependencies.zip $DOCKER_TMP_DIR/beam.zip
+cp -v component-server-parent/component-server/target/component-server-meecrowave-distribution.zip $DOCKER_TMP_DIR/server.zip
+cp -v Dockerfile $DOCKER_TMP_DIR/Dockerfile
+cp -v -r .docker/conf $DOCKER_TMP_DIR/conf
+cp -v -r .docker/bin $DOCKER_TMP_DIR/bin
 cd $DOCKER_TMP_DIR
 
 echo "Grabbing kafka client"

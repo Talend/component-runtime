@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-922[TCOMP-922^]: component manager : support loading dependencies from job lib folder.
+- link:https://jira.talendforge.org/browse/TCOMP-924[TCOMP-924^]: component-kit.js errors are not sent to the error handler
 
 
 == Version 1.0.3
