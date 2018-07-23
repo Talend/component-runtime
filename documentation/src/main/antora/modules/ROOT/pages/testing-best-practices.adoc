@@ -91,3 +91,14 @@ static Stream<String> stringProvider() {
 This last option allows you to inject any type of value - not only primitives - which is common to define scenarios.
 
 IMPORTANT: Add the `junit-jupiter-params` dependency to benefit from this feature.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:index-sub-testing-runtime.adoc[Testing component runtime]
+- xref:testing-beam.adoc[Beam testing]
+- xref:testing-multiple-envs.adoc[Testing in multiple environments]
+- xref:testing-maven-passwords.adoc[Reusing Maven credentials]
+- xref:testing-generating-data.adoc[Generating data for testing]
+- xref:services-pipeline.adoc[Simple/Test Pipeline API]
+endif::[]

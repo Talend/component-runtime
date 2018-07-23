@@ -4,3 +4,14 @@
 If you want to make sure that your component works in Beam and don't want to use Spark, you can try with the Direct Runner.
 
 Check https://beam.apache.org/contribute/testing/ for more details.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:testing-best-practices.adoc[Component testing best practices]
+- xref:index-sub-testing-runtime.adoc[Testing component runtime]
+- xref:testing-multiple-envs.adoc[Testing in multiple environments]
+- xref:testing-maven-passwords.adoc[Reusing Maven credentials]
+- xref:testing-generating-data.adoc[Generating data for testing]
+- xref:services-pipeline.adoc[Simple/Test Pipeline API]
+endif::[]

@@ -24,3 +24,14 @@ Check your use case to know which one fits best.
 NOTE: An alternative to data generation can be to import _real_ data and use Talend Studio to sanitize the data, by removing sensitive information and replacing it with generated or anonymized data. Then you just need to inject that file into the system.
 
 If you are using JUnit 5, you can have a look at https://glytching.github.io/junit-extensions/randomBeans.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:testing-best-practices.adoc[Component testing best practices]
+- xref:index-sub-testing-runtime.adoc[Testing component runtime]
+- xref:testing-beam.adoc[Beam testing]
+- xref:testing-multiple-envs.adoc[Testing in multiple environments]
+- xref:testing-maven-passwords.adoc[Reusing Maven credentials]
+- xref:services-pipeline.adoc[Simple/Test Pipeline API]
+endif::[]

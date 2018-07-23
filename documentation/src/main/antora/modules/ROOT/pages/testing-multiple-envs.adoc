@@ -146,3 +146,14 @@ It executes the chain twice:
 
 1. With a standalone environment to simulate the Studio.
 2. With a Beam (direct runner) environment to ensure the portability of your job.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== What to read Next?
+- xref:testing-best-practices.adoc[Component testing best practices]
+- xref:index-sub-testing-runtime.adoc[Testing component runtime]
+- xref:testing-beam.adoc[Beam testing]
+- xref:testing-maven-passwords.adoc[Reusing Maven credentials]
+- xref:testing-generating-data.adoc[Generating data for testing]
+- xref:services-pipeline.adoc[Simple/Test Pipeline API]
+endif::[]
