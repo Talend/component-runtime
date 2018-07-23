@@ -182,6 +182,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                             put("jdbc.datastore.jdbc._displayName", "JDBC DataStore");
                             put("jdbc.dataset.jdbc._displayName", "JDBC DataSet");
                             put("Type.PRECISE._displayName", "Furious");
+                            put("jdbc.Database/jdbc/Standard._category", "DB/Std/Yes");
                         }
                     }.store(out, "i18n for the config types");
                     out.closeEntry();
