@@ -58,10 +58,6 @@ function getLang(lang) {
   return lang || 'en';
 }
 
-const FALLBACK_HANDLER = function ({ error, trigger }) {
-  console.error(`${JSON.stringify(trigger)} failed with error ${error || '-'}`);
-};
-
 function isCacheable(triggerType) {
   return triggerType === 'suggestions';
 }
@@ -129,7 +125,7 @@ export default function getDefaultTrigger({ url, customRegistry, lang, headers }
         return result;
       })
       .catch(error => {
-        (services['error'] || FALLBACK_HANDLER)({
+        return services['error']({
           error,
           errors,
           properties,
