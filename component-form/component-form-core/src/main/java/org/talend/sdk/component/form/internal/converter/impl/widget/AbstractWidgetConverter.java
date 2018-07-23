@@ -204,8 +204,10 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 .filter(e -> e.getKey().startsWith("condition::if::target"))
                 .map(e -> {
                     final String[] split = e.getKey().split("::");
-                    final String valueKey =
-                            "condition::if::value" + (split.length == 4 ? "::" + split[split.length - 1] : "");
+                    final String keySuffix = split.length == 4 ? "::" + split[split.length - 1] : "";
+                    final String valueKey = "condition::if::value" + keySuffix;
+                    final String negateKey = "condition::if::negate" + keySuffix;
+                    final String strategyKey = "condition::if::evaluationStrategy" + keySuffix;
                     final String paramRef = e.getValue();
                     final String path = pathResolver.resolveProperty(ctx.getProperty().getPath(), paramRef);
                     final SimplePropertyDefinition definition =
@@ -213,6 +215,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                     final Function<String, Object> converter = findStringValueMapper(definition);
                     return new UiSchema.Condition.Builder()
                             .withPath(path)
+                            .withShouldBe(!Boolean
+                                    .parseBoolean(ctx.getProperty().getMetadata().getOrDefault(negateKey, "false")))
+                            .withStrategy(ctx.getProperty().getMetadata().getOrDefault(strategyKey, "DEFAULT"))
                             .withValues(Stream
                                     .of(ctx.getProperty().getMetadata().getOrDefault(valueKey, "true").split(","))
                                     .map(converter)

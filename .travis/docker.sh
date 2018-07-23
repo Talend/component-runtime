@@ -12,7 +12,7 @@ DOCKER_TMP_DIR=/tmp/docker_workdir
 
 echo "Prebuilding the project"
 if [ "x${COMPONENT_SERVER_DOCKER_BUILD_ONLY}" != "xtrue" ]; then
-    mvn clean install -pl component-server-parent/component-server -am -e -q -Ptravis \
+    mvn clean install -pl component-server-parent/component-server -am -e -Ptravis \
         -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true \
         -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar
 else
