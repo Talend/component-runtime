@@ -90,6 +90,7 @@ import org.talend.sdk.component.api.configuration.type.meta.ConfigurationType;
 import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.meta.Ui;
+import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
@@ -617,12 +618,12 @@ public class Generator {
                       .stream()
                       .sorted(Comparator.comparing(Class::getName))
                       .forEach(type -> {
-                          final Map<String, String> meta = enricher.onParameterAnnotation("theparameter", Object.class,
+                          final Map<String, String> meta = new TreeMap<>(enricher.onParameterAnnotation("theparameter", Object.class,
                                   generateAnnotation(type))
                                                                    .entrySet()
                                                                    .stream()
                                                                    .collect(toMap(e -> e.getKey()
-                                                                                        .replace("tcomp::", ""), Map.Entry::getValue));
+                                                                                        .replace("tcomp::", ""), Map.Entry::getValue)));
                           stream.println("#@" + sanitizeType(type.getName()) + "#" + extractDoc(type) + " a#\n----\n" + jsonb.toJson(meta) + "\n----\n");
                       });
             }
@@ -861,6 +862,9 @@ public class Generator {
                     }
                     if (ActiveIf.EvaluationStrategy.class == returnType) {
                         return ActiveIf.EvaluationStrategy.DEFAULT;
+                    }
+                    if (Structure.Type.class == returnType) {
+                        return Structure.Type.IN;
                     }
                     if (GridLayout.Row[].class == returnType) {
                         return new GridLayout.Row[] { new GridLayout.Row() {
