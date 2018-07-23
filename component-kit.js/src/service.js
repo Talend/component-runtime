@@ -106,6 +106,9 @@ function extractErrorMessage(error) {
   if (error.error) {
     return JSON.stringify(error.error);
   }
+  if (error.code && error.description && error.description.length > 0) {
+    return `${error.code != 'ACTION_ERROR' ? '[' + error.code + ']' : ''} ${error.description}`;
+  }
   return JSON.stringify(error);
 }
 
