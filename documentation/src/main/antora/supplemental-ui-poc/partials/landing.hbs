@@ -1,6 +1,19 @@
-<article class="doc">
-    {{#if page.title}}
-        <h1>{{{page.title}}}</h1>
-    {{/if}}
-    {{{page.contents}}}
-</article>
+{{>header-content headerClass='landing' doc=true}}
+
+<main aria-label="Content" class="landing main">
+  <div class="container">
+    <div class="landing-content">
+      {{{page.contents}}}
+    </div>
+  </div>
+</main>
+
+{{>footer-content footerClass='landing'}}
+
+<script>
+(function () {
+  window.talend = (window.talend || {});
+  window.talend.skipHighlightJs = true;
+  window.talend.landing = true;
+})();
+</script>

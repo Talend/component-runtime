@@ -148,6 +148,14 @@ public class WebAppComponentProxy {
             final CompletionException actualException = CompletionException.class.cast(e);
             log.error(actualException.getMessage(), actualException);
             status = Response.Status.BAD_GATEWAY.getStatusCode();
+            if (WebApplicationException.class.isInstance(actualException.getCause())) {
+                final Response resp = WebApplicationException.class.cast(actualException.getCause()).getResponse();
+                if (response != null) {
+                    final String s = resp.readEntity(String.class);
+                    response.resume(Response.status(resp.getStatus()).entity(s).type(APPLICATION_JSON_TYPE).build());
+                    return;
+                }
+            }
             payload = actionService.map(new WebException(actualException, -1, emptyMap()));
         } else {
             log.error(e.getMessage(), e);

@@ -2,7 +2,7 @@
 [role="table-striped table-hover table-ordered",options="header,autowidth"]
 |====
 |API|Name|Description|Metadata Sample
-|@o.t.s.c..api.configuration.condition.ActiveIf|if|If the evaluation of the element at the location matches value then the element is considered active, otherwise it is deactivated.|{"condition::if::target":"test","condition::if::value":"value1,value2"}
-|@o.t.s.c..api.configuration.condition.ActiveIfs|ifs|Allows to set multiple visibility conditions on the same property.|{"condition::if::value::0":"value1,value2","condition::if::value::1":"SELECTED","condition::if::target::0":"sibling1","condition::if::target::1":"../../other"}
+|@o.t.s.c.api.configuration.condition.ActiveIf|if|If the evaluation of the element at the location matches value then the element is considered active, otherwise it is deactivated.|{"condition::if::target":"test","condition::if::value":"value1,value2"}
+|@o.t.s.c.api.configuration.condition.ActiveIfs|ifs|Allows to set multiple visibility conditions on the same property.|{"condition::if::value::0":"value1,value2","condition::if::value::1":"SELECTED","condition::if::target::0":"sibling1","condition::if::target::1":"../../other"}
 |====
 

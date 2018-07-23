@@ -123,7 +123,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Generator {
 
     public static void main(final String[] args) throws Exception {
-        if (Boolean.parseBoolean(args[7])) {
+        if (Boolean.parseBoolean(args[7]) || Boolean.getBoolean(System.getenv("TRAVIS"))) {
             log.info("Skipping doc generation as requested");
             return;
         }
@@ -610,9 +610,9 @@ public class Generator {
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println();
             stream.println(
-                    "[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\",separator=¦]");
+                    "[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\",separator=#]");
             stream.println("|====");
-            stream.println("¦API¦Description¦Generated property metadata");
+            stream.println("#API#Description#Generated property metadata");
             final File api = jarLocation(Ui.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
@@ -626,7 +626,7 @@ public class Generator {
                                 .entrySet()
                                 .stream()
                                 .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue));
-                        stream.println("¦@" + sanitizeType(type.getName()) + "¦" + extractDoc(type) + "¦"
+                        stream.println("#@" + sanitizeType(type.getName()) + "#" + extractDoc(type) + "#"
                                 + mapper.writeObjectAsString(meta));
                     });
             stream.println("|====");
@@ -794,7 +794,7 @@ public class Generator {
     }
 
     private static String sanitizeType(final String s) {
-        return s.replace("java.lang.", "").replace("java.util.", "").replace("org.talend.sdk.component", "o.t.s.c.");
+        return s.replace("java.lang.", "").replace("java.util.", "").replace("org.talend.sdk.component", "o.t.s.c");
     }
 
     private static Constraint createConstraint(final Class<?> validation, final Validation val) {

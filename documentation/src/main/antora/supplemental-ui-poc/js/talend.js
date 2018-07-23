@@ -91,7 +91,9 @@ $(document).ready(function () {
   });
 
   // syntax highlighting
-  hljs.initHighlighting();
+  if (!window.talend || !window.talend.skipHighlightJs) {
+    hljs.initHighlighting();
+  }
 
   // anchors based menu on the right
   if (window.talend && window.talend.article) {
@@ -99,7 +101,7 @@ $(document).ready(function () {
     var anchorsTitle = $('.article-anchors > h1');
     articleContent.anchorific({
       navigation: '.article-anchors',
-      headers: 'h2, h3, h4',
+      headers: 'h2, h3',
       speed: 200,
       spy: true,
       spyOffset: articleContent.offset().top

@@ -51,7 +51,7 @@ h3.contributor-commits {
   min-height: 6rem;
 }
 
-.documentationindex-before {
+.documentationindex-before .admonitionblocks {
   display: flex;
 }
 .documentationindex-items {
@@ -221,12 +221,13 @@ div.navigation-container {
   display: inline-flex;
 }
 .maincontent {
-  padding-left: 0;
   padding-right: 0;
   flex-grow: 1;
   overflow-y: auto;
+  padding-left: 0;
 }
 article.doc {
+  margin-left: 2rem;
   padding-left: 15px;
   padding-right: 15px;
 }
@@ -243,8 +244,10 @@ article.doc {
   right: 0;
   left: auto;
 }
-.navbar-default, .navbar-brand,
-.navbar-default .navbar-nav>li>a, .navbar-default .navbar-text {
+.global-header .navbar-default,
+.global-header .navbar-brand,
+.global-header .navbar-default .navbar-nav>li>a,
+.global-header .navbar-default .navbar-text {
   color: white !important;
 }
 a.menu-link {

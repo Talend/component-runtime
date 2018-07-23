@@ -45,7 +45,7 @@ public class ConditionParameterEnricher implements ParameterExtensionEnricher {
                         .of(ActiveIfs.class.cast(annotation).value())
                         .map(ai -> onParameterAnnotation(parameterName, parameterType, ai))
                         .collect(HashMap::new, (map, entry) -> {
-                            final String suffix = "::" + (map.size() / 2);
+                            final String suffix = "::" + (map.size() / 4);
                             map.putAll(entry.entrySet().stream().collect(
                                     toMap(e -> e.getKey() + suffix, Map.Entry::getValue)));
                         }, HashMap::putAll);

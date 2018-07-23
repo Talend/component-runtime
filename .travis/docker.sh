@@ -8,13 +8,15 @@ if [[ "$DOCKER_IMAGE_VERSION" = *"SNAPSHOT" ]]; then
     DOCKER_IMAGE_VERSION=$(echo $SERVER_VERSION | sed "s/-SNAPSHOT//")_$(date +%Y%m%d%I%M%S)
 fi
 IMAGE=$(echo "${DOCKER_LOGIN:-tacokit}/component-server:$DOCKER_IMAGE_VERSION")
-DOCKER_TMP_DIR=/tmp/docker_workdir
+DOCKER_TMP_DIR="$(pwd)/target/docker_workdir"
 
 echo "Prebuilding the project"
 if [ "x${COMPONENT_SERVER_DOCKER_BUILD_ONLY}" != "xtrue" ]; then
+    rm -Rf ~/.m2/repository/org/apache/meecrowave
     mvn clean install -pl component-server-parent/component-server -am -e -q -Ptravis \
         -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -T2C \
         -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar
+    cat ~/.m2/repository/org/apache/meecrowave/meecrowave-specs-api/1.2.3/meecrowave-specs-api-1.2.3.pom
 else
     echo "Assuming build is done as requested through \$COMPONENT_SERVER_DOCKER_BUILD_ONLY"
 fi
@@ -22,11 +24,11 @@ fi
 # if we don't set up a custom buildcontext dir the whole project is taken as buildcontext and it makes gigs!
 echo "Setting up buildcontext"
 mkdir -p "$DOCKER_TMP_DIR"
-cp component-runtime-beam/target/component-runtime-beam-${SERVER_VERSION}-dependencies.zip $DOCKER_TMP_DIR/beam.zip
-cp component-server-parent/component-server/target/component-server-meecrowave-distribution.zip $DOCKER_TMP_DIR/server.zip
-cp Dockerfile $DOCKER_TMP_DIR/Dockerfile
-cp -r .docker/conf $DOCKER_TMP_DIR/conf
-cp -r .docker/bin $DOCKER_TMP_DIR/bin
+cp -v component-runtime-beam/target/component-runtime-beam-${SERVER_VERSION}-dependencies.zip $DOCKER_TMP_DIR/beam.zip
+cp -v component-server-parent/component-server/target/component-server-meecrowave-distribution.zip $DOCKER_TMP_DIR/server.zip
+cp -v Dockerfile $DOCKER_TMP_DIR/Dockerfile
+cp -v -r .docker/conf $DOCKER_TMP_DIR/conf
+cp -v -r .docker/bin $DOCKER_TMP_DIR/bin
 cd $DOCKER_TMP_DIR
 
 echo "Grabbing kafka client"

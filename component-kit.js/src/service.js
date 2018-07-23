@@ -95,8 +95,25 @@ function dynamic_values({ properties }) {
   return { properties };
 }
 
-function suggestions({ body }) {
+function suggestions({ body }) { // intended to be overriden by apps
   return { titleMap: (body.items || []).map(item => ({ name: item.label, value: item.id })) };
+}
+
+function extractErrorMessage(error) {
+  if (error.errors && Array.isArray(error.errors) && error.errors.length > 0) {
+    return error.errors;
+  }
+  if (error.error) {
+    return JSON.stringify(error.error);
+  }
+  if (error.code && error.description && error.description.length > 0) {
+    return `${error.code != 'ACTION_ERROR' ? '[' + error.code + ']' : ''} ${error.description}`;
+  }
+  return JSON.stringify(error);
+}
+
+function error({ errors, error, schema  }) {
+  return { errors: getNewErrors(errors, schema, extractErrorMessage(error)) };
 }
 
 export default {
@@ -105,4 +122,5 @@ export default {
   schema,
   validation,
   suggestions,
+  error,
 };

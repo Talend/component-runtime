@@ -58,10 +58,6 @@ function getLang(lang) {
   return lang || 'en';
 }
 
-const FALLBACK_HANDLER = function ({ error, trigger }) {
-  console.error(`${JSON.stringify(trigger)} failed with error ${error || '-'}`);
-};
-
 function isCacheable(triggerType) {
   return triggerType === 'suggestions';
 }
@@ -72,9 +68,10 @@ function createCacheKey(trigger) {
 }
 
 // customRegistry can be used to add extensions or custom trigger (not portable accross integrations)
-export default function getDefaultTrigger({ url, customRegistry, lang }) {
+export default function getDefaultTrigger({ url, customRegistry, lang, headers }) {
   const encodedLang = encodeURIComponent(getLang(lang));
   const cache = {};
+  const actualHeaders = headers || { 'Content-Type': 'application/json', 'Accept': 'application/json' };
   return function onDefaultTrigger(event, { trigger, schema, properties, errors }) {
     const services = {
       ...defaultRegistry,
@@ -93,13 +90,26 @@ export default function getDefaultTrigger({ url, customRegistry, lang }) {
       `${url}?lang=${encodedLang}&action=${encodeURIComponent(trigger.action)}&family=${encodeURIComponent(trigger.family)}&type=${encodeURIComponent(trigger.type)}`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: actualHeaders,
         body: JSON.stringify(payload),
         credentials: 'include'
       })
-      .then(resp => resp.json())
+      .then(resp => {
+        if (!resp.ok || resp.status >= 300) {
+          return resp.text().then(error => {
+            let json;
+            try {
+              json = JSON.parse(error);
+            } catch (e) {
+              json = { error };
+            }
+            throw json;
+          });
+        }
+        return resp.json();
+      })
       .then(body => {
-        const result = (services[trigger.type] ||  FALLBACK_HANDLER)({
+        const result = (services[trigger.type] ||  (() => ({})))({
           body,
           errors,
           properties,
@@ -115,7 +125,7 @@ export default function getDefaultTrigger({ url, customRegistry, lang }) {
         return result;
       })
       .catch(error => {
-        (services['error'] || FALLBACK_HANDLER)({
+        return services['error']({
           error,
           errors,
           properties,
