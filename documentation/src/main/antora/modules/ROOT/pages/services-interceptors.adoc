@@ -53,7 +53,7 @@ NOTE: The `findAnnotation` annotation, inherited from `InterceptorHandler`, is a
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:services-internationalization.adoc[Internationalizing a service]
 - xref:services-actions.adoc[Providing actions through a service]
 - xref:services-built-in.adoc[Built-in services]

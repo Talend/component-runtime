@@ -351,7 +351,7 @@ The icon file needs to have a name following the convention `IconName_icon32.png
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
 - xref:component-configuration.adoc[Configuring a component]
 - xref:component-registering.adoc[Registering a component]

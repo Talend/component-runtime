@@ -13,7 +13,7 @@ Technically, a component is a snippet of generated Java code that is part of a J
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read next?
+== Related articles
 - xref:tck-framework-overview.adoc[Talend Component Kit framework overview]
 - xref:methodology-creating-components.adoc[Methodology for creating components]
 endif::[]

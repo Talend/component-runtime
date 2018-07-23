@@ -2,7 +2,7 @@
 :page-partial:
 
 [[tutorial-create-an-input-component]]
-This tutorial shows how to create a complete working input component for xref:https://hazelcast.org/[Hazelcast], including:
+This tutorial shows how to create a complete working input component for https://hazelcast.org[Hazelcast], including:
 
 1. Registering the component family.
 2. Defining the configurable part and the layout of the component.
@@ -302,7 +302,7 @@ public HazelcastSource createSource() {
 <1> After splitting the mapper, every mapper creates a producer that reads the records according to the provided configuration.
 
 === Full implementation of the Partition Mapper
-Once implemented, the Partition Mapper configuration is as follows. For more information about Partition Mappers, refer to xref:component-definition.adoc#_partitionmapper[this document].
+Once implemented, the Partition Mapper configuration is as follows. For more information about Partition Mappers, refer to xref:component-definition.adoc#partition-mapper[this document].
 [source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
 ----
 @Version(1) <1>

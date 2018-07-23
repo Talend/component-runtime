@@ -27,7 +27,7 @@ If you are using JUnit 5, you can have a look at https://glytching.github.io/jun
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:testing-best-practices.adoc[Component testing best practices]
 - xref:index-sub-testing-runtime.adoc[Testing component runtime]
 - xref:testing-beam.adoc[Beam testing]

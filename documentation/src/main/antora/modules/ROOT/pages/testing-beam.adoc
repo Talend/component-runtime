@@ -7,7 +7,7 @@ Check https://beam.apache.org/contribute/testing/ for more details.
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:testing-best-practices.adoc[Component testing best practices]
 - xref:index-sub-testing-runtime.adoc[Testing component runtime]
 - xref:testing-multiple-envs.adoc[Testing in multiple environments]

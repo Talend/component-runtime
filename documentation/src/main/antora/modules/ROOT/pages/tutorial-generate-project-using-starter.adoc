@@ -115,7 +115,7 @@ The next tutorial shows how to implement an Input component in details.
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:methodology-creating-components.adoc[Methodology]
 - xref:tutorial-create-an-input-component.adoc[Creating a Hazelcast input component]
 - xref:tutorial-create-an-output-component.adoc[Creating a Hazelcast output component]

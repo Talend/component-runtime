@@ -88,6 +88,6 @@ The developer mode can be very useful to see some updates in components without 
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:best-practices.adoc[Best practices]
 endif::[]

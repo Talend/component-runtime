@@ -130,7 +130,7 @@ can use `@Icon(value = CUSTOM, custom = "...") to use a custom icon file.
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read next?
+== Related articles
 - xref:what-is-a-talend-component.adoc[What is a Talend component]
 - xref:methodology-creating-components.adoc[Methodology for creating components]
 endif::[]

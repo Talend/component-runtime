@@ -37,7 +37,7 @@ public interface Translator {
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:services-actions.adoc[Providing actions through a service]
 - xref:services-built-in.adoc[Built-in services]
 - xref:services-interceptors.adoc[Services and interceptors]

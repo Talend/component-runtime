@@ -94,7 +94,7 @@ IMPORTANT: Add the `junit-jupiter-params` dependency to benefit from this featur
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:index-sub-testing-runtime.adoc[Testing component runtime]
 - xref:testing-beam.adoc[Beam testing]
 - xref:testing-multiple-envs.adoc[Testing in multiple environments]

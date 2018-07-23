@@ -168,7 +168,7 @@ For more information, see the <<wrapping-a-beam-io.adoc#, How to wrap a Beam I/O
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:testing-best-practices.adoc[Component testing best practices]
 - xref:index-sub-testing-runtime.adoc[Testing component runtime]
 - xref:testing-beam.adoc[Beam testing]

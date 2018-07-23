@@ -132,7 +132,7 @@ public interface APIClient extends HttpClient {
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:services-internationalization.adoc[Internationalizing a service]
 - xref:services-actions.adoc[Providing actions through a service]
 - xref:services-interceptors.adoc[Services and interceptors]

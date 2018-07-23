@@ -149,7 +149,7 @@ It is recommended to provide as much information as possible to let the UI work 
 
 ==== Light validations
 
-Light validations are all the validations you can execute on the client side. They are listed in the <<documentation.adoc#documentation-ui-hints, UI hint>> section.
+Light validations are all the validations you can execute on the client side. They are listed in the <<component-configuration.adoc#documentation-ui-hints, UI hint>> section.
 
 Use light validations first before going with custom validations because they are more efficient.
 
@@ -290,7 +290,7 @@ Testing your components is critical. You can use unit and simple standalone JUni
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
 - xref:component-definition.adoc[Defining a component]
 - xref:component-configuration.adoc[Configuring a component]

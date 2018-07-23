@@ -197,7 +197,7 @@ Because the Beam wrapper does not respect the standard Talend Component Kit prog
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:component-definition.adoc[Defining a component]
 - xref:services-pipeline.adoc[Creating a job pipeline]
 - xref:testing-beam.adoc[Beam testing]

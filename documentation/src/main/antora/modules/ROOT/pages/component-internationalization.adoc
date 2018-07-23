@@ -59,7 +59,7 @@ NOTE: If you have a display name using the property path, it overrides the displ
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
-== What to read Next?
+== Related articles
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
 - xref:component-definition.adoc[Defining a component]
 - xref:component-configuration.adoc[Configuring a component]
