@@ -12,9 +12,11 @@ DOCKER_TMP_DIR="$(pwd)/target/docker_workdir"
 
 echo "Prebuilding the project"
 if [ "x${COMPONENT_SERVER_DOCKER_BUILD_ONLY}" != "xtrue" ]; then
+    rm -Rf ~/.m2/repository/org/apache/meecrowave
     mvn clean install -pl component-server-parent/component-server -am -e -q -Ptravis \
         -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -T2C \
         -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar
+    cat ~/.m2/repository/org/apache/meecrowave/meecrowave-specs-api/1.2.3/meecrowave-specs-api-1.2.3.pom
 else
     echo "Assuming build is done as requested through \$COMPONENT_SERVER_DOCKER_BUILD_ONLY"
 fi
