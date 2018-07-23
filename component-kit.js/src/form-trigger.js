@@ -109,7 +109,7 @@ export default function getDefaultTrigger({ url, customRegistry, lang, headers }
         return resp.json();
       })
       .then(body => {
-        const result = (services[trigger.type] ||  FALLBACK_HANDLER)({
+        const result = (services[trigger.type] ||  (() => ({})))({
           body,
           errors,
           properties,
