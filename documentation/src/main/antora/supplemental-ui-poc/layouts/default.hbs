@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{detag (or page.title 'Untitled')}}{{#if site.title}} :: {{site.title}}{{/if}}</title>
+    <title>{{#if site.title}}{{site.title}} :: {{/if}}{{#if page.title}}{{page.title}}{{/if}}</title>
     {{#if page.canonicalUrl}}
     <link rel="canonical" href="{{page.canonicalUrl}}">
     {{/if}}
