@@ -5,7 +5,7 @@
 = Talend Component Kit
 
 Customize your connectivity and integrate with thousands of components harmlessly
-to get the best of your data quckly!
+to get the best of your data quickly!
 
 = Create your first component
 :page-partial:
@@ -16,7 +16,7 @@ Talend Component Kit is easy to use,
 but don’t take our word for free, try it out using our https://starter-toolkit.talend.io
 generator or just using `curl`!
 
-And go on http://localhost:8080 to see your component!
+And go to http://localhost:8080 to see your component!
 --
 
 [role="console col-sm-6"]
@@ -45,5 +45,5 @@ $ chmod +x mvnw && ./mvnw install talend-component:web
 [#landing-doc-link]
 = What's next?
 
-You got your component? Let's see how to enhance it and deploy it in Talend
-Applications thanks to our link:tutorials-index.html[Tutorials].
+Your component is ready? Let's see how to enhance it and deploy it to Talend
+Applications thanks to our link:index-tutorials.html[Tutorials].

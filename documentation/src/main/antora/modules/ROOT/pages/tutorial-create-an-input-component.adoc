@@ -25,6 +25,7 @@ package org.talend.hazelcast;
 <2> In this line we define the component family and the component categories.
 Those information are used in the web and studio applications to group the components.
 
+[[defining-component-configuration]]
 == Defining the configurable part and the layout of the component
 The component configuration includes defining the part of the components that can be configured once integrated to Talend solutions, in addition to the configuration type and the UI layout.
 
@@ -155,6 +156,7 @@ protected HazelcastMapper(final HazelcastConfiguration configuration,
 <2> Define the component public constructor, which is responsible for injecting configuration and services.
 <3> Add an internal constructor to get the collection of the Hazelcast cluster members.
 
+[[post-construct-method]]
 === Defining the PostConstruct method
 The @PostConstruct method is used to initialize a Hazelcast client instance.
 

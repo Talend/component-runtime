@@ -7,6 +7,6 @@
 
 Go deeper in the framework with the following articles.
 
-xref:documentation-rest.adoc[Talend Component Kit REST API Documentation]
+- xref:documentation-rest.adoc[Talend Component Kit REST API Documentation]
 
-xref:creating-plugins.adoc[Creating plugins]
+- xref:creating-plugins.adoc[Creating plugins]

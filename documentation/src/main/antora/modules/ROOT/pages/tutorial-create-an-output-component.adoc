@@ -2,13 +2,13 @@
 :page-partial:
 
 [[tutorial-create-an-output-component]]
-This tutorial shows how to create a complete working output component for xref:https://hazelcast.org/[Hazelcast], including:
+This tutorial shows how to create a complete working output component for https://hazelcast.org[Hazelcast], including:
 
 1. Defining the configurable part and the layout of the component.
 2. Defining the output that is responsible for connecting and writing data to the data source.
 
 == Defining the configurable part and the layout of the component
-The methodology to define the component configuration is described in the xref:tutorial-create-an-input-component.adoc#_the_component_configuration[Implementing an input component] tutorial.
+The methodology to define the component configuration is described in the xref:tutorial-create-an-input-component.adoc#defining-component-configuration[Implementing an input component] tutorial.
 
 In this case, the input component configuration defined in the tutorial mentioned above can be used as a starting point.
 
@@ -100,7 +100,7 @@ public void init() {
 To make it work, a Hazelcast instance and a Hazelcast map are required. The corresponding attributes need to be added to the output.
 
 <1> Create an instance of Hazelcast according to the provided configuration.
-In this case, the injected HazelcastService instance is used. This service is implemented in the project. See the implementation in the xref:tutorial-create-an-input-component.adoc#_the_postconstruct_method[Implementing an input component] tutorial.
+In this case, the injected HazelcastService instance is used. This service is implemented in the project. See the implementation in the xref:tutorial-create-an-input-component.adoc#post-construct-method[Implementing an input component] tutorial.
 <2> Get the Hazelcast map according to the map name provided in the configuration, using the Hazelcast instance.
 
 NOTE: In production, avoid creating one instance per thread/worker.
