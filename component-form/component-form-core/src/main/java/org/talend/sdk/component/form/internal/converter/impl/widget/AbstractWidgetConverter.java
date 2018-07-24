@@ -217,7 +217,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                             .withPath(path)
                             .withShouldBe(!Boolean
                                     .parseBoolean(ctx.getProperty().getMetadata().getOrDefault(negateKey, "false")))
-                            .withStrategy(ctx.getProperty().getMetadata().getOrDefault(strategyKey, "DEFAULT"))
+                            .withStrategy(ctx.getProperty().getMetadata().get(strategyKey))
                             .withValues(Stream
                                     .of(ctx.getProperty().getMetadata().getOrDefault(valueKey, "true").split(","))
                                     .map(converter)

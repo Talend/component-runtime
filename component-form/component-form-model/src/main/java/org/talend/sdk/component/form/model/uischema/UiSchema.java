@@ -16,6 +16,7 @@
 package org.talend.sdk.component.form.model.uischema;
 
 import static java.util.Arrays.asList;
+import static java.util.Locale.ROOT;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -110,7 +111,8 @@ public class UiSchema {
             }
 
             public Builder withStrategy(final String strategy) {
-                this.strategy = strategy;
+                this.strategy =
+                        strategy == null || "DEFAULT".equals(strategy) ? null : strategy.trim().toLowerCase(ROOT);
                 return this;
             }
 

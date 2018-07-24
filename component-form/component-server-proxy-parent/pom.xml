@@ -35,8 +35,7 @@
   </properties>
 
   <modules>
-    <module>component-server-proxy</module>
-    <module>component-server-proxy-play</module>
     <module>component-server-proxy-dependencies</module>
+    <module>component-server-proxy</module>
   </modules>
 </project>

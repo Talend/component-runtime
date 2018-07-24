@@ -263,47 +263,13 @@ The model uses the JSON-B API to define the binding. Make sure to have an implem
 
 === JavaScript integration
 
-Default JavaScript integration goes through the link:https://github.com/Talend/ui/tree/master/packages/forms[Talend UI Forms] library.
+IMPORTANT: `component-kit.js` is no more available (previous versions stay on NPM) since it got replaced by `@talend/react-containers`.
+The previous import can be replaced by `import kit from '@talend/react-containers/lib/ComponentForm/kit';`.
 
-It is bundled as a NPM module called `component-kit.js`. It provides a default trigger implementation for `UIForm`.
+Default JavaScript integration goes through the link:https://github.com/Talend/ui/tree/master/packages/forms[Talend UI Forms] library
+and its link:https://github.com/Talend/ui/tree/master/packages/containers[Containers] wrapper.
 
-Here is how to use it:
-
-[source,javascript]
-----
-import React from 'react';
-import UIForm from '@talend/react-forms/lib/UIForm/UIForm.container';
-import TalendComponentKitTrigger from 'component-kit.js';
-
-export default class ComponentKitForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.trigger = new TalendComponentKitTrigger({ url: '/api/to/component/server/proxy' });
-    this.onTrigger = this.onTrigger.bind(this);
-    // ...
-  }
-
-  onTrigger(event, payload) {
-    return this.trigger.onDefaultTrigger(event, payload);
-  }
-
-  // ...
-
-  render() {
-    if(! this.state.uiSpec) {
-      return (<div>Loading ...</div>);
-    }
-
-    return (
-        <UIForm
-          data={this.state.uiSpec}
-          onTrigger={this.onTrigger}
-          onSubmit={this.onSubmit}
-        />
-    );
-  }
-}
-----
+Documentation is now available on the previous link.
 
 == Logging
 

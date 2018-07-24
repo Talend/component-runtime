@@ -59,3 +59,4 @@
 ** xref:ref-ui.adoc[UI API]
 * xref:apidocs.adoc[Javadocs]
 * xref:index-knowledge-base.adoc[Knowledge base]
+* xref:changelog.adoc[Changelog]

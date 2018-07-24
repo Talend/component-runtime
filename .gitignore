@@ -31,11 +31,8 @@ dependency-reduced-pom.xml
 rebuild.bat
 
 # generated from the filtered version
-component-kit.js/package.json
-component-kit.js/lib
 component-starter-server/src/main/frontend/package.json
 component-tools-webapp/src/main/frontend/package.json
-component-form/component-server-proxy-parent/component-server-proxy-play/src/main/frontend/package.json
 documentation/src/main/frontend/package.json
 documentation/src/main/antora/site.yml
 documentation/src/main/antora/site-dev.yml
