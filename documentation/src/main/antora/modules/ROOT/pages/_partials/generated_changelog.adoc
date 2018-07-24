@@ -17,6 +17,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-918[TCOMP-918^]: create a mvn bom with tacokit stack to keep some dependencies aligned between component-runtime and it's studio integration
+- link:https://jira.talendforge.org/browse/TCOMP-932[TCOMP-932^]: Avoid Kafka recursive logging for component server
 
 
 == Version 1.0.3

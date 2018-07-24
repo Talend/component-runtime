@@ -13,7 +13,7 @@
     "@talend/react-cmf": "${talend-ui.version}",
     "@talend/react-components": "${talend-ui.version}",
     "@talend/react-forms": "${talend-ui.version}",
-    "@talend/react-components-kit": "${talend-ui.version}",
+    "@talend/react-containers": "${talend-ui.version}",
     "bootstrap-sass": "3.3.7",
     "classnames": "2.2.5",
     "date-fns": "1.27.2",

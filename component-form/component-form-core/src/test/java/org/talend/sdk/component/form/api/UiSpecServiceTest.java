@@ -181,8 +181,8 @@ class UiSpecServiceTest {
         // typed serialization
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
-            assertEquals("{\"path\":\"tableDataSet.ordered\",\"shouldBe\":true,\"strategy\":\"DEFAULT\","
-                    + "\"values\":[true]}", jsonb.toJson(condition));
+            assertEquals("{\"path\":\"tableDataSet.ordered\",\"shouldBe\":true,\"values\":[true]}",
+                    jsonb.toJson(condition));
         }
     }
 

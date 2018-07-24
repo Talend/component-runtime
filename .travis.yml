@@ -10,8 +10,6 @@ env:
     - BUILD_ARGS="clean install -e -q --batch-mode --settings $HOME/build/Talend/component-runtime/.travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true -Ptravis -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar"
 before_cache:
   - rm -Rf $HOME/.m2/repository/org/talend/sdk/component
-  - rm -Rf $HOME/build/Talend/component-runtime/component-runtime/component-form/component-server-proxy-parent/component-server-proxy-play/src/main/frontend/node_modules/component-kit.js
-  - rm -Rf $HOME/build/Talend/component-runtime/component-runtime/component-tools-webapp/src/main/frontend/node_modules/component-kit.js
 cache:
   timeout: 1000
   directories:
@@ -24,12 +22,8 @@ cache:
   - "$HOME/build/Talend/component-runtime/component-tools/src/main/frontend/node_modules"
   - "$HOME/build/Talend/component-runtime/component-tools-webapp/.node"
   - "$HOME/build/Talend/component-runtime/component-tools-webapp/src/main/frontend/node_modules"
-  - "$HOME/build/Talend/component-runtime/component-kit.js/.node"
-  - "$HOME/build/Talend/component-runtime/component-kit.js/node_modules"
   - "$HOME/build/Talend/component-runtime/documentation/.node"
   - "$HOME/build/Talend/component-runtime/documentation/src/main/frontend/node_modules"
-  - "$HOME/build/Talend/component-runtime/component-form/component-server-proxy-parent/component-server-proxy-play/.node"
-  - "$HOME/build/Talend/component-runtime/component-form/component-server-proxy-parent/component-server-proxy-play/src/main/frontend/node_modules"
   - "$HOME/build/Talend/component-runtime/talend-component-kit-intellij-plugin/.cache"
   - "$HOME/build/Talend/component-runtime/.ci-cache"
 notifications:
