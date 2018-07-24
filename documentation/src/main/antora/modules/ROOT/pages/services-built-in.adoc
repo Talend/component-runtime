@@ -129,3 +129,12 @@ public interface APIClient extends HttpClient {
     Record findRecord(@ConfigurerOption("username") String user, @ConfigurerOption("password") String pwd);
 }
 ----
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:services-internationalization.adoc[Internationalizing a service]
+- xref:services-actions.adoc[Providing actions through a service]
+- xref:services-interceptors.adoc[Services and interceptors]
+- xref:services-custom-api.adoc[Defining a custom API]
+endif::[]

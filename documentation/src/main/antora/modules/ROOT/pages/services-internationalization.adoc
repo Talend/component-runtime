@@ -34,3 +34,12 @@ public interface Translator {
 <2> You can pass parameters. The message uses the `MessageFormat` syntax to be resolved, based on the `ResourceBundle` template.
 <3> You can use `@Language` on a `Locale` parameter to specify manually the locale to use. Note that a single value is used (the first parameter tagged as such).
 <4> `@Language` also supports the `String` type.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:services-actions.adoc[Providing actions through a service]
+- xref:services-built-in.adoc[Built-in services]
+- xref:services-interceptors.adoc[Services and interceptors]
+- xref:services-custom-api.adoc[Defining a custom API]
+endif::[]

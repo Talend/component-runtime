@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 site:
-  title: Talend Component Kit Developer Reference Guide
+  title: Talend Component Kit Developer Guide
   start_page: main::index
 content:
   sources:

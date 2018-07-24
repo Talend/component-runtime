@@ -1,15 +1,17 @@
-= Beam testing
+= component-runtime-testing
 :page-partial:
 
-If you want to make sure that your component works in Beam and don't want to use Spark, you can try with the Direct Runner.
+include::testing-junit.adoc[]
 
-Check https://beam.apache.org/contribute/testing/ for more details.
+include::testing-spark.adoc[]
+
+include::testing-http.adoc[]
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
 - xref:testing-best-practices.adoc[Component testing best practices]
-- xref:index-sub-testing-runtime.adoc[Testing component runtime]
+- xref:testing-beam.adoc[Beam testing]
 - xref:testing-multiple-envs.adoc[Testing in multiple environments]
 - xref:testing-maven-passwords.adoc[Reusing Maven credentials]
 - xref:testing-generating-data.adoc[Generating data for testing]

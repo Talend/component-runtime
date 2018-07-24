@@ -8,7 +8,7 @@ The component API is declarative (through annotations) to ensure it is:
 . Evolutive. It can get new features without breaking old code.
 . As static as possible.
 
-=== Evolution
+=== Evolutive
 
 Because it is fully declarative, any new API can be added iteratively without requiring
 any change to existing components.
@@ -127,3 +127,10 @@ Icons (`@Icon`) are based on a fixed set. Custom icons can be used but their dis
 
 TIP: Once you know exactly how you will deploy your component in the Studio, then you
 can use `@Icon(value = CUSTOM, custom = "...") to use a custom icon file.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:what-is-a-talend-component.adoc[What is a Talend component]
+- xref:methodology-creating-components.adoc[Methodology for creating components]
+endif::[]

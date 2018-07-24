@@ -348,3 +348,15 @@ The icon file needs to have a name following the convention `IconName_icon32.png
 ----
 @Icon(value = Icon.IconType.CUSTOM, custom = "IconName")
 ----
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
+- xref:component-configuration.adoc[Configuring a component]
+- xref:component-registering.adoc[Registering a component]
+- xref:component-internationalization.adoc[Internationalizing a component]
+- xref:component-loading.adoc[Loading a component]
+- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+- xref:best-practices.adoc[Best practices]
+endif::[]

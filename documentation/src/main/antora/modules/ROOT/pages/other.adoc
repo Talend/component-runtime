@@ -1,4 +1,0 @@
-= Talend Component Documentation
-:page-partial:
-
-include::documentation-testing.adoc[leveloffset=+1]

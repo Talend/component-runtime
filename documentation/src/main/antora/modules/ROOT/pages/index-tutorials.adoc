@@ -1,0 +1,21 @@
+= Tutorials
+:page-partial:
+:page-documentationindex-index: 8500
+:page-documentationindex-label: Tutorials
+:page-documentationindex-icon: book-open
+:page-documentationindex-description: Follow these guided examples to get used to the framework.
+
+
+- xref:tutorial-generate-project-using-starter.adoc[Generating a project from the starter]
+
+- xref:tutorial-create-an-input-component.adoc[Creating a Hazelcast input component]
+
+- xref:tutorial-create-an-output-component.adoc[Creating a Hazelcast output component]
+
+- xref:tutorial-create-components-rest-api.adoc[Creating a Zendesk REST API connector]
+
+- xref:tutorial-test-rest-api.adoc[Testing a Zendesk REST API connector]
+
+- xref:tutorial-test-your-components.adoc[Testing a Hazelcast component]
+
+- xref:tutorial-dev-vs-ci-setup.adoc[Testing in a continuous integration environment]

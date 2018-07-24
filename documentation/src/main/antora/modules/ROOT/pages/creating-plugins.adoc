@@ -1,4 +1,4 @@
-= Talend Component Kit Appendix
+= Creating plugins
 :page-partial:
 
 == Defining the ContainerManager or the classloader manager

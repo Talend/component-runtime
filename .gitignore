@@ -41,3 +41,6 @@ documentation/src/main/antora/site.yml
 documentation/src/main/antora/site-dev.yml
 documentation/src/main/antora/site-dev-poc.yml
 documentation/src/main/frontend/algolia/config.json
+documentation/rebuild.bat
+documentation/rebuild_newUI.bat
+documentation/rebuild_refresh_generated_pages.bat
