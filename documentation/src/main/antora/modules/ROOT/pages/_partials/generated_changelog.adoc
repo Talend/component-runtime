@@ -9,6 +9,11 @@
 - link:https://jira.talendforge.org/browse/TCOMP-927[TCOMP-927^]: talend-component:web errors are not always unwrapped and understandable
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-929[TCOMP-929^]: Ensure category contains the family
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-918[TCOMP-918^]: create a mvn bom with tacokit stack to keep some dependencies aligned between component-runtime and it's studio integration

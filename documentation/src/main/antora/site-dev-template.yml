@@ -33,5 +33,4 @@ output:
 asciidoc:
   attributes:
     deploymentRoot: ""
-    numbered: true
     hide-uri-scheme: true

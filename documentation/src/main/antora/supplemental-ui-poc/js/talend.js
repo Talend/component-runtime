@@ -104,7 +104,9 @@ $(document).ready(function () {
       headers: 'h2, h3',
       speed: 200,
       spy: true,
-      spyOffset: articleContent.offset().top
+      spyOffset: articleContent.offset().top,
+      anchorText: '$',
+      position: 'prepend'
     });
     var sizeSubMenuPanel = $('.article-anchors');
     var sizeSubMenuChildren = sizeSubMenuPanel.find('ul li');

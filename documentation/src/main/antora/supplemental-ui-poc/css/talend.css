@@ -208,6 +208,7 @@ body > .main {
   padding: 0;
 }
 img {
+  max-width: 100%;
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -459,4 +460,13 @@ pre {
 
 header > nav.navbar-default, footer {
   background: linear-gradient(90deg, #0d78bb, #579667, #afbb09);
+}
+
+.anchor {
+  color: white;
+  width: 1rem;
+}
+.anchor:hover {
+  display: inline;
+  text-decoration: none;
 }

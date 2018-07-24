@@ -1,18 +1,74 @@
 ++++
 <jsonArray>[
   {
-    "description":"What is the framework.",
-    "icon":"highlighter",
-    "index":1000,
-    "label":"Overview",
-    "link":"documentation-overview.html"
-  },
-  {
-    "description":"All to get started with the framework.",
+    "description":"Learn the basics about Talend Component Kit",
     "icon":"play-circle",
     "index":2000,
     "label":"Getting Started",
-    "link":"getting-started.html"
+    "link":"index-getting-started-with-tck.html"
+  },
+  {
+    "description":"Install the right tools and set up your environment",
+    "icon":"cog",
+    "index":3000,
+    "label":"Setup",
+    "link":"index-setup-environment.html"
+  },
+  {
+    "description":"Define the skeleton and general settings of your components",
+    "icon":"power-off",
+    "index":4000,
+    "label":"Generating a project",
+    "link":"index-generating-project.html"
+  },
+  {
+    "description":"Define the logic and UI of your components using a Java IDE",
+    "icon":"wrench",
+    "index":5000,
+    "label":"Implementing components",
+    "link":"index-creating-components.html"
+  },
+  {
+    "description":"Create configurations that can be reused across several components",
+    "icon":"share-alt",
+    "index":6000,
+    "label":"Defining services",
+    "link":"index-defining-services.html"
+  },
+  {
+    "description":"Learn how to test your component logic in the environment you need.",
+    "icon":"check-circle",
+    "index":7000,
+    "label":"Testing components",
+    "link":"index-testing-components.html"
+  },
+  {
+    "description":"Learn how to deploy your custom components to the Studio and Talend applications",
+    "icon":"share-square",
+    "index":7500,
+    "label":"Integrating components",
+    "link":"index-deploying-components.html"
+  },
+  {
+    "description":"The detailed references for building your components",
+    "icon":"code",
+    "index":8000,
+    "label":"Reference Guide",
+    "link":"index-reference-guide.html"
+  },
+  {
+    "description":"Follow these guided examples to get used to the framework.",
+    "icon":"book-open",
+    "index":8500,
+    "label":"Tutorials",
+    "link":"index-tutorials.html"
+  },
+  {
+    "description":"Read advanced articles about Talend Component Kit",
+    "icon":"list-alt",
+    "index":9000,
+    "label":"Knowledge base",
+    "link":"index-knowledge-base.html"
   }
 ]</jsonArray>
 ++++
