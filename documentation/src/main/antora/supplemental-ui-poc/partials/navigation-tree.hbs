@@ -1,5 +1,5 @@
 {{#if navigation.length}}
-<ul class="nav nav-list tree" {{#cond level '>' 0}} style="display:none"{{/cond}}>
+<ul class="nav nav-list tree" {{#cond level '>' 1}} style="display:none"{{/cond}}>
   {{#each navigation}}
   <li data-depth="{{../level}}">
   {{#if ./items.length}}
