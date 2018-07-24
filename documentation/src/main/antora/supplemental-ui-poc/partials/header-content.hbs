@@ -9,7 +9,7 @@
         </button>
         <a class="navbar-brand" href="index.html">Component Kit {{#if page.component}} {{page.version}}{{/if}}</a>
       </div>
-      <div class="navbar-collapse collapse">
+      <div id="navbar" class="navbar-collapse collapse">
         {{#if page.component}}
         <ul class="nav navbar-nav navbar-right">
           <li class="dropdown">
@@ -50,6 +50,7 @@
         <form role="search" action="search.html" class="navbar-form navbar-right">
           <div class="input-group">
             <input type="hidden" name="idx" value="githubantora">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
             <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
           </div>
         </form>

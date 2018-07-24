@@ -158,6 +158,14 @@ input.rounded {
   align-items: center;
   justify-content: center;
 }
+#searchInput {
+  display: none;
+}
+form[role=search] .input-group-addon {
+  background: inherit !important;
+  border: none !important;
+  color: white !important;
+}
 
 html {
   margin: 0;
@@ -220,6 +228,7 @@ main {
 }
 div.navigation-container {
   display: inline-flex;
+  overflow: auto;
 }
 .maincontent {
   padding-right: 0;
@@ -251,13 +260,11 @@ article.doc {
 .global-header .navbar-default .navbar-text {
   color: white !important;
 }
-a.menu-link {
-  padding: 0px 0 3px 0 !important;
-}
 .nav-list {
-  padding-right: 15px;
-  padding-left: 15px;
   margin-bottom: 0;
+}
+footer.footer {
+  z-index: 10;
 }
 .footer ul, .footer li {
   margin: 0;
@@ -468,4 +475,26 @@ header > nav.navbar-default, footer {
 .anchor:hover {
   display: inline;
   text-decoration: none;
+}
+
+aside.navigation > div.panels {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: -moz-calc(100vh - 50px);
+  height: -webkit-calc(100vh - 50px);
+  height: calc(100vh - 45px);
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  margin-top: 55px;
+  padding-bottom: 50px;
+}
+
+.tree-toggler > span {
+  padding-left: 3px;
+}
+ul.tree > li > a {
+  color: #535353;
+  padding: 0px 0 3px 14px !important;
 }

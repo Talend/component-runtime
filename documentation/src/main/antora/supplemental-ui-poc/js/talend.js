@@ -1,13 +1,23 @@
 $(document).ready(function () {
   // menu
   $('label.tree-toggler').click(function () { // on click, open it
-    $(this).parent().children('ul.tree').toggle(200);
+    var toggler = $(this);
+    var icon = toggler.find('i');
+    icon.toggleClass('fa-angle-right');
+    icon.toggleClass('fa-angle-down');
+    toggler.parent().children('ul.tree').toggle(200);
   });
   $('a.menu-link').each(function () {
     var href = $(this).attr('href');
     if (href == window.location.pathname || href == window.location.hash){
       $(this).addClass("current");
     }
+  });
+
+  // search button
+  var searchBox = $('#searchInput');
+  $('form[role=search] .input-group-addon > i.fa-search').click(function () {
+    searchBox.toggle(400);
   });
 
   // ensure dependencies blocks are multi-dependencies friendly

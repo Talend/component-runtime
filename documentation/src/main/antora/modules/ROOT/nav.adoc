@@ -1,4 +1,3 @@
-.Talend Component Kit Documentation
 * xref:index-getting-started-with-tck.adoc[Getting Started]
 ** xref:what-is-a-talend-component.adoc[What is a Talend Component]
 ** xref:methodology-creating-components.adoc[Methodology]

@@ -3,7 +3,7 @@
   {{#each navigation}}
   <li data-depth="{{../level}}">
   {{#if ./items.length}}
-    <label class="tree-toggler nav-header">{{{./content}}}</label>
+      {{#if ./content}}<label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>{{{./content}}}</span></label>{{/if}}
     {{> navigation-tree navigation=./items level=(increment ../level)}}
   {{else}}
     <a class="menu-link" href="
