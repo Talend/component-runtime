@@ -1,4 +1,4 @@
-= Creating components for REST API
+= Creating components for a REST API
 :page-partial:
 
 [[tutorial-create-components-rest-api]]
