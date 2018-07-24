@@ -280,7 +280,6 @@ a.menu-link {
 .navbar,
 footer.footer,
 .footer a {
-  background-color: #0675c1;
   color: white;
 }
 .navbar-end .navbar-link:hover,
@@ -288,12 +287,6 @@ footer.footer,
 .navbar-item.has-dropdown:hover .navbar-link {
   background-color: #0093c9;
   color: white;
-}
-nav.navbar {
-  border-bottom: solid 3px #82bd41;
-}
-.footer {
-  border-top: solid 2px #82bd41;
 }
 
 .code-handle-base {
@@ -462,4 +455,8 @@ pre {
 }
 .article-anchors > ul > li > ul li.active {
   font-weight: 400;
+}
+
+header > nav.navbar-default, footer {
+  background: linear-gradient(90deg, #0d78bb, #579667, #afbb09);
 }

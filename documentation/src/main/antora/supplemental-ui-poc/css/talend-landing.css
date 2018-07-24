@@ -397,6 +397,7 @@ header.landing form[role=search] {
 }
 
 .terminal-body {
+  text-shadow: none;
   font-family: Andale Mono, monospace;
   line-height: 1em;
   font-size: 13px;
@@ -488,4 +489,27 @@ header.landing form[role=search] {
 }
 .landing .console {
   padding-top: 30px;
+}
+
+#landing-doc-link i {
+  right: 0;
+  position: relative;
+}
+.landing-doc-link-text {
+  margin-top: 3rem;
+}
+
+.fa, .code {
+  text-shadow: none;
+}
+
+main.main {
+  background: #0c2d4d;
+  background-image: url(../images/landing_background.jpg);
+  background-repeat: no-repeat;
+  background-position: center 0px;
+  height: 734px;
+  padding-top: 60px;
+  color: white;
+  text-shadow: #000000 1px 1px, #000000 -1px 1px, #000000 -1px -1px, #000000 1px -1px;
 }

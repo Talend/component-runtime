@@ -3,6 +3,7 @@
 |====
 |API|Type|Description|Metadata sample
 |o.t.s.c.api.configuration.type.DataSet|dataset|Mark a model (complex object) as being a dataset. a|
+[source,js]
 ----
 {
   "tcomp::configurationtype::type":"dataset",
@@ -11,6 +12,7 @@
 ----
 
 |o.t.s.c.api.configuration.type.DataStore|datastore|Mark a model (complex object) as being a datastore (connection to a backend). a|
+[source,js]
 ----
 {
   "tcomp::configurationtype::type":"datastore",

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Components(family = "jdbc")
+@Components(family = "jdbc", categories = "Database/${family}/Standard")
 package org.talend.sdk.component.server.test.jdbc;
 
 import org.talend.sdk.component.api.component.Components;

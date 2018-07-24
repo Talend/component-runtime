@@ -25,6 +25,10 @@ public class FamilyBundle extends InternalBundle {
         super(new ResourceBundle[] { bundle }, prefix);
     }
 
+    public Optional<String> category(final String value) {
+        return readValue(value + "._category");
+    }
+
     public Optional<String> displayName() {
         return readValue("_displayName");
     }

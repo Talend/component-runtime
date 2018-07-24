@@ -32,6 +32,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -452,17 +453,39 @@ public class ComponentResource {
         final String familyIcon = meta.getParent().getIcon();
         final IconResolver.Icon iconContent = iconResolver.resolve(container, icon);
         final IconResolver.Icon iconFamilyContent = iconResolver.resolve(container, familyIcon);
+        final String familyDisplayName =
+                meta.getParent().findBundle(loader, locale).displayName().orElse(meta.getParent().getName());
+        final List<String> categories = ofNullable(meta.getParent().getCategories())
+                .map(vals -> vals
+                        .stream()
+                        .map(this::normalizeCategory)
+                        .map(category -> category.replace("${family}", meta.getParent().getName())) // not i18n-ed yet
+                        .map(category -> meta
+                                .getParent()
+                                .findBundle(loader, locale)
+                                .category(category)
+                                .orElseGet(() -> category.replace("/" + meta.getParent().getName() + "/",
+                                        "/" + familyDisplayName + "/")))
+                        .collect(toList()))
+                .orElseGet(Collections::emptyList);
         return new ComponentIndex(
                 new ComponentId(meta.getId(), meta.getParent().getId(), plugin,
                         ofNullable(originalId).map(ComponentManager.OriginalId::getValue).orElse(plugin),
                         meta.getParent().getName(), meta.getName()),
-                meta.findBundle(loader, locale).displayName().orElse(meta.getName()),
-                meta.getParent().findBundle(loader, locale).displayName().orElse(meta.getParent().getName()),
+                meta.findBundle(loader, locale).displayName().orElse(meta.getName()), familyDisplayName,
                 new Icon(icon, iconContent == null ? null : iconContent.getType(),
                         !includeIcon ? null : (iconContent == null ? null : iconContent.getBytes())),
                 new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
                         !includeIcon ? null : (iconFamilyContent == null ? null : iconFamilyContent.getBytes())),
-                meta.getVersion(), meta.getParent().getCategories(), singletonList(new Link("Detail",
+                meta.getVersion(), categories, singletonList(new Link("Detail",
                         "/component/details?identifiers=" + meta.getId(), MediaType.APPLICATION_JSON)));
+    }
+
+    private String normalizeCategory(final String category) {
+        // we prevent root categories and always append the family in this case
+        if (!category.contains("${family}")) {
+            return category + "/${family}";
+        }
+        return category;
     }
 }

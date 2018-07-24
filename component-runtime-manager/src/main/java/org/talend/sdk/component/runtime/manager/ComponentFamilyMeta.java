@@ -53,6 +53,11 @@ public class ComponentFamilyMeta {
     private static final FamilyBundle NO_COMPONENT_BUNDLE = new FamilyBundle(null, null) {
 
         @Override
+        public Optional<String> category(final String value) {
+            return empty();
+        }
+
+        @Override
         public Optional<String> configurationDisplayName(final String type, final String name) {
             return empty();
         }
