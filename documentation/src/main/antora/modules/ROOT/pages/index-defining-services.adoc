@@ -1,0 +1,18 @@
+= Services
+:page-partial:
+:page-documentationindex-index: 6000
+:page-documentationindex-label: Defining services
+:page-documentationindex-icon: share-alt
+:page-documentationindex-description: Create configurations that can be reused across several components
+
+:toc:
+
+include::services-internationalization.adoc[leveloffset=+1]
+
+include::services-actions.adoc[leveloffset=+1]
+
+include::services-built-in.adoc[leveloffset=+1]
+
+include::services-interceptors.adoc[leveloffset=+1]
+
+include::services-custom-api.adoc[leveloffset=+1]

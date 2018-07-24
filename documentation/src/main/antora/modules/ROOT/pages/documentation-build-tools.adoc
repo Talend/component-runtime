@@ -1,6 +1,0 @@
-= Build tools
-:page-partial:
-
-include::build-tools-maven.adoc[leveloffset=+1]
-
-include::build-tools-gradle.adoc[leveloffset=+1]

@@ -470,6 +470,10 @@ __Type__ : object
 |Name|Schema
 |**path** +
 __optional__|string
+|**shouldBe** +
+__optional__|boolean
+|**strategy** +
+__optional__|string
 |**values** +
 __optional__|< object > array
 |===

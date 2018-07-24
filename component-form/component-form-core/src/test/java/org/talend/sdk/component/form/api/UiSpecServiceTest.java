@@ -46,6 +46,7 @@ import java.util.stream.Stream;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
+import javax.json.bind.config.PropertyOrderStrategy;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -178,8 +179,10 @@ class UiSpecServiceTest {
         assertEquals(singletonList(true), condition.getValues());
 
         // typed serialization
-        try (final Jsonb jsonb = JsonbBuilder.create()) {
-            assertEquals("{\"path\":\"tableDataSet.ordered\",\"values\":[true]}", jsonb.toJson(condition));
+        try (final Jsonb jsonb = JsonbBuilder
+                .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
+            assertEquals("{\"path\":\"tableDataSet.ordered\",\"shouldBe\":true,\"values\":[true]}",
+                    jsonb.toJson(condition));
         }
     }
 

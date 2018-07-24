@@ -1,0 +1,4 @@
+= Constraints
+:page-partial:
+
+include::{partialsdir}/generated_constraints.adoc[leveloffset=+1]

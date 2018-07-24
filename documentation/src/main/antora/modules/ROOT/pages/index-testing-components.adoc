@@ -1,0 +1,22 @@
+= Testing components
+:page-partial:
+:page-documentationindex-index: 7000
+:page-documentationindex-label: Testing components
+:page-documentationindex-icon: check-circle
+:page-documentationindex-description: Learn how to test your component logic in the environment you need.
+
+:toc:
+
+include::testing-best-practices.adoc[leveloffset=+1]
+
+include::index-sub-testing-runtime.adoc[leveloffset=+1]
+
+include::testing-beam.adoc[leveloffset=+1]
+
+include::testing-multiple-envs.adoc[leveloffset=+1]
+
+include::testing-maven-passwords.adoc[leveloffset=+1]
+
+include::testing-generating-data.adoc[leveloffset=+1]
+
+include::services-pipeline.adoc[leveloffset=+1]

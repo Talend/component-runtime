@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{detag (or page.title 'Untitled')}}{{#if site.title}} :: {{site.title}}{{/if}}</title>
+    {{#if page.canonicalUrl}}
+    <link rel="canonical" href="{{page.canonicalUrl}}">
+    {{/if}}
+    {{#if page.description}}
+    <meta name="description" content="{{page.description}}">
+    {{/if}}
+    {{#if page.keywords}}
+    <meta name="keywords" content="{{page.keywords}}">
+    {{/if}}
+    {{#if page.robots}}
+    <meta name="robots" content="{{page.robots}}">
+    {{/if}}
+    <meta name="generator" content="Talend Component Kit Generator">
+{{> head}}
+  </head>
+  <body>
+    {{#if page.attributes.talend_landing}}
+        {{>landing}}
+    {{else}}
+      {{> header-content}}
+      <main class="main">
+        {{#if page.attributes.talend_documentationindex}}
+            {{>documentationindex this}}
+        {{else}}
+            {{> navigation}}
+            <div class="col-sm-10 maincontent">
+              {{> toolbar}}
+              {{> article}}
+            </div>
+        {{/if}}
+      </main>
+      {{> footer-content}}
+    {{/if}}
+    {{> footer-scripts}}
+  </body>
+</html>

@@ -1,0 +1,4 @@
+= REST resources
+:page-partial:
+
+include::{partialsdir}/generated_rest-resources.adoc[leveloffset=+1]

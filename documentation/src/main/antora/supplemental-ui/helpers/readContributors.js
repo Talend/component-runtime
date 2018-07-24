@@ -14,11 +14,17 @@
  *  limitations under the License.
  */
 module.exports = (text, options) => {
-  const list = text.toString('utf-8');
-  if (!options.data.root.contributors) {
-    options.data.root.contributors = JSON.parse(list.trim());
+  const cacheName = 'contributors';
+  let list = text.toString('utf-8').trim();
+  const start = list.indexOf('<jsonArray>');
+  if (start >= 0) {
+    list = list.substring(start + '<jsonArray>'.length, list.indexOf('</jsonArray>')).trim();
   }
-  return options.data.root.contributors
+  if (!options.data.root[cacheName]) {
+    options.data.root[cacheName] = JSON.parse(list);
+  }
+  return options.data.root[cacheName]
             .map(i => options.fn(i))
             .reduce((a, v) => a + v, '');
 };
+

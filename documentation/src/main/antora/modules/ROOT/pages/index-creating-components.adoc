@@ -1,0 +1,25 @@
+= Implementing components
+:page-partial:
+:page-documentationindex-index: 5000
+:page-documentationindex-label: Implementing components
+:page-documentationindex-icon: wrench
+:page-documentationindex-description: Define the logic and UI of your components using a Java IDE
+
+
+include::component-definition.adoc[leveloffset=+1]
+
+include::component-configuration.adoc[leveloffset=+1]
+
+include::component-registering.adoc[leveloffset=+1]
+
+include::component-internationalization.adoc[leveloffset=+1]
+
+include::component-loading.adoc[leveloffset=+1]
+
+include::tutorial-configuration-sensitive-data[leveloffset=+1]
+
+include::best-practices.adoc[leveloffset=+1]
+
+include::index-sub-build-tools.adoc[leveloffset=+1]
+
+include::wrapping-a-beam-io.adoc[leveloffset=+1]

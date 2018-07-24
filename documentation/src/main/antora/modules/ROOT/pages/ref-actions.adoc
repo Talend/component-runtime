@@ -1,0 +1,4 @@
+= Actions
+:page-partial:
+
+include::{partialsdir}/generated_actions.adoc[leveloffset=+1]

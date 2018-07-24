@@ -1,5 +1,33 @@
 
 
+== Version 1.0.4
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-922[TCOMP-922^]: component manager : support loading dependencies from job lib folder.
+- link:https://jira.talendforge.org/browse/TCOMP-924[TCOMP-924^]: component-kit.js errors are not sent to the error handler
+- link:https://jira.talendforge.org/browse/TCOMP-927[TCOMP-927^]: talend-component:web errors are not always unwrapped and understandable
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-929[TCOMP-929^]: Ensure category contains the family
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-918[TCOMP-918^]: create a mvn bom with tacokit stack to keep some dependencies aligned between component-runtime and it's studio integration
+- link:https://jira.talendforge.org/browse/TCOMP-932[TCOMP-932^]: Avoid Kafka recursive logging for component server
+
+
+== Version 1.0.3
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-919[TCOMP-919^]: Starter doesn't synchronize correctly with central versions
+- link:https://jira.talendforge.org/browse/TCOMP-920[TCOMP-920^]: Use Meecrowave 1.2.3
+
+
 == Version 1.0.2
 
 === Bug
@@ -8,6 +36,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-899[TCOMP-899^]: Update Beam 2.5.0 compatibility
 - link:https://jira.talendforge.org/browse/TCOMP-903[TCOMP-903^]: [tacokit studio integration] - Guess schema - better handling of number types recognition 
 - link:https://jira.talendforge.org/browse/TCOMP-904[TCOMP-904^]: [tacokit studio integration] - fix job classpath generation 
+- link:https://jira.talendforge.org/browse/TCOMP-913[TCOMP-913^]: Fix absolute path resolution for child of child use-case
 
 
 === New Feature
@@ -21,6 +50,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-905[TCOMP-905^]: Enrich scanning exclusion set
 - link:https://jira.talendforge.org/browse/TCOMP-906[TCOMP-906^]: Minimalist JsonObject to IndexeredRecord utilities for beam
 - link:https://jira.talendforge.org/browse/TCOMP-907[TCOMP-907^]: Support maxBatchSize as in the studio in Beam
+- link:https://jira.talendforge.org/browse/TCOMP-910[TCOMP-910^]: Add maxbatchsize as built in parameter to Processor meta model
+- link:https://jira.talendforge.org/browse/TCOMP-915[TCOMP-915^]: Upgrade Apache Meecrowave to 1.2.2
 
 
 == Version 1.0.1

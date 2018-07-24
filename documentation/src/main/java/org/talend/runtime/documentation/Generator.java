@@ -15,8 +15,10 @@
  */
 package org.talend.runtime.documentation;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 import static java.util.Locale.ENGLISH;
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.groupingBy;
@@ -51,6 +53,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -69,8 +72,6 @@ import javax.ws.rs.core.GenericType;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
-import org.apache.johnzon.mapper.Mapper;
-import org.apache.johnzon.mapper.MapperBuilder;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.JarArchive;
@@ -78,6 +79,7 @@ import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.AttributesBuilder;
 import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.SafeMode;
+import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
@@ -88,6 +90,7 @@ import org.talend.sdk.component.api.configuration.type.meta.ConfigurationType;
 import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.meta.Ui;
+import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
@@ -108,6 +111,7 @@ import org.talend.sdk.component.runtime.reflect.Defaults;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -118,14 +122,15 @@ import lombok.extern.slf4j.Slf4j;
 public class Generator {
 
     public static void main(final String[] args) throws Exception {
-        if (Boolean.parseBoolean(args[7])) {
+        if (Boolean.parseBoolean(args[7]) || Boolean.getBoolean(System.getenv("TRAVIS"))) {
             log.info("Skipping doc generation as requested");
             return;
         }
 
+        final Asciidoctor asciidoctor = Asciidoctor.Factory.create();
         final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
-        generateNav();
+        // generateNav(asciidoctor);
         generatedTypes(generatedDir);
         generatedConstraints(generatedDir);
         generatedConditions(generatedDir);
@@ -135,6 +140,7 @@ public class Generator {
         generatedProxyServerConfiguration(generatedDir);
         generatedJUnitEnvironment(generatedDir);
         generatedScanningExclusions(generatedDir);
+        generatedDocumentationIndex(generatedDir, asciidoctor);
 
         final boolean offline = "offline=true".equals(args[4]);
         if (offline) {
@@ -145,8 +151,51 @@ public class Generator {
         generatedJira(generatedDir, args[1], args[2], args[3]);
     }
 
-    private static void generateNav() throws IOException {
-        final Asciidoctor asciidoctor = Asciidoctor.Factory.create();
+    private static void generatedDocumentationIndex(final File generatedDir, final Asciidoctor asciidoctor)
+            throws Exception {
+        final File baseDir = jarLocation(Generator.class).getParentFile().getParentFile();
+        final File pages = new File(baseDir, "src/main/antora/modules/ROOT/pages/");
+
+        final Collection<DocumentationItem> items = Stream
+                .of(requireNonNull(pages.listFiles(), "Missing pages"))
+                .filter(f -> f.getName().endsWith(".adoc"))
+                .map(file -> {
+                    final Document document = asciidoctor.loadFile(file, emptyMap());
+                    if (document.getAttributes().keySet().stream().noneMatch(
+                            it -> it.startsWith("page-documentationindex"))) {
+                        return null;
+                    }
+                    final String name = file.getName();
+                    return new DocumentationItem(
+                            ofNullable(document.getAttribute("page-documentationindex-index"))
+                                    .map(String::valueOf)
+                                    .map(Integer::parseInt)
+                                    .orElse(Integer.MAX_VALUE),
+                            ofNullable(document.getAttribute("page-documentationindex-icon"))
+                                    .map(String::valueOf)
+                                    .orElse("link"),
+                            ofNullable(document.getAttribute("page-documentationindex-label"))
+                                    .map(String::valueOf)
+                                    .orElseGet(document::getTitle),
+                            ofNullable(document.getAttribute("page-documentationindex-description"))
+                                    .map(String::valueOf)
+                                    .orElseGet(() -> ofNullable(document.getDoctitle()).orElse(document.getTitle())),
+                            name.substring(0, name.length() - ".adoc".length()) + ".html");
+                })
+                .filter(Objects::nonNull)
+                .sorted(comparing(DocumentationItem::getIndex))
+                .collect(toList());
+
+        final File file = new File(generatedDir, "generated_documentationindex.adoc");
+        try (final Jsonb jsonb = newJsonb(); final OutputStream writer = new WriteIfDifferentStream(file)) {
+            writer.write("++++\n<jsonArray>".getBytes(StandardCharsets.UTF_8));
+            writer.write(jsonb.toJson(items).getBytes(StandardCharsets.UTF_8));
+            writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    @Deprecated // done manually now
+    private static void generateNav(final Asciidoctor asciidoctor) throws IOException {
         final File baseDir = jarLocation(Generator.class).getParentFile().getParentFile();
         final File pages = new File(baseDir, "src/main/antora/modules/ROOT/pages/");
         final Map<String, Object> options = OptionsBuilder
@@ -308,13 +357,10 @@ public class Generator {
             }
         }
         final File file = new File(generatedDir, "generated_contributors.adoc");
-        try (final Jsonb jsonb = JsonbBuilder.create(
-                new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL).withFormatting(
-                        true));
-                final OutputStream writer = new WriteIfDifferentStream(file)) {
-            writer.write("++++\n".getBytes(StandardCharsets.UTF_8));
-            jsonb.toJson(contributors, writer);
-            writer.write("\n++++".getBytes(StandardCharsets.UTF_8));
+        try (final Jsonb jsonb = newJsonb(); final OutputStream writer = new WriteIfDifferentStream(file)) {
+            writer.write("++++\n<jsonArray>".getBytes(StandardCharsets.UTF_8));
+            writer.write(jsonb.toJson(contributors).getBytes(StandardCharsets.UTF_8));
+            writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
         }
     }
 
@@ -533,19 +579,24 @@ public class Generator {
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder
-                    .findAnnotatedClasses(ActionType.class)
-                    .stream()
-                    .sorted(Comparator
-                            .comparing(t -> t.getAnnotation(ActionType.class).value() + "#" + t.getSimpleName()))
-                    .forEach(type -> {
-                        final ActionType actionType = type.getAnnotation(ActionType.class);
-                        final Class<?> returnedType = actionType.expectedReturnedType();
-                        stream.println("|@" + type.getName() + "|" + actionType.value() + "|" + extractDoc(type) + "|"
-                                + (returnedType == Object.class ? "any" : returnedType.getSimpleName()) + "|"
-                                + (returnedType != Object.class ? "`" + sample(returnedType).replace("\n", "") + "`"
-                                        : "-"));
-                    });
+            try (final Jsonb jsonb = newJsonb()) {
+                finder
+                        .findAnnotatedClasses(ActionType.class)
+                        .stream()
+                        .sorted(Comparator
+                                .comparing(t -> t.getAnnotation(ActionType.class).value() + "#" + t.getSimpleName()))
+                        .forEach(type -> {
+                            final ActionType actionType = type.getAnnotation(ActionType.class);
+                            final Class<?> returnedType = actionType.expectedReturnedType();
+                            stream.println("|@" + sanitizeType(type.getName()) + "|" + actionType.value() + "|"
+                                    + extractDoc(type) + "|"
+                                    + (returnedType == Object.class ? "any" : returnedType.getSimpleName()) + " a|"
+                                    + (returnedType != Object.class
+                                            ? "\n[source,js]\n----\n" + sample(jsonb, returnedType).replace("\n", "")
+                                                    + "\n----\n"
+                                            : "`-`"));
+                        });
+            }
             stream.println("|====");
             stream.println();
 
@@ -556,32 +607,34 @@ public class Generator {
         final File file = new File(generatedDir, "generated_ui.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println();
-            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
+            stream.println(
+                    "[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\",separator=#]");
             stream.println("|====");
-            stream.println("|API|Description|Generated property metadata");
+            stream.println("#API#Description#Generated property metadata");
             final File api = jarLocation(Ui.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
             final ParameterExtensionEnricher enricher = new UiParameterEnricher();
-            final Mapper mapper = new MapperBuilder().build();
-            finder.findAnnotatedClasses(Ui.class).stream().sorted(Comparator.comparing(Class::getName)).forEach(
-                    type -> {
-                        final Map<String, String> meta = enricher
-                                .onParameterAnnotation("theparameter", Object.class, generateAnnotation(type))
-                                .entrySet()
-                                .stream()
-                                .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue));
-                        stream.println("|@" + type.getName() + "|" + extractDoc(type) + "|"
-                                + mapper.writeObjectAsString(meta).replace("|", "\\|"));
-                    });
+            try (final Jsonb jsonb = newJsonb()) {
+                finder.findAnnotatedClasses(Ui.class).stream().sorted(Comparator.comparing(Class::getName)).forEach(
+                        type -> {
+                            final Map<String, String> meta = new TreeMap<>(enricher
+                                    .onParameterAnnotation("theparameter", Object.class, generateAnnotation(type))
+                                    .entrySet()
+                                    .stream()
+                                    .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)));
+                            stream.println("#@" + sanitizeType(type.getName()) + "#" + extractDoc(type)
+                                    + " a#\n[source,js]\n----\n" + jsonb.toJson(meta) + "\n----\n");
+                        });
+            }
             stream.println("|====");
             stream.println();
 
         }
     }
 
-    private static String sample(final Class<?> returnedType) {
+    private static String sample(final Jsonb jsonb, final Class<?> returnedType) {
         if (returnedType == Values.class) {
             final Values list = new Values();
             list.setItems(new ArrayList<>());
@@ -591,7 +644,7 @@ public class Generator {
             item.setLabel("label");
             list.getItems().add(item);
 
-            return new MapperBuilder().setPretty(false).build().writeObjectAsString(list);
+            return jsonb.toJson(list);
         }
         if (returnedType == SuggestionValues.class) {
             final SuggestionValues list = new SuggestionValues();
@@ -602,13 +655,13 @@ public class Generator {
             item.setLabel("label");
             list.getItems().add(item);
 
-            return new MapperBuilder().setPretty(false).build().writeObjectAsString(list);
+            return jsonb.toJson(list);
         }
         if (returnedType == HealthCheckStatus.class) {
             final HealthCheckStatus status = new HealthCheckStatus();
             status.setStatus(HealthCheckStatus.Status.KO);
             status.setComment("Something went wrong");
-            return new MapperBuilder().setPretty(false).build().writeObjectAsString(status);
+            return jsonb.toJson(status);
         }
         if (returnedType == Schema.class) {
             final Schema.Entry entry = new Schema.Entry();
@@ -618,13 +671,13 @@ public class Generator {
             final Schema schema = new Schema();
             schema.setEntries(new ArrayList<>());
             schema.getEntries().add(entry);
-            return new MapperBuilder().setPretty(false).build().writeObjectAsString(schema);
+            return jsonb.toJson(schema);
         }
         if (returnedType == ValidationResult.class) {
             final ValidationResult status = new ValidationResult();
             status.setStatus(ValidationResult.Status.KO);
             status.setComment("Something went wrong");
-            return new MapperBuilder().setPretty(false).build().writeObjectAsString(status);
+            return jsonb.toJson(status);
         }
         return "{\n" + Stream
                 .of(returnedType.getDeclaredFields())
@@ -650,21 +703,24 @@ public class Generator {
             final File api = jarLocation(Condition.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final ConditionParameterEnricher enricher = new ConditionParameterEnricher();
-            final Mapper mapper = new MapperBuilder().build();
-            final AnnotationFinder finder = new AnnotationFinder(
-                    api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder
-                    .findAnnotatedClasses(Condition.class)
-                    .stream()
-                    .sorted(comparing(Class::getName))
-                    .forEach(type -> stream.println("|@" + type.getName() + "|"
-                            + type.getAnnotation(Condition.class).value() + "|" + extractDoc(type) + "|"
-                            + mapper
-                                    .writeObjectAsString(enricher.onParameterAnnotation("test", String.class,
-                                            generateAnnotation(type)))
-                                    .replace("tcomp::", "")));
-            stream.println("|====");
-            stream.println();
+            try (final Jsonb jsonb = newJsonb()) {
+                final AnnotationFinder finder = new AnnotationFinder(
+                        api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
+                finder
+                        .findAnnotatedClasses(Condition.class)
+                        .stream()
+                        .sorted(comparing(Class::getName))
+                        .forEach(type -> stream.println(
+                                "|@" + sanitizeType(type.getName()) + "|" + type.getAnnotation(Condition.class).value()
+                                        + "|" + extractDoc(type) + " a|\n[source,js]\n----\n"
+                                        + jsonb
+                                                .toJson(enricher.onParameterAnnotation("test", String.class,
+                                                        generateAnnotation(type)))
+                                                .replace("tcomp::", "")
+                                        + "\n----\n"));
+                stream.println("|====");
+                stream.println();
+            }
 
         }
     }
@@ -679,17 +735,20 @@ public class Generator {
             final File api = jarLocation(ConfigurationType.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final ConfigurationTypeParameterEnricher enricher = new ConfigurationTypeParameterEnricher();
-            final Mapper mapper = new MapperBuilder().build();
             final AnnotationFinder finder = new AnnotationFinder(
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-            finder
-                    .findAnnotatedClasses(ConfigurationType.class)
-                    .stream()
-                    .sorted(comparing(Class::getName))
-                    .forEach(type -> stream.println("|" + type.getName() + "|"
-                            + type.getAnnotation(ConfigurationType.class).value() + "|" + extractDoc(type) + "|"
-                            + mapper.writeObjectAsString(
-                                    enricher.onParameterAnnotation("value", String.class, generateAnnotation(type)))));
+            try (final Jsonb jsonb = newJsonb()) {
+                finder
+                        .findAnnotatedClasses(ConfigurationType.class)
+                        .stream()
+                        .sorted(comparing(Class::getName))
+                        .forEach(
+                                type -> stream.println("|" + sanitizeType(type.getName()) + "|"
+                                        + type.getAnnotation(ConfigurationType.class).value() + "|" + extractDoc(type)
+                                        + " a|\n[source,js]\n----\n" + jsonb.toJson(enricher
+                                                .onParameterAnnotation("value", String.class, generateAnnotation(type)))
+                                        + "\n----\n"));
+            }
             stream.println("|====");
             stream.println();
 
@@ -708,31 +767,33 @@ public class Generator {
             final AnnotationFinder finder = new AnnotationFinder(
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
             final ValidationParameterEnricher enricher = new ValidationParameterEnricher();
-            final Mapper mapper = new MapperBuilder().build();
-            Stream.concat(finder.findAnnotatedClasses(Validation.class).stream().map(validation -> {
-                final Validation val = validation.getAnnotation(Validation.class);
-                return createConstraint(validation, val);
+            try (final Jsonb jsonb = newJsonb()) {
+                Stream.concat(finder.findAnnotatedClasses(Validation.class).stream().map(validation -> {
+                    final Validation val = validation.getAnnotation(Validation.class);
+                    return createConstraint(validation, val);
 
-            }), finder.findAnnotatedClasses(Validations.class).stream().flatMap(
-                    validations -> Stream.of(validations.getAnnotation(Validations.class).value()).map(
-                            validation -> createConstraint(validations, validation))))
-                    .sorted((o1, o2) -> {
-                        final int types = Stream.of(o1.types).map(Class::getName).collect(joining("/")).compareTo(
-                                Stream.of(o2.types).map(Class::getName).collect(joining("/")));
-                        if (types == 0) {
-                            return o1.name.compareTo(o2.name);
-                        }
-                        return types;
-                    })
-                    .forEach(constraint -> stream.println("|@" + constraint.marker.getName() + "|" + constraint.name
-                            + "|" + sanitizeType(constraint.paramType) + "|" + constraint.description + "|"
-                            + Stream.of(constraint.types).map(Class::getName).map(Generator::sanitizeType).collect(
-                                    joining(", "))
-                            + "|"
-                            + mapper
-                                    .writeObjectAsString(enricher.onParameterAnnotation("test", constraint.types[0],
-                                            generateAnnotation(constraint.marker)))
-                                    .replace("tcomp::", "")));
+                }), finder.findAnnotatedClasses(Validations.class).stream().flatMap(
+                        validations -> Stream.of(validations.getAnnotation(Validations.class).value()).map(
+                                validation -> createConstraint(validations, validation))))
+                        .sorted((o1, o2) -> {
+                            final int types = Stream.of(o1.types).map(Class::getName).collect(joining("/")).compareTo(
+                                    Stream.of(o2.types).map(Class::getName).collect(joining("/")));
+                            if (types == 0) {
+                                return o1.name.compareTo(o2.name);
+                            }
+                            return types;
+                        })
+                        .forEach(constraint -> stream.println("|@" + constraint.marker.getName() + "|" + constraint.name
+                                + "|" + sanitizeType(constraint.paramType) + "|" + constraint.description + "|"
+                                + Stream.of(constraint.types).map(Class::getName).map(Generator::sanitizeType).collect(
+                                        joining(", "))
+                                + " a|\n[source,js]\n----\n"
+                                + jsonb
+                                        .toJson(enricher.onParameterAnnotation("test", constraint.types[0],
+                                                generateAnnotation(constraint.marker)))
+                                        .replace("tcomp::", "")
+                                + "\n----\n"));
+            }
             stream.println("|====");
             stream.println();
 
@@ -740,7 +801,7 @@ public class Generator {
     }
 
     private static String sanitizeType(final String s) {
-        return s.replace("java.lang.", "").replace("java.util.", "");
+        return s.replace("java.lang.", "").replace("java.util.", "").replace("org.talend.sdk.component", "o.t.s.c");
     }
 
     private static Constraint createConstraint(final Class<?> validation, final Validation val) {
@@ -749,7 +810,8 @@ public class Generator {
     }
 
     private static String extractDoc(final Class<?> validation) {
-        return ofNullable(validation.getAnnotation(Documentation.class)).map(Documentation::value).orElse("-");
+        return ofNullable(validation.getAnnotation(Documentation.class)).map(Documentation::value).orElse("-").replace(
+                "|", "\\|");
     }
 
     private static String getParamType(final Class<?> validation) {
@@ -780,6 +842,9 @@ public class Generator {
                     if (int.class == returnType) {
                         return 1234;
                     }
+                    if (boolean.class == returnType) {
+                        return false;
+                    }
                     if (double.class == returnType) {
                         return 12.34;
                     }
@@ -791,6 +856,12 @@ public class Generator {
                     }
                     if (String[].class == returnType) {
                         return new String[] { "value1", "value2" };
+                    }
+                    if (ActiveIf.EvaluationStrategy.class == returnType) {
+                        return ActiveIf.EvaluationStrategy.DEFAULT;
+                    }
+                    if (Structure.Type.class == returnType) {
+                        return Structure.Type.IN;
                     }
                     if (GridLayout.Row[].class == returnType) {
                         return new GridLayout.Row[] { new GridLayout.Row() {
@@ -831,6 +902,16 @@ public class Generator {
                             }
 
                             @Override
+                            public boolean negate() {
+                                return false;
+                            }
+
+                            @Override
+                            public EvaluationStrategy evaluationStrategy() {
+                                return EvaluationStrategy.DEFAULT;
+                            }
+
+                            @Override
                             public Class<? extends Annotation> annotationType() {
                                 return ActiveIf.class;
                             }
@@ -844,6 +925,16 @@ public class Generator {
                             @Override
                             public String[] value() {
                                 return new String[] { "SELECTED" };
+                            }
+
+                            @Override
+                            public boolean negate() {
+                                return true;
+                            }
+
+                            @Override
+                            public EvaluationStrategy evaluationStrategy() {
+                                return EvaluationStrategy.LENGTH;
                             }
 
                             @Override
@@ -924,6 +1015,12 @@ public class Generator {
                 });
     }
 
+    private static Jsonb newJsonb() {
+        return JsonbBuilder.create(
+                new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL).withFormatting(
+                        true));
+    }
+
     @RequiredArgsConstructor
     private static final class Constraint {
 
@@ -992,6 +1089,22 @@ public class Generator {
         private Status status;
 
         private Collection<JiraVersion> fixVersions;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DocumentationItem {
+
+        private int index;
+
+        private String icon;
+
+        private String label;
+
+        private String description;
+
+        private String link;
     }
 
     @Data

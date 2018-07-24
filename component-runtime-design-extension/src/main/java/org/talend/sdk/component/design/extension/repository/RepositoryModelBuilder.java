@@ -45,15 +45,15 @@ public class RepositoryModelBuilder {
                         .flatMap(b -> b.getParameterMetas().stream())
                         .flatMap(this::flatten)
                         .filter(RepositoryModelBuilder::isConfiguration)
-                        .map(p -> createConfig(services, p, familyMeta.getName(), familyMeta.getIcon(),
-                                migrationHandlerFactory))
+                        .map(p -> createConfig(familyMeta.getPlugin(), services, p, familyMeta.getName(),
+                                familyMeta.getIcon(), migrationHandlerFactory))
                         .collect(toMap(c -> c.getMeta().getJavaType(), identity(), (config1, config2) -> config1,
                                 LinkedHashMap::new))
                         .values()
                         .stream()
                         .collect(() -> {
                             final Family family = new Family();
-                            family.setId(IdGenerator.get(familyMeta.getName()));
+                            family.setId(familyMeta.getId());
                             family.setMeta(familyMeta);
                             return family;
                         }, (aggregator, item) -> {
@@ -87,13 +87,15 @@ public class RepositoryModelBuilder {
         return Stream.concat(meta.getNestedParameters().stream().flatMap(this::flatten), Stream.of(meta));
     }
 
-    private Config createConfig(final ComponentManager.AllServices services, final ParameterMeta config,
-            final String familyName, final String familyIcon, final MigrationHandlerFactory migrationHandlerFactory) {
+    private Config createConfig(final String plugin, final ComponentManager.AllServices services,
+            final ParameterMeta config, final String familyName, final String familyIcon,
+            final MigrationHandlerFactory migrationHandlerFactory) {
         final Config c = new Config();
         c.setIcon(familyIcon);
         c.setKey(getKey(familyName, config.getMetadata()));
         c.setMeta(config);
-        c.setId(IdGenerator.get(c.getKey().getFamily(), c.getKey().getConfigType(), c.getKey().getConfigName()));
+        c.setId(IdGenerator.get(plugin, c.getKey().getFamily(), c.getKey().getConfigType(),
+                c.getKey().getConfigName()));
 
         if (Class.class.isInstance(config.getJavaType())) {
             final Class<?> clazz = Class.class.cast(config.getJavaType());

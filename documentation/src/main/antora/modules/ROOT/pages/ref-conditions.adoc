@@ -1,0 +1,4 @@
+= Conditions
+:page-partial:
+
+include::{partialsdir}/generated_conditions.adoc[leveloffset=+1]

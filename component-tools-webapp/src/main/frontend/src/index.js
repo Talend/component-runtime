@@ -29,11 +29,11 @@ import 'brace/snippets/sql';
 import 'brace/snippets/python';
 
 import components from './components';
-import kit from '@talend/react-components-kit';
+import ComponentForm from '@talend/react-containers/lib/ComponentForm';
 import reducer from './store/reducers';
 
 cmf.bootstrap({
-  components: { ...kit, ...components },
+  components: { ComponentForm, ...components },
   reducer,
   appId: 'component-kit-tools-webapp',
 });

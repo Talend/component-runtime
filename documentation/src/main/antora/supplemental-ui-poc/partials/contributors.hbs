@@ -1,0 +1,14 @@
+<div class="row contributors">
+    {{#readJSON contents 'contributors'}}
+    <div class="contributor">
+        <div>
+            <img alt="{{name}}" src="{{gravatar}}">
+        </div>
+        <div>
+            <h3 class="contributor-name">{{name}}</h3>
+            <h3 class="contributor-commits">#{{commits}} {{pluralize commits 'commit'}}</h3>
+            <p class="contributor-description">{{description}}</p>
+        </div>
+    </div>
+    {{/readJSON}}
+</div>

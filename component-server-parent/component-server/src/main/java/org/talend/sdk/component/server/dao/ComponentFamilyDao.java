@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
-import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 
 @ApplicationScoped
 public class ComponentFamilyDao {
@@ -29,7 +28,7 @@ public class ComponentFamilyDao {
     private Map<String, ComponentFamilyMeta> data = new ConcurrentHashMap<>();
 
     public String createOrUpdate(final ComponentFamilyMeta meta) {
-        final String id = IdGenerator.get(meta.getName());
+        final String id = meta.getId();
         data.put(id, meta);
         return id;
     }

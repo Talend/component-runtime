@@ -1,36 +1,21 @@
-= Talend Component Kit Developer Reference Guide
-:page-partial:
+= Talend Component Kit Developer Guide
+:page-talend_documentationindex: true
+
+Talend Component Kit is a framework designed to help you create Talend components for both Talend Studio and Cloud applications. +
+This framework unifies the way components are built to ensure they are standardized and easy to deploy in different environments, as well as 'upgrade-compliant' as Talend applications are getting updated on a regular basis.
 
 ifeval::["{backend}" == "html5"]
 ifeval::["{page-origin-refname}" == "master"]
 
-IMPORTANT: This is a version under development which has not yet been deployed.
-You can however use it using the `-SNAPSHOT` version and Sonatype snapshot https://oss.sonatype.org/content/repositories/snapshots/[repository].
+IMPORTANT: This is a version under development which has not yet been deployed. You can however use it using the `-SNAPSHOT` version and Sonatype snapshot https://oss.sonatype.org/content/repositories/snapshots/[repository].
 
-TIP: If you want a PDF version of that page you can find it in our snapshots:
-https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation&v={page-component-version}-SNAPSHOT&e=pdf&c=all-in-one[PDF].
+TIP: If you want a PDF version of that page you can find it in our snapshots: https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation&v={page-component-version}-SNAPSHOT&e=pdf&c=all-in-one[PDF].
 endif::[]
 
 ifeval::["{page-origin-refname}" != "master"]
-NOTE: If you want a PDF version of that page just click on
-this http://repo.apache.maven.org/maven2/org/talend/sdk/component/documentation/{page-component-version}/documentation-{page-component-version}-all-in-one.pdf[link].
+NOTE: A complete PDF version of this documentation is available http://repo.apache.maven.org/maven2/org/talend/sdk/component/documentation/{page-component-version}/documentation-{page-component-version}-all-in-one.pdf[here].
 endif::[]
 endif::[]
 
-NOTE: If you prefer you can use the <<all-in-one.adoc#, single page>> documentation.
-
-= Table Of Contents
-
-* <<documentation-overview.adoc#, Overview>>
-* <<getting-started.adoc#, Getting Started>>
-* <<documentation.adoc#, Reference Guide>>
-* <<documentation-testing.adoc#, Testing>>
-* <<best-practices.adoc#, Best Practices>>
-* <<design.adoc#, Design choices>>
-* <<wrapping-a-beam-io.adoc#, How to wrap a Beam I/O>>
-* <<documentation-rest.adoc#, Web>>
-* <<studio.adoc#, Talend Studio Integration>>
-* <<changelog.adoc#, Changelog>>
-* <<contributors.adoc#, Wall Of Fame>>
-* <<apidocs.adoc#, API Documentation>>
-* <<appendix.adoc#, Appendix>>
+[role="json"]
+include::{partialsdir}/generated_documentationindex.adoc[]

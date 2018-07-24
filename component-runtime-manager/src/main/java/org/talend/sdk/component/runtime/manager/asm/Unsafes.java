@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.manager.asm;
 
+import static java.util.Objects.requireNonNull;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -61,8 +63,8 @@ public class Unsafes {
                 try {
                     return unsafeClass.getDeclaredMethod("defineClass", String.class, byte[].class, int.class,
                             int.class, ClassLoader.class, ProtectionDomain.class);
-                } catch (Exception e) {
-                    throw new IllegalStateException("Cannot get Unsafe.defineClass", e);
+                } catch (final Exception e) {
+                    return null;
                 }
             });
         } else {
@@ -110,6 +112,7 @@ public class Unsafes {
                 definedClass =
                         (Class<T>) defineClassMethod.invoke(classLoader, proxyName, proxyBytes, 0, proxyBytes.length);
             } else {
+                requireNonNull(UNSAFE_DEFINE_CLASS, "No Unsafe.defineClass available");
                 definedClass = (Class<T>) UNSAFE_DEFINE_CLASS.invoke(UNSAFE, proxyName, proxyBytes, 0,
                         proxyBytes.length, classLoader, null);
             }

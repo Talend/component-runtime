@@ -106,6 +106,7 @@ import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.internationalization.Internationalized;
+import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
@@ -129,6 +130,7 @@ import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
 import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
+import org.talend.sdk.component.runtime.manager.builtinparams.MaxBatchSizeParamBuilder;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
 import org.talend.sdk.component.runtime.manager.interceptor.InterceptorHandlerFacade;
@@ -491,12 +493,7 @@ public class ComponentManager implements AutoCloseable {
 
     protected static File findM2() {
         return ofNullable(System.getProperty("talend.component.manager.m2.repository")).map(File::new).orElseGet(() -> {
-            // check if we
-            // are in the
-            // studio and
-            // if so just
-            // grab the the
-            // studio config,
+            // check if we are in the studio process if so just grab the the studio config
             final String m2Repo = System.getProperty("maven.repository");
             if (!"global".equals(m2Repo)) {
                 final File localM2 = new File(System.getProperty("osgi.configuration.area"), ".m2");
@@ -520,7 +517,11 @@ public class ComponentManager implements AutoCloseable {
                 final Document document = builder.parse(settings);
                 final XPathFactory xpf = XPathFactory.newInstance();
                 final XPath xp = xpf.newXPath();
-                return new File(xp.evaluate("//settings/localRepository/text()", document.getDocumentElement()));
+                final String localM2RepositoryFromSettings =
+                        xp.evaluate("//settings/localRepository/text()", document.getDocumentElement());
+                if (localM2RepositoryFromSettings != null && !localM2RepositoryFromSettings.isEmpty()) {
+                    return new File(localM2RepositoryFromSettings);
+                }
             } catch (final Exception ignore) {
                 // fallback on default local path
             }
@@ -985,6 +986,8 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onCreate(final Container container) {
             final ConfigurableClassLoader loader = container.getLoader();
+            final OriginalId originalId = OriginalId.class.cast(container.get(OriginalId.class));
+
             final AnnotationFinder finder;
             Archive archive = null;
             try {
@@ -992,8 +995,7 @@ public class ComponentManager implements AutoCloseable {
                  * container.findExistingClasspathFiles() - we just scan the root module for
                  * now, no need to scan all the world
                  */
-                archive = toArchive(container.getRootModule(), OriginalId.class.cast(container.get(OriginalId.class)),
-                        loader);
+                archive = toArchive(container.getRootModule(), originalId, loader);
 
                 // undocumented scanning config for now since we would document it only if
                 // proven useful
@@ -1410,6 +1412,7 @@ public class ComponentManager implements AutoCloseable {
             final Constructor<?> constructor = findConstructor(type);
             final List<ParameterMeta> parameterMetas =
                     parameterModelService.buildParameterMetas(constructor, getPackage(type));
+            addProcessorsBuiltInParameters(type, parameterMetas);
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(processor.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
@@ -1439,6 +1442,40 @@ public class ComponentManager implements AutoCloseable {
                             parameterMetas, instantiator,
                             migrationHandlerFactory.findMigrationHandler(parameterMetas, type, services),
                             !context.isNoValidation()));
+        }
+
+        private void addProcessorsBuiltInParameters(final Class<?> type, final List<ParameterMeta> parameterMetas) {
+            final ParameterMeta root =
+                    parameterMetas.stream().filter(p -> p.getName().equals(p.getPath())).findFirst().orElseGet(() -> {
+                        final ParameterMeta umbrella = new ParameterMeta(new ParameterMeta.Source() {
+
+                            @Override
+                            public String name() {
+                                return "$configuration";
+                            }
+
+                            @Override
+                            public Class<?> declaringClass() {
+                                return Object.class;
+                            }
+                        }, Object.class, ParameterMeta.Type.OBJECT, "$configuration", "$configuration", new String[0],
+                                new ArrayList<>(), new ArrayList<>(), new HashMap<>(), true);
+                        parameterMetas.add(umbrella);
+                        return umbrella;
+                    });
+
+            if (Stream.of(type.getMethods()).anyMatch(p -> p.isAnnotationPresent(AfterGroup.class))) {
+                final MaxBatchSizeParamBuilder paramBuilder = new MaxBatchSizeParamBuilder(root);
+                final ParameterMeta maxBatchSize = paramBuilder.newBulkParameter();
+                root.getNestedParameters().add(maxBatchSize);
+                if (!root.getMetadata().containsKey(paramBuilder.getLayoutType())) {
+                    root.getMetadata().put(paramBuilder.getLayoutType(),
+                            paramBuilder.getLayoutType().contains("gridlayout") ? maxBatchSize.getName() : "true");
+                } else if (paramBuilder.getLayoutType().contains("gridlayout")) {
+                    final String oldLayout = root.getMetadata().get(paramBuilder.getLayoutType());
+                    root.getMetadata().put(paramBuilder.getLayoutType(), maxBatchSize.getName() + "|" + oldLayout);
+                }
+            }
         }
 
         private String getPackage(final Class<?> type) {

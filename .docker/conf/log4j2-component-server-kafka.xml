@@ -32,6 +32,7 @@
     </Kafka>
   </Appenders>
   <Loggers>
+    <Logger name="org.apache.kafka" level="INFO" /> <!-- avoid recursive logging -->
     <Logger name="org.talend.sdk.component.server.front.monitoring.MonitoringLogger"
             level="INFO"
             additivity="false">
