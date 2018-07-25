@@ -2,7 +2,7 @@
 :page-partial:
 
 [[tutorial-create-an-input-component]]
-This tutorial shows how to create a complete working input component for xref:https://hazelcast.org/[Hazelcast], including:
+This tutorial shows how to create a complete working input component for https://hazelcast.org[Hazelcast], including:
 
 1. Registering the component family.
 2. Defining the configurable part and the layout of the component.
@@ -25,6 +25,7 @@ package org.talend.hazelcast;
 <2> In this line we define the component family and the component categories.
 Those information are used in the web and studio applications to group the components.
 
+[[defining-component-configuration]]
 == Defining the configurable part and the layout of the component
 The component configuration includes defining the part of the components that can be configured once integrated to Talend solutions, in addition to the configuration type and the UI layout.
 
@@ -155,6 +156,7 @@ protected HazelcastMapper(final HazelcastConfiguration configuration,
 <2> Define the component public constructor, which is responsible for injecting configuration and services.
 <3> Add an internal constructor to get the collection of the Hazelcast cluster members.
 
+[[post-construct-method]]
 === Defining the PostConstruct method
 The @PostConstruct method is used to initialize a Hazelcast client instance.
 
@@ -302,7 +304,7 @@ public HazelcastSource createSource() {
 <1> After splitting the mapper, every mapper creates a producer that reads the records according to the provided configuration.
 
 === Full implementation of the Partition Mapper
-Once implemented, the Partition Mapper configuration is as follows. For more information about Partition Mappers, refer to xref:component-definition.adoc#_partitionmapper[this document].
+Once implemented, the Partition Mapper configuration is as follows. For more information about Partition Mappers, refer to xref:component-definition.adoc#partition-mapper[this document].
 [source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
 ----
 @Version(1) <1>

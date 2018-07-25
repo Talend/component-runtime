@@ -87,7 +87,7 @@ class ComponentManagerServiceTest {
                 .getComponents()
                 .values()
                 .stream()
-                .map(f -> IdGenerator.get(f.getName()))
+                .map(f -> IdGenerator.get(f.getPlugin(), f.getName()))
                 .collect(toSet());
 
         componentIds.forEach(id -> assertNotNull(componentDao.findById(id)));

@@ -1,0 +1,19 @@
+= component-runtime-testing
+:page-partial:
+
+include::testing-junit.adoc[]
+
+include::testing-spark.adoc[]
+
+include::testing-http.adoc[]
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:testing-best-practices.adoc[Component testing best practices]
+- xref:testing-beam.adoc[Beam testing]
+- xref:testing-multiple-envs.adoc[Testing in multiple environments]
+- xref:testing-maven-passwords.adoc[Reusing Maven credentials]
+- xref:testing-generating-data.adoc[Generating data for testing]
+- xref:services-pipeline.adoc[Simple/Test Pipeline API]
+endif::[]

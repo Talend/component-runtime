@@ -48,7 +48,7 @@ public class AbsolutePathResolver {
             return current + (!ref.isEmpty() ? "." : "") + ref.replace('/', '.');
         }
         if (paramRef.startsWith(".") || paramRef.startsWith("./")) {
-            return propPath + '.' + paramRef.replaceFirst("\\./?", "").replace('/', '/');
+            return propPath + '.' + paramRef.replaceFirst("\\./?", "").replace('/', '.');
         }
         return paramRef;
     }

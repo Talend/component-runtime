@@ -40,9 +40,7 @@ output:
  dir: ../../../target/${project.artifactId}-${project.version}
 asciidoc:
   attributes:
-    project_version: ${versions.release}
     deploymentRoot: ${site.rootpath}
-    numbered: true
     hide-uri-scheme: true
     icons: font
     icon-set: octicon

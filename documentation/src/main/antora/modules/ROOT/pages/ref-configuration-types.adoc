@@ -1,0 +1,4 @@
+= Configuration types
+:page-partial:
+
+include::{partialsdir}/generated_configuration-types.adoc[leveloffset=+1]

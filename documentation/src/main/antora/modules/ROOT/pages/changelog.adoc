@@ -1,4 +1,8 @@
-= Talend Component Kit Changelog
+= Changelog
 :page-partial:
+:page-documentationindex-index: 10000
+:page-documentationindex-label: Changelog
+:page-documentationindex-icon: pen
+:page-documentationindex-description: See the latest changes of the framework
 
 include::{partialsdir}/generated_changelog.adoc[]

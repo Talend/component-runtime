@@ -19,7 +19,7 @@
 -->
 <Configuration status="INFO">
   <Properties>
-    <Property name="jsonLayout">{"severity":"%level","logMessage":"%encode{%message}{JSON}","logTimestamp":"%d{ISO8601}{UTC}","eventUUID":"%uuid{RANDOM}","@version":"1","logger.name":"%encode{%logger}{JSON}","host.name":"${hostName}","threadName":"%encode{%thread}{JSON}","stackTrace":"%encode{%xThrowable{full}}{JSON}"}%n</Property>
+    <Property name="jsonLayout">{"service":"${env:APP_SERVICE:-component-server}","application":"${env:APP_APPLICATION:-component-server}","severity":"%level","logMessage":"%encode{%message}{JSON}","logTimestamp":"%d{ISO8601}{UTC}","eventUUID":"%uuid{RANDOM}","@version":"1","logger.name":"%encode{%logger}{JSON}","host.name":"${hostName}","threadName":"%encode{%thread}{JSON}","stackTrace":"%encode{%xThrowable{full}}{JSON}"}%n</Property>
   </Properties>
   <Appenders>
     <Kafka name="KafkaTracing" topic="${env:TRACING_KAFKA_TOPIC}" syncSend="false" >
@@ -32,6 +32,7 @@
     </Kafka>
   </Appenders>
   <Loggers>
+    <Logger name="org.apache.kafka" level="INFO" /> <!-- avoid recursive logging -->
     <Logger name="org.talend.sdk.component.server.front.monitoring.MonitoringLogger"
             level="INFO"
             additivity="false">

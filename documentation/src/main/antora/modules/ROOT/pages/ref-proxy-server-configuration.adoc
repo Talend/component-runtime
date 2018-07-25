@@ -1,0 +1,4 @@
+= Proxy server configuration
+:page-partial:
+
+include::{partialsdir}/generated_proxy-server-configuration.adoc[leveloffset=+1]

@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-form</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -35,8 +35,7 @@
   </properties>
 
   <modules>
-    <module>component-server-proxy</module>
-    <module>component-server-proxy-play</module>
     <module>component-server-proxy-dependencies</module>
+    <module>component-server-proxy</module>
   </modules>
 </project>

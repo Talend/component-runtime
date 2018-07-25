@@ -284,7 +284,6 @@ class ComponentResourceTest {
         assertEquals(plugin, data.getId().getPlugin());
         assertEquals(displayName, data.getDisplayName());
         assertEquals(version, data.getVersion());
-        assertEquals(singletonList("Misc"), data.getCategories());
         assertEquals(1, data.getLinks().size());
         final Link link = data.getLinks().iterator().next();
         assertEquals("Detail", link.getName());
@@ -296,7 +295,9 @@ class ComponentResourceTest {
             assertEquals("db-input", data.getIcon().getIcon());
             assertNotNull(data.getIcon().getCustomIcon());
             assertEquals("image/png", data.getIcon().getCustomIconType());
+            assertEquals(singletonList("DB/Std/Yes"), data.getCategories());
         } else {
+            assertEquals(singletonList("Misc/" + data.getFamilyDisplayName()), data.getCategories());
             assertEquals("default", data.getIcon().getIcon());
         }
     }

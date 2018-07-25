@@ -16,6 +16,7 @@
 package org.talend.sdk.component.form.model.uischema;
 
 import static java.util.Arrays.asList;
+import static java.util.Locale.ROOT;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -90,11 +91,30 @@ public class UiSchema {
 
         private Collection<Object> values;
 
+        private boolean shouldBe;
+
+        private String strategy;
+
         public static final class Builder {
 
             private String path;
 
             private Collection<Object> values;
+
+            private boolean shouldBe;
+
+            private String strategy;
+
+            public Builder withShouldBe(final boolean value) {
+                this.shouldBe = value;
+                return this;
+            }
+
+            public Builder withStrategy(final String strategy) {
+                this.strategy =
+                        strategy == null || "DEFAULT".equals(strategy) ? null : strategy.trim().toLowerCase(ROOT);
+                return this;
+            }
 
             public Builder withPath(final String path) {
                 this.path = path;
@@ -121,6 +141,8 @@ public class UiSchema {
                 final Condition nameValue = new Condition();
                 nameValue.setPath(path);
                 nameValue.setValues(values);
+                nameValue.setShouldBe(shouldBe);
+                nameValue.setStrategy(strategy);
                 return nameValue;
             }
         }
