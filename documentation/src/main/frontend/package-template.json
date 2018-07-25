@@ -7,12 +7,10 @@
     "@antora/cli": "${antora.version}",
     "@antora/site-generator-default": "${antora.version}",
     "asciidoctor.js": "1.5.7-beta.1",
-    "instantsearch.js": "2.7.4",
-    "algolia-webcrawler": "2.3.0"
+    "instantsearch.js": "2.7.4"
   },
   "scripts": {
     "antora:build": "antora --stacktrace ../antora/site.yml",
-    "antora:${antora.dev.site.mode}": "antora --stacktrace ../antora/site-${antora.dev.site.mode}.yml",
-    "algolia:index": "algolia-webcrawler --config algolia/config.json"
+    "antora:${antora.dev.site.mode}": "antora --stacktrace ../antora/site-${antora.dev.site.mode}.yml"
   }
 }

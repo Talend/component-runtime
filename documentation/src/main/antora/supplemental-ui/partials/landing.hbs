@@ -1,0 +1,18 @@
+{{>header-content headerClass='landing' doc=true}}
+
+<main aria-label="Content" class="landing main">
+  <div class="container landing-container">
+    <div class="landing-content">
+      {{{page.contents}}}
+    </div>
+  </div>
+  {{>footer-content footerClass='landing'}}
+</main>
+
+<script>
+(function () {
+  window.talend = (window.talend || {});
+  window.talend.skipHighlightJs = true;
+  window.talend.landing = true;
+})();
+</script>

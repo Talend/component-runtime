@@ -69,6 +69,13 @@
     "index":9000,
     "label":"Knowledge base",
     "link":"index-knowledge-base.html"
+  },
+  {
+    "description":"See the latest changes of the framework",
+    "icon":"pen",
+    "index":10000,
+    "label":"Changelog",
+    "link":"changelog.html"
   }
 ]</jsonArray>
 ++++

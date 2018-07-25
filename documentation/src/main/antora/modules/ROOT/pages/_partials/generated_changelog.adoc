@@ -7,6 +7,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-922[TCOMP-922^]: component manager : support loading dependencies from job lib folder.
 - link:https://jira.talendforge.org/browse/TCOMP-924[TCOMP-924^]: component-kit.js errors are not sent to the error handler
 - link:https://jira.talendforge.org/browse/TCOMP-927[TCOMP-927^]: talend-component:web errors are not always unwrapped and understandable
+- link:https://jira.talendforge.org/browse/TCOMP-934[TCOMP-934^]: Ensure Studio rely on category and doesn't append family name
 
 
 === New Feature
@@ -18,6 +19,8 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-918[TCOMP-918^]: create a mvn bom with tacokit stack to keep some dependencies aligned between component-runtime and it's studio integration
 - link:https://jira.talendforge.org/browse/TCOMP-932[TCOMP-932^]: Avoid Kafka recursive logging for component server
+- link:https://jira.talendforge.org/browse/TCOMP-933[TCOMP-933^]: Drop component-kit.js module
+- link:https://jira.talendforge.org/browse/TCOMP-935[TCOMP-935^]: Component server should log application and service in kafka mode
 
 
 == Version 1.0.3

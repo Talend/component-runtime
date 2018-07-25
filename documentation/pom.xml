@@ -45,6 +45,7 @@
     <!-- alpha-16 in mvn, alpha.16 in gem -->
     <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
     <jsoup.version>1.11.2</jsoup.version>
+    <crawler-commons.version>0.10</crawler-commons.version>
   </properties>
 
   <dependencies>
@@ -156,6 +157,19 @@
       <version>${jruby.version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.github.crawler-commons</groupId>
+      <artifactId>crawler-commons</artifactId>
+      <version>${crawler-commons.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>${jsoup.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -261,8 +275,52 @@
               </arguments>
             </configuration>
           </execution>
+          <execution> <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@indexation -->
+            <id>indexation</id>
+            <phase>package</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>org.talend.runtime.documentation.SearchIndexation</mainClass>
+              <includePluginDependencies>true</includePluginDependencies>
+              <arguments>
+                <argument>${project.build.directory}/${project.build.finalName}/sitemap.xml</argument>
+              </arguments>
+            </configuration>
+          </execution>
         </executions>
         <dependencies>
+          <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-json_1.1_spec</artifactId>
+            <version>${jsonp-api.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsonb_1.0_spec</artifactId>
+            <version>${jsonb-api.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-jsonb</artifactId>
+            <version>${johnzon.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.github.crawler-commons</groupId>
+            <artifactId>crawler-commons</artifactId>
+            <version>${crawler-commons.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+          </dependency>
           <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -335,6 +393,12 @@
             <groupId>org.apache.tomee</groupId>
             <artifactId>ziplock</artifactId>
             <version>${ziplock.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.apache.tomee</groupId>
+                <artifactId>*</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
           <dependency>
             <groupId>org.apache.xbean</groupId>
@@ -355,11 +419,6 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-client</artifactId>
             <version>${cxf.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.johnzon</groupId>
-            <artifactId>johnzon-jsonb</artifactId>
-            <version>${johnzon.version}</version>
           </dependency>
           <dependency>
             <groupId>org.sonatype.plexus</groupId>
@@ -428,17 +487,6 @@
               <to>${project.basedir}/src/main/antora/site.yml</to>
             </configuration>
           </execution>
-          <execution>
-            <id>filter-algolia</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>filter</goal>
-            </goals>
-            <configuration>
-              <from>${project.basedir}/src/main/frontend/algolia/config_template.json</from>
-              <to>${project.basedir}/src/main/frontend/algolia/config.json</to>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
       <plugin> <!-- mvn package -Pgen-doc [once] && mvn frontend:yarn@yarn-dev -Pgen-doc -->
@@ -487,17 +535,6 @@
             <configuration>
               <skip>${component.front.build.skip}</skip>
               <arguments>run antora:${antora.dev.site.mode}</arguments>
-            </configuration>
-          </execution>
-          <execution> <!-- mvn initialize git-commit-id:revision@get-the-git-infos rmannibucau-common:filter@filter-site-dev gplus:execute@groovy-scripts rmannibucau-common:filter@filter-algolia frontend:yarn@algolia-index -->
-            <id>algolia-index</id>
-            <phase />
-            <goals>
-              <goal>yarn</goal>
-            </goals>
-            <configuration>
-              <skip>${component.front.build.skip}</skip>
-              <arguments>run algolia:index</arguments>
             </configuration>
           </execution>
         </executions>

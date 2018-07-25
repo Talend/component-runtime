@@ -66,7 +66,6 @@ jobs:
       - rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache
       - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
       - cd documentation && mvn clean verify pre-site -e -q -Pgh-pages -Dgpg.skip=true $DEPLOY_OPTS && cd -
-      - cd documentation && mvn -Ptravis --settings $HOME/build/Talend/component-runtime/.travis/settings.xml -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar gplus:execute@groovy-scripts rmannibucau-common:filter@filter-algolia frontend:yarn@algolia-index && cd -
 
     - stage: master_build
       env:
