@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -28,6 +28,7 @@
   <properties>
     <antora.version>1.0.1</antora.version>
 
+    <antora.dev.site.mode>dev</antora.dev.site.mode> <!-- -Dantora.site.mode=dev-poc to test new theme -->
     <project_version>${project.version}</project_version>
     <sample_project-base>${project.basedir}/../sample</sample_project-base>
     <sample_project>${sample_project-base}/src/main/java/org/talend/sdk/component/sample</sample_project>
@@ -44,6 +45,7 @@
     <!-- alpha-16 in mvn, alpha.16 in gem -->
     <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
     <jsoup.version>1.11.2</jsoup.version>
+    <crawler-commons.version>0.10</crawler-commons.version>
   </properties>
 
   <dependencies>
@@ -155,6 +157,19 @@
       <version>${jruby.version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.github.crawler-commons</groupId>
+      <artifactId>crawler-commons</artifactId>
+      <version>${crawler-commons.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>${jsoup.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -260,8 +275,52 @@
               </arguments>
             </configuration>
           </execution>
+          <execution> <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@indexation -->
+            <id>indexation</id>
+            <phase>package</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>org.talend.runtime.documentation.SearchIndexation</mainClass>
+              <includePluginDependencies>true</includePluginDependencies>
+              <arguments>
+                <argument>${project.build.directory}/${project.build.finalName}/sitemap.xml</argument>
+              </arguments>
+            </configuration>
+          </execution>
         </executions>
         <dependencies>
+          <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-json_1.1_spec</artifactId>
+            <version>${jsonp-api.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsonb_1.0_spec</artifactId>
+            <version>${jsonb-api.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-jsonb</artifactId>
+            <version>${johnzon.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.github.crawler-commons</groupId>
+            <artifactId>crawler-commons</artifactId>
+            <version>${crawler-commons.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+          </dependency>
           <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -334,6 +393,12 @@
             <groupId>org.apache.tomee</groupId>
             <artifactId>ziplock</artifactId>
             <version>${ziplock.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.apache.tomee</groupId>
+                <artifactId>*</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
           <dependency>
             <groupId>org.apache.xbean</groupId>
@@ -356,11 +421,6 @@
             <version>${cxf.version}</version>
           </dependency>
           <dependency>
-            <groupId>org.apache.johnzon</groupId>
-            <artifactId>johnzon-jsonb</artifactId>
-            <version>${johnzon.version}</version>
-          </dependency>
-          <dependency>
             <groupId>org.sonatype.plexus</groupId>
             <artifactId>plexus-sec-dispatcher</artifactId>
             <version>${plexus-sec-dispatcher.version}</version>
@@ -371,6 +431,23 @@
             <version>${geronimo-jaxrs.version}</version>
           </dependency>
         </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>${git-commit-id-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>get-the-git-infos</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <generateGitPropertiesFile>false</generateGitPropertiesFile>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>com.github.rmannibucau</groupId>
@@ -395,8 +472,8 @@
               <goal>filter</goal>
             </goals>
             <configuration>
-              <from>${project.basedir}/src/main/antora/site-dev-template.yml</from>
-              <to>${project.basedir}/src/main/antora/site-dev.yml</to>
+              <from>${project.basedir}/src/main/antora/site-${antora.dev.site.mode}-template.yml</from>
+              <to>${project.basedir}/src/main/antora/site-${antora.dev.site.mode}.yml</to>
             </configuration>
           </execution>
           <execution>
@@ -408,17 +485,6 @@
             <configuration>
               <from>${project.basedir}/src/main/antora/site-template.yml</from>
               <to>${project.basedir}/src/main/antora/site.yml</to>
-            </configuration>
-          </execution>
-          <execution>
-            <id>filter-algolia</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>filter</goal>
-            </goals>
-            <configuration>
-              <from>${project.basedir}/src/main/frontend/algolia/config_template.json</from>
-              <to>${project.basedir}/src/main/frontend/algolia/config.json</to>
             </configuration>
           </execution>
         </executions>
@@ -460,7 +526,7 @@
               <arguments>run antora:build</arguments>
             </configuration>
           </execution>
-          <execution> <!-- mvn initialize gplus:execute@groovy-scripts frontend:yarn@yarn-dev -->
+          <execution> <!-- mvn initialize git-commit-id:revision@get-the-git-infos gplus:execute@groovy-scripts frontend:yarn@yarn-dev -->
             <id>yarn-dev</id>
             <phase />
             <goals>
@@ -468,18 +534,7 @@
             </goals>
             <configuration>
               <skip>${component.front.build.skip}</skip>
-              <arguments>run antora:dev</arguments>
-            </configuration>
-          </execution>
-          <execution> <!-- mvn initialize gplus:execute@groovy-scripts rmannibucau-common:filter@filter-algolia frontend:yarn@algolia-index -->
-            <id>algolia-index</id>
-            <phase />
-            <goals>
-              <goal>yarn</goal>
-            </goals>
-            <configuration>
-              <skip>${component.front.build.skip}</skip>
-              <arguments>run algolia:index</arguments>
+              <arguments>run antora:${antora.dev.site.mode}</arguments>
             </configuration>
           </execution>
         </executions>
@@ -582,6 +637,7 @@
               <goal>process-asciidoc</goal>
             </goals>
             <configuration>
+              <skip>${talend.documentation.pdf.skip}</skip>
               <backend>pdf</backend>
               <sourceDirectory>src/main/antora/modules/ROOT/pages</sourceDirectory>
               <sourceDocumentName>all-in-one.adoc</sourceDocumentName>

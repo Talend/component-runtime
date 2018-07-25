@@ -194,3 +194,12 @@ public class KafkaInput extends PTransform<PBegin, PCollection<JsonObject>> { <1
 <3> The mapper uses the JSON-P coder automatically created from the contextual component.
 
 Because the Beam wrapper does not respect the standard Talend Component Kit programming model ( for example, there is no `@Emitter`), you need to set the `<talend.validation.component>false</talend.validation.component>` property in your `pom.xml` file (or equivalent for Gradle) to skip the component programming model validations of the framework.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:component-definition.adoc[Defining a component]
+- xref:services-pipeline.adoc[Creating a job pipeline]
+- xref:testing-beam.adoc[Beam testing]
+- xref:testing-multiple-envs.adoc[Testing in multiple environments]
+endif::[]

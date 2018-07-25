@@ -1,6 +1,5 @@
-= Talend Component REST API Documentation
+= Talend Component Kit REST API Documentation
 :page-partial:
-:toc:
 
 TIP: A test environment is available on Heroku and can be browsed using Talend Component Kit Server instance on link:https://talend-component-kit.restlet.io[Restlet Studio^].
 
@@ -223,24 +222,19 @@ For Example:
 [source,java]
 ----
 final Ui form1 = ui()
-    // (1)
-    .withJsonSchema(JsonSchema.jsonSchemaFrom(Form1.class).build())
-    // (2)
-    .withUiSchema(uiSchema()
+    .withJsonSchema(JsonSchema.jsonSchemaFrom(Form1.class).build()) <1>
+    .withUiSchema(uiSchema() <2>
         .withKey("multiSelectTag")
         .withRestricted(false)
         .withTitle("Simple multiSelectTag")
         .withDescription("This data list accepts values that are not in the list of suggestions")
         .withWidget("multiSelectTag")
         .build())
-    // (3)
-    .withProperties(myFormInstance)
+    .withProperties(myFormInstance) <3>
     .build();
 
-// (4)
-final String json = jsonb.toJson(form1);
+final String json = jsonb.toJson(form1); <4>
 ----
-
 <1> The `JsonSchema` is extracted from reflection on the `Form1` class. Note that `@JsonSchemaIgnore` allows to ignore a field and `@JsonSchemaProperty` allows to rename a property.
 <2> A `UiSchema` is programmatically built using the builder API.
 <3> An instance of the form is passed to let the serializer extract its JSON model.
@@ -269,47 +263,13 @@ The model uses the JSON-B API to define the binding. Make sure to have an implem
 
 === JavaScript integration
 
-Default JavaScript integration goes through the link:https://github.com/Talend/ui/tree/master/packages/forms[Talend UI Forms] library.
+IMPORTANT: `component-kit.js` is no more available (previous versions stay on NPM) since it got replaced by `@talend/react-containers`.
+The previous import can be replaced by `import kit from '@talend/react-containers/lib/ComponentForm/kit';`.
 
-It is bundled as a NPM module called `component-kit.js`. It provides a default trigger implementation for `UIForm`.
+Default JavaScript integration goes through the link:https://github.com/Talend/ui/tree/master/packages/forms[Talend UI Forms] library
+and its link:https://github.com/Talend/ui/tree/master/packages/containers[Containers] wrapper.
 
-Here is how to use it:
-
-[source,javascript]
-----
-import React from 'react';
-import UIForm from '@talend/react-forms/lib/UIForm/UIForm.container';
-import TalendComponentKitTrigger from 'component-kit.js';
-
-export default class ComponentKitForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.trigger = new TalendComponentKitTrigger({ url: '/api/to/component/server/proxy' });
-    this.onTrigger = this.onTrigger.bind(this);
-    // ...
-  }
-
-  onTrigger(event, payload) {
-    return this.trigger.onDefaultTrigger(event, payload);
-  }
-
-  // ...
-
-  render() {
-    if(! this.state.uiSpec) {
-      return (<div>Loading ...</div>);
-    }
-
-    return (
-        <UIForm
-          data={this.state.uiSpec}
-          onTrigger={this.onTrigger}
-          onSubmit={this.onSubmit}
-        />
-    );
-  }
-}
-----
+Documentation is now available on the previous link.
 
 == Logging
 

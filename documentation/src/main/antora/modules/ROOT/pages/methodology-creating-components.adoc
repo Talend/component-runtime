@@ -1,0 +1,42 @@
+= Talend Component Kit methodology
+:page-partial:
+
+[[getting-started-introducing-talend-component]]
+_Talend Component Kit_ is a framework designed to simplify the development of components at two levels:
+
+* **Runtime**: Runtime is about injecting the specific component code into a job or pipeline. The framework helps unify as much as possible the code required to run in Data Integration (DI) and BEAM environments.
+* **Graphical interface**: The framework helps unify the code required to be able to render the component in a browser (web) or in the Eclipse-based Studio (SWT).
+
+[[getting-started-principles]]
+
+Before being able to develop new components, check the xref:system-prerequisites.adoc[prerequisites] to make sure that you have all you need to get started.
+
+Developing new components using the framework includes:
+
+. xref:index-generating-project.adoc[Creating a project] using the https://starter-toolkit.talend.io/[starter] or the xref:tutorial-talend-intellij-plugin-usage.adoc[Talend IntelliJ plugin]. This step allows to build the skeleton of the project. It consists in:
+.. Defining the general configuration model for each component in your project
+.. Generating and downloading the project archive from the starter
+.. Compiling the project
+. Importing the compiled project in your IDE. This step is not required if you have generated the project using the IntelliJ plugin.
+. xref:index-creating-components.adoc[Implementing the components], including:
+.. Registering the components family
+.. Defining the layout and configurable part of the components
+.. Defining the partition mapper for Input components
+.. Implementing the source logic for Input components
+.. Defining the processor for Output components
+. xref:index-testing-components.adoc[Testing the components]
+. xref:index-deploying-components.adoc[Deploying the components] to Talend Studio or Cloud applications
+
+Some additional configuration steps can be necessary according to your requirements:
+
+- xref:index-defining-services.adoc[Defining services] that can be reused in several components
+- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+
+image:methodo.png[]
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:what-is-a-talend-component.adoc[What is a Talend component]
+- xref:tck-framework-overview.adoc[Talend Component Kit framework overview]
+endif::[]

@@ -1,8 +1,0 @@
-= component-runtime-testing
-:page-partial:
-
-include::testing-junit.adoc[]
-
-include::testing-spark.adoc[]
-
-include::testing-http.adoc[]

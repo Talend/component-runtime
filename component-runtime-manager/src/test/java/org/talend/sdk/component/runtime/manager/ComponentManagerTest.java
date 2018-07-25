@@ -61,6 +61,11 @@ class ComponentManagerTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
+    private ComponentManager newManager() {
+        return new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies",
+                "org.talend.test:type=plugin,value=%s");
+    }
+
     @Test
     void run(final TemporaryFolder temporaryFolder) throws Exception {
         final File pluginFolder = new File(temporaryFolder.getRoot(), "test-plugins_" + UUID.randomUUID().toString());
@@ -76,8 +81,7 @@ class ComponentManagerTest {
         final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
         assertFalse(mBeanServer.isRegistered(new ObjectName("org.talend.test:type=plugin,value=plugin1")));
 
-        try (final ComponentManager manager = new ComponentManager(new File("target/test-dependencies"),
-                "META-INF/test/dependencies", "org.talend.test:type=plugin,value=%s")) {
+        try (final ComponentManager manager = newManager()) {
             doCheckRegistry(plugin1, plugin2, manager);
             final Date plugin1CreatedDate = doCheckJmx(mBeanServer);
 

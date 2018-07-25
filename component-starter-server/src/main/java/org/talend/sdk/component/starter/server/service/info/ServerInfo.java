@@ -17,7 +17,6 @@ package org.talend.sdk.component.starter.server.service.info;
 
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static javax.xml.bind.annotation.XmlAccessType.FIELD;
 import static lombok.AccessLevel.NONE;
 
 import java.io.IOException;
@@ -40,9 +39,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -50,7 +46,6 @@ import org.talend.sdk.component.starter.server.configuration.StarterConfiguratio
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -88,18 +83,6 @@ public class ServerInfo {
         saxFactory = SAXParserFactory.newInstance();
         doUpdate(() -> Thread.currentThread().getContextClassLoader().getResourceAsStream(
                 "starter-versions.properties"));
-        configuration = new StarterConfiguration() {
-
-            @Override
-            public Boolean getAutoRefresh() {
-                return false;
-            }
-
-            @Override
-            public Long getRefreshDelayMs() {
-                return super.getRefreshDelayMs();
-            }
-        };
 
         if (!configuration.getAutoRefresh()) {
             return;
@@ -112,8 +95,7 @@ public class ServerInfo {
                 return new Thread(r, getClass().getName());
             }
         });
-        future = thread.scheduleAtFixedRate(this::refresh, configuration.getRefreshDelayMs(),
-                configuration.getRefreshDelayMs(), MILLISECONDS);
+        future = thread.scheduleAtFixedRate(this::refresh, 0, configuration.getRefreshDelayMs(), MILLISECONDS);
     }
 
     private void doUpdate(final Supplier<InputStream> streamProvider) {
@@ -166,6 +148,8 @@ public class ServerInfo {
             }
         } catch (final Exception e) {
             log.warn(e.getMessage(), e);
+        } finally {
+            client.close();
         }
     }
 
@@ -173,23 +157,6 @@ public class ServerInfo {
     private void destroy() {
         ofNullable(future).ifPresent(f -> f.cancel(true));
         ofNullable(thread).ifPresent(ExecutorService::shutdownNow);
-    }
-
-    @Data
-    @XmlAccessorType(FIELD)
-    @XmlRootElement(name = "metadata")
-    public static class Metadata {
-
-        @XmlElement
-        private Versioning versioning;
-    }
-
-    @Data
-    @XmlAccessorType(FIELD)
-    public static class Versioning {
-
-        @XmlElement
-        private String release;
     }
 
     private static class QuickMvnMetadataParser extends DefaultHandler {

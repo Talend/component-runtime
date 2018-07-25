@@ -148,6 +148,7 @@ public class KnownJarsFilter implements Predicate<String> {
             add("eclipselink-");
             add("ehcache-");
             add("el-api");
+            add("enumeratum");
             add("enunciate-core-annotations");
             add("error_prone_annotations");
             add("expressions");

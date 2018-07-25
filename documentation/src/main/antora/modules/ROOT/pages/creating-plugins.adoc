@@ -1,0 +1,95 @@
+= Creating plugins
+:page-partial:
+
+== Defining the ContainerManager or the classloader manager
+
+The entry point of the API is the `ContainerManager`. It allows
+you to define what is the `Shared` classloader and to create children:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+try (final ContainerManager manager = new ContainerManager( <1>
+    ContainerManager.DependenciesResolutionConfiguration.builder() <2>
+        .resolver(new MvnDependencyListLocalRepositoryResolver("META-INF/talend/dependencies.list"))
+        .rootRepositoryLocation(new File(System.getProperty("user.home", ".m2/repository"))
+        .create(),
+    ContainerManager.ClassLoaderConfiguration.builder() <3>
+        .parent(getClass().getClassLoader())
+        .classesFilter(name -> true)
+        .parentClassesFilter(name -> true)
+        .create())) {
+
+    // create plugins
+
+}
+----
+
+<1> The `ContainerManager` is `AutoCloseable`, which allows you to use it in a try or finally block if needed. +
+This manager has two main configuration entries: +
+* how to resolve dependencies for plugins from the plugin file/location
+* how to configure the classloaders (what is the parent classloader, how to handle the parent first/last delegation, and so on). +
++
+NOTE: It is recommended to keep the manager running if you can reuse plugins in order to avoid recreating classloaders and to mutualize them.
+
+<2> `DependenciesResolutionConfiguration` allows you to pass a custom `Resolver` which is used to build the plugin classloaders. +
+Currently, the library only provides `MvnDependencyListLocalRepositoryResolver`, which reads the output of `mvn dependencies:list`. Add it to the plugin jar to resolve the dependencies from a *local* maven repository. +
+Note that `SNAPSHOT` are only resolved based on their name and not from the metadata (only useful in development). +
+To continue the comparison with a Servlet server, you can implement an unpacked war resolver.
+
+<3> `ClassLoaderConfiguration` configures the behavior of the whole container/plugin pair, including: +
+* What the shared classloader is
+* Which classes are loaded from the shared loader first (intended to be used for API which shouldn't be loaded from the plugin loader)
+* Which classes are loaded from the parent classloader. This can be useful to prevent loading a "common" library from the parent classloader. For instance, it can be neat for guava, commons-lang3, an so on).
+
+== Creating plugins
+Once you have defined a manager, you can create plugins:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+final Container plugin1 = manager.create( <1>
+    "plugin-id", <2>
+    new File("/plugin/myplugin1.jar")); <3>
+----
+
+<1> To create a plugin `Container`, use the `create` method of the manager.
+
+<2> Give an explicit ID to the plugin. You can choose to bypass it. In that case, the manager uses the jar name.
+
+<3> Specify the plugin root jar.
+
+To create the plugin container, the `Resolver` resolves the dependencies needed for the plugin, then the manager creates the plugin classloader and registers the plugin `Container`.
+
+== Defining a listener for the plugin registration
+
+Some actions are needed when a plugin is registered or unregistered. For that purpose, you can use `ContainerListener`:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+public class MyListener implements ContainerListener {
+    @Override
+    public void onCreate(final Container container) {
+        System.out.println("Container #" + container.getId() + " started.");
+    }
+
+    @Override
+    public void onClose(final Container container) {
+        System.out.println("Container #" + container.getId() + " stopped.");
+    }
+}
+----
+
+Plugins are directly registered on the manager:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+final ContainerManager manager = getContainerManager();
+final ContainerListener myListener = new MyListener();
+
+manager.registerListener(myListener); <1>
+// do something
+manager.unregisterListener(myListener); <2>
+----
+
+<1> `registerListener` is used to add the listener going forward. However, it does not get any event for already created containers.
+
+<2> You can remove a listener at any time by using `unregisterListener`.

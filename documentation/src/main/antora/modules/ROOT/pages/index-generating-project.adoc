@@ -1,0 +1,10 @@
+= Generating a project
+:page-partial:
+:page-documentationindex-index: 4000
+:page-documentationindex-label: Generating a project
+:page-documentationindex-icon: power-off
+:page-documentationindex-description: Define the skeleton and general settings of your components
+
+include::tutorial-generate-project-using-starter.adoc[leveloffset=+1]
+
+include::generate-project-using-intellij-plugin.adoc[leveloffset=+1]

@@ -15,7 +15,13 @@
  */
 package org.talend.sdk.component.tools.webapp;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import javax.annotation.PreDestroy;
@@ -44,6 +50,8 @@ public class LazyClient implements Client<Object> {
     @Delegate
     private volatile Client<Object> client;
 
+    private ExecutorService executorService;
+
     @Produces
     private volatile WebTarget webTarget;
 
@@ -52,7 +60,22 @@ public class LazyClient implements Client<Object> {
             synchronized (this) {
                 if (client == null) {
                     final String baseValue = base.get();
-                    final javax.ws.rs.client.Client jaxrsClient = ClientBuilder.newClient();
+                    final AtomicInteger counter = new AtomicInteger(1);
+                    executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 32,
+                            new ThreadFactory() {
+
+                                @Override
+                                public Thread newThread(final Runnable r) {
+                                    final Thread thread =
+                                            new Thread(r, "jaxrs-client-actions-" + counter.getAndIncrement());
+                                    thread.setDaemon(false);
+                                    thread.setPriority(Thread.NORM_PRIORITY);
+                                    thread.setContextClassLoader(LazyClient.class.getClassLoader());
+                                    return thread;
+                                }
+                            });
+                    final javax.ws.rs.client.Client jaxrsClient =
+                            ClientBuilder.newBuilder().property("executorService", executorService).build();
                     webTarget = jaxrsClient.target(baseValue);
                     client = new JAXRSClient<>(jaxrsClient, baseValue, true);
                 }
@@ -62,6 +85,7 @@ public class LazyClient implements Client<Object> {
 
     @PreDestroy
     private void onDestroy() {
+        ofNullable(executorService).ifPresent(ExecutorService::shutdownNow);
         client.close();
     }
 

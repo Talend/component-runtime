@@ -80,6 +80,9 @@ public class DefaultValueInspector {
     }
 
     private Object findField(final Object rootInstance, final ParameterMeta param) {
+        if (param.getName().startsWith("$")) { // builtin param
+            return null;
+        }
         Class<?> current = rootInstance.getClass();
         while (current != null) {
             try {

@@ -85,3 +85,9 @@ The cache is invalidated and the components refreshed.
 IMPORTANT: You still need to add and remove the components to see the changes.
 
 The developer mode can be very useful to see some updates in components without having to restart entirely the Studio.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:best-practices.adoc[Best practices]
+endif::[]

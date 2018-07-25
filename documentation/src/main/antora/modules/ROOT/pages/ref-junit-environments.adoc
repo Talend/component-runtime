@@ -1,0 +1,4 @@
+= Junit environments
+:page-partial:
+
+include::{partialsdir}/generated_junit-environments.adoc[leveloffset=+1]

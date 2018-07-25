@@ -128,6 +128,7 @@ These jars use the following prefix:
 - eclipselink-
 - ehcache-
 - el-api
+- enumeratum
 - enunciate-core-annotations
 - error_prone_annotations
 - expressions

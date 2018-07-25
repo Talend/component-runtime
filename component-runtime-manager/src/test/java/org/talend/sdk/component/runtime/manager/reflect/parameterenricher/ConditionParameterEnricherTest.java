@@ -33,8 +33,13 @@ class ConditionParameterEnricherTest {
             {
                 put("tcomp::condition::if::target::0", "foo.bar");
                 put("tcomp::condition::if::value::0", "true,false");
+                put("tcomp::condition::if::negate::0", "false");
+                put("tcomp::condition::if::evaluationStrategy::0", "DEFAULT");
+
                 put("tcomp::condition::if::target::1", "dummy");
                 put("tcomp::condition::if::value::1", "ok");
+                put("tcomp::condition::if::negate::1", "false");
+                put("tcomp::condition::if::evaluationStrategy::1", "DEFAULT");
             }
         }, new ConditionParameterEnricher().onParameterAnnotation("testParam", String.class, new ActiveIfs() {
 
@@ -53,6 +58,16 @@ class ConditionParameterEnricherTest {
                     }
 
                     @Override
+                    public boolean negate() {
+                        return false;
+                    }
+
+                    @Override
+                    public EvaluationStrategy evaluationStrategy() {
+                        return EvaluationStrategy.DEFAULT;
+                    }
+
+                    @Override
                     public Class<? extends Annotation> annotationType() {
                         return ActiveIf.class;
                     }
@@ -66,6 +81,16 @@ class ConditionParameterEnricherTest {
                     @Override
                     public String[] value() {
                         return new String[] { "ok" };
+                    }
+
+                    @Override
+                    public boolean negate() {
+                        return false;
+                    }
+
+                    @Override
+                    public EvaluationStrategy evaluationStrategy() {
+                        return EvaluationStrategy.DEFAULT;
                     }
 
                     @Override
@@ -89,6 +114,8 @@ class ConditionParameterEnricherTest {
             {
                 put("tcomp::condition::if::target", "foo.bar");
                 put("tcomp::condition::if::value", "true");
+                put("tcomp::condition::if::negate", "false");
+                put("tcomp::condition::if::evaluationStrategy", "DEFAULT");
             }
         }, new ConditionParameterEnricher().onParameterAnnotation("testParam", String.class, new ActiveIf() {
 
@@ -100,6 +127,16 @@ class ConditionParameterEnricherTest {
             @Override
             public String[] value() {
                 return new String[] { "true" };
+            }
+
+            @Override
+            public boolean negate() {
+                return false;
+            }
+
+            @Override
+            public EvaluationStrategy evaluationStrategy() {
+                return EvaluationStrategy.DEFAULT;
             }
 
             @Override
@@ -116,6 +153,8 @@ class ConditionParameterEnricherTest {
             {
                 put("tcomp::condition::if::target", "foo.bar");
                 put("tcomp::condition::if::value", "true,false");
+                put("tcomp::condition::if::negate", "false");
+                put("tcomp::condition::if::evaluationStrategy", "DEFAULT");
             }
         }, new ConditionParameterEnricher().onParameterAnnotation("testParam", String.class, new ActiveIf() {
 
@@ -127,6 +166,16 @@ class ConditionParameterEnricherTest {
             @Override
             public String[] value() {
                 return new String[] { "true", "false" };
+            }
+
+            @Override
+            public boolean negate() {
+                return false;
+            }
+
+            @Override
+            public EvaluationStrategy evaluationStrategy() {
+                return EvaluationStrategy.DEFAULT;
             }
 
             @Override

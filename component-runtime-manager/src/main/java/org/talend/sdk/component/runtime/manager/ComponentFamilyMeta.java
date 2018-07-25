@@ -53,6 +53,11 @@ public class ComponentFamilyMeta {
     private static final FamilyBundle NO_COMPONENT_BUNDLE = new FamilyBundle(null, null) {
 
         @Override
+        public Optional<String> category(final String value) {
+            return empty();
+        }
+
+        @Override
         public Optional<String> configurationDisplayName(final String type, final String name) {
             return empty();
         }
@@ -83,7 +88,7 @@ public class ComponentFamilyMeta {
 
     public ComponentFamilyMeta(final String plugin, final Collection<String> categories, final String icon,
             final String name, final String packageName) {
-        this.id = IdGenerator.get(name);
+        this.id = IdGenerator.get(plugin, name);
         this.plugin = plugin;
         this.categories = categories;
         this.icon = icon;

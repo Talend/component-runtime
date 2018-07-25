@@ -1,0 +1,4 @@
+= Server configuration
+:page-partial:
+
+include::{partialsdir}/generated_server-configuration.adoc[leveloffset=+1]

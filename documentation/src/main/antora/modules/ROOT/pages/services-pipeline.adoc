@@ -165,3 +165,15 @@ However, there are limitations:
 - Outputs must implement `PTransform<PCollection<?>, PDone>` and register a `DoFn` on the input `PCollection`.
 
 For more information, see the <<wrapping-a-beam-io.adoc#, How to wrap a Beam I/O>> page.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:testing-best-practices.adoc[Component testing best practices]
+- xref:index-sub-testing-runtime.adoc[Testing component runtime]
+- xref:testing-beam.adoc[Beam testing]
+- xref:testing-multiple-envs.adoc[Testing in multiple environments]
+- xref:testing-maven-passwords.adoc[Reusing Maven credentials]
+- xref:testing-generating-data.adoc[Generating data for testing]
+- xref:wrapping-a-beam-io.adoc[Wrapping a Beam I/O]
+endif::[]
