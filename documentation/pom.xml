@@ -277,7 +277,7 @@
           </execution>
           <execution> <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@indexation -->
             <id>indexation</id>
-            <phase />
+            <phase>package</phase>
             <goals>
               <goal>java</goal>
             </goals>

@@ -48,6 +48,8 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.config.PropertyOrderStrategy;
 
 import crawlercommons.sitemaps.SiteMap;
 import crawlercommons.sitemaps.SiteMapParser;
@@ -148,7 +150,7 @@ public class SearchIndexation {
             }
         });
 
-        try (final Jsonb jsonb = JsonbBuilder.create()) {
+        try (final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
             updates.stream().map(f -> {
                 try {
                     return f.get();

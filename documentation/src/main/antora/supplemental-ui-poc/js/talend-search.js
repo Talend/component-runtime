@@ -28,8 +28,13 @@ $(document).ready(function () {
       var div = $('<div class="text-center">No results matching <strong>' + search + '</strong> found.</div>');
       hits.append(div);
     } else {
+      var segments = search.trim().length ? search.split(/ +/) : [];
       result.forEach(function (item) {
-        var div = $('<div class="search-result-container"><a href="' + item.url + '">' + item.title + '</a><p>' + item.text.join('\n') + '</p></div>');
+        var text = (item.text || []).join('\n');
+        for (var i = 0; i < segments.length; i++) {
+          text = text.replace(segments[i], '<b>' + segments[i] + '</b>');
+        }
+        var div = $('<div class="search-result-container"><a href="' + item.url + '">' + item.title + '</a><p>' + text + '</p></div>');
         hits.append(div);
       });
     }
