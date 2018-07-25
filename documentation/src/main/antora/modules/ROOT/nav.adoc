@@ -1,3 +1,4 @@
+.Talend Component Kit Documentation
 * xref:index-getting-started-with-tck.adoc[Getting Started]
 ** xref:what-is-a-talend-component.adoc[What is a Talend Component]
 ** xref:methodology-creating-components.adoc[Methodology]
@@ -16,7 +17,7 @@
 ** xref:component-loading.adoc[Loading a component]
 ** xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
 ** xref:best-practices.adoc[Best practices]
-** xref:mapsub-build-tools.adoc[Build tools]
+** xref:index-sub-build-tools.adoc[Build tools]
 ** xref:wrapping-a-beam-io.adoc[Wrapping a Beam I/O]
 * xref:index-defining-services.adoc[Defining services]
 ** xref:services-internationalization.adoc[Internationalizing a service]
