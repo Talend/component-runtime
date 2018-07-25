@@ -31,11 +31,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -1111,60 +1108,5 @@ public class Generator {
     public static class Status {
 
         private String name;
-    }
-
-    private static class WriteIfDifferentStream extends FilterOutputStream {
-
-        private final File destination;
-
-        private WriteIfDifferentStream(final File destination) {
-            super(new ByteArrayOutputStream());
-            this.destination = destination;
-        }
-
-        @Override
-        public void close() throws IOException {
-            out.close();
-            final byte[] bytes = ByteArrayOutputStream.class.cast(out).toByteArray();
-            if (!destination.exists() || isDifferent(bytes)) {
-                try (final OutputStream out = new FileOutputStream(destination)) {
-                    out.write(bytes);
-                }
-                log.info(destination + " created");
-            } else {
-                log.info(destination + " didn't change, skip rewriting");
-            }
-        }
-
-        private boolean isDifferent(final byte[] bytes) throws IOException {
-            final String source = Files.lines(destination.toPath()).collect(joining("\n")).trim();
-            final String target = new String(bytes, StandardCharsets.UTF_8).trim();
-            return !source.equals(target);
-        }
-
-        @Override
-        public void write(final int b) throws IOException {
-            out.write(b);
-        }
-
-        @Override
-        public void write(final byte[] b, final int off, final int len) throws IOException {
-            out.write(b, off, len);
-        }
-
-        @Override
-        public String toString() {
-            return out.toString();
-        }
-
-        @Override
-        public void write(final byte[] b) throws IOException {
-            out.write(b);
-        }
-
-        @Override
-        public void flush() throws IOException {
-            out.flush();
-        }
     }
 }

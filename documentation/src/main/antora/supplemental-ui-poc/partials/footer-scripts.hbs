@@ -7,4 +7,7 @@
 <script src="{{uiRootPath}}/js/talend-landing.js"></script>
 {{else if page.attributes.talend_documentationindex}}
 <script src="{{uiRootPath}}/js/talend-documentationindex.js"></script>
+{{else if page.attributes.talend_search}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+<script src="{{uiRootPath}}/js/talend-search.js"></script>
 {{/if}}

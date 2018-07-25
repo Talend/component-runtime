@@ -46,7 +46,6 @@
     <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
     <jsoup.version>1.11.2</jsoup.version>
     <crawler-commons.version>0.10</crawler-commons.version>
-    <algoliasearch.version>2.17.3</algoliasearch.version>
   </properties>
 
   <dependencies>
@@ -171,12 +170,6 @@
       <version>${jsoup.version}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>com.algolia</groupId>
-      <artifactId>algoliasearch-async</artifactId>
-      <version>${algoliasearch.version}</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -282,20 +275,17 @@
               </arguments>
             </configuration>
           </execution>
-          <execution> <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@algolia-indexation -->
-            <id>algolia-indexation</id>
+          <execution> <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@indexation -->
+            <id>indexation</id>
             <phase />
             <goals>
               <goal>java</goal>
             </goals>
             <configuration>
-              <mainClass>org.talend.runtime.documentation.AlgoliaIndexation</mainClass>
+              <mainClass>org.talend.runtime.documentation.SearchIndexation</mainClass>
               <includePluginDependencies>true</includePluginDependencies>
               <arguments>
-                <!--<argument>${project.build.directory}/${project.build.finalName}/sitemap.xml</argument>-->
-                <argument>https://talend.github.io/component-runtime/sitemap.xml</argument>
-                <argument>LJ50FMU1OP</argument>
-                <argument>${talend.algolia_admin_key.password}</argument>
+                <argument>${project.build.directory}/${project.build.finalName}/sitemap.xml</argument>
               </arguments>
             </configuration>
           </execution>
@@ -325,11 +315,6 @@
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>com.algolia</groupId>
-            <artifactId>algoliasearch-async</artifactId>
-            <version>${algoliasearch.version}</version>
           </dependency>
           <dependency>
             <groupId>commons-io</groupId>
