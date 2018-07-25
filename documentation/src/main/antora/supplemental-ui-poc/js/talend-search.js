@@ -5,7 +5,7 @@ $(document).ready(function () {
    pathname.replace(/\/[^\/]+\/([0-9\.]+)\/.*/g, '$1');
   var search = (location.search.split('query=')[1] || '').split('&')[0]
   var hits = $('#hits');
-  $.getJSON('index.json'/*search-index*/, function(index) {
+  $.getJSON('search-index.json', function(index) {
     var fuse = new Fuse(index, {
        shouldSort: true,
        threshold: 0.6,
