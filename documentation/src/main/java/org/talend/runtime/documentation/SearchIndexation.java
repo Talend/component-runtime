@@ -150,7 +150,8 @@ public class SearchIndexation {
             }
         });
 
-        try (final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
+        try (final Jsonb jsonb = JsonbBuilder
+                .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
             updates.stream().map(f -> {
                 try {
                     return f.get();

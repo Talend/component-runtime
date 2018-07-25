@@ -1,35 +1,13 @@
-<script src="{{uiRootPath}}/js/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
-<script>
-(function (window, document) {
-  hljs.initHighlighting();
-
-  var closedSize = '50px';
-  document.querySelectorAll('.listingblock')
-    .forEach(function (listingblock, index) {
-      var pre = listingblock.querySelector('div.content > pre.highlightjs.highlight');
-      if (!pre) {return;}
-      var code = pre.querySelector('code.hljs');
-      if (!code) {return;}
-
-      var span = document.createElement('span');
-      var initialBlockClosed = listingblock.className.indexOf('initial-block-closed') >= 0;
-      span.className = 'code-' + (initialBlockClosed ? 'collapsed' : 'open') + '-handle code-handle-base';
-
-      var height = code.style.height;
-      if (initialBlockClosed) {code.style.height = closedSize;}
-
-      span.addEventListener('click', function () {
-        if (span.className == 'code-collapsed-handle code-handle-base') {
-          code.style.height = height;
-          span.className = 'code-open-handle code-handle-base';
-        } else {
-          code.style.height = closedSize;
-          span.className = 'code-collapsed-handle code-handle-base';
-        }
-      }, false);
-
-      pre.prepend(span);
-    });
-})(window, document);
-</script>
+<script src="https://cdn.rawgit.com/rmannibucau/00206484a54ac569e091513e6d2a1c01/raw/46cd5d77ba1abe678f83d11490e12a327b62d7ee/anchorific.js"></script>
+<script src="{{uiRootPath}}/js/talend.js"></script>
+{{#if page.attributes.talend_landing}}
+<script src="{{uiRootPath}}/js/talend-landing.js"></script>
+{{else if page.attributes.talend_documentationindex}}
+<script src="{{uiRootPath}}/js/talend-documentationindex.js"></script>
+{{else if page.attributes.talend_search}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+<script src="{{uiRootPath}}/js/talend-search.js"></script>
+{{/if}}

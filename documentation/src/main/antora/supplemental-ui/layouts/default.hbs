@@ -24,15 +24,18 @@
         {{>landing}}
     {{else}}
       {{> header-content}}
-      <main class="main">
         {{#if page.attributes.talend_documentationindex}}
-            {{>documentationindex this}}
+            <main class="documentationindex">
+              {{>documentationindex this}}
+            </main>
         {{else}}
-            {{> navigation}}
-            <div class="col-xs-12 col-sm-10 maincontent">
-              {{> toolbar}}
-              {{> article}}
-            </div>
+            <main class="main">
+              {{> navigation}}
+              <div class="col-xs-12 col-sm-10 maincontent">
+                {{> toolbar}}
+                {{> article}}
+              </div>
+            </main>
         {{/if}}
       </main>
       {{> footer-content}}

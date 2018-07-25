@@ -503,13 +503,21 @@ header.landing form[role=search] {
   text-shadow: none;
 }
 
-main.main {
+body {
   background: #0c2d4d;
   background-image: url(../images/landing_background.jpg);
   background-repeat: no-repeat;
   background-position: center 0px;
-  height: 734px;
-  padding-top: 60px;
+}
+
+main.main.landing {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
   color: white;
   text-shadow: #000000 1px 1px, #000000 -1px 1px, #000000 -1px -1px, #000000 1px -1px;
+}
+
+.landing-container {
+  min-height: calc(100vh - 88px);
 }

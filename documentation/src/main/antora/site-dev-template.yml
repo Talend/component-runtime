@@ -34,3 +34,5 @@ asciidoc:
   attributes:
     deploymentRoot: ""
     hide-uri-scheme: true
+    icons: font
+    icon-set: octicon

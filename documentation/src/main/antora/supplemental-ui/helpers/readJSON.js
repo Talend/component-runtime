@@ -20,7 +20,12 @@ module.exports = (text, cacheName, options) => {
     list = list.substring(start + '<jsonArray>'.length, list.indexOf('</jsonArray>')).trim();
   }
   if (!options.data.root[cacheName]) {
-    options.data.root[cacheName] = JSON.parse(list);
+    try {
+      options.data.root[cacheName] = JSON.parse(list);
+    } catch (e) {
+      console.error(`Error parsing: ${list}`)
+      return '';
+    }
   }
   return options.data.root[cacheName]
             .map(i => options.fn(i))
