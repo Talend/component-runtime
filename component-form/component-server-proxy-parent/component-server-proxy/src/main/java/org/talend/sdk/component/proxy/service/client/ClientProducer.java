@@ -19,10 +19,12 @@ import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
@@ -45,8 +47,6 @@ import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -123,9 +123,25 @@ public class ClientProducer {
     @Produces
     @UiSpecProxy
     @ApplicationScoped
-    public javax.ws.rs.client.Client client(final ProxyConfiguration configuration) {
+    public ExecutorService clientExecutor(final ProxyConfiguration configuration) {
+        final AtomicInteger counter = new AtomicInteger(0);
+        return Executors.newFixedThreadPool(configuration.getClientExecutorThreads(), r -> {
+            final Thread thread = new Thread(r);
+            thread.setDaemon(false);
+            thread.setPriority(Thread.NORM_PRIORITY);
+            thread.setName("component-server-client-" + counter.incrementAndGet());
+            return thread;
+        });
+    }
+
+    @Produces
+    @UiSpecProxy
+    @ApplicationScoped
+    public javax.ws.rs.client.Client client(final ProxyConfiguration configuration,
+            @UiSpecProxy final ExecutorService executor) {
         final javax.ws.rs.client.Client client = ClientBuilder
                 .newBuilder()
+                .executorService(executor)
                 .connectTimeout(configuration.getConnectTimeout(), MILLISECONDS)
                 .readTimeout(configuration.getReadTimeout(), MILLISECONDS)
                 .build();
@@ -143,21 +159,5 @@ public class ClientProducer {
 
     public void disposeClient(@Disposes final javax.ws.rs.client.Client client) {
         client.close();
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class Values {
-
-        private Collection<Item> items;
-
-        @Data
-        @AllArgsConstructor
-        public static class Item {
-
-            private String id;
-
-            private String label;
-        }
     }
 }

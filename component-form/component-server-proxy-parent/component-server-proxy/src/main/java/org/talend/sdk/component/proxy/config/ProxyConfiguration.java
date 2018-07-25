@@ -17,7 +17,6 @@ package org.talend.sdk.component.proxy.config;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
-import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.NONE;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +40,7 @@ import javax.inject.Inject;
 import javax.ws.rs.client.Invocation;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.talend.sdk.component.proxy.service.lang.Substitutor;
 
 import lombok.Getter;
 
@@ -121,6 +120,14 @@ public class ProxyConfiguration {
     @ConfigProperty(name = PREFIX + "jcache.refresh.period", defaultValue = "60")
     private Long jcacheRefreshPeriod;
 
+    @Inject
+    @Documentation("For the client executor, the number of threads.")
+    @ConfigProperty(name = PREFIX + "client.executor.threads", defaultValue = "64")
+    private Integer clientExecutorThreads;
+
+    @Inject
+    private Substitutor substitutor;
+
     @Getter
     private BiFunction<Invocation.Builder, Function<String, String>, Invocation.Builder> headerAppender;
 
@@ -144,39 +151,8 @@ public class ProxyConfiguration {
             }
             final Set<String> dynamicHeaderKeys = new HashSet<>();
             final Map<String, Function<Function<String, String>, String>> providers =
-                    properties.stringPropertyNames().stream().collect(toMap(identity(), e -> {
-                        final String value = properties.getProperty(e);
-                        if (value.contains("${") && value.contains("}")) {
-                            final Map<String, String> toReplace = new HashMap<>();
-                            int lastEnd = -1;
-                            do {
-                                final int start = value.indexOf("${", lastEnd);
-                                if (start < 0) {
-                                    break;
-                                }
-                                final int end = value.indexOf('}', start);
-                                if (end < start) {
-                                    break;
-                                }
-
-                                final String rawKey = value.substring(start + "${".length(), end);
-                                dynamicHeaderKeys.add(rawKey);
-                                toReplace.put(value.substring(start, end + 1), rawKey);
-                                lastEnd = end;
-                            } while (lastEnd > 0);
-                            if (!toReplace.isEmpty()) {
-                                return placeholders -> {
-                                    String output = value;
-                                    for (final Map.Entry<String, String> placeholder : toReplace.entrySet()) {
-                                        output = output.replace(placeholder.getKey(),
-                                                ofNullable(placeholders.apply(placeholder.getValue())).orElse(""));
-                                    }
-                                    return output;
-                                };
-                            }
-                        }
-                        return ignored -> value;
-                    }));
+                    properties.stringPropertyNames().stream().collect(
+                            toMap(identity(), e -> substitutor.compile(dynamicHeaderKeys, properties.getProperty(e))));
             dynamicHeaders = unmodifiableSet(dynamicHeaderKeys);
             headerAppender = (builder, placeholders) -> {
                 Invocation.Builder out = builder;

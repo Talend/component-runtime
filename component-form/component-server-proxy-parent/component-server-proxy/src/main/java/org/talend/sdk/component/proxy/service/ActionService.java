@@ -18,21 +18,31 @@ package org.talend.sdk.component.proxy.service;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
+import javax.ws.rs.client.CompletionStageRxInvoker;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericType;
 
+import org.eclipse.microprofile.config.Config;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.model.Ui;
@@ -42,10 +52,10 @@ import org.talend.sdk.component.proxy.jcache.CacheResolverManager;
 import org.talend.sdk.component.proxy.jcache.ProxyCacheKeyGenerator;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.UiNode;
-import org.talend.sdk.component.proxy.service.client.ClientProducer;
 import org.talend.sdk.component.proxy.service.client.ComponentClient;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
 import org.talend.sdk.component.proxy.service.client.UiSpecContext;
+import org.talend.sdk.component.proxy.service.lang.Substitutor;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
@@ -94,6 +104,20 @@ public class ActionService {
     @Inject // to have cache activated and not handle it manually
     private ActionService self;
 
+    @Inject
+    @UiSpecProxy
+    private javax.ws.rs.client.Client http;
+
+    @Inject
+    @UiSpecProxy
+    private Config config;
+
+    @Inject
+    private Substitutor substitutor;
+
+    private final GenericType<List<Map<String, Object>>> listType = new GenericType<List<Map<String, Object>>>() {
+    };
+
     public CompletionStage<Map<String, Object>> createStage(final String family, final String type, final String action,
             final UiSpecContext context, final Map<String, Object> params) {
         // family is ignored since we virtually add it for all families (=local exec)
@@ -128,8 +152,61 @@ public class ActionService {
                     .map(id -> createNewFormFromId(String.valueOf(id), lang, placeholderProvider))
                     .orElseGet(() -> CompletableFuture.completedFuture(emptyMap()));
         default:
+            if (action.startsWith("builtin::http::dynamic_values(")) {
+                return http(placeholderProvider, Stream
+                        .of(action.substring("builtin::http::dynamic_values(".length(), action.length() - 1).split(","))
+                        .map(String::trim)
+                        .filter(it -> !it.isEmpty())
+                        .map(it -> it.split("="))
+                        .collect(toMap(it -> it[0], it -> it[1])));
+            }
             throw new IllegalArgumentException("Unknown action: " + action);
         }
+    }
+
+    // todo: cache most of that computation to do it only once, not critical for now (must use placeholders in the key)
+    private CompletionStage<Map<String, Object>> http(final Function<String, String> placeholderProvider,
+            final Map<String, Object> params) {
+        final String url = substitutor
+                .compile(requireNonNull(String.class.cast(params.get("url")), "No url specificed for a http trigger"))
+                .apply(placeholderProvider);
+        final List<String> headers = Stream
+                .of(String.class.cast(params.getOrDefault("headers", "")).split(","))
+                .map(String::trim)
+                .filter(it -> !it.isEmpty())
+                .collect(toList());
+        Invocation.Builder request = http.target(config.getOptionalValue(url, String.class).orElse(url)).request(
+                String.class.cast(params.getOrDefault("accept", APPLICATION_JSON)));
+        for (final String header : headers) {
+            final String headerValue = placeholderProvider.apply(header);
+            if (headerValue == null) {
+                continue;
+            }
+            request = request.header(header, headerValue);
+        }
+
+        final CompletionStageRxInvoker rx = request.rx();
+
+        final CompletionStage<List<Map<String, Object>>> list;
+        if (!Boolean.parseBoolean(String.valueOf(params.getOrDefault("object", "false")))) {
+            list = rx.get(listType);
+        } else {
+            list = rx.get(Object.class).thenApply(
+                    object -> List.class.cast(Map.class.cast(object).get(params.getOrDefault("objectKey", "items"))));
+        }
+
+        final String idName = String.class.cast(params.getOrDefault("id", "id"));
+        final String labelName = String.class.cast(params.getOrDefault("name", "name"));
+        return list
+                .thenApply(it -> ofNullable(it)
+                        .orElseGet(Collections::emptyList)
+                        .stream()
+                        .filter(map -> map.containsKey(idName) || map.containsKey(labelName))
+                        .map(map -> new Values.Item(String.class.cast(map.getOrDefault(idName, map.get(labelName))),
+                                String.class.cast(map.getOrDefault(labelName, map.get(idName)))))
+                        .collect(toList()))
+                .thenApply(Values::new)
+                .thenApply(this::toJsonMap);
     }
 
     private CompletableFuture<Map<String, Object>> createNewFormFromId(final String id, final String lang,
@@ -140,8 +217,8 @@ public class ActionService {
                 .toCompletableFuture();
     }
 
-    private Map<String, Object> toJsonMap(final NewForm newForm) {
-        return (Map<String, Object>) jsonb.fromJson(jsonb.toJson(newForm), Map.class);
+    private <T> Map<String, Object> toJsonMap(final T model) {
+        return (Map<String, Object>) jsonb.fromJson(jsonb.toJson(model), Map.class);
     }
 
     private NewForm toNewFormResponse(final UiNode uiNode) {
@@ -200,14 +277,14 @@ public class ActionService {
         return configurationClient
                 .getAllConfigurations(lang, placeholderProvider)
                 .thenApply(configs -> configurationService.getRootConfiguration(configs, ignored -> null))
-                .thenApply(configs -> new ClientProducer.Values(configs
+                .thenApply(configs -> new Values(configs
                         .getNodes()
                         .values()
                         .stream()
-                        .map(it -> new ClientProducer.Values.Item(it.getId(), it.getLabel()))
-                        .sorted(comparing(ClientProducer.Values.Item::getLabel))
+                        .map(it -> new Values.Item(it.getId(), it.getLabel()))
+                        .sorted(comparing(Values.Item::getLabel))
                         .collect(toList())))
-                .thenApply(values -> ((Map<String, Object>) jsonb.fromJson(jsonb.toJson(values), Map.class)))
+                .thenApply(this::toJsonMap)
                 .toCompletableFuture();
     }
 
@@ -221,5 +298,21 @@ public class ActionService {
         private Collection<UiSchema> uiSchema;
 
         private Node metadata;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class Values {
+
+        private Collection<Item> items;
+
+        @Data
+        @AllArgsConstructor
+        public static class Item {
+
+            private String id;
+
+            private String label;
+        }
     }
 }
