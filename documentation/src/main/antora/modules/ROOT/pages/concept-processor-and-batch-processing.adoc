@@ -3,7 +3,7 @@
 
 Depending on several requirements, including the system capacity and business needs, a processor can process records differently.
 
-For example, for real-time or near-real time processing, it is more interesting to process small batches of data more often. On the other hand, in case of one-time processing, it is more optimal to adapt the way the component handles data according to the system capacity.
+For example, for real-time or near-real time processing, it is more interesting to process small batches of data more often. On the other hand, in case of one-time processing, it is more optimal to adapt the way the component handles batches of data according to the system capacity.
 
 By default, the runtime automatically estimates a group size that it considers good, according to the system capacity, to process the data. This group size can sometimes be too big and not optimal for your system to handle effectively and correctly.
 
@@ -13,18 +13,17 @@ NOTE: The estimated group size logic is automatically implemented when a compone
 
 The component batch processes the data as follows:
 
-image::processor-bulking-diagram.png[Bulking diagram]
+- Case 1 - No `maxBatchSize` is specified in the component configuration. The runtime estimates a group size of 4.
+image::processor-bulking-diagram-default.png[Bulking diagram]
 
-In this diagram, you can see that:
+- Case 2 - The runtime estimates a group size of 4 but a `maxBatchSize` of 3 is specified in the component configuration. The system adapts the group size to 3.
+image::processor-bulking-diagram-maxbatchsize.png[Bulking diagram]
 
-- The runtime estimates a group size of 4.
-- The component configuration specifies a `maxBatchSize` of 3.
-
-Each group is processed one by one according to the group size estimated by the system:
+Each group is processed as follows until there is no record left:
 
 . The `@BeforeGroup` method resets a record buffer at the beginning of each group.
 . The records of the group are assessed one by one and placed in the buffer as follows: The @ElementListener method tests if the buffer size is greater or equal to the defined `maxBatchSize`. If it is, the records are processed. If not, then the current record is buffered.
-. The previous step happens for all records of the group. Then the `@AfterGroup` method tests if the buffer is empty. If there are still some records in the buffer, they are processed.
+. The previous step happens for all records of the group. Then the `@AfterGroup` method tests if the buffer is empty.
 
 You can define the following logic in the processor configuration:
 
