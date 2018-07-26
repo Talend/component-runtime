@@ -54,6 +54,11 @@ class AbsolutePathResolverTest {
     }
 
     @Test
+    void resolveGrandParent() {
+        assertEquals("foo.bar", resolver.resolveProperty("dummy.foo", "../../foo/bar"));
+    }
+
+    @Test
     void resolveChild() {
         assertEquals("dummy.foo.child", resolver.resolveProperty("dummy.foo", "./child"));
     }

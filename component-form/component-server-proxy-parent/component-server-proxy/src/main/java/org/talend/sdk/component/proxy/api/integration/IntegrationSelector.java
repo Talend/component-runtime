@@ -15,9 +15,15 @@
  */
 package org.talend.sdk.component.proxy.api.integration;
 
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -44,6 +50,13 @@ public class IntegrationSelector implements Extension {
                 .types(Integration.class, Object.class)
                 .qualifiers(Default.Literal.INSTANCE, Any.Literal.INSTANCE)
                 .createWith(c -> integration.get());
+        afterBeanDiscovery
+                .addBean()
+                .id(getClass().getName() + "#referenceService")
+                .scope(ApplicationScoped.class)
+                .types(Integration.class, Object.class)
+                .qualifiers(Default.Literal.INSTANCE, Any.Literal.INSTANCE)
+                .createWith(c -> integration.get().lookup(ReferenceService.class));
     }
 
     void afterDeploymentValidation(@Observes final AfterDeploymentValidation afterDeploymentValidation) {
@@ -53,6 +66,22 @@ public class IntegrationSelector implements Extension {
         } catch (final RuntimeException re) {
             integration = new CdiIntegration();
         }
+
+        final Integration integrationRef = integration;
+        final List<String> errors = Stream.of(ReferenceService.class).map(type -> {
+            try {
+                integrationRef.lookup(ReferenceService.class);
+                return null;
+            } catch (final RuntimeException re) {
+                return "Please implement " + type.getName() + " interface";
+            }
+        }).filter(Objects::nonNull).collect(toList());
+        if (!errors.isEmpty()) {
+            afterDeploymentValidation.addDeploymentProblem(new IllegalStateException(
+                    "Missing implementations in " + integration.getClass().getSimpleName().replace("Integration", "")
+                            + ":\n" + errors.stream().collect(joining("\n -> ", "-> ", "\n"))));
+        }
+
         this.integration.set(new CachedIntegration(integration));
         log.info("Using integration {}", integration.getClass().getSimpleName().replace("Integration", ""));
     }

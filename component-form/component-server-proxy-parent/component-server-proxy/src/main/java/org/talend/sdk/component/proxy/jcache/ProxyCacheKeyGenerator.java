@@ -38,7 +38,7 @@ public class ProxyCacheKeyGenerator implements CacheKeyGenerator {
 
     @Override
     public GeneratedCacheKey generateCacheKey(final CacheKeyInvocationContext<? extends Annotation> ctx) {
-        return new GeneratedCacheKeyImpl(Stream.of(ctx.getKeyParameters()).map(it -> toValue(it)).toArray());
+        return new GeneratedCacheKeyImpl(Stream.of(ctx.getKeyParameters()).map(this::toValue).toArray());
     }
 
     private Object toValue(final CacheInvocationParameter it) {
@@ -46,6 +46,9 @@ public class ProxyCacheKeyGenerator implements CacheKeyGenerator {
 
         // placeholder provider, replace it by actual values to keep the cache consistent (lang etc)
         if (it.getRawType() == Function.class) {
+            if (configuration.getCacheHeaderName().isPresent()) {
+                return Function.class.cast(it.getValue()).apply(configuration.getCacheHeaderName().get());
+            }
             final Collection<String> headers = configuration.getDynamicHeaders();
             if (headers.isEmpty()) {
                 return null;

@@ -139,6 +139,12 @@ public class ReferenceServiceImpl implements ReferenceService {
             .map(it -> new Values.Item(it.getId(), it.getName()))
             .collect(toList())));
     }
+
+    @Override
+    public CompletionStage<Form> findPropertiesById(final String id) {
+        final Entity entity = db.findById(id);
+        return CompletableFuture.completedFuture(Form.builder().properties(entity.getProperties()).formId(entity.getFormId()).build());
+    }
 }
 ----
 

@@ -37,7 +37,6 @@ import java.util.stream.Stream;
 import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.json.bind.Jsonb;
 import javax.ws.rs.client.CompletionStageRxInvoker;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
@@ -48,7 +47,6 @@ import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
-import org.talend.sdk.component.proxy.api.integration.Integration;
 import org.talend.sdk.component.proxy.api.integration.application.ReferenceService;
 import org.talend.sdk.component.proxy.api.integration.application.Values;
 import org.talend.sdk.component.proxy.jcache.CacheResolverManager;
@@ -94,8 +92,7 @@ public class ActionService {
     private ConfigurationService configurationService;
 
     @Inject
-    @UiSpecProxy
-    private Jsonb jsonb;
+    private JsonMapService jsonMapService;
 
     @Inject
     @UiSpecProxy
@@ -119,7 +116,7 @@ public class ActionService {
     private Substitutor substitutor;
 
     @Inject
-    private Integration integration;
+    private ReferenceService referenceService;
 
     private final GenericType<List<Map<String, Object>>> listType = new GenericType<List<Map<String, Object>>>() {
     };
@@ -148,6 +145,8 @@ public class ActionService {
         return action != null && action.startsWith("builtin::");
     }
 
+    // IMPORTANT: ensure to register the action in
+    // org.talend.sdk.component.proxy.service.ModelEnricherService.BUILTIN_ACTIONS
     public CompletionStage<Map<String, Object>> findBuiltInAction(final String action, final String lang,
             final Function<String, String> placeholderProvider, final Map<String, Object> params) {
         switch (action) {
@@ -170,8 +169,7 @@ public class ActionService {
     private CompletionStage<Map<String, Object>> references(final Map<String, Object> params) {
         final String type = String.class.cast(requireNonNull(params.get("type"), "reference type must not be null"));
         final String name = String.class.cast(requireNonNull(params.get("name"), "reference name must not be null"));
-        return integration.lookup(ReferenceService.class).findReferencesByTypeAndName(type, name).thenApply(
-                this::toJsonMap);
+        return referenceService.findReferencesByTypeAndName(type, name).thenApply(jsonMapService::toJsonMap);
     }
 
     private Map<String, Object> csvToParams(final String value, final String prefix) {
@@ -226,19 +224,15 @@ public class ActionService {
                                 String.class.cast(map.getOrDefault(labelName, map.get(idName)))))
                         .collect(toList()))
                 .thenApply(Values::new)
-                .thenApply(this::toJsonMap);
+                .thenApply(jsonMapService::toJsonMap);
     }
 
     private CompletableFuture<Map<String, Object>> createNewFormFromId(final String id, final String lang,
             final Function<String, String> placeholderProvider) {
         return findUiSpec(id, lang, placeholderProvider)
                 .thenApply(this::toNewFormResponse)
-                .thenApply(this::toJsonMap)
+                .thenApply(jsonMapService::toJsonMap)
                 .toCompletableFuture();
-    }
-
-    private <T> Map<String, Object> toJsonMap(final T model) {
-        return (Map<String, Object>) jsonb.fromJson(jsonb.toJson(model), Map.class);
     }
 
     private NewForm toNewFormResponse(final UiNode uiNode) {
@@ -304,7 +298,7 @@ public class ActionService {
                         .map(it -> new Values.Item(it.getId(), it.getLabel()))
                         .sorted(comparing(Values.Item::getLabel))
                         .collect(toList())))
-                .thenApply(this::toJsonMap)
+                .thenApply(jsonMapService::toJsonMap)
                 .toCompletableFuture();
     }
 

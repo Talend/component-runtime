@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.api.integration.application;
+package org.talend.sdk.component.proxy.service;
 
 import java.util.Map;
-import java.util.concurrent.CompletionStage;
 
-import lombok.Builder;
-import lombok.Data;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.json.bind.Jsonb;
 
-public interface ReferenceService {
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 
-    CompletionStage<Values> findReferencesByTypeAndName(String type, String name);
+@ApplicationScoped
+public class JsonMapService {
 
-    CompletionStage<Form> findPropertiesById(String id);
+    @Inject
+    @UiSpecProxy
+    private Jsonb jsonb;
 
-    @Data
-    @Builder
-    class Form {
-
-        private String formId;
-
-        private Map<String, String> properties;
+    public <T> Map<String, Object> toJsonMap(final T model) {
+        return (Map<String, Object>) jsonb.fromJson(jsonb.toJson(model), Map.class);
     }
 }

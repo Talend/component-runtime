@@ -126,6 +126,11 @@ public class ProxyConfiguration {
     private Integer clientExecutorThreads;
 
     @Inject
+    @Documentation("A header to use in the cache key (to represent a tenant or equivalent).")
+    @ConfigProperty(name = PREFIX + "jcache.cache-key.name")
+    private Optional<String> cacheHeaderName;
+
+    @Inject
     private Substitutor substitutor;
 
     @Getter

@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,13 +34,13 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import org.talend.sdk.component.proxy.api.persistence.OnFindByFormId;
-import org.talend.sdk.component.proxy.api.persistence.OnFindById;
+import org.talend.sdk.component.proxy.api.integration.application.ReferenceService;
+import org.talend.sdk.component.proxy.api.integration.application.Values;
 import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
@@ -50,11 +51,17 @@ public class PropertiesService {
     private ConfigurationClient configurations;
 
     @Inject
-    private Event<OnFindByFormId> findByFormIdEvent;
+    private ReferenceService referenceService;
 
-    @Inject
-    private Event<OnFindById> onFindByIdEvent;
-
+    /**
+     * Take an object properties list and replace the nested configurations
+     * by a xxx$reference STRING (id).
+     *
+     * @param lang the request language.
+     * @param placeholders the context provider (variables).
+     * @param properties the properties to filter.
+     * @return the new properties list.
+     */
     public CompletionStage<List<SimplePropertyDefinition>> filterProperties(final String lang,
             final Function<String, String> placeholders, final Collection<SimplePropertyDefinition> properties) {
         final Collection<SimplePropertyDefinition> nestedConfigurations = dropChildren(properties
@@ -89,7 +96,7 @@ public class PropertiesService {
                                 .stream()
                                 .filter(node -> type.equals(node.getConfigurationType()) && name.equals(node.getName()))
                                 .findFirst()
-                                .map(node -> findPotentialIdsAndNames(node.getId()))
+                                .map(node -> findPotentialIdsAndNames(node))
                                 .orElseGet(() -> completedFuture(emptyMap()))
                                 .thenApply(potentialIdsAndNames -> {
                                     it.getValidation().setEnumValues(potentialIdsAndNames.keySet());
@@ -109,7 +116,8 @@ public class PropertiesService {
                                 .stream()
                                 .noneMatch(prefix -> prefix.getPath().equals(it.getPath())
                                         || it.getPath().startsWith(prefix.getPath() + '.'))),
-                        nestedConfigurations.stream())
+                        // not the best naming convention but enough for now
+                        nestedConfigurations.stream().peek(it -> it.setPath(it.getPath() + ".$selfReference")))
                 .collect(toList()));
     }
 
@@ -125,9 +133,12 @@ public class PropertiesService {
                 .collect(toList());
     }
 
-    private CompletionStage<Map<String, String>> findPotentialIdsAndNames(final String formId) {
-        return findByFormIdEvent.fireAsync(new OnFindByFormId(formId)).thenCompose(
-                e -> ofNullable(e.getResult()).orElseGet(() -> completedFuture(emptyMap())));
+    private CompletionStage<Map<String, String>> findPotentialIdsAndNames(final ConfigTypeNode node) {
+        return referenceService
+                .findReferencesByTypeAndName(node.getConfigurationType(), node.getId())
+                .thenApply(values -> ofNullable(values.getItems())
+                        .map(items -> items.stream().collect(toMap(Values.Item::getId, Values.Item::getLabel)))
+                        .orElseGet(Collections::emptyMap));
     }
 
     public CompletionStage<Map<String, String>> replaceReferences(final RequestContext context,
@@ -151,29 +162,28 @@ public class PropertiesService {
                 .stream()
                 .filter(it -> references.stream().noneMatch(ref -> ref.getPath().equals(it.getKey())))
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-        return allOf(
-                references
-                        .stream()
-                        .map(it -> onFindByIdEvent
-                                .fireAsync(new OnFindById(context, instance.get(it.getPath())))
-                                .thenCompose(byId -> byId.getProperties().thenCompose(props -> byId
-                                        .getFormId()
-                                        .thenCompose(formId -> configurations.getDetails(context.language(), formId,
-                                                context::findPlaceholder))
-                                        .thenApply(detail -> replaceReferences(context, detail.getProperties(), props)
-                                                .thenApply(nestedProps -> {
-                                                    final String root = detail
-                                                            .getProperties()
-                                                            .stream()
-                                                            .map(SimplePropertyDefinition::getPath)
-                                                            .sorted()
-                                                            .iterator()
-                                                            .next();
-                                                    config.putAll(nestedProps.entrySet().stream().collect(toMap(
-                                                            e -> it.getPath() + e.getKey().substring(root.length()),
-                                                            Map.Entry::getValue)));
-                                                    return null;
-                                                })))))
-                        .toArray(CompletableFuture[]::new)).thenApply(ignored -> config);
+        return allOf(references.stream().map(it -> {
+            final String id = instance.get(it.getPath());
+            if (id == null || id.trim().isEmpty()) {
+                return completedFuture(null);
+            }
+            final String sanitizedPath = it.getPath().replace(".$selfReference", "");
+            return referenceService.findPropertiesById(id).thenCompose(form -> configurations
+                    .getDetails(context.language(), form.getFormId(), context::findPlaceholder)
+                    .thenApply(detail -> replaceReferences(context, detail.getProperties(), form.getProperties())
+                            .thenApply(nestedProps -> {
+                                final String root = detail
+                                        .getProperties()
+                                        .stream()
+                                        .map(SimplePropertyDefinition::getPath)
+                                        .sorted()
+                                        .iterator()
+                                        .next();
+                                config.putAll(nestedProps.entrySet().stream().collect(
+                                        toMap(e -> sanitizedPath + e.getKey().substring(root.length()),
+                                                Map.Entry::getValue)));
+                                return null;
+                            })));
+        }).toArray(CompletableFuture[]::new)).thenApply(ignored -> config);
     }
 }
