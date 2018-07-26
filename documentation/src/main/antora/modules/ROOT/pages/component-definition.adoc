@@ -335,21 +335,6 @@ public void store(final MyData data) {
 Currently, Talend Component Kit does not allow you to define a `Combiner`.
 A combiner is the symmetric part of a partition mapper and allows to aggregate results in a single partition.
 
-== Family and component icons
-
-Every component family and component needs to have a representative icon. +
-You can use one of the icons provided by the framework or you can use a custom icon.
-
-For the component family the icon is defined in the `package-info.java` file. For the component itself, you need to declare it in the component class.
-
-To use a custom icon, you need to have the icon file placed in the `resources/icons` folder of the project.
-The icon file needs to have a name following the convention `IconName_icon32.png`, where you can replace `IconName` by the name of your choice.
-
-[source,java]
-----
-@Icon(value = Icon.IconType.CUSTOM, custom = "IconName")
-----
-
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles

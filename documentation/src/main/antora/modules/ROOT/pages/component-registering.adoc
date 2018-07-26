@@ -1,10 +1,20 @@
 = Registering components
 :page-partial:
 
-As you may have read in the <<getting-started.adoc#getting-started-principles, Getting Started>>, you need an annotation to register your component through the `family` method. Multiple components can use the same `family` value but the `family` + `name` pair must be unique for the system.
 
-In order to share the same component family name and to avoid repetitions in all `family` methods,
-you can use the `@Components` annotation on the root package of your component. It allows you to define the component family and the categories the component belongs to (`Misc` by default if not set).
+Before implementing a component logic and configuration, you need to specify the family and the category it belongs to, as well as its name and a few other generic parameters.
+
+Some of these parameters are handled at the project generation using the starter, but can still be accessed and updated later on.
+
+== Component family and categories
+
+The family and category of a component is automatically written in the `package-info.java` of the component package, using the `@Components` annotation. By default, these parameters are already configured in this file when you import your project in your IDE. Their value correspond to what was defined during the project definition with the starter.
+
+Multiple components can share the same `family` and `category` value, but the `family` + `name` pair must be unique for the system.
+
+A component can belong to one family only and to one or several categories. If not specified, the category defaults to `Misc`.
+
+The `package-info.java` also defines the component family icon. You can learn how to customize this icon in xref:component-defining-custom-icon.adoc[this section].
 
 Here is a sample `package-info.java`:
 
@@ -26,22 +36,26 @@ package org.talend.sdk.component.sample;
 import org.talend.sdk.component.api.component.Components;
 ----
 
-== Components metadata
+== Component icon and version
 
 Components can require metadata to be integrated in Talend Studio or Cloud platforms.
 Metadata is set on the component class and belongs to the `org.talend.sdk.component.api.component` package.
 
+When you generate your project and import it in your IDE, icon and version both come with a default value.
+
 [options="header,autowidth"]
 |====
 | API | Description
-| @Icon | Sets an icon key used to represent the component. You can use a custom key with the `custom()` method but the icon may not be rendered properly.
-| @Version | Sets the component version. 1 by default.
+| @Icon | Sets an icon key used to represent the component. You can use a custom key with the `custom()` method but the icon may not be rendered properly. +
+Learn how to set a custom icon for your component in xref:component-defining-custom-icon.adoc[this section].
+| @Version | Sets the component version. 1 by default. +
+Learn how to manage different versions and migrations between your component versions in xref:component-versions-and-migration.adoc[this document].
 |====
 
-Example:
-
+.Example
 [source,java]
 ----
+@Version(1)
 @Icon(FILE_XML_O)
 @PartitionMapper(name = "jaxbInput")
 public class JaxbPartitionMapper implements Serializable {
@@ -49,54 +63,10 @@ public class JaxbPartitionMapper implements Serializable {
 }
 ----
 
-=== Managing version configuration
 
-If some changes impact the configuration, they can be managed through a migration handler at the *component* level (enabling trans-model migration support).
+== Component types
 
-The `@Version` annotation supports a `migrationHandler` method which migrates the incoming configuration to the current model.
-
-For example, if the `filepath` configuration entry from v1 changed to `location` in v2, you can remap the value in your `MigrationHandler` implementation.
-
-A best practice is to split migrations into services that you can inject in the migration handler (through constructor) rather than managing all migrations directly in the handler. For example:
-
-[source,java]
-----
-// full component code structure skipped for brievity, kept only migration part
-@Version(value = 3, migrationHandler = MyComponent.Migrations.class)
-public class MyComponent {
-    // the component code...
-
-
-    private interface VersionConfigurationHandler {
-        Map<String, String> migrate(Map<String, String> incomingData);
-    }
-
-    public static class Migrations {
-        private final List<VersionConfigurationHandler> handlers;
-
-        // VersionConfigurationHandler implementations are decorated with @Service
-        public Migrations(final List<VersionConfigurationHandler> migrations) {
-            this.handlers = migrations;
-            this.handlers.sort(/*some custom logic*/);
-        }
-
-        @Override
-        public Map<String, String> migrate(int incomingVersion, Map<String, String> incomingData) {
-            Map<String, String> out = incomingData;
-            for (MigrationHandler handler : handlers) {
-                out = handler.migrate(out);
-            }
-        }
-    }
-}
-----
-
-What is important to notice in this snippet is not the way the code is organized, but rather the fact that you can organize your migrations the way that best fits your component.
-
-If you need to apply migrations in a specific order, make sure that they are sorted.
-
-NOTE: Consider this API as a migration callback rather than a migration API. +
-Adjust the migration code structure you need behind the `MigrationHandler`, based on your component requirements, using service injection.
+The component type is declared in the component class. When you import your project generated from the starter in your IDE, the component type is already defined.
 
 
 === @PartitionMapper
