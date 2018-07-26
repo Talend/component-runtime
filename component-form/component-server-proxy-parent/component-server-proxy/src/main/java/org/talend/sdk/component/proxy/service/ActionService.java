@@ -48,6 +48,9 @@ import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
+import org.talend.sdk.component.proxy.api.integration.Integration;
+import org.talend.sdk.component.proxy.api.integration.application.ReferenceService;
+import org.talend.sdk.component.proxy.api.integration.application.Values;
 import org.talend.sdk.component.proxy.jcache.CacheResolverManager;
 import org.talend.sdk.component.proxy.jcache.ProxyCacheKeyGenerator;
 import org.talend.sdk.component.proxy.model.Node;
@@ -115,6 +118,9 @@ public class ActionService {
     @Inject
     private Substitutor substitutor;
 
+    @Inject
+    private Integration integration;
+
     private final GenericType<List<Map<String, Object>>> listType = new GenericType<List<Map<String, Object>>>() {
     };
 
@@ -153,18 +159,32 @@ public class ActionService {
                     .orElseGet(() -> CompletableFuture.completedFuture(emptyMap()));
         default:
             if (action.startsWith("builtin::http::dynamic_values(")) {
-                return http(placeholderProvider, Stream
-                        .of(action.substring("builtin::http::dynamic_values(".length(), action.length() - 1).split(","))
-                        .map(String::trim)
-                        .filter(it -> !it.isEmpty())
-                        .map(it -> it.split("="))
-                        .collect(toMap(it -> it[0], it -> it[1])));
+                return http(placeholderProvider, csvToParams(action, "builtin::http::dynamic_values("));
+            } else if (action.startsWith("builtin::references(")) {
+                return references(csvToParams(action, "builtin::references("));
             }
             throw new IllegalArgumentException("Unknown action: " + action);
         }
     }
 
+    private CompletionStage<Map<String, Object>> references(final Map<String, Object> params) {
+        final String type = String.class.cast(requireNonNull(params.get("type"), "reference type must not be null"));
+        final String name = String.class.cast(requireNonNull(params.get("name"), "reference name must not be null"));
+        return integration.lookup(ReferenceService.class).findReferencesByTypeAndName(type, name).thenApply(
+                this::toJsonMap);
+    }
+
+    private Map<String, Object> csvToParams(final String value, final String prefix) {
+        return Stream
+                .of(value.substring(prefix.length(), value.length() - 1).split(","))
+                .map(String::trim)
+                .filter(it -> !it.isEmpty())
+                .map(it -> it.split("="))
+                .collect(toMap(it -> it[0], it -> it[1]));
+    }
+
     // todo: cache most of that computation to do it only once, not critical for now (must use placeholders in the key)
+    // @CacheResult -> we miss an eviction rule to do that ATM
     private CompletionStage<Map<String, Object>> http(final Function<String, String> placeholderProvider,
             final Map<String, Object> params) {
         final String url = substitutor
@@ -298,21 +318,5 @@ public class ActionService {
         private Collection<UiSchema> uiSchema;
 
         private Node metadata;
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class Values {
-
-        private Collection<Item> items;
-
-        @Data
-        @AllArgsConstructor
-        public static class Item {
-
-            private String id;
-
-            private String label;
-        }
     }
 }

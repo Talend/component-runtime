@@ -21,6 +21,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-932[TCOMP-932^]: Avoid Kafka recursive logging for component server
 - link:https://jira.talendforge.org/browse/TCOMP-933[TCOMP-933^]: Drop component-kit.js module
 - link:https://jira.talendforge.org/browse/TCOMP-935[TCOMP-935^]: Component server should log application and service in kafka mode
+- link:https://jira.talendforge.org/browse/TCOMP-938[TCOMP-938^]: Add a builtin::http trigger in the server proxy
 
 
 == Version 1.0.3

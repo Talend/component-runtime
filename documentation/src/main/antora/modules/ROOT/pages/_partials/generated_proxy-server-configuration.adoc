@@ -8,6 +8,7 @@ If you use `playx-microprofile-config`, you can also use typesafe configuration.
 |Key|Description|Default
 |talend.component.proxy.actions.proposable.cached|If true the proposable (suggestion lists only depending on the server state) will be cached, otherwise they will be requested for each form rendering.|true
 |talend.component.proxy.application.home|A home location for relative path resolution (optional).|${playx.application.home}
+|talend.component.proxy.client.executor.threads|For the client executor, the number of threads.|64
 |talend.component.proxy.client.providers|List of JAX-RS providers to register on the client, at least a JSON-B one should be here.|-
 |talend.component.proxy.client.timeouts.connect|The connect timeout for the communication with the server.base in ms.|60000
 |talend.component.proxy.client.timeouts.read|The read timeout for the communication with the server.base in ms.|600000

@@ -61,14 +61,19 @@ public class PropertiesService {
                 .stream()
                 .filter(this::isConfiguration)
                 .filter(it -> !it.getName().equals(it.getPath()) /* root is the one we convert */)
-                .map(ref -> new SimplePropertyDefinition(ref.getPath(), ref.getName(), ref.getDisplayName(), "STRING",
-                        null, new PropertyValidation(true, null, null, null, null, null, null, null, null, emptySet()),
-                        new HashMap<String, String>(ref.getMetadata()) {
+                .map(ref -> {
+                    final Map<String, String> enrichedMetadata = new HashMap<>(ref.getMetadata());
+                    enrichedMetadata.put("proxy::type", "reference");
+                    // note: we can move to suggestions later
+                    enrichedMetadata.put("action::dynamic_values",
+                            "builtin::references(" + "type=" + ref.getMetadata().get("configurationtype::type")
+                                    + ",name=" + ref.getMetadata().get("configurationtype::name") + ")");
 
-                            {
-                                put("proxy::type", "reference");
-                            }
-                        }, null, emptyMap()))
+                    return new SimplePropertyDefinition(ref.getPath(), ref.getName(), ref.getDisplayName(), "STRING",
+                            null,
+                            new PropertyValidation(true, null, null, null, null, null, null, null, null, emptySet()),
+                            enrichedMetadata, null, emptyMap());
+                })
                 .collect(toList()));
 
         final CompletionStage<Void> fillMeta;

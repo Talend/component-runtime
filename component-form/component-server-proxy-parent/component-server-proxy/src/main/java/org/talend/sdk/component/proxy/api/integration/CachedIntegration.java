@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.api;
+package org.talend.sdk.component.proxy.api.integration;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import javax.enterprise.inject.Vetoed;
 
-/**
- * Marker for events. Allows to find them easily in the IDE and know
- * the contract to implement.
- */
-@Deprecated // integrations should either encapsulate this lib and bypass events or use the related Integration/SPI
-@Target(TYPE)
-@Retention(RUNTIME)
-public @interface Event {
+import lombok.RequiredArgsConstructor;
+
+@Vetoed
+@RequiredArgsConstructor
+public class CachedIntegration implements Integration {
+
+    private final Integration delegate;
+
+    private final ConcurrentMap<Class<?>, Object> cache = new ConcurrentHashMap<>();
+
+    @Override
+    public <T> T lookup(final Class<T> type) {
+        return type.cast(cache.computeIfAbsent(type, delegate::lookup));
+    }
 }

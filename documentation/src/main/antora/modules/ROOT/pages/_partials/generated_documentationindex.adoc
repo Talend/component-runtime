@@ -36,7 +36,7 @@
     "link":"index-defining-services.html"
   },
   {
-    "description":"Learn how to test your component logic in the environment you need.",
+    "description":"Learn how to test your component logic in the environment you need",
     "icon":"check-circle",
     "index":7000,
     "label":"Testing components",
@@ -57,7 +57,7 @@
     "link":"index-reference-guide.html"
   },
   {
-    "description":"Follow these guided examples to get used to the framework.",
+    "description":"Follow these guided examples to get used to the framework",
     "icon":"book-open",
     "index":8500,
     "label":"Tutorials",

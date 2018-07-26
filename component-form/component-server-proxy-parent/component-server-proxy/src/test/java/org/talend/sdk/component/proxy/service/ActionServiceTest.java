@@ -85,4 +85,25 @@ class ActionServiceTest {
             server.stop(0);
         }
     }
+
+    @Test
+    void references() throws Exception {
+        final Map<String, Object> result = service
+                .findBuiltInAction("builtin::references(type=thetype,name=thename)", "en", null, emptyMap())
+                .toCompletableFuture()
+                .get();
+        assertEquals(singletonMap("items", asList(new HashMap<String, Object>() {
+
+            {
+                put("id", "thetype1");
+                put("label", "thename1");
+            }
+        }, new HashMap<String, Object>() {
+
+            {
+                put("id", "thetype2");
+                put("label", "thename2");
+            }
+        })), result);
+    }
 }

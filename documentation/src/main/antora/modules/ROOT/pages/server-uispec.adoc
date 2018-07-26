@@ -114,6 +114,43 @@ The configuration entries are the following ones:
 |name|Name of the field to extract from an item of the response list to map to the label of the proposal (default to `name`).|`label`
 |====
 
+=== Populate a dropdown with a list of references
+
+In some forms you will want to populate a dropdown with a list of entities available in your database.
+For that, the proxy will rely on a SPI called `Integration`. If you don't implement it, it uses
+a Guice integration if Guice is in the classpath or a native CDI integration otherwise.
+
+The integration will then let the proxy lookup a `ReferenceService` implementation which will provide
+from a configuration type `type` and `name` (for instance `datastore`, `MyDataBaseConfig`) the list of
+references you want to propose to the end user.
+
+Here is very simple implementation:
+
+[source,java]
+----
+@ApplicationScoped
+public class ReferenceServiceImpl implements ReferenceService {
+    @Inject
+    private Database db;
+
+    @Override
+    public CompletionStage<Values> findReferencesByTypeAndName(final String type, final String name) {
+        return CompletableFuture.completedFuture(new Values(db.findByTypeAndName(type, name).stream()
+            .map(it -> new Values.Item(it.getId(), it.getName()))
+            .collect(toList())));
+    }
+}
+----
+
+Generally this kind of completion will be activated under the hood by the proxy using this kind of metadata:
+
+[source,json]
+----
+{
+  "action::dynamic_values": "builtin::references(type=xxxx,name=yyyy)"
+}
+----
+
 ==== Going further: make this field hidden when empty
 
 In some cases you will want to hide this field if the proposals are <= 1, in this case you can use a condition:
