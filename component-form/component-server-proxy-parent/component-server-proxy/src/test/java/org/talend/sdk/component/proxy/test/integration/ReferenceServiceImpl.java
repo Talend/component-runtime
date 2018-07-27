@@ -16,8 +16,9 @@
 package org.talend.sdk.component.proxy.test.integration;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonMap;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -43,6 +44,13 @@ public class ReferenceServiceImpl implements ReferenceService {
 
     @Override
     public CompletionStage<Form> findPropertiesById(final String id) {
+        if (id.equals("actionServices.reloadFromParentId")) {
+            return completedFuture(Form
+                    .builder()
+                    .formId("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ")
+                    .properties(new HashMap<>())
+                    .build());
+        }
         final OnPersist byId = persistence.findById(id);
         return CompletableFuture
                 .completedFuture(Form.builder().formId(byId.getFormId()).properties(byId.getProperties()).build());
