@@ -1,0 +1,120 @@
+= General component execution logic
+:page-partial:
+
+Talend Component Kit framework relies on several primitive components.
+
+All components can use `@PostConstruct` and `@PreDestroy` annotations to initialize or release some underlying resource at the beginning and the end of a processing.
+
+IMPORTANT: In distributed environments, class constructor are called on cluster manager nodes. Methods annotated with `@PostConstruct` and `@PreDestroy` are called on worker nodes. Thus, partition plan computation and pipeline tasks are performed on different nodes.
+
+////
+[ditaa, generated-deployment-diagram, png]
+....
+                 /-------------------------\
+                 |    Create and submit    |
+                 |   task to cluster (1)   |
+                 \-------------------------/
+                             |
+                             V
+                +---------------------------+
+                |     Cluster manager       |
+                |---------------------------|
+                |     Partition plan        |
+                |     computation (2)       |
+                |                           |
+                +---------------------------+
+                             ^
+                             |
+                          Serialized
+                          instances
+                             |
+                             V
+                    +------------------+
+                    |   Worker node    |
+                    |----------------- |
+                    |Flow Execution (3)|
+                    +------------------+
+....
+////
+image:deployment-diagram.png[]
+
+1. The created task is a JAR file containing class information, which describes the pipeline (flow) that should be processed in cluster.
+2. During the partition plan computation step, the pipeline is analyzed and split into stages. The cluster manager node instantiates mappers/processors, gets estimated data size using mappers, and splits created mappers according to the estimated data size. +
+All instances are then serialized and sent to the worker node.
+3. Serialized instances are received and deserialized. Methods annotated with `@PostConstruct` are called. After that, pipeline execution starts. The `@BeforeGroup` annotated method of the processor is called before processing the first element in chunk. +
+After processing the number of records estimated as chunk size, the `@AfterGroup` annotated method of the processor is called. Chunk size is calculated depending on the environment the pipeline is processed by. Once the pipeline is processed, methods annotated with `@PreDestroy` are called.
+
+IMPORTANT: All the methods managed by the framework must be public. Private methods are ignored.
+
+////
+[ditaa, generated-driver-processing-workflow, png]
+....
+Partition plan computation (2)
+    +----------------+
+    | Create Mappers |
+    +----------------+
+            |
+            V
++--------------------------+
+|Compute partition plan (2)|
++--------------------------+
+            |
+            V
+  +----------------------+
+  |  Serialize split     |
+  |mappers and processors|
+  +----------------------+
+....
+////
+image:driver-processing-workflow.png[]
+
+////
+[ditaa, generated-worker-processing-workflow, png]
+....
+Flow Execution (3)
++------------------+
+|  @PostConstruct  |
+|     methods      |
++------------------+
+         |
+         V
++------------------+
+|  @BeforeGroup    |
+|     methods      |
++------------------+
+         |
+         V
++------------------+
+|   Performs task  |
+|   described in   |
+|     pipeline     |
++------------------+
+         |
+         V
++------------------+
+|   @AfterGroup    |
+|     methods      |
++------------------+
+         |
+         V
++------------------+
+|   @PreDestroy    |
+|     methods      |
++------------------+
+....
+////
+image:worker-processing-workflow.png[]
+
+NOTE: The framework is designed to be as declarative as possible but also to stay extensible by not using fixed interfaces or method signatures. This allows to incrementally add new features of the underlying implementations.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
+- xref:component-configuration.adoc[Configuring a component]
+- xref:component-registering.adoc[Registering a component]
+- xref:component-internationalization.adoc[Internationalizing a component]
+- xref:component-loading.adoc[Loading a component]
+- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+- xref:best-practices.adoc[Best practices]
+endif::[]

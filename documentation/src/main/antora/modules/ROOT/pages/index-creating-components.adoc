@@ -5,12 +5,11 @@
 :page-documentationindex-icon: wrench
 :page-documentationindex-description: Define the logic and UI of your components using a Java IDE
 
+include::component-registering.adoc[leveloffset=+1]
 
 include::component-definition.adoc[leveloffset=+1]
 
 include::component-configuration.adoc[leveloffset=+1]
-
-include::component-registering.adoc[leveloffset=+1]
 
 include::component-internationalization.adoc[leveloffset=+1]
 

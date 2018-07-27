@@ -2,7 +2,7 @@
 :page-partial:
 
 
-Before implementing a component logic and configuration, you need to specify the family and the category it belongs to, as well as its name and a few other generic parameters.
+Before implementing a component logic and configuration, you need to specify the family and the category it belongs to, the component type and name, as well as its name and a few other generic parameters.
 
 Some of these parameters are handled at the project generation using the starter, but can still be accessed and updated later on.
 
@@ -64,40 +64,39 @@ public class JaxbPartitionMapper implements Serializable {
 ----
 
 
-== Component types
+== Component type and name
 
 The component type is declared in the component class. When you import your project generated from the starter in your IDE, the component type is already defined.
 
+An input components can be:
+- A partition mapper. `@PartitionMapper` is the default for input components.
+- An emitter. `@Emitter` is a shortcut for `@PartitionMapper` when you don't support distribution. It enforces an implicit partition mapper execution with an assessor size of 1 and a split returning itself.
+- A processor. `@Processor` is the default for output components. A method decorated with `@Processor` is considered as a producer factory
 
-=== @PartitionMapper
+You can learn more about the specificities and execution flow of each component type in xref:component-definition.adoc[this document].
 
-`@PartitionMapper` marks a partition mapper:
+The name of the component is defined there as well as a parameter of the component type.
 
+.Partition mapper example
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-@PartitionMapper(family = "demo", name = "my_mapper")
+@PartitionMapper(name = "my_mapper")
 public class MyMapper {
 }
 ----
 
-==== @Emitter
-
-`@Emitter` is a shortcut for `@PartitionMapper` when you don't support distribution. It enforces an implicit partition mapper execution with an assessor size of 1 and a split returning itself.
-
+.Emitter example
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-@Emitter(family = "demo", name = "my_input")
+@Emitter(name = "my_input")
 public class MyInput {
 }
 ----
 
-=== @Processor
-
-A method decorated with `@Processor` is considered as a producer factory:
-
+.Processor example
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
-@Processor(family = "demo", name = "my_processor")
+@Processor(name = "my_processor")
 public class MyProcessor {
 }
 ----
@@ -108,8 +107,5 @@ ifeval::["{backend}" == "html5"]
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
 - xref:component-definition.adoc[Defining a component]
 - xref:component-configuration.adoc[Configuring a component]
-- xref:component-internationalization.adoc[Internationalizing a component]
-- xref:component-loading.adoc[Loading a component]
-- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
 - xref:best-practices.adoc[Best practices]
 endif::[]
