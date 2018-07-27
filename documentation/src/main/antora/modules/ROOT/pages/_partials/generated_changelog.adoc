@@ -25,6 +25,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-939[TCOMP-939^]: Ensure the proxy server can lookup references with a SPI
 - link:https://jira.talendforge.org/browse/TCOMP-943[TCOMP-943^]: (web) Grand parent references for triggers not well resolved
 - link:https://jira.talendforge.org/browse/TCOMP-944[TCOMP-944^]: (proxy server) Ensure the trigger are well resolved for references
+- link:https://jira.talendforge.org/browse/TCOMP-947[TCOMP-947^]: (maven/gradle) ensure web task logs there is a UI
 
 
 == Version 1.0.3
