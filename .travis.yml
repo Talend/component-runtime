@@ -73,6 +73,11 @@ jobs:
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
       script: chmod +x ./.travis/docker.sh && ./.travis/docker.sh
 
+    - stage: master_build
+      env:
+      - STEP=Sonatype Audit
+      script: mvn ossindex:audit
+
 stages:
   - name: master_build
     if: branch = master AND type != pull_request

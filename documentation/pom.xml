@@ -79,6 +79,10 @@
       <scope>provided</scope>
       <exclusions>
         <exclusion>
+          <groupId>org.codehaus.plexus</groupId>
+          <artifactId>plexus-utils</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>org.python</groupId>
           <artifactId>jython</artifactId>
         </exclusion>
@@ -131,12 +135,6 @@
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
       <version>${johnzon.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.plexus</groupId>
-      <artifactId>plexus-sec-dispatcher</artifactId>
-      <version>${plexus-sec-dispatcher.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

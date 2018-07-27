@@ -359,6 +359,9 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <scope>compile,runtime</scope>
+        </configuration>
       </plugin>
 
       <plugin>

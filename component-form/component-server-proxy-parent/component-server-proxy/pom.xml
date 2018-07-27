@@ -135,6 +135,16 @@
       <artifactId>play-test_${scala.version}</artifactId>
       <version>${play2.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.fluentlenium</groupId>
+          <artifactId>fluentlenium-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.seleniumhq.selenium</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.tomee</groupId>
