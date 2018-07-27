@@ -70,7 +70,6 @@ public class PropertiesService {
                 .filter(it -> !it.getName().equals(it.getPath()) /* root is the one we convert */)
                 .map(ref -> {
                     final Map<String, String> enrichedMetadata = new HashMap<>(ref.getMetadata());
-                    enrichedMetadata.put("proxy::type", "reference");
                     // note: we can move to suggestions later
                     enrichedMetadata.put("action::dynamic_values",
                             "builtin::references(" + "type=" + ref.getMetadata().get("configurationtype::type")
@@ -96,7 +95,7 @@ public class PropertiesService {
                                 .stream()
                                 .filter(node -> type.equals(node.getConfigurationType()) && name.equals(node.getName()))
                                 .findFirst()
-                                .map(node -> findPotentialIdsAndNames(node))
+                                .map(this::findPotentialIdsAndNames)
                                 .orElseGet(() -> completedFuture(emptyMap()))
                                 .thenApply(potentialIdsAndNames -> {
                                     it.getValidation().setEnumValues(potentialIdsAndNames.keySet());
@@ -148,7 +147,7 @@ public class PropertiesService {
         }
         final List<SimplePropertyDefinition> references = properties
                 .stream()
-                .filter(it -> "reference".equals(it.getMetadata().getOrDefault("proxy::type", "")))
+                .filter(it -> it.getPath().endsWith(".$selfReference"))
                 .filter(it -> !instance.getOrDefault(it.getPath(), "").isEmpty())
                 .collect(toList());
         if (references.isEmpty()) {

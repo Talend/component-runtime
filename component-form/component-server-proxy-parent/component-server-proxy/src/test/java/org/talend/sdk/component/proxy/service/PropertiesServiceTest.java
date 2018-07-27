@@ -119,7 +119,6 @@ class PropertiesServiceTest {
                 filtered.stream().map(SimplePropertyDefinition::getPath).collect(joining("/")));
         assertEquals("OBJECT/STRING/NUMBER/STRING",
                 filtered.stream().map(SimplePropertyDefinition::getType).collect(joining("/")));
-        assertEquals("reference", filtered.get(1).getMetadata().get("proxy::type"));
     }
 
     @Test
@@ -225,7 +224,6 @@ class PropertiesServiceTest {
                 filtered.stream().map(SimplePropertyDefinition::getPath).collect(joining("/")));
         assertEquals("OBJECT/OBJECT/STRING/NUMBER/STRING",
                 filtered.stream().map(SimplePropertyDefinition::getType).collect(joining("/")));
-        assertEquals("reference", filtered.get(4).getMetadata().get("proxy::type"));
     }
 
     private Map<String, String> metadata(final String name, final String type) {
