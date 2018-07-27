@@ -39,12 +39,23 @@ import lombok.Getter;
 @ApplicationScoped
 public class InMemoryTestPersistence {
 
+    @Getter
     private final Collection<OnPersist> persist = new ArrayList<>();
 
     private final Collection<OnEdit> edit = new ArrayList<>();
 
     @Inject
     private ConfigurationClient client;
+
+    public OnPersist findById(final String id) {
+        return persist.stream().filter(it -> {
+            try {
+                return it.getId().toCompletableFuture().get().equals(id);
+            } catch (final InterruptedException | ExecutionException e) {
+                throw new IllegalStateException(e);
+            }
+        }).findFirst().orElseThrow(() -> new IllegalArgumentException("No persisted entries matching id #" + id));
+    }
 
     void on(@ObservesAsync final OnPersist event) {
         persist.add(event.composeId(completedFuture(UUID.randomUUID().toString())));
@@ -55,14 +66,7 @@ public class InMemoryTestPersistence {
     }
 
     void on(@ObservesAsync final OnFindById event) {
-        final OnPersist persisted = persist.stream().filter(it -> {
-            try {
-                return it.getId().toCompletableFuture().get().equals(event.getId());
-            } catch (final InterruptedException | ExecutionException e) {
-                throw new IllegalStateException(e);
-            }
-        }).findFirst().orElseThrow(
-                () -> new IllegalArgumentException("No persisted entries matching id #" + event.getId()));
+        final OnPersist persisted = findById(event.getId());
         event.composeProperties(completedFuture(persisted.getProperties())).composeFormId(
                 completedFuture(persisted.getFormId()));
     }

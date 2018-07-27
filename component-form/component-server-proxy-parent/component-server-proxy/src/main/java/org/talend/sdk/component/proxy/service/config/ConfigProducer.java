@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.api;
+package org.talend.sdk.component.proxy.service.config;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 
-/**
- * Marker for events. Allows to find them easily in the IDE and know
- * the contract to implement.
- */
-@Deprecated // integrations should either encapsulate this lib and bypass events or use the related Integration/SPI
-@Target(TYPE)
-@Retention(RUNTIME)
-public @interface Event {
+@ApplicationScoped
+public class ConfigProducer {
+
+    @Produces
+    @UiSpecProxy
+    @ApplicationScoped
+    public Config config() {
+        return ConfigProvider.getConfig();
+    }
 }

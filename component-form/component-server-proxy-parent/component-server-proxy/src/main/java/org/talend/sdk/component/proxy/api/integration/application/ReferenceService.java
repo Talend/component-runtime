@@ -13,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.api;
+package org.talend.sdk.component.proxy.api.integration.application;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.util.Map;
+import java.util.concurrent.CompletionStage;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import lombok.Builder;
+import lombok.Data;
 
-/**
- * Marker for events. Allows to find them easily in the IDE and know
- * the contract to implement.
- */
-@Deprecated // integrations should either encapsulate this lib and bypass events or use the related Integration/SPI
-@Target(TYPE)
-@Retention(RUNTIME)
-public @interface Event {
+public interface ReferenceService {
+
+    CompletionStage<Values> findReferencesByTypeAndName(String type, String name);
+
+    CompletionStage<Form> findPropertiesById(String id);
+
+    @Data
+    @Builder
+    class Form {
+
+        private String formId;
+
+        private Map<String, String> properties;
+    }
 }

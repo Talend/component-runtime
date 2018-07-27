@@ -70,6 +70,122 @@ Here is a sample patch file:
 }
 ----
 
+=== Populate a dropdown from a remote call
+
+In some cases you will want to call a remote service giving you a list of data. For that there is a
+specific `http` `builtin` trigger which will be caught on the proxy and redirected to the configured server
+to map it as a `dynamic_values` trigger.
+
+Assume you want to call `http:://foo.com/bar` propagating the cookies to get the proposals for the
+entry `bar`, then you will configure it this way:
+
+[source,json]
+----
+{
+  "prependProperties": [
+    {
+      "path": "$datasetMetadata",
+      "type": "OBJECT"
+    },
+    {
+      "path": "$datasetMetadata.bar",
+      "displayName": "Bar",
+      "type": "STRING",
+      "metadata": {
+        "action::dynamic_values": "builtin::http::dynamic_values(url=http:://foo.com/bar,headers=cookie)"
+      }
+    }
+  ]
+}
+----
+
+The configuration of the call is passed through a comma separated list in parenthesis as seen in previous snippet.
+The configuration entries are the following ones:
+
+[options="header"]
+|====
+|Name|Description|Sample
+|url|The target server to call. Note that placeholder are supported and filled from request headers (`placeholderProvider`).|`http://proposals.service.com`
+|headers|Comma separated list of headers to propagate (using `placeholderProvider`).|`cookie,Authorization`
+|accept|The `Accept` header. Note that current we only support to parse JSON output and it defaults to `application/json`.|`application/v1+json`
+|object|Boolean (default to `false`) to set to `true` if the response payload is an object and not a list.|`true`
+|objectKey|If `object` is `true`, the key to extract to get the list to process.|`items`
+|id|Name of the field to extract from an item of the response list to map to the identifier of the proposal (default to `id`).|`id`
+|name|Name of the field to extract from an item of the response list to map to the label of the proposal (default to `name`).|`label`
+|====
+
+=== Populate a dropdown with a list of references
+
+In some forms you will want to populate a dropdown with a list of entities available in your database.
+For that, the proxy will rely on a SPI called `Integration`. If you don't implement it, it uses
+a Guice integration if Guice is in the classpath or a native CDI integration otherwise.
+
+The integration will then let the proxy lookup a `ReferenceService` implementation which will provide
+from a configuration type `type` and `name` (for instance `datastore`, `MyDataBaseConfig`) the list of
+references you want to propose to the end user.
+
+Here is very simple implementation:
+
+[source,java]
+----
+@ApplicationScoped
+public class ReferenceServiceImpl implements ReferenceService {
+    @Inject
+    private Database db;
+
+    @Override
+    public CompletionStage<Values> findReferencesByTypeAndName(final String type, final String name) {
+        return CompletableFuture.completedFuture(new Values(db.findByTypeAndName(type, name).stream()
+            .map(it -> new Values.Item(it.getId(), it.getName()))
+            .collect(toList())));
+    }
+
+    @Override
+    public CompletionStage<Form> findPropertiesById(final String id) {
+        final Entity entity = db.findById(id);
+        return CompletableFuture.completedFuture(Form.builder().properties(entity.getProperties()).formId(entity.getFormId()).build());
+    }
+}
+----
+
+Generally this kind of completion will be activated under the hood by the proxy using this kind of metadata:
+
+[source,json]
+----
+{
+  "action::dynamic_values": "builtin::references(type=xxxx,name=yyyy)"
+}
+----
+
+==== Going further: make this field hidden when empty
+
+In some cases you will want to hide this field if the proposals are <= 1, in this case you can use a condition:
+
+
+[source,json]
+----
+{
+  "prependProperties": [
+    {
+      "path": "$datasetMetadata",
+      "type": "OBJECT"
+    },
+    {
+      "path": "$datasetMetadata.bar",
+      "displayName": "Bar",
+      "type": "STRING",
+      "metadata": {
+        "action::dynamic_values": "builtin::http::dynamic_values(url=http:://foo.com/bar,headers=cookie)",
+        "condition::if::target": ".",
+        "condition::if::value": "0,1",
+        "condition::if::negate": "true",
+        "condition::if::evaluationStrategy": "LENGTH",
+      }
+    }
+  ]
+}
+----
+
 === Reloading the form based on the selected root
 
 The `builtin::root::reloadFromId` action, with the `jsonpatch` type,

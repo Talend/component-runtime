@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.api;
+package org.talend.sdk.component.proxy.service;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.util.Map;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.json.bind.Jsonb;
 
-/**
- * Marker for events. Allows to find them easily in the IDE and know
- * the contract to implement.
- */
-@Deprecated // integrations should either encapsulate this lib and bypass events or use the related Integration/SPI
-@Target(TYPE)
-@Retention(RUNTIME)
-public @interface Event {
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
+
+@ApplicationScoped
+public class JsonMapService {
+
+    @Inject
+    @UiSpecProxy
+    private Jsonb jsonb;
+
+    public <T> Map<String, Object> toJsonMap(final T model) {
+        return (Map<String, Object>) jsonb.fromJson(jsonb.toJson(model), Map.class);
+    }
 }

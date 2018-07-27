@@ -111,7 +111,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                     .map(o -> {
                         final UiSchema.Parameter parameter = new UiSchema.Parameter();
                         final String key = parameterPrefix + o.getPath().substring(propertiesPrefix.length());
-                        parameter.setKey(key.replace("[]", "")); // not a jsonpath otherwise
+                        parameter.setKey(key.replace("[]", "")); // not a lodash path otherwise
                         parameter.setPath(o.getPath());
                         return parameter;
                     })
@@ -155,11 +155,35 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         return ofNullable(property.getMetadata().get("action::suggestions"))
                 .flatMap(v -> actions
                         .stream()
-                        .filter(a -> a.getName().equals(v) && "suggestions".equals(a.getType()))
+                        .filter(a -> actionMatch(v, a) && "suggestions".equals(a.getType()))
                         .findFirst())
                 .map(ref -> Stream.of(toTrigger(properties, property, ref)).peek(
                         trigger -> trigger.setOnEvent("focus")))
                 .orElseGet(Stream::empty);
+    }
+
+    private boolean actionMatch(final String name, final ActionReference action) {
+        return deParameterize(action.getName()).equals(deParameterize(name));
+    }
+
+    private String deParameterize(final String actionName) {
+        if (actionName == null) {
+            return null;
+        }
+        if (isParameterizedAction(actionName)) {
+            return actionName.substring(0, actionName.indexOf('('));
+        }
+        return actionName;
+    }
+
+    // see the proxy but it allows to have actions with () and still match
+    private boolean isParameterizedAction(final String name) {
+        final int start = name.indexOf('(');
+        if (start <= 0) {
+            return false;
+        }
+        final int end = name.indexOf('(', start);
+        return end > 0;
     }
 
     private Stream<UiSchema.Trigger> createOtherActions(final SimplePropertyDefinition property) {
@@ -170,7 +194,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 .filter(it -> it.getKey().startsWith("action::") && !isBuiltInAction(it.getKey()))
                 .map(v -> actions
                         .stream()
-                        .filter(a -> a.getName().equals(v.getValue())
+                        .filter(a -> actionMatch(v.getValue(), a)
                                 && v.getKey().substring("action::".length()).equals(a.getType()))
                         .findFirst()
                         .map(ref -> toTrigger(properties, property, ref))
@@ -182,7 +206,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         return ofNullable(property.getMetadata().get("action::validation"))
                 .flatMap(v -> actions
                         .stream()
-                        .filter(a -> a.getName().equals(v) && "validation".equals(a.getType()))
+                        .filter(a -> actionMatch(v, a) && "validation".equals(a.getType()))
                         .findFirst())
                 .map(ref -> Stream.of(toTrigger(properties, property, ref)))
                 .orElseGet(Stream::empty);
@@ -252,7 +276,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             } else {
                 schema = schema.getProperties().get(current);
             }
-            if ("array".equals(schema.getType()) && schema.getItems() != null) {
+            if (schema != null && "array".equals(schema.getType()) && schema.getItems() != null) {
                 schema = schema.getItems();
             }
             if (schema == null) { // unexpected

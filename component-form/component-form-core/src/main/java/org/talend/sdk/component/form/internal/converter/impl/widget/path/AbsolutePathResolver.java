@@ -15,6 +15,10 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget.path;
 
+import static java.util.stream.Collectors.joining;
+
+import java.util.stream.Stream;
+
 public class AbsolutePathResolver {
 
     // ensure it is aligned with org.talend.sdk.component.studio.model.parameter.SettingsCreator.computeTargetPath()
@@ -34,18 +38,20 @@ public class AbsolutePathResolver {
             String current = propPath;
             String ref = paramRef;
             while (ref.startsWith("..")) {
-                final int lastDot = current.lastIndexOf('.');
+                int lastDot = current.lastIndexOf('.');
                 if (lastDot < 0) {
-                    ref = "";
-                    break;
+                    lastDot = 0;
                 }
                 current = current.substring(0, lastDot);
                 ref = ref.substring("..".length(), ref.length());
                 if (ref.startsWith("/")) {
                     ref = ref.substring(1);
                 }
+                if (current.isEmpty()) {
+                    break;
+                }
             }
-            return current + (!ref.isEmpty() ? "." : "") + ref.replace('/', '.');
+            return Stream.of(current, ref.replace('/', '.')).filter(it -> !it.isEmpty()).collect(joining("."));
         }
         if (paramRef.startsWith(".") || paramRef.startsWith("./")) {
             return propPath + '.' + paramRef.replaceFirst("\\./?", "").replace('/', '.');
