@@ -125,7 +125,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             });
         }
 
-        final File ziplock = new File(m2, "org/apache/tomee/ziplock/7.0.4/ziplock-7.0.4.jar");
+        final File ziplock = new File(m2, "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar");
         ziplock.getParentFile().mkdirs();
         try (final InputStream from = new FileInputStream(jarLocation(IO.class));
                 final OutputStream to = new FileOutputStream(ziplock)) {
@@ -188,7 +188,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                     out.closeEntry();
 
                     out.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
-                    out.write("org.apache.tomee:ziplock:jar:7.0.4:runtime".getBytes(StandardCharsets.UTF_8));
+                    out.write("org.apache.tomee:ziplock:jar:7.0.5:runtime".getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
 
                     out.putNextEntry(new JarEntry("TALEND-INF/documentation.adoc"));
