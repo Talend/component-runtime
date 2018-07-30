@@ -188,7 +188,7 @@ In some cases you will want to hide this field if the proposals are <= 1, in thi
 
 === Reloading the form based on the selected root
 
-The `builtin::root::reloadFromId` action, with the `jsonpatch` type,
+The `builtin::root::reloadFromId` action, with the `reloadForm` type,
 allows to reload the whole form:
 
 [source,json]
@@ -211,6 +211,27 @@ allows to reload the whole form:
 It is common to have a dropdown with the list of roots and to reload the form when one is selected.
 
 The client side (javascript) is now fully encapsulated in `ComponentForm` from `@talend/ui`.
+
+
+=== Reloading the form based on a selected entity reference
+
+The `builtin::root::reloadFromParentEntityId` action, with the `reloadFromParentEntityId` type,
+allows to reload the whole form:
+
+[source,json]
+----
+{
+  "path": "$datasetMetadata.reference",
+  "displayName": "Reference",
+  "type": "STRING",
+  "metadata": {
+    "action::reloadFromParentEntityId": "builtin::root::reloadFromParentEntityId",
+    "action::reloadFromParentEntityId::parameters": "."
+  }
+}
+----
+
+IMPORTANT: references are automatically initialized if you use `PropertiesService#filterProperties`.
 
 == HTTP API
 

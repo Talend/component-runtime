@@ -51,7 +51,7 @@ class ConfigurableClassLoaderTest {
             final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
             try (final ConfigurableClassLoader loader = new ConfigurableClassLoader("",
                     new URL[] { new File(Constants.DEPENDENCIES_LOCATION,
-                            "org/apache/tomee/ziplock/7.0.4/ziplock-7.0.4.jar").toURI().toURL() },
+                            "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar").toURI().toURL() },
                     parent, name -> true, name -> parentFirst, null)) {
                 try {
                     loader.loadClass("org.apache.ziplock.JarLocation");
@@ -93,11 +93,11 @@ class ConfigurableClassLoaderTest {
 
     @Test
     void nestedJars(final TemporaryFolder temporaryFolder) throws IOException {
-        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.4");
+        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.5");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader = new ConfigurableClassLoader("", new URL[0], parent, name -> true,
-                        name -> true, new String[] { "org/apache/tomee/ziplock/7.0.4/ziplock-7.0.4.jar" })) {
+                        name -> true, new String[] { "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar" })) {
             try { // classes
                 final Class<?> aClass = loader.loadClass("org.apache.ziplock.JarLocation");
                 final Object jarLocation =
@@ -116,18 +116,18 @@ class ConfigurableClassLoaderTest {
                 assertNotNull(url);
                 assertEquals("nested", url.getProtocol());
                 assertEquals(
-                        "MAVEN-INF/repository/org/apache/tomee/ziplock/7.0.4/ziplock-7.0.4.jar!/org/apache/ziplock/JarLocation.class",
+                        "MAVEN-INF/repository/org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar!/org/apache/ziplock/JarLocation.class",
                         url.getFile());
                 final byte[] bytes = slurp(url.openStream());
-                assertEquals(4394, bytes.length, mavenJarSizeMargin);
+                assertEquals(4666, bytes.length, mavenJarSizeMargin);
             }
             { // direct as stream
-                assertEquals(4394, slurp(loader.getResourceAsStream(resource)).length, mavenJarSizeMargin);
+                assertEquals(4666, slurp(loader.getResourceAsStream(resource)).length, mavenJarSizeMargin);
             }
             { // in collection
                 final Enumeration<URL> resources = loader.getResources(resource);
                 assertTrue(resources.hasMoreElements());
-                assertEquals(4394, slurp(resources.nextElement().openStream()).length, mavenJarSizeMargin);
+                assertEquals(4666, slurp(resources.nextElement().openStream()).length, mavenJarSizeMargin);
             }
             { // missing
                 assertNull(loader.getResource(resource + ".missing"));

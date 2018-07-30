@@ -22,6 +22,7 @@ import {
 	onComponentPropertiesChange,
 	onComponentErrorsChange,
 	submitComponent,
+	onNotification,
 } from '../../store/component/actions';
 
 import Detail from './Detail.component';
@@ -39,6 +40,7 @@ function mapDispatchToProps(dispatch) {
 		onChange: bindActionCreators(onComponentPropertiesChange, dispatch),
 		onErrors: bindActionCreators(onComponentErrorsChange, dispatch),
 		onSubmit: bindActionCreators(submitComponent, dispatch),
+		onNotification: bindActionCreators(onNotification, dispatch),
 	};
 }
 

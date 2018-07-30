@@ -80,6 +80,10 @@ public class ModelEnricherService {
             .of(new ActionReference("builtin::family", "builtin::root::reloadFromId", "reloadForm",
                     new ArrayList<>(singleton(new SimplePropertyDefinition("id", "id", "Configuration Identifier",
                             "STRING", null, null, emptyMap(), null, emptyMap())))),
+                    new ActionReference("builtin::family", "builtin::root::reloadFromParentEntityId",
+                            "reloadFromParentEntityId",
+                            new ArrayList<>(singleton(new SimplePropertyDefinition("id", "id",
+                                    "Configuration Identifier", "STRING", null, null, emptyMap(), null, emptyMap())))),
                     new ActionReference("builtin::family", "builtin::roots", "dynamic_values", new ArrayList<>()),
                     // these ones are configured from the definition (xxxx=yyy) and not the form params
                     new ActionReference("builtin::family", "builtin::http::dynamic_values", "dynamic_values",

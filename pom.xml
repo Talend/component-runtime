@@ -59,7 +59,7 @@
     <xbean.version>4.9</xbean.version>
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
-    <ziplock.version>7.0.4</ziplock.version>
+    <ziplock.version>7.0.5</ziplock.version>
     <johnzon.version>1.1.8</johnzon.version>
     <meecrowave.version>1.2.3</meecrowave.version>
     <owb.version>2.0.6</owb.version>
@@ -346,6 +346,24 @@
     </extensions>
 
     <plugins>
+      <plugin> <!--  mvn ossindex:audit -->
+        <groupId>org.sonatype.ossindex.maven</groupId>
+        <artifactId>ossindex-maven-plugin</artifactId>
+        <version>1.0.0</version>
+        <executions>
+          <execution>
+            <id>audit-dependencies</id>
+            <phase />
+            <goals>
+              <goal>audit</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <scope>compile,runtime</scope>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>

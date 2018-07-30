@@ -15,6 +15,7 @@
  */
 
 import {
+    ADD_NOTIFICATION,
 	CHANGE_COMPONENT_ERRORS,
 	CHANGE_COMPONENT_PROPERTIES,
 	GET_COMPONENT_LOADING,
@@ -74,6 +75,13 @@ export function submitComponent(event, properties) {
 		type: SUBMIT_COMPONENT,
 		event,
 		properties,
+	};
+}
+
+export function onNotification( notification) {
+	return {
+		type: ADD_NOTIFICATION,
+		notification,
 	};
 }
 
