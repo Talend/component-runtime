@@ -14,7 +14,7 @@ Multiple components can share the same `family` and `category` value, but the `f
 
 A component can belong to one family only and to one or several categories. If not specified, the category defaults to `Misc`.
 
-The `package-info.java` also defines the component family icon. You can learn how to customize this icon in xref:component-defining-custom-icon.adoc[this section].
+The `package-info.java` also defines the component family icon, which is different from the component icon. You can learn how to customize this icon in xref:component-defining-custom-icon.adoc[this section].
 
 Here is a sample `package-info.java`:
 
@@ -76,6 +76,8 @@ An input components can be:
 You can learn more about the specificities and execution flow of each component type in xref:component-definition.adoc[this document].
 
 The name of the component is defined there as well as a parameter of the component type.
+
+Once the component type is defined, you can xref:component-definition.adoc[start implementing its logic].
 
 .Partition mapper example
 [source,java,indent=0,subs="verbatim,quotes,attributes"]

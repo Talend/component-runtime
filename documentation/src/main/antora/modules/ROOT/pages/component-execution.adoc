@@ -106,15 +106,3 @@ Flow Execution (3)
 image:worker-processing-workflow.png[]
 
 NOTE: The framework is designed to be as declarative as possible but also to stay extensible by not using fixed interfaces or method signatures. This allows to incrementally add new features of the underlying implementations.
-
-ifeval::["{backend}" == "html5"]
-[role="relatedlinks"]
-== Related articles
-- xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
-- xref:component-configuration.adoc[Configuring a component]
-- xref:component-registering.adoc[Registering a component]
-- xref:component-internationalization.adoc[Internationalizing a component]
-- xref:component-loading.adoc[Loading a component]
-- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
-- xref:best-practices.adoc[Best practices]
-endif::[]

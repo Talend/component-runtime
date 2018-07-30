@@ -15,7 +15,7 @@ include::component-internationalization.adoc[leveloffset=+1]
 
 include::component-loading.adoc[leveloffset=+1]
 
-include::tutorial-configuration-sensitive-data[leveloffset=+1]
+include::tutorial-configuration-sensitive-data.adoc[leveloffset=+1]
 
 include::best-practices.adoc[leveloffset=+1]
 
