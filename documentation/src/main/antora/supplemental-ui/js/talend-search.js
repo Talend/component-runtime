@@ -15,6 +15,8 @@ $(document).ready(function () {
        minMatchCharLength: 1,
        keys: [
          "title",
+         "description",
+         "keywords"
          "lvl0",
          "lvl1",
          "lvl2",
