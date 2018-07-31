@@ -143,6 +143,7 @@ public class ClientProducer {
         final javax.ws.rs.client.Client client = ClientBuilder
                 .newBuilder()
                 .executorService(executor)
+                .property("executorService", executor) // rx()
                 .connectTimeout(configuration.getConnectTimeout(), MILLISECONDS)
                 .readTimeout(configuration.getReadTimeout(), MILLISECONDS)
                 .build();
