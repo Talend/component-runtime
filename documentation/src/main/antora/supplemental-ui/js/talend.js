@@ -144,4 +144,13 @@ $(document).ready(function () {
       sizeSubMenuPanel.remove();
     }
   }
+
+  // select the nav link if any is matching
+  try {
+    $('a.menu-link[href="' + window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1) + '"]')
+      .parents('ul:hidden')
+      .toggle()
+  } catch (e) {
+    // no-op
+  }
 });
