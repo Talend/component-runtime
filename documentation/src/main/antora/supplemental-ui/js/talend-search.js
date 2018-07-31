@@ -16,7 +16,7 @@ $(document).ready(function () {
        keys: [
          "title",
          "description",
-         "keywords"
+         "keywords",
          "lvl0",
          "lvl1",
          "lvl2",

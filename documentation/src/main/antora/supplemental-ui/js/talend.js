@@ -146,11 +146,86 @@ $(document).ready(function () {
   }
 
   // select the nav link if any is matching
-  try {
+  var initNav = function () {
     $('a.menu-link[href="' + window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1) + '"]')
-      .parents('ul:hidden')
-      .toggle()
+      .each(function () {
+        var link = $(this);
+        link.parent().parent().parent().find('label.tree-toggler').each(function () {
+          var toggler = $(this);
+          var icon = toggler.find('i');
+          icon.toggleClass('fa-angle-right');
+          icon.toggleClass('fa-angle-down');
+          toggler.parent().children('ul.tree').toggle(200);
+        });
+      });
+  };
+  try {
+    initNav();
   } catch (e) {
     // no-op
   }
+
+  // nav filter
+  // add id - simpler logic after
+  var menuLinkId = 1;
+  $('a.menu-link').each(function () {
+    $(this).attr('menu-id', 'id-' + menuLinkId);
+    menuLinkId++;
+  });
+  $('label.tree-toggler').each(function () {
+    $(this).attr('menu-id', 'id-' + menuLinkId);
+    menuLinkId++;
+  });
+
+  // on filter update the nav
+  $('#navFilterInput').on('keyup', function() {
+    var value = $(this).val().toLowerCase().trim();
+    if (!value.length) {
+      $('a.menu-link').show();
+      $('label.tree-toggler').each(function () {
+        var toggler = $(this);
+        var icon = toggler.find('i');
+        icon.addClass('fa-angle-right');
+        icon.removeClass('fa-angle-down');
+        var li = toggler.parent();
+        li.children('ul.tree').hide();
+        li.show();
+      });
+      return;
+    }
+    var words = value.split(' ');
+    var togglers = [];
+    $('a.menu-link').each(function () {
+      var link = $(this);
+      var linkText = link.text().toLowerCase()
+      if (words.filter(function (it) { return linkText.indexOf(it) >= 0; }).length) {
+        link.show();
+        var toggler = link.parent().parent().parent().find('label.tree-toggler').attr('menu-id');
+        if (togglers.indexOf(toggler) < 0) {
+          togglers.push(toggler);
+        }
+      } else {
+        link.hide();
+      }
+    });
+    $('label.tree-toggler').each(function () {
+      var toggler = $(this);
+      var icon = toggler.find('i');
+      var id = toggler.attr('menu-id');
+      if (togglers.indexOf(id) < 0) {
+        icon.addClass('fa-angle-right');
+        icon.removeClass('fa-angle-down');
+
+        var li = toggler.parent();
+        li.children('ul.tree').hide();
+        li.hide();
+      } else {
+        icon.removeClass('fa-angle-right');
+        icon.addClass('fa-angle-down');
+        var li = toggler.parent();
+        li.children('ul.tree').show();
+        li.show();
+      }
+    });
+  });
 });
