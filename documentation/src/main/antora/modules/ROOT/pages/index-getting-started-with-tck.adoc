@@ -1,5 +1,6 @@
 = Getting Started with Talend Component Kit
 :page-partial:
+:page-talend_skipindexation:
 :page-documentationindex-index: 2000
 :page-documentationindex-label: Getting Started
 :page-documentationindex-icon: play-circle

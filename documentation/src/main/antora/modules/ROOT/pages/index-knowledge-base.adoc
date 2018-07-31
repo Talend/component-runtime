@@ -1,5 +1,6 @@
 = Knowledge base
 :page-partial:
+:page-talend_skipindexation:
 :page-documentationindex-index: 9000
 :page-documentationindex-label: Knowledge base
 :page-documentationindex-icon: list-alt

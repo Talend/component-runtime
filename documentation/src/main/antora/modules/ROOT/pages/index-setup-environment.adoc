@@ -1,5 +1,6 @@
 = Setting up your environment
 :page-partial:
+:page-talend_skipindexation:
 :page-documentationindex-index: 3000
 :page-documentationindex-label: Setup
 :page-documentationindex-icon: cog

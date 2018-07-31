@@ -1,5 +1,6 @@
 = Talend Component Kit Overview
 :page-partial:
+:page-talend_skipindexation:
 
 //== Getting help
 

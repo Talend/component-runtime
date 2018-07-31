@@ -1,5 +1,6 @@
 = Implementing components
 :page-partial:
+:page-talend_skipindexation:
 :page-documentationindex-index: 5000
 :page-documentationindex-label: Implementing components
 :page-documentationindex-icon: wrench
@@ -13,7 +14,7 @@ include::component-configuration.adoc[leveloffset=+1]
 
 include::component-internationalization.adoc[leveloffset=+1]
 
-include::component-loading.adoc[leveloffset=+1]
+include::component-versions-and-migration.adoc[leveloffset=+1]
 
 include::tutorial-configuration-sensitive-data.adoc[leveloffset=+1]
 
@@ -22,3 +23,5 @@ include::best-practices.adoc[leveloffset=+1]
 include::index-sub-build-tools.adoc[leveloffset=+1]
 
 include::wrapping-a-beam-io.adoc[leveloffset=+1]
+
+include::component-loading.adoc[leveloffset=+1]
