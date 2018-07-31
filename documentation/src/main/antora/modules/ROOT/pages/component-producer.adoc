@@ -1,11 +1,9 @@
-= Defining a producer
+= Defining the producer method
 :page-partial:
 
-== What is a producer
+The `Producer` method defines the source logic of an input component. It handles the interaction with a physical source and produces input data for the processing flow.
 
-A `Producer` is a component interacting with a physical source. It produces input data for the processing flow.
-
-A producer is a simple component that must have a `@Producer` method without any parameter. It can return any data:
+A producer must have a `@Producer` method without any parameter. It is triggered by the `@Emitter` of the partition mapper and can return any data. It is defined in the `<component_name>Source.java` file:
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----

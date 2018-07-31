@@ -43,14 +43,10 @@ Metadata is set on the component class and belongs to the `org.talend.sdk.compon
 
 When you generate your project and import it in your IDE, icon and version both come with a default value.
 
-[options="header,autowidth"]
-|====
-| API | Description
-| @Icon | Sets an icon key used to represent the component. You can use a custom key with the `custom()` method but the icon may not be rendered properly. +
+- *@Icon*: Sets an icon key used to represent the component. You can use a custom key with the `custom()` method but the icon may not be rendered properly. The icon defaults to *Star*. +
 Learn how to set a custom icon for your component in xref:component-defining-custom-icon.adoc[this section].
-| @Version | Sets the component version. 1 by default. +
-Learn how to manage different versions and migrations between your component versions in xref:component-versions-and-migration.adoc[this document].
-|====
+- *@Version*: Sets the component version. 1 by default. +
+Learn how to manage different versions and migrations between your component versions in xref:component-versions-and-migration.adoc[this section].
 
 .Example
 [source,java]
@@ -63,15 +59,21 @@ public class JaxbPartitionMapper implements Serializable {
 }
 ----
 
+include::component-defining-custom-icon.adoc[leveloffset=+2]
 
 == Component type and name
 
 The component type is declared in the component class. When you import your project generated from the starter in your IDE, the component type is already defined.
 
-An input components can be:
+*Input* components can be:
+
 - A partition mapper. `@PartitionMapper` is the default for input components.
 - An emitter. `@Emitter` is a shortcut for `@PartitionMapper` when you don't support distribution. It enforces an implicit partition mapper execution with an assessor size of 1 and a split returning itself.
-- A processor. `@Processor` is the default for output components. A method decorated with `@Processor` is considered as a producer factory
+
+*Processor*/*Output* components can be:
+
+- A processor. `@Processor` is the default for output components. A method decorated with `@Processor` is considered as a producer factory.
+- Combiners are not supported by the framework. Combiners allow to aggregate results in a single partition.
 
 You can learn more about the specificities and execution flow of each component type in xref:component-definition.adoc[this document].
 
@@ -107,6 +109,7 @@ ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
+- xref:component-version-and-migration.adoc[Managing component versions]
 - xref:component-definition.adoc[Defining a component]
 - xref:component-configuration.adoc[Configuring a component]
 - xref:best-practices.adoc[Best practices]

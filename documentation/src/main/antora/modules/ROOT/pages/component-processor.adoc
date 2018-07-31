@@ -128,3 +128,5 @@ public MyNewData map(@Input final MyData data, @Input("input2") final MyData2 da
 ----
 
 `@Input` takes the input name as parameter. If no name is set, it defaults to the "main (default)" input branch. It is recommended to use the default branch when possible and to avoid naming branches according to the component semantic.
+
+include::concept-processor-and-batch-processing.adoc[leveloffset=+1]

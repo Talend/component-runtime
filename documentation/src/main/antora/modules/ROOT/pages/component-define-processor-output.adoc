@@ -1,13 +1,11 @@
-= Defining a component execution logic
+= Defining a processor or an output component
 :page-partial:
 
-Each type of component has its own execution logic. The same basic logic is applied to all components of the same type, and is then extended to implement each component specificities.
+Processors and output components are the components in charge of reading, processing and transforming data in a Talend job, as well as passing it to its required destination.
 
-The project generated from the starter already contains the basic logic for each component.
-
-include::component-execution.adoc[leveloffset=+1]
-include::component-define-input.adoc[leveloffset=+1]
-include::component-define-processor-output.adoc[leveloffset=+1]
+include::component-processor.adoc[leveloffset=+1]
+include::component-output.adoc[leveloffset=+1]
+include::component-combiner.adoc[leveloffset=+1]
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]

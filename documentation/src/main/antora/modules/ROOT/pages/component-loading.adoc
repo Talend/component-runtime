@@ -8,7 +8,7 @@ Multiple options are available:
 - Graph classloading: this option allows you to link the plugins and dependencies together dynamically in any direction. +
 For example, the graph classloading can be illustrated by OSGi containers.
 - Tree classloading: a shared classloader inherited by plugin classloaders. However, plugin classloader classes are not seen by the shared classloader, nor by other plugins. +
-For example, he tree classloading is commonly used by Servlet containers where plugins are web applications.
+For example, the tree classloading is commonly used by Servlet containers where plugins are web applications.
 - Flat classpath: listed for completeness but rejected _by design_ because it doesn't comply with this requirement.
 
 In order to avoid much complexity added by this layer, Talend Component Kit relies on a tree classloading. The advantage is that you don't need to define the relationship with other plugins/dependencies, because it is built-in.

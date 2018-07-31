@@ -1,9 +1,10 @@
-= Component internationalization
+= Internationalizing components
 :page-partial:
 
 In common cases, you can store messages using a properties file in your component module to use internationalization.
 
 Store the properties file in the same package as the related components and name it `Messages`. For example, `org.talend.demo.MyComponent` uses `org.talend.demo.Messages[locale].properties`.
+This file already exists when you import a project generated from the starter.
 
 == Default components keys
 
@@ -28,6 +29,8 @@ Example of configuration for a component named `list` and belonging to the `memo
 ----
 memory.list._displayName = Memory List
 ----
+
+== Internationalizing a configuration class
 
 Configuration classes can be translated using the simple class name in the messages properties file.
 This is useful in case of common configurations shared by multiple components.
@@ -62,9 +65,9 @@ ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
+- xref:component-registering.adoc[Registering a component]
 - xref:component-definition.adoc[Defining a component]
 - xref:component-configuration.adoc[Configuring a component]
-- xref:component-registering.adoc[Registering a component]
 - xref:component-loading.adoc[Loading a component]
 - xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
 - xref:best-practices.adoc[Best practices]

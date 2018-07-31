@@ -1,8 +1,6 @@
 = Managing component versions and migration
 :page-partial:
 
-=== Managing version configuration
-
 If some changes impact the configuration, they can be managed through a migration handler at the *component* level (enabling trans-model migration support).
 
 The `@Version` annotation supports a `migrationHandler` method which migrates the incoming configuration to the current model.

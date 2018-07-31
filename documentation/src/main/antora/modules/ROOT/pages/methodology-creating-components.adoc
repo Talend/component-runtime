@@ -19,7 +19,7 @@ Developing new components using the framework includes:
 .. Compiling the project
 . Importing the compiled project in your IDE. This step is not required if you have generated the project using the IntelliJ plugin.
 . xref:index-creating-components.adoc[Implementing the components], including:
-.. Registering the components family
+.. Registering the component by specifying its metadata: family, categories, version, icon, type, and name.
 .. Defining the layout and configurable part of the components
 .. Defining the partition mapper for Input components
 .. Implementing the source logic for Input components

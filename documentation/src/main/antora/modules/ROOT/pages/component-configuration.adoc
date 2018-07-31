@@ -135,7 +135,7 @@ files.key[1].type = EXCEL
 files.value[1] = second-file
 ----
 
-IMPORTANT: Avoid using the Map type. For example, if you can configure your component with an object instead.
+IMPORTANT: Avoid using the Map type. Instead, prefer configuring your component with an object if this is possible.
 
 == Defining Constraints and validations on the configuration
 
