@@ -29,11 +29,15 @@ $(document).ready(function () {
       hits.append(div);
     } else {
       var segments = search.trim().length ? search.split(/ +/) : [];
-      result.forEach(function (item) {
+      function inlineText(item) {
         var text = (item.text || []).join('\n');
         for (var i = 0; i < segments.length; i++) {
           text = text.replace(segments[i], '<b>' + segments[i] + '</b>');
         }
+        return text;
+      }
+      result.forEach(function (item) {
+        var text = item.description || inlineText(item);
         var div = $('<div class="search-result-container"><a href="' + item.url + '">' + item.title + '</a><p>' + text + '</p></div>');
         hits.append(div);
       });

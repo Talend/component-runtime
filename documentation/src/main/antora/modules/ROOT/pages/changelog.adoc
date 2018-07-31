@@ -1,5 +1,7 @@
 = Changelog
 :page-partial:
+:description: The Component Kit Changelog
+:keywords: changelog, release note
 :page-documentationindex-index: 10000
 :page-documentationindex-label: Changelog
 :page-documentationindex-icon: pen
