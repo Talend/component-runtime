@@ -1,5 +1,6 @@
 = Talend Component Kit Developer Guide
 v{page-component-version}
+:page-talend_skipindexation:
 
 include::index-getting-started-with-tck.adoc[leveloffset=+1]
 
@@ -14,3 +15,5 @@ include::index-testing-components.adoc[leveloffset=+1]
 include::index-defining-services.adoc[leveloffset=+1]
 
 include::index-deploying-components.adoc[leveloffset=+1]
+
+include::index-pdf-tutorials.adoc[leveloffset=+1]
