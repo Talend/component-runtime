@@ -15,8 +15,5 @@ include::index-testing-components.adoc[leveloffset=+1]
 include::index-defining-services.adoc[leveloffset=+1]
 
 include::index-deploying-components.adoc[leveloffset=+1]
-<<<<<<< HEAD
-=======
 
 include::index-pdf-tutorials.adoc[leveloffset=+1]
->>>>>>> upstream/master
