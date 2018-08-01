@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.xml.bind.DatatypeConverter;
@@ -206,8 +207,17 @@ public class CarMain {
                         }
                         writer.write(line);
                     }
-                    writer.write("component.java.coordinates = "
-                            + (components.trim().isEmpty() ? "" : (components + ',')) + mainGav);
+                    final String toFilter =
+                            Stream.of(mainGav.contains(":") ? mainGav.split(":") : mainGav.split("/")).limit(2).collect(
+                                    Collectors.joining(":", "", ":"));
+                    writer.write("component.java.coordinates = " + Stream
+                            .concat(Stream.of(mainGav),
+                                    Stream
+                                            .of(components.trim().split(","))
+                                            .map(String::trim)
+                                            .filter(it -> !it.isEmpty())
+                                            .filter(it -> !it.startsWith(toFilter)))
+                            .collect(joining(",")));
                 }
             }
         } catch (final IOException ioe) {

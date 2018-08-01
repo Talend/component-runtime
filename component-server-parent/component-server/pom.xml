@@ -83,6 +83,12 @@
       <groupId>org.eclipse.microprofile.config</groupId>
       <artifactId>microprofile-config-api</artifactId>
     </dependency>
+    <dependency> <!-- just to generate the openapi.json -->
+      <groupId>org.eclipse.microprofile.openapi</groupId>
+      <artifactId>microprofile-openapi-api</artifactId>
+      <version>${microprofile-openapi-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.geronimo.config</groupId>
       <artifactId>geronimo-config-impl</artifactId>
@@ -122,7 +128,7 @@
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>swagger-ui</artifactId>
-      <version>3.12.1</version>
+      <version>3.17.4</version>
     </dependency>
 
     <dependency>
@@ -179,6 +185,53 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-openapi-maven-plugin</artifactId>
+        <version>${geronimo-openapi.version}</version>
+        <executions>
+          <execution>
+            <id>generate-openapi.json</id>
+            <goals>
+              <goal>openapi.json</goal>
+            </goals>
+            <configuration>
+              <output>${project.build.outputDirectory}/META-INF/resources/documentation/openapi.json</output>
+              <application>org.talend.sdk.component.server.front.TalendComponentApplication</application>
+              <endpointClasses>
+                <endpointClass>org.talend.sdk.component.server.front.ActionResource</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.ComponentResource</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.ConfigurationTypeResource</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.DocumentationResource</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.front.EnvironmentResource</endpointClass>
+              </endpointClasses>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${build-helper-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.outputDirectory}/META-INF/resources/documentation/openapi.json</file>
+                  <type>json</type>
+                  <classifier>openapi</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>com.sebastian-daschner</groupId>
         <artifactId>jaxrs-analyzer-maven-plugin</artifactId>
         <version>${jaxrs-analyzer.version}</version>
@@ -191,20 +244,6 @@
             <configuration>
               <inlinePrettify>true</inlinePrettify>
               <backend>asciidoc</backend>
-            </configuration>
-          </execution>
-          <execution>
-            <id>analyzer-swagger</id>
-            <goals>
-              <goal>analyze-jaxrs</goal>
-            </goals>
-            <configuration>
-              <backend>swagger</backend>
-              <swaggerSchemes>
-                <swaggerScheme>https</swaggerScheme>
-                <swaggerScheme>http</swaggerScheme>
-              </swaggerSchemes>
-              <resourcesDir>classes/META-INF/resources/documentation</resourcesDir>
             </configuration>
           </execution>
         </executions>
@@ -235,7 +274,7 @@
             </configuration>
           </execution>
           <execution>
-            <id>swagger-customizations</id>
+            <id>openapi-customizations</id>
             <phase>prepare-package</phase>
             <goals>
               <goal>execute</goal>
@@ -251,7 +290,7 @@
                   import org.apache.maven.project.MavenProjectHelper
 
                   // create the demo swagger.json
-                  def swaggerJson = new File(project.build.outputDirectory, 'META-INF/resources/documentation/swagger.json')
+                  def swaggerJson = new File(project.build.outputDirectory, 'META-INF/resources/documentation/openapi.json')
                   def content = swaggerJson.text
 
                   def swaggerDemo = new File(project.build.directory, 'swagger-openshift.json')

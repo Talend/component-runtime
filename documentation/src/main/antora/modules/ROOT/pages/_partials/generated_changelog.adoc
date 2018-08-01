@@ -5,10 +5,12 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-911[TCOMP-911^]: Suggestions callback doesn't support Configuration parameters
+- link:https://jira.talendforge.org/browse/TCOMP-921[TCOMP-921^]: String cannot be cast to Boolean when adding table with checkboxes
 - link:https://jira.talendforge.org/browse/TCOMP-922[TCOMP-922^]: component manager : support loading dependencies from job lib folder.
 - link:https://jira.talendforge.org/browse/TCOMP-924[TCOMP-924^]: component-kit.js errors are not sent to the error handler
 - link:https://jira.talendforge.org/browse/TCOMP-927[TCOMP-927^]: talend-component:web errors are not always unwrapped and understandable
 - link:https://jira.talendforge.org/browse/TCOMP-934[TCOMP-934^]: Ensure Studio rely on category and doesn't append family name
+- link:https://jira.talendforge.org/browse/TCOMP-961[TCOMP-961^]: Default value of Suggestions method parameter is ignored
 
 
 === New Feature
@@ -34,6 +36,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-954[TCOMP-954^]: Upgrade netty to 4.1.28.Final for the test stack
 - link:https://jira.talendforge.org/browse/TCOMP-958[TCOMP-958^]: Componentvalidator error message in case of an unsupported type is misleading
 - link:https://jira.talendforge.org/browse/TCOMP-959[TCOMP-959^]: [dependency upgrade] Upgrade to icon bundle 0.202.0
+- link:https://jira.talendforge.org/browse/TCOMP-962[TCOMP-962^]: .car deploy-in-studio command (CarMain) should support to override an existing version
+- link:https://jira.talendforge.org/browse/TCOMP-965[TCOMP-965^]: [dependency upgrade] Apache Beam 2.6.0
 
 
 == Version 1.0.3
