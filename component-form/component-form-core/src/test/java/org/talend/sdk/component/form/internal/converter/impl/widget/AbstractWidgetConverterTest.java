@@ -31,22 +31,25 @@ import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 class AbstractWidgetConverterTest {
+
     @Test
     void emptyObjectAsParamTolerance() {
         new AbstractWidgetConverter(emptyList(), emptyList(), emptyList(), new JsonSchema(), "en") {
+
             @Override
             public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> context) {
                 throw new UnsupportedOperationException("shouldnt be called in this test");
             }
 
             {
-                final List<UiSchema.Parameter> parameters = toParams(singletonList(
+                final List<UiSchema.Parameter> parameters = toParams(
+                        singletonList(new SimplePropertyDefinition("me", "me", null, "OBJECT", null,
+                                new PropertyValidation(), emptyMap(), null, null)),
                         new SimplePropertyDefinition("me", "me", null, "OBJECT", null, new PropertyValidation(),
-                                emptyMap(), null, null)),
-                        new SimplePropertyDefinition("me", "me", null, "OBJECT", null, new PropertyValidation(),
-                                emptyMap(), null, null), new ActionReference("test", "act", "sthg", singletonList(
-                                new SimplePropertyDefinition("me", "me", null, "OBJECT", null, new PropertyValidation(),
-                                        emptyMap(), null, null))), "me");
+                                emptyMap(), null, null),
+                        new ActionReference("test", "act", "sthg", singletonList(new SimplePropertyDefinition("me",
+                                "me", null, "OBJECT", null, new PropertyValidation(), emptyMap(), null, null))),
+                        "me");
                 System.out.println(parameters);
             }
         };
