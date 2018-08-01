@@ -28,8 +28,10 @@ import javax.inject.Inject;
 import org.talend.sdk.component.proxy.api.integration.application.ReferenceService;
 import org.talend.sdk.component.proxy.api.integration.application.Values;
 import org.talend.sdk.component.proxy.api.persistence.OnPersist;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.proxy.test.InMemoryTestPersistence;
 
+@UiSpecProxy
 @ApplicationScoped
 public class ReferenceServiceImpl implements ReferenceService {
 

@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
@@ -51,13 +52,13 @@ import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.PropertyOrderStrategy;
 
-import crawlercommons.sitemaps.SiteMap;
-import crawlercommons.sitemaps.SiteMapParser;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import crawlercommons.sitemaps.SiteMap;
+import crawlercommons.sitemaps.SiteMapParser;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -87,12 +88,14 @@ public class SearchIndexation {
         final List<Future<List<JsonObject>>> updates = siteMap.getSiteMapUrls().stream().filter(url -> {
             // filter not indexed pages
             final String externalForm = url.getUrl().toExternalForm();
-            return !externalForm.contains("/all-in-one") && !externalForm.contains("/index-");
+            return !externalForm.contains("/all-in-one.html") && !externalForm.contains("/index-")
+                    && !externalForm.contains("/landing.html") && !externalForm.contains("/index.html");
         }).filter(it -> it.getUrl().toExternalForm().contains(urlMarker)).map(url -> pool.submit(() -> {
             final String target = url.getUrl().toExternalForm();
             final File relative = new File(siteMapFile.getParentFile(),
                     target.substring(target.indexOf(urlMarker) + urlMarker.length()));
-            if (!relative.exists()) {
+            if (!relative.exists() || Files.readAllLines(relative.toPath()).stream().anyMatch(
+                    line -> line.trim().startsWith(":page-talend_skipindexation:"))) {
                 return Collections.<JsonObject> emptyList();
             }
             log.debug("Indexing {}", target);
@@ -101,9 +104,7 @@ public class SearchIndexation {
                 final JsonObjectBuilder builder = factory.createObjectBuilder();
                 builder
                         .add("lang", "en")
-                        .add("title",
-                                ofNullable(document.title()).filter(t -> !t.isEmpty()).orElseGet(
-                                        () -> document.getElementsByTag("h1").text()))
+                        .add("title", extractTitle(document))
                         .add("version", document.select("div.navigation" + "-container").attr("data-version"))
                         .add("url", target)
                         .add("date", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'") {
@@ -115,6 +116,9 @@ public class SearchIndexation {
                         .add("timestamp", url.getLastModified().getTime());
                 IntStream.rangeClosed(0, 3).forEach(i -> select(document, factory, ".doc " + "h" + (i + 1))
                         .ifPresent(value -> builder.add("lvl" + i, value)));
+
+                selectMeta(document, "description").ifPresent(description -> builder.add("description", description));
+                selectMeta(document, "keywords").ifPresent(keywords -> builder.add("keywords", keywords));
 
                 final Elements texts = document.select(".doc p, .doc td.content, .doc th.tableblock");
                 if (texts.isEmpty()) {
@@ -152,27 +156,42 @@ public class SearchIndexation {
 
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
-            updates.stream().map(f -> {
+            final Map<String, List<JsonObject>> byVersion = updates.stream().map(f -> {
                 try {
                     return f.get();
                 } catch (final InterruptedException | ExecutionException e) {
                     throw new IllegalStateException(e);
                 }
-            })
-                    .flatMap(Collection::stream)
-                    .sorted(comparing(o -> o.getString("title")))
-                    .collect(groupingBy(o -> o.getString("version")))
-                    .forEach((version, records) -> {
-                        final File file =
-                                new File(siteMapFile.getParentFile(), "main/" + version + "/search-index.json");
-                        try (final OutputStream output = new WriteIfDifferentStream(file)) {
-                            jsonb.toJson(records, output);
-                        } catch (final IOException e) {
-                            throw new IllegalStateException(e);
-                        }
-                        log.info("Created {}", file);
-                    });
+            }).flatMap(Collection::stream).sorted(comparing(o -> o.getString("title"))).collect(
+                    groupingBy(o -> o.getString("version")));
+            byVersion.forEach((version, records) -> {
+                final File file = new File(siteMapFile.getParentFile(), "main/" + version + "/search-index.json");
+                try (final OutputStream output = new WriteIfDifferentStream(file)) {
+                    jsonb.toJson(records, output);
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+                log.info("Created {}", file);
+            });
         }
+    }
+
+    private static String extractTitle(Document document) {
+        final String title = ofNullable(document.title()).filter(t -> !t.isEmpty()).orElseGet(
+                () -> document.getElementsByTag("h1").text());
+        if (title.contains(":: ")) {
+            return title.substring(title.lastIndexOf(":: ") + 2).trim();
+        }
+        return title;
+    }
+
+    private static Optional<String> selectMeta(final Document document, final String metaName) {
+        return document
+                .select("meta")
+                .stream()
+                .filter(it -> it.hasAttr("name") && it.hasAttr("value") && metaName.equals(it.attr("name")))
+                .findFirst()
+                .map(it -> it.attr("value"));
     }
 
     private static Optional<JsonArrayBuilder> select(final Document document, final JsonBuilderFactory factory,

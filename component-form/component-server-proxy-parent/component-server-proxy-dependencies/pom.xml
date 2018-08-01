@@ -46,6 +46,12 @@
       <groupId>com.github.rmannibucau</groupId>
       <artifactId>playx-microprofile-config</artifactId>
       <version>${playx.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.annotation.versioning</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- API assumed present -->

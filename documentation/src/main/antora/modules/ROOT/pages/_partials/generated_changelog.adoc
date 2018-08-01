@@ -4,6 +4,7 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-911[TCOMP-911^]: Suggestions callback doesn't support Configuration parameters
 - link:https://jira.talendforge.org/browse/TCOMP-922[TCOMP-922^]: component manager : support loading dependencies from job lib folder.
 - link:https://jira.talendforge.org/browse/TCOMP-924[TCOMP-924^]: component-kit.js errors are not sent to the error handler
 - link:https://jira.talendforge.org/browse/TCOMP-927[TCOMP-927^]: talend-component:web errors are not always unwrapped and understandable
@@ -12,11 +13,14 @@
 
 === New Feature
 
+- link:https://jira.talendforge.org/browse/TCOMP-825[TCOMP-825^]: Provide component server proxy
+- link:https://jira.talendforge.org/browse/TCOMP-928[TCOMP-928^]: Add negate and evaluation strategy to @ActiveIf
 - link:https://jira.talendforge.org/browse/TCOMP-929[TCOMP-929^]: Ensure category contains the family
 
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-816[TCOMP-816^]: Check migration feature and implement missing use-cases
 - link:https://jira.talendforge.org/browse/TCOMP-918[TCOMP-918^]: create a mvn bom with tacokit stack to keep some dependencies aligned between component-runtime and it's studio integration
 - link:https://jira.talendforge.org/browse/TCOMP-932[TCOMP-932^]: Avoid Kafka recursive logging for component server
 - link:https://jira.talendforge.org/browse/TCOMP-933[TCOMP-933^]: Drop component-kit.js module
@@ -26,6 +30,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-943[TCOMP-943^]: (web) Grand parent references for triggers not well resolved
 - link:https://jira.talendforge.org/browse/TCOMP-944[TCOMP-944^]: (proxy server) Ensure the trigger are well resolved for references
 - link:https://jira.talendforge.org/browse/TCOMP-947[TCOMP-947^]: (maven/gradle) ensure web task logs there is a UI
+- link:https://jira.talendforge.org/browse/TCOMP-953[TCOMP-953^]: Upgrade to ziplock 7.0.5
+- link:https://jira.talendforge.org/browse/TCOMP-954[TCOMP-954^]: Upgrade netty to 4.1.28.Final for the test stack
+- link:https://jira.talendforge.org/browse/TCOMP-958[TCOMP-958^]: Componentvalidator error message in case of an unsupported type is misleading
+- link:https://jira.talendforge.org/browse/TCOMP-959[TCOMP-959^]: [dependency upgrade] Upgrade to icon bundle 0.202.0
 
 
 == Version 1.0.3

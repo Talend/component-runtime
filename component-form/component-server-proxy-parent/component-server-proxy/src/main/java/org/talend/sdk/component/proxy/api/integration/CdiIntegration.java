@@ -18,11 +18,13 @@ package org.talend.sdk.component.proxy.api.integration;
 import javax.enterprise.inject.Vetoed;
 import javax.enterprise.inject.spi.CDI;
 
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
+
 @Vetoed
 public class CdiIntegration implements Integration {
 
     @Override
     public <T> T lookup(final Class<T> type) {
-        return CDI.current().select(type).get();
+        return CDI.current().select(type, UiSpecProxy.Literal.INSTANCE).get();
     }
 }

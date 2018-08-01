@@ -493,3 +493,7 @@ ul.tree > li > a {
   color: #535353;
   padding: 0px 0 3px 14px !important;
 }
+
+.nav-filter-group {
+  padding-bottom: 1.4rem;
+}
