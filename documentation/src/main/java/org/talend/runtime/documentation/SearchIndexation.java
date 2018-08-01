@@ -52,13 +52,13 @@ import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.PropertyOrderStrategy;
 
+import crawlercommons.sitemaps.SiteMap;
+import crawlercommons.sitemaps.SiteMapParser;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import crawlercommons.sitemaps.SiteMap;
-import crawlercommons.sitemaps.SiteMapParser;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -176,7 +176,7 @@ public class SearchIndexation {
         }
     }
 
-    private static String extractTitle(Document document) {
+    private static String extractTitle(final Document document) {
         final String title = ofNullable(document.title()).filter(t -> !t.isEmpty()).orElseGet(
                 () -> document.getElementsByTag("h1").text());
         if (title.contains(":: ")) {

@@ -122,7 +122,7 @@ $(document).ready(function () {
     var sizeSubMenuChildren = sizeSubMenuPanel.find('ul li');
     if (sizeSubMenuChildren.length) {
       // drop the numbers if any from the submenu to save some space
-      sizeSubMenuPanel.find('li > a').each(function () {
+      sizeSubMenuPanel.find('li > a').not('.article-side-actions-link').each(function () {
         var link = $(this);
         var text = link.text();
         var newText = text.replace(/^([0-9]+\.?)* ?/, '');

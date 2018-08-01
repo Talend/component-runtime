@@ -413,6 +413,9 @@ pre {
 	bottom: 10px;
 }
 
+.article-side-actions h1 {
+  margin-top: 8px;
+}
 .article-side-panel {
   position: relative;
 }

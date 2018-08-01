@@ -9,6 +9,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-924[TCOMP-924^]: component-kit.js errors are not sent to the error handler
 - link:https://jira.talendforge.org/browse/TCOMP-927[TCOMP-927^]: talend-component:web errors are not always unwrapped and understandable
 - link:https://jira.talendforge.org/browse/TCOMP-934[TCOMP-934^]: Ensure Studio rely on category and doesn't append family name
+- link:https://jira.talendforge.org/browse/TCOMP-961[TCOMP-961^]: Default value of Suggestions method parameter is ignored
 
 
 === New Feature
