@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.beam.factory.service.io;
 
 import javax.annotation.Generated;
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
 @Generated("from_com.google.auto.value.processor.AutoValueProcessor")
@@ -34,9 +33,9 @@ final class AutoValue_CustomJdbcIO_DataSourceConfiguration extends CustomJdbcIO.
 
     private final DataSource dataSource;
 
-    private AutoValue_CustomJdbcIO_DataSourceConfiguration(final @Nullable String driverClassName,
-            final @Nullable String url, final @Nullable String username, final @Nullable String password,
-            final @Nullable String connectionProperties, final @Nullable DataSource dataSource) {
+    private AutoValue_CustomJdbcIO_DataSourceConfiguration(final String driverClassName, final String url,
+            final String username, final String password, final String connectionProperties,
+            final DataSource dataSource) {
         this.driverClassName = driverClassName;
         this.url = url;
         this.username = username;
@@ -45,37 +44,31 @@ final class AutoValue_CustomJdbcIO_DataSourceConfiguration extends CustomJdbcIO.
         this.dataSource = dataSource;
     }
 
-    @Nullable
     @Override
     String getDriverClassName() {
         return driverClassName;
     }
 
-    @Nullable
     @Override
     String getUrl() {
         return url;
     }
 
-    @Nullable
     @Override
     String getUsername() {
         return username;
     }
 
-    @Nullable
     @Override
     String getPassword() {
         return password;
     }
 
-    @Nullable
     @Override
     String getConnectionProperties() {
         return connectionProperties;
     }
 
-    @Nullable
     @Override
     DataSource getDataSource() {
         return dataSource;
@@ -161,38 +154,37 @@ final class AutoValue_CustomJdbcIO_DataSourceConfiguration extends CustomJdbcIO.
         }
 
         @Override
-        CustomJdbcIO.DataSourceConfiguration.Builder setDriverClassName(final @Nullable String driverClassName) {
+        CustomJdbcIO.DataSourceConfiguration.Builder setDriverClassName(final String driverClassName) {
             this.driverClassName = driverClassName;
             return this;
         }
 
         @Override
-        CustomJdbcIO.DataSourceConfiguration.Builder setUrl(final @Nullable String url) {
+        CustomJdbcIO.DataSourceConfiguration.Builder setUrl(final String url) {
             this.url = url;
             return this;
         }
 
         @Override
-        CustomJdbcIO.DataSourceConfiguration.Builder setUsername(final @Nullable String username) {
+        CustomJdbcIO.DataSourceConfiguration.Builder setUsername(final String username) {
             this.username = username;
             return this;
         }
 
         @Override
-        CustomJdbcIO.DataSourceConfiguration.Builder setPassword(final @Nullable String password) {
+        CustomJdbcIO.DataSourceConfiguration.Builder setPassword(final String password) {
             this.password = password;
             return this;
         }
 
         @Override
-        CustomJdbcIO.DataSourceConfiguration.Builder
-                setConnectionProperties(final @Nullable String connectionProperties) {
+        CustomJdbcIO.DataSourceConfiguration.Builder setConnectionProperties(final String connectionProperties) {
             this.connectionProperties = connectionProperties;
             return this;
         }
 
         @Override
-        CustomJdbcIO.DataSourceConfiguration.Builder setDataSource(final @Nullable DataSource dataSource) {
+        CustomJdbcIO.DataSourceConfiguration.Builder setDataSource(final DataSource dataSource) {
             this.dataSource = dataSource;
             return this;
         }

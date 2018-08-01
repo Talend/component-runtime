@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import java.io.Serializable;
 import java.sql.ResultSet;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
 import org.apache.beam.sdk.options.ValueProvider;
@@ -52,22 +51,16 @@ public class CustomJdbcIO {
 
     public abstract static class DataSourceConfiguration implements Serializable {
 
-        @Nullable
         abstract String getDriverClassName();
 
-        @Nullable
         abstract String getUrl();
 
-        @Nullable
         abstract String getUsername();
 
-        @Nullable
         abstract String getPassword();
 
-        @Nullable
         abstract String getConnectionProperties();
 
-        @Nullable
         abstract DataSource getDataSource();
 
         abstract DataSourceConfiguration.Builder builder();
@@ -120,13 +113,10 @@ public class CustomJdbcIO {
 
     public abstract static class Read<T> extends PTransform<PBegin, PCollection<T>> {
 
-        @Nullable
         abstract DataSourceConfiguration getDataSourceConfiguration();
 
-        @Nullable
         abstract ValueProvider<String> getQuery();
 
-        @Nullable
         abstract RowMapper<T> getRowMapper();
 
         abstract Read.Builder<T> toBuilder();

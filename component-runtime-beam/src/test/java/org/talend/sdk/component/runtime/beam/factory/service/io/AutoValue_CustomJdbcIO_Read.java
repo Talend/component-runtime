@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.beam.factory.service.io;
 
 import javax.annotation.Generated;
-import javax.annotation.Nullable;
 
 import org.apache.beam.sdk.options.ValueProvider;
 
@@ -29,26 +28,23 @@ final class AutoValue_CustomJdbcIO_Read<T> extends CustomJdbcIO.Read<T> {
 
     private final CustomJdbcIO.RowMapper<T> rowMapper;
 
-    private AutoValue_CustomJdbcIO_Read(final @Nullable CustomJdbcIO.DataSourceConfiguration dataSourceConfiguration,
-            final @Nullable ValueProvider<String> query, final @Nullable CustomJdbcIO.RowMapper<T> rowMapper) {
+    private AutoValue_CustomJdbcIO_Read(final CustomJdbcIO.DataSourceConfiguration dataSourceConfiguration,
+            final ValueProvider<String> query, final CustomJdbcIO.RowMapper<T> rowMapper) {
         this.dataSourceConfiguration = dataSourceConfiguration;
         this.query = query;
         this.rowMapper = rowMapper;
     }
 
-    @Nullable
     @Override
     CustomJdbcIO.DataSourceConfiguration getDataSourceConfiguration() {
         return dataSourceConfiguration;
     }
 
-    @Nullable
     @Override
     ValueProvider<String> getQuery() {
         return query;
     }
 
-    @Nullable
     @Override
     CustomJdbcIO.RowMapper<T> getRowMapper() {
         return rowMapper;
@@ -106,20 +102,20 @@ final class AutoValue_CustomJdbcIO_Read<T> extends CustomJdbcIO.Read<T> {
         }
 
         @Override
-        CustomJdbcIO.Read.Builder<T> setDataSourceConfiguration(
-                final @Nullable CustomJdbcIO.DataSourceConfiguration dataSourceConfiguration) {
+        CustomJdbcIO.Read.Builder<T>
+                setDataSourceConfiguration(final CustomJdbcIO.DataSourceConfiguration dataSourceConfiguration) {
             this.dataSourceConfiguration = dataSourceConfiguration;
             return this;
         }
 
         @Override
-        CustomJdbcIO.Read.Builder<T> setQuery(final @Nullable ValueProvider<String> query) {
+        CustomJdbcIO.Read.Builder<T> setQuery(final ValueProvider<String> query) {
             this.query = query;
             return this;
         }
 
         @Override
-        CustomJdbcIO.Read.Builder<T> setRowMapper(final @Nullable CustomJdbcIO.RowMapper<T> rowMapper) {
+        CustomJdbcIO.Read.Builder<T> setRowMapper(final CustomJdbcIO.RowMapper<T> rowMapper) {
             this.rowMapper = rowMapper;
             return this;
         }
