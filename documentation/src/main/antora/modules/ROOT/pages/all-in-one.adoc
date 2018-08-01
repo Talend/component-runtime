@@ -14,9 +14,3 @@ include::index-testing-components.adoc[leveloffset=+1]
 include::index-defining-services.adoc[leveloffset=+1]
 
 include::index-deploying-components.adoc[leveloffset=+1]
-
-include::index-tutorials.adoc[leveloffset=+1]
-
-include::index-reference-guide.adoc[leveloffset=+1]
-
-include::documentation-rest.adoc[leveloffset=+1]
