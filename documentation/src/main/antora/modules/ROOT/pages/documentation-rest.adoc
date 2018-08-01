@@ -1,5 +1,6 @@
 = Talend Component Kit REST API Documentation
 :page-partial:
+:page-talend_swaggerui: true
 
 TIP: A test environment is available on Heroku and can be browsed using Talend Component Kit Server instance on link:https://talend-component-kit.restlet.io[Restlet Studio^].
 

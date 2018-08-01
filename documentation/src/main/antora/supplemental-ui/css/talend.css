@@ -69,7 +69,7 @@ main.documentationindex {
   vertical-align: middle;
 }
 .documentationindex-icon > i {
-  background: linear-gradient(45deg, #0d78bb, #579667, #afbb09);
+  background: linear-gradient(60deg, #17486E, #107BB7, #82BD41);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -81,6 +81,7 @@ main.documentationindex {
 }
 .documentationindex-item a {
   border: 1px solid #ddd;
+  border-radius: 5px;
   width: 100%;
   height: 100%;
   text-decoration: none;
@@ -474,7 +475,7 @@ pre {
 
 header > nav.navbar-default, footer {
   margin: 0;
-  background: linear-gradient(90deg, #0d78bb, #579667, #afbb09);
+  background: linear-gradient(90deg, #17486E, #107BB7, #82BD41);
 }
 
 .anchor {

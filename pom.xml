@@ -86,7 +86,7 @@
     <jsonp-api.version>1.0</jsonp-api.version>
     <microprofile-config-api.version>1.2</microprofile-config-api.version>
     <microprofile-openapi-api.version>1.0.1</microprofile-openapi-api.version>
-    <geronimo-openapi.version>1.0.2-SNAPSHOT</geronimo-openapi.version>
+    <geronimo-openapi.version>1.0.1</geronimo-openapi.version>
     <geronimo-config.version>1.2</geronimo-config.version>
     <junit5.version>5.3.0-M1</junit5.version>
     <hamcrest.version>1.3</hamcrest.version>
@@ -915,6 +915,10 @@
 
   <repositories>
     <repository>
+      <id>openapi-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1067/</url>
+    </repository>
+    <repository>
       <id>beam-staging</id>
       <url>https://repository.apache.org/content/repositories/orgapachebeam-1044/</url>
     </repository>
@@ -965,6 +969,10 @@
   </repositories>
 
   <pluginRepositories>
+    <pluginRepository>
+      <id>openapi-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1067/</url>
+    </pluginRepository>
     <pluginRepository>
       <id>beam-staging</id>
       <url>https://repository.apache.org/content/repositories/orgapachebeam-1044/</url>

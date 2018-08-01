@@ -209,6 +209,29 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${build-helper-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.outputDirectory}/META-INF/resources/documentation/openapi.json</file>
+                  <type>json</type>
+                  <classifier>openapi</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>com.sebastian-daschner</groupId>
         <artifactId>jaxrs-analyzer-maven-plugin</artifactId>
         <version>${jaxrs-analyzer.version}</version>

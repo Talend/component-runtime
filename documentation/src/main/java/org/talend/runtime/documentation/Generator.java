@@ -34,6 +34,7 @@ import static org.apache.ziplock.JarLocation.jarLocation;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Writer;
@@ -72,6 +73,7 @@ import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.JarArchive;
+import org.apache.ziplock.IO;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.AttributesBuilder;
 import org.asciidoctor.OptionsBuilder;
@@ -134,6 +136,7 @@ public class Generator {
         generatedActions(generatedDir);
         generatedUi(generatedDir);
         generatedServerConfiguration(generatedDir);
+        updateComponentServerApi(generatedDir);
         generatedProxyServerConfiguration(generatedDir);
         generatedJUnitEnvironment(generatedDir);
         generatedScanningExclusions(generatedDir);
@@ -146,6 +149,17 @@ public class Generator {
         }
         generatedContributors(generatedDir, args[5], args[6]);
         generatedJira(generatedDir, args[1], args[2], args[3]);
+    }
+
+    private static void updateComponentServerApi(final File generatedDir) throws IOException {
+        try (final InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                "META-INF/resources/documentation/openapi.json");
+                final OutputStream writer =
+                        new WriteIfDifferentStream(new File(generatedDir, "generated_rest-resources.adoc"))) {
+            writer.write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
+                    + "(window.talend = (window.talend || {})).swaggerUi = " + IO.slurp(source) + ";</script>\n"
+                    + "<div id=\"swagger-ui\"></div>\n++++\n").getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     private static void generatedDocumentationIndex(final File generatedDir, final Asciidoctor asciidoctor)
