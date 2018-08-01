@@ -17,8 +17,12 @@ package org.talend.sdk.component.server.front;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
+import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,6 +46,12 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.server.dao.ComponentDao;
@@ -54,6 +64,7 @@ import org.talend.sdk.component.server.service.LocaleMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+@Tag(name = "Documentation", description = "Endpoint to retrieve embedded component documentation.")
 @Slf4j
 @Path("documentation")
 @ApplicationScoped
@@ -71,29 +82,29 @@ public class DocumentationResource {
     @Inject
     private AsciidoctorService adoc;
 
-    /**
-     * Returns an asciidoctor version of the documentation for the component represented by its identifier `id`.
-     *
-     * Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get
-     * a partial document.
-     *
-     * IMPORTANT: it is recommended to use asciidoc format and handle the conversion on your side if you can,
-     * the html flavor handles a limited set of the asciidoc syntax only like plain arrays, paragraph and titles.
-     *
-     * The documentation will likely be the family documentation but you can use anchors to access a particular
-     * component (_componentname_inlowercase).
-     *
-     * @param id the component identifier.
-     * @param language the expected language for the documentation (default to en if not found).
-     * @param format the expected format (asciidoc or html).
-     * @return the documentation for that component.
-     */
     @GET
     @Path("component/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public DocumentationContent getDocumentation(@PathParam("id") final String id,
-            @QueryParam("language") @DefaultValue("en") final String language,
-            @QueryParam("format") @DefaultValue("asciidoc") final String format) {
+    @Operation(
+            description = "Returns an asciidoctor version of the documentation for the component represented by its identifier `id`. "
+                    + "Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get "
+                    + "a partial document. "
+                    + "IMPORTANT: it is recommended to use asciidoc format and handle the conversion on your side if you can, "
+                    + "the html flavor handles a limited set of the asciidoc syntax only like plain arrays, paragraph and titles. "
+                    + "The documentation will likely be the family documentation but you can use anchors to access a particular "
+                    + "component (_componentname_inlowercase).")
+    @APIResponse(responseCode = "200",
+            description = "the list of available and storable configurations (datastore, dataset, ...).",
+            content = @Content(mediaType = APPLICATION_JSON))
+    public DocumentationContent getDocumentation(
+            @PathParam("id") @Parameter(name = "id", description = "the component identifier",
+                    in = PATH) final String id,
+            @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
+                    description = "the language for display names.", in = QUERY,
+                    schema = @Schema(type = STRING, defaultValue = "en")) final String language,
+            @QueryParam("format") @DefaultValue("asciidoc") @Parameter(name = "format",
+                    description = "the expected format (asciidoc or html).", in = QUERY,
+                    schema = @Schema(type = STRING, defaultValue = "asciidoc")) final String format) {
         final Locale locale = localeMapper.mapLocale(language);
         final Container container = ofNullable(componentDao.findById(id))
                 .map(meta -> manager

@@ -21,6 +21,9 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJECT;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,6 +44,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
@@ -55,6 +65,7 @@ import org.talend.sdk.component.server.service.httpurlconnection.IgnoreNetAuthen
 
 import lombok.extern.slf4j.Slf4j;
 
+@Tag(name = "Action", description = "Endpoints related to callbacks/triggers execution.")
 @Slf4j
 @Path("action")
 @ApplicationScoped
@@ -75,23 +86,36 @@ public class ActionResource {
     @Inject
     private LocaleMapper localeMapper;
 
-    /**
-     * This endpoint will execute any UI action and serialize the response as a JSON (pojo model)
-     * It takes as input the family, type and name of the related action to identify it and its configuration
-     * as a flat key value set using the same kind of mapping than for components (option path as key).
-     *
-     * @param family the component family.
-     * @param type the type of action.
-     * @param action the action name.
-     * @param lang the requested language (as in a Locale) if supported by the action.
-     * @param params the action parameters as a flat map of strings.
-     * @return the action result payload.
-     */
     @POST
     @Path("execute")
-    public Response execute(@QueryParam("family") final String family, @QueryParam("type") final String type,
-            @QueryParam("action") final String action, @QueryParam("lang") final String lang,
-            final Map<String, String> params) {
+    @Operation(
+            description = "This endpoint will execute any UI action and serialize the response as a JSON (pojo model). "
+                    + "It takes as input the family, type and name of the related action to identify it and its configuration "
+                    + "as a flat key value set using the same kind of mapping than for components (option path as key).")
+    @APIResponse(responseCode = "200", description = "The action payload serialized in JSON.",
+            content = @Content(mediaType = APPLICATION_JSON))
+    @APIResponse(responseCode = "400",
+            description = "If the action is not set, payload will be an ErrorPayload with the code ACTION_MISSING.",
+            content = @Content(mediaType = APPLICATION_JSON))
+    @APIResponse(responseCode = "404",
+            description = "If the action can't be found, payload will be an ErrorPayload with the code ACTION_MISSING.",
+            content = @Content(mediaType = APPLICATION_JSON))
+    @APIResponse(responseCode = "520",
+            description = "If the action execution failed, payload will be an ErrorPayload with the code ACTION_ERROR.",
+            content = @Content(mediaType = APPLICATION_JSON))
+    public Response
+            execute(@QueryParam("family") @Parameter(name = "family", required = true, in = QUERY,
+                    description = "the component family") final String family,
+                    @QueryParam("type") @Parameter(name = "type", required = true, in = QUERY,
+                            description = "the type of action") final String type,
+                    @QueryParam("action") @Parameter(name = "action", required = true, in = QUERY,
+                            description = "the action name") final String action,
+                    @QueryParam("lang") @DefaultValue("en") @Parameter(name = "language", in = QUERY,
+                            description = "the requested language (as in a Locale) if supported by the action",
+                            schema = @Schema(defaultValue = "en", type = STRING)) final String lang,
+                    @RequestBody(description = "the action parameters as a flat map of strings", required = true,
+                            content = @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(type = OBJECT))) final Map<String, String> params) {
         if (action == null) {
             throw new WebApplicationException(Response
                     .status(Response.Status.BAD_REQUEST)
@@ -122,19 +146,20 @@ public class ActionResource {
         }
     }
 
-    /**
-     * This endpoint returns the list of available actions for a certain family and potentially filters the "
-     * output limiting it to some families and types of actions.
-     *
-     * @param types the types of actions (optional).
-     * @param families the families (optional).
-     * @param language the language to use (optional).
-     * @return the list of actions matching the requested filters or all if none are set.
-     */
     @GET
     @Path("index") // add an index if needed or too slow
-    public ActionList getIndex(@QueryParam("type") final String[] types, @QueryParam("family") final String[] families,
-            @QueryParam("language") @DefaultValue("en") final String language) {
+    @Operation(
+            description = "This endpoint returns the list of available actions for a certain family and potentially filters the "
+                    + "output limiting it to some families and types of actions.")
+    @APIResponse(responseCode = "200", description = "The action index.",
+            content = @Content(mediaType = APPLICATION_JSON))
+    public ActionList getIndex(
+            @QueryParam("type") @Parameter(name = "type", in = QUERY,
+                    description = "the types of actions") final String[] types,
+            @QueryParam("family") @Parameter(name = "family", in = QUERY,
+                    description = "the families") final String[] families,
+            @QueryParam("language") @Parameter(name = "language", description = "the language to use", in = QUERY,
+                    schema = @Schema(defaultValue = "en", type = STRING)) @DefaultValue("en") final String language) {
         final Predicate<ServiceMeta.ActionMeta> typeMatcher = new Predicate<ServiceMeta.ActionMeta>() {
 
             private final Collection<String> accepted = new HashSet<>(asList(types));
