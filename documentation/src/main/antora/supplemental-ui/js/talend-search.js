@@ -13,16 +13,25 @@ $(document).ready(function () {
        distance: 100,
        maxPatternLength: 32,
        minMatchCharLength: 1,
-       keys: [
-         "title",
-         "description",
-         "keywords",
-         "lvl0",
-         "lvl1",
-         "lvl2",
-         "lvl3",
-         "text"
-       ]
+       keys: [{
+             name:'title',
+             weight: 0.1
+           }, {
+             name:'lvl0',
+             weight: 1
+           }, {
+             name:'lvl1',
+             weight: 0.3
+           }, {
+             name:'lvl2',
+             weight: 0.2
+           }, {
+             name:'lvl3',
+             weight: 0.1
+           }, {
+             name:'text',
+             weight: 0.1
+           }]
     });
     var result = fuse.search(search);
 
