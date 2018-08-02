@@ -1,5 +1,9 @@
 = Talend Component Kit Javadocs
 :page-partial:
+:page-documentationindex-index: 15000
+:page-documentationindex-label: Javadocs
+:page-documentationindex-icon: file-alt
+:page-documentationindex-description: Access the detailed API reference documentation
 
 Refer to the following links to access the detailed API reference documentation:
 
