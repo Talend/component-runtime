@@ -1,6 +1,9 @@
 = General component execution logic
 :page-partial:
 
+Each type of component has its own execution logic. The same basic logic is applied to all components of the same type, and is then extended to implement each component specificities.
+The project generated from the starter already contains the basic logic for each component.
+
 Talend Component Kit framework relies on several primitive components.
 
 All components can use `@PostConstruct` and `@PreDestroy` annotations to initialize or release some underlying resource at the beginning and the end of a processing.

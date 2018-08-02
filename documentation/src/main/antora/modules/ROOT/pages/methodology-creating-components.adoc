@@ -39,4 +39,5 @@ ifeval::["{backend}" == "html5"]
 == Related articles
 - xref:what-is-a-talend-component.adoc[What is a Talend component]
 - xref:tck-framework-overview.adoc[Talend Component Kit framework overview]
+- xref:component-execution.adoc[General component execution logic]
 endif::[]

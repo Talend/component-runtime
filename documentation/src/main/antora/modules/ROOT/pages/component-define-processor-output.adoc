@@ -12,6 +12,7 @@ ifeval::["{backend}" == "html5"]
 == Related articles
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
 - xref:component-registering.adoc[Registering a component]
+- xref:component-execution.adoc[General component execution logic]
 - xref:component-configuration.adoc[Configuring a component]
 - xref:component-internationalization.adoc[Internationalizing a component]
 - xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]

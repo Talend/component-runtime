@@ -1,6 +1,11 @@
 = Talend Component Kit Overview
 :page-partial:
 
+_Talend Component Kit_ is a toolkit based on Java and designed to simplify the development of components at two levels:
+
+* **Runtime**: Runtime is about injecting the specific component code into a job or pipeline. The framework helps unify as much as possible the code required to run in Data Integration (DI) and BEAM environments.
+* **Graphical interface**: The framework helps unify the code required to be able to render the component in a browser (web) or in the Eclipse-based Studio (SWT).
+
 == Component API
 
 The component API is declarative (through annotations) to ensure it is:
@@ -133,4 +138,5 @@ ifeval::["{backend}" == "html5"]
 == Related articles
 - xref:what-is-a-talend-component.adoc[What is a Talend component]
 - xref:methodology-creating-components.adoc[Methodology for creating components]
+- xref:component-execution.adoc[General component execution logic]
 endif::[]

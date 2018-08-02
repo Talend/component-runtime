@@ -74,11 +74,12 @@ The component type is declared in the component class. When you import your proj
 - A processor. `@Processor` is the default for output components. A method decorated with `@Processor` is considered as a producer factory.
 - Combiners are not supported by the framework. Combiners allow to aggregate results in a single partition.
 
-You can learn more about the specificities and execution flow of each component type in xref:component-definition.adoc[this document].
+The name of the component is defined there as well as a parameter of the component type
 
-The name of the component is defined there as well as a parameter of the component type.
+Once the component type is defined, you can start implementing its specific logic:
 
-Once the component type is defined, you can xref:component-definition.adoc[start implementing its logic].
+- xref:component-define-input.adoc[Defining an input component]
+- xref:component-define-processor-output.adoc[Defining a processor or output component]
 
 .Partition mapper example
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
@@ -109,7 +110,8 @@ ifeval::["{backend}" == "html5"]
 == Related articles
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
 - xref:component-version-and-migration.adoc[Managing component versions]
-- xref:component-definition.adoc[Defining a component]
+- xref:component-define-input.adoc[Defining an input component]
+- xref:component-define-processor-output.adoc[Defining a processor or output component]
 - xref:component-configuration.adoc[Configuring a component]
 - xref:best-practices.adoc[Best practices]
 endif::[]

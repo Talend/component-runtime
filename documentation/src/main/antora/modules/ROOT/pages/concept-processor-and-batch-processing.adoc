@@ -62,4 +62,4 @@ public class BulkProcessor implements Serializable {
 }
 ----
 
-You can learn more about processors in xref:component-definition.adoc#component-type-processor[this document].
+You can learn more about processors in xref:component-define-processor-output.adoc[this document].
