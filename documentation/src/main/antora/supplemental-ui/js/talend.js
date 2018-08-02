@@ -116,7 +116,7 @@ $(document).ready(function () {
       spy: true,
       spyOffset: articleContent.offset().top,
       anchorText: '$',
-      position: 'prepend'
+      position: 'append'
     });
     var sizeSubMenuPanel = $('.article-anchors');
     var sizeSubMenuChildren = sizeSubMenuPanel.find('ul li');

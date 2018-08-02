@@ -53,6 +53,9 @@ h3.contributor-commits {
 main.documentationindex {
   overflow: auto;
 }
+div.documentationindex-before {
+  padding: 0;
+}
 .documentationindex-before .admonitionblocks {
   display: flex;
   justify-content: space-around;
@@ -493,7 +496,7 @@ pre {
   display: block;
 }
 .article-anchors > ul > li > a {
-  padding-left: 15px;
+  padding-left: 10px;
 }
 .article-anchors > ul > li > ul > li > a {
   padding-left: 30px;
@@ -510,10 +513,12 @@ pre {
 .article-anchors > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > a {
   padding-left: 90px;
 }
-.article-anchors li.active > a {
-  left: 0;
-  color: #0675c1;
+.article-anchors li > a {
   background-color: transparent;
+  border-left: 1px solid #979797;
+}
+.article-anchors li.active > a {
+  color: #0675c1;
   border-left: 2px solid #0675c1;
 }
 .article-anchors > ul > li.active > a {
@@ -521,6 +526,10 @@ pre {
 }
 .article-anchors > ul > li > ul li.active {
   font-weight: 400;
+}
+.article-side-actions li > a {
+  border: none;
+  color: #0f7ac3;
 }
 
 header > nav.navbar-default {
