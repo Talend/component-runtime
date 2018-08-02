@@ -76,6 +76,13 @@
     "index":10000,
     "label":"Changelog",
     "link":"changelog.html"
+  },
+  {
+    "description":"Access the detailed API reference documentation",
+    "icon":"file-alt",
+    "index":15000,
+    "label":"Javadocs",
+    "link":"apidocs.html"
   }
 ]</jsonArray>
 ++++
