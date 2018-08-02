@@ -1,4 +1,4 @@
-= Talend Component Kit REST API Documentation
+= Talend Component Kit HTTP API Documentation
 :page-partial:
 :page-talend_swaggerui: true
 

@@ -20,7 +20,7 @@ include::{partialsdir}/generated_proxy-server-configuration.adoc[]
 
 === Adding custom entries to the forms
 
-As shown in the table above, you can customize the forms by type. The format reuses Talend Component Kit REST API (properties model) and defines two main types of extensions:
+As shown in the table above, you can customize the forms by type. The format reuses Talend Component Kit HTTP API (properties model) and defines two main types of extensions:
 
 1. `prependProperties`: Lists all the models of properties added to the form *before* the actual underlying form.
 2. `appendProperties`: Lists all the models of properties added to the form *after* the actual underlying form.
