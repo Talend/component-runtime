@@ -1,4 +1,4 @@
-= Defining a partition Mapper
+= xref:component-partition-mapper.adoc[Defining a partition Mapper]
 :page-partial:
 
 [[partition-mapper]]

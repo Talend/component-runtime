@@ -1,4 +1,4 @@
-= Defining a combiner
+= xref:component-combiner.adoc[Defining a combiner]
 :page-partial:
 
 == What is a combiner

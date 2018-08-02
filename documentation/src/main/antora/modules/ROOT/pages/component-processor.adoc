@@ -1,4 +1,4 @@
-= Defining a processor
+= xref:component-processor.adoc[Defining a processor]
 :page-partial:
 
 [[component-type-processor]]

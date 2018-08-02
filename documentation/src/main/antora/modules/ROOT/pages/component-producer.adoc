@@ -1,4 +1,4 @@
-= Defining the producer method
+= xref:component-producer.adoc[Defining the producer method]
 :page-partial:
 
 The `Producer` method defines the source logic of an input component. It handles the interaction with a physical source and produces input data for the processing flow.

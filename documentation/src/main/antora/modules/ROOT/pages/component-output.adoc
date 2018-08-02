@@ -1,4 +1,4 @@
-= Defining an output
+= xref:component-output.adoc[Defining an output]
 :page-partial:
 
 == What is an output
