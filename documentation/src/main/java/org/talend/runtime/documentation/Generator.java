@@ -156,7 +156,7 @@ public class Generator {
         try (final InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(
                 "META-INF/resources/documentation/openapi.json")) {
             final String newJson = IO.slurp(source);
-            String oldJson = !output.exists() ? "" : String.join("\n", Files.readAllLines(output.toPath()));
+            String oldJson = !output.exists() ? "{}" : String.join("\n", Files.readAllLines(output.toPath()));
             final int start = oldJson.indexOf(".swaggerUi = ");
             if (start > 0) {
                 oldJson = oldJson.substring(start + ".swaggerUi = ".length());
@@ -177,6 +177,9 @@ public class Generator {
     }
 
     private static boolean areJsonDifferent(final String first, final String second) throws Exception {
+        if (!first.startsWith("{")) {
+            return true;
+        }
         // using a JsonReader we get a LinkedHashMap, here the HashMap is what we want (order is not important)
         try (final Jsonb mapper = JsonbBuilder.create()) {
             final Object m1 = mapper.fromJson(first, Object.class);

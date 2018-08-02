@@ -176,6 +176,7 @@ html {
   min-height: 100%;
 }
 body {
+  font-family: 'Source Sans Pro', sans-serif;
   display: flex;
   flex-direction: column;
   font-size: 16px;
@@ -184,22 +185,28 @@ body {
   height: 100vh;
 }
 h1 {
-  font-size: 28px;
+  font-size: 30px;
+  font-weight: bold;
 }
 h2 {
   font-size: 26px;
+  font-weight: bold;
 }
 h3 {
   font-size: 24px;
+  font-weight: bold;
 }
 h4 {
   font-size: 22px;
+  font-weight: bold;
 }
 h5 {
   font-size: 20px;
+  font-weight: bold;
 }
 h6 {
   font-size: 18px;
+  font-weight: bold;
 }
 header,
 footer {
@@ -500,4 +507,21 @@ ul.tree > li > a {
 
 .nav-filter-group {
   padding-bottom: 1.4rem;
+}
+
+.navbar-text-content {
+  font-size: 15px;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+  color: white;
+}
+.navbar-single-link {
+  display: flex;
+  align-items: center;
+  color: white !important;
+  font-weight: bold;
+}
+#header-talend-logo {
+  background: #134165;
+  height: 100%;
 }
