@@ -210,32 +210,32 @@ a {
 h1 {
   color: #295679;
   font-size: 30px;
-  font-weight: bold;
+  font-weight: 300;
 }
 h2 {
   color: #295679;
   font-size: 26px;
-  font-weight: bold;
+  font-weight: 300;
 }
 h3 {
   color: #295679;
   font-size: 24px;
-  font-weight: bold;
+  font-weight: 300;
 }
 h4 {
   color: #295679;
   font-size: 22px;
-  font-weight: bold;
+  font-weight: 300;
 }
 h5 {
   color: #295679;
   font-size: 20px;
-  font-weight: bold;
+  font-weight: 300;
 }
 h6 {
   color: #295679;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 300;
 }
 header,
 footer {
@@ -306,6 +306,8 @@ article.doc {
 }
 footer.footer {
   z-index: 10;
+  border-top: 1px solid #c6c6c6;
+  color: #888;
 }
 .footer ul, .footer li {
   margin: 0;
@@ -326,9 +328,12 @@ footer.footer {
   text-align: center;
   margin: 0;
 }
-.navbar,
-footer.footer,
 .footer a {
+  color: #0675C1;
+  font-weight: 600;
+  font-size: 12px;
+}
+.navbar {
   color: white;
 }
 .navbar-end .navbar-link:hover,
@@ -517,7 +522,7 @@ pre {
   font-weight: 400;
 }
 
-header > nav.navbar-default, footer {
+header > nav.navbar-default {
   margin: 0;
   background: linear-gradient(90deg, #17486E, #107BB7, #82BD41);
 }
