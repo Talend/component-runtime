@@ -15,9 +15,13 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -42,15 +46,32 @@ class AbstractWidgetConverterTest {
             }
 
             {
-                final List<UiSchema.Parameter> parameters = toParams(
+                final List<UiSchema.Parameter> noLeafParams = toParams(
                         singletonList(new SimplePropertyDefinition("me", "me", null, "OBJECT", null,
                                 new PropertyValidation(), emptyMap(), null, null)),
                         new SimplePropertyDefinition("me", "me", null, "OBJECT", null, new PropertyValidation(),
                                 emptyMap(), null, null),
-                        new ActionReference("test", "act", "sthg", singletonList(new SimplePropertyDefinition("me",
-                                "me", null, "OBJECT", null, new PropertyValidation(), emptyMap(), null, null))),
+                        new ActionReference("test", "act", "sthg",
+                                singletonList(new SimplePropertyDefinition("me", "me", null, "OBJECT", null,
+                                        new PropertyValidation(), singletonMap("definition::parameter::index", "1"),
+                                        null, null))),
                         "me");
-                System.out.println(parameters);
+                assertTrue(noLeafParams.isEmpty()); // no leaf
+
+                final List<UiSchema.Parameter> parameters = toParams(
+                        asList(new SimplePropertyDefinition("me", "me", null, "OBJECT", null, new PropertyValidation(),
+                                emptyMap(), null, null),
+                                new SimplePropertyDefinition("me.url", "url", null, "STRING", null,
+                                        new PropertyValidation(), emptyMap(), null, null)),
+                        new SimplePropertyDefinition("me", "me", null, "OBJECT", null, new PropertyValidation(),
+                                emptyMap(), null, null),
+                        new ActionReference("test", "act", "sthg",
+                                singletonList(new SimplePropertyDefinition("me", "me", null, "OBJECT", null,
+                                        new PropertyValidation(), singletonMap("definition::parameter::index", "1"),
+                                        null, null))),
+                        "me");
+                assertEquals(1, parameters.size());
+                assertEquals("me.url", parameters.iterator().next().getPath());
             }
         };
     }

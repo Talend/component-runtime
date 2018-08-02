@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.server.front;
 
-import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
@@ -194,7 +194,7 @@ public class ConfigurationTypeResource {
                     final int prefixLen = c.getMeta().getPath().length();
                     final String forcedPrefix = c.getMeta().getName();
                     node.setProperties(propertiesService
-                            .buildProperties(singleton(c.getMeta()), loader, locale, null)
+                            .buildProperties(singletonList(c.getMeta()), loader, locale, null)
                             .map(p -> new SimplePropertyDefinition(forcedPrefix + p.getPath().substring(prefixLen),
                                     p.getName(), p.getDisplayName(), p.getType(), p.getDefaultValue(),
                                     p.getValidation(), p.getMetadata(), p.getPlaceholder(),
