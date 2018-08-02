@@ -151,14 +151,37 @@ public class Generator {
         generatedJira(generatedDir, args[1], args[2], args[3]);
     }
 
-    private static void updateComponentServerApi(final File generatedDir) throws IOException {
+    private static void updateComponentServerApi(final File generatedDir) throws Exception {
+        final File output = new File(generatedDir, "generated_rest-resources.adoc");
         try (final InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                "META-INF/resources/documentation/openapi.json");
-                final OutputStream writer =
-                        new WriteIfDifferentStream(new File(generatedDir, "generated_rest-resources.adoc"))) {
-            writer.write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
-                    + "(window.talend = (window.talend || {})).swaggerUi = " + IO.slurp(source) + ";</script>\n"
-                    + "<div id=\"swagger-ui\"></div>\n++++\n").getBytes(StandardCharsets.UTF_8));
+                "META-INF/resources/documentation/openapi.json")) {
+            final String newJson = IO.slurp(source);
+            String oldJson = !output.exists() ? "" : String.join("\n", Files.readAllLines(output.toPath()));
+            final int start = oldJson.indexOf(".swaggerUi = ");
+            if (start > 0) {
+                oldJson = oldJson.substring(start + ".swaggerUi = ".length());
+            }
+
+            final int end = oldJson.indexOf(";</script>");
+            if (end > 0) {
+                oldJson = oldJson.substring(0, end);
+            }
+            if (areJsonDifferent(oldJson.trim(), newJson.trim())) {
+                try (final OutputStream writer = new WriteIfDifferentStream(output)) {
+                    writer.write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
+                            + "(window.talend = (window.talend || {})).swaggerUi = " + newJson + ";</script>\n"
+                            + "<div id=\"swagger-ui\"></div>\n++++\n").getBytes(StandardCharsets.UTF_8));
+                }
+            }
+        }
+    }
+
+    private static boolean areJsonDifferent(final String first, final String second) throws Exception {
+        // using a JsonReader we get a LinkedHashMap, here the HashMap is what we want (order is not important)
+        try (final Jsonb mapper = JsonbBuilder.create()) {
+            final Object m1 = mapper.fromJson(first, Object.class);
+            final Object m2 = mapper.fromJson(second, Object.class);
+            return !m1.equals(m2);
         }
     }
 

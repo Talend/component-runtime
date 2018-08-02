@@ -172,6 +172,110 @@
         ]
       }
     },
+    "/api/v1/component/icon/family/{id}":{
+      "get":{
+        "deprecated":false,
+        "description":"Returns the icon for a family.",
+        "operationId":"familyIcon",
+        "parameters":[
+          {
+            "allowEmptyValue":false,
+            "allowReserved":false,
+            "description":"the family identifier",
+            "in":"path",
+            "name":"id",
+            "required":false,
+            "schema":{
+              "type":"string"
+            }
+          }
+        ],
+        "responses":{
+          "200":{
+            "content":{
+              "application/octet-stream":{
+
+              }
+            },
+            "description":"Returns a particular family icon in raw bytes."
+          },
+          "404":{
+            "content":{
+              "application/json":{
+
+              }
+            },
+            "description":"The family or icon is not found"
+          }
+        },
+        "tags":[
+          "Component"
+        ]
+      }
+    },
+    "/api/v1/component/migrate/{id}/{configurationVersion}":{
+      "post":{
+        "deprecated":false,
+        "description":"Allows to migrate a component configuration without calling any component execution.",
+        "operationId":"migrate",
+        "parameters":[
+          {
+            "allowEmptyValue":false,
+            "allowReserved":false,
+            "description":"the component identifier",
+            "in":"path",
+            "name":"id",
+            "required":false,
+            "schema":{
+              "type":"string"
+            }
+          },
+          {
+            "allowEmptyValue":false,
+            "allowReserved":false,
+            "description":"the configuration version you send",
+            "in":"path",
+            "name":"configurationVersion",
+            "required":false,
+            "schema":{
+              "type":"integer"
+            }
+          }
+        ],
+        "requestBody":{
+          "content":{
+            "application/json":{
+              "schema":{
+                "type":"object"
+              }
+            }
+          },
+          "description":"the actual configuration in key/value form.",
+          "required":true
+        },
+        "responses":{
+          "200":{
+            "content":{
+              "application/json":{
+
+              }
+            },
+            "description":"the new configuration for that component (or the same if no migration was needed)."
+          },
+          "404":{
+            "content":{
+              "application/json":{
+
+              }
+            },
+            "description":"The component is not found"
+          }
+        },
+        "tags":[
+          "Component"
+        ]
+      }
+    },
     "/api/v1/component/index":{
       "get":{
         "deprecated":false,
@@ -311,6 +415,39 @@
         ]
       }
     },
+    "/api/v1/component/dependency/{id}":{
+      "get":{
+        "deprecated":false,
+        "description":"Return a binary of the dependency represented by `id`. It can be maven coordinates for dependencies or a component id.",
+        "operationId":"getDependency",
+        "parameters":[
+          {
+            "allowEmptyValue":false,
+            "allowReserved":false,
+            "description":"the dependency binary (jar).",
+            "in":"path",
+            "name":"id",
+            "required":false,
+            "schema":{
+              "type":"string"
+            }
+          }
+        ],
+        "responses":{
+          "200":{
+            "content":{
+              "application/octet-stream":{
+
+              }
+            },
+            "description":"The dependency binary (jar)."
+          }
+        },
+        "tags":[
+          "Component"
+        ]
+      }
+    },
     "/api/v1/component/icon/{id}":{
       "get":{
         "deprecated":false,
@@ -349,192 +486,6 @@
         },
         "tags":[
           "Component"
-        ]
-      }
-    },
-    "/api/v1/component/dependency/{id}":{
-      "get":{
-        "deprecated":false,
-        "description":"Return a binary of the dependency represented by `id`. It can be maven coordinates for dependencies or a component id.",
-        "operationId":"getDependency",
-        "parameters":[
-          {
-            "allowEmptyValue":false,
-            "allowReserved":false,
-            "description":"the dependency binary (jar).",
-            "in":"path",
-            "name":"id",
-            "required":false,
-            "schema":{
-              "type":"string"
-            }
-          }
-        ],
-        "responses":{
-          "200":{
-            "content":{
-              "application/octet-stream":{
-
-              }
-            },
-            "description":"The dependency binary (jar)."
-          }
-        },
-        "tags":[
-          "Component"
-        ]
-      }
-    },
-    "/api/v1/component/icon/family/{id}":{
-      "get":{
-        "deprecated":false,
-        "description":"Returns the icon for a family.",
-        "operationId":"familyIcon",
-        "parameters":[
-          {
-            "allowEmptyValue":false,
-            "allowReserved":false,
-            "description":"the family identifier",
-            "in":"path",
-            "name":"id",
-            "required":false,
-            "schema":{
-              "type":"string"
-            }
-          }
-        ],
-        "responses":{
-          "200":{
-            "content":{
-              "application/octet-stream":{
-
-              }
-            },
-            "description":"Returns a particular family icon in raw bytes."
-          },
-          "404":{
-            "content":{
-              "application/json":{
-
-              }
-            },
-            "description":"The family or icon is not found"
-          }
-        },
-        "tags":[
-          "Component"
-        ]
-      }
-    },
-    "/api/v1/component/migrate/{id}/{configurationVersion}":{
-      "post":{
-        "deprecated":false,
-        "description":"Allows to migrate a component configuration without calling any component execution.",
-        "operationId":"migrate",
-        "parameters":[
-          {
-            "allowEmptyValue":false,
-            "allowReserved":false,
-            "description":"the component identifier",
-            "in":"path",
-            "name":"id",
-            "required":false,
-            "schema":{
-              "type":"string"
-            }
-          },
-          {
-            "allowEmptyValue":false,
-            "allowReserved":false,
-            "description":"the configuration version you send",
-            "in":"path",
-            "name":"configurationVersion",
-            "required":false,
-            "schema":{
-              "type":"integer"
-            }
-          }
-        ],
-        "requestBody":{
-          "content":{
-            "application/json":{
-              "schema":{
-                "type":"object"
-              }
-            }
-          },
-          "description":"the actual configuration in key/value form.",
-          "required":true
-        },
-        "responses":{
-          "200":{
-            "content":{
-              "application/json":{
-
-              }
-            },
-            "description":"the new configuration for that component (or the same if no migration was needed)."
-          },
-          "404":{
-            "content":{
-              "application/json":{
-
-              }
-            },
-            "description":"The component is not found"
-          }
-        },
-        "tags":[
-          "Component"
-        ]
-      }
-    },
-    "/api/v1/configurationtype/details":{
-      "get":{
-        "deprecated":false,
-        "description":"Returns all available configuration type - storable models. Note that the lightPayload flag allows to load all of them at once when you eagerly need  to create a client model for all configurations.",
-        "operationId":"getDetail",
-        "parameters":[
-          {
-            "allowEmptyValue":false,
-            "allowReserved":false,
-            "description":"the language for display names.",
-            "in":"query",
-            "name":"language",
-            "required":false,
-            "schema":{
-              "type":"string"
-            }
-          },
-          {
-            "allowEmptyValue":false,
-            "allowReserved":false,
-            "description":"the comma separated list of identifiers to request.",
-            "in":"query",
-            "name":"identifiers",
-            "required":false,
-            "schema":{
-              "items":{
-
-              },
-              "properties":{
-
-              }
-            }
-          }
-        ],
-        "responses":{
-          "200":{
-            "content":{
-              "application/json":{
-
-              }
-            },
-            "description":"the list of available and storable configurations (datastore, dataset, ...)."
-          }
-        },
-        "tags":[
-          "Configuration Type"
         ]
       }
     },
@@ -627,6 +578,55 @@
             "required":false,
             "schema":{
               "type":"boolean"
+            }
+          }
+        ],
+        "responses":{
+          "200":{
+            "content":{
+              "application/json":{
+
+              }
+            },
+            "description":"the list of available and storable configurations (datastore, dataset, ...)."
+          }
+        },
+        "tags":[
+          "Configuration Type"
+        ]
+      }
+    },
+    "/api/v1/configurationtype/details":{
+      "get":{
+        "deprecated":false,
+        "description":"Returns all available configuration type - storable models. Note that the lightPayload flag allows to load all of them at once when you eagerly need  to create a client model for all configurations.",
+        "operationId":"getDetail",
+        "parameters":[
+          {
+            "allowEmptyValue":false,
+            "allowReserved":false,
+            "description":"the language for display names.",
+            "in":"query",
+            "name":"language",
+            "required":false,
+            "schema":{
+              "type":"string"
+            }
+          },
+          {
+            "allowEmptyValue":false,
+            "allowReserved":false,
+            "description":"the comma separated list of identifiers to request.",
+            "in":"query",
+            "name":"identifiers",
+            "required":false,
+            "schema":{
+              "items":{
+
+              },
+              "properties":{
+
+              }
             }
           }
         ],

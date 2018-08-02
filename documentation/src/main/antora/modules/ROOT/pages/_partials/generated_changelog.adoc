@@ -38,6 +38,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-959[TCOMP-959^]: [dependency upgrade] Upgrade to icon bundle 0.202.0
 - link:https://jira.talendforge.org/browse/TCOMP-962[TCOMP-962^]: .car deploy-in-studio command (CarMain) should support to override an existing version
 - link:https://jira.talendforge.org/browse/TCOMP-965[TCOMP-965^]: [dependency upgrade] Apache Beam 2.6.0
+- link:https://jira.talendforge.org/browse/TCOMP-966[TCOMP-966^]: Ensure Studio integration renames HTTP threads to identify them more explicitly
 
 
 == Version 1.0.3
