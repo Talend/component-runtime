@@ -17,7 +17,7 @@
 
 <header class="{{or ./headerClass 'global-header'}}">
   <nav class="navbar navbar-default">
-      <ul class="navbar-text-content nav navbar-nav">
+      <div class="navbar-text-content nav navbar-nav">
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
           <span class="sr-only">Toggle navigation</span>
           <span class="icon-bar"></span>
@@ -34,27 +34,27 @@
             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
           </svg>
         </button>
-        <a class="navbar-single-link" href="index.html">Talend Component Kit {{#if page.component}} {{page.version}}{{/if}}</a>
-      </ul>
-      <div id="navbar" class="navbar-collapse collapse">
+        <a class="navbar-single-link" href="index.html">Talend Component Kit</a>
         {{#if page.component}}
-        <ul class="nav navbar-nav navbar-right">
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Versions <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              {{#each site.components}}
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {{#if page.component}}Version {{page.version}}{{else}}Versions{{/if}} <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            {{#each site.components}}
               {{#each ./versions}}
-              <li class="navbar-item version
-                {{~#if (and (eq ../this @root.page.component) (eq this @root.page.componentVersion))}} is-current{{/if~}}
-                {{~#if (eq this ../latestVersion)}} is-latest{{/if}}">
-                <a href="{{{relativize @root.page.url ./url}}}">{{./version}}</a>
-              </li>
+                <li class="navbar-item version
+                  {{~#if (and (eq ../this @root.page.component) (eq this @root.page.componentVersion))}} is-current{{/if~}}
+                  {{~#if (eq this ../latestVersion)}} is-latest{{/if}}">
+                    <a href="{{{relativize @root.page.url ./url}}}">{{./version}}</a>
+                </li>
               {{/each}}
-              {{/each}}
-            </ul>
-          </li>
-        </ul>
+            {{/each}}
+          </ul>
+        </div>
         {{/if}}
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
           {{#if doc}}
           <li><a class="navbar-item dropdown-toggle" href="index.html">Docs</a></li>

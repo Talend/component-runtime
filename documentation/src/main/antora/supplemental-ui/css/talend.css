@@ -316,7 +316,8 @@ footer.footer {
 .footer-links li {
   display: inline;
 }
-.footer-links li:not(:first-child):before {
+.footer-links li:not(:first-child):before,
+#navbar > ul.nav.navbar-nav.navbar-right > li:before {
   content: " | ";
 }
 .footer-links {
@@ -562,6 +563,28 @@ ul.tree > li > a {
   align-items: center;
   color: white !important;
   font-weight: 550;
+}
+.navbar-versions > ul.dropdown-menu {
+  top: 33px;
+}
+.navbar-versions > button {
+  height: 1.6rem;
+  max-height: 1.6rem;
+  line-height: 1.6rem;
+  box-shadow: none;
+  border: 1px solid #FFFFFF;
+  border-radius: 5px;
+  background-color: transparent;
+  color: white;
+}
+.navbar-versions > button:hover {
+  color: white;
+  box-shadow: none;
+  background-color: transparent;
+}
+.navbar-versions {
+  display: flex;
+  align-items: center;
 }
 #header-talend-logo {
   background: #134165;
