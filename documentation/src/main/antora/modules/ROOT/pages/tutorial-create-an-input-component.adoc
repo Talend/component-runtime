@@ -529,6 +529,6 @@ In this case, the BufferizedProducerSupport class is used to create a buffer of 
 <4> The method annotated with `@PreDestroy` is called before the Source destruction and is used to clean up all the resources used in the Source.
 In this case, the Hazelcast instance created in the post construct method is shut down.
 
-To learn more about producers, refer to xref:component-producer.adoc#_producer[this document].
+To learn more about producers, refer to xref:component-producer.adoc[this document].
 
 You have now created a complete working input component. You can follow  xref:tutorial-test-your-components.adoc[this tutorial] to learn how to create unit tests for your new component.

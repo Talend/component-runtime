@@ -33,7 +33,7 @@ IMPORTANT: Always make sure to define a root object for these properties. Do not
 
 When developing a `org.talend.sdk.component.form.internal.converter.CustomPropertyConverter` CDI, the proxy adds it to the `UiSpecService` service and uses it with a high priority to convert the server model to a `UiSpec` model.
 
-TIP: To make it a CDI bean, add `@Dependent` to the class and if you use the <<play-integration,Play integration>>, customize the bean array: `playx.cdi.beans.customs +=  {className: org.talend.myapp.MyConverter}.`
+TIP: To make it a CDI bean, add `@Dependent` to the class and if you use the Play integration, customize the bean array: `playx.cdi.beans.customs +=  {className: org.talend.myapp.MyConverter}.`
 
 This allows to use a custom `@Ui` API and advanced modeling when specific to applications. +
 Converters are sorted respecting to the `@Priority` value. If the annotation is missing, the priority defaults to `0`.
