@@ -212,20 +212,40 @@ a {
 }
 h1 {
   color: #295679;
-  font-size: 36px;
+  font-size: 42px;
   font-weight: 300;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
+}
+.documentationindex-sectiontitle {
+  color: #295679;
+  font-size: 30px;
+  font-weight: 300;
+  text-transform: none;
+  border-bottom: none;
+
 }
 h1.article-side-toc {
   color: #535353;
   font-size: 14px;
   font-weight: bold;
   margin-top: 36px;
+  margin-bottom: 14px;
 }
 h2 {
   color: #295679;
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 300;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #29567914;
+}
+h2 > a{
+  color: #295679;
+}
+
+h2 > a:hover{
+  color: #0f7ac3;
+  text-decoration: none;
 }
 h3 {
   color: #295679;
@@ -234,18 +254,24 @@ h3 {
 }
 h4 {
   color: #295679;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 300;
+  margin-top: 18px;
+    margin-bottom: 10px;
 }
 h5 {
   color: #295679;
-  font-size: 20px;
-  font-weight: 300;
+  font-size: 14px;
+  font-weight: 400;
+  margin-top: 18px;
+    margin-bottom: 10px;
 }
 h6 {
   color: #295679;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 300;
+  margin-top: 18px;
+    margin-bottom: 10px;
 }
 header,
 footer {
