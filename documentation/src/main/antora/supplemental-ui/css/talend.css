@@ -212,8 +212,15 @@ a {
 }
 h1 {
   color: #295679;
-  font-size: 30px;
+  font-size: 36px;
   font-weight: 300;
+  margin-bottom: 10px;
+}
+h1.article-side-toc {
+  color: #535353;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 36px;
 }
 h2 {
   color: #295679;
@@ -476,6 +483,7 @@ pre {
 .article-anchors {
 	position: fixed;
   width: 33.333%;
+  margin-left: 20px;
 }
 .article-anchors ul {
   list-style: none;
@@ -529,7 +537,9 @@ pre {
 }
 .article-side-actions li > a {
   border: none;
-  color: #0f7ac3;
+  color: #535353;
+  margin-top: 10px;
+  font-size: 18px;
 }
 
 header > nav.navbar-default {
