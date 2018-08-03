@@ -1,7 +1,9 @@
-= Defining a processor or an output component
+= Defining a processor or an output component logic
 :page-partial:
 
 Processors and output components are the components in charge of reading, processing and transforming data in a Talend job, as well as passing it to its required destination.
+
+Before implementing the component logic and defining its layout and configurable fields, make sure you have specified its basic metadata, as detailed in xref:component-registering.adoc[this document].
 
 include::component-processor.adoc[leveloffset=+1]
 include::component-output.adoc[leveloffset=+1]
