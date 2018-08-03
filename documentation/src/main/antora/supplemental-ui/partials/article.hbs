@@ -18,32 +18,30 @@
           <div class="col-sm-3 container article-side-panel">
             <nav class="article-anchors">
               <div class="article-side-actions">
-                <h1>Actions</h1>
-                <ul class="list-inline">
+
+                <ul>
                     {{#if page.editUrl}}<li>
                       <a class="article-side-actions-link" target="_blank" href="{{page.editUrl}}">
-                        <i class="fa fa-edit"></i> Edit
+                        <i class="fa fa-edit"></i> &nbsp; &nbsp; Suggest an edit
                       </a>
                     </li>{{/if}}
+
                     <li>
-                        <ul class="list-inline">
-                            <li>
                                 <a class="article-side-actions-link" target="_blank"
                                    href="https://twitter.com/intent/tweet?original_referer={{encodeURIComponent page.canonicalUrl}}&text=Talend%20Component%20Kit%20%3E%3E%20{{encodeURIComponent page.title}}%20%3E%3E%20&tw_p=tweetbutton&url={{encodeURIComponent page.canonicalUrl}}">
-                                    <i class="fab fa-twitter"></i> Tweet
+                                    <i class="fab fa-twitter"></i> &nbsp; &nbsp; Tweet
                                 </a>
                             </li>
                             <li>
                                 <a class="article-side-actions-link"
                                    href="mailto:?subject=Talend%20Component%20Kit%3A%20{{encodeURIComponent page.title}}&body=Talend%20Component%20Kit%3A%20{{encodeURIComponent page.title}}%0A%0A{{encodeURIComponent page.canonicalUrl}}">
-                                    <i class="far fa-envelope"></i> Mail
+                                    <i class="far fa-envelope"></i> &nbsp; &nbsp; Mail
                                 </a>
                             </li>
-                        </ul>
-                    </li>
+
                 </ul>
               </div>
-              <h1>On this page</h1>
+              <h1 class="article-side-toc">In this article</h1>
             </nav>
           </div>
           <a href="#top" class="top">Scroll to top</a>

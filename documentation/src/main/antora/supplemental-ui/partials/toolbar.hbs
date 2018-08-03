@@ -4,7 +4,7 @@
     {{/if}}
 
     {{#if page.breadcrumbs}}
-    <ol class="breadcrumb grey-background">
+    <ol class="breadcrumb">
       {{#each page.breadcrumbs}}
       <li class="crumb{{#if @last}} active{{/if}}">
       {{~#if (and ./url (eq ./urlType 'internal'))~}}
