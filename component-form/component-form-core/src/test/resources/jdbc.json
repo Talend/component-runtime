@@ -10,7 +10,8 @@
             "action::healthcheck": "default",
             "configurationtype::type": "datastore",
             "configurationtype::name": "default",
-            "ui::optionsorder::value": "driver,url,username,password"
+            "ui::optionsorder::value": "driver,url,username,password",
+            "definition::parameter::index": "0"
           },
           "name": "datastore",
           "path": "datastore",
@@ -39,7 +40,8 @@
         },
         {
           "displayName": "url",
-          "metadata": {},
+          "metadata": {
+          },
           "name": "url",
           "path": "datastore.url",
           "type": "STRING",
@@ -65,7 +67,9 @@
       "properties": [
         {
           "displayName": "value",
-          "metadata": {},
+          "metadata": {
+            "definition::parameter::index": "0"
+          },
           "name": "value",
           "path": "value",
           "type": "STRING"
@@ -88,7 +92,8 @@
           "metadata": {
             "action::schema": "default",
             "ui::optionsorder::value": "connection,query",
-            "dataset": "default"
+            "dataset": "default",
+            "definition::parameter::index": "0"
           },
           "name": "dataset",
           "path": "dataset",

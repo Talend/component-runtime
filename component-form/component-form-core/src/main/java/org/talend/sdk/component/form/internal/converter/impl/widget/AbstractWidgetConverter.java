@@ -17,6 +17,7 @@ package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Comparator.comparing;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -97,7 +98,12 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
 
     protected List<UiSchema.Parameter> toParams(final Collection<SimplePropertyDefinition> properties,
             final SimplePropertyDefinition prop, final ActionReference ref, final String parameters) {
-        final Iterator<SimplePropertyDefinition> expectedProperties = ref.getProperties().iterator();
+        final Iterator<SimplePropertyDefinition> expectedProperties = ref
+                .getProperties()
+                .stream()
+                .filter(it -> it.getMetadata().containsKey("definition::parameter::index"))
+                .sorted(comparing(it -> Integer.parseInt(it.getMetadata().get("definition::parameter::index"))))
+                .iterator();
         return ofNullable(parameters).map(params -> Stream.of(params.split(",")).flatMap(paramRef -> {
             if (!expectedProperties.hasNext()) {
                 return Stream.empty();

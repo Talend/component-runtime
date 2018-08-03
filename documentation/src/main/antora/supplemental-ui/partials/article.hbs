@@ -22,7 +22,7 @@
                 <ul class="list-inline">
                     {{#if page.editUrl}}<li>
                       <a class="article-side-actions-link" target="_blank" href="{{page.editUrl}}">
-                        <i class="fa fa-edit"></i>
+                        <i class="fa fa-edit"></i> Edit
                       </a>
                     </li>{{/if}}
                     <li>
@@ -30,13 +30,13 @@
                             <li>
                                 <a class="article-side-actions-link" target="_blank"
                                    href="https://twitter.com/intent/tweet?original_referer={{encodeURIComponent page.canonicalUrl}}&text=Talend%20Component%20Kit%20%3E%3E%20{{encodeURIComponent page.title}}%20%3E%3E%20&tw_p=tweetbutton&url={{encodeURIComponent page.canonicalUrl}}">
-                                    <i class="fab fa-twitter"></i>
+                                    <i class="fab fa-twitter"></i> Tweet
                                 </a>
                             </li>
                             <li>
                                 <a class="article-side-actions-link"
                                    href="mailto:?subject=Talend%20Component%20Kit%3A%20{{encodeURIComponent page.title}}&body=Talend%20Component%20Kit%3A%20{{encodeURIComponent page.title}}%0A%0A{{encodeURIComponent page.canonicalUrl}}">
-                                    <i class="far fa-envelope"></i>
+                                    <i class="far fa-envelope"></i> Mail
                                 </a>
                             </li>
                         </ul>

@@ -17,8 +17,10 @@ package org.talend.sdk.component.server.cli;
 
 import static java.util.Optional.ofNullable;
 
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.webresources.StandardRoot;
+import org.apache.coyote.http11.Http11NioProtocol;
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.runner.Cli;
 
@@ -37,7 +39,13 @@ public class EnhancedCli extends Cli implements AutoCloseable {
     @Override
     public void run() {
         try {
-            try (final Meecrowave meecrowave = new Meecrowave(create(args))) {
+            try (final Meecrowave meecrowave = new Meecrowave(create(args)) {
+
+                @Override
+                protected Connector createConnector() {
+                    return new Connector(CustomPefixHttp11NioProtocol.class.getName());
+                }
+            }) {
                 this.instance = meecrowave;
 
                 meecrowave.start();
@@ -62,5 +70,13 @@ public class EnhancedCli extends Cli implements AutoCloseable {
     @Override
     public void close() {
         ofNullable(instance).ifPresent(mw -> StandardServer.class.cast(mw.getTomcat().getServer()).stopAwait());
+    }
+
+    public static class CustomPefixHttp11NioProtocol extends Http11NioProtocol {
+
+        @Override
+        protected String getNamePrefix() {
+            return "talend-component-kit-" + super.getNamePrefix();
+        }
     }
 }
