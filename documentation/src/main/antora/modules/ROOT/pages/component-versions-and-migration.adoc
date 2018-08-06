@@ -41,7 +41,7 @@ public class MyComponent {
 }
 ----
 
-What is important to notice in this snippet is not the way the code is organized, but rather the fact that you can organize your migrations the way that best fits your component.
+What is important to notice in this snippet is the fact that you can organize your migrations the way that best fits your component.
 
 If you need to apply migrations in a specific order, make sure that they are sorted.
 
