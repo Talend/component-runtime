@@ -108,6 +108,7 @@ public class MyProcessor {
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
+- xref:methodology-creating-components.adoc[Methodology for creating components]
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
 - xref:component-version-and-migration.adoc[Managing component versions]
 - xref:component-define-input.adoc[Defining an input component]

@@ -222,6 +222,7 @@ Target support should cover `org.talend.core.model.process.EParameterFieldType` 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
+- xref:methodology-creating-components.adoc[Methodology for creating components]
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
 - xref:component-define-input.adoc[Defining an input component]
 - xref:component-define-processor-output.adoc[Defining a processor or output component]

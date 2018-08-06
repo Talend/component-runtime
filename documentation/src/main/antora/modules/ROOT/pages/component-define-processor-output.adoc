@@ -12,6 +12,7 @@ include::component-combiner.adoc[leveloffset=+1]
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
+- xref:methodology-creating-components.adoc[Methodology for creating components]
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
 - xref:component-registering.adoc[Registering a component]
 - xref:component-execution.adoc[General component execution logic]
