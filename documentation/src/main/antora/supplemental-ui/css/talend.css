@@ -221,7 +221,8 @@ h1 {
   font-size: 30px;
   font-weight: 300;
   text-transform: none;
-  border-bottom: none;
+  border: none;
+  line-height:1em;
 
 }
 h1.article-side-toc {
@@ -237,7 +238,8 @@ h2 {
   font-weight: 300;
   margin-top: 30px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #29567914;
+  line-height: 2em;
+  border-top: 1px solid #29567914;
 }
 h2 > a{
   color: #295679;
@@ -251,6 +253,14 @@ h3 {
   color: #295679;
   font-size: 24px;
   font-weight: 300;
+}
+h3 > a{
+  color: #295679;
+}
+
+h3 > a:hover{
+  color: #0f7ac3;
+  text-decoration: none;
 }
 h4 {
   color: #295679;
