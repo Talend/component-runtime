@@ -290,16 +290,14 @@
                   import org.apache.maven.project.MavenProjectHelper
 
                   // create the demo swagger.json
-                  def swaggerJson = new File(project.build.outputDirectory, 'META-INF/resources/documentation/openapi.json')
-                  def content = swaggerJson.text
+                  def openapiJson = new File(project.build.outputDirectory, 'META-INF/resources/documentation/openapi.json')
+                  def content = openapiJson.text
 
-                  def swaggerDemo = new File(project.build.directory, 'swagger-openshift.json')
-                  swaggerDemo.text = content
-                    .replace('"host": "",', '"host": "talend-component-kit-demo-server-talend-component-kit.193b.starter-ca-central-1.openshiftapps.com",')
-                    .replace("\"title\": \"${project.name}\"", '"title": "Talend Component Kit Server Demo"')
-                    .replace('    "schemes": [\n        "http",\n        "https"\n    ],', '    "schemes": [\n        "http"\n    ],')
+                  def openapiDemo = new File(project.build.directory, 'openapi-openshift.json')
+                  openapiDemo.text = content
+                    .replace('"paths":{', '"servers": [{ url: "talend-component-kit-demo-server-talend-component-kit.193b.starter-ca-central-1.openshiftapps.com" }],\n  "paths":{')
                   // and attach it to the release
-                  session.container.lookup(MavenProjectHelper).attachArtifact(project, 'json', 'swagger-openshift', swaggerDemo);
+                  session.container.lookup(MavenProjectHelper).attachArtifact(project, 'json', 'openapi-openshift', openapiDemo);
 
                   // copy icon (in svg) for the topbar logo
                   def icon = Thread.currentThread().getContextClassLoader().getResourceAsStream('icons/svg/component-kit-positive.svg')

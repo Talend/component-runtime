@@ -155,7 +155,9 @@ public class Generator {
         final File output = new File(generatedDir, "generated_rest-resources.adoc");
         try (final InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(
                 "META-INF/resources/documentation/openapi.json")) {
-            final String newJson = IO.slurp(source);
+            final String newJson = IO.slurp(source).replace("\"paths\":{", "\"servers\": ["
+                    + "{ url: \"talend-component-kit-demo-server-talend-component-kit.193b.starter-ca-central-1.openshiftapps.com\" }],\n"
+                    + "  \"paths\":{");
             String oldJson = !output.exists() ? "{}" : String.join("\n", Files.readAllLines(output.toPath()));
             final int start = oldJson.indexOf(".swaggerUi = ");
             if (start > 0) {

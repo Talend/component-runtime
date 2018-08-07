@@ -5,6 +5,7 @@
 <script>
 (window.talend = (window.talend || {})).swaggerUi = {
   "openapi":"3.0.1",
+  "servers": [{ url: "talend-component-kit-demo-server-talend-component-kit.193b.starter-ca-central-1.openshiftapps.com" }],
   "paths":{
     "/api/v1/action/index":{
       "get":{
@@ -172,47 +173,6 @@
         ]
       }
     },
-    "/api/v1/component/icon/family/{id}":{
-      "get":{
-        "deprecated":false,
-        "description":"Returns the icon for a family.",
-        "operationId":"familyIcon",
-        "parameters":[
-          {
-            "allowEmptyValue":false,
-            "allowReserved":false,
-            "description":"the family identifier",
-            "in":"path",
-            "name":"id",
-            "required":false,
-            "schema":{
-              "type":"string"
-            }
-          }
-        ],
-        "responses":{
-          "200":{
-            "content":{
-              "application/octet-stream":{
-
-              }
-            },
-            "description":"Returns a particular family icon in raw bytes."
-          },
-          "404":{
-            "content":{
-              "application/json":{
-
-              }
-            },
-            "description":"The family or icon is not found"
-          }
-        },
-        "tags":[
-          "Component"
-        ]
-      }
-    },
     "/api/v1/component/migrate/{id}/{configurationVersion}":{
       "post":{
         "deprecated":false,
@@ -269,6 +229,47 @@
               }
             },
             "description":"The component is not found"
+          }
+        },
+        "tags":[
+          "Component"
+        ]
+      }
+    },
+    "/api/v1/component/icon/family/{id}":{
+      "get":{
+        "deprecated":false,
+        "description":"Returns the icon for a family.",
+        "operationId":"familyIcon",
+        "parameters":[
+          {
+            "allowEmptyValue":false,
+            "allowReserved":false,
+            "description":"the family identifier",
+            "in":"path",
+            "name":"id",
+            "required":false,
+            "schema":{
+              "type":"string"
+            }
+          }
+        ],
+        "responses":{
+          "200":{
+            "content":{
+              "application/octet-stream":{
+
+              }
+            },
+            "description":"Returns a particular family icon in raw bytes."
+          },
+          "404":{
+            "content":{
+              "application/json":{
+
+              }
+            },
+            "description":"The family or icon is not found"
           }
         },
         "tags":[

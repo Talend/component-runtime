@@ -11,6 +11,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-927[TCOMP-927^]: talend-component:web errors are not always unwrapped and understandable
 - link:https://jira.talendforge.org/browse/TCOMP-934[TCOMP-934^]: Ensure Studio rely on category and doesn't append family name
 - link:https://jira.talendforge.org/browse/TCOMP-961[TCOMP-961^]: Default value of Suggestions method parameter is ignored
+- link:https://jira.talendforge.org/browse/TCOMP-964[TCOMP-964^]: ClassCastException is thrown when non-string values are used as Suggestions method parameter
 
 
 === New Feature
