@@ -36,6 +36,7 @@ docker build --tag "$IMAGE" \
   --build-arg DOCKER_IMAGE_VERSION=$DOCKER_IMAGE_VERSION \
   --build-arg KAFKA_CLIENT_VERSION=$KAFKA_VERSION \
   --build-arg BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) . && \
+  --build-arg GIT_REF=$(git rev-parse HEAD) . && \
 docker tag "$IMAGE" "${DOCKER_REGISTRY:-docker.io}/$IMAGE" || exit 1
 
 if [ "x${COMPONENT_SERVER_DOCKER_BUILD_ONLY}" != "xtrue" ]; then
