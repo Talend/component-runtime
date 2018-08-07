@@ -84,7 +84,7 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
         return doFind(request, pref, loader, headerFilter, false);
     }
 
-    private Optional<Response> doFind(final Request request, final String pref, final ClassLoader loader,
+    protected Optional<Response> doFind(final Request request, final String pref, final ClassLoader loader,
             final Predicate<String> headerFilter, final boolean exactMatching) {
         return Stream
                 .of(pref + test + ".json", pref + stripQuery(request.uri()) + ".json")
@@ -104,7 +104,7 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
                 .map(model -> new ResponseImpl(model.response.headers, model.response.status, getPayload(model)));
     }
 
-    private byte[] getPayload(final Model model) {
+    protected byte[] getPayload(final Model model) {
         if (model.response.payload == null) {
             return null;
         }
@@ -120,10 +120,11 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
         return uri;
     }
 
-    private boolean matches(final Request request, final RequestModel model, final boolean exact,
+    protected boolean matches(final Request request, final RequestModel model, final boolean exact,
             final Predicate<String> headerFilter) {
-        final boolean headLineMatches = request.uri().equals(model.uri)
-                && request.method().equalsIgnoreCase(ofNullable(model.method).orElse("GET"));
+        final String method = ofNullable(model.method).orElse("GET");
+        final String requestUri = request.uri();
+        boolean headLineMatches = requestUri.equals(model.uri) && request.method().equalsIgnoreCase(method);
         final String payload = request.payload();
         final boolean headersMatch = doesHeadersMatch(request, model, headerFilter);
         if (headLineMatches && headersMatch && (model.payload == null || model.payload.equals(payload))) {
@@ -136,11 +137,16 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
             log.debug("Matching test: {} for {}", request, model);
         }
 
+        if (!headLineMatches && requestUri.contains("?")) { // strip the query
+            headLineMatches = requestUri.substring(0, requestUri.indexOf('?')).equals(model.uri)
+                    && request.method().equalsIgnoreCase(method);
+        }
+
         return headLineMatches && headersMatch && (model.payload == null
                 || (payload != null && (payload.matches(model.payload) || payload.equals(model.payload))));
     }
 
-    private boolean doesHeadersMatch(final Request request, final RequestModel model,
+    protected boolean doesHeadersMatch(final Request request, final RequestModel model,
             final Predicate<String> headerFilter) {
         return model.headers == null
                 || model.headers.entrySet().stream().filter(h -> !headerFilter.test(h.getKey())).allMatch(
@@ -167,6 +173,10 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
         } finally {
             capturingBuffer.clear();
         }
+    }
+
+    public void addModel(final Model model) {
+        getCapturingBuffer().add(model);
     }
 
     @Data
