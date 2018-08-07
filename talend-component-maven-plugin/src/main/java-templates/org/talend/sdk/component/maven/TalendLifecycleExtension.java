@@ -66,7 +66,7 @@ public class TalendLifecycleExtension extends AbstractMavenLifecycleParticipant 
         }
         if (isExecutionMissing(executions, "asciidoc")) {
             final PluginExecution documentation = new PluginExecution();
-            documentation.setId("talend-dependencies");
+            documentation.setId("talend-asciidoc");
             documentation.addGoal("asciidoc");
             documentation.setPhase("process-classes");
             executions.add(documentation);

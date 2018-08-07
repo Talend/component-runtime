@@ -68,6 +68,10 @@ import lombok.extern.slf4j.Slf4j;
 public class ApiMockUpdate {
 
     public static void main(final String[] args) throws Exception {
+        if (Boolean.parseBoolean(System.getenv("FREESHELLS_SKIP"))) {
+            log.warn("Freeshells api mock update skipped");
+            return;
+        }
         if (args.length < 3 || args[1] == null) {
             log.warn("No freeshells credentials, skipping mock update");
             return;
