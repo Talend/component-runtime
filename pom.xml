@@ -920,7 +920,7 @@
     </repository>
     <repository>
       <id>beam-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachebeam-1044/</url>
+      <url>https://repository.apache.org/content/repositories/orgapachebeam-1045/</url>
     </repository>
     <repository>
       <id>TalendOpenSourceRelease</id>
@@ -975,7 +975,7 @@
     </pluginRepository>
     <pluginRepository>
       <id>beam-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachebeam-1044/</url>
+      <url>https://repository.apache.org/content/repositories/orgapachebeam-1045/</url>
     </pluginRepository>
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
