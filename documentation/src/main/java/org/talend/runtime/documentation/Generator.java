@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -216,12 +215,8 @@ public class Generator {
             if (oldArray.isEmpty()) {
                 return true;
             }
-            final Iterator<JsonValue> oldIt = oldArray.iterator();
-            final Iterator<JsonValue> newIt = newArray.iterator();
-            while (oldIt.hasNext()) {
-                final JsonValue oldItem = oldIt.next();
-                final JsonValue newItem = newIt.next();
-                if (!areEqualsIgnoringOrder(oldItem, newItem)) {
+            for (final JsonValue oldItem : oldArray) {
+                if (newArray.stream().noneMatch(newitem -> areEqualsIgnoringOrder(oldItem, newitem))) {
                     return false;
                 }
             }
