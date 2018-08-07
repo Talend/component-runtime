@@ -13,7 +13,7 @@ Before being able to develop new components, check the xref:system-prerequisites
 
 Developing new components using the framework includes:
 
-. xref:index-generating-project.adoc[Creating a project] using the https://starter-toolkit.talend.io/[starter] or the xref:tutorial-talend-intellij-plugin-usage.adoc[Talend IntelliJ plugin]. This step allows to build the skeleton of the project. It consists in:
+. xref:index-generating-project.adoc[Creating a project] using the https://starter-toolkit.talend.io/[starter] or the xref:installing-talend-intellij-plugin.adoc[Talend IntelliJ plugin]. This step allows to build the skeleton of the project. It consists in:
 .. Defining the general configuration model for each component in your project
 .. Generating and downloading the project archive from the starter
 .. Compiling the project

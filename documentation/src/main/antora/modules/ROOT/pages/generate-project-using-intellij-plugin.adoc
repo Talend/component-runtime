@@ -1,7 +1,7 @@
 = Generating a project using intelliJ plugin
 :page-partial:
 
-Once the plugin xref:tutorial-talend-intellij-plugin-usage.adoc[installed], you can generate a component project.
+Once the plugin xref:installing-talend-intellij-plugin.adoc[installed], you can generate a component project.
 
 . Select *File* > *New* > *Project*.
 . In the *New Project* wizard, choose *Talend Component* and click *Next*.
@@ -24,7 +24,7 @@ ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
 - xref:methodology-creating-components.adoc[Methodology]
-- xref:tutorial-talend-intellij-plugin-usage.adoc[Installing the IntelliJ plugin]
+- xref:installing-talend-intellij-plugin.adoc[Installing the IntelliJ plugin]
 - xref:tutorial-create-an-input-component.adoc[Creating a Hazelcast input component]
 - xref:tutorial-create-an-output-component.adoc[Creating a Hazelcast output component]
 - xref:tutorial-create-components-rest-api.adoc[Creating a Zendesk REST API connector]

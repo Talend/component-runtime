@@ -15,5 +15,5 @@ In order to use Talend Component Kit, you need the following tools installed on 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
-- xref:tutorial-talend-intellij-plugin-usage.adoc[IntelliJ plugin]
+- xref:installing-talend-intellij-plugin.adoc[IntelliJ plugin]
 endif::[]

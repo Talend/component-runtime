@@ -1,5 +1,8 @@
-= xref:build-tools-maven.adoc[Maven Plugin]
+= Building components with Maven
 :page-partial:
+
+To develop new components, Talend Component Kit requires a build tool in which you will import the component project generated from the starter. With this build tool, you will also be able to implement the logic of your component and to install and deploy it to Talend applications.
+A Talend Component Kit plugin is available for each of the supported build tools.
 
 `talend-component-maven-plugin` helps you write components that match best practices and generate transparently metadata used by Talend Studio.
 
@@ -407,3 +410,12 @@ In this command, Nexus URL and repository name are mandatory arguments. All othe
 ----
 --pass "Y0u will \ not G4iess i' ^"
 ----
+
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:best-practices.adoc[Best practices]
+- xref:build-tools-gradle.adoc[Building components with Gradle]
+- xref:studio.adoc[Integrating to the Studio]
+endif::[]
