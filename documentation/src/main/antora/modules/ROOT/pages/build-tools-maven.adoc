@@ -1,4 +1,4 @@
-= Maven Plugin
+= xref:build-tools-maven.adoc[Maven Plugin]
 :page-partial:
 
 `talend-component-maven-plugin` helps you write components that match best practices and generate transparently metadata used by Talend Studio.

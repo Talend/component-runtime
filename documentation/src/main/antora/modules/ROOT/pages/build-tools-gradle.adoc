@@ -1,4 +1,4 @@
-= Gradle Plugin
+= xref:build-tools-gradle.adoc[Gradle Plugin]
 :page-partial:
 
 `gradle-talend-component` helps you write components that match the best practices. It is inspired from the Maven plugin and adds the ability to generate automatically the `dependencies.txt` file used by the SDK to build the component classpath. For more information on the configuration, refer to the Maven properties matching the attributes.

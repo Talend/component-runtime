@@ -9,15 +9,13 @@ By default, the runtime automatically estimates a group size that it considers g
 
 Users can then customize this size from the component settings in Talend Studio, by specifying a `maxBatchSize` that adapts the size of each group of data to be processed.
 
-NOTE: The estimated group size logic is automatically implemented when a component is deployed to a Talend application. No action is required on the implementation side of the component.
+NOTE: The estimated group size logic is automatically implemented when a component is deployed to a Talend application. Besides defining the @BeforeGroup and @AfterGroup logic detailed below, no action is required on the implementation side of the component.
 
 The component batch processes the data as follows:
 
-- Case 1 - No `maxBatchSize` is specified in the component configuration. The runtime estimates a group size of 4.
-image::processor-bulking-diagram-default.png[Bulking diagram]
+- Case 1 - No `maxBatchSize` is specified in the component configuration. The runtime estimates a group size of 4. Records are processed by groups of 4.
 
-- Case 2 - The runtime estimates a group size of 4 but a `maxBatchSize` of 3 is specified in the component configuration. The system adapts the group size to 3.
-image::processor-bulking-diagram-maxbatchsize.png[Bulking diagram]
+- Case 2 - The runtime estimates a group size of 4 but a `maxBatchSize` of 3 is specified in the component configuration. The system adapts the group size to 3. Records are processed by groups of 3.
 
 Each group is processed as follows until there is no record left:
 
@@ -62,4 +60,4 @@ public class BulkProcessor implements Serializable {
 }
 ----
 
-You can learn more about processors in xref:component-definition.adoc#component-type-processor[this document].
+You can learn more about processors in xref:component-define-processor-output.adoc[this document].

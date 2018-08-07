@@ -1,14 +1,32 @@
-= Configuring components
+= Defining component parameters and configuration
 :page-partial:
 
-Components are configured using their constructor parameters. They can all be marked with the `@Option` property, which lets you give a name to parameters.
+The component configuration is defined in the `<component_name>Configuration.java` file of the package. It consists in defining the configurable part of the component that will be displayed in the UI.
+
+To do that, you can specify parameters. When you import the project in your IDE, the parameters that you have specified in the starter are already present.
+
+== Parameter name
+
+Components are configured using their constructor parameters. All parameters can be marked with the `@Option` property, which lets you give a name to them.
 
 For the name to be correct, you must follow these guidelines:
 
 * Use a valid Java name.
 * Do not include any `.` character in it.
 * Do not start the name with a `$`.
-* Defining a name is optional. If you don't set a specific name, it defaults to the bytecode name, which can require you to compile with a `-parameter` flag to not end up with names such as `arg0`, `arg1`, and so on.
+* Defining a name is optional. If you don't set a specific name, it defaults to the bytecode name. This can require you to compile with a `-parameter` flag to avoid ending up with names such as `arg0`, `arg1`, and so on.
+
+.Examples of option name:
+[cols="<,^",options="header"]
+|===
+| Option name|Valid
+| myName | icon:check[role="green"]
+| my_name | icon:check[role="green"]
+| my.name | icon:times[role="mediumvioletred"]
+| $myName | icon:times[role="mediumvioletred"]
+|===
+
+== Parameter types
 
 Parameter types can be _primitives_ or complex objects with fields decorated with `@Option` exactly like method parameters.
 
@@ -26,7 +44,7 @@ class FileFormat implements Serializable {
     private int maxRecords = 1024;
 }
 
-@PartitionMapper(family = "demo", name = "file-reader")
+@PartitionMapper(name = "file-reader")
 public MyFileReader(@Option("file-path") final File file,
                     @Option("file-format") final FileFormat format) {
     // ...
@@ -37,18 +55,7 @@ Using this kind of API makes the configuration extensible and component-oriented
 
 The instantiation of the parameters is done from the properties passed to the component.
 
-Examples of option names:
-
-[cols="<,^",options="header"]
-|===
-| Option name|Valid
-| myName | icon:check[role="green"]
-| my_name | icon:check[role="green"]
-| my.name | icon:times[role="mediumvioletred"]
-| $myName | icon:times[role="mediumvioletred"]
-|===
-
-== Primitives
+=== Primitives
 
 A primitive is a class which can be directly converted from a `String` to the expected type.
 
@@ -63,7 +70,7 @@ It includes all Java primitives, like the `String` type itself, but also all typ
 - `URL`
 - `Pattern`
 
-== Complex object mapping
+== Mapping complex objects
 
 The conversion from property to object uses the Dot notation.
 
@@ -128,7 +135,7 @@ files.key[1].type = EXCEL
 files.value[1] = second-file
 ----
 
-IMPORTANT: Avoid using the Map type. For example, if you can configure your component with an object instead.
+IMPORTANT: Avoid using the Map type. Instead, prefer configuring your component with an object if this is possible.
 
 == Defining Constraints and validations on the configuration
 
@@ -138,11 +145,11 @@ include::{partialsdir}/generated_constraints.adoc[]
 
 IMPORTANT: When using the programmatic API, metadata is prefixed by `tcomp::`. This prefix is stripped in the web for convenience, and the table above uses the web keys.
 
-Also note that these validations are executed before the runtime is started
-(when loading the component instance) and that the execution will fail if they don't pass.
-If somehow it breaks your application you can disable that validation on the JVM by setting the system property `talend.component.configuration.validation.skip` to `true`.
+Also note that these validations are executed before the runtime is started (when loading the component instance) and that the execution will fail if they don't pass.
+If it breaks your application, you can disable that validation on the JVM by setting the system property `talend.component.configuration.validation.skip` to `true`.
 
-== Marking a configuration as a particular type of data
+[[dataset-and-datastore]]
+== Marking a configuration as dataset or datastore
 
 It is common to classify the incoming data. It is similar to tagging data with several types. Data can commonly be categorized as follows:
 
@@ -199,7 +206,7 @@ Thus, `../targetProperty` denotes a property, which is located in the parent con
 IMPORTANT: When using the programmatic API, metadata is prefixed with `tcomp::`. This prefix is stripped in the web for convenience, and the previous table uses the web keys.
 
 [[documentation-ui-hints]]
-== Adding hints about the rendering based on configuration/component knowledge
+== Adding hints about the rendering
 
 In some cases, you may need to add metadata about the configuration to let the UI render that configuration properly. +
 For example, a password value that must be hidden and not a simple clear input box. For these cases - if you want to change the UI rendering - you can use a particular set of annotations:
@@ -208,13 +215,17 @@ include::{partialsdir}/generated_ui.adoc[]
 
 IMPORTANT: When using the programmatic API, metadata is prefixed with `tcomp::`. This prefix is stripped in the web for convenience, and the previous table uses the web keys.
 
+You can also check xref:tutorial-configuration-sensitive-data.adoc[this example] about masking credentials.
+
 Target support should cover `org.talend.core.model.process.EParameterFieldType` but you need to ensure that the web renderer is able to handle the same widgets.
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
+- xref:methodology-creating-components.adoc[Methodology for creating components]
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
-- xref:component-definition.adoc[Defining a component]
+- xref:component-define-input.adoc[Defining an input component]
+- xref:component-define-processor-output.adoc[Defining a processor or output component]
 - xref:component-registering.adoc[Registering a component]
 - xref:component-internationalization.adoc[Internationalizing a component]
 - xref:component-loading.adoc[Loading a component]

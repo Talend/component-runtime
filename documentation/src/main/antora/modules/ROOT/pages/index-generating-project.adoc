@@ -1,5 +1,6 @@
 = Generating a project
 :page-partial:
+:page-talend_skipindexation:
 :page-documentationindex-index: 4000
 :page-documentationindex-label: Generating a project
 :page-documentationindex-icon: power-off

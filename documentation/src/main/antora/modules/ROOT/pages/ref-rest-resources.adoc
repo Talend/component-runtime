@@ -1,4 +1,4 @@
-= REST resources
+= HTTP API
 :page-partial:
 :page-talend_swaggerui: true
 

@@ -1,0 +1,132 @@
+= xref:component-processor.adoc[Defining a processor]
+:page-partial:
+
+[[component-type-processor]]
+== What is a processor
+
+A `Processor` is a component that converts incoming data to a different model.
+
+A processor must have a method decorated with `@ElementListener` taking an incoming data and returning the processed data:
+
+[source,java]
+----
+@ElementListener
+public MyNewData map(final MyData data) {
+    return ...;
+}
+----
+
+Processors must be *Serializable* because they are distributed components.
+
+If you just need to access data on a map-based ruleset, you can use `JsonObject` as parameter type. +
+From there, Talend Component Kit wraps the data to allow you to access it as a map. The parameter type is not enforced. +
+This means that if you know you will get a `SuperCustomDto`, then you can use it as parameter type. But for generic components that are reusable in any chain, it is highly encouraged to use `JsonObject` until you have an evaluation language-based processor that has its own way to access components.
+
+For example:
+
+[source,java]
+----
+@ElementListener
+public MyNewData map(final JsonObject incomingData) {
+    String name = incomingData.getString("name");
+    int name = incomingData.getInt("age");
+    return ...;
+}
+
+// equivalent to (using POJO subclassing)
+
+public class Person {
+    private String age;
+    private int age;
+
+    // getters/setters
+}
+
+@ElementListener
+public MyNewData map(final Person person) {
+    String name = person.getName();
+    int age = person.getAge();
+    return ...;
+}
+
+----
+
+A processor also supports `@BeforeGroup` and `@AfterGroup` methods, which must not have any parameter and return `void` values. Any other result would be ignored.
+These methods are used by the runtime to mark a chunk of the data in a way which is estimated _good_ for the execution flow size.
+
+NOTE: Because the size is estimated, the size of a _group_ can vary. It is even possible to have groups of size `1`.
+
+It is recommended to batch records, for performance reasons:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@BeforeGroup
+public void initBatch() {
+    // ...
+}
+
+@AfterGroup
+public void endBatch() {
+    // ...
+}
+----
+
+You can optimize the data batch processing by using the `maxBatchSize` parameter. This parameter is automatically implemented on the component when it is deployed to a Talend application. Only the logic needs to be implemented. Learn how to implement chunking/bulking in xref:concept-processor-and-batch-processing.adoc[this document].
+
+== Defining multiple outputs
+
+In some cases, you may need to split the output of a processor in two. A common example is to have "main" and "reject" branches where part of the incoming data are passed to a specific bucket to be processed later.
+
+To do that, you can use `@Output` as replacement of the returned value:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@ElementListener
+public void map(final MyData data, @Output final OutputEmitter<MyNewData> output) {
+    output.emit(createNewData(data));
+}
+----
+
+Alternatively, you can pass a string that represents the new branch:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@ElementListener
+public void map(final MyData data,
+                @Output final OutputEmitter<MyNewData> main,
+                @Output("rejected") final OutputEmitter<MyNewDataWithError> rejected) {
+    if (isRejected(data)) {
+        rejected.emit(createNewData(data));
+    } else {
+        main.emit(createNewData(data));
+    }
+}
+
+// or
+
+@ElementListener
+public MyNewData map(final MyData data,
+                    @Output("rejected") final OutputEmitter<MyNewDataWithError> rejected) {
+    if (isSuspicious(data)) {
+        rejected.emit(createNewData(data));
+        return createNewData(data); // in this case the processing continues but notifies another channel
+    }
+    return createNewData(data);
+}
+----
+
+== Defining multiple inputs
+
+Having multiple inputs is similar to having multiple outputs, except that an `OutputEmitter` wrapper is not needed:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@ElementListener
+public MyNewData map(@Input final MyData data, @Input("input2") final MyData2 data2) {
+    return createNewData(data1, data2);
+}
+----
+
+`@Input` takes the input name as parameter. If no name is set, it defaults to the "main (default)" input branch. It is recommended to use the default branch when possible and to avoid naming branches according to the component semantic.
+
+include::concept-processor-and-batch-processing.adoc[leveloffset=+1]

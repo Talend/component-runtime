@@ -1,0 +1,16 @@
+= xref:component-output.adoc[Defining an output]
+:page-partial:
+
+== What is an output
+
+An `Output` is a `Processor` that does not return any data.
+
+Conceptually, an output is a data listener. It matches the concept of processor. Being the last component of the execution chain or returning no data makes your processor an output component:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@ElementListener
+public void store(final MyData data) {
+    // ...
+}
+----

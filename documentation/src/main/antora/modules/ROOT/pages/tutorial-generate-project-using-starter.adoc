@@ -87,7 +87,7 @@ The input in this tutorial is a generic record. Enable the *Generic* option.
 
 Your output component is now defined. You can add another component or generate and download your project.
 
-== Generating and downloading the final project.
+== Generating and downloading the final project
 Once your project is configured and all the components you need are created, you can generate and download the final project.
 In this tutorial, the project was configured and three components of different types (input, processor and output) have been defined.
 
@@ -120,5 +120,6 @@ ifeval::["{backend}" == "html5"]
 - xref:tutorial-create-an-input-component.adoc[Creating a Hazelcast input component]
 - xref:tutorial-create-an-output-component.adoc[Creating a Hazelcast output component]
 - xref:tutorial-create-components-rest-api.adoc[Creating a Zendesk REST API connector]
-- xref:component-definition.adoc[Defining a component]
+- xref:component-define-input.adoc[Defining an input component]
+- xref:component-define-processor-output.adoc[Defining a processor or output component]
 endif::[]

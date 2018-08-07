@@ -199,7 +199,7 @@ body {
   font-family: 'Source Sans Pro', sans-serif;
   display: flex;
   flex-direction: column;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 20px !important;
   min-height: 100vh;
   height: 100vh;
@@ -212,33 +212,77 @@ a {
 }
 h1 {
   color: #295679;
+  font-size: 42px;
+  font-weight: 400;
+  margin-bottom: 30px;
+}
+.documentationindex-sectiontitle {
+  color: #295679;
   font-size: 30px;
   font-weight: 300;
+  text-transform: none;
+  border: none;
+  margin-top: 20px;
+  line-height:1em;
+
+}
+h1.article-side-toc {
+  color: #535353;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 36px;
+  margin-bottom: 14px;
 }
 h2 {
   color: #295679;
-  font-size: 26px;
-  font-weight: 300;
+  font-size: 32px;
+  font-weight: 400;
+  margin-top: 50px;
+  line-height: 2em;
+  border-top: 1px solid #29567959;
+}
+h2 > a{
+  color: #295679;
+}
+
+h2 > a:hover{
+  color: #0f7ac3;
+  text-decoration: none;
 }
 h3 {
   color: #295679;
   font-size: 24px;
-  font-weight: 300;
+  font-weight: 400;
+  margin-top:25px;
+}
+h3 > a{
+  color: #295679;
+}
+
+h3 > a:hover{
+  color: #0f7ac3;
+  text-decoration: none;
 }
 h4 {
   color: #295679;
-  font-size: 22px;
-  font-weight: 300;
+  font-size: 18px;
+  font-weight: 400;
+  margin-top: 20px;
+  margin-bottom: 10px;
 }
 h5 {
   color: #295679;
-  font-size: 20px;
-  font-weight: 300;
+  font-size: 16px;
+  font-weight: 400;
+  margin-top: 20px;
+  margin-bottom: 10px;
 }
 h6 {
   color: #295679;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 300;
+  margin-top: 20px;
+  margin-bottom: 10px;
 }
 header,
 footer {
@@ -264,6 +308,8 @@ img {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 25px;
+  margin-bottom:25px;
 }
 main {
   display: flex;
@@ -476,6 +522,7 @@ pre {
 .article-anchors {
 	position: fixed;
   width: 33.333%;
+  margin-left: 20px;
 }
 .article-anchors ul {
   list-style: none;
@@ -529,7 +576,14 @@ pre {
 }
 .article-side-actions li > a {
   border: none;
-  color: #0f7ac3;
+  color: #535353;
+  margin-top: 10px;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.article-side-actions li > a:hover{
+  color: #295679;
 }
 
 header > nav.navbar-default {
