@@ -24,6 +24,11 @@
       <username>${env.JETBRAINS_USER}</username>
       <password>${env.JETBRAINS_PASS}</password>
     </server>
+    <server>
+      <id>freeshells</id>
+      <username>${env.FREESHELLS_LOGIN}</username>
+      <password>${env.FREESHELLS_PASS}</password>
+    </server>
 
     <!-- no more used ATM -->
     <server>

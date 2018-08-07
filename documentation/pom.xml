@@ -46,6 +46,7 @@
     <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
     <jsoup.version>1.11.2</jsoup.version>
     <crawler-commons.version>0.10</crawler-commons.version>
+    <jsch.version>0.1.54</jsch.version>
   </properties>
 
   <dependencies>
@@ -129,6 +130,13 @@
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-openapi-impl</artifactId>
       <version>${geronimo-openapi.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.jcraft</groupId>
+      <artifactId>jsch</artifactId>
+      <version>${jsch.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -300,8 +308,34 @@
               </arguments>
             </configuration>
           </execution>
+          <execution> <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@upload-api-mock -->
+            <id>upload-api-mock</id>
+            <phase>pre-site</phase> <!-- avoid to do it at each build, since it is remote it is ok to do it here (see .travis.yml) -->
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>org.talend.runtime.documentation.ApiMockUpdate</mainClass>
+              <includePluginDependencies>true</includePluginDependencies>
+              <arguments>
+                <argument>${project.build.directory}/exec/api-mock</argument>
+                <argument>${talend.freeshells.username}</argument>
+                <argument>${talend.freeshells.password}</argument>
+              </arguments>
+            </configuration>
+          </execution>
         </executions>
         <dependencies>
+          <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jcache_1.0_spec</artifactId>
+            <version>${jcache-api.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>${jsch.version}</version>
+          </dependency>
           <dependency>
             <groupId>org.eclipse.microprofile.openapi</groupId>
             <artifactId>microprofile-openapi-api</artifactId>

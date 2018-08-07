@@ -63,7 +63,7 @@ jobs:
       env:
       - STEP=Update Documentation
       script:
-      - rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache
+      - echo "Skipping >rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache<"
       - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
       - cd documentation && mvn clean verify pre-site -e -q -Pgh-pages -Dgpg.skip=true $DEPLOY_OPTS && cd -
 
