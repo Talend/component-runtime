@@ -51,7 +51,7 @@ cd -
 
 echo "Building and pushing Component Server image"
 COMPONENT_SERVER_DOCKER_BUILD_ONLY=true ./.travis/docker.sh && \
-tacokit/component-server:$release
+docker push tacokit/component-server:$release
 
 echo "Rebuilding master"
 git reset --hard

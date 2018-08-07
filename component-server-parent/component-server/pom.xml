@@ -314,31 +314,6 @@
               </scripts>
             </configuration>
           </execution>
-          <execution>
-            <id>copy-jaxrs-doc</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <allowSystemExits>true</allowSystemExits>
-              <scripts>
-                <script><![CDATA[
-                  def doc = new File(project.build.directory, 'jaxrs-analyzer/rest-resources.adoc')
-                  if (!doc.exists()) {
-                    log.warn("${doc.absolutePath} doesn't exist")
-                    return
-                  }
-
-                  def content = doc.text
-                  def docCopy = new File(project.basedir, '../../documentation/src/main/antora/modules/ROOT/pages/_partials/generated_rest-resources.adoc')
-                  if (!docCopy.exists() || !docCopy.text.trim() != content.trim()) {
-                    docCopy.text = content
-                  }
-                ]]></script>
-              </scripts>
-            </configuration>
-          </execution>
         </executions>
         <dependencies>
           <dependency>

@@ -395,8 +395,7 @@ public class ComponentResource {
                     description = "the language for display names.", in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) final String language,
             @QueryParam("identifiers") @Parameter(name = "identifiers",
-                    description = "the component identifiers to request.",
-                    in = QUERY) final String[] ids) {
+                    description = "the component identifiers to request.", in = QUERY) final String[] ids) {
 
         if (ids == null || ids.length == 0) {
             return new ComponentDetailList(emptyList());

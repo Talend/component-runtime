@@ -320,6 +320,47 @@
         ]
       }
     },
+    "/api/v1/component/icon/{id}":{
+      "get":{
+        "deprecated":false,
+        "description":"Returns a particular component icon in raw bytes.",
+        "operationId":"icon",
+        "parameters":[
+          {
+            "allowEmptyValue":false,
+            "allowReserved":false,
+            "description":"the component icon identifier",
+            "in":"path",
+            "name":"id",
+            "required":false,
+            "schema":{
+              "type":"string"
+            }
+          }
+        ],
+        "responses":{
+          "200":{
+            "content":{
+              "application/octet-stream":{
+
+              }
+            },
+            "description":"The component icon in binary form."
+          },
+          "404":{
+            "content":{
+              "application/json":{
+
+              }
+            },
+            "description":"The family or icon is not found"
+          }
+        },
+        "tags":[
+          "Component"
+        ]
+      }
+    },
     "/api/v1/component/details":{
       "get":{
         "deprecated":false,
@@ -340,7 +381,7 @@
           {
             "allowEmptyValue":false,
             "allowReserved":false,
-            "description":"the component identifiers to request, comma separated.",
+            "description":"the component identifiers to request.",
             "in":"query",
             "name":"identifiers",
             "required":false,
@@ -441,47 +482,6 @@
               }
             },
             "description":"The dependency binary (jar)."
-          }
-        },
-        "tags":[
-          "Component"
-        ]
-      }
-    },
-    "/api/v1/component/icon/{id}":{
-      "get":{
-        "deprecated":false,
-        "description":"Returns a particular component icon in raw bytes.",
-        "operationId":"icon",
-        "parameters":[
-          {
-            "allowEmptyValue":false,
-            "allowReserved":false,
-            "description":"the component icon identifier",
-            "in":"path",
-            "name":"id",
-            "required":false,
-            "schema":{
-              "type":"string"
-            }
-          }
-        ],
-        "responses":{
-          "200":{
-            "content":{
-              "application/octet-stream":{
-
-              }
-            },
-            "description":"The component icon in binary form."
-          },
-          "404":{
-            "content":{
-              "application/json":{
-
-              }
-            },
-            "description":"The family or icon is not found"
           }
         },
         "tags":[
