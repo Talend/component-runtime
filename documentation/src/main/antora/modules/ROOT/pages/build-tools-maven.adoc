@@ -287,7 +287,7 @@ You can find more customization options on Asciidoctor link:http://asciidoctor.o
 
 == Testing a component web rendering
 
-Testing the rendering of your component configuration into the Studio requires deploying the component in Talend Studio (refer to link:studio.html[Studio Documentation].
+Testing the rendering of your component configuration into the Studio requires deploying the component in Talend Studio. Refer to the link:studio.html[Studio documentation].
 
 In the case where you need to deploy your component into a Cloud (web) environment, you can test its web rendering by using the `web` goal of the plugin:
 
