@@ -68,6 +68,12 @@ public void test() throws Exception {
 }
 ----
 
+==== Query Parameters
+
+Sometimes the query parameters are sensitive and you don't want to store them when capturing.
+In such cases, you can drop them from the captured data (`.json`) and the mock implementation will
+be able to match the request ignoring the query parameters.
+
 === JUnit 5
 
 JUnit 5 uses a JUnit 5 extension based on the `HttpApi` annotation that you can add to your test class. You can inject the test handler - which has some utilities for advanced cases - through `@HttpApiInject`:

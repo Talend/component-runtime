@@ -1,0 +1,233 @@
+= Handle Talend component migration
+:page-partial:
+
+[[tutorial-handle-talend-component-migration]]
+
+In this tutorial we will walk through migration handler creation for a component that we will upgrade from a version 1 to a version 2 by adding some new options.
+Talend Component Kit provide a migration mechanism between two versions of a component to let you ensure backward compatibility.
+
+For example a new version of a component may have some new options that we need to give some them default value in the old versions or that we need to deactivate.
+
+== Requirements
+* Java 8.
+* Talend component development using Talend Component Kit.
+
+== Create the version 1 of the component
+Let's start by creating a very simple configuration class that will represent a basic authentication that can be used in any component that need this kind of authentication.
+
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+@GridLayout({
+        @GridLayout.Row({ "username", "password" })
+})
+public class BasicAuth {
+
+    @Option
+    @Documentation("username to authenticate")
+    private String username;
+
+    @Option
+    @Credential
+    @Documentation("user password")
+    private String password;
+}
+----
+
+Now let's create a simple output component that will use our configuration. the component configuration is injected into the component constructor.
+
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+@Version(1)
+@Icon(Icon.IconType.DEFAULT)
+@Processor(name = "MyOutput")
+@Documentation("A simple output component")
+public class MyOutput implements Serializable {
+
+    private final BasicAuth configuration;
+
+    public MyOutput(@Option("configuration") final BasicAuth configuration) {
+        this.configuration = configuration;
+    }
+
+    @ElementListener
+    public void onNext(@Input final JsonObject record) {
+    }
+}
+----
+
+NOTE: Configuration version is aligned on the component version, as the configuration will be consumed by the component, it inherit from it version.
+
+Here we have defined the first version of our simple component that use our basic authentication configuration.
+Now let's add some new authentication mode into version 2 and handle the migration from the first version.
+
+== Create the version 2 of the component
+In this version we will add a new authentication method to our component and add a choice list that will let the user to choose which authentication mode he wants to use.
+Let's say we want to add an Oauth2 authentication mode to our component in addition to tha basic mode.
+
+A very simple configuration for Oauth2 will look like this:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+@GridLayout({
+        @GridLayout.Row({ "clientId", "clientSecret" })
+})
+public class Oauth2 {
+
+    @Option
+    @Documentation("client id to authenticate")
+    private String clientId;
+
+    @Option
+    @Credential
+    @Documentation("client secret token")
+    private String clientSecret;
+}
+----
+
+Now that we have defined the options of our new authentication mode, let's wrap it in a global configuration with the basic authentication mode and add a choice list to let the user choose between them.
+For that we will create an AuthenticationConfiguration class that will look just like this :
+
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+@GridLayout({
+        @GridLayout.Row({ "authenticationMode" }),
+        @GridLayout.Row({ "basic" }),
+        @GridLayout.Row({ "oauth2" })
+})
+public class AuthenticationConfiguration {
+
+    @Option
+    @Documentation("the authenticaitgon mode")
+    private AuthMode authenticationMode = AuthMode.Oauth2; // we set the default value to the new mode
+
+    @Option
+    @ActiveIf(target = "authenticationMode", value = {"Basic"})
+    @Documentation("basic authentication")
+    private BasicAuth basic;
+
+    @Option
+    @ActiveIf(target = "authenticationMode", value = {"Oauth2"})
+    @Documentation("oauth2 authentication")
+    private Oauth2 oauth2;
+
+
+    /**
+    * This enum hold the authentication mode supported by this configuration
+    */
+    public enum AuthMode {
+        Basic,
+        Oauth2;
+    }
+}
+----
+
+TIP: Notice the use of the `@ActiveIf` annotation that let us activate the authentication type according to the selected authentication Mode.
+
+Now let's upgrade our component to use our new configuration that support more authentication mode.
+We will also upgrade the component version from 1 to 2 as we have changed it configuration.
+
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+@Version(2) // we upgrade the component version
+@Icon(Icon.IconType.DEFAULT)
+@Processor(name = "MyOutput")
+@Documentation("A simple output component")
+public class MyOutput implements Serializable {
+
+    private final AuthenticationConfiguration configuration; // we use the new configuration
+
+    public MyOutput(@Option("configuration") final AuthenticationConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
+    @ElementListener
+    public void onNext(@Input final JsonObject record) {
+    }
+}
+----
+
+Now we have our component supporting more authentication mode in its version 2.
+
+*That's great!, but what will happen if we pass an old configuration to our new component version?*
+
+The answer it's simple, it will just fail. as the version 2 don't recognize the old version anymore.
+This is why we need a migration handler that will adapt the old configuration to the new one.
+We can achieve that by defining the migration handler class in the `@Version` annotation on the component class.
+
+NOTE: An old configuration may be already persisted by an application that integrate the version 1 of the component (studio or web application).
+
+== Handle the migration from the version 1 to the version 2
+
+So let's add a migration handler class to our component version.
+
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+@Version(value = 1, migrationHandler = MyOutputMigrationHandler.class)
+----
+
+Now we will need to create the migration handler class `MyOutputMigrationHandler`
+
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+ public class MyOutputMigrationHandler implements MigrationHandler{ <1>
+
+        @Override
+        public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) { <2>
+            // Here we will implement our migration logic to adapt the version 1 of the component ot the version 2
+            return incomingData;
+        }
+ }
+----
+<1> The migration handler class need to implement the MigrationHandler interface.
+<2> MigrationHandler interface has the migrate method that has the incoming version which is the version of the configuration that we are migrating
+and a map of (key, value) of the configuration where the key is the configuration path and the value is the value of the configuration.
+
+IMPORTANT:  You need to be familiar with the component configuration path construction to better understand this part.
+For that please see this link xref:component-configuration.adoc[component configuration]
+
+Now, you are familiar with component configuration path construction, let's implement our migration handler.
+
+First let's list what has changed since version 1
+
+. The configuration `BasicAuth` from the version 1 is not the root configuration anymore, as it's under the `AuthenticationConfiguration`.
+. `AuthenticationConfiguration` is the new root configuration.
+. We have a new authentication mode (Oauth2) which is the default mode in the version 2.
+
+So to migrate the old component version to the new version and to keep backward compatibility, we will need to:
+. Remap the old configuration to the new one
+. Give the adequate default values to some options.
+
+For that we will make all the configuration with the version 1 having the `authenticationMode` to basic by default and remap the old basic authentication configuration to the new one.
+Let's see how we can do that in code :
+
+[source,java,indent=0,subs="verbatim,quotes,attributes",]
+----
+ public class MyOutputMigrationHandler implements MigrationHandler{
+
+        @Override
+        public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
+            if(incomingVersion == 1){ <1>
+                // we remap the old configuration <2>
+                String userName = incomingData.get("configuration.username");
+                String password = incomingData.get("configuration.password");
+                incomingData.put("configuration.basic.username", userName);
+                incomingData.put("configuration.basic.password", password);
+
+                // setting default value for authenticationMode to Basic <3>
+                incomingData.put("configuration.authenticationMode", "Basic");
+            }
+
+            return incomingData; <4>
+        }
+ }
+----
+<1> we do a safety check of the data version that we are migrating to be sure to only apply our migration logic to the right data version.
+<2> we map the old configuration to the new version structure. as the BasicAuth is now under a the root configuration class, it's path change and becomes `configuration.basic.*`.
+<3> we set a new default value to the `authenticationMode` as we want it to be set to `Basic` for configuration that comes from version 1.
+<4> we return the new configuration data.
+
+TIP: if we have renamed a configuration between 2 component versions. we can get the old configuration option from the configuration map by it old path and set it value using it new path.
+
+That's all for component migration!
+
+Now you can upgrade your component without loosing backward compatibility.

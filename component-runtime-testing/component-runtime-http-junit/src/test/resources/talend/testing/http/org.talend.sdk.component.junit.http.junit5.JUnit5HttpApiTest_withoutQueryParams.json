@@ -1,0 +1,32 @@
+[
+  {
+    "request": {
+      "uri": "http://foo.bar.not.existing.talend.com/component/test",
+      "payload": "ignored",
+      "method": "POST"
+    },
+    "response": {
+      "status": 200,
+      "payload": "first",
+      "headers": {
+        "mocked": "true",
+        "content-type": "text/plain"
+      }
+    }
+  },
+  {
+    "request": {
+      "uri": "http://foo.bar.not.existing.talend.com/component/test?api=true",
+      "payload": "ignored",
+      "method": "POST"
+    },
+    "response": {
+      "status": 200,
+      "payload": "second",
+      "headers": {
+        "mocked": "true",
+        "content-type": "text/plain"
+      }
+    }
+  }
+]
