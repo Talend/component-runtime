@@ -76,6 +76,7 @@ public class SearchIndexation {
      * </ul>
      *
      * @param args the inputs.
+     * @throws Exception if there is an error.
      */
     public static void main(final String[] args) throws Exception {
         final JsonBuilderFactory factory = Json.createBuilderFactory(emptyMap());
