@@ -87,7 +87,7 @@ The input in this tutorial is a generic record. Enable the *Generic* option.
 
 Your output component is now defined. You can add another component or generate and download your project.
 
-== Generating and downloading the final project.
+== Generating and downloading the final project
 Once your project is configured and all the components you need are created, you can generate and download the final project.
 In this tutorial, the project was configured and three components of different types (input, processor and output) have been defined.
 
