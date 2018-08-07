@@ -5,7 +5,6 @@
 <script>
 (window.talend = (window.talend || {})).swaggerUi = {
   "openapi":"3.0.1",
-  "servers": [{ url: "talend-component-kit-demo-server-talend-component-kit.193b.starter-ca-central-1.openshiftapps.com" }],
   "paths":{
     "/api/v1/action/index":{
       "get":{

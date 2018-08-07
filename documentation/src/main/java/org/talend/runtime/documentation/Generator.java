@@ -32,12 +32,9 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -59,6 +56,13 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
@@ -75,9 +79,6 @@ import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.JarArchive;
 import org.apache.ziplock.IO;
 import org.asciidoctor.Asciidoctor;
-import org.asciidoctor.AttributesBuilder;
-import org.asciidoctor.OptionsBuilder;
-import org.asciidoctor.SafeMode;
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
@@ -129,7 +130,6 @@ public class Generator {
         final Asciidoctor asciidoctor = Asciidoctor.Factory.create();
         final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
-        // generateNav(asciidoctor);
         generatedTypes(generatedDir);
         generatedConstraints(generatedDir);
         generatedConditions(generatedDir);
@@ -154,10 +154,9 @@ public class Generator {
     private static void updateComponentServerApi(final File generatedDir) throws Exception {
         final File output = new File(generatedDir, "generated_rest-resources.adoc");
         try (final InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                "META-INF/resources/documentation/openapi.json")) {
-            final String newJson = IO.slurp(source).replace("\"paths\":{", "\"servers\": ["
-                    + "{ url: \"talend-component-kit-demo-server-talend-component-kit.193b.starter-ca-central-1.openshiftapps.com\" }],\n"
-                    + "  \"paths\":{");
+                "META-INF/resources/documentation/openapi.json");
+                final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig())) {
+            final String newJson = IO.slurp(source);
             String oldJson = !output.exists() ? "{}" : String.join("\n", Files.readAllLines(output.toPath()));
             final int start = oldJson.indexOf(".swaggerUi = ");
             if (start > 0) {
@@ -168,7 +167,16 @@ public class Generator {
             if (end > 0) {
                 oldJson = oldJson.substring(0, end);
             }
-            if (areJsonDifferent(oldJson.trim(), newJson.trim())) {
+            final JsonBuilderFactory builderFactory = Json.createBuilderFactory(emptyMap());
+            final JsonObject oldApi = !oldJson.startsWith("{") ? builderFactory.createObjectBuilder().build()
+                    : jsonb.fromJson(oldJson, JsonObject.class);
+            final JsonObject newApi = builderFactory
+                    .createObjectBuilder(jsonb.fromJson(newJson, JsonObject.class))
+                    .add("servers",
+                            builderFactory.createObjectBuilder().add("url",
+                                    "http://talend-component-kit.freeshells.org"))
+                    .build();
+            if (!oldJson.startsWith("{") || !areEqualsIgnoringOrder(oldApi, newApi)) {
                 try (final OutputStream writer = new WriteIfDifferentStream(output)) {
                     writer.write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
                             + "(window.talend = (window.talend || {})).swaggerUi = " + newJson + ";</script>\n"
@@ -178,15 +186,44 @@ public class Generator {
         }
     }
 
-    private static boolean areJsonDifferent(final String first, final String second) throws Exception {
-        if (!first.startsWith("{")) {
-            return true;
+    private static boolean areEqualsIgnoringOrder(final JsonValue oldValue, final JsonValue newValue) {
+        if (oldValue.getValueType().equals(newValue.getValueType())) {
+            return false;
         }
-        // using a JsonReader we get a LinkedHashMap, here the HashMap is what we want (order is not important)
-        try (final Jsonb mapper = JsonbBuilder.create()) {
-            final Object m1 = mapper.fromJson(first, Object.class);
-            final Object m2 = mapper.fromJson(second, Object.class);
-            return !m1.equals(m2);
+        switch (oldValue.getValueType()) {
+        case STRING:
+            return JsonString.class.cast(oldValue).getString().equals(JsonString.class.cast(newValue).getString());
+        case NUMBER:
+            return JsonNumber.class.cast(oldValue).doubleValue() == JsonNumber.class.cast(newValue).doubleValue();
+        case OBJECT:
+            final JsonObject oldObject = oldValue.asJsonObject();
+            final JsonObject newObject = newValue.asJsonObject();
+            if (!oldObject.keySet().equals(newObject.keySet())) {
+                return false;
+            }
+            return oldObject
+                    .keySet()
+                    .stream()
+                    .map(key -> areEqualsIgnoringOrder(oldObject.get(key), newObject.get(key)))
+                    .reduce(true, (a, b) -> a && b);
+        case ARRAY:
+            final JsonArray oldArray = oldValue.asJsonArray();
+            final JsonArray newArray = newValue.asJsonArray();
+            if (oldArray.size() != newArray.size()) {
+                return false;
+            }
+            if (oldArray.isEmpty()) {
+                return true;
+            }
+            for (final JsonValue oldItem : oldArray) {
+                if (newArray.stream().noneMatch(newitem -> areEqualsIgnoringOrder(oldItem, newitem))) {
+                    return false;
+                }
+            }
+            return true;
+        default:
+            // value type check was enough
+            return true;
         }
     }
 
@@ -231,45 +268,6 @@ public class Generator {
             writer.write(jsonb.toJson(items).getBytes(StandardCharsets.UTF_8));
             writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
         }
-    }
-
-    @Deprecated // done manually now
-    private static void generateNav(final Asciidoctor asciidoctor) throws IOException {
-        final File baseDir = jarLocation(Generator.class).getParentFile().getParentFile();
-        final File pages = new File(baseDir, "src/main/antora/modules/ROOT/pages/");
-        final Map<String, Object> options = OptionsBuilder
-                .options()
-                .baseDir(pages)
-                .backend("html5")
-                .safe(SafeMode.UNSAFE)
-                .headerFooter(false)
-                .toFile(false)
-                .attributes(AttributesBuilder
-                        .attributes()
-                        .attribute("includedir", pages.getAbsolutePath())
-                        .attribute("partialsdir", new File(pages, "_partials").getAbsolutePath())
-                        .attribute("imagesdir", new File(pages.getParentFile(), "assets/images").getAbsolutePath()))
-                .asMap();
-        final StringBuilder builder = new StringBuilder();
-        processSection(asciidoctor.loadFile(new File(pages, "documentation.adoc"), options), builder,
-                "documentation.adoc");
-        builder
-                .append(".Tutorials\n")
-                .append(Files
-                        .lines(new File(pages, "_partials/tutorials-index.adoc").toPath(), StandardCharsets.UTF_8)
-                        .collect(joining("\n")))
-                .append("\n\n");
-
-        // hardcoded for now while they are simple or externals
-        builder.append(".Web\n" + "* xref:documentation-rest.adoc[Server]\n"
-                + "* xref:server-uispec.adoc[UiSpec Server]\n"
-                + ".Execute\n* xref:services-pipeline.adoc[Simple/Test Pipeline API]\n"
-                + "* https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline[Beam Pipeline API]\n");
-
-        try (final Writer nav = new FileWriter(new File(baseDir, "src/main/antora/modules/ROOT/nav.adoc"))) {
-            nav.write(builder.toString());
-        }
-        System.out.println("Updated nav.adoc");
     }
 
     private static void processSection(final StructuralNode node, final StringBuilder builder, final String target) {

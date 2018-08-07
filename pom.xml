@@ -580,7 +580,7 @@
                 </module>
                 <module name="UpperEll" />
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,freemarker,io,zipkin2,lombok,play" />
+                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,lombok,play" />
                   <property name="ordered" value="true" />
                   <property name="separated" value="true" />
                   <property name="option" value="top" />
@@ -676,6 +676,11 @@
             </manifestEntries>
           </archive>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.7.1</version>
       </plugin>
     </plugins>
     <pluginManagement>
