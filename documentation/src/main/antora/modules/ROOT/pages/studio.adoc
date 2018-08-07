@@ -1,6 +1,8 @@
 = Integrating components into Talend Studio
 :page-partial:
 
+Before integrating your components into the Studio, learn how to build and deploy them using xref:build-tools-maven.adoc[Maven] or xref:build-tools-gradle.adoc[Gradle] Talend Component Kit plugins.
+
 == Design
 
 The Studio integration relies on the Component Server (see <<documentation-rest.adoc#, Web>> for more details).
@@ -90,4 +92,6 @@ ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
 - xref:best-practices.adoc[Best practices]
+- xref:build-tools-maven.adoc[Building components with Maven]
+- xref:build-tools-gradle.adoc[Building components with Gradle]
 endif::[]

@@ -1,7 +1,7 @@
 = Installing the Talend Component Kit IntelliJ plugin
 :page-partial:
 
-[[tutorial-talend-intellij-plugin-usage]]
+[[installing-talend-intellij-plugin]]
 
 The Talend Component Kit IntelliJ plugin is a plugin for the IntelliJ Java IDE. It adds support for the Talend Component Kit project creation.
 

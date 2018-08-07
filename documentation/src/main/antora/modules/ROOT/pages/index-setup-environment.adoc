@@ -8,4 +8,4 @@
 
 include::system-prerequisites.adoc[leveloffset=+1]
 
-include::tutorial-talend-intellij-plugin-usage.adoc[leveloffset=+1]
+include::installing-talend-intellij-plugin.adoc[leveloffset=+1]
