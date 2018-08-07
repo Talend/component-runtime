@@ -28,7 +28,14 @@ This plugin is also an extension so you can declare it in your `build/extensions
 </extension>
 ----
 
-Used as an extension, the `dependencies`, `validate` and `documentation` goals will be set up.
+Used as an extension, the goals detailed below will be set up.
+
+You can run the following command from the root of the project, by adapting it with each goal name, parameters and values:
+
+[source,bash]
+----
+$ mvn talend-component:<name_of_the_goal>[:<execution id>] -D<param_user_property>=<param_value>
+----
 
 == Dependencies
 
@@ -81,7 +88,8 @@ It is bound to the `process-classes` phase by default. When executed, it perform
 |validateModel| Ensures that components pass validations of the `ComponentManager` and Talend Component runtime| true
 |validateSerializable| Ensures that components are `Serializable`. This is a sanity check, the component is not actually serialized here. If you have a doubt, make sure to test it. It also checks that any `@Internationalized` class is valid and has its keys.| true
 |validateMetadata| Ensures that components have an `@Icon` and a `@Version` defined.| true
-|validateDataStore| Ensures that any `@DataStore` defines a `@HealthCheck`.| true
+|validateDataStore| Ensures that any `@DataStore` defines a `@HealthCheck` and has a unique name.| true
+|validateDataSet| Ensures that any `@DataSet` has a unique name.| true
 |validateComponent| Ensures that the native programming model is respected. You can disable it when using another programming model like Beam.| true
 |validateActions| Validates action signatures for actions not tolerating dynamic binding (`@HealthCheck`, `@DynamicValues`, and so on). It is recommended to keep it set to `true`.| true
 |validateFamily| Validates the family by verifying that the package containing the `@Components` has a `@Icon` property defined.| true
@@ -92,7 +100,7 @@ It is bound to the `process-classes` phase by default. When executed, it perform
 
 == Documentation
 
-This goal generates an Asciidoc file documenting your component from the configuration model (`@Option`) and the `@Documentation` property that you can add to options and to the component itself.
+The `asciidoc` goal generates an Asciidoc file documenting your component from the configuration model (`@Option`) and the `@Documentation` property that you can add to options and to the component itself.
 
 [source,xml]
 ----
@@ -114,33 +122,23 @@ This goal generates an Asciidoc file documenting your component from the configu
 [options="header,autowidth"]
 |===
 |Name|Description|Default
-|level
-|Level of the root title.
+|level|Level of the root title.
 a|2 (`==`)
 
 |output
 a| Output folder path. It is recommended to keep it to the default value.
 a|`${classes}/TALEND-INF/documentation.adoc`
 
-|formats
-|Map of the renderings to do. Keys are the format (`pdf` or `html`) and values the output paths.
-| -
+|formats|Map of the renderings to do. Keys are the format (`pdf` or `html`) and values the output paths.| -
 
-|attributes
-|Map of asciidoctor attributes when *formats* is set.
-| -
+|attributes|Asciidoctor attributes to use for the rendering when *formats* is set.| -
 
-|templateDir / templateEngine
-|Template configuration for the rendering.
-| -
+|templateEngine|Template engine configuration for the rendering.| -
+|templateDir|Template directory for the rendering.| -
 
-|title
-|Document title.
-| ${project.name}
+|title|Document title.| ${project.name}
 
-|attachDocumentations
-|Allows to attach (and deploy) the documentations (`.adoc`, and `formats` keys) to the project.
-| true
+|attachDocumentations|Allows to attach (and deploy) the documentations (`.adoc`, and `formats` keys) to the project.| true
 |===
 
 TIP: If you use the plugin as an extension, you can add the `talend.documentation.htmlAndPdf` property and set it to `true` in your project to automatically get HTML and PDF renderings of the documentation.
@@ -411,6 +409,41 @@ In this command, Nexus URL and repository name are mandatory arguments. All othe
 --pass "Y0u will \ not G4iess i' ^"
 ----
 
+== Deploy in Studio
+
+The `deploy-in-studio` goal deploys the current component module into a local Talend Studio instance.
+
+.Parameters
+
+[options="header,autowidth"]
+|===
+|Name|Description|Default
+|studioHome|Path to the Studio home directory|-
+|===
+
+You can use the following command from the root folder of your project:
+
+[source,bash]
+----
+$ mvn package talend-component:deploy-in-studio -Dtalend.component.studioHome="<studio_path>"
+----
+
+
+== Help
+
+The `help` goal displays help information on `talend-component-maven-plugin`.
+Call `mvn talend-component:help -Ddetail=true -Dgoal=<goal-name>` to display the parameter details of a specific goal.
+
+.Parameters
+
+[options="header,autowidth"]
+|===
+|Name|Description|Default
+|detail|Displays all settable properties for each goal.|false
+|goal|The name of the goal for which to show help. If unspecified, all goals are displayed.|-
+|indentSize|Number of spaces per indentation level. This integer should be positive.|2
+|lineLength|Maximum length of a display line. This integer should be positive.|80
+|===
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
