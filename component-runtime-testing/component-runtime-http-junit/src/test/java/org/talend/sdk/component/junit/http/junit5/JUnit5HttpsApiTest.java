@@ -37,6 +37,7 @@ class JUnit5HttpsApiTest {
     @HttpApiInject
     private HttpApiHandler<?> handler;
 
+    @HttpApiName("${class}_${method}")
     @RepeatedTest(5) // just ensure it is reentrant
     void getProxy() throws Exception {
         final Response response = get();

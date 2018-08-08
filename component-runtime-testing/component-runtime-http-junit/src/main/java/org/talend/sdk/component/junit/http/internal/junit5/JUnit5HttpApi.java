@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.junit.http.internal.junit5;
 
+import static java.util.Optional.ofNullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
@@ -37,6 +39,7 @@ import org.talend.sdk.component.junit.http.internal.impl.HandlerImpl;
 import org.talend.sdk.component.junit.http.internal.impl.Handlers;
 import org.talend.sdk.component.junit.http.junit5.HttpApi;
 import org.talend.sdk.component.junit.http.junit5.HttpApiInject;
+import org.talend.sdk.component.junit.http.junit5.HttpApiName;
 
 public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
         implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport, AfterEachCallback, BeforeEachCallback {
@@ -84,9 +87,17 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
         if (!DefaultResponseLocator.class.isInstance(responseLocator)) {
             return;
         }
-        DefaultResponseLocator.class.cast(responseLocator).setTest(
-                extensionContext.getTestMethod().map(m -> m.getDeclaringClass().getName() + "_" + m.getName()).orElse(
-                        null));
+        final String test = extensionContext.getTestMethod().map(m -> {
+            final String displayName = sanitizeDisplayName(extensionContext.getDisplayName());
+            return ofNullable(m.getAnnotation(HttpApiName.class))
+                    .map(HttpApiName::value)
+                    .map(it -> it.replace("${class}", m.getDeclaringClass().getName()))
+                    .map(it -> it.replace("${method}", m.getName()))
+                    .map(it -> it.replace("${displayName}", displayName))
+                    .orElseGet(() -> m.getDeclaringClass().getName() + "_" + m.getName()
+                            + (displayName.equals(m.getName()) ? "" : ("_" + displayName)));
+        }).orElse(null);
+        DefaultResponseLocator.class.cast(responseLocator).setTest(test);
     }
 
     @Override
@@ -98,6 +109,15 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
                     .map(DefaultResponseLocator.class::cast)
                     .ifPresent(r -> r.flush(Handlers.getBaseCapture()));
         }
+    }
+
+    private String sanitizeDisplayName(final String displayName) {
+        final String base = displayName.replace(" ", "_");
+        final int parenthesis = base.indexOf('(');
+        if (parenthesis > 0) {
+            return base.substring(0, parenthesis);
+        }
+        return base;
     }
 
     private static <T> Optional<T> newInstance(final Class<?> type, final Class<T> api) {
