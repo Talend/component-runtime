@@ -265,3 +265,11 @@ The server module contains several configurations that you can set in:
 - A file located based on the `--component-configuration` CLI option.
 
 include::{partialsdir}/generated_server-configuration.adoc[]
+
+== Services
+
+The module provides some services usable to fulfill some basic requirements of the component interaction:
+
+- `ConfigurationFormatter` to (un)flatten the properties (JSON from/to key-value format)
+- `ConfigurationVisitorService` to browse properties and identify credentials to cipher them
+- `ValidationService` to validate a JSON properties set before any persistence action

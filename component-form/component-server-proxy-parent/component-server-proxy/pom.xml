@@ -103,6 +103,11 @@
       <artifactId>component-form-core</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.johnzon</groupId>
+      <artifactId>johnzon-jsonschema</artifactId>
+      <version>${johnzon.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
