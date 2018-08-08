@@ -60,7 +60,7 @@ The first goal is a shortcut for the `maven-dependency-plugin`. It creates the `
 </plugin>
 ----
 
-== Validate
+== Validating the component programming model
 
 This goal helps you validate the common programming model of the component. To activate it, you can use following execution definition:
 
@@ -100,7 +100,7 @@ It is bound to the `process-classes` phase by default. When executed, it perform
 |validateOptionNames| Ensures that the option names are compliant with the framework. It is highly recommended and safer to keep it set to `true`. |`talend.validation.options`|true
 |===
 
-== Documentation
+== Generating the component documentation
 
 The `asciidoc` goal generates an Asciidoc file documenting your component from the configuration model (`@Option`) and the `@Documentation` property that you can add to options and to the component itself.
 
@@ -372,7 +372,7 @@ For this command to work, you need to register the plugin as follows:
 </plugin>
 ----
 
-== Talend Component Archive
+== Generating the component archive
 
 Component ARchive (`.car`) is the way to bundle a component to share it in the Talend ecosystem. It is a plain Java ARchive (`.jar`) containing a metadata file and a nested Maven repository containing the component and its depenencies.
 
@@ -425,7 +425,7 @@ In this command, Nexus URL and repository name are mandatory arguments. All othe
 --pass "Y0u will \ not G4iess i' ^"
 ----
 
-== Deploy in Studio
+== Deploying to the Studio
 
 The `deploy-in-studio` goal deploys the current component module into a local Talend Studio instance.
 
