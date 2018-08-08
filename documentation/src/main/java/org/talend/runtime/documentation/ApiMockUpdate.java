@@ -149,8 +149,7 @@ public class ApiMockUpdate {
         final String componentId = "Y29tcG9uZW50cyNNb2NrI01vY2tJbnB1dA";
         final String configurationId = "Y29tcG9uZW50cyNNb2NrI2RhdGFzZXQjdGFibGU";
 
-        final ExecutorService executor =
-                Executors.newFixedThreadPool(Math.max(4, Runtime.getRuntime().availableProcessors()));
+        final ExecutorService executor = Executors.newFixedThreadPool(2);
         final Map<String, byte[]> files = new HashMap<>();
         CompletableFuture
                 .allOf(
