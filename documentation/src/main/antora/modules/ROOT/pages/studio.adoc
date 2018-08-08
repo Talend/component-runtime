@@ -44,8 +44,6 @@ is `%1$tb %1$td, %1$tY %1$tl:%1$tM:%1$tS %1$Tp %2$s%n%4$s: %5$s%6$s%n`, but for 
 | false
 |===
 
-IMPORTANT: To activate the plugin and be able to deploy your component, set `component.kit.skip` to `true`.
-
 A common developer `configuration/config.ini` file uses the following specific entries:
 
 .configuration/config.ini

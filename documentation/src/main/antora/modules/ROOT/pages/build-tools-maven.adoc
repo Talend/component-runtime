@@ -1,7 +1,9 @@
 = Building components with Maven
 :page-partial:
 
-To develop new components, Talend Component Kit requires a build tool in which you will import the component project generated from the starter. With this build tool, you will also be able to implement the logic of your component and to install and deploy it to Talend applications.
+To develop new components, Talend Component Kit requires a build tool in which you will import the component project generated from the starter.
+
+You will then be able to install and deploy it to Talend applications.
 A Talend Component Kit plugin is available for each of the supported build tools.
 
 `talend-component-maven-plugin` helps you write components that match best practices and generate transparently metadata used by Talend Studio.
@@ -58,7 +60,7 @@ The first goal is a shortcut for the `maven-dependency-plugin`. It creates the `
 </plugin>
 ----
 
-== Validate
+== Validating the component programming model
 
 This goal helps you validate the common programming model of the component. To activate it, you can use following execution definition:
 
@@ -83,22 +85,22 @@ It is bound to the `process-classes` phase by default. When executed, it perform
 
 [options="header,autowidth"]
 |===
-|Name |Description |Default
-|validateInternationalization |Validates that resource bundles are presents and contain commonly used keys (for example, `_displayName`)| true
-|validateModel| Ensures that components pass validations of the `ComponentManager` and Talend Component runtime| true
-|validateSerializable| Ensures that components are `Serializable`. This is a sanity check, the component is not actually serialized here. If you have a doubt, make sure to test it. It also checks that any `@Internationalized` class is valid and has its keys.| true
-|validateMetadata| Ensures that components have an `@Icon` and a `@Version` defined.| true
-|validateDataStore| Ensures that any `@DataStore` defines a `@HealthCheck` and has a unique name.| true
-|validateDataSet| Ensures that any `@DataSet` has a unique name.| true
-|validateComponent| Ensures that the native programming model is respected. You can disable it when using another programming model like Beam.| true
-|validateActions| Validates action signatures for actions not tolerating dynamic binding (`@HealthCheck`, `@DynamicValues`, and so on). It is recommended to keep it set to `true`.| true
-|validateFamily| Validates the family by verifying that the package containing the `@Components` has a `@Icon` property defined.| true
-|validateDocumentation| Ensures that all components and `@Option` properties have a documentation using the `@Documentation` property. |true
-|validateLayout| Ensures that the layout is referencing existing options and properties. |true
-|validateOptionNames| Ensures that the option names are compliant with the framework. It is highly recommended and safer to keep it set to `true`. |true
+|Name |Description |User property |Default
+|validateInternationalization |Validates that resource bundles are presents and contain commonly used keys (for example, `_displayName`)|`talend.validation.internationalization`| true
+|validateModel| Ensures that components pass validations of the `ComponentManager` and Talend Component runtime|`talend.validation.model`| true
+|validateSerializable| Ensures that components are `Serializable`. This is a sanity check, the component is not actually serialized here. If you have a doubt, make sure to test it. It also checks that any `@Internationalized` class is valid and has its keys.|`talend.validation.serializable`| true
+|validateMetadata| Ensures that components have an `@Icon` and a `@Version` defined.|`talend.validation.metadata`| true
+|validateDataStore| Ensures that any `@DataStore` defines a `@HealthCheck` and has a unique name.|`talend.validation.datastore`| true
+|validateDataSet| Ensures that any `@DataSet` has a unique name.|`talend.validation.dataset`| true
+|validateComponent| Ensures that the native programming model is respected. You can disable it when using another programming model like Beam.|`talend.validation.component`| true
+|validateActions| Validates action signatures for actions not tolerating dynamic binding (`@HealthCheck`, `@DynamicValues`, and so on). It is recommended to keep it set to `true`.|`talend.validation.action`| true
+|validateFamily| Validates the family by verifying that the package containing the `@Components` has a `@Icon` property defined.|`talend.validation.family`| true
+|validateDocumentation| Ensures that all components and `@Option` properties have a documentation using the `@Documentation` property. |`talend.validation.documentation`|true
+|validateLayout| Ensures that the layout is referencing existing options and properties. |`talend.validation.layout`|true
+|validateOptionNames| Ensures that the option names are compliant with the framework. It is highly recommended and safer to keep it set to `true`. |`talend.validation.options`|true
 |===
 
-== Documentation
+== Generating the component documentation
 
 The `asciidoc` goal generates an Asciidoc file documenting your component from the configuration model (`@Option`) and the `@Documentation` property that you can add to options and to the component itself.
 
@@ -121,27 +123,27 @@ The `asciidoc` goal generates an Asciidoc file documenting your component from t
 
 [options="header,autowidth"]
 |===
-|Name|Description|Default
-|level|Level of the root title.
+|Name|Description|User property|Default
+|level|Level of the root title.|`talend.documentation.level`
 a|2 (`==`)
 
 |output
-a| Output folder path. It is recommended to keep it to the default value.
+a| Output folder path. It is recommended to keep it to the default value.|`talend.documentation.output`
 a|`${classes}/TALEND-INF/documentation.adoc`
 
-|formats|Map of the renderings to do. Keys are the format (`pdf` or `html`) and values the output paths.| -
+|formats|Map of the renderings to do. Keys are the format (`pdf` or `html`) and values the output paths.|`talend.documentation.formats`| -
 
-|attributes|Asciidoctor attributes to use for the rendering when *formats* is set.| -
+|attributes|Asciidoctor attributes to use for the rendering when *formats* is set.|`talend.documentation.attributes`| -
 
-|templateEngine|Template engine configuration for the rendering.| -
-|templateDir|Template directory for the rendering.| -
+|templateEngine|Template engine configuration for the rendering.|`talend.documentation.templateEngine`| -
+|templateDir|Template directory for the rendering.|`talend.documentation.templateDir`| -
 
-|title|Document title.| ${project.name}
-
-|attachDocumentations|Allows to attach (and deploy) the documentations (`.adoc`, and `formats` keys) to the project.| true
+|title|Document title.|`talend.documentation.title`| ${project.name}
+|version|The component version. It defaults to the pom version |`talend.documentation.version`|${project.version}
+|workDir|The template directory for the Asciidoctor rendering - if 'formats' is set.|`talend.documentation.workdDir`|${project.build.directory}/talend-component/workdir
+|attachDocumentations|Allows to attach (and deploy) the documentations (`.adoc`, and `formats` keys) to the project.|`talend.documentation.attach`| true
+|htmlAndPdf|If you use the plugin as an extension, you can add this property and set it to `true` in your project to automatically get HTML and PDF renderings of the documentation.|`talend.documentation.htmlAndPdf`|false
 |===
-
-TIP: If you use the plugin as an extension, you can add the `talend.documentation.htmlAndPdf` property and set it to `true` in your project to automatically get HTML and PDF renderings of the documentation.
 
 === Rendering your documentation
 
@@ -282,8 +284,6 @@ To be able to do that, you need to pass the `generated_doc` attribute to the plu
 
 This is optional but allows to reuse Maven placeholders to pass paths, which can be convenient in an automated build.
 
-//==== More
-
 You can find more customization options on Asciidoctor link:http://asciidoctor.org/docs/asciidoctor-maven-plugin/[website].
 
 == Testing a component web rendering
@@ -298,7 +298,7 @@ In the case where you need to deploy your component into a Cloud (web) environme
 
 Two parameters are available with the plugin:
 
-* `serverPort`, which allows to change the default port (8080) of the embedded server.
+* `serverPort`, which allows to change the default port (8080) of the embedded server. Its associated user property is `talend.web.port`.
 * `serverArguments`, that you can use to pass Meecrowave options to the server. Learn more about that configuration at http://openwebbeans.apache.org/meecrowave/meecrowave-core/cli.html.
 
 IMPORTANT: Make sure to install the artifact before using this command because it reads the component JAR from the local Maven repository.
@@ -338,8 +338,8 @@ The Mojo `generate` (Maven plugin goal) of the same plugin also embeds a generat
 </plugin>
 ----
 
-<1> The first execution generates an input (partition mapper + emitter).
-<2> the second execution generates an output.
+<1> The first execution generates an input (partition mapper and producer).
+<2> the second execution generates an output (processor).
 
 It is intended to be used from the command line (or IDE Maven integration) as follows:
 
@@ -350,12 +350,16 @@ $ mvn talend-component:generate \
     [-Dtalend.generator.classbase=com.test.MyComponent] \ <2>
     [-Dtalend.generator.family=my-family] \ <3>
     [-Dtalend.generator.pom.read-only=false] <4>
+    [-Dtalend.generator.pom.encoding=UTF-16] <5>
+    [-Dtalend.generator.pom.spacing=4] <6>
 ----
 
-<1> Select the type of component you want: `input` to generate a mapper and an emitter, or `output` to generate an output processor.
+<1> Select the type of component you want: `input` to generate a mapper and an emitter, or `output` to generate an output processor. The type is mandatory.
 <2> Set the class name base (automatically suffixed by the component type). If not set, the package is guessed and the classname is based on the basedir name.
 <3> Set the component family to use. If not specified, it defaults to the basedir name and removes "component[s]" from it. for example, `my-component` leads to `my` as family, unless it is explicitly set.
 <4> Specify if the generator needs to add `component-api` to the POM, if not already there. If you already added it, you can set it to `false` directly in the POM.
+<5> Specify the encoding of the component. If not specified, it defaults to UTF-8.
+<6> Specify the tabulation spacing. If not specified, it defaults to 2.
 
 For this command to work, you need to register the plugin as follows:
 
@@ -368,7 +372,7 @@ For this command to work, you need to register the plugin as follows:
 </plugin>
 ----
 
-== Talend Component Archive
+== Generating the component archive
 
 Component ARchive (`.car`) is the way to bundle a component to share it in the Talend ecosystem. It is a plain Java ARchive (`.jar`) containing a metadata file and a nested Maven repository containing the component and its depenencies.
 
@@ -378,6 +382,18 @@ mvn talend-component:car
 ----
 
 This command creates a `.car` file in your build directory. This file can be shared on Talend platforms.
+
+This command has some optional parameters:
+
+[options="header,autowidth"]
+|===
+|Name |Description |User property |Default
+|attach |Specifies whether the component should archive should be attached. |`talend.car.attach`| true
+|classifier |The classifier to use if attach is set to true. |`talend.car.attach`| component
+|metadata |Additional custom metadata to bundle in the component archive. |-| -
+|output |Specifies the output path and name of the archive |`talend.car.output`| ${project.build.directory}/${project.build.finalName}.car
+|packaging |Specifies the packaging |-| ${project.packaging}
+|===
 
 This CAR is executable and exposes the `studio-deploy` command which takes
 a Talend Studio home path as parameter. When executed, it installs the dependencies into the Studio and registers the component in your instance. For example:
@@ -409,7 +425,7 @@ In this command, Nexus URL and repository name are mandatory arguments. All othe
 --pass "Y0u will \ not G4iess i' ^"
 ----
 
-== Deploy in Studio
+== Deploying to the Studio
 
 The `deploy-in-studio` goal deploys the current component module into a local Talend Studio instance.
 
@@ -417,15 +433,15 @@ The `deploy-in-studio` goal deploys the current component module into a local Ta
 
 [options="header,autowidth"]
 |===
-|Name|Description|Default
-|studioHome|Path to the Studio home directory|-
+|Name |Description |User property |Default
+|studioHome|Path to the Studio home directory|`talend.component.studioHome`|-
 |===
 
 You can use the following command from the root folder of your project:
 
 [source,bash]
 ----
-$ mvn package talend-component:deploy-in-studio -Dtalend.component.studioHome="<studio_path>"
+$ mvn talend-component:deploy-in-studio -Dtalend.component.studioHome="<studio_path>"
 ----
 
 
@@ -438,11 +454,11 @@ Call `mvn talend-component:help -Ddetail=true -Dgoal=<goal-name>` to display the
 
 [options="header,autowidth"]
 |===
-|Name|Description|Default
-|detail|Displays all settable properties for each goal.|false
-|goal|The name of the goal for which to show help. If unspecified, all goals are displayed.|-
-|indentSize|Number of spaces per indentation level. This integer should be positive.|2
-|lineLength|Maximum length of a display line. This integer should be positive.|80
+|Name |Description |User property |Default
+|detail|Displays all settable properties for each goal.|`detail`|false
+|goal|The name of the goal for which to show help. If unspecified, all goals are displayed.|`goal`|-
+|indentSize|Number of spaces per indentation level. This integer should be positive.|`indentSize`|2
+|lineLength|Maximum length of a display line. This integer should be positive.|`lineLength`|80
 |===
 
 ifeval::["{backend}" == "html5"]
