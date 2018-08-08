@@ -1,5 +1,12 @@
 
 
+== Version 1.0.5
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
+
+
 == Version 1.0.4
 
 === Bug

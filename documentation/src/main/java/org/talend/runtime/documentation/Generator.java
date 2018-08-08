@@ -15,6 +15,7 @@
  */
 package org.talend.runtime.documentation;
 
+import static java.lang.Math.min;
 import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 import static java.util.Locale.ENGLISH;
@@ -51,7 +52,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -440,42 +441,50 @@ public class Generator {
                 return;
             }
 
-            final String jql = "project=" + project + " AND labels=\"changelog\""
-                    + loggedVersions.stream().map(v -> "fixVersion=" + v.getName()).collect(
-                            joining(" OR ", " AND (", ")"));
-            final Function<Long, JiraIssues> searchFrom = startAt -> restApi
+            final int maxVersionPerQuery = 10;
+            final BiFunction<String, Long, JiraIssues> searchFrom = (jql, startAt) -> restApi
                     .path("search")
                     .queryParam("jql", jql)
                     .queryParam("startAt", startAt)
                     .request(APPLICATION_JSON_TYPE)
                     .header("Authorization", auth)
                     .get(JiraIssues.class);
-            final Function<JiraIssues, Stream<JiraIssues>> paginate = new Function<JiraIssues, Stream<JiraIssues>>() {
+            final BiFunction<String, JiraIssues, Stream<JiraIssues>> paginate =
+                    new BiFunction<String, JiraIssues, Stream<JiraIssues>>() {
 
-                @Override
-                public Stream<JiraIssues> apply(final JiraIssues issues) {
-                    final long nextStartAt = issues.getStartAt() + issues.getMaxResults();
-                    final Stream<JiraIssues> fetched = Stream.of(issues);
-                    return issues.getTotal() > nextStartAt
-                            ? Stream.concat(fetched, apply(searchFrom.apply(nextStartAt)))
-                            : fetched;
-                }
-            };
+                        @Override
+                        public Stream<JiraIssues> apply(final String jql, final JiraIssues issues) {
+                            final long nextStartAt = issues.getStartAt() + issues.getMaxResults();
+                            final Stream<JiraIssues> fetched = Stream.of(issues);
+                            return issues.getTotal() > nextStartAt
+                                    ? Stream.concat(fetched, apply(jql, searchFrom.apply(jql, nextStartAt)))
+                                    : fetched;
+                        }
+                    };
             final Set<String> includeStatus =
                     Stream.of("closed", "resolved", "development done", "qa done", "done").collect(toSet());
-            final Map<String, TreeMap<String, List<JiraIssue>>> issues = Stream
-                    .of(searchFrom.apply(0L))
-                    .flatMap(paginate)
-                    .flatMap(i -> ofNullable(i.getIssues()).map(Collection::stream).orElseGet(Stream::empty))
-                    .filter(issue -> includeStatus
-                            .contains(issue.getFields().getStatus().getName().toLowerCase(ENGLISH)))
-                    .flatMap(i -> i.getFields().getFixVersions().stream().map(v -> Pair.of(v, i)))
+
+            final Map<String, TreeMap<String, List<JiraIssue>>> issues = IntStream
+                    .range(0, (loggedVersions.size() + maxVersionPerQuery - 1) / maxVersionPerQuery)
+                    .mapToObj(pageIdx -> loggedVersions.subList(pageIdx * maxVersionPerQuery,
+                            min(maxVersionPerQuery * (pageIdx + 1), loggedVersions.size())))
+                    .map(pageVersions -> "project=" + project + " AND labels=\"changelog\""
+                            + pageVersions.stream().map(v -> "fixVersion=" + v.getName()).collect(
+                                    joining(" OR ", " AND (", ")")))
+                    .flatMap(jql -> Stream
+                            .of(searchFrom.apply(jql, 0L))
+                            .flatMap(it -> paginate.apply(jql, it))
+                            .flatMap(i -> ofNullable(i.getIssues()).map(Collection::stream).orElseGet(Stream::empty))
+                            .filter(issue -> includeStatus
+                                    .contains(issue.getFields().getStatus().getName().toLowerCase(ENGLISH)))
+                            .flatMap(i -> i.getFields().getFixVersions().stream().map(v -> Pair.of(v, i))))
                     .collect(groupingBy(pair -> pair.getKey().getName(), () -> new TreeMap<>(versionComparator()),
                             groupingBy(pair -> pair.getValue().getFields().getIssuetype().getName(), TreeMap::new,
                                     collectingAndThen(mapping(Pair::getValue, toList()), l -> {
                                         l.sort(comparing(JiraIssue::getKey));
                                         return l;
                                     }))));
+
             final String changelog = issues
                     .entrySet()
                     .stream()
