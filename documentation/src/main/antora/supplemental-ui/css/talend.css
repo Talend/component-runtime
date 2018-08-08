@@ -173,7 +173,7 @@ input.rounded {
   max-height: 400px;
 }
 .gallery tr>td:nth-child(2) {
-	min-width: 500px;
+  min-width: 500px;
 }
 
 .global-search {
@@ -499,18 +499,19 @@ pre {
 }
 
 .top {
-	display: none;
-	font-weight: bold;
-	font-family: tahoma;
-	font-size: 10px;
-	width: 70px;
+  padding-bottom: 32px;
+  display: none;
+  font-weight: bold;
+  font-family: tahoma;
+  font-size: 10px;
+  width: 70px;
   height: 1rem;
-	color: #563d7c;
-	font-size: 11px;
-	text-decoration: none;
-	position: fixed;
-	right: 15px;
-	bottom: 10px;
+  color: #563d7c;
+  font-size: 11px;
+  text-decoration: none;
+  position: fixed;
+  right: 15px;
+  bottom: 10px;
 }
 
 .article-side-actions h1 {
@@ -520,7 +521,7 @@ pre {
   position: relative;
 }
 .article-anchors {
-	position: fixed;
+  position: fixed;
   width: 33.333%;
   margin-left: 20px;
 }
