@@ -924,10 +924,6 @@
       <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1067/</url>
     </repository>
     <repository>
-      <id>beam-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachebeam-1045/</url>
-    </repository>
-    <repository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
@@ -977,10 +973,6 @@
     <pluginRepository>
       <id>openapi-staging</id>
       <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1067/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>beam-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachebeam-1045/</url>
     </pluginRepository>
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>

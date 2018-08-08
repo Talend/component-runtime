@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-def out = new File(project.build.directory, project.build.finalName + '/apidocs')
+def out = new File(project.build.directory, "${project.build.finalName}/apidocs/${project.version.replace('-SNAPSHOT', '')}")
 if (!out.exists()) {
     log.warn("No ${out.absolutePath} directory")
     return
