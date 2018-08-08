@@ -46,7 +46,7 @@
     <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
     <jsoup.version>1.11.2</jsoup.version>
     <crawler-commons.version>0.10</crawler-commons.version>
-    <jsch.version>0.1.54</jsch.version>
+    <commons-net.version>3.6</commons-net.version>
   </properties>
 
   <dependencies>
@@ -134,9 +134,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.jcraft</groupId>
-      <artifactId>jsch</artifactId>
-      <version>${jsch.version}</version>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <version>${commons-net.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -319,22 +319,22 @@
               <includePluginDependencies>true</includePluginDependencies>
               <arguments>
                 <argument>${project.build.directory}/exec/api-mock</argument>
-                <argument>${talend.freeshells.username}</argument>
-                <argument>${talend.freeshells.password}</argument>
+                <argument>${talend.webhost.username}</argument>
+                <argument>${talend.webhost.password}</argument>
               </arguments>
             </configuration>
           </execution>
         </executions>
         <dependencies>
           <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>${commons-net.version}</version>
+          </dependency>
+          <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jcache_1.0_spec</artifactId>
             <version>${jcache-api.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>com.jcraft</groupId>
-            <artifactId>jsch</artifactId>
-            <version>${jsch.version}</version>
           </dependency>
           <dependency>
             <groupId>org.eclipse.microprofile.openapi</groupId>
