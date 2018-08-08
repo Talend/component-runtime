@@ -19,7 +19,7 @@
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.4-SNAPSHOT</version>
+  <version>1.0.5-SNAPSHOT</version>
   <name>Component Runtime</name>
   <description>Talend Component Kit Runtime</description>
   <url>https://talend.github.io/component-runtime/</url>
@@ -924,10 +924,6 @@
       <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1067/</url>
     </repository>
     <repository>
-      <id>beam-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachebeam-1045/</url>
-    </repository>
-    <repository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
@@ -977,10 +973,6 @@
     <pluginRepository>
       <id>openapi-staging</id>
       <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1067/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>beam-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachebeam-1045/</url>
     </pluginRepository>
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>

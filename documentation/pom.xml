@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -26,7 +26,7 @@
   <description>Actually framework documentation, generated as a website and pushed to Github pages.</description>
 
   <properties>
-    <antora.version>1.0.1</antora.version>
+    <antora.version>1.0.3</antora.version>
 
     <antora.dev.site.mode>dev</antora.dev.site.mode> <!-- -Dantora.site.mode=dev-poc to test new theme -->
     <project_version>${project.version}</project_version>
@@ -608,7 +608,7 @@
         <executions>
           <execution>
             <id>unpack-api-javadoc</id>
-            <phase>generate-resources</phase>
+            <phase>process-resources</phase>
             <goals>
               <goal>unpack</goal>
             </goals>
@@ -621,14 +621,14 @@
                   <type>jar</type>
                   <classifier>javadoc</classifier>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/api</outputDirectory>
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/api</outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>
           </execution>
           <execution>
             <id>unpack-junit-javadoc</id>
-            <phase>generate-resources</phase>
+            <phase>process-resources</phase>
             <goals>
               <goal>unpack</goal>
             </goals>
@@ -641,7 +641,7 @@
                   <type>jar</type>
                   <classifier>javadoc</classifier>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/junit
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/junit
                   </outputDirectory>
                 </artifactItem>
                 <artifactItem>
@@ -651,7 +651,7 @@
                   <type>jar</type>
                   <classifier>javadoc</classifier>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/junit-http
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/junit-http
                   </outputDirectory>
                 </artifactItem>
               </artifactItems>
@@ -711,8 +711,8 @@
                 <idseparator>-</idseparator>
                 <partialsdir>${project.basedir}/src/main/antora/modules/ROOT/pages/_partials</partialsdir>
                 <imagesdir>${project.basedir}/src/main/antora/modules/ROOT/assets/images</imagesdir>
-                <project_version>${versions.release}</project_version>
-                <page-component-version>${versions.release}</page-component-version>
+                <project_version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</project_version>
+                <page-component-version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</page-component-version>
                 <deploymentRoot>https://talend.github.io/component-runtime</deploymentRoot>
                 <git_branch>${git.branch}</git_branch>
               </attributes>
@@ -755,6 +755,13 @@
         <artifactId>build-helper-maven-plugin</artifactId>
         <version>${build-helper-maven-plugin.version}</version>
         <executions>
+          <execution>
+            <id>parse-version</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>parse-version</goal>
+            </goals>
+          </execution>
           <execution>
             <id>attach-artifacts</id>
             <phase>package</phase>
@@ -811,16 +818,16 @@
                 <goals>
                   <goal>execute</goal>
                 </goals>
+                <configuration>
+                  <allowSystemExits>true</allowSystemExits>
+                  <scripts>
+                    <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
+                    <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
+                    <script>${project.basedir}/src/build/GithubPages.groovy</script>
+                  </scripts>
+                </configuration>
               </execution>
             </executions>
-            <configuration>
-              <allowSystemExits>true</allowSystemExits>
-              <scripts>
-                <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
-                <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
-                <script>${project.basedir}/src/build/GithubPages.groovy</script>
-              </scripts>
-            </configuration>
             <dependencies>
               <dependency>
                 <groupId>org.codehaus.groovy</groupId>
