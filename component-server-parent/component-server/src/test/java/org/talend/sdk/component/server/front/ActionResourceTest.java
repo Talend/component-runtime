@@ -24,10 +24,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
@@ -47,13 +49,14 @@ class ActionResourceTest {
     @Test
     void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-        assertEquals(3, index.getItems().size());
+        assertEquals(4, index.getItems().size());
 
         final List<ActionItem> items = new ArrayList<>(index.getItems());
         items.sort(Comparator.comparing(ActionItem::getName));
 
         final Iterator<ActionItem> it = items.iterator();
         assertAction("proc", "user", "another-test-component-14.11.1986.jarAction", 1, it.next());
+        it.next(); // skip jdbc custom
         assertAction("chain", "healthcheck", "default", 6, it.next());
     }
 
@@ -81,6 +84,25 @@ class ActionResourceTest {
         assertEquals(ErrorDictionary.ACTION_ERROR, error.readEntity(ErrorPayload.class).getCode());
         assertEquals("Action execution failed with: simulating an unexpected error",
                 error.readEntity(ErrorPayload.class).getDescription());
+    }
+
+    @Test
+    void executeWithEnumParam() {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "custom")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>() {
+
+                    {
+                        put("enum", "V1");
+                    }
+                }, APPLICATION_JSON_TYPE));
+        assertEquals(200, error.getStatus());
+        assertEquals("V1", error.readEntity(new GenericType<Map<String, String>>() {
+        }).get("value"));
     }
 
     @Test
