@@ -433,7 +433,7 @@ The `deploy-in-studio` goal deploys the current component module into a local Ta
 
 [options="header,autowidth"]
 |===
-|Name|Description|Default
+|Name |Description |User property |Default
 |studioHome|Path to the Studio home directory|`talend.component.studioHome`|-
 |===
 
@@ -454,7 +454,7 @@ Call `mvn talend-component:help -Ddetail=true -Dgoal=<goal-name>` to display the
 
 [options="header,autowidth"]
 |===
-|Name|Description|Default
+|Name |Description |User property |Default
 |detail|Displays all settable properties for each goal.|`detail`|false
 |goal|The name of the goal for which to show help. If unspecified, all goals are displayed.|`goal`|-
 |indentSize|Number of spaces per indentation level. This integer should be positive.|`indentSize`|2
