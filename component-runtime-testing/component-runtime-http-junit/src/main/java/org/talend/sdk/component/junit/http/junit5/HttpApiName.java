@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.test.component;
+package org.talend.sdk.component.junit.http.junit5;
 
-import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.constraint.Required;
-import org.talend.sdk.component.api.configuration.type.DataStore;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@DataStore("Connection-2")
-public class Connection2 {
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-    @Option
-    @Required
-    private String url;
+@Target(METHOD)
+@Retention(RUNTIME)
+public @interface HttpApiName {
 
-    @Option
-    private String username;
-
+    /**
+     * The name of the capturing file. It supports the placeholder <code>${method}</code>
+     * which would be replaced by the method name.
+     *
+     * @return the name of the capture output (json).
+     */
+    String value();
 }

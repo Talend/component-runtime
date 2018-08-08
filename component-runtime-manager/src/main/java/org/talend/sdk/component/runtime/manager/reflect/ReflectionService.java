@@ -268,6 +268,14 @@ public class ReflectionService {
         if (clazz.isPrimitive() || Primitives.unwrap(clazz) != clazz || String.class == clazz) {
             return (name, config) -> doConvert(clazz, config.get(name));
         }
+        if (clazz.isEnum()) {
+            return (name, config) -> ofNullable(config.get(name))
+                    .map(String.class::cast)
+                    .map(String::trim)
+                    .filter(it -> !it.isEmpty())
+                    .map(v -> Enum.valueOf(clazz, v))
+                    .orElse(null);
+        }
 
         final String[] args = findArgsName(clazz);
         return (name, config) -> contextualSupplier

@@ -154,3 +154,36 @@ When the tests run with this system property, the testing framework creates the 
 === Passthrough mode
 
 If you set the `talend.junit.http.passthrough` system property to `true`, the server acts as a proxy and executes each request to the actual server - similarly to the capturing mode.
+
+=== JUnit 5 and capture names
+
+With its `@ParameterizedTest`, you can want to customize the name of the output file for JUnit 5 based captures/mocks.
+Concretely you want to ensure the replay of the same method with different data lead to different mock files.
+By default the framework will use the display name of the test to specialize it but it is not always very friendly.
+If you want some more advanced control over the name you can use `@HttpApiName("myCapture.json")` on the test method.
+To parameterize the name using `@HttpApiName`, you can use the placeholders `${class}` and `${method}` which represents
+the declaring class and method name, and `${displayName}` which represents the method name.
+
+Here is an example to use the same capture file for all repeated test:
+
+[source,java]
+----
+@HttpApiName("${class}_${method}")
+@RepeatedTest(5)
+void run() throws Exception {
+    // ...
+}
+----
+
+And here, the same example but using different files for each repetition:
+
+[source,java]
+----
+@HttpApiName("${class}_${method}_${displayName}")
+@RepeatedTest(5)
+void run() throws Exception {
+    // ...
+}
+----
+
+

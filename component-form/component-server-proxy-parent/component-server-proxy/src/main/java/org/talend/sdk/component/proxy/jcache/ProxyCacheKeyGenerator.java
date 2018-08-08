@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.proxy.jcache;
 
+import static java.util.Optional.ofNullable;
+
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,10 +30,13 @@ import javax.cache.annotation.GeneratedCacheKey;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.proxy.config.ProxyConfiguration;
 
 @ApplicationScoped
 public class ProxyCacheKeyGenerator implements CacheKeyGenerator {
+
+    private static final Object[] EMPTY_ARRAY = new Object[0];
 
     @Inject
     private ProxyConfiguration configuration;
@@ -46,18 +51,29 @@ public class ProxyCacheKeyGenerator implements CacheKeyGenerator {
 
         // placeholder provider, replace it by actual values to keep the cache consistent (lang etc)
         if (it.getRawType() == Function.class) {
-            if (configuration.getCacheHeaderName().isPresent()) {
-                return Function.class.cast(it.getValue()).apply(configuration.getCacheHeaderName().get());
-            }
-            final Collection<String> headers = configuration.getDynamicHeaders();
-            if (headers.isEmpty()) {
-                return null;
-            }
-            final Function<String, String> fn = Function.class.cast(value);
-            return headers.stream().map(fn).toArray();
+            return fnToKey(Function.class.cast(it.getValue()));
+        }
+
+        if (RequestContext.class.isInstance(value)) {
+            final RequestContext ctx = RequestContext.class.cast(value);
+            return Stream
+                    .concat(Stream.of(ofNullable(fnToKey(ctx::findPlaceholder)).orElse(EMPTY_ARRAY)),
+                            Stream.of(ctx.language()))
+                    .toArray();
         }
 
         return value;
+    }
+
+    private Object fnToKey(final Function<String, String> fn) {
+        if (configuration.getCacheHeaderName().isPresent()) {
+            return fn.apply(configuration.getCacheHeaderName().get());
+        }
+        final Collection<String> headers = configuration.getDynamicHeaders();
+        if (headers.isEmpty()) {
+            return null;
+        }
+        return headers.stream().map(fn).toArray();
     }
 
     protected class GeneratedCacheKeyImpl implements GeneratedCacheKey {

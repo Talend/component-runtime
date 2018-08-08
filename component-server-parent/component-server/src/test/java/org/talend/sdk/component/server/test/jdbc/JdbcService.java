@@ -15,10 +15,15 @@
  */
 package org.talend.sdk.component.server.test.jdbc;
 
+import static java.util.Collections.singletonMap;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Map;
 
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
 
 @Service
@@ -35,5 +40,15 @@ public class JdbcService {
         } catch (SQLException e) {
             throw new IllegalStateException("Didn't manage to connect driver using " + dataStore, e);
         }
+    }
+
+    @Action("custom")
+    public Map<String, String> test(@Option("enum") final MyEnum myEnum) {
+        return singletonMap("value", myEnum.name());
+    }
+
+    public enum MyEnum {
+        V1,
+        V2
     }
 }

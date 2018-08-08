@@ -36,5 +36,5 @@ def decryptAndSet(name) {
 }
 decryptAndSet('jira')
 decryptAndSet('github')
-decryptAndSet('freeshells')
+decryptAndSet('webhost')
 

@@ -52,13 +52,11 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPClientConfig;
+import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.meecrowave.Meecrowave;
-
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.SftpException;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,12 +66,12 @@ import lombok.extern.slf4j.Slf4j;
 public class ApiMockUpdate {
 
     public static void main(final String[] args) throws Exception {
-        if (Boolean.parseBoolean(System.getenv("FREESHELLS_SKIP"))) {
-            log.warn("Freeshells api mock update skipped");
+        if (Boolean.parseBoolean(System.getenv("APIMOCK_SKIP"))) {
+            log.warn("Api mock update skipped");
             return;
         }
         if (args.length < 3 || args[1] == null) {
-            log.warn("No freeshells credentials, skipping mock update");
+            log.warn("No credentials, skipping mock update");
             return;
         }
         final File output = new File(args[0]);
@@ -81,26 +79,34 @@ public class ApiMockUpdate {
         System.setProperty("talend.component.manager.m2.repository", createM2WithComponents(output).getAbsolutePath());
         System.setProperty("talend.component.server.component.coordinates", "org.talend.demo:components:1.0.0");
 
-        final JSch jsch = new JSch();
-        final Session session = jsch.getSession(args[1], "war.freeshells.org", 22);
-        session.setPassword(args[2]);
-        session.setConfig("StrictHostKeyChecking", "no");
-        session.setConfig("PreferredAuthentications", "password");
-        session.connect();
+        final FTPClient ftp = new FTPClient();
+        final FTPClientConfig config = new FTPClientConfig();
+        ftp.configure(config);
         try {
-            final ChannelSftp sftpChannel = ChannelSftp.class.cast(session.openChannel("sftp"));
-            sftpChannel.connect();
-            try {
-                updateMocks(sftpChannel);
-            } finally {
-                sftpChannel.disconnect();
+            ftp.connect("files.000webhost.com");
+            final int reply = ftp.getReplyCode();
+            if (!FTPReply.isPositiveCompletion(reply)) {
+                ftp.disconnect();
+                return;
             }
+            if (!ftp.login(args[1], args[2])) {
+                ftp.disconnect();
+                throw new IllegalArgumentException("Invalid credentials (" + args[1] + ")");
+            }
+            updateMocks(ftp);
+            ftp.logout();
         } finally {
-            session.disconnect();
+            if (ftp.isConnected()) {
+                try {
+                    ftp.disconnect();
+                } catch (IOException ioe) {
+                    // do nothing
+                }
+            }
         }
     }
 
-    private static void updateMocks(final ChannelSftp sftpChannel) throws ExecutionException, InterruptedException {
+    private static void updateMocks(final FTPClient ftp) throws ExecutionException, InterruptedException {
         try (final Meecrowave server = new Meecrowave(new Meecrowave.Builder() {
 
             {
@@ -111,7 +117,7 @@ public class ApiMockUpdate {
                 setScanningPackageExcludes("org.talend.sdk.component.proxy");
             }
         }).bake()) {
-            captureMocks(format("http://localhost:%d", server.getConfiguration().getHttpPort()), sftpChannel);
+            captureMocks(format("http://localhost:%d", server.getConfiguration().getHttpPort()), ftp);
         }
     }
 
@@ -137,7 +143,7 @@ public class ApiMockUpdate {
         return target;
     }
 
-    private static void captureMocks(final String target, final ChannelSftp sftpChannel)
+    private static void captureMocks(final String target, final FTPClient ftp)
             throws ExecutionException, InterruptedException {
         final String familyId = "Y29tcG9uZW50cyNNb2Nr";
         final String componentId = "Y29tcG9uZW50cyNNb2NrI01vY2tJbnB1dA";
@@ -197,26 +203,19 @@ public class ApiMockUpdate {
         executor.shutdown();
         files.forEach((sshPath, data) -> { // keep a single SSH connection (in the original thread)
             final String[] pathSegments = sshPath.substring(1).split("/");
-            for (int i = 7; i < pathSegments.length; i++) {
+            for (int i = 1; i < pathSegments.length; i++) {
                 final String parentPath = Stream.of(pathSegments).limit(i).collect(joining("/", "/", "/"));
                 try {
-                    if (!sftpChannel.lstat(parentPath).isDir()) {
-                        sftpChannel.mkdir(parentPath);
-                        log.info("Created {}", parentPath);
-                    }
-                } catch (final SftpException e) {
-                    try {
-                        sftpChannel.mkdir(parentPath);
-                        log.info("Created {}", parentPath);
-                    } catch (final SftpException e1) {
-                        log.warn("Can't create {}", parentPath);
-                        break;
-                    }
+                    ftp.mkd(parentPath);
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
                 }
             }
             try {
-                sftpChannel.put(new ByteArrayInputStream(data), sshPath, ChannelSftp.OVERWRITE);
-            } catch (final SftpException e) {
+                if (!ftp.storeFile(sshPath, new ByteArrayInputStream(data))) {
+                    throw new IllegalStateException("Can't upload " + sshPath);
+                }
+            } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
             log.info("Uploaded {}", sshPath);
@@ -236,8 +235,7 @@ public class ApiMockUpdate {
             final String path, final String base, final Map<String, String> templates,
             final Function<WebTarget, byte[]> target) {
         return CompletableFuture.runAsync(() -> {
-            final String sshPath = "/var/www/clients/client3228/web3344/web"
-                    + new StringSubstitutor(templates, "{", "}").replace(path);
+            final String sshPath = "/public_html" + new StringSubstitutor(templates, "{", "}").replace(path);
             final Client client = ClientBuilder.newClient();
             try {
                 WebTarget webTarget = client.target(base).path(path);
