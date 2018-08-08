@@ -96,7 +96,7 @@ In this tutorial, the project was configured and three components of different t
 image::starter/starter_project-download.png[Output configuration]
 . Generate the project using one of the two options available:
 ** Download it locally as a ZIP file using the *DOWNLOAD AS ZIP* button.
-** Create a Github repository and push the project to it using the *CREATE ON GITHUB* button.
+** Create a GitHub repository and push the project to it using the *CREATE ON GITHUB* button.
 
 In this tutorial, the project is downloaded to the local machine as a ZIP file.
 
