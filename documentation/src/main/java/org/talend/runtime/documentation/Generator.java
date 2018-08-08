@@ -174,7 +174,10 @@ public class Generator {
             final JsonObject newApi = builderFactory
                     .createObjectBuilder(jsonb.fromJson(newJson, JsonObject.class))
                     .add("servers",
-                            builderFactory.createObjectBuilder().add("url", "https://tacokitexample.000webhostapp.com"))
+                            builderFactory
+                                    .createArrayBuilder()
+                                    .add(builderFactory.createObjectBuilder().add("url",
+                                            "https://tacokitexample.000webhostapp.com")))
                     .build();
             if (!oldJson.startsWith("{") || !areEqualsIgnoringOrder(oldApi, newApi)) {
                 try (final OutputStream writer = new WriteIfDifferentStream(output)) {

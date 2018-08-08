@@ -2,6 +2,11 @@
 
 == Version 1.0.5
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-970[TCOMP-970^]: Add support for complex parameter types for AsyncValidation methods
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
