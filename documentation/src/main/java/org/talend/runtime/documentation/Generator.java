@@ -191,7 +191,7 @@ public class Generator {
     }
 
     private static boolean areEqualsIgnoringOrder(final JsonValue oldValue, final JsonValue newValue) {
-        if (oldValue.getValueType().equals(newValue.getValueType())) {
+        if (!oldValue.getValueType().equals(newValue.getValueType())) {
             return false;
         }
         switch (oldValue.getValueType()) {

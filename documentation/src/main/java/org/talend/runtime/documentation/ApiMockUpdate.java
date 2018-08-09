@@ -57,7 +57,6 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.text.StringSubstitutor;
-import org.apache.coyote.AbstractProtocol;
 import org.apache.meecrowave.Meecrowave;
 
 import lombok.NoArgsConstructor;
@@ -136,12 +135,7 @@ public class ApiMockUpdate {
                 setScanningPackageExcludes("org.talend.sdk.component.proxy");
             }
         }).bake()) {
-            captureMocks(format("http://%s:%d",
-                    AbstractProtocol.class
-                            .cast(server.getTomcat().getConnector().getProtocolHandler())
-                            .getAddress()
-                            .getHostName(),
-                    server.getConfiguration().getHttpPort()), ftp);
+            captureMocks(format("http://localhost:%d", server.getConfiguration().getHttpPort()), ftp);
         }
     }
 

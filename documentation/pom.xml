@@ -317,6 +317,12 @@
             <configuration>
               <mainClass>org.talend.runtime.documentation.ApiMockUpdate</mainClass>
               <includePluginDependencies>true</includePluginDependencies>
+              <systemProperties>
+                <systemProperty>
+                  <key>java.net.preferIPv4Stack</key>
+                  <value>true</value>
+                </systemProperty>
+              </systemProperties>
               <arguments>
                 <argument>${project.build.directory}/exec/api-mock</argument>
                 <argument>${talend.webhost.username}</argument>
