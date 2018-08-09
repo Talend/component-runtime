@@ -88,13 +88,13 @@ public class ApiMockUpdate {
         System.setProperty("talend.component.server.component.coordinates", "org.talend.demo:components:1.0.0");
 
         final FTPClient ftp = new FTPClient();
-        ftp.setSoTimeout(60000);
-        ftp.setDataTimeout(60000);
         ftp.setConnectTimeout(60000);
-        ftp.setControlKeepAliveTimeout(60000);
-        ftp.setControlKeepAliveReplyTimeout(60000);
         try {
             ftp.connect("files.000webhost.com");
+            ftp.setSoTimeout(60000);
+            ftp.setDataTimeout(60000);
+            ftp.setControlKeepAliveTimeout(60000);
+            ftp.setControlKeepAliveReplyTimeout(60000);
             final int reply = ftp.getReplyCode();
             if (!FTPReply.isPositiveCompletion(reply)) {
                 ftp.disconnect();
