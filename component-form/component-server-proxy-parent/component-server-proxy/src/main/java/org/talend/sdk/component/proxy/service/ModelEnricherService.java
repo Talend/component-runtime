@@ -18,6 +18,7 @@ package org.talend.sdk.component.proxy.service;
 import static java.util.Collections.emptyEnumeration;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
+import static java.util.Collections.singletonMap;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
@@ -76,9 +77,33 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class ModelEnricherService {
 
-    private static final ActionReference BUILTIN_RELOAD_FROM_ID_ACTION = new ActionReference("builtin::family",
-            "builtin::root::reloadFromId", "reloadForm", singleton(new SimplePropertyDefinition("id", "id",
-                    "Configuration Identifier", "STRING", null, null, emptyMap(), null, emptyMap())));
+    private static final Collection<ActionReference> BUILTIN_ACTIONS =
+            Stream
+                    .of(new ActionReference("builtin::family", "builtin::root::reloadFromId", "reloadForm",
+                            new ArrayList<>(singleton(new SimplePropertyDefinition("id", "id",
+                                    "Configuration Identifier", "STRING", null, null,
+                                    singletonMap("definition::parameter::index", "0"), null, emptyMap())))),
+                            new ActionReference("builtin::family", "builtin::root::reloadFromParentEntityId",
+                                    "reloadFromParentEntityId",
+                                    new ArrayList<>(singleton(new SimplePropertyDefinition("id", "id",
+                                            "Configuration Identifier", "STRING", null, null,
+                                            singletonMap("definition::parameter::index", "0"), null, emptyMap())))),
+                            new ActionReference("builtin::family", "builtin::roots", "dynamic_values",
+                                    new ArrayList<>()),
+                            // these ones are configured from the definition (xxxx=yyy) and not the form params
+                            new ActionReference("builtin::family", "builtin::http::dynamic_values", "dynamic_values",
+                                    new ArrayList<>()),
+                            new ActionReference("builtin::family", "builtin::references", "suggestions",
+                                    new ArrayList<>()))
+                    .map(act -> new ActionReference(act.getFamily(), act.getName(), act.getType(), Stream
+                            .concat(act.getProperties().stream(), Stream.of(new SimplePropertyDefinition("$formId",
+                                    "$formId", "$formId", "STRING", null,
+                                    new PropertyValidation(false, null, null, null, null, null, null, null, null, null),
+                                    singletonMap("definition::parameter::index",
+                                            Integer.toString(act.getProperties().size())),
+                                    null, null)))
+                            .collect(toList())))
+                    .collect(toList());
 
     private final Patches skip = new Patches(null) {
 
@@ -307,7 +332,7 @@ public class ModelEnricherService {
         }
 
         private void appendBuiltInActions(final Collection<ActionReference> actions) {
-            actions.add(BUILTIN_RELOAD_FROM_ID_ACTION);
+            actions.addAll(BUILTIN_ACTIONS);
         }
     }
 

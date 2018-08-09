@@ -36,7 +36,7 @@
     "link":"index-defining-services.html"
   },
   {
-    "description":"Learn how to test your component logic in the environment you need.",
+    "description":"Learn how to test your component logic in the environment you need",
     "icon":"check-circle",
     "index":7000,
     "label":"Testing components",
@@ -57,7 +57,7 @@
     "link":"index-reference-guide.html"
   },
   {
-    "description":"Follow these guided examples to get used to the framework.",
+    "description":"Follow these guided examples to get used to the framework",
     "icon":"book-open",
     "index":8500,
     "label":"Tutorials",
@@ -76,6 +76,13 @@
     "index":10000,
     "label":"Changelog",
     "link":"changelog.html"
+  },
+  {
+    "description":"Access the detailed API reference documentation",
+    "icon":"file-alt",
+    "index":15000,
+    "label":"Javadocs",
+    "link":"apidocs.html"
   }
 ]</jsonArray>
 ++++

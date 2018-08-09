@@ -63,7 +63,7 @@ jobs:
       env:
       - STEP=Update Documentation
       script:
-      - rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache
+      - echo "Skipping >rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache<"
       - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
       - cd documentation && mvn clean verify pre-site -e -q -Pgh-pages -Dgpg.skip=true $DEPLOY_OPTS && cd -
 
@@ -72,6 +72,11 @@ jobs:
       - STEP=Docker Deployment
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
       script: chmod +x ./.travis/docker.sh && ./.travis/docker.sh
+
+    - stage: master_build
+      env:
+      - STEP=Sonatype Audit
+      script: mvn ossindex:audit
 
 stages:
   - name: master_build

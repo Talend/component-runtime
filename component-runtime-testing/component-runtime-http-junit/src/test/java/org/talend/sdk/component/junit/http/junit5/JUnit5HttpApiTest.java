@@ -37,6 +37,22 @@ class JUnit5HttpApiTest {
     private HttpApiHandler<?> handler;
 
     @Test
+    void withoutQueryParams() throws Exception {
+        {
+            final Response response =
+                    execute("POST", "http://foo.bar.not.existing.talend.com/component/test?api=false", "ignored");
+            assertEquals(HttpURLConnection.HTTP_OK, response.status());
+            assertEquals("first", new String(response.payload(), StandardCharsets.UTF_8));
+        }
+        {
+            final Response response =
+                    execute("POST", "http://foo.bar.not.existing.talend.com/component/test?api=true", "ignored");
+            assertEquals(HttpURLConnection.HTTP_OK, response.status());
+            assertEquals("second", new String(response.payload(), StandardCharsets.UTF_8));
+        }
+    }
+
+    @Test
     void withPayload() throws Exception {
         {
             final Response response =

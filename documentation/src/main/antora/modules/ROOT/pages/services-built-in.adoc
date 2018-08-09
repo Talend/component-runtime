@@ -3,7 +3,7 @@
 
 The framework provides built-in services that you can inject by type in components and actions.
 
-Here is the list:
+== Lisf of built-in services
 
 [role="table-striped table-hover table-ordered",options="header,autowidth"]
 |===

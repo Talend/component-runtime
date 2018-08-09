@@ -15,6 +15,7 @@
  */
 package org.talend.runtime.documentation;
 
+import static java.lang.Math.min;
 import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 import static java.util.Locale.ENGLISH;
@@ -32,11 +33,9 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -53,11 +52,18 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
@@ -72,10 +78,8 @@ import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.JarArchive;
+import org.apache.ziplock.IO;
 import org.asciidoctor.Asciidoctor;
-import org.asciidoctor.AttributesBuilder;
-import org.asciidoctor.OptionsBuilder;
-import org.asciidoctor.SafeMode;
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
@@ -127,13 +131,13 @@ public class Generator {
         final Asciidoctor asciidoctor = Asciidoctor.Factory.create();
         final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
-        // generateNav(asciidoctor);
         generatedTypes(generatedDir);
         generatedConstraints(generatedDir);
         generatedConditions(generatedDir);
         generatedActions(generatedDir);
         generatedUi(generatedDir);
         generatedServerConfiguration(generatedDir);
+        updateComponentServerApi(generatedDir);
         generatedProxyServerConfiguration(generatedDir);
         generatedJUnitEnvironment(generatedDir);
         generatedScanningExclusions(generatedDir);
@@ -146,6 +150,85 @@ public class Generator {
         }
         generatedContributors(generatedDir, args[5], args[6]);
         generatedJira(generatedDir, args[1], args[2], args[3]);
+    }
+
+    private static void updateComponentServerApi(final File generatedDir) throws Exception {
+        final File output = new File(generatedDir, "generated_rest-resources.adoc");
+        try (final InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                "META-INF/resources/documentation/openapi.json");
+                final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig())) {
+            final String newJson = IO.slurp(source);
+            String oldJson = !output.exists() ? "{}" : String.join("\n", Files.readAllLines(output.toPath()));
+            final int start = oldJson.indexOf(".swaggerUi = ");
+            if (start > 0) {
+                oldJson = oldJson.substring(start + ".swaggerUi = ".length());
+            }
+
+            final int end = oldJson.indexOf(";</script>");
+            if (end > 0) {
+                oldJson = oldJson.substring(0, end);
+            }
+            final JsonBuilderFactory builderFactory = Json.createBuilderFactory(emptyMap());
+            final JsonObject oldApi = !oldJson.startsWith("{") ? builderFactory.createObjectBuilder().build()
+                    : jsonb.fromJson(oldJson, JsonObject.class);
+            final JsonObject newApi = builderFactory
+                    .createObjectBuilder(jsonb.fromJson(newJson, JsonObject.class))
+                    .add("servers",
+                            builderFactory
+                                    .createArrayBuilder()
+                                    .add(builderFactory.createObjectBuilder().add("url",
+                                            "https://tacokitexample.000webhostapp.com")))
+                    .build();
+            if (!oldJson.startsWith("{") || !areEqualsIgnoringOrder(oldApi, newApi)) {
+                try (final OutputStream writer = new WriteIfDifferentStream(output)) {
+                    writer.write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
+                            + "(window.talend = (window.talend || {})).swaggerUi = " + newApi.toString()
+                            + ";</script>\n" + "<div id=\"swagger-ui\"></div>\n++++\n")
+                                    .getBytes(StandardCharsets.UTF_8));
+                }
+            }
+        }
+    }
+
+    private static boolean areEqualsIgnoringOrder(final JsonValue oldValue, final JsonValue newValue) {
+        if (!oldValue.getValueType().equals(newValue.getValueType())) {
+            return false;
+        }
+        switch (oldValue.getValueType()) {
+        case STRING:
+            return JsonString.class.cast(oldValue).getString().equals(JsonString.class.cast(newValue).getString());
+        case NUMBER:
+            return JsonNumber.class.cast(oldValue).doubleValue() == JsonNumber.class.cast(newValue).doubleValue();
+        case OBJECT:
+            final JsonObject oldObject = oldValue.asJsonObject();
+            final JsonObject newObject = newValue.asJsonObject();
+            if (!oldObject.keySet().equals(newObject.keySet())) {
+                return false;
+            }
+            return oldObject
+                    .keySet()
+                    .stream()
+                    .map(key -> areEqualsIgnoringOrder(oldObject.get(key), newObject.get(key)))
+                    .reduce(true, (a, b) -> a && b);
+        case ARRAY:
+            final JsonArray oldArray = oldValue.asJsonArray();
+            final JsonArray newArray = newValue.asJsonArray();
+            if (oldArray.size() != newArray.size()) {
+                return false;
+            }
+            if (oldArray.isEmpty()) {
+                return true;
+            }
+            for (final JsonValue oldItem : oldArray) {
+                if (newArray.stream().noneMatch(newitem -> areEqualsIgnoringOrder(oldItem, newitem))) {
+                    return false;
+                }
+            }
+            return true;
+        default:
+            // value type check was enough
+            return true;
+        }
     }
 
     private static void generatedDocumentationIndex(final File generatedDir, final Asciidoctor asciidoctor)
@@ -189,45 +272,6 @@ public class Generator {
             writer.write(jsonb.toJson(items).getBytes(StandardCharsets.UTF_8));
             writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
         }
-    }
-
-    @Deprecated // done manually now
-    private static void generateNav(final Asciidoctor asciidoctor) throws IOException {
-        final File baseDir = jarLocation(Generator.class).getParentFile().getParentFile();
-        final File pages = new File(baseDir, "src/main/antora/modules/ROOT/pages/");
-        final Map<String, Object> options = OptionsBuilder
-                .options()
-                .baseDir(pages)
-                .backend("html5")
-                .safe(SafeMode.UNSAFE)
-                .headerFooter(false)
-                .toFile(false)
-                .attributes(AttributesBuilder
-                        .attributes()
-                        .attribute("includedir", pages.getAbsolutePath())
-                        .attribute("partialsdir", new File(pages, "_partials").getAbsolutePath())
-                        .attribute("imagesdir", new File(pages.getParentFile(), "assets/images").getAbsolutePath()))
-                .asMap();
-        final StringBuilder builder = new StringBuilder();
-        processSection(asciidoctor.loadFile(new File(pages, "documentation.adoc"), options), builder,
-                "documentation.adoc");
-        builder
-                .append(".Tutorials\n")
-                .append(Files
-                        .lines(new File(pages, "_partials/tutorials-index.adoc").toPath(), StandardCharsets.UTF_8)
-                        .collect(joining("\n")))
-                .append("\n\n");
-
-        // hardcoded for now while they are simple or externals
-        builder.append(".Web\n" + "* xref:documentation-rest.adoc[Server]\n"
-                + "* xref:server-uispec.adoc[UiSpec Server]\n"
-                + ".Execute\n* xref:services-pipeline.adoc[Simple/Test Pipeline API]\n"
-                + "* https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline[Beam Pipeline API]\n");
-
-        try (final Writer nav = new FileWriter(new File(baseDir, "src/main/antora/modules/ROOT/nav.adoc"))) {
-            nav.write(builder.toString());
-        }
-        System.out.println("Updated nav.adoc");
     }
 
     private static void processSection(final StructuralNode node, final StringBuilder builder, final String target) {
@@ -399,42 +443,50 @@ public class Generator {
                 return;
             }
 
-            final String jql = "project=" + project + " AND labels=\"changelog\""
-                    + loggedVersions.stream().map(v -> "fixVersion=" + v.getName()).collect(
-                            joining(" OR ", " AND (", ")"));
-            final Function<Long, JiraIssues> searchFrom = startAt -> restApi
+            final int maxVersionPerQuery = 10;
+            final BiFunction<String, Long, JiraIssues> searchFrom = (jql, startAt) -> restApi
                     .path("search")
                     .queryParam("jql", jql)
                     .queryParam("startAt", startAt)
                     .request(APPLICATION_JSON_TYPE)
                     .header("Authorization", auth)
                     .get(JiraIssues.class);
-            final Function<JiraIssues, Stream<JiraIssues>> paginate = new Function<JiraIssues, Stream<JiraIssues>>() {
+            final BiFunction<String, JiraIssues, Stream<JiraIssues>> paginate =
+                    new BiFunction<String, JiraIssues, Stream<JiraIssues>>() {
 
-                @Override
-                public Stream<JiraIssues> apply(final JiraIssues issues) {
-                    final long nextStartAt = issues.getStartAt() + issues.getMaxResults();
-                    final Stream<JiraIssues> fetched = Stream.of(issues);
-                    return issues.getTotal() > nextStartAt
-                            ? Stream.concat(fetched, apply(searchFrom.apply(nextStartAt)))
-                            : fetched;
-                }
-            };
+                        @Override
+                        public Stream<JiraIssues> apply(final String jql, final JiraIssues issues) {
+                            final long nextStartAt = issues.getStartAt() + issues.getMaxResults();
+                            final Stream<JiraIssues> fetched = Stream.of(issues);
+                            return issues.getTotal() > nextStartAt
+                                    ? Stream.concat(fetched, apply(jql, searchFrom.apply(jql, nextStartAt)))
+                                    : fetched;
+                        }
+                    };
             final Set<String> includeStatus =
                     Stream.of("closed", "resolved", "development done", "qa done", "done").collect(toSet());
-            final Map<String, TreeMap<String, List<JiraIssue>>> issues = Stream
-                    .of(searchFrom.apply(0L))
-                    .flatMap(paginate)
-                    .flatMap(i -> ofNullable(i.getIssues()).map(Collection::stream).orElseGet(Stream::empty))
-                    .filter(issue -> includeStatus
-                            .contains(issue.getFields().getStatus().getName().toLowerCase(ENGLISH)))
-                    .flatMap(i -> i.getFields().getFixVersions().stream().map(v -> Pair.of(v, i)))
+
+            final Map<String, TreeMap<String, List<JiraIssue>>> issues = IntStream
+                    .range(0, (loggedVersions.size() + maxVersionPerQuery - 1) / maxVersionPerQuery)
+                    .mapToObj(pageIdx -> loggedVersions.subList(pageIdx * maxVersionPerQuery,
+                            min(maxVersionPerQuery * (pageIdx + 1), loggedVersions.size())))
+                    .map(pageVersions -> "project=" + project + " AND labels=\"changelog\""
+                            + pageVersions.stream().map(v -> "fixVersion=" + v.getName()).collect(
+                                    joining(" OR ", " AND (", ")")))
+                    .flatMap(jql -> Stream
+                            .of(searchFrom.apply(jql, 0L))
+                            .flatMap(it -> paginate.apply(jql, it))
+                            .flatMap(i -> ofNullable(i.getIssues()).map(Collection::stream).orElseGet(Stream::empty))
+                            .filter(issue -> includeStatus
+                                    .contains(issue.getFields().getStatus().getName().toLowerCase(ENGLISH)))
+                            .flatMap(i -> i.getFields().getFixVersions().stream().map(v -> Pair.of(v, i))))
                     .collect(groupingBy(pair -> pair.getKey().getName(), () -> new TreeMap<>(versionComparator()),
                             groupingBy(pair -> pair.getValue().getFields().getIssuetype().getName(), TreeMap::new,
                                     collectingAndThen(mapping(Pair::getValue, toList()), l -> {
                                         l.sort(comparing(JiraIssue::getKey));
                                         return l;
                                     }))));
+
             final String changelog = issues
                     .entrySet()
                     .stream()

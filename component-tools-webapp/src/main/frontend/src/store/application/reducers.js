@@ -17,7 +17,8 @@ import {
  FAMILY_RELOADING,
  FAMILY_RELOADED,
  FAMILY_RELOADED_ERROR,
- REMOVE_NOTIFICATION
+ ADD_NOTIFICATION,
+ REMOVE_NOTIFICATION,
 } from '../constants';
 
 function addNotification(notifications, notification) {
@@ -33,11 +34,16 @@ function removeNotification(notifications, notification) {
 
 export default (state = { notifications: [] }, action) => {
  switch(action.type) {
+   case ADD_NOTIFICATION:
+    return {
+      ...state,
+      notifications: addNotification(state.notifications, action.notification)
+    };
    case REMOVE_NOTIFICATION:
     return {
       ...state,
       notifications: removeNotification(state.notifications, action.notification)
-    }
+    };
    case FAMILY_RELOADING:
    case FAMILY_RELOADED:
    case FAMILY_RELOADED_ERROR:

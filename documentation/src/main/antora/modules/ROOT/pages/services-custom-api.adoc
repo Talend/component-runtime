@@ -1,4 +1,4 @@
-= Advanced: defining a custom API
+= Defining a custom API
 :page-partial:
 
 It is possible to extend the https://talend.github.io/component-runtime/apidocs/api/index.html[Component API] for custom front features.

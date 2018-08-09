@@ -204,5 +204,4 @@ class ActionResourceTest {
         final ProxyErrorPayload errorPayload = error.getResponse().readEntity(ProxyErrorPayload.class);
         assertEquals(ErrorDictionary.ACTION_ERROR.name(), errorPayload.getCode());
     }
-
 }

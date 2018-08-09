@@ -36,5 +36,6 @@ public interface RequestContext {
      * @param key the attribute identifier.
      * @return the attribute value or null if missing.
      */
+    @Deprecated
     Object attribute(String key);
 }

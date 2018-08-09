@@ -8,13 +8,19 @@
           "displayName": "value",
           "name": "value",
           "path": "value",
-          "type": "STRING"
+          "type": "STRING",
+          "metadata": {
+            "definition::parameter::index": "0"
+          }
         },
         {
           "displayName": "query",
           "name": "query",
           "path": "query",
-          "type": "STRING"
+          "type": "STRING",
+          "metadata": {
+            "definition::parameter::index": "1"
+          }
         }
       ],
       "type": "validation"

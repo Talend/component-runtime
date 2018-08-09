@@ -1,9 +1,10 @@
 = Testing components
 :page-partial:
+:page-talend_skipindexation:
 :page-documentationindex-index: 7000
 :page-documentationindex-label: Testing components
 :page-documentationindex-icon: check-circle
-:page-documentationindex-description: Learn how to test your component logic in the environment you need.
+:page-documentationindex-description: Learn how to test your component logic in the environment you need
 
 :toc:
 

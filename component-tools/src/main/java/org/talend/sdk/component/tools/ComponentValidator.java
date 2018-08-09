@@ -37,6 +37,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -287,11 +288,21 @@ public class ComponentValidator extends BaseTask {
 
     private Class<?> toJavaType(final ParameterMeta p) {
         if (p.getType().equals(OBJECT) || p.getType().equals(ENUM)) {
-            return Class.class.cast(p.getJavaType());
+            if (Class.class.isInstance(p.getJavaType())) {
+                return Class.class.cast(p.getJavaType());
+            }
+            throw new IllegalArgumentException("Unsupported type for parameter " + p.getPath() + " (from "
+                    + p.getSource().declaringClass() + "), ensure it is a Class<?>");
         }
 
         if (p.getType().equals(ARRAY) && ParameterizedType.class.isInstance(p.getJavaType())) {
-            return Class.class.cast(ParameterizedType.class.cast(p.getJavaType()).getActualTypeArguments()[0]);
+            final ParameterizedType parameterizedType = ParameterizedType.class.cast(p.getJavaType());
+            final Type[] arguments = parameterizedType.getActualTypeArguments();
+            if (arguments.length == 1 && Class.class.isInstance(arguments[0])) {
+                return Class.class.cast(arguments[0]);
+            }
+            throw new IllegalArgumentException("Unsupported type for parameter " + p.getPath() + " (from "
+                    + p.getSource().declaringClass() + "), " + "ensure it is a ParameterizedType with one argument");
         }
 
         throw new IllegalStateException("Parameter '" + p.getName() + "' is not an object.");

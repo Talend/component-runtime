@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -26,7 +26,7 @@
   <description>Actually framework documentation, generated as a website and pushed to Github pages.</description>
 
   <properties>
-    <antora.version>1.0.1</antora.version>
+    <antora.version>1.0.3</antora.version>
 
     <antora.dev.site.mode>dev</antora.dev.site.mode> <!-- -Dantora.site.mode=dev-poc to test new theme -->
     <project_version>${project.version}</project_version>
@@ -46,6 +46,7 @@
     <asciidoctor-pdf-gem.version>1.5.0.alpha.16</asciidoctor-pdf-gem.version>
     <jsoup.version>1.11.2</jsoup.version>
     <crawler-commons.version>0.10</crawler-commons.version>
+    <commons-net.version>3.6</commons-net.version>
   </properties>
 
   <dependencies>
@@ -78,6 +79,10 @@
       <version>${project.version}</version>
       <scope>provided</scope>
       <exclusions>
+        <exclusion>
+          <groupId>org.codehaus.plexus</groupId>
+          <artifactId>plexus-utils</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.python</groupId>
           <artifactId>jython</artifactId>
@@ -116,6 +121,26 @@
     </dependency>
 
     <dependency>
+      <groupId>org.eclipse.microprofile.openapi</groupId>
+      <artifactId>microprofile-openapi-api</artifactId>
+      <version>${microprofile-openapi-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-openapi-impl</artifactId>
+      <version>${geronimo-openapi.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <version>${commons-net.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>args4j</groupId>
       <artifactId>args4j</artifactId>
       <version>${args4j.version}</version>
@@ -131,12 +156,6 @@
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
       <version>${johnzon.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.plexus</groupId>
-      <artifactId>plexus-sec-dispatcher</artifactId>
-      <version>${plexus-sec-dispatcher.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -177,7 +196,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.0.2</version>
+        <version>3.1.0</version>
         <configuration>
           <skipIfEmpty>true</skipIfEmpty>
         </configuration>
@@ -289,8 +308,50 @@
               </arguments>
             </configuration>
           </execution>
+          <execution> <!-- mvn gplus:execute@groovy-scripts -Dtalend.documentation.pdf.skip=true exec:java@upload-api-mock -->
+            <id>upload-api-mock</id>
+            <phase>pre-site</phase> <!-- avoid to do it at each build, since it is remote it is ok to do it here (see .travis.yml) -->
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>org.talend.runtime.documentation.ApiMockUpdate</mainClass>
+              <includePluginDependencies>true</includePluginDependencies>
+              <systemProperties>
+                <systemProperty>
+                  <key>java.net.preferIPv4Stack</key>
+                  <value>true</value>
+                </systemProperty>
+              </systemProperties>
+              <arguments>
+                <argument>${project.build.directory}/exec/api-mock</argument>
+                <argument>${talend.webhost.username}</argument>
+                <argument>${talend.webhost.password}</argument>
+              </arguments>
+            </configuration>
+          </execution>
         </executions>
         <dependencies>
+          <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>${commons-net.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jcache_1.0_spec</artifactId>
+            <version>${jcache-api.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.eclipse.microprofile.openapi</groupId>
+            <artifactId>microprofile-openapi-api</artifactId>
+            <version>${microprofile-openapi-api.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.geronimo</groupId>
+            <artifactId>geronimo-openapi-impl</artifactId>
+            <version>${geronimo-openapi.version}</version>
+          </dependency>
           <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-json_1.1_spec</artifactId>
@@ -553,7 +614,7 @@
         <executions>
           <execution>
             <id>unpack-api-javadoc</id>
-            <phase>generate-resources</phase>
+            <phase>process-resources</phase>
             <goals>
               <goal>unpack</goal>
             </goals>
@@ -566,14 +627,14 @@
                   <type>jar</type>
                   <classifier>javadoc</classifier>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/api</outputDirectory>
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/api</outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>
           </execution>
           <execution>
             <id>unpack-junit-javadoc</id>
-            <phase>generate-resources</phase>
+            <phase>process-resources</phase>
             <goals>
               <goal>unpack</goal>
             </goals>
@@ -586,7 +647,7 @@
                   <type>jar</type>
                   <classifier>javadoc</classifier>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/junit
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/junit
                   </outputDirectory>
                 </artifactItem>
                 <artifactItem>
@@ -596,7 +657,7 @@
                   <type>jar</type>
                   <classifier>javadoc</classifier>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/junit-http
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/apidocs/${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}/junit-http
                   </outputDirectory>
                 </artifactItem>
               </artifactItems>
@@ -656,8 +717,8 @@
                 <idseparator>-</idseparator>
                 <partialsdir>${project.basedir}/src/main/antora/modules/ROOT/pages/_partials</partialsdir>
                 <imagesdir>${project.basedir}/src/main/antora/modules/ROOT/assets/images</imagesdir>
-                <project_version>${versions.release}</project_version>
-                <page-component-version>${versions.release}</page-component-version>
+                <project_version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</project_version>
+                <page-component-version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</page-component-version>
                 <deploymentRoot>https://talend.github.io/component-runtime</deploymentRoot>
                 <git_branch>${git.branch}</git_branch>
               </attributes>
@@ -700,6 +761,13 @@
         <artifactId>build-helper-maven-plugin</artifactId>
         <version>${build-helper-maven-plugin.version}</version>
         <executions>
+          <execution>
+            <id>parse-version</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>parse-version</goal>
+            </goals>
+          </execution>
           <execution>
             <id>attach-artifacts</id>
             <phase>package</phase>
@@ -756,16 +824,16 @@
                 <goals>
                   <goal>execute</goal>
                 </goals>
+                <configuration>
+                  <allowSystemExits>true</allowSystemExits>
+                  <scripts>
+                    <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
+                    <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
+                    <script>${project.basedir}/src/build/GithubPages.groovy</script>
+                  </scripts>
+                </configuration>
               </execution>
             </executions>
-            <configuration>
-              <allowSystemExits>true</allowSystemExits>
-              <scripts>
-                <script>${project.basedir}/src/build/DecryptCredentials.groovy</script>
-                <script>${project.basedir}/src/build/CustomizeJavadoc.groovy</script>
-                <script>${project.basedir}/src/build/GithubPages.groovy</script>
-              </scripts>
-            </configuration>
             <dependencies>
               <dependency>
                 <groupId>org.codehaus.groovy</groupId>

@@ -36,7 +36,5 @@ def decryptAndSet(name) {
 }
 decryptAndSet('jira')
 decryptAndSet('github')
-// decryptAndSet('algolia_admin_key')
-
-project.properties.setProperty('versions.release', project.version.replace('-SNAPSHOT', ''))
+decryptAndSet('webhost')
 

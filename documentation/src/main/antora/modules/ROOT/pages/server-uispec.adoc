@@ -20,7 +20,7 @@ include::{partialsdir}/generated_proxy-server-configuration.adoc[]
 
 === Adding custom entries to the forms
 
-As shown in the table above, you can customize the forms by type. The format reuses Talend Component Kit REST API (properties model) and defines two main types of extensions:
+As shown in the table above, you can customize the forms by type. The format reuses Talend Component Kit HTTP API (properties model) and defines two main types of extensions:
 
 1. `prependProperties`: Lists all the models of properties added to the form *before* the actual underlying form.
 2. `appendProperties`: Lists all the models of properties added to the form *after* the actual underlying form.
@@ -33,7 +33,7 @@ IMPORTANT: Always make sure to define a root object for these properties. Do not
 
 When developing a `org.talend.sdk.component.form.internal.converter.CustomPropertyConverter` CDI, the proxy adds it to the `UiSpecService` service and uses it with a high priority to convert the server model to a `UiSpec` model.
 
-TIP: To make it a CDI bean, add `@Dependent` to the class and if you use the <<play-integration,Play integration>>, customize the bean array: `playx.cdi.beans.customs +=  {className: org.talend.myapp.MyConverter}.`
+TIP: To make it a CDI bean, add `@Dependent` to the class and if you use the Play integration, customize the bean array: `playx.cdi.beans.customs +=  {className: org.talend.myapp.MyConverter}.`
 
 This allows to use a custom `@Ui` API and advanced modeling when specific to applications. +
 Converters are sorted respecting to the `@Priority` value. If the annotation is missing, the priority defaults to `0`.
@@ -70,9 +70,125 @@ Here is a sample patch file:
 }
 ----
 
+=== Populate a dropdown from a remote call
+
+In some cases you will want to call a remote service giving you a list of data. For that there is a
+specific `http` `builtin` trigger which will be caught on the proxy and redirected to the configured server
+to map it as a `dynamic_values` trigger.
+
+Assume you want to call `http:://foo.com/bar` propagating the cookies to get the proposals for the
+entry `bar`, then you will configure it this way:
+
+[source,json]
+----
+{
+  "prependProperties": [
+    {
+      "path": "$datasetMetadata",
+      "type": "OBJECT"
+    },
+    {
+      "path": "$datasetMetadata.bar",
+      "displayName": "Bar",
+      "type": "STRING",
+      "metadata": {
+        "action::dynamic_values": "builtin::http::dynamic_values(url=http:://foo.com/bar,headers=cookie)"
+      }
+    }
+  ]
+}
+----
+
+The configuration of the call is passed through a comma separated list in parenthesis as seen in previous snippet.
+The configuration entries are the following ones:
+
+[options="header"]
+|====
+|Name|Description|Sample
+|url|The target server to call. Note that placeholder are supported and filled from request headers (`placeholderProvider`).|`http://proposals.service.com`
+|headers|Comma separated list of headers to propagate (using `placeholderProvider`).|`cookie,Authorization`
+|accept|The `Accept` header. Note that current we only support to parse JSON output and it defaults to `application/json`.|`application/v1+json`
+|object|Boolean (default to `false`) to set to `true` if the response payload is an object and not a list.|`true`
+|objectKey|If `object` is `true`, the key to extract to get the list to process.|`items`
+|id|Name of the field to extract from an item of the response list to map to the identifier of the proposal (default to `id`).|`id`
+|name|Name of the field to extract from an item of the response list to map to the label of the proposal (default to `name`).|`label`
+|====
+
+=== Populate a dropdown with a list of references
+
+In some forms you will want to populate a dropdown with a list of entities available in your database.
+For that, the proxy will rely on a SPI called `Integration`. If you don't implement it, it uses
+a Guice integration if Guice is in the classpath or a native CDI integration otherwise.
+
+The integration will then let the proxy lookup a `ReferenceService` implementation which will provide
+from a configuration type `type` and `name` (for instance `datastore`, `MyDataBaseConfig`) the list of
+references you want to propose to the end user.
+
+Here is very simple implementation:
+
+[source,java]
+----
+@ApplicationScoped
+public class ReferenceServiceImpl implements ReferenceService {
+    @Inject
+    private Database db;
+
+    @Override
+    public CompletionStage<Values> findReferencesByTypeAndName(final String type, final String name) {
+        return CompletableFuture.completedFuture(new Values(db.findByTypeAndName(type, name).stream()
+            .map(it -> new Values.Item(it.getId(), it.getName()))
+            .collect(toList())));
+    }
+
+    @Override
+    public CompletionStage<Form> findPropertiesById(final String id) {
+        final Entity entity = db.findById(id);
+        return CompletableFuture.completedFuture(Form.builder().properties(entity.getProperties()).formId(entity.getFormId()).build());
+    }
+}
+----
+
+Generally this kind of completion will be activated under the hood by the proxy using this kind of metadata:
+
+[source,json]
+----
+{
+  "action::dynamic_values": "builtin::references(type=xxxx,name=yyyy)"
+}
+----
+
+==== Going further: make this field hidden when empty
+
+In some cases you will want to hide this field if the proposals are <= 1, in this case you can use a condition:
+
+
+[source,json]
+----
+{
+  "prependProperties": [
+    {
+      "path": "$datasetMetadata",
+      "type": "OBJECT"
+    },
+    {
+      "path": "$datasetMetadata.bar",
+      "displayName": "Bar",
+      "type": "STRING",
+      "metadata": {
+        "action::dynamic_values": "builtin::http::dynamic_values(url=http:://foo.com/bar,headers=cookie)",
+        "condition::if::target": ".",
+        "condition::if::value": "0,1",
+        "condition::if::negate": "true",
+        "condition::if::evaluationStrategy": "LENGTH",
+      }
+    }
+  ]
+}
+----
+
 === Reloading the form based on the selected root
 
-The `builtin::root::reloadFromId` action, with the `jsonpatch` type,
+The `builtin::root::reloadFromId` action, with the `reloadForm` type,
 allows to reload the whole form:
 
 [source,json]
@@ -95,6 +211,27 @@ allows to reload the whole form:
 It is common to have a dropdown with the list of roots and to reload the form when one is selected.
 
 The client side (javascript) is now fully encapsulated in `ComponentForm` from `@talend/ui`.
+
+
+=== Reloading the form based on a selected entity reference
+
+The `builtin::root::reloadFromParentEntityId` action, with the `reloadFromParentEntityId` type,
+allows to reload the whole form:
+
+[source,json]
+----
+{
+  "path": "$datasetMetadata.reference",
+  "displayName": "Reference",
+  "type": "STRING",
+  "metadata": {
+    "action::reloadFromParentEntityId": "builtin::root::reloadFromParentEntityId",
+    "action::reloadFromParentEntityId::parameters": "."
+  }
+}
+----
+
+IMPORTANT: references are automatically initialized if you use `PropertiesService#filterProperties`.
 
 == HTTP API
 
@@ -128,3 +265,11 @@ The server module contains several configurations that you can set in:
 - A file located based on the `--component-configuration` CLI option.
 
 include::{partialsdir}/generated_server-configuration.adoc[]
+
+== Services
+
+The module provides some services usable to fulfill some basic requirements of the component interaction:
+
+- `ConfigurationFormatter` to (un)flatten the properties (JSON from/to key-value format)
+- `ConfigurationVisitorService` to browse properties and identify credentials to cipher them
+- `ValidationService` to validate a JSON properties set before any persistence action

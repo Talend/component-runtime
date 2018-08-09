@@ -16,12 +16,14 @@
 package org.talend.sdk.component.proxy.test.component;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 
 @DataSet("dataset-2")
 public class DataSet2 {
 
     @Option
+    @Required
     private Connection2 connection;
 
     @Option

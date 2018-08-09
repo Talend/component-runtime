@@ -2,6 +2,10 @@
   <aside class="navigation" role="navigation">
     <div class="panels">
       {{#if page.navigation}}
+      <div class="input-group nav-filter-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" placeholder="Filter menu entries..." id="navFilterInput">
+      </div>
       <div class="navigation-menu is-active" data-panel="menu">
         <nav class="nav-menu">
           <!-- <label>{{page.component.title}}</label> -->

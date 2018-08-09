@@ -25,6 +25,7 @@ import org.apache.beam.sdk.transforms.splittabledofn.RestrictionTracker;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.transforms.windowing.GlobalWindow;
 import org.apache.beam.sdk.transforms.windowing.PaneInfo;
+import org.apache.beam.sdk.values.Row;
 import org.apache.beam.sdk.values.TupleTag;
 import org.joda.time.Instant;
 import org.talend.sdk.component.runtime.output.Branches;
@@ -88,6 +89,11 @@ public class InMemoryArgumentProvider implements DoFnInvoker.ArgumentProvider {
     }
 
     @Override
+    public DoFn.OutputReceiver<Row> outputRowReceiver(final DoFn doFn) {
+        throw new UnsupportedOperationException("Schemas are not supported");
+    }
+
+    @Override
     public DoFn.MultiOutputReceiver taggedOutputReceiver(final DoFn doFn) {
         return new DoFn.MultiOutputReceiver() {
 
@@ -95,12 +101,22 @@ public class InMemoryArgumentProvider implements DoFnInvoker.ArgumentProvider {
             public <T> DoFn.OutputReceiver<T> get(final TupleTag<T> tag) {
                 return new OutputReceiver(outputs, tag.getId());
             }
+
+            @Override
+            public <T> DoFn.OutputReceiver<Row> getRowReceiver(final TupleTag<T> tag) {
+                throw new UnsupportedOperationException("Schemas are not supported");
+            }
         };
     }
 
     @Override
     public Instant timestamp(final DoFn doFn) {
         return Instant.now();
+    }
+
+    @Override
+    public Row asRow(final String id) {
+        throw new UnsupportedOperationException("Schemas are not supported");
     }
 
     @Override

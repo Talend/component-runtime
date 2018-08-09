@@ -1,0 +1,27 @@
+= Defining an input component logic
+:page-partial:
+
+Input components are the components generally placed at the beginning of a Talend job. They are in charge of retrieving the data that will later be processed in the job.
+
+An input component is primarily made of three distinct logics:
+- The execution logic of the component itself, defined through a partition mapper.
+- The configurable part of the component, defined through the mapper configuration.
+- The source logic defined through a producer.
+
+Before implementing the component logic and defining its layout and configurable fields, make sure you have specified its basic metadata, as detailed in xref:component-registering.adoc[this document].
+
+include::component-partition-mapper.adoc[leveloffset=+1]
+include::component-producer.adoc[leveloffset=+1]
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:methodology-creating-components.adoc[Methodology for creating components]
+- xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
+- xref:component-registering.adoc[Registering a component]
+- xref:component-execution.adoc[General component execution logic]
+- xref:component-configuration.adoc[Configuring a component]
+- xref:component-internationalization.adoc[Internationalizing a component]
+- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+- xref:best-practices.adoc[Best practices]
+endif::[]

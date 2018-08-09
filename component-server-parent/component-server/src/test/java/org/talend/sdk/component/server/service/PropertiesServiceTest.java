@@ -19,9 +19,12 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +49,28 @@ class PropertiesServiceTest {
 
     private static void boolWrapper(@Option final BoolBool wrapper) {
         // no-op
+    }
+
+    private static void multipleParams(@Option("aa") final String first, @Option("b") final BoolWrapper config,
+            @Option("a") final String last) {
+        // no-op
+    }
+
+    @Test
+    void parameterIndexMeta() throws NoSuchMethodException {
+        final List<ParameterMeta> params = new ParameterModelService().buildParameterMetas(
+                getClass().getDeclaredMethod("multipleParams", String.class, BoolWrapper.class, String.class), null);
+        final List<SimplePropertyDefinition> props = propertiesService
+                .buildProperties(params, Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
+                .collect(toList());
+        assertEquals(4, props.size());
+        props.forEach(p -> {
+            final boolean hasIndex = p.getMetadata().containsKey("definition::parameter::index");
+            final boolean isNested = p.getPath().contains(".");
+            assertTrue((isNested && !hasIndex) || (!isNested && hasIndex));
+        });
+        props.sort(comparing(p -> Integer.parseInt(p.getMetadata().getOrDefault("definition::parameter::index", "4"))));
+        assertEquals("aa/b/a/b.val", props.stream().map(SimplePropertyDefinition::getPath).collect(joining("/")));
     }
 
     @Test
@@ -121,6 +146,7 @@ class PropertiesServiceTest {
     @Data
     public static class Config {
 
+        @Option
         private String host;
 
         private int port;

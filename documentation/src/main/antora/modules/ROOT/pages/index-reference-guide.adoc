@@ -1,5 +1,7 @@
 = Talend Component Kit Reference guide
 :page-partial:
+:page-talend_skipindexation:
+:page-talend_swaggerui: true
 :page-documentationindex-index: 8000
 :page-documentationindex-label: Reference Guide
 :page-documentationindex-icon: code

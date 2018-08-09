@@ -6,4 +6,3 @@
 * xref:tutorial-create-components-rest-api.adoc[Create components for REST API]
 * xref:tutorial-test-rest-api.adoc[How to test a REST API]
 * xref:tutorial-dev-vs-ci-setup.adoc[Dev vs CI setup]
-* xref:tutorial-talend-intellij-plugin-usage.adoc[Talend Intellij plugin]

@@ -1,4 +1,5 @@
-= REST resources
+= HTTP API
 :page-partial:
+:page-talend_swaggerui: true
 
 include::{partialsdir}/generated_rest-resources.adoc[leveloffset=+1]

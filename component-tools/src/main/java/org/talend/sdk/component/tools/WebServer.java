@@ -84,6 +84,7 @@ public class WebServer implements Runnable {
                 Thread.interrupted();
                 return;
             }
+            log.info("\n\n  You can now access the UI at http://localhost:" + port + "\n\n");
             final Scanner scanner = new Scanner(System.in);
             do {
                 log.info("Enter 'exit' to quit");

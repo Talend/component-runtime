@@ -16,12 +16,14 @@
 package org.talend.sdk.component.proxy.test.component;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 
 @DataStore("Connection-2")
 public class Connection2 {
 
     @Option
+    @Required
     private String url;
 
     @Option

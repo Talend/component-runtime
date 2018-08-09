@@ -13,13 +13,13 @@ Before being able to develop new components, check the xref:system-prerequisites
 
 Developing new components using the framework includes:
 
-. xref:index-generating-project.adoc[Creating a project] using the https://starter-toolkit.talend.io/[starter] or the xref:tutorial-talend-intellij-plugin-usage.adoc[Talend IntelliJ plugin]. This step allows to build the skeleton of the project. It consists in:
+. xref:index-generating-project.adoc[Creating a project] using the https://starter-toolkit.talend.io/[starter] or the xref:installing-talend-intellij-plugin.adoc[Talend IntelliJ plugin]. This step allows to build the skeleton of the project. It consists in:
 .. Defining the general configuration model for each component in your project
 .. Generating and downloading the project archive from the starter
 .. Compiling the project
 . Importing the compiled project in your IDE. This step is not required if you have generated the project using the IntelliJ plugin.
 . xref:index-creating-components.adoc[Implementing the components], including:
-.. Registering the components family
+.. Registering the component by specifying its metadata: family, categories, version, icon, type, and name.
 .. Defining the layout and configurable part of the components
 .. Defining the partition mapper for Input components
 .. Implementing the source logic for Input components
@@ -39,4 +39,5 @@ ifeval::["{backend}" == "html5"]
 == Related articles
 - xref:what-is-a-talend-component.adoc[What is a Talend component]
 - xref:tck-framework-overview.adoc[Talend Component Kit framework overview]
+- xref:component-execution.adoc[General component execution logic]
 endif::[]

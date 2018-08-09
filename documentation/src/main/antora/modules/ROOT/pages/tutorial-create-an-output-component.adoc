@@ -67,7 +67,7 @@ Here, the goal is to get the Hazelcast instance according to the provided config
 In the context of this tutorial, the Hazelcast instance loaded in the post Construct method is shut down.
 <7> Data is passed to the method annotated with `@ElementListener`. That method is responsible for handling the data output. You can define all the related logic in this method.
 
-NOTE: If you need to bulk write the updates accordingly to groups, see xref:component-definition.adoc#_processor[Processor description].
+NOTE: If you need to bulk write the updates accordingly to groups, see xref:concept-processor-and-batch-processing.adoc[Processors and batch processing].
 
 Each of the methods mentioned above now needs to be created.
 
@@ -144,7 +144,7 @@ In this tutorial, the data is passed to the Hazelcast map.
 <2> This is the inner method used to transform incoming values into the format required to pass data to the Hazelcast map.
 
 === Full implementation of the Output
-Once implemented, the Output configuration is as follows. For more information about outputs, refer to xref:component-definition.adoc#_output[this document].
+Once implemented, the Output configuration is as follows. For more information about outputs, refer to xref:component-define-processor-output.adoc[this document].
 [source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
 ----
 @Version <1>

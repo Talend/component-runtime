@@ -1,0 +1,70 @@
+= xref:component-partition-mapper.adoc[Defining a partition mapper]
+:page-partial:
+
+[[partition-mapper]]
+
+== What is a partition mapper
+
+A `PartitionMapper` is a component able to split itself to make the execution more efficient.
+
+This concept is borrowed from big data and useful in this context only (`BEAM` executions).
+The idea is to divide the work before executing it in order to reduce the overall execution time.
+
+The process is the following:
+
+1. The size of the data you work on is estimated. This part can be heuristic and not very precise.
+2. From that size, the execution engine (_runner_ for Beam) requests the mapper to split _itself_ in _N_ mappers with a subset of the overall work.
+3. The _leaf_ (final) mapper is used as a `Producer` (actual reader) factory.
+
+IMPORTANT: This kind of component must be `Serializable` to be distributable.
+
+== Implementing a partition mapper
+
+A partition mapper requires three methods marked with specific annotations:
+
+1. `@Assessor` for the evaluating method
+2. `@Split` for the dividing method
+3. `@Emitter` for the `Producer` factory
+
+=== @Assessor
+
+The Assessor method returns the estimated size of the data related to the component (depending its configuration).
+It must return a `Number` and must not take any parameter.
+
+For example:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes",role="initial-block-closed"]
+----
+@Assessor
+public long estimateDataSetByteSize() {
+    return ....;
+}
+----
+
+=== @Split
+
+The Split method returns a collection of partition mappers and can take optionally a `@PartitionSize` long value as parameter, which is the requested size of the dataset per sub partition mapper.
+
+For example:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@Split
+public List<MyMapper> split(@PartitionSize final long desiredSize) {
+    return ....;
+}
+----
+
+=== @Emitter
+
+The Emitter method must not have any parameter and must return a producer. It uses the partition mapper configuration to instantiate and configure the producer.
+
+For example:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@Emitter
+public MyProducer create() {
+    return ....;
+}
+----

@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-server-proxy-parent</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -103,6 +103,11 @@
       <artifactId>component-form-core</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.johnzon</groupId>
+      <artifactId>johnzon-jsonschema</artifactId>
+      <version>${johnzon.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -135,6 +140,16 @@
       <artifactId>play-test_${scala.version}</artifactId>
       <version>${play2.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.fluentlenium</groupId>
+          <artifactId>fluentlenium-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.seleniumhq.selenium</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.tomee</groupId>

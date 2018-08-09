@@ -3,6 +3,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
 <script src="https://cdn.rawgit.com/rmannibucau/00206484a54ac569e091513e6d2a1c01/raw/46cd5d77ba1abe678f83d11490e12a327b62d7ee/anchorific.js"></script>
 <script src="{{uiRootPath}}/js/talend.js"></script>
+{{#if page.attributes.talend_swaggerui}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.17.6/swagger-ui-bundle.js" integrity="sha256-3jA+c2OgkNzYClyF7e/nz8y3QvjYK3/VD1DP4QVrk68=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.17.6/swagger-ui-standalone-preset.js" integrity="sha256-efpokdX5EnP9Wila8op8k1he7IACcRpq/wCNIonvezg=" crossorigin="anonymous"></script>
+<script src="{{uiRootPath}}/js/talend-swaggerui.js"></script>
+{{/if}}
 {{#if page.attributes.talend_landing}}
 <script src="{{uiRootPath}}/js/talend-landing.js"></script>
 {{else if page.attributes.talend_documentationindex}}

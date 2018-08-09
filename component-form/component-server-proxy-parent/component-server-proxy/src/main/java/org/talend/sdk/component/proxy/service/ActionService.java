@@ -18,37 +18,53 @@ package org.talend.sdk.component.proxy.service;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.json.bind.Jsonb;
+import javax.json.JsonObject;
+import javax.ws.rs.client.CompletionStageRxInvoker;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericType;
 
+import org.eclipse.microprofile.config.Config;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
+import org.talend.sdk.component.proxy.api.integration.application.ReferenceService;
+import org.talend.sdk.component.proxy.api.integration.application.Values;
+import org.talend.sdk.component.proxy.api.service.ConfigurationFormatter;
+import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.proxy.jcache.CacheResolverManager;
 import org.talend.sdk.component.proxy.jcache.ProxyCacheKeyGenerator;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.UiNode;
-import org.talend.sdk.component.proxy.service.client.ClientProducer;
 import org.talend.sdk.component.proxy.service.client.ComponentClient;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
 import org.talend.sdk.component.proxy.service.client.UiSpecContext;
+import org.talend.sdk.component.proxy.service.lang.Substitutor;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -81,8 +97,7 @@ public class ActionService {
     private ConfigurationService configurationService;
 
     @Inject
-    @UiSpecProxy
-    private Jsonb jsonb;
+    private JsonMapService jsonMapService;
 
     @Inject
     @UiSpecProxy
@@ -93,6 +108,29 @@ public class ActionService {
 
     @Inject // to have cache activated and not handle it manually
     private ActionService self;
+
+    @Inject
+    @UiSpecProxy
+    private javax.ws.rs.client.Client http;
+
+    @Inject
+    @UiSpecProxy
+    private Config config;
+
+    @Inject
+    private Substitutor substitutor;
+
+    @Inject
+    private ReferenceService referenceService;
+
+    @Inject
+    private ConfigurationFormatter formatter;
+
+    @Inject
+    private PropertiesService propertiesService;
+
+    private final GenericType<List<Map<String, Object>>> listType = new GenericType<List<Map<String, Object>>>() {
+    };
 
     public CompletionStage<Map<String, Object>> createStage(final String family, final String type, final String action,
             final UiSpecContext context, final Map<String, Object> params) {
@@ -118,6 +156,8 @@ public class ActionService {
         return action != null && action.startsWith("builtin::");
     }
 
+    // IMPORTANT: ensure to register the action in
+    // org.talend.sdk.component.proxy.service.ModelEnricherService.BUILTIN_ACTIONS
     public CompletionStage<Map<String, Object>> findBuiltInAction(final String action, final String lang,
             final Function<String, String> placeholderProvider, final Map<String, Object> params) {
         switch (action) {
@@ -127,25 +167,146 @@ public class ActionService {
             return ofNullable(params.get("id"))
                     .map(id -> createNewFormFromId(String.valueOf(id), lang, placeholderProvider))
                     .orElseGet(() -> CompletableFuture.completedFuture(emptyMap()));
+        case "builtin::root::reloadFromParentEntityId":
+            return ofNullable(params.get("id"))
+                    .map(id -> createNewFormFromParentEntityId(String.valueOf(id), lang, placeholderProvider))
+                    .orElseGet(() -> CompletableFuture.completedFuture(emptyMap()));
         default:
+            if (action.startsWith("builtin::http::dynamic_values(")) {
+                return http(placeholderProvider, csvToParams(action, "builtin::http::dynamic_values("));
+            } else if (action.startsWith("builtin::references(")) {
+                return references(csvToParams(action, "builtin::references("));
+            }
             throw new IllegalArgumentException("Unknown action: " + action);
         }
+    }
+
+    private CompletionStage<Map<String, Object>> references(final Map<String, Object> params) {
+        final String type = String.class.cast(requireNonNull(params.get("type"), "reference type must not be null"));
+        final String name = String.class.cast(requireNonNull(params.get("name"), "reference name must not be null"));
+        return referenceService.findReferencesByTypeAndName(type, name).thenApply(jsonMapService::toJsonMap);
+    }
+
+    private Map<String, Object> csvToParams(final String value, final String prefix) {
+        return Stream
+                .of(value.substring(prefix.length(), value.length() - 1).split(","))
+                .map(String::trim)
+                .filter(it -> !it.isEmpty())
+                .map(it -> it.split("="))
+                .collect(toMap(it -> it[0], it -> it[1]));
+    }
+
+    // todo: cache most of that computation to do it only once, not critical for now (must use placeholders in the key)
+    // @CacheResult -> we miss an eviction rule to do that ATM
+    private CompletionStage<Map<String, Object>> http(final Function<String, String> placeholderProvider,
+            final Map<String, Object> params) {
+        final String url = substitutor
+                .compile(requireNonNull(String.class.cast(params.get("url")), "No url specificed for a http trigger"))
+                .apply(placeholderProvider);
+        final List<String> headers = Stream
+                .of(String.class.cast(params.getOrDefault("headers", "")).split(","))
+                .map(String::trim)
+                .filter(it -> !it.isEmpty())
+                .collect(toList());
+        Invocation.Builder request = http.target(config.getOptionalValue(url, String.class).orElse(url)).request(
+                String.class.cast(params.getOrDefault("accept", APPLICATION_JSON)));
+        for (final String header : headers) {
+            final String headerValue = placeholderProvider.apply(header);
+            if (headerValue == null) {
+                continue;
+            }
+            request = request.header(header, headerValue);
+        }
+
+        final CompletionStageRxInvoker rx = request.rx();
+
+        final CompletionStage<List<Map<String, Object>>> list;
+        if (!Boolean.parseBoolean(String.valueOf(params.getOrDefault("object", "false")))) {
+            list = rx.get(listType);
+        } else {
+            list = rx.get(Object.class).thenApply(
+                    object -> List.class.cast(Map.class.cast(object).get(params.getOrDefault("objectKey", "items"))));
+        }
+
+        final String idName = String.class.cast(params.getOrDefault("id", "id"));
+        final String labelName = String.class.cast(params.getOrDefault("name", "name"));
+        return list
+                .thenApply(it -> ofNullable(it)
+                        .orElseGet(Collections::emptyList)
+                        .stream()
+                        .filter(map -> map.containsKey(idName) || map.containsKey(labelName))
+                        .map(map -> new Values.Item(String.class.cast(map.getOrDefault(idName, map.get(labelName))),
+                                String.class.cast(map.getOrDefault(labelName, map.get(idName)))))
+                        .collect(toList()))
+                .thenApply(Values::new)
+                .thenApply(jsonMapService::toJsonMap);
+    }
+
+    private CompletableFuture<Map<String, Object>> createNewFormFromParentEntityId(final String entityId,
+            final String lang, final Function<String, String> placeholderProvider) {
+        return referenceService
+                .findPropertiesById(entityId)
+                .thenCompose(form -> configurationClient.getAllConfigurations(lang, placeholderProvider).thenCompose(
+                        nodes -> {
+                            final ConfigTypeNode childSpec = nodes
+                                    .getNodes()
+                                    .values()
+                                    .stream()
+                                    .filter(node -> node.getParentId() != null
+                                            && node.getParentId().equals(form.getFormId()))
+                                    .min(comparing(ComparableConfigTypeNode::new))
+                                    .orElseThrow(
+                                            () -> new IllegalStateException("No child form for " + form.getFormId()));
+                            final ConfigTypeNode parentSpec = nodes.getNodes().get(form.getFormId());
+                            return configurationClient
+                                    .getDetails(lang, parentSpec.getId(), placeholderProvider)
+                                    .thenCompose(parent -> configurationClient
+                                            .getDetails(lang, childSpec.getId(), placeholderProvider)
+                                            .thenCompose(child -> toNewForm(lang, placeholderProvider, child, entityId,
+                                                    parent)));
+                        }))
+                .thenApply(jsonMapService::toJsonMap)
+                .toCompletableFuture();
+    }
+
+    private CompletionStage<NewForm> toNewForm(final String lang, final Function<String, String> placeholderProvider,
+            final ConfigTypeNode node, final String refId, final ConfigTypeNode parentFormSpec) {
+        return findUiSpec(node.getId(), lang, placeholderProvider).thenApply(this::toNewFormResponse).thenCompose(
+                newForm -> {
+                    final Map<String, String> configInstance = new HashMap<>();
+                    final SimplePropertyDefinition refProp = node
+                            .getProperties()
+                            .stream()
+                            .filter(it -> it.getMetadata().getOrDefault("configurationtype::name", "").equals(
+                                    parentFormSpec.getName())
+                                    && it.getMetadata().getOrDefault("configurationtype::type", "").equals(
+                                            parentFormSpec.getConfigurationType()))
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalStateException(
+                                    "No parent matched for form " + node.getId() + "(entity=" + refId + ")"));
+                    configInstance.put(refProp.getPath() + ".$selfReference", refId); // assumed not in an array
+                    return propertiesService
+                            .replaceReferences(newContext(lang, placeholderProvider), node.getProperties(),
+                                    configInstance)
+                            .thenApply(props -> {
+                                if (node.getProperties() != null && !node.getProperties().isEmpty()) {
+                                    newForm.setProperties(formatter.unflatten(node.getProperties(), props));
+                                }
+                                return newForm;
+                            });
+                });
     }
 
     private CompletableFuture<Map<String, Object>> createNewFormFromId(final String id, final String lang,
             final Function<String, String> placeholderProvider) {
         return findUiSpec(id, lang, placeholderProvider)
                 .thenApply(this::toNewFormResponse)
-                .thenApply(this::toJsonMap)
+                .thenApply(jsonMapService::toJsonMap)
                 .toCompletableFuture();
     }
 
-    private Map<String, Object> toJsonMap(final NewForm newForm) {
-        return (Map<String, Object>) jsonb.fromJson(jsonb.toJson(newForm), Map.class);
-    }
-
     private NewForm toNewFormResponse(final UiNode uiNode) {
-        return new NewForm(uiNode.getUi().getJsonSchema(), uiNode.getUi().getUiSchema(), uiNode.getMetadata());
+        return new NewForm(uiNode.getUi().getJsonSchema(), uiNode.getUi().getUiSchema(), null, uiNode.getMetadata());
     }
 
     private CompletionStage<UiNode> findUiSpec(final String id, final String lang,
@@ -158,8 +319,7 @@ public class ActionService {
         }
         final CompletionStage<ComponentIndices> allComponents =
                 componentClient.getAllComponents(lang, placeholderProvider);
-        return getNode(id, lang, placeholderProvider)
-                .thenApply(node -> modelEnricherService.enrich(node, lang))
+        return getEnrichedNode(id, lang, placeholderProvider)
                 .thenCompose(detail -> configurationClient.getAllConfigurations(lang, placeholderProvider).thenCompose(
                         configs -> allComponents.thenCompose(components -> {
                             final ConfigTypeNode family = configurationService.getFamilyOf(id, configs);
@@ -167,9 +327,21 @@ public class ActionService {
                         })));
     }
 
+    private CompletionStage<ConfigTypeNode> getEnrichedNode(final String id, final String lang,
+            final Function<String, String> placeholderProvider) {
+        return getNode(id, lang, placeholderProvider)
+                .thenApply(node -> modelEnricherService.enrich(node, lang))
+                .thenCompose(node -> propertiesService
+                        .filterProperties(lang, placeholderProvider, node.getProperties())
+                        .thenApply(newProps -> {
+                            node.setProperties(newProps);
+                            return node;
+                        }));
+    }
+
     private CompletionStage<UiNode> toUiNode(final String lang, final Function<String, String> placeholderProvider,
             final ConfigTypeNode detail, final ComponentIndices iconComponents, final ConfigTypeNode family) {
-        return toUiSpec(detail, family, new UiSpecContext(lang, placeholderProvider), lang)
+        return toUiSpec(detail, family, new UiSpecContext(lang, placeholderProvider))
                 .thenApply(ui -> new UiNode(ui,
                         new Node(detail.getId(), detail.getDisplayName(), family.getId(), family.getDisplayName(),
                                 ofNullable(family.getId())
@@ -181,18 +353,23 @@ public class ActionService {
     private CompletionStage<ConfigTypeNode> getNode(final String id, final String lang,
             final Function<String, String> placeholderProvider) {
         return id.isEmpty()
+                // todo: drop that hardcoded datastore string
                 ? CompletableFuture.completedFuture(new ConfigTypeNode("datastore", 0, null, "datastore", "datastore",
                         "datastore", emptySet(), new ArrayList<>(), new ArrayList<>()))
                 : configurationClient.getDetails(lang, id, placeholderProvider);
     }
 
     private CompletionStage<Ui> toUiSpec(final ConfigTypeNode detail, final ConfigTypeNode family,
-            final UiSpecContext context, final String language) {
-        return uiSpecService.convert(family.getName(), language, detail, context).thenApply(ui -> {
-            // drop properties for this particular callback since they are ignored on client side
-            ui.setProperties(null);
-            return ui;
-        });
+            final UiSpecContext context) {
+        return configurationService
+                .filterNestedConfigurations(context.getLanguage(), context.getPlaceholderProvider(), detail)
+                .thenCompose(newDetail -> uiSpecService
+                        .convert(family.getName(), context.getLanguage(), newDetail, context)
+                        .thenApply(ui -> {
+                            // drop properties, we handle them specifically
+                            ui.setProperties(null); // TODO
+                            return ui;
+                        }));
     }
 
     private CompletableFuture<Map<String, Object>> findRoots(final String lang,
@@ -200,15 +377,35 @@ public class ActionService {
         return configurationClient
                 .getAllConfigurations(lang, placeholderProvider)
                 .thenApply(configs -> configurationService.getRootConfiguration(configs, ignored -> null))
-                .thenApply(configs -> new ClientProducer.Values(configs
+                .thenApply(configs -> new Values(configs
                         .getNodes()
                         .values()
                         .stream()
-                        .map(it -> new ClientProducer.Values.Item(it.getId(), it.getLabel()))
-                        .sorted(comparing(ClientProducer.Values.Item::getLabel))
+                        .map(it -> new Values.Item(it.getId(), it.getLabel()))
+                        .sorted(comparing(Values.Item::getLabel))
                         .collect(toList())))
-                .thenApply(values -> ((Map<String, Object>) jsonb.fromJson(jsonb.toJson(values), Map.class)))
+                .thenApply(jsonMapService::toJsonMap)
                 .toCompletableFuture();
+    }
+
+    private RequestContext newContext(final String lang, final Function<String, String> placeholderProvider) {
+        return new RequestContext() {
+
+            @Override
+            public String language() {
+                return lang;
+            }
+
+            @Override
+            public String findPlaceholder(final String attributeName) {
+                return placeholderProvider.apply(attributeName);
+            }
+
+            @Override
+            public Object attribute(final String key) {
+                return null;
+            }
+        };
     }
 
     @Data
@@ -220,6 +417,37 @@ public class ActionService {
 
         private Collection<UiSchema> uiSchema;
 
+        private JsonObject properties;
+
         private Node metadata;
+    }
+
+    @Data
+    private static class ComparableConfigTypeNode implements Comparable<ComparableConfigTypeNode> {
+
+        private final ConfigTypeNode delegate;
+
+        @Override
+        public int compareTo(final ComparableConfigTypeNode o) {
+            if (o == null) {
+                return -1;
+            }
+            if (o == this || delegate == o.getDelegate()) {
+                return 0;
+            }
+            if (isNested(this, o)) {
+                return 1;
+            }
+            if (isNested(o, this)) {
+                return -1;
+            }
+            // just to sort globally
+            return delegate.getId().compareTo(o.getDelegate().getId());
+        }
+
+        private boolean isNested(final ComparableConfigTypeNode o1, final ComparableConfigTypeNode o2) {
+            return o1.delegate.getProperties().stream().allMatch(
+                    it -> o2.getDelegate().getProperties().stream().anyMatch(n -> n.getPath().equals(it.getPath())));
+        }
     }
 }

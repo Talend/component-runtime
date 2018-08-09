@@ -1,5 +1,6 @@
 = Talend Component Documentation
 :page-partial:
+:page-talend_skipindexation:
 
 include::documentation-definition.adoc[leveloffset=+1]
 

@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
  * Marker for events. Allows to find them easily in the IDE and know
  * the contract to implement.
  */
+@Deprecated // integrations should either encapsulate this lib and bypass events or use the related Integration/SPI
 @Target(TYPE)
 @Retention(RUNTIME)
 public @interface Event {

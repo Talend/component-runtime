@@ -1,5 +1,6 @@
 = Talend Component Kit
 :page-talend_landing: true
+:page-talend_skipindexation:
 
 [#landing-teaser]
 = Talend Component Kit
