@@ -83,6 +83,10 @@ div.documentationindex-before {
   padding-bottom: 2rem;
   padding-top: 1rem;
 }
+
+.fa-5x {
+  font-size: 6rem;
+}
 .documentationindex-icon {
   padding-top: 1rem;
   margin-bottom: 25px;
@@ -110,11 +114,13 @@ div.documentationindex-before {
   font-size: 16px;
   font-weight: 700;
   line-height: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   text-transform: uppercase;
+  color:#758495;
 }
 .documentationindex-description {
   padding: 0.5rem;
+  color:  #555555;
 }
 
 #pagination {
