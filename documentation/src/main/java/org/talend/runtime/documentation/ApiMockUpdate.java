@@ -41,6 +41,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -56,6 +57,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.text.StringSubstitutor;
+import org.apache.coyote.AbstractProtocol;
 import org.apache.meecrowave.Meecrowave;
 
 import lombok.NoArgsConstructor;
@@ -76,6 +78,23 @@ public class ApiMockUpdate {
         }
         final File output = new File(args[0]);
 
+        final Thread thread = new Thread(() -> {
+            try {
+                doMain(args, output);
+            } catch (final IOException | ExecutionException | InterruptedException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        thread.start();
+        thread.join(TimeUnit.MINUTES.toMillis(20));
+        if (thread.isAlive()) {
+            log.error("Capture didnt finish fast enough");
+            thread.interrupt();
+        }
+    }
+
+    private static void doMain(final String[] args, final File output)
+            throws IOException, ExecutionException, InterruptedException {
         System.setProperty("talend.component.manager.m2.repository", createM2WithComponents(output).getAbsolutePath());
         System.setProperty("talend.component.server.component.coordinates", "org.talend.demo:components:1.0.0");
 
@@ -117,7 +136,12 @@ public class ApiMockUpdate {
                 setScanningPackageExcludes("org.talend.sdk.component.proxy");
             }
         }).bake()) {
-            captureMocks(format("http://localhost:%d", server.getConfiguration().getHttpPort()), ftp);
+            captureMocks(format("http://%s:%d",
+                    AbstractProtocol.class
+                            .cast(server.getTomcat().getConnector().getProtocolHandler())
+                            .getAddress()
+                            .getHostName(),
+                    server.getConfiguration().getHttpPort()), ftp);
         }
     }
 
