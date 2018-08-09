@@ -30,6 +30,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -111,7 +113,8 @@ public class ApiMockUpdate {
         }
     }
 
-    private static void updateMocks(final FTPClient ftp) throws ExecutionException, InterruptedException {
+    private static void updateMocks(final FTPClient ftp)
+            throws ExecutionException, InterruptedException, UnknownHostException {
         try (final Meecrowave server = new Meecrowave(new Meecrowave.Builder() {
 
             {
@@ -122,7 +125,8 @@ public class ApiMockUpdate {
                 setScanningPackageExcludes("org.talend.sdk.component.proxy");
             }
         }).bake()) {
-            captureMocks(format("http://%s:%d", System.getProperty("talend.apimock.host", "localhost"), server.getConfiguration().getHttpPort()), ftp);
+            captureMocks(format("http://%s:%d", InetAddress.getLocalHost().getHostName(),
+                    server.getConfiguration().getHttpPort()), ftp);
         }
     }
 
