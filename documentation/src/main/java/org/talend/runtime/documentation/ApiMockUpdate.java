@@ -154,7 +154,7 @@ public class ApiMockUpdate {
         final String componentId = "Y29tcG9uZW50cyNNb2NrI01vY2tJbnB1dA";
         final String configurationId = "Y29tcG9uZW50cyNNb2NrI2RhdGFzZXQjdGFibGU";
 
-        final ExecutorService executor = Executors.newFixedThreadPool(2);
+        final ExecutorService executor = Executors.newFixedThreadPool(1);
         final Map<String, byte[]> files = new HashMap<>();
         try {
             CompletableFuture
@@ -248,6 +248,7 @@ public class ApiMockUpdate {
             final Function<WebTarget, byte[]> target) {
         return CompletableFuture.runAsync(() -> {
             final String sshPath = "/public_html" + new StringSubstitutor(templates, "{", "}").replace(path);
+            log.info("Trying to grab {}", sshPath);
             final Client client = ClientBuilder.newClient();
             try {
                 WebTarget webTarget = client.target(base).path(path);
@@ -256,6 +257,7 @@ public class ApiMockUpdate {
                 }
                 webTarget.property("http.connection.timeout", 30000L).property("http.receive.timeout", 60000L);
                 files.put(sshPath, target.apply(webTarget));
+                log.info("Grabbed to grab {}", sshPath);
             } catch (final ProcessingException | WebApplicationException ex) {
                 log.error("Error on {}", sshPath, ex);
                 throw ex;
