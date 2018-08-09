@@ -259,6 +259,8 @@ public class ApiMockUpdate {
                 for (final Map.Entry<String, String> tpl : templates.entrySet()) {
                     webTarget = webTarget.resolveTemplate(tpl.getKey(), tpl.getValue());
                 }
+                webTarget.property("http.connection.timeout", 60000L)
+                         .property("http.receive.timeout", 60000L);
                 files.put(sshPath, target.apply(webTarget));
             } catch (final ProcessingException | WebApplicationException ex) {
                 log.error("Error on {}", sshPath, ex);
