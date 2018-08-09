@@ -1,0 +1,58 @@
+= Creating your first component
+:page-partial:
+
+This tutorial walks you through all the required steps to get started with *Talend Component Kit*, from the creation of a simple component to its integration into *Talend Sutdio*.
+
+The component created in this tutorial is a simple output component that only reads the data it receives and displays it in the logs, along with an extra information entered by a user.
+
+image:tutorial_job_execution_success.png
+
+== Prerequisites
+As this tutorial aims at helping you to create your very first component, it also covers some of the installation steps that are specific to Talend Component Kit to get your development environment ready. But first, make sure to:
+
+- Download and install a Java JDK 1.8 or greater.
+// Download and install Maven 3.5.x.
+- Download and install Talend Studio. For example from link:https://sourceforge.net/projects/talend-studio[Sourceforge].
+- Download an install https://www.jetbrains.com/idea/download[IntelliJ].
+- Download the Talend Component Kit plugin for IntelliJ. The detailed installation steps for the plugin are available in xref:installing-talend-intellij-plugin.adoc[this document].
+
+== Generating a simple component project
+The first step in this tutorial is to generate a project containing a simple output component using the starter.
+
+. Start IntelliJ and create a new project. In the available options, you should see *Talend Component*. +
+image:intellij_new_component_project.png
+. Make sure that a *Project SDK* is selected. Then, select *Talend Component* and click *Next*. +
+The Talend Component Kit Starter opens.
+. Enter the project details. The goal here is to define the component and project metadata. Change the default values as follows: +
+image:intellij_tutorial_project_metadata.png
+- The *Component Family* and the *Category* will be used later in Talend Studio to find the new component.
+- The project metadata are mostly used to identify the project structure. A common practice is to replace 'company' in the default value by a value of your own, like your domain name. +
+. Once the metadata is filled, select *ADD A COMPONENT*. A new screen is displayed in the starter that lets you define the generic configuration of the component.
+. Select *PROCESSOR/OUTPUT* and enter a valid Java name for the component. For example, *Logger*.
+. Select *CONFIGURATION MODEL* and add a string field named `level`. This input field will be used in the component configuration to enter additional information to display in the logs. +
+image:tutorial_component_configuration_model.png
+. In the *Input(s) / Output(s), click the default *MAIN* input branch to access its detail, and toggle the *Generic* option to specify that the component will only receive data with a simple structure. Leave the *Name* of the branch with its default `MAIN` value. +
+image:tutorial_component_generic_input.png +
++
+NOTE: By default, when selecting *PROCESSOR/OUTPUT*, there is one input and no output for the component, which is fine in the case of this tutorial. A processor without any output branch is considered an output component.
+. Click *Next* and check the name and location of your project, then click *Finish* to generate the project in the IDE. +
+
+At this point, your component is technically already ready to be compiled and deployed to Talend Studio. But let's first have look at the generated project:
+
+image:tutorial_generated_project_view.png
+
+- Two classes based on the name and type of component defined in the starter have been generated:
+** *LoggerOutput* is where the component logic is defined
+** *LoggerOutputConfiguration* is where the component layout and configurable fields are defined, including the *level* string field that was defined earlier in the configuration model of the component.
+- The *package-info.java* file contains the component metadata defined in the starter, like the family and category.
+- You can notice as well that the elements in the tree structure are named after the project metadata defined in the starter.
+
+These files are the starting point if you later need to edit the configuration, logic, and metadata of your component.
+
+There is more that you can do and configure with the Starter. This tutorial covers only the basics. You can find more information in xref:tutorial-generate-project-using-starter.adoc[this document].
+
+== Compiling and deploying the component to Talend Sutdio
+
+== Editing the component
+
+== Building a job with the component
