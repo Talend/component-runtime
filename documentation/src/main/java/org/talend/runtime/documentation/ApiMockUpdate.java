@@ -18,6 +18,7 @@ package org.talend.runtime.documentation;
 import static java.lang.String.format;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.util.Collections.emptyMap;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -41,7 +42,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -75,21 +76,7 @@ public class ApiMockUpdate {
             log.warn("No credentials, skipping mock update");
             return;
         }
-        final File output = new File(args[0]);
-
-        final Thread thread = new Thread(() -> {
-            try {
-                doMain(args, output);
-            } catch (final IOException | ExecutionException | InterruptedException e) {
-                throw new IllegalStateException(e);
-            }
-        });
-        thread.start();
-        thread.join(TimeUnit.MINUTES.toMillis(20));
-        if (thread.isAlive()) {
-            log.error("Capture didnt finish fast enough");
-            thread.interrupt();
-        }
+        doMain(args, new File(args[0]));
     }
 
     private static void doMain(final String[] args, final File output)
@@ -169,55 +156,63 @@ public class ApiMockUpdate {
 
         final ExecutorService executor = Executors.newFixedThreadPool(2);
         final Map<String, byte[]> files = new HashMap<>();
-        CompletableFuture
-                .allOf(
-                        // env
-                        capture(files, executor, "/api/v1/environment", target, emptyMap(),
-                                t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
+        try {
+            CompletableFuture
+                    .allOf(
+                            // env
+                            capture(files, executor, "/api/v1/environment", target, emptyMap(),
+                                    t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
 
-                        // action
-                        capture(files, executor, "/api/v1/action/index", target, emptyMap(),
-                                t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/action/execute", target, emptyMap(), t -> t
-                                .queryParam("family", "Mock")
-                                .queryParam("type", "healthcheck")
-                                .queryParam("action", "basicAuth")
-                                .request(APPLICATION_JSON_TYPE)
-                                .post(entity("{\"url\":\"http://localhost:51234/unavailable\",\"username\":\"xxx\","
-                                        + "\"password\":\"yyy\"}", APPLICATION_JSON_TYPE), byte[].class)),
+                            // action
+                            capture(files, executor, "/api/v1/action/index", target, emptyMap(),
+                                    t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/action/execute", target, emptyMap(), t -> t
+                                    .queryParam("family", "Mock")
+                                    .queryParam("type", "healthcheck")
+                                    .queryParam("action", "basicAuth")
+                                    .request(APPLICATION_JSON_TYPE)
+                                    .post(entity("{\"url\":\"http://localhost:51234/unavailable\",\"username\":\"xxx\","
+                                            + "\"password\":\"yyy\"}", APPLICATION_JSON_TYPE), byte[].class)),
 
-                        // component
-                        capture(files, executor, "/api/v1/component/index", target, emptyMap(),
-                                t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/component/details", target, emptyMap(),
-                                t -> t.queryParam("identifiers", componentId).request(APPLICATION_JSON_TYPE).get(
-                                        byte[].class)),
-                        capture(files, executor, "/api/v1/component/dependencies", target, emptyMap(),
-                                t -> t.queryParam("identifiers", componentId).request(APPLICATION_JSON_TYPE).get(
-                                        byte[].class)),
-                        capture(files, executor, "/api/v1/component/dependency/{id}", target, map("id", componentId),
-                                t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/component/icon/{id}", target, map("id", componentId),
-                                t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/component/icon/family/{id}", target, map("id", familyId),
-                                t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/component/migrate/{id}/{configurationVersion}", target,
-                                map("id", componentId, "configurationVersion", "1"),
-                                t -> t.request(APPLICATION_JSON_TYPE).post(entity("{}", APPLICATION_JSON_TYPE),
-                                        byte[].class)),
+                            // component
+                            capture(files, executor, "/api/v1/component/index", target, emptyMap(),
+                                    t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/component/details", target, emptyMap(),
+                                    t -> t.queryParam("identifiers", componentId).request(APPLICATION_JSON_TYPE).get(
+                                            byte[].class)),
+                            capture(files, executor, "/api/v1/component/dependencies", target, emptyMap(),
+                                    t -> t.queryParam("identifiers", componentId).request(APPLICATION_JSON_TYPE).get(
+                                            byte[].class)),
+                            capture(files, executor, "/api/v1/component/dependency/{id}", target,
+                                    map("id", componentId),
+                                    t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/component/icon/{id}", target, map("id", componentId),
+                                    t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/component/icon/family/{id}", target, map("id", familyId),
+                                    t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/component/migrate/{id}/{configurationVersion}", target,
+                                    map("id", componentId, "configurationVersion", "1"),
+                                    t -> t.request(APPLICATION_JSON_TYPE).post(entity("{}", APPLICATION_JSON_TYPE),
+                                            byte[].class)),
 
-                        // configuration type
-                        capture(files, executor, "/api/v1/configurationtype/index", target, emptyMap(),
-                                t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/configurationtype/details", target, emptyMap(),
-                                t -> t.queryParam("identifiers", configurationId).request(APPLICATION_JSON_TYPE).get(
-                                        byte[].class)),
-                        capture(files, executor, "/api/v1/configurationtype/migrate/{id}/{configurationVersion}",
-                                target, map("id", configurationId, "configurationVersion", "1"),
-                                t -> t.request(APPLICATION_JSON_TYPE).post(entity("{}", APPLICATION_JSON_TYPE),
-                                        byte[].class)))
-                .get();
+                            // configuration type
+                            capture(files, executor, "/api/v1/configurationtype/index", target, emptyMap(),
+                                    t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/configurationtype/details", target, emptyMap(),
+                                    t -> t
+                                            .queryParam("identifiers", configurationId)
+                                            .request(APPLICATION_JSON_TYPE)
+                                            .get(byte[].class)),
+                            capture(files, executor, "/api/v1/configurationtype/migrate/{id}/{configurationVersion}",
+                                    target, map("id", configurationId, "configurationVersion", "1"),
+                                    t -> t.request(APPLICATION_JSON_TYPE).post(entity("{}", APPLICATION_JSON_TYPE),
+                                            byte[].class)))
+                    .get(10, MINUTES);
+        } catch (final TimeoutException e) {
+            log.error(e.getMessage(), e);
+        }
         executor.shutdown();
+        log.info("Updating {}", files.keySet());
         files.forEach((sshPath, data) -> { // keep a single SSH connection (in the original thread)
             final String[] pathSegments = sshPath.substring(1).split("/");
             for (int i = 1; i < pathSegments.length; i++) {
@@ -259,8 +254,7 @@ public class ApiMockUpdate {
                 for (final Map.Entry<String, String> tpl : templates.entrySet()) {
                     webTarget = webTarget.resolveTemplate(tpl.getKey(), tpl.getValue());
                 }
-                webTarget.property("http.connection.timeout", 60000L)
-                         .property("http.receive.timeout", 60000L);
+                webTarget.property("http.connection.timeout", 30000L).property("http.receive.timeout", 60000L);
                 files.put(sshPath, target.apply(webTarget));
             } catch (final ProcessingException | WebApplicationException ex) {
                 log.error("Error on {}", sshPath, ex);
