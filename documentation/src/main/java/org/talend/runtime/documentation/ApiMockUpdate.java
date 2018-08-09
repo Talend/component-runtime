@@ -37,6 +37,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -57,7 +59,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.meecrowave.Meecrowave;
@@ -87,8 +88,11 @@ public class ApiMockUpdate {
         System.setProperty("talend.component.server.component.coordinates", "org.talend.demo:components:1.0.0");
 
         final FTPClient ftp = new FTPClient();
-        final FTPClientConfig config = new FTPClientConfig();
-        ftp.configure(config);
+        ftp.setSoTimeout(60000);
+        ftp.setDataTimeout(60000);
+        ftp.setConnectTimeout(60000);
+        ftp.setControlKeepAliveTimeout(60000);
+        ftp.setControlKeepAliveReplyTimeout(60000);
         try {
             ftp.connect("files.000webhost.com");
             final int reply = ftp.getReplyCode();
@@ -217,20 +221,28 @@ public class ApiMockUpdate {
         }
         executor.shutdown();
         log.info("Updating {}", files.keySet());
+        final Collection<String> createdPaths = new ArrayList<>();
         files.forEach((sshPath, data) -> { // keep a single SSH connection (in the original thread)
             final String[] pathSegments = sshPath.substring(1).split("/");
             for (int i = 1; i < pathSegments.length; i++) {
                 final String parentPath = Stream.of(pathSegments).limit(i).collect(joining("/", "/", "/"));
-                try {
-                    ftp.mkd(parentPath);
-                } catch (final IOException e) {
-                    throw new IllegalStateException(e);
+                if (!createdPaths.contains(parentPath)) {
+                    try {
+                        log.info("Creating {}", parentPath);
+                        ftp.mkd(parentPath);
+                        createdPaths.add(parentPath);
+                    } catch (final IOException e) {
+                        throw new IllegalStateException(e);
+                    }
                 }
             }
             try {
+                log.info("Storing {}", sshPath);
                 if (!ftp.storeFile(sshPath, new ByteArrayInputStream(data))) {
+                    log.info("Failed to store {}", sshPath);
                     throw new IllegalStateException("Can't upload " + sshPath);
                 }
+                log.info("Stored {}", sshPath);
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
