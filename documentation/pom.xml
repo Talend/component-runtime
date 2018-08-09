@@ -47,6 +47,8 @@
     <jsoup.version>1.11.2</jsoup.version>
     <crawler-commons.version>0.10</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
+
+    <apimock.host>127.0.0.1</apimock.host>
   </properties>
 
   <dependencies>
@@ -321,6 +323,10 @@
                 <systemProperty>
                   <key>java.net.preferIPv4Stack</key>
                   <value>true</value>
+                </systemProperty>
+                <systemProperty>
+                  <key>talend.apimock.host</key>
+                  <value>${apimock.host}</value>
                 </systemProperty>
               </systemProperties>
               <arguments>

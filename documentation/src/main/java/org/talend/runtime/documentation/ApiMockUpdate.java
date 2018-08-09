@@ -122,7 +122,7 @@ public class ApiMockUpdate {
                 setScanningPackageExcludes("org.talend.sdk.component.proxy");
             }
         }).bake()) {
-            captureMocks(format("http://localhost:%d", server.getConfiguration().getHttpPort()), ftp);
+            captureMocks(format("http://%s:%d", System.getProperty("talend.apimock.host", "localhost"), server.getConfiguration().getHttpPort()), ftp);
         }
     }
 
