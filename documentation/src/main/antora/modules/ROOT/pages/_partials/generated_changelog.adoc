@@ -10,7 +10,9 @@
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]:  [documentation] Sample implementation of bulk/batch/commit-interval using groups
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
+- link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard
 
 
 == Version 1.0.4

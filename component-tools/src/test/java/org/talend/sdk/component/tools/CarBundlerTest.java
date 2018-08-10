@@ -29,10 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.HttpURLConnection;
@@ -47,6 +48,7 @@ import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
+import org.apache.ziplock.IO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.OS;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
@@ -191,8 +193,8 @@ class CarBundlerTest {
         final File m2 = temporaryFolder.newFolder();
         final File dep = createTempJar(m2, pathToJar);
         final byte[] expected;
-        try (final BufferedReader in = new BufferedReader(new FileReader(dep))) {
-            expected = in.lines().collect(joining("/n")).getBytes();
+        try (final InputStream in = new FileInputStream(dep)) {
+            expected = IO.readBytes(in);
         }
 
         final CarBundler.Configuration configuration = createConfiguration(temporaryFolder, dep);
@@ -224,8 +226,8 @@ class CarBundlerTest {
         final File m2 = temporaryFolder.newFolder();
         final File dep = createTempJar(m2, pathToJar);
         final byte[] expected;
-        try (final BufferedReader in = new BufferedReader(new FileReader(dep))) {
-            expected = in.lines().collect(joining("/n")).getBytes();
+        try (final InputStream in = new FileInputStream(dep)) {
+            expected = IO.readBytes(in);
         }
 
         final CarBundler.Configuration configuration = createConfiguration(temporaryFolder, dep);
@@ -339,9 +341,8 @@ class CarBundlerTest {
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_NOT_FOUND, 0);
             } else if (httpExchange.getRequestMethod().equalsIgnoreCase("PUT")) {
                 final byte[] bytes;
-                try (final BufferedReader in =
-                        new BufferedReader(new InputStreamReader(httpExchange.getRequestBody()))) {
-                    bytes = in.lines().collect(joining("\n")).getBytes();
+                try (final InputStream in = httpExchange.getRequestBody()) {
+                    bytes = IO.readBytes(in);
                 }
                 assertArrayEquals(expected, bytes);
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_CREATED, 0);
@@ -368,9 +369,8 @@ class CarBundlerTest {
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_NOT_FOUND, 0);
             } else if (httpExchange.getRequestMethod().equalsIgnoreCase("POST")) {
                 final byte[] bytes;
-                try (final BufferedReader in =
-                        new BufferedReader(new InputStreamReader(httpExchange.getRequestBody()))) {
-                    bytes = in.lines().collect(joining("\n")).getBytes();
+                try (final InputStream in = httpExchange.getRequestBody()) {
+                    bytes = IO.readBytes(in);
                 }
                 assertArrayEquals(expected, bytes);
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_CREATED, 0);
