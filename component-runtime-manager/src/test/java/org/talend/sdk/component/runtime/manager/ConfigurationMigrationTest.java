@@ -61,7 +61,7 @@ class ConfigurationMigrationTest {
                         .cast(manager.findProcessor("chain", "configured2", 0, new HashMap<String, String>() {
 
                             {
-                                put("config.__version", "-1");
+                                put("config.__version", "0");
                                 put("value.__version", "-1");
                             }
                         }).orElseThrow(IllegalStateException::new))

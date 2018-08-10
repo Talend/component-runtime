@@ -60,7 +60,7 @@ public class MigrationHandlerFactory {
                 .map(p -> {
                     // for now we can assume it is not in arrays
                     final MigrationHandler handler =
-                            findMigrationHandler(emptyList(), (Class) p.getJavaType(), services);
+                            findMigrationHandler(emptyList(), Class.class.cast(p.getJavaType()), services);
                     if (handler == NO_MIGRATION) {
                         return null;
                     }
