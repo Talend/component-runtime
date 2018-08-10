@@ -41,6 +41,7 @@ import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
@@ -58,10 +59,10 @@ public class ConfigurationService {
     @Inject
     private PropertiesService propertiesService;
 
-    public CompletionStage<ConfigTypeNode> filterNestedConfigurations(final String lang,
-            final Function<String, String> placeholders, final ConfigTypeNode node) {
+    public CompletionStage<ConfigTypeNode> filterNestedConfigurations(final ConfigTypeNode node,
+            final UiSpecContext context) {
         return propertiesService
-                .filterProperties(lang, placeholders, node.getProperties())
+                .filterProperties(node.getProperties(), context)
                 .thenApply(props -> new ConfigTypeNode(node.getId(), node.getVersion(), node.getParentId(),
                         node.getConfigurationType(), node.getName(), node.getDisplayName(), node.getEdges(), props,
                         node.getActions()));

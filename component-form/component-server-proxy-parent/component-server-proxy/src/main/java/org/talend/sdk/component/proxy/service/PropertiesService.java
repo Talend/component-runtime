@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -40,6 +39,7 @@ import org.talend.sdk.component.proxy.api.integration.application.ReferenceServi
 import org.talend.sdk.component.proxy.api.integration.application.Values;
 import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -57,13 +57,12 @@ public class PropertiesService {
      * Take an object properties list and replace the nested configurations
      * by a xxx$reference STRING (id).
      *
-     * @param lang the request language.
-     * @param placeholders the context provider (variables).
      * @param properties the properties to filter.
+     * @param context current conversion context.
      * @return the new properties list.
      */
-    public CompletionStage<List<SimplePropertyDefinition>> filterProperties(final String lang,
-            final Function<String, String> placeholders, final Collection<SimplePropertyDefinition> properties) {
+    public CompletionStage<List<SimplePropertyDefinition>>
+            filterProperties(final Collection<SimplePropertyDefinition> properties, final UiSpecContext context) {
         final Collection<SimplePropertyDefinition> nestedConfigurations = dropChildren(properties
                 .stream()
                 .filter(this::isConfiguration)
@@ -72,8 +71,8 @@ public class PropertiesService {
                     final Map<String, String> enrichedMetadata = new HashMap<>(ref.getMetadata());
                     // note: we can move to suggestions later
                     enrichedMetadata.put("action::dynamic_values",
-                            "builtin::references(" + "type=" + ref.getMetadata().get("configurationtype::type")
-                                    + ",name=" + ref.getMetadata().get("configurationtype::name") + ")");
+                            "builtin::references(type=" + ref.getMetadata().get("configurationtype::type") + ",name="
+                                    + ref.getMetadata().get("configurationtype::name") + ")");
 
                     return new SimplePropertyDefinition(ref.getPath(), ref.getName(), ref.getDisplayName(), "STRING",
                             null,
@@ -85,7 +84,7 @@ public class PropertiesService {
         final CompletionStage<Void> fillMeta;
         if (!nestedConfigurations.isEmpty()) {
             fillMeta = configurations
-                    .getAllConfigurations(lang, placeholders)
+                    .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
                     .thenApply(nodes -> nestedConfigurations.stream().map(it -> {
                         final String type = it.getMetadata().getOrDefault("configurationtype::type", "");
                         final String name = it.getMetadata().getOrDefault("configurationtype::name", "default");
@@ -95,7 +94,7 @@ public class PropertiesService {
                                 .stream()
                                 .filter(node -> type.equals(node.getConfigurationType()) && name.equals(node.getName()))
                                 .findFirst()
-                                .map(this::findPotentialIdsAndNames)
+                                .map(node -> findPotentialIdsAndNames(node, context))
                                 .orElseGet(() -> completedFuture(emptyMap()))
                                 .thenApply(potentialIdsAndNames -> {
                                     it.getValidation().setEnumValues(potentialIdsAndNames.keySet());
@@ -132,9 +131,10 @@ public class PropertiesService {
                 .collect(toList());
     }
 
-    private CompletionStage<Map<String, String>> findPotentialIdsAndNames(final ConfigTypeNode node) {
+    private CompletionStage<Map<String, String>> findPotentialIdsAndNames(final ConfigTypeNode node,
+            final UiSpecContext context) {
         return referenceService
-                .findReferencesByTypeAndName(node.getConfigurationType(), node.getId())
+                .findReferencesByTypeAndName(node.getConfigurationType(), node.getId(), context)
                 .thenApply(values -> ofNullable(values.getItems())
                         .map(items -> items.stream().collect(toMap(Values.Item::getId, Values.Item::getLabel)))
                         .orElseGet(Collections::emptyMap));

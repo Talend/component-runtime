@@ -28,6 +28,7 @@ import javax.inject.Inject;
 import org.talend.sdk.component.proxy.api.integration.application.ReferenceService;
 import org.talend.sdk.component.proxy.api.integration.application.Values;
 import org.talend.sdk.component.proxy.api.persistence.OnPersist;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.proxy.test.InMemoryTestPersistence;
 
@@ -39,7 +40,8 @@ public class ReferenceServiceImpl implements ReferenceService {
     private InMemoryTestPersistence persistence;
 
     @Override
-    public CompletionStage<Values> findReferencesByTypeAndName(final String type, final String name) {
+    public CompletionStage<Values> findReferencesByTypeAndName(final String type, final String name,
+            final UiSpecContext context) {
         return CompletableFuture.completedFuture(
                 new Values(asList(new Values.Item(type + "1", name + "1"), new Values.Item(type + "2", name + "2"))));
     }
