@@ -205,7 +205,7 @@ public class CarMain {
                         } else if (skip) {
                             continue;
                         }
-                        writer.write(line);
+                        writer.write(line + "\n");
                     }
                     final String toFilter =
                             Stream.of(mainGav.contains(":") ? mainGav.split(":") : mainGav.split("/")).limit(2).collect(
