@@ -36,7 +36,6 @@ import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
@@ -135,7 +134,7 @@ public class ConfigurationService {
                 .getIcon();
     }
 
-    public CompletionStage<Map<String, String>> replaceReferences(final RequestContext context,
+    public CompletionStage<Map<String, String>> replaceReferences(final UiSpecContext context,
             final ConfigTypeNode detail, final Map<String, String> props) {
         return propertiesService.replaceReferences(context, detail.getProperties(), props);
     }

@@ -38,7 +38,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.proxy.api.persistence.OnPersist;
 import org.talend.sdk.component.proxy.service.client.UiSpecContext;
-import org.talend.sdk.component.proxy.service.impl.HttpRequestContext;
 import org.talend.sdk.component.proxy.test.CdiInject;
 import org.talend.sdk.component.proxy.test.InMemoryTestPersistence;
 import org.talend.sdk.component.proxy.test.WithServer;
@@ -198,7 +197,7 @@ class PropertiesServiceTest {
                 .fireAsync(event)
                 .thenCompose(OnPersist::getId)
                 .thenCompose(id -> service.filterProperties(srcProps, new UiSpecContext("en", k -> null)).thenCompose(
-                        props -> service.replaceReferences(new HttpRequestContext("en", k -> null, null), props,
+                        props -> service.replaceReferences(new UiSpecContext("en", k -> null), props,
                                 new HashMap<String, String>() {
 
                                     {

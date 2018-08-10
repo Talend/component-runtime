@@ -245,7 +245,7 @@ public class ActionService {
     private CompletableFuture<Map<String, Object>> createNewFormFromParentEntityId(final String entityId,
             final UiSpecContext context) {
         return referenceService
-                .findPropertiesById(entityId)
+                .findPropertiesById(entityId, context)
                 .thenCompose(form -> configurationClient
                         .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
                         .thenCompose(nodes -> {
@@ -286,10 +286,8 @@ public class ActionService {
                     .orElseThrow(() -> new IllegalStateException(
                             "No parent matched for form " + node.getId() + "(entity=" + refId + ")"));
             configInstance.put(refProp.getPath() + ".$selfReference", refId); // assumed not in an array
-            return propertiesService
-                    .replaceReferences(newContext(context.getLanguage(), context.getPlaceholderProvider()),
-                            node.getProperties(), configInstance)
-                    .thenApply(props -> {
+            return propertiesService.replaceReferences(context, node.getProperties(), configInstance).thenApply(
+                    props -> {
                         if (node.getProperties() != null && !node.getProperties().isEmpty()) {
                             newForm.setProperties(formatter.unflatten(node.getProperties(), props));
                         }

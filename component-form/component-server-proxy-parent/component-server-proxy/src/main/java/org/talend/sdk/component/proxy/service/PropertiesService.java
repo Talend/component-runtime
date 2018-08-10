@@ -37,7 +37,6 @@ import javax.inject.Inject;
 
 import org.talend.sdk.component.proxy.api.integration.application.ReferenceService;
 import org.talend.sdk.component.proxy.api.integration.application.Values;
-import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
 import org.talend.sdk.component.proxy.service.client.UiSpecContext;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
@@ -140,7 +139,7 @@ public class PropertiesService {
                         .orElseGet(Collections::emptyMap));
     }
 
-    public CompletionStage<Map<String, String>> replaceReferences(final RequestContext context,
+    public CompletionStage<Map<String, String>> replaceReferences(final UiSpecContext context,
             final List<SimplePropertyDefinition> properties, final Map<String, String> instance) {
         if (instance == null) {
             return completedFuture(emptyMap());
@@ -167,8 +166,8 @@ public class PropertiesService {
                 return completedFuture(null);
             }
             final String sanitizedPath = it.getPath().replace(".$selfReference", "");
-            return referenceService.findPropertiesById(id).thenCompose(form -> configurations
-                    .getDetails(context.language(), form.getFormId(), context::findPlaceholder)
+            return referenceService.findPropertiesById(id, context).thenCompose(form -> configurations
+                    .getDetails(context.getLanguage(), form.getFormId(), context.getPlaceholderProvider())
                     .thenApply(detail -> replaceReferences(context, detail.getProperties(), form.getProperties())
                             .thenApply(nestedProps -> {
                                 final String root = detail
