@@ -90,7 +90,7 @@ public class ApiMockUpdate {
         final FTPClient ftp = new FTPClient();
         ftp.setConnectTimeout(60000);
         try {
-            ftp.connect("files.000webhost.com");
+            ftp.connect(args[3]);
             ftp.setSoTimeout(60000);
             ftp.setDataTimeout(60000);
             ftp.setControlKeepAliveTimeout(60000);

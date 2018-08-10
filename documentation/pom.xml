@@ -47,6 +47,7 @@
     <jsoup.version>1.11.2</jsoup.version>
     <crawler-commons.version>0.10</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
+    <webhost.ftphost>files.000webhost.com</webhost.ftphost>
   </properties>
 
   <dependencies>
@@ -317,10 +318,17 @@
             <configuration>
               <mainClass>org.talend.runtime.documentation.ApiMockUpdate</mainClass>
               <includePluginDependencies>true</includePluginDependencies>
+              <systemProperties>
+                <systemProperty>
+                  <key>java.net.preferIPv4Stack</key>
+                  <value>true</value>
+                </systemProperty>
+              </systemProperties>
               <arguments>
                 <argument>${project.build.directory}/exec/api-mock</argument>
                 <argument>${talend.webhost.username}</argument>
                 <argument>${talend.webhost.password}</argument>
+                <argument>${webhost.ftphost}</argument>
               </arguments>
             </configuration>
           </execution>

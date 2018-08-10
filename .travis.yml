@@ -66,7 +66,7 @@ jobs:
       script:
       - echo "Skipping >rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache<"
       - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
-      - cd documentation && mvn clean verify pre-site -e -Pgh-pages -Dgpg.skip=true $SKIP_OPTS && cd -
+      - cd documentation && mvn clean verify pre-site -e -Dwebhost.ftphost=$WEBHOST_FTPPHOST -Pgh-pages -Dgpg.skip=true $SKIP_OPTS && cd -
 
     - stage: master_build
       env:
