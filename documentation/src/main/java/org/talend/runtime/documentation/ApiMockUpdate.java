@@ -18,6 +18,7 @@ package org.talend.runtime.documentation;
 import static java.lang.String.format;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.util.Collections.emptyMap;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -29,11 +30,15 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -41,7 +46,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -54,7 +59,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.meecrowave.Meecrowave;
@@ -75,21 +79,7 @@ public class ApiMockUpdate {
             log.warn("No credentials, skipping mock update");
             return;
         }
-        final File output = new File(args[0]);
-
-        final Thread thread = new Thread(() -> {
-            try {
-                doMain(args, output);
-            } catch (final IOException | ExecutionException | InterruptedException e) {
-                throw new IllegalStateException(e);
-            }
-        });
-        thread.start();
-        thread.join(TimeUnit.MINUTES.toMillis(20));
-        if (thread.isAlive()) {
-            log.error("Capture didnt finish fast enough");
-            thread.interrupt();
-        }
+        doMain(args, new File(args[0]));
     }
 
     private static void doMain(final String[] args, final File output)
@@ -98,10 +88,13 @@ public class ApiMockUpdate {
         System.setProperty("talend.component.server.component.coordinates", "org.talend.demo:components:1.0.0");
 
         final FTPClient ftp = new FTPClient();
-        final FTPClientConfig config = new FTPClientConfig();
-        ftp.configure(config);
+        ftp.setConnectTimeout(60000);
         try {
-            ftp.connect("files.000webhost.com");
+            ftp.connect(args[3]);
+            ftp.setSoTimeout(60000);
+            ftp.setDataTimeout(60000);
+            ftp.setControlKeepAliveTimeout(60000);
+            ftp.setControlKeepAliveReplyTimeout(60000);
             final int reply = ftp.getReplyCode();
             if (!FTPReply.isPositiveCompletion(reply)) {
                 ftp.disconnect();
@@ -124,7 +117,8 @@ public class ApiMockUpdate {
         }
     }
 
-    private static void updateMocks(final FTPClient ftp) throws ExecutionException, InterruptedException {
+    private static void updateMocks(final FTPClient ftp)
+            throws ExecutionException, InterruptedException, UnknownHostException {
         try (final Meecrowave server = new Meecrowave(new Meecrowave.Builder() {
 
             {
@@ -135,7 +129,8 @@ public class ApiMockUpdate {
                 setScanningPackageExcludes("org.talend.sdk.component.proxy");
             }
         }).bake()) {
-            captureMocks(format("http://localhost:%d", server.getConfiguration().getHttpPort()), ftp);
+            captureMocks(format("http://%s:%d", InetAddress.getLocalHost().getHostName(),
+                    server.getConfiguration().getHttpPort()), ftp);
         }
     }
 
@@ -167,71 +162,87 @@ public class ApiMockUpdate {
         final String componentId = "Y29tcG9uZW50cyNNb2NrI01vY2tJbnB1dA";
         final String configurationId = "Y29tcG9uZW50cyNNb2NrI2RhdGFzZXQjdGFibGU";
 
-        final ExecutorService executor = Executors.newFixedThreadPool(2);
+        final ExecutorService executor = Executors.newFixedThreadPool(1);
         final Map<String, byte[]> files = new HashMap<>();
-        CompletableFuture
-                .allOf(
-                        // env
-                        capture(files, executor, "/api/v1/environment", target, emptyMap(),
-                                t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
+        try {
+            CompletableFuture
+                    .allOf(
+                            // env
+                            capture(files, executor, "/api/v1/environment", target, emptyMap(),
+                                    t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
 
-                        // action
-                        capture(files, executor, "/api/v1/action/index", target, emptyMap(),
-                                t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/action/execute", target, emptyMap(), t -> t
-                                .queryParam("family", "Mock")
-                                .queryParam("type", "healthcheck")
-                                .queryParam("action", "basicAuth")
-                                .request(APPLICATION_JSON_TYPE)
-                                .post(entity("{\"url\":\"http://localhost:51234/unavailable\",\"username\":\"xxx\","
-                                        + "\"password\":\"yyy\"}", APPLICATION_JSON_TYPE), byte[].class)),
+                            // action
+                            capture(files, executor, "/api/v1/action/index", target, emptyMap(),
+                                    t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/action/execute", target, emptyMap(), t -> t
+                                    .queryParam("family", "Mock")
+                                    .queryParam("type", "healthcheck")
+                                    .queryParam("action", "basicAuth")
+                                    .request(APPLICATION_JSON_TYPE)
+                                    .post(entity("{\"url\":\"http://localhost:51234/unavailable\",\"username\":\"xxx\","
+                                            + "\"password\":\"yyy\"}", APPLICATION_JSON_TYPE), byte[].class)),
 
-                        // component
-                        capture(files, executor, "/api/v1/component/index", target, emptyMap(),
-                                t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/component/details", target, emptyMap(),
-                                t -> t.queryParam("identifiers", componentId).request(APPLICATION_JSON_TYPE).get(
-                                        byte[].class)),
-                        capture(files, executor, "/api/v1/component/dependencies", target, emptyMap(),
-                                t -> t.queryParam("identifiers", componentId).request(APPLICATION_JSON_TYPE).get(
-                                        byte[].class)),
-                        capture(files, executor, "/api/v1/component/dependency/{id}", target, map("id", componentId),
-                                t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/component/icon/{id}", target, map("id", componentId),
-                                t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/component/icon/family/{id}", target, map("id", familyId),
-                                t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/component/migrate/{id}/{configurationVersion}", target,
-                                map("id", componentId, "configurationVersion", "1"),
-                                t -> t.request(APPLICATION_JSON_TYPE).post(entity("{}", APPLICATION_JSON_TYPE),
-                                        byte[].class)),
+                            // component
+                            capture(files, executor, "/api/v1/component/index", target, emptyMap(),
+                                    t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/component/details", target, emptyMap(),
+                                    t -> t.queryParam("identifiers", componentId).request(APPLICATION_JSON_TYPE).get(
+                                            byte[].class)),
+                            capture(files, executor, "/api/v1/component/dependencies", target, emptyMap(),
+                                    t -> t.queryParam("identifiers", componentId).request(APPLICATION_JSON_TYPE).get(
+                                            byte[].class)),
+                            capture(files, executor, "/api/v1/component/dependency/{id}", target,
+                                    map("id", componentId),
+                                    t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/component/icon/{id}", target, map("id", componentId),
+                                    t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/component/icon/family/{id}", target, map("id", familyId),
+                                    t -> t.request(APPLICATION_OCTET_STREAM_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/component/migrate/{id}/{configurationVersion}", target,
+                                    map("id", componentId, "configurationVersion", "1"),
+                                    t -> t.request(APPLICATION_JSON_TYPE).post(entity("{}", APPLICATION_JSON_TYPE),
+                                            byte[].class)),
 
-                        // configuration type
-                        capture(files, executor, "/api/v1/configurationtype/index", target, emptyMap(),
-                                t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
-                        capture(files, executor, "/api/v1/configurationtype/details", target, emptyMap(),
-                                t -> t.queryParam("identifiers", configurationId).request(APPLICATION_JSON_TYPE).get(
-                                        byte[].class)),
-                        capture(files, executor, "/api/v1/configurationtype/migrate/{id}/{configurationVersion}",
-                                target, map("id", configurationId, "configurationVersion", "1"),
-                                t -> t.request(APPLICATION_JSON_TYPE).post(entity("{}", APPLICATION_JSON_TYPE),
-                                        byte[].class)))
-                .get();
+                            // configuration type
+                            capture(files, executor, "/api/v1/configurationtype/index", target, emptyMap(),
+                                    t -> t.request(APPLICATION_JSON_TYPE).get(byte[].class)),
+                            capture(files, executor, "/api/v1/configurationtype/details", target, emptyMap(),
+                                    t -> t
+                                            .queryParam("identifiers", configurationId)
+                                            .request(APPLICATION_JSON_TYPE)
+                                            .get(byte[].class)),
+                            capture(files, executor, "/api/v1/configurationtype/migrate/{id}/{configurationVersion}",
+                                    target, map("id", configurationId, "configurationVersion", "1"),
+                                    t -> t.request(APPLICATION_JSON_TYPE).post(entity("{}", APPLICATION_JSON_TYPE),
+                                            byte[].class)))
+                    .get(10, MINUTES);
+        } catch (final TimeoutException e) {
+            log.error(e.getMessage(), e);
+        }
         executor.shutdown();
+        log.info("Updating {}", files.keySet());
+        final Collection<String> createdPaths = new ArrayList<>();
         files.forEach((sshPath, data) -> { // keep a single SSH connection (in the original thread)
             final String[] pathSegments = sshPath.substring(1).split("/");
             for (int i = 1; i < pathSegments.length; i++) {
                 final String parentPath = Stream.of(pathSegments).limit(i).collect(joining("/", "/", "/"));
-                try {
-                    ftp.mkd(parentPath);
-                } catch (final IOException e) {
-                    throw new IllegalStateException(e);
+                if (!createdPaths.contains(parentPath)) {
+                    try {
+                        log.info("Creating {}", parentPath);
+                        ftp.mkd(parentPath);
+                        createdPaths.add(parentPath);
+                    } catch (final IOException e) {
+                        throw new IllegalStateException(e);
+                    }
                 }
             }
             try {
+                log.info("Storing {}", sshPath);
                 if (!ftp.storeFile(sshPath, new ByteArrayInputStream(data))) {
+                    log.info("Failed to store {}", sshPath);
                     throw new IllegalStateException("Can't upload " + sshPath);
                 }
+                log.info("Stored {}", sshPath);
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
@@ -253,13 +264,16 @@ public class ApiMockUpdate {
             final Function<WebTarget, byte[]> target) {
         return CompletableFuture.runAsync(() -> {
             final String sshPath = "/public_html" + new StringSubstitutor(templates, "{", "}").replace(path);
+            log.info("Trying to grab {}", sshPath);
             final Client client = ClientBuilder.newClient();
             try {
                 WebTarget webTarget = client.target(base).path(path);
                 for (final Map.Entry<String, String> tpl : templates.entrySet()) {
                     webTarget = webTarget.resolveTemplate(tpl.getKey(), tpl.getValue());
                 }
+                webTarget.property("http.connection.timeout", 30000L).property("http.receive.timeout", 60000L);
                 files.put(sshPath, target.apply(webTarget));
+                log.info("Grabbed to grab {}", sshPath);
             } catch (final ProcessingException | WebApplicationException ex) {
                 log.error("Error on {}", sshPath, ex);
                 throw ex;

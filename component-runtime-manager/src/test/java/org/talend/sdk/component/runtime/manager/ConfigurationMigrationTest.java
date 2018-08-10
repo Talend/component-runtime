@@ -42,13 +42,12 @@ class ConfigurationMigrationTest {
         try (final ComponentManager manager = new ComponentManager(new File("target/test-dependencies"),
                 "META-INF/test/dependencies", "org.talend.test:type=plugin,value=%s")) {
             manager.addPlugin(jar.getAbsolutePath());
-
             {
                 final Object nested = ProcessorImpl.class
                         .cast(manager.findProcessor("chain", "configured1", 0, new HashMap<String, String>() {
 
                             {
-                                put("config.__version", "0");
+                                put("config.__version", "-1");
                             }
                         }).orElseThrow(IllegalStateException::new))
                         .getDelegate();
@@ -63,7 +62,7 @@ class ConfigurationMigrationTest {
 
                             {
                                 put("config.__version", "0");
-                                put("value.__version", "0");
+                                put("value.__version", "-1");
                             }
                         }).orElseThrow(IllegalStateException::new))
                         .getDelegate();
@@ -72,6 +71,26 @@ class ConfigurationMigrationTest {
                 final Object config = get(nested, "getConfig");
                 assertNotNull(config);
                 assertEquals("ok", get(config, "getName"));
+            }
+            {
+                final Object nested = ProcessorImpl.class
+                        .cast(manager.findProcessor("chain", "migrationtest", -1, new HashMap<String, String>() {
+
+                            {
+                                put("config.__version", "1");
+                                put("config.datastore.__version", "1");
+                            }
+                        }).orElseThrow(IllegalStateException::new))
+                        .getDelegate();
+
+                final Object config = get(nested, "getConfig");
+                assertNotNull(config);
+                assertEquals("dataset", get(config, "getName"));
+
+                final Object datastore = get(config, "getDatastore");
+                assertNotNull(datastore);
+                assertEquals("datastore", get(datastore, "getName"));
+                assertEquals("yes", get(datastore, "getComponent"));
             }
         }
     }
