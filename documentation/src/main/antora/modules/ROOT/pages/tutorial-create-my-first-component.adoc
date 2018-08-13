@@ -10,7 +10,7 @@ Once the prerequisites completed, this tutorial should take you about 20 minutes
 image::tutorial_build_job_run.png[Job run]
 
 == Prerequisites
-As this tutorial aims at helping you to create your very first component, it also covers some of the installation steps that are specific to Talend Component Kit to get your development environment ready. But first, make sure to:
+This tutorial aims at helping you to create your very first component. But before, get your development environment ready:
 
 - Download and install a Java JDK 1.8 or greater.
 - Download and install Talend Open Studio. For example, from link:https://sourceforge.net/projects/talend-studio[Sourceforge].
@@ -41,7 +41,7 @@ image::tutorial_component_generic_input.png[Generic Input]
 NOTE: By default, when selecting *PROCESSOR/OUTPUT*, there is one input branch and no output branch for the component, which is fine in the case of this tutorial. A processor without any output branch is considered an output component.
 . Click *Next* and check the name and location of your project, then click *Finish* to generate the project in the IDE. +
 
-At this point, your component is technically already ready to be compiled and deployed to Talend Open Studio. But let's first have a look at the generated project:
+At this point, your component is technically already ready to be compiled and deployed to Talend Open Studio. But first, have a look at the generated project:
 
 image::tutorial_generated_project_view.png[Project view]
 
@@ -56,7 +56,7 @@ These files are the starting point if you later need to edit the configuration, 
 There is more that you can do and configure with the *Talend Component Kit Starter*. This tutorial covers only the basics. You can find more information in xref:tutorial-generate-project-using-starter.adoc[this document].
 
 == Compiling and deploying the component to Talend Open Studio
-Without any modification in the component code, let's compile the project and deploy the component to a local instance of Talend Open Studio.
+Without any modification in the component code, you can compile the project and deploy the component to a local instance of Talend Open Studio.
 
 This way, it will be easy to check that what is visible in the Studio is what is intended.
 
@@ -87,7 +87,7 @@ Go to the next section to learn how to define a simple logic.
 
 
 == Editing the component
-Let's edit the component to implement a simple logic aiming at reading the data contained in the input branch of the component, to display it the execution logs of the job. The value of the *level* field of the component also needs to be displayed and changed to uppercase.
+You can now edit the component to implement a simple logic aiming at reading the data contained in the input branch of the component, to display it the execution logs of the job. The value of the *level* field of the component also needs to be displayed and changed to uppercase.
 
 1. Save the job created earlier and close Talend Open Studio.
 2. Back in IntelliJ open the *LoggerOutput* class. This is the class where the component logic can be defined.
