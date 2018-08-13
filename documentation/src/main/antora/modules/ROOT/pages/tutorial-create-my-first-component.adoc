@@ -35,7 +35,7 @@ image::intellij_tutorial_project_metadata.png[Project metadata]
 . Select *CONFIGURATION MODEL* and add a string field named `level`. This input field will be used in the component configuration to enter additional information to display in the logs. +
 +
 image::tutorial_component_configuration_model.png[Configuration Model]
-. In the *Input(s) / Output(s), click the default *MAIN* input branch to access its detail, and toggle the *Generic* option to specify that the component can receive any type of data. Leave the *Name* of the branch with its default `MAIN` value. +
+. In the *Input(s) / Output(s)* section, click the default *MAIN* input branch to access its detail, and toggle the *Generic* option to specify that the component can receive any type of data. Leave the *Name* of the branch with its default `MAIN` value. +
 +
 image::tutorial_component_generic_input.png[Generic Input]
 NOTE: By default, when selecting *PROCESSOR/OUTPUT*, there is one input branch and no output branch for the component, which is fine in the case of this tutorial. A processor without any output branch is considered an output component.
