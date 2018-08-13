@@ -13,3 +13,5 @@ include::methodology-creating-components.adoc[leveloffset=+1]
 include::tck-framework-overview.adoc[leveloffset=+1]
 
 include::component-execution.adoc[leveloffset=+1]
+
+include::tutorial-create-my-first-component.adoc[leveloffset=+1]
