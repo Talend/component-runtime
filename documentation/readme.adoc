@@ -15,3 +15,7 @@ For pages that should appear as a tile on the index page:
 * `:page-documentationindex-label:` is the title of the tile in the index page.
 * `:page-documentationindex-icon:` is the icon of the tile in the index page. The value of this attribute should be the name of a free icon on fontawesome.
 * `:page-documentationindex-description:` is a short description of the page that will be displayed in the tile under its title.
+
+For pages containing API descriptions:
+
+* `:page-talend_swaggerui: true` indicates that the page contains some API reference that should be displayed using Swagger UI
