@@ -1,5 +1,7 @@
 = Generating a project using the Component Kit starter
 :page-partial:
+:description: Learn how to define the basic configuration of a component using the Talend Component Kit Starter to start your project
+:keywords: tutorial, example, starter
 
 [[tutorial-generate-project-using-starter]]
 The Component Kit starter lets you design your components configuration and generates a ready-to-implement project structure.

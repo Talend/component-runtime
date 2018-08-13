@@ -1,5 +1,7 @@
 = Talend Component Kit best practices
 :page-partial:
+:keywords: best practices, checklist
+:description: List of best practices for developing Talend components.
 
 == Organizing your code
 

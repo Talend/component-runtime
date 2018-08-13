@@ -1,5 +1,7 @@
 = Testing on multiple environments
 :page-partial:
+:description: Learn how to test components on multiple environments with Talend Component Kit
+:keywords: test, Junit, Beam
 
 JUnit (4 or 5) already provides ways to parameterize tests and execute the same "test logic"
 against several sets of data. However, it is not very convenient for testing multiple environments.

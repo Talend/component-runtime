@@ -1,6 +1,7 @@
 [[component-runtime-http-junit]]
 == component-runtime-http-junit
 :page-partial:
+:page-talend_skipindexation:
 
 The HTTP JUnit module allows you to mock REST API very simply. The module coordinates are:
 
@@ -185,5 +186,3 @@ void run() throws Exception {
     // ...
 }
 ----
-
-

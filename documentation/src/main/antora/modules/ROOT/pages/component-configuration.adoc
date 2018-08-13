@@ -1,5 +1,7 @@
 = Defining component parameters and configuration
 :page-partial:
+:description: How to define the layout and configurable options of a component
+:keywords: layout, option, field
 
 The component configuration is defined in the `<component_name>Configuration.java` file of the package. It consists in defining the configurable part of the component that will be displayed in the UI.
 

@@ -1,5 +1,7 @@
 = Building components with Gradle
 :page-partial:
+:description: Use Gradle or the Gradle wrapper as build tool to develop components
+:keywords: gradle
 
 To develop new components, Talend Component Kit requires a build tool in which you will import the component project generated from the starter. With this build tool, you will also be able to implement the logic of your component and to install and deploy it to Talend applications.
 A Talend Component Kit plugin is available for each of the supported build tools.

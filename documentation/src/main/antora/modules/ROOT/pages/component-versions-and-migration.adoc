@@ -1,5 +1,7 @@
 = Managing component versions and migration
 :page-partial:
+:description: How to handle component versions and migration
+:keywords: migrationHandler, version, migration
 
 If some changes impact the configuration, they can be managed through a migration handler at the *component* level (enabling trans-model migration support).
 

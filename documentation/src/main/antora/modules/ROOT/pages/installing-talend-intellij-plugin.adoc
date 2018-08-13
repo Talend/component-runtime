@@ -1,5 +1,7 @@
 = Installing the Talend Component Kit IntelliJ plugin
 :page-partial:
+:description: how to install the Talend Component Kit plugin for IntelliJ
+:keywords: IntelliJ, plugin, starter
 
 [[installing-talend-intellij-plugin]]
 
@@ -36,7 +38,7 @@ image::intellij/plugin/3-restart.png[IDEA restart]
 
 image::intellij/plugin/4-restart.png[IDEA restart]
 
-The plugin is now installed on your IntelliJ IDEA. You can xref:generating-project-using-intellij-plugin.adoc[start using it].
+The plugin is now installed on your IntelliJ IDEA. You can xref:generate-project-using-intellij-plugin.adoc[start using it].
 
 == About the internationalization completion
 

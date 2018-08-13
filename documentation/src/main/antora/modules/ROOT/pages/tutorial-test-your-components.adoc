@@ -1,5 +1,7 @@
 = Testing a component
 :page-partial:
+:description: Example of input component testing using Talend Component Kit
+:keywords: tutorial, example, test, hazelcast
 
 [[tutorial-test-your-components]]
 This tutorial focuses on writing unit tests for the input component that was created in this xref:tutorial-create-an-input-component.adoc[previous tutorial].

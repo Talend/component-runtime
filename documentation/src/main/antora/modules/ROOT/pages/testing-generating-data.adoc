@@ -1,5 +1,7 @@
 = Generating data
 :page-partial:
+:description: Learn how to generate data for testing components developed with Talend Component Kit
+:keywords: test, generate data
 
 Several data generators exist if you want to populate objects with a semantic that is more evolved than a plain random string like `commons-lang3`:
 

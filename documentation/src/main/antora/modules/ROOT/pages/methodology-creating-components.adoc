@@ -1,5 +1,7 @@
 = Talend Component Kit methodology
 :page-partial:
+:description: Learn the main steps to build a custom component using Talend Component Kit
+:keywords: get started, learn
 
 [[getting-started-introducing-talend-component]]
 _Talend Component Kit_ is a framework designed to simplify the development of components at two levels:
@@ -22,7 +24,7 @@ Developing new components using the framework includes:
 .. Registering the component by specifying its metadata: family, categories, version, icon, type, and name.
 .. Defining the layout and configurable part of the components
 .. Defining the partition mapper for Input components
-.. Implementing the source logic for Input components
+.. Implementing the source logic (producer) for Input components
 .. Defining the processor for Output components
 . xref:index-testing-components.adoc[Testing the components]
 . xref:index-deploying-components.adoc[Deploying the components] to Talend Studio or Cloud applications

@@ -1,5 +1,6 @@
 == component-runtime-junit
 :page-partial:
+:page-talend_skipindexation:
 
 `component-runtime-junit` is a test library that allows you to validate simple logic based on the Talend Component Kit tooling.
 

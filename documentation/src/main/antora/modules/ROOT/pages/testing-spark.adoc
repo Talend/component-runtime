@@ -1,5 +1,6 @@
 == component-runtime-testing-spark
 :page-partial:
+:page-talend_skipindexation:
 
 The following artifact allows you to test against a Spark cluster:
 

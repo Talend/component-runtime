@@ -1,5 +1,7 @@
 = xref:component-producer.adoc[Defining the producer method]
 :page-partial:
+:description: How to develop a producer with Talend Component Kit
+:keywords: component type, producer, emitter, input
 
 The `Producer` method defines the source logic of an input component. It handles the interaction with a physical source and produces input data for the processing flow.
 
