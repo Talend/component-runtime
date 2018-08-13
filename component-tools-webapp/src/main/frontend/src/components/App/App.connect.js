@@ -22,6 +22,6 @@ import App from './App.component';
 
 export default connect(state => state.app.application, dispatch => {
   return {
-    removeNotification: bindActionCreators(removeNotification, dispatch)
+    removeNotification: bindActionCreators(removeNotification, dispatch),
   };
 })(App);

@@ -19,6 +19,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -26,8 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
+import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.proxy.test.CdiInject;
 import org.talend.sdk.component.proxy.test.WithServer;
 
@@ -40,6 +44,10 @@ class ActionServiceTest {
 
     @Inject
     private ActionService service;
+
+    @Inject
+    @UiSpecProxy
+    private Jsonb jsonb;
 
     @Test
     void http() throws Exception {
@@ -57,7 +65,7 @@ class ActionServiceTest {
         try {
             final Map<String, Object> result = service
                     .findBuiltInAction("builtin::http::dynamic_values(url=${remoteHttpService}/foo,headers=cookie)",
-                            "en", key -> {
+                            new UiSpecContext("en", key -> {
                                 if (key.equalsIgnoreCase("remoteHttpService")) {
                                     return "http://localhost:" + server.getAddress().getPort();
                                 }
@@ -65,7 +73,7 @@ class ActionServiceTest {
                                     return "identity";
                                 }
                                 throw new IllegalStateException("Unexpected key: " + key);
-                            }, emptyMap())
+                            }), emptyMap())
                     .toCompletableFuture()
                     .get();
             assertEquals(singletonMap("items", asList(new HashMap<String, Object>() {
@@ -89,7 +97,8 @@ class ActionServiceTest {
     @Test
     void references() throws Exception {
         final Map<String, Object> result = service
-                .findBuiltInAction("builtin::references(type=thetype,name=thename)", "en", null, emptyMap())
+                .findBuiltInAction("builtin::references(type=thetype,name=thename)", new UiSpecContext("en", null),
+                        emptyMap())
                 .toCompletableFuture()
                 .get();
         assertEquals(singletonMap("items", asList(new HashMap<String, Object>() {
@@ -105,5 +114,26 @@ class ActionServiceTest {
                 put("label", "thename2");
             }
         })), result);
+    }
+
+    @Test
+    void reloadFromParentId() throws Exception {
+        final Map<String, Object> result = service
+                .findBuiltInAction("builtin::root::reloadFromParentEntityId", new UiSpecContext("en", k -> null),
+                        singletonMap("id", "actionServices.reloadFromParentId"))
+                .toCompletableFuture()
+                .get();
+        final ActionService.NewForm form = jsonb.fromJson(jsonb.toJson(result), ActionService.NewForm.class);
+        assertNotNull(form);
+        assertNotNull(form.getJsonSchema());
+        assertNotNull(form.getUiSchema());
+        assertNotNull(form.getProperties());
+        assertNotNull(form.getMetadata());
+        assertEquals("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE", form.getMetadata().getId());
+        assertEquals("dataset-1", form.getJsonSchema().getTitle());
+        assertEquals(3, form.getJsonSchema().getProperties().size()); // testConfig, config, $datasetMetadata
+        assertEquals(3, form.getUiSchema().size());
+        assertEquals("{\"config\":{\"connection\":{\"$selfReference\":\"actionServices.reloadFromParentId\"}}}",
+                form.getProperties().toString());
     }
 }

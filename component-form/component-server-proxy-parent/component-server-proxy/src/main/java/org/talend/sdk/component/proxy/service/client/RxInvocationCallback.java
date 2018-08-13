@@ -32,8 +32,8 @@ public abstract class RxInvocationCallback<T> implements InvocationCallback<T> {
     private final CompletableFuture<T> completableFuture;
 
     @Override
-    public void completed(final T repsonse) {
-        completableFuture.complete(repsonse);
+    public void completed(final T response) {
+        completableFuture.complete(response);
     }
 
     @Override

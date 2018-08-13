@@ -44,15 +44,18 @@ public class IntegrationSelector implements Extension {
                 .types(Integration.class, Object.class)
                 .qualifiers(Default.Literal.INSTANCE, Any.Literal.INSTANCE)
                 .createWith(c -> integration.get());
+        afterBeanDiscovery
+                .addBean()
+                .id(getClass().getName() + "#referenceService")
+                .scope(ApplicationScoped.class)
+                .types(ReferenceService.class, Object.class)
+                .qualifiers(Default.Literal.INSTANCE, Any.Literal.INSTANCE)
+                .createWith(c -> integration.get().lookup(ReferenceService.class));
     }
 
     void afterDeploymentValidation(@Observes final AfterDeploymentValidation afterDeploymentValidation) {
-        Integration integration = findIntegration();
-        try { // validate it works
-            integration.lookup(ReferenceService.class);
-        } catch (final RuntimeException re) {
-            integration = new CdiIntegration();
-        }
+        final Integration integration = findIntegration();
+        // no eager validation cause of the injector lookup in guice which is lazy by design
         this.integration.set(new CachedIntegration(integration));
         log.info("Using integration {}", integration.getClass().getSimpleName().replace("Integration", ""));
     }

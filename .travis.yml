@@ -6,8 +6,9 @@ jdk:
 env:
    global:
     - MAVEN_OPTS="-Dformatter.skip=true -Dsurefire.useFile=false -Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dinvoker.streamLogs=false -Drmannibucau.travis.dumpOnLog=false"
-    - DEPLOY_OPTS="-Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true --batch-mode --settings $HOME/build/Talend/component-runtime/.travis/settings.xml -Possrh -Prelease -Ptravis -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar"
-    - BUILD_ARGS="clean install -e -q --batch-mode --settings $HOME/build/Talend/component-runtime/.travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true -Ptravis -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar"
+    - SKIP_OPTS="-Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true --settings $HOME/build/Talend/component-runtime/.travis/settings.xml -Ptravis -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar"
+    - DEPLOY_OPTS="$SKIP_OPTS --batch-mode -Possrh -Prelease"
+    - BUILD_ARGS="clean install -B -q -e --settings $HOME/build/Talend/component-runtime/.travis/settings.xml -Possrh -Ptravis -Prelease -Pdoc-gen -Dgpg.skip=true -Ptravis -Dmaven.ext.class.path=/tmp/maven-travis-output-1.0.0.jar"
 before_cache:
   - rm -Rf $HOME/.m2/repository/org/talend/sdk/component
 cache:
@@ -63,15 +64,20 @@ jobs:
       env:
       - STEP=Update Documentation
       script:
-      - rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache
+      - echo "Skipping >rm -Rf $HOME/build/Talend/component-runtime/documentation/src/main/frontend/.antora-cache<"
       - mvn clean install -e -q -Pdoc-gen -Pgh-pages -Dgpg.skip=true -Dtalend.github.cache=true $DEPLOY_OPTS
-      - cd documentation && mvn clean verify pre-site -e -q -Pgh-pages -Dgpg.skip=true $DEPLOY_OPTS && cd -
+      - cd documentation && mvn clean verify pre-site -e -Dwebhost.ftphost=$WEBHOST_FTPPHOST -Pgh-pages -Dgpg.skip=true $SKIP_OPTS && cd -
 
     - stage: master_build
       env:
       - STEP=Docker Deployment
       before_install: chmod +x ./.travis/setup_keys.sh && ./.travis/setup_keys.sh
       script: chmod +x ./.travis/docker.sh && ./.travis/docker.sh
+
+    - stage: master_build
+      env:
+      - STEP=Sonatype Audit
+      script: mvn ossindex:audit
 
 stages:
   - name: master_build

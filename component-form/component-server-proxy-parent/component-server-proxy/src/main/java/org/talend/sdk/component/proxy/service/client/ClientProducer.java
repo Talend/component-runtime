@@ -18,12 +18,8 @@ package org.talend.sdk.component.proxy.service.client;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.stream.Collectors.toList;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
@@ -50,7 +46,6 @@ import org.talend.sdk.component.proxy.service.ConfigurationService;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
-import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,8 +65,8 @@ public class ClientProducer {
             public CompletionStage<Ui> convert(final String family, final String lang, final ConfigTypeNode node,
                     final UiSpecContext context) {
                 return configurationService
-                        .filterNestedConfigurations(lang, context.getPlaceholderProvider(), node)
-                        .thenApply(ClientProducer.this::enforceFormIdInTriggersIfPresent)
+                        .filterNestedConfigurations(node, context)
+                        .thenApply(configurationService::enforceFormIdInTriggersIfPresent)
                         .thenCompose(config -> super.convert(family, lang, config, context));
             }
 
@@ -113,9 +108,7 @@ public class ClientProducer {
                     final String action, final String lang, final Map<String, Object> params,
                     final UiSpecContext context) {
                 if (actionService.isBuiltin(action)) {
-                    return actionService
-                            .findBuiltInAction(action, context.getLanguage(), context.getPlaceholderProvider(), params)
-                            .toCompletableFuture();
+                    return actionService.findBuiltInAction(action, context, params).toCompletableFuture();
                 }
                 return super.action(family, type, action, lang, params, context);
             }
@@ -148,6 +141,7 @@ public class ClientProducer {
         final javax.ws.rs.client.Client client = ClientBuilder
                 .newBuilder()
                 .executorService(executor)
+                .property("executorService", executor) // rx()
                 .connectTimeout(configuration.getConnectTimeout(), MILLISECONDS)
                 .readTimeout(configuration.getReadTimeout(), MILLISECONDS)
                 .build();
@@ -165,36 +159,5 @@ public class ClientProducer {
 
     public void disposeClient(@Disposes final javax.ws.rs.client.Client client) {
         client.close();
-    }
-
-    private ConfigTypeNode enforceFormIdInTriggersIfPresent(final ConfigTypeNode it) {
-        final Optional<SimplePropertyDefinition> idPropOpt = it
-                .getProperties()
-                .stream()
-                .filter(p -> "true".equals(p.getMetadata().get("proxyserver::formId")))
-                .findFirst();
-        if (!idPropOpt.isPresent()) {
-            return it;
-        }
-
-        // H: we assume the id uses a simple path (no array etc), should be the case generally
-        final String idProp = idPropOpt.get().getPath();
-        it.getProperties().forEach(prop -> {
-            final Map<String, String> metadata = prop.getMetadata();
-            final List<String> actions = metadata
-                    .keySet()
-                    .stream()
-                    .filter(k -> k.startsWith("action::") && k.split("::").length == 2)
-                    .collect(toList());
-            actions.forEach(act -> {
-                final String key = act + "::parameters";
-                final String originalValue = metadata.get(key);
-                final Map<String, String> newMetadata = new HashMap<>(metadata);
-                newMetadata.put(key, originalValue == null || originalValue.trim().isEmpty() ? idProp
-                        : (originalValue + ',' + idProp));
-                prop.setMetadata(newMetadata);
-            });
-        });
-        return it;
     }
 }

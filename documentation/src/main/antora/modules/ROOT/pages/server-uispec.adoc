@@ -20,7 +20,7 @@ include::{partialsdir}/generated_proxy-server-configuration.adoc[]
 
 === Adding custom entries to the forms
 
-As shown in the table above, you can customize the forms by type. The format reuses Talend Component Kit REST API (properties model) and defines two main types of extensions:
+As shown in the table above, you can customize the forms by type. The format reuses Talend Component Kit HTTP API (properties model) and defines two main types of extensions:
 
 1. `prependProperties`: Lists all the models of properties added to the form *before* the actual underlying form.
 2. `appendProperties`: Lists all the models of properties added to the form *after* the actual underlying form.
@@ -33,7 +33,7 @@ IMPORTANT: Always make sure to define a root object for these properties. Do not
 
 When developing a `org.talend.sdk.component.form.internal.converter.CustomPropertyConverter` CDI, the proxy adds it to the `UiSpecService` service and uses it with a high priority to convert the server model to a `UiSpec` model.
 
-TIP: To make it a CDI bean, add `@Dependent` to the class and if you use the <<play-integration,Play integration>>, customize the bean array: `playx.cdi.beans.customs +=  {className: org.talend.myapp.MyConverter}.`
+TIP: To make it a CDI bean, add `@Dependent` to the class and if you use the Play integration, customize the bean array: `playx.cdi.beans.customs +=  {className: org.talend.myapp.MyConverter}.`
 
 This allows to use a custom `@Ui` API and advanced modeling when specific to applications. +
 Converters are sorted respecting to the `@Priority` value. If the annotation is missing, the priority defaults to `0`.
@@ -139,6 +139,12 @@ public class ReferenceServiceImpl implements ReferenceService {
             .map(it -> new Values.Item(it.getId(), it.getName()))
             .collect(toList())));
     }
+
+    @Override
+    public CompletionStage<Form> findPropertiesById(final String id) {
+        final Entity entity = db.findById(id);
+        return CompletableFuture.completedFuture(Form.builder().properties(entity.getProperties()).formId(entity.getFormId()).build());
+    }
 }
 ----
 
@@ -182,7 +188,7 @@ In some cases you will want to hide this field if the proposals are <= 1, in thi
 
 === Reloading the form based on the selected root
 
-The `builtin::root::reloadFromId` action, with the `jsonpatch` type,
+The `builtin::root::reloadFromId` action, with the `reloadForm` type,
 allows to reload the whole form:
 
 [source,json]
@@ -205,6 +211,27 @@ allows to reload the whole form:
 It is common to have a dropdown with the list of roots and to reload the form when one is selected.
 
 The client side (javascript) is now fully encapsulated in `ComponentForm` from `@talend/ui`.
+
+
+=== Reloading the form based on a selected entity reference
+
+The `builtin::root::reloadFromParentEntityId` action, with the `reloadFromParentEntityId` type,
+allows to reload the whole form:
+
+[source,json]
+----
+{
+  "path": "$datasetMetadata.reference",
+  "displayName": "Reference",
+  "type": "STRING",
+  "metadata": {
+    "action::reloadFromParentEntityId": "builtin::root::reloadFromParentEntityId",
+    "action::reloadFromParentEntityId::parameters": "."
+  }
+}
+----
+
+IMPORTANT: references are automatically initialized if you use `PropertiesService#filterProperties`.
 
 == HTTP API
 
@@ -238,3 +265,11 @@ The server module contains several configurations that you can set in:
 - A file located based on the `--component-configuration` CLI option.
 
 include::{partialsdir}/generated_server-configuration.adoc[]
+
+== Services
+
+The module provides some services usable to fulfill some basic requirements of the component interaction:
+
+- `ConfigurationFormatter` to (un)flatten the properties (JSON from/to key-value format)
+- `ConfigurationVisitorService` to browse properties and identify credentials to cipher them
+- `ValidationService` to validate a JSON properties set before any persistence action

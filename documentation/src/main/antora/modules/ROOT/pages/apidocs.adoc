@@ -1,8 +1,12 @@
 = Talend Component Kit Javadocs
 :page-partial:
+:page-documentationindex-index: 15000
+:page-documentationindex-label: Javadocs
+:page-documentationindex-icon: file-alt
+:page-documentationindex-description: Access the detailed API reference documentation
 
 Refer to the following links to access the detailed API reference documentation:
 
-* link:{deploymentRoot}/apidocs/api/index.html[API Documentation^]
-* link:{deploymentRoot}/apidocs/junit/index.html[JUnit API Documentation^]
-* link:{deploymentRoot}/apidocs/junit-http/index.html[HTTP JUnit API Documentation^]
+* link:{deploymentRoot}/apidocs/{page-component-version}/api/index.html[API Documentation^]
+* link:{deploymentRoot}/apidocs/{page-component-version}/junit/index.html[JUnit API Documentation^]
+* link:{deploymentRoot}/apidocs/{page-component-version}/junit-http/index.html[HTTP JUnit API Documentation^]

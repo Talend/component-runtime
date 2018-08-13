@@ -1,5 +1,6 @@
 = Services
 :page-partial:
+:page-talend_skipindexation:
 :page-documentationindex-index: 6000
 :page-documentationindex-label: Defining services
 :page-documentationindex-icon: share-alt

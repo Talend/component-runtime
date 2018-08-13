@@ -1,0 +1,55 @@
+= Managing component versions and migration
+:page-partial:
+
+If some changes impact the configuration, they can be managed through a migration handler at the *component* level (enabling trans-model migration support).
+
+The `@Version` annotation supports a `migrationHandler` method which migrates the incoming configuration to the current model.
+
+For example, if the `filepath` configuration entry from v1 changed to `location` in v2, you can remap the value in your `MigrationHandler` implementation.
+
+A best practice is to split migrations into services that you can inject in the migration handler (through constructor) rather than managing all migrations directly in the handler. For example:
+
+[source,java]
+----
+// full component code structure skipped for brievity, kept only migration part
+@Version(value = 3, migrationHandler = MyComponent.Migrations.class)
+public class MyComponent {
+    // the component code...
+
+
+    private interface VersionConfigurationHandler {
+        Map<String, String> migrate(Map<String, String> incomingData);
+    }
+
+    public static class Migrations {
+        private final List<VersionConfigurationHandler> handlers;
+
+        // VersionConfigurationHandler implementations are decorated with @Service
+        public Migrations(final List<VersionConfigurationHandler> migrations) {
+            this.handlers = migrations;
+            this.handlers.sort(/*some custom logic*/);
+        }
+
+        @Override
+        public Map<String, String> migrate(int incomingVersion, Map<String, String> incomingData) {
+            Map<String, String> out = incomingData;
+            for (MigrationHandler handler : handlers) {
+                out = handler.migrate(out);
+            }
+        }
+    }
+}
+----
+
+What is important to notice in this snippet is the fact that you can organize your migrations the way that best fits your component.
+
+If you need to apply migrations in a specific order, make sure that they are sorted.
+
+NOTE: Consider this API as a migration callback rather than a migration API. +
+Adjust the migration code structure you need behind the `MigrationHandler`, based on your component requirements, using service injection.
+
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+
+endif::[]

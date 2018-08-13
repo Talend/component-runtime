@@ -112,8 +112,14 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
         defs.sort(comparing(SimplePropertyDefinition::getPath));
 
         final JsonObjectBuilder json = factory.createObjectBuilder();
+
         new ArrayList<>(definitions).stream().filter(it -> it.getPath().equals(prefix + it.getName())).forEach(
                 prop -> onProperty(prefix, definitions, config, json, prop));
+
+        // handle virtual properties ($xxx) which are not spec-ed
+        config.entrySet().stream().filter(it -> it.getKey().startsWith("$") && !it.getKey().contains(".")).forEach(
+                e -> json.add(e.getKey(), e.getValue()));
+
         return json.build();
     }
 

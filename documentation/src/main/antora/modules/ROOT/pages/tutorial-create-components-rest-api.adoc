@@ -132,7 +132,7 @@ public class SearchQuery {
     private final String sortOrder;
 }
 ----
-<1> The configuration class is marked as a `DataSet`. xref:component-configuration.adoc#_marking_a_configuration_as_a_particular_type_of_data [Read more about configuration types].
+<1> The configuration class is marked as a `DataSet`. xref:component-configuration.adoc#dataset-and-datastore[Read more about configuration types].
 <2> `@GridLayout` defines the UI layout of this configuration.
 <3> A text area widget is bound to the *Search query* field. xref:gallery.adoc[See all the available widgets].
 <4> The `@Documentation` annotation is used to document the component (configuration in this scope).

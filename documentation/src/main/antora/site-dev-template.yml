@@ -14,6 +14,7 @@
 site:
   title: Talend Component Kit Developer Guide
   start_page: main::index
+  url: http://localhost:8080
 content:
   sources:
   - url: ../../../..

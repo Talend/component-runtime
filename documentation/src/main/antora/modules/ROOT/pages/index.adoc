@@ -1,8 +1,11 @@
 = Talend Component Kit Developer Guide
 :page-talend_documentationindex: true
+:page-talend_skipindexation:
 
 Talend Component Kit is a framework designed to help you create Talend components for both Talend Studio and Cloud applications. +
 This framework unifies the way components are built to ensure they are standardized and easy to deploy in different environments, as well as 'upgrade-compliant' as Talend applications are getting updated on a regular basis.
+
+Start developing components by generating a project from the link:https://starter-toolkit.talend.io[Component Kit Starter] or by downloading the link:https://plugins.jetbrains.com/plugin/10558-talend-component-kit--intellij-plugin[Component Kit IntelliJ plugin].
 
 ifeval::["{backend}" == "html5"]
 ifeval::["{page-origin-refname}" == "master"]

@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-runtime-testing</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -26,7 +26,7 @@
   <description>JUnit integration to simplify the HTTP API testing/mocking.</description>
 
   <properties>
-    <netty.version>4.1.19.Final</netty.version>
+    <netty.version>4.1.28.Final</netty.version>
     <talend.build.name>${talend.build.name.base}.junit.http</talend.build.name>
   </properties>
 
@@ -81,6 +81,12 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit5.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>

@@ -18,11 +18,15 @@ package org.talend.sdk.component.proxy.service;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static org.talend.sdk.component.proxy.model.ProxyErrorDictionary.NO_FAMILY_FOR_CONFIGURATION;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -32,14 +36,15 @@ import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import org.talend.sdk.component.proxy.api.service.RequestContext;
 import org.talend.sdk.component.proxy.model.Node;
 import org.talend.sdk.component.proxy.model.Nodes;
 import org.talend.sdk.component.proxy.model.ProxyErrorPayload;
 import org.talend.sdk.component.proxy.service.client.ConfigurationClient;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 /**
  * This service encapsulate all the logic of the configuration transformation
@@ -53,10 +58,10 @@ public class ConfigurationService {
     @Inject
     private PropertiesService propertiesService;
 
-    public CompletionStage<ConfigTypeNode> filterNestedConfigurations(final String lang,
-            final Function<String, String> placeholders, final ConfigTypeNode node) {
+    public CompletionStage<ConfigTypeNode> filterNestedConfigurations(final ConfigTypeNode node,
+            final UiSpecContext context) {
         return propertiesService
-                .filterProperties(lang, placeholders, node.getProperties())
+                .filterProperties(node.getProperties(), context)
                 .thenApply(props -> new ConfigTypeNode(node.getId(), node.getVersion(), node.getParentId(),
                         node.getConfigurationType(), node.getName(), node.getDisplayName(), node.getEdges(), props,
                         node.getActions()));
@@ -129,8 +134,43 @@ public class ConfigurationService {
                 .getIcon();
     }
 
-    public CompletionStage<Map<String, String>> replaceReferences(final RequestContext context,
+    public CompletionStage<Map<String, String>> replaceReferences(final UiSpecContext context,
             final ConfigTypeNode detail, final Map<String, String> props) {
         return propertiesService.replaceReferences(context, detail.getProperties(), props);
+    }
+
+    public ConfigTypeNode enforceFormIdInTriggersIfPresent(final ConfigTypeNode it) {
+        final Optional<SimplePropertyDefinition> idPropOpt = findFormId(it);
+        if (!idPropOpt.isPresent()) {
+            return it;
+        }
+
+        // H: we assume the id uses a simple path (no array etc), should be the case generally
+        final String idProp = idPropOpt.get().getPath();
+        it.getProperties().forEach(prop -> {
+            final Map<String, String> metadata = prop.getMetadata();
+            final List<String> actions = metadata
+                    .keySet()
+                    .stream()
+                    .filter(k -> k.startsWith("action::") && k.split("::").length == 2)
+                    .collect(toList());
+            actions.forEach(act -> {
+                final String key = act + "::parameters";
+                final String originalValue = metadata.get(key);
+                final Map<String, String> newMetadata = new HashMap<>(metadata);
+                newMetadata.put(key, originalValue == null || originalValue.trim().isEmpty() ? idProp
+                        : (originalValue + ',' + idProp));
+                prop.setMetadata(newMetadata);
+            });
+        });
+        return it;
+    }
+
+    public Optional<SimplePropertyDefinition> findFormId(final ConfigTypeNode node) {
+        return node
+                .getProperties()
+                .stream()
+                .filter(p -> "true".equals(p.getMetadata().get("proxyserver::formId")))
+                .findFirst();
     }
 }

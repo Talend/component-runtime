@@ -1,0 +1,14 @@
+= xref:component-producer.adoc[Defining the producer method]
+:page-partial:
+
+The `Producer` method defines the source logic of an input component. It handles the interaction with a physical source and produces input data for the processing flow.
+
+A producer must have a `@Producer` method without any parameter. It is triggered by the `@Emitter` of the partition mapper and can return any data. It is defined in the `<component_name>Source.java` file:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@Producer
+public MyData produces() {
+    return ...;
+}
+----

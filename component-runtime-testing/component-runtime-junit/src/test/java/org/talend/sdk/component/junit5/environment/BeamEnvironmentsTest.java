@@ -47,9 +47,9 @@ class BeamEnvironmentsTest {
 
     @EnvironmentalTest
     void execute(final TestInfo info) throws ClassNotFoundException {
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         final String runner = ServiceLoader
-                .load(Thread.currentThread().getContextClassLoader().loadClass(
-                        "org.apache.beam.sdk.runners.PipelineRunnerRegistrar"))
+                .load(classLoader.loadClass("org.apache.beam.sdk.runners.PipelineRunnerRegistrar"))
                 .iterator()
                 .next()
                 .getClass()

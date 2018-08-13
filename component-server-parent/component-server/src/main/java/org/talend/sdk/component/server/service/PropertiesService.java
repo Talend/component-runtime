@@ -21,6 +21,8 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -69,13 +71,13 @@ public class PropertiesService {
         }
     }
 
-    public Stream<SimplePropertyDefinition> buildProperties(final Collection<ParameterMeta> meta,
-            final ClassLoader loader, final Locale locale, final Object rootInstance) {
+    public Stream<SimplePropertyDefinition> buildProperties(final List<ParameterMeta> meta, final ClassLoader loader,
+            final Locale locale, final Object rootInstance) {
         return buildProperties(meta, loader, locale, rootInstance, null);
     }
 
-    private Stream<SimplePropertyDefinition> buildProperties(final Collection<ParameterMeta> meta,
-            final ClassLoader loader, final Locale locale, final Object rootInstance, final ParameterMeta parent) {
+    private Stream<SimplePropertyDefinition> buildProperties(final List<ParameterMeta> meta, final ClassLoader loader,
+            final Locale locale, final Object rootInstance, final ParameterMeta parent) {
         return meta.stream().flatMap(p -> {
             final String path = sanitizePropertyName(p.getPath());
             final String name = sanitizePropertyName(p.getName());
@@ -88,13 +90,20 @@ public class PropertiesService {
                 }
                 validation.setEnumValues(p.getProposals());
             }
-            final Map<String, String> metadata = ofNullable(p.getMetadata())
+            final Map<String, String> sanitizedMetadata = ofNullable(p.getMetadata())
                     .map(m -> m
                             .entrySet()
                             .stream()
                             .filter(e -> !e.getKey().startsWith(ValidationParameterEnricher.META_PREFIX))
                             .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)))
                     .orElse(null);
+            final Map<String, String> metadata;
+            if (parent != null) {
+                metadata = sanitizedMetadata;
+            } else {
+                metadata = ofNullable(sanitizedMetadata).orElseGet(HashMap::new);
+                metadata.put("definition::parameter::index", String.valueOf(meta.indexOf(p)));
+            }
             final Object instance = defaultValueInspector.createDemoInstance(rootInstance, p);
             final ParameterBundle bundle = p.findBundle(loader, locale);
             final ParameterBundle parentBundle = parent == null ? null : parent.findBundle(loader, locale);

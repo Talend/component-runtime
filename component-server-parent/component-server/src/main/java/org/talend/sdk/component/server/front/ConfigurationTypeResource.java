@@ -15,13 +15,18 @@
  */
 package org.talend.sdk.component.server.front;
 
-import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
+import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.BOOLEAN;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJECT;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,6 +48,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.design.extension.repository.Config;
@@ -60,6 +72,8 @@ import org.talend.sdk.component.server.service.PropertiesService;
 
 import lombok.extern.slf4j.Slf4j;
 
+@Tag(name = "Configuration Type",
+        description = "Endpoints related to configuration types (reusable configuration) metadata access.")
 @Slf4j
 @Path("configurationtype")
 @ApplicationScoped
@@ -82,33 +96,39 @@ public class ConfigurationTypeResource {
     @Inject
     private ConfigurationDao configurations;
 
-    /**
-     * Returns all available configuration type - storable models.
-     * Note that the lightPayload flag allows to load all of them at once when you eagerly need
-     * to create a client model for all configurations.
-     *
-     * @param language the language for display names.
-     * @param lightPaylaod should the payload skip the forms and actions associated to the configuration.
-     * @return the list of available and storable configurations (datastore, dataset, ...).
-     */
     @GET
     @Path("index")
-    public ConfigTypeNodes getRepositoryModel(@QueryParam("language") @DefaultValue("en") final String language,
-            @QueryParam("lightPayload") @DefaultValue("true") final boolean lightPaylaod) {
+    @Operation(description = "Returns all available configuration type - storable models. "
+            + "Note that the lightPayload flag allows to load all of them at once when you eagerly need "
+            + " to create a client model for all configurations.")
+    @APIResponse(responseCode = "200",
+            description = "the list of available and storable configurations (datastore, dataset, ...).",
+            content = @Content(mediaType = APPLICATION_JSON))
+    public ConfigTypeNodes getRepositoryModel(
+            @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
+                    description = "the language for display names.", in = QUERY,
+                    schema = @Schema(type = STRING, defaultValue = "en")) final String language,
+            @QueryParam("lightPayload") @DefaultValue("true") @Parameter(name = "lightPayload",
+                    description = "should the payload skip the forms and actions associated to the configuration.",
+                    in = QUERY, schema = @Schema(type = BOOLEAN, defaultValue = "true")) final boolean lightPaylaod) {
         return toNodes(language, s -> true, lightPaylaod);
     }
 
-    /**
-     * Returns the set of metadata about a few configurations identified by their 'id'.
-     *
-     * @param language the language for display names/placeholders/....
-     * @param ids the configuration identifiers to request.
-     * @return the list of details for the requested configurations.
-     */
     @GET
     @Path("details")
-    public ConfigTypeNodes getDetail(@QueryParam("language") @DefaultValue("en") final String language,
-            @QueryParam("identifiers") final String[] ids) {
+    @Operation(description = "Returns all available configuration type - storable models. "
+            + "Note that the lightPayload flag allows to load all of them at once when you eagerly need "
+            + " to create a client model for all configurations.")
+    @APIResponse(responseCode = "200",
+            description = "the list of available and storable configurations (datastore, dataset, ...).",
+            content = @Content(mediaType = APPLICATION_JSON))
+    public ConfigTypeNodes getDetail(
+            @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
+                    description = "the language for display names.", in = QUERY,
+                    schema = @Schema(type = STRING, defaultValue = "en")) final String language,
+            @QueryParam("identifiers") @Parameter(name = "identifiers",
+                    description = "the comma separated list of identifiers to request.",
+                    in = QUERY) final String[] ids) {
         final Predicate<String> filter = ids == null ? s -> false : new Predicate<String>() {
 
             private final Collection<String> values = Stream.of(ids).collect(toSet());
@@ -122,18 +142,22 @@ public class ConfigurationTypeResource {
         return toNodes(language, filter, false);
     }
 
-    /**
-     * Allows to migrate a configuration without calling any component execution.
-     *
-     * @param id the configuration identifier.
-     * @param version the sent configuration version.
-     * @param config the configuration in key/value form.
-     * @return the new configuration or the same if no migration was needed.
-     */
     @POST
     @Path("migrate/{id}/{configurationVersion}")
-    public Map<String, String> migrate(@PathParam("id") final String id,
-            @PathParam("configurationVersion") final int version, final Map<String, String> config) {
+    @Operation(description = "Allows to migrate a configuration without calling any component execution.")
+    @APIResponse(responseCode = "200",
+            description = "the new values for that configuration (or the same if no migration was needed).",
+            content = @Content(mediaType = APPLICATION_JSON))
+    @APIResponse(responseCode = "404", description = "The configuration is not found",
+            content = @Content(mediaType = APPLICATION_JSON))
+    public Map<String, String>
+            migrate(@PathParam("id") @Parameter(name = "id", description = "the configuration identifier",
+                    in = PATH) final String id,
+                    @PathParam("configurationVersion") @Parameter(name = "configurationVersion",
+                            description = "the configuration version you send", in = PATH) final int version,
+                    @RequestBody(description = "the actual configuration in key/value form.", required = true,
+                            content = @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(type = OBJECT))) final Map<String, String> config) {
         return ofNullable(configurations.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)
@@ -170,7 +194,7 @@ public class ConfigurationTypeResource {
                     final int prefixLen = c.getMeta().getPath().length();
                     final String forcedPrefix = c.getMeta().getName();
                     node.setProperties(propertiesService
-                            .buildProperties(singleton(c.getMeta()), loader, locale, null)
+                            .buildProperties(singletonList(c.getMeta()), loader, locale, null)
                             .map(p -> new SimplePropertyDefinition(forcedPrefix + p.getPath().substring(prefixLen),
                                     p.getName(), p.getDisplayName(), p.getType(), p.getDefaultValue(),
                                     p.getValidation(), p.getMetadata(), p.getPlaceholder(),

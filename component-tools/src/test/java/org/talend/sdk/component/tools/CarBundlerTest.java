@@ -29,10 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.HttpURLConnection;
@@ -47,6 +48,7 @@ import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
+import org.apache.ziplock.IO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.OS;
 import org.talend.sdk.component.junit.base.junit5.TemporaryFolder;
@@ -61,7 +63,196 @@ import lombok.extern.slf4j.Slf4j;
 class CarBundlerTest {
 
     @Test
-    void bundle(final TemporaryFolder temporaryFolder) throws NoSuchMethodException, IOException, InterruptedException {
+    void bundleWithExistingSameComponent(final TemporaryFolder temporaryFolder) throws Exception {
+        final CarBundler.Configuration configuration = prepareBundle(temporaryFolder);
+
+        // try to execute the main now in a fake studio
+        final File fakeStudio = temporaryFolder.newFolder();
+        final File fakeConfig = new File(fakeStudio, "configuration/config.ini");
+        fakeConfig.getParentFile().mkdirs();
+        try (final Writer writer = new FileWriter(fakeConfig)) {
+            writer.write("component.java.coordinates = foo.bar:dummy:1.2");
+        }
+        final File fakeM2 = new File(fakeStudio, "configuration/.m2/repository/");
+        fakeM2.mkdirs();
+        assertEquals(0,
+                new ProcessBuilder(
+                        new File(System.getProperty("java.home"),
+                                "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : "")).getAbsolutePath(),
+                        "-jar", configuration.getOutput().getAbsolutePath(), "studio-deploy",
+                        fakeStudio.getAbsolutePath()).inheritIO().start().waitFor());
+
+        assertEquals("component.java.coordinates = foo.bar:dummy:1.2",
+                Files.readAllLines(fakeConfig.toPath()).stream().collect(joining("\n")).trim());
+    }
+
+    @Test
+    void bundleWithExistingOtherComponent(final TemporaryFolder temporaryFolder) throws Exception {
+        final CarBundler.Configuration configuration = prepareBundle(temporaryFolder);
+
+        // try to execute the main now in a fake studio
+        final File fakeStudio = temporaryFolder.newFolder();
+        final File fakeConfig = new File(fakeStudio, "configuration/config.ini");
+        fakeConfig.getParentFile().mkdirs();
+        try (final Writer writer = new FileWriter(fakeConfig)) {
+            writer.write("component.java.coordinates = a.bar:dummy:1.3,a.bar:h:2.2");
+        }
+        final File fakeM2 = new File(fakeStudio, "configuration/.m2/repository/");
+        fakeM2.mkdirs();
+        assertEquals(0,
+                new ProcessBuilder(
+                        new File(System.getProperty("java.home"),
+                                "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : "")).getAbsolutePath(),
+                        "-jar", configuration.getOutput().getAbsolutePath(), "studio-deploy",
+                        fakeStudio.getAbsolutePath()).inheritIO().start().waitFor());
+
+        assertEquals("component.java.coordinates = foo.bar:dummy:1.2,a.bar:dummy:1.3,a.bar:h:2.2",
+                String.join("\n", Files.readAllLines(fakeConfig.toPath())).trim());
+    }
+
+    @Test
+    void bundleWithExistingSameComponentOtherVersion(final TemporaryFolder temporaryFolder) throws Exception {
+        final CarBundler.Configuration configuration = prepareBundle(temporaryFolder);
+
+        // try to execute the main now in a fake studio
+        final File fakeStudio = temporaryFolder.newFolder();
+        final File fakeConfig = new File(fakeStudio, "configuration/config.ini");
+        fakeConfig.getParentFile().mkdirs();
+        try (final Writer writer = new FileWriter(fakeConfig)) {
+            writer.write("component.java.coordinates = foo.bar:dummy:1.1");
+        }
+        final File fakeM2 = new File(fakeStudio, "configuration/.m2/repository/");
+        fakeM2.mkdirs();
+        assertEquals(0,
+                new ProcessBuilder(
+                        new File(System.getProperty("java.home"),
+                                "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : "")).getAbsolutePath(),
+                        "-jar", configuration.getOutput().getAbsolutePath(), "studio-deploy",
+                        fakeStudio.getAbsolutePath()).inheritIO().start().waitFor());
+
+        assertEquals("component.java.coordinates = foo.bar:dummy:1.2",
+                String.join("\n", Files.readAllLines(fakeConfig.toPath())).trim());
+    }
+
+    @Test
+    void bundleWithExistingSameComponentOtherVersionAndOtherComponents(final TemporaryFolder temporaryFolder)
+            throws Exception {
+        final CarBundler.Configuration configuration = prepareBundle(temporaryFolder);
+
+        // try to execute the main now in a fake studio
+        final File fakeStudio = temporaryFolder.newFolder();
+        final File fakeConfig = new File(fakeStudio, "configuration/config.ini");
+        fakeConfig.getParentFile().mkdirs();
+        try (final Writer writer = new FileWriter(fakeConfig)) {
+            writer.write("component.java.coordinates = a:b:1,foo.bar:dummy:1.1,d:e:3");
+        }
+        final File fakeM2 = new File(fakeStudio, "configuration/.m2/repository/");
+        fakeM2.mkdirs();
+        assertEquals(0,
+                new ProcessBuilder(
+                        new File(System.getProperty("java.home"),
+                                "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : "")).getAbsolutePath(),
+                        "-jar", configuration.getOutput().getAbsolutePath(), "studio-deploy",
+                        fakeStudio.getAbsolutePath()).inheritIO().start().waitFor());
+
+        assertEquals("component.java.coordinates = foo.bar:dummy:1.2,a:b:1,d:e:3",
+                String.join("\n", Files.readAllLines(fakeConfig.toPath())).trim());
+    }
+
+    @Test
+    void bundle(final TemporaryFolder temporaryFolder) throws Exception {
+        final CarBundler.Configuration configuration = prepareBundle(temporaryFolder);
+
+        // try to execute the main now in a fake studio
+        final File fakeStudio = temporaryFolder.newFolder();
+        final File fakeConfig = new File(fakeStudio, "configuration/config.ini");
+        fakeConfig.getParentFile().mkdirs();
+        try (final Writer writer = new FileWriter(fakeConfig)) {
+            // no-op, just create the file
+        }
+        final File fakeM2 = new File(fakeStudio, "configuration/.m2/repository/");
+        fakeM2.mkdirs();
+        assertEquals(0,
+                new ProcessBuilder(
+                        new File(System.getProperty("java.home"),
+                                "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : "")).getAbsolutePath(),
+                        "-jar", configuration.getOutput().getAbsolutePath(), "studio-deploy",
+                        fakeStudio.getAbsolutePath()).inheritIO().start().waitFor());
+
+        // asserts the jar was installed and the component registered
+        assertTrue(new File(fakeM2, "foo/bar/dummy/1.2/dummy-1.2.jar").exists());
+        assertEquals("component.java.coordinates = foo.bar:dummy:1.2",
+                Files.readAllLines(fakeConfig.toPath()).stream().collect(joining("\n")).trim());
+    }
+
+    @Test
+    void uploadToNexusV2(final TemporaryFolder temporaryFolder)
+            throws IOException, NoSuchMethodException, InterruptedException {
+        final String repoName = "releases";
+        final String pathToJar = "foo/bar/dummy/1.2/dummy-1.2.jar";
+        final File m2 = temporaryFolder.newFolder();
+        final File dep = createTempJar(m2, pathToJar);
+        final byte[] expected;
+        try (final InputStream in = new FileInputStream(dep)) {
+            expected = IO.readBytes(in);
+        }
+
+        final CarBundler.Configuration configuration = createConfiguration(temporaryFolder, dep);
+
+        final AtomicInteger serverCalls = new AtomicInteger(0);
+        HttpServer server = createTestServerV2(serverCalls, expected, repoName, pathToJar);
+        try {
+            server.start();
+            assertEquals(0, new ProcessBuilder(
+                    new File(System.getProperty("java.home"), "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : ""))
+                            .getAbsolutePath(),
+                    "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus", "--url",
+                    "http://localhost:" + server.getAddress().getPort() + "/nexus", "--repo", repoName, "--user",
+                    "admin", "--pass", "admin123", "--threads", "1", "--dir", m2.getAbsolutePath())
+                            .inheritIO()
+                            .start()
+                            .waitFor());
+        } finally {
+            server.stop(0);
+        }
+        assertEquals(3, serverCalls.intValue());
+    }
+
+    @Test
+    void uploadToNexusV3(final TemporaryFolder temporaryFolder)
+            throws IOException, InterruptedException, NoSuchMethodException {
+        final String repoName = "releases";
+        final String pathToJar = "foo/bar/dummy/1.2/dummy-1.2.jar";
+        final File m2 = temporaryFolder.newFolder();
+        final File dep = createTempJar(m2, pathToJar);
+        final byte[] expected;
+        try (final InputStream in = new FileInputStream(dep)) {
+            expected = IO.readBytes(in);
+        }
+
+        final CarBundler.Configuration configuration = createConfiguration(temporaryFolder, dep);
+
+        final AtomicInteger serverCalls = new AtomicInteger(0);
+        HttpServer server = createTestServerV3(serverCalls, expected, repoName, pathToJar);
+        try {
+            server.start();
+            assertEquals(0, new ProcessBuilder(
+                    new File(System.getProperty("java.home"), "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : ""))
+                            .getAbsolutePath(),
+                    "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus", "--url",
+                    "http://localhost:" + server.getAddress().getPort(), "--repo", repoName, "--user", "admin",
+                    "--pass", "admin123", "--threads", "1", "--dir", m2.getAbsolutePath())
+                            .inheritIO()
+                            .start()
+                            .waitFor());
+        } finally {
+            server.stop(0);
+        }
+        assertEquals(3, serverCalls.intValue());
+    }
+
+    private CarBundler.Configuration prepareBundle(final TemporaryFolder temporaryFolder)
+            throws IOException, NoSuchMethodException {
         final File m2 = temporaryFolder.newFolder();
         final File dep = new File(m2, "foo/bar/dummy/1.2/dummy-1.2.jar");
         dep.getParentFile().mkdirs();
@@ -109,93 +300,7 @@ class CarBundlerTest {
                 assertNull(depJar.getNextJarEntry());
             }
         }
-
-        // try to execute the main now in a fake studio
-        final File fakeStudio = temporaryFolder.newFolder();
-        final File fakeConfig = new File(fakeStudio, "configuration/config.ini");
-        fakeConfig.getParentFile().mkdirs();
-        try (final Writer writer = new FileWriter(fakeConfig)) {
-            // no-op, just create the file
-        }
-        final File fakeM2 = new File(fakeStudio, "configuration/.m2/repository/");
-        fakeM2.mkdirs();
-        assertEquals(0,
-                new ProcessBuilder(
-                        new File(System.getProperty("java.home"),
-                                "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : "")).getAbsolutePath(),
-                        "-jar", configuration.getOutput().getAbsolutePath(), "studio-deploy",
-                        fakeStudio.getAbsolutePath()).inheritIO().start().waitFor());
-
-        // asserts the jar was installed and the component registered
-        assertTrue(new File(fakeM2, "foo/bar/dummy/1.2/dummy-1.2.jar").exists());
-        assertEquals("component.java.coordinates = foo.bar:dummy:1.2",
-                Files.readAllLines(fakeConfig.toPath()).stream().collect(joining("\n")).trim());
-    }
-
-    @Test
-    void uploadToNexusV2(final TemporaryFolder temporaryFolder)
-            throws IOException, NoSuchMethodException, InterruptedException {
-        final String repoName = "releases";
-        final String pathToJar = "foo/bar/dummy/1.2/dummy-1.2.jar";
-        final File m2 = temporaryFolder.newFolder();
-        final File dep = createTempJar(m2, pathToJar);
-        final byte[] expected;
-        try (final BufferedReader in = new BufferedReader(new FileReader(dep))) {
-            expected = in.lines().collect(joining("/n")).getBytes();
-        }
-
-        final CarBundler.Configuration configuration = createConfiguration(temporaryFolder, dep);
-
-        final AtomicInteger serverCalls = new AtomicInteger(0);
-        HttpServer server = createTestServerV2(serverCalls, expected, repoName, pathToJar);
-        try {
-            server.start();
-            assertEquals(0, new ProcessBuilder(
-                    new File(System.getProperty("java.home"), "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : ""))
-                            .getAbsolutePath(),
-                    "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus", "--url",
-                    "http://localhost:" + server.getAddress().getPort() + "/nexus", "--repo", repoName, "--user",
-                    "admin", "--pass", "admin123", "--threads", "1", "--dir", m2.getAbsolutePath())
-                            .inheritIO()
-                            .start()
-                            .waitFor());
-        } finally {
-            server.stop(0);
-        }
-        assertEquals(3, serverCalls.intValue());
-    }
-
-    @Test
-    void uploadToNexusV3(final TemporaryFolder temporaryFolder)
-            throws IOException, InterruptedException, NoSuchMethodException {
-        final String repoName = "releases";
-        final String pathToJar = "foo/bar/dummy/1.2/dummy-1.2.jar";
-        final File m2 = temporaryFolder.newFolder();
-        final File dep = createTempJar(m2, pathToJar);
-        final byte[] expected;
-        try (final BufferedReader in = new BufferedReader(new FileReader(dep))) {
-            expected = in.lines().collect(joining("/n")).getBytes();
-        }
-
-        final CarBundler.Configuration configuration = createConfiguration(temporaryFolder, dep);
-
-        final AtomicInteger serverCalls = new AtomicInteger(0);
-        HttpServer server = createTestServerV3(serverCalls, expected, repoName, pathToJar);
-        try {
-            server.start();
-            assertEquals(0, new ProcessBuilder(
-                    new File(System.getProperty("java.home"), "/bin/java" + (OS.WINDOWS.isCurrentOs() ? ".exe" : ""))
-                            .getAbsolutePath(),
-                    "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus", "--url",
-                    "http://localhost:" + server.getAddress().getPort(), "--repo", repoName, "--user", "admin",
-                    "--pass", "admin123", "--threads", "1", "--dir", m2.getAbsolutePath())
-                            .inheritIO()
-                            .start()
-                            .waitFor());
-        } finally {
-            server.stop(0);
-        }
-        assertEquals(3, serverCalls.intValue());
+        return configuration;
     }
 
     private File createTempJar(final File m2, final String pathToJar) throws IOException {
@@ -236,9 +341,8 @@ class CarBundlerTest {
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_NOT_FOUND, 0);
             } else if (httpExchange.getRequestMethod().equalsIgnoreCase("PUT")) {
                 final byte[] bytes;
-                try (final BufferedReader in =
-                        new BufferedReader(new InputStreamReader(httpExchange.getRequestBody()))) {
-                    bytes = in.lines().collect(joining("\n")).getBytes();
+                try (final InputStream in = httpExchange.getRequestBody()) {
+                    bytes = IO.readBytes(in);
                 }
                 assertArrayEquals(expected, bytes);
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_CREATED, 0);
@@ -265,9 +369,8 @@ class CarBundlerTest {
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_NOT_FOUND, 0);
             } else if (httpExchange.getRequestMethod().equalsIgnoreCase("POST")) {
                 final byte[] bytes;
-                try (final BufferedReader in =
-                        new BufferedReader(new InputStreamReader(httpExchange.getRequestBody()))) {
-                    bytes = in.lines().collect(joining("\n")).getBytes();
+                try (final InputStream in = httpExchange.getRequestBody()) {
+                    bytes = IO.readBytes(in);
                 }
                 assertArrayEquals(expected, bytes);
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_CREATED, 0);

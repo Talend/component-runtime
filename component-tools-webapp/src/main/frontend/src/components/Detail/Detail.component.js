@@ -16,7 +16,9 @@
 
 import React from 'react';
 import { Inject } from '@talend/react-cmf';
+import errors from '@talend/react-forms/lib/UIForm/utils/errors';
 import kit from '@talend/react-containers/lib/ComponentForm/kit';
+import service from '@talend/react-containers/lib/ComponentForm/kit/service';
 
 function NoSelectedComponent() {
 	return (
@@ -27,10 +29,35 @@ function NoSelectedComponent() {
 	);
 }
 
+function parseQuery() {
+    const queryString = window.location.search || '?';
+    let query = {
+        language: 'en'
+    };
+    return (queryString.length && queryString[0] === '?' ? queryString.substr(1) : queryString)
+        .split('&')
+        .map(pair => pairs[i].split('='))
+        .reduce((a, p) => a[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || ''), {});
+}
+
 function Detail(props) {
 	let notSelected = null;
-	let submited = null;
+	let submitted = null;
 	let form = null;
+
+    const validationWithSuccessFeedback = ({ trigger, schema, body, errors }) => {
+        if (body.status === 'OK' && trigger.type === 'healthcheck') {
+            props.onNotification({
+                title: 'Success',
+                message: body.comment || `Trigger ${trigger.type} / ${trigger.family} / ${trigger.action} succeeded`,
+            });
+        }
+    	return service.validation({ schema, body, errors });
+    };
+    const registry = {
+        healthcheck: validationWithSuccessFeedback,
+    };
+
 	if (!props.definitionURL) {
 		notSelected = (<NoSelectedComponent/>);
 	}  else {
@@ -40,11 +67,12 @@ function Detail(props) {
 				definitionURL={`/api/v1${props.definitionURL}`}
 				triggerURL="/api/v1/application/action"
 				onSubmit={props.onSubmit}
+				customTriggers={registry}
 			/>
 		);
 		if (props.submitted) {
 			const configuration = kit.flatten(props.uiSpec.properties);
-			submited = (
+			submitted = (
 				<div>
 					<pre>{JSON.stringify(configuration, undefined, 2)}</pre>
 				</div>
@@ -58,7 +86,7 @@ function Detail(props) {
 				{form}
 			</div>
 			<div className="col-md-6">
-				{submited}
+				{submitted}
 			</div>
 		</div>
 	);

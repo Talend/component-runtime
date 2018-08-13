@@ -1,27 +1,62 @@
 
 
+== Version 1.0.5
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-970[TCOMP-970^]: Add support for complex parameter types for AsyncValidation methods
+- link:https://jira.talendforge.org/browse/TCOMP-984[TCOMP-984^]: Integrate ParameterizedTest with component-runtime-http-junit capture mode
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]:  [documentation] Sample implementation of bulk/batch/commit-interval using groups
+- link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
+- link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard
+
+
 == Version 1.0.4
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-911[TCOMP-911^]: Suggestions callback doesn't support Configuration parameters
+- link:https://jira.talendforge.org/browse/TCOMP-921[TCOMP-921^]: String cannot be cast to Boolean when adding table with checkboxes
 - link:https://jira.talendforge.org/browse/TCOMP-922[TCOMP-922^]: component manager : support loading dependencies from job lib folder.
 - link:https://jira.talendforge.org/browse/TCOMP-924[TCOMP-924^]: component-kit.js errors are not sent to the error handler
 - link:https://jira.talendforge.org/browse/TCOMP-927[TCOMP-927^]: talend-component:web errors are not always unwrapped and understandable
 - link:https://jira.talendforge.org/browse/TCOMP-934[TCOMP-934^]: Ensure Studio rely on category and doesn't append family name
+- link:https://jira.talendforge.org/browse/TCOMP-960[TCOMP-960^]: Suggestions parameters are not correctly resolved in Studio
+- link:https://jira.talendforge.org/browse/TCOMP-961[TCOMP-961^]: Default value of Suggestions method parameter is ignored
+- link:https://jira.talendforge.org/browse/TCOMP-964[TCOMP-964^]: ClassCastException is thrown when non-string values are used as Suggestions method parameter
 
 
 === New Feature
 
+- link:https://jira.talendforge.org/browse/TCOMP-825[TCOMP-825^]: Provide component server proxy
+- link:https://jira.talendforge.org/browse/TCOMP-928[TCOMP-928^]: Add negate and evaluation strategy to @ActiveIf
 - link:https://jira.talendforge.org/browse/TCOMP-929[TCOMP-929^]: Ensure category contains the family
 
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-816[TCOMP-816^]: Check migration feature and implement missing use-cases
 - link:https://jira.talendforge.org/browse/TCOMP-918[TCOMP-918^]: create a mvn bom with tacokit stack to keep some dependencies aligned between component-runtime and it's studio integration
 - link:https://jira.talendforge.org/browse/TCOMP-932[TCOMP-932^]: Avoid Kafka recursive logging for component server
 - link:https://jira.talendforge.org/browse/TCOMP-933[TCOMP-933^]: Drop component-kit.js module
 - link:https://jira.talendforge.org/browse/TCOMP-935[TCOMP-935^]: Component server should log application and service in kafka mode
 - link:https://jira.talendforge.org/browse/TCOMP-938[TCOMP-938^]: Add a builtin::http trigger in the server proxy
+- link:https://jira.talendforge.org/browse/TCOMP-939[TCOMP-939^]: Ensure the proxy server can lookup references with a SPI
+- link:https://jira.talendforge.org/browse/TCOMP-943[TCOMP-943^]: (web) Grand parent references for triggers not well resolved
+- link:https://jira.talendforge.org/browse/TCOMP-944[TCOMP-944^]: (proxy server) Ensure the trigger are well resolved for references
+- link:https://jira.talendforge.org/browse/TCOMP-947[TCOMP-947^]: (maven/gradle) ensure web task logs there is a UI
+- link:https://jira.talendforge.org/browse/TCOMP-953[TCOMP-953^]: Upgrade to ziplock 7.0.5
+- link:https://jira.talendforge.org/browse/TCOMP-954[TCOMP-954^]: Upgrade netty to 4.1.28.Final for the test stack
+- link:https://jira.talendforge.org/browse/TCOMP-958[TCOMP-958^]: Componentvalidator error message in case of an unsupported type is misleading
+- link:https://jira.talendforge.org/browse/TCOMP-959[TCOMP-959^]: [dependency upgrade] Upgrade to icon bundle 0.202.0
+- link:https://jira.talendforge.org/browse/TCOMP-962[TCOMP-962^]: .car deploy-in-studio command (CarMain) should support to override an existing version
+- link:https://jira.talendforge.org/browse/TCOMP-965[TCOMP-965^]: [dependency upgrade] Apache Beam 2.6.0
+- link:https://jira.talendforge.org/browse/TCOMP-966[TCOMP-966^]: Ensure Studio integration renames HTTP threads to identify them more explicitly
+- link:https://jira.talendforge.org/browse/TCOMP-967[TCOMP-967^]: Ensure parameter index is in metadata for services and constructors
 
 
 == Version 1.0.3

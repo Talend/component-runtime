@@ -1,5 +1,6 @@
 = Deploying components to Talend applications
 :page-partial:
+:page-talend_skipindexation:
 :page-documentationindex-index: 7500
 :page-documentationindex-label: Integrating components
 :page-documentationindex-icon: share-square

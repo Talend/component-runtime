@@ -1,12 +1,11 @@
 = Knowledge base
 :page-partial:
+:page-talend_skipindexation:
 :page-documentationindex-index: 9000
 :page-documentationindex-label: Knowledge base
 :page-documentationindex-icon: list-alt
 :page-documentationindex-description: Read advanced articles about Talend Component Kit
 
 Go deeper in the framework with the following articles.
-
-- xref:documentation-rest.adoc[Talend Component Kit REST API Documentation]
 
 - xref:creating-plugins.adoc[Creating plugins]

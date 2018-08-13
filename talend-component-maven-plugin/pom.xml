@@ -17,7 +17,7 @@
   <parent>
     <artifactId>component-runtime</artifactId>
     <groupId>org.talend.sdk.component</groupId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -79,30 +79,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-codec</artifactId>
-      <version>${batik.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>xml-apis</groupId>
-          <artifactId>xml-apis</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>xalan</groupId>
-          <artifactId>xalan</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>xerces</groupId>
-          <artifactId>xercesImpl</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
-      <version>1.14</version>
-    </dependency>
-    <dependency>
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>
       <version>2.3.28</version>
@@ -134,7 +110,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.5</version>
+        <version>3.5.2</version>
         <executions>
           <execution>
             <id>mojo-descriptor</id>
@@ -197,7 +173,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.5</version>
+        <version>3.5.2</version>
       </plugin>
     </plugins>
   </reporting>

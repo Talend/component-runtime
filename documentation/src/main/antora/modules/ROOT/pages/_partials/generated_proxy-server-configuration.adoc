@@ -13,6 +13,7 @@ If you use `playx-microprofile-config`, you can also use typesafe configuration.
 |talend.component.proxy.client.timeouts.connect|The connect timeout for the communication with the server.base in ms.|60000
 |talend.component.proxy.client.timeouts.read|The read timeout for the communication with the server.base in ms.|600000
 |talend.component.proxy.jcache.active|Should the server use jcache to store catalog information and refresh it with some polling. If so the keys `talend.component.proxy.jcache.caches.$cacheName.expiry.duration`, `talend.component.proxy.jcache.caches.$cacheName.management.active` and `talend.component.proxy.jcache.caches.$cacheName.statistics.active` will be read to create a JCache `MutableConfiguration`. Also note that if all the cachesshare the same configuration you can ignore the `$cacheName` layer.|true
+|talend.component.proxy.jcache.cache-key.name|A header to use in the cache key (to represent a tenant or equivalent).|-
 |talend.component.proxy.jcache.provider|Caching provider implementation to use (only set it if ambiguous).|-
 |talend.component.proxy.jcache.refresh.period|Number of seconds used to check if the server must be refreshed.|60
 |talend.component.proxy.processing.headers|The headers to append to the request when contacting the server. Format is a properties one. You can put a hardcoded value or a placeholder (`${key}`).In this case it will be read from the request attributes and headers.|-

@@ -16,4 +16,5 @@ ifeval::["{backend}" == "html5"]
 == Related articles
 - xref:tck-framework-overview.adoc[Talend Component Kit framework overview]
 - xref:methodology-creating-components.adoc[Methodology for creating components]
+- xref:component-execution.adoc[General component execution logic]
 endif::[]

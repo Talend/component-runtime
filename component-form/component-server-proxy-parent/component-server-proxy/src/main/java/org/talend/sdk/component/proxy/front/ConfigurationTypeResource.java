@@ -146,14 +146,14 @@ public class ConfigurationTypeResource implements ConfigurationTypes {
 
     @Override
     public CompletionStage<Map<String, String>> resolveConfiguration(final RequestContext context, final String id) {
+        final UiSpecContext uiSpecContext = new UiSpecContext(context.language(), context::findPlaceholder);
         return onFindByIdEvent.fireAsync(new OnFindById(context, id)).thenCompose(byId -> byId
                 .getFormId()
                 .thenCompose(formId -> configurationClient
                         .getDetails(context.language(), formId, context::findPlaceholder)
-                        .thenCompose(detail -> configurationService.filterNestedConfigurations(context.language(),
-                                context::findPlaceholder, detail)))
+                        .thenCompose(detail -> configurationService.filterNestedConfigurations(detail, uiSpecContext)))
                 .thenCompose(detail -> byId.getProperties().thenCompose(
-                        props -> configurationService.replaceReferences(context, detail, props))));
+                        props -> configurationService.replaceReferences(uiSpecContext, detail, props))));
     }
 
     @Override

@@ -1,0 +1,17 @@
+= Tutorials
+:page-partial:
+:page-talend_skipindexation:
+
+include::tutorial-generate-project-using-starter.adoc[leveloffset=+1]
+
+include::tutorial-create-an-input-component.adoc[leveloffset=+1]
+
+include::tutorial-create-an-output-component.adoc[leveloffset=+1]
+
+include::tutorial-create-components-rest-api.adoc[leveloffset=+1]
+
+include::tutorial-test-rest-api.adoc[leveloffset=+1]
+
+include::tutorial-test-your-components.adoc[leveloffset=+1]
+
+include::tutorial-dev-vs-ci-setup.adoc[leveloffset=+1]

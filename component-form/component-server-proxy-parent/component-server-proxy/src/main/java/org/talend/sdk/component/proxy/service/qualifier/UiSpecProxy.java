@@ -24,10 +24,16 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Qualifier;
 
 @Qualifier
 @Target({ TYPE, FIELD, METHOD, PARAMETER })
 @Retention(RUNTIME)
 public @interface UiSpecProxy {
+
+    class Literal extends AnnotationLiteral<UiSpecProxy> {
+
+        public static final Literal INSTANCE = new Literal();
+    }
 }

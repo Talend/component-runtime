@@ -1,5 +1,6 @@
 = Talend Component Kit Overview
 :page-partial:
+:page-talend_skipindexation:
 
 //== Getting help
 
@@ -15,8 +16,3 @@ If you don't know about Talend Component Kit, you can get started by going throu
   <<getting-started.adoc#getting-started-principles, Code>>
 
 //== Learning about Talend Component features
-
-* *Learning about core features:*
-  <<component-definition.adoc#, Overview>>
-* *Advanced:*
-  <<documentation-testing.adoc#, Testing>>

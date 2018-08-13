@@ -24,6 +24,10 @@ import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
+import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJECT;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
@@ -59,6 +63,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.design.extension.DesignModel;
@@ -90,6 +101,7 @@ import org.talend.sdk.component.spi.component.ComponentExtension;
 
 import lombok.extern.slf4j.Slf4j;
 
+@Tag(name = "Component", description = "Endpoints related to component metadata access.")
 @Slf4j
 @Path("component")
 @ApplicationScoped
@@ -134,19 +146,17 @@ public class ComponentResource {
         getIndex("en", false);
     }
 
-    /**
-     * Returns a list of dependencies for the given components.
-     *
-     * IMPORTANT: don't forget to add the component itself since it will not be part of the dependencies.
-     *
-     * Then you can use /dependency/{id} to download the binary.
-     *
-     * @param ids the list of component identifiers to find the dependencies for.
-     * @return the list of dependencies per component.
-     */
     @GET
     @Path("dependencies")
-    public Dependencies getDependencies(@QueryParam("identifier") final String[] ids) {
+    @Operation(description = "Returns a list of dependencies for the given components. "
+            + "IMPORTANT: don't forget to add the component itself since it will not be part of the dependencies."
+            + "Then you can use /dependency/{id} to download the binary.")
+    @APIResponse(responseCode = "200", description = "The list of dependencies per component",
+            content = @Content(mediaType = APPLICATION_JSON))
+    public Dependencies
+            getDependencies(@QueryParam("identifier") @Parameter(name = "identifier",
+                    description = "the list of component identifiers to find the dependencies for.",
+                    in = QUERY) final String[] ids) {
         if (ids.length == 0) {
             return new Dependencies(emptyMap());
         }
@@ -178,17 +188,15 @@ public class ComponentResource {
                         }).orElse(new DependencyDefinition(emptyList())))));
     }
 
-    /**
-     * Return a binary of the dependency represented by `id`.
-     * It can be maven coordinates for dependencies or a component id.
-     *
-     * @param id the dependency identifier.
-     * @return the dependency binary (jar).
-     */
     @GET
     @Path("dependency/{id}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public StreamingOutput getDependency(@PathParam("id") final String id) {
+    @Operation(description = "Return a binary of the dependency represented by `id`. "
+            + "It can be maven coordinates for dependencies or a component id.")
+    @APIResponse(responseCode = "200", description = "The dependency binary (jar).",
+            content = @Content(mediaType = APPLICATION_OCTET_STREAM))
+    public StreamingOutput getDependency(@PathParam("id") @Parameter(name = "id",
+            description = "the dependency binary (jar).", in = PATH) final String id) {
         final ComponentFamilyMeta.BaseMeta<?> component = componentDao.findById(id);
         final File file;
         if (component != null) { // local dep
@@ -232,17 +240,18 @@ public class ComponentResource {
         };
     }
 
-    /**
-     * Returns the list of available components.
-     *
-     * @param language the language for display names.
-     * @param includeIconContent should the icon binary format be included in the payload.
-     * @return the index of available components.
-     */
     @GET
     @Path("index")
-    public ComponentIndices getIndex(@QueryParam("language") @DefaultValue("en") final String language,
-            @QueryParam("includeIconContent") @DefaultValue("false") final boolean includeIconContent) {
+    @Operation(description = "Returns the list of available components.")
+    @APIResponse(responseCode = "200", description = "The index of available components.",
+            content = @Content(mediaType = APPLICATION_OCTET_STREAM))
+    public ComponentIndices getIndex(
+            @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
+                    description = "the language for display names.", in = QUERY,
+                    schema = @Schema(type = STRING, defaultValue = "en")) final String language,
+            @QueryParam("includeIconContent") @DefaultValue("false") @Parameter(name = "includeIconContent",
+                    description = "should the icon binary format be included in the payload.", in = QUERY,
+                    schema = @Schema(type = STRING, defaultValue = "en")) final boolean includeIconContent) {
         final Locale locale = localeMapper.mapLocale(language);
         return indicesPerRequest.computeIfAbsent(new RequestKey(locale, includeIconContent),
                 k -> new ComponentIndices(manager
@@ -266,16 +275,16 @@ public class ComponentResource {
                         .collect(toList())));
     }
 
-    /**
-     * Returns a particular family icon in raw bytes.
-     *
-     * @param id the family identifier.
-     * @return the family icon in binary form.
-     */
     @GET
     @Path("icon/family/{id}")
     @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
-    public Response familyIcon(@PathParam("id") final String id) {
+    @Operation(description = "Returns the icon for a family.")
+    @APIResponse(responseCode = "200", description = "Returns a particular family icon in raw bytes.",
+            content = @Content(mediaType = APPLICATION_OCTET_STREAM))
+    @APIResponse(responseCode = "404", description = "The family or icon is not found",
+            content = @Content(mediaType = APPLICATION_JSON))
+    public Response familyIcon(@PathParam("id") @Parameter(name = "id", description = "the family identifier",
+            in = PATH) final String id) {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta meta = componentFamilyDao.findById(id);
         if (meta == null) {
@@ -307,16 +316,16 @@ public class ComponentResource {
         return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
     }
 
-    /**
-     * Returns a particular component icon in raw bytes.
-     *
-     * @param id the component identifier.
-     * @return the component icon in binary form.
-     */
     @GET
     @Path("icon/{id}")
     @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
-    public Response icon(@PathParam("id") final String id) {
+    @Operation(description = "Returns a particular component icon in raw bytes.")
+    @APIResponse(responseCode = "200", description = "The component icon in binary form.",
+            content = @Content(mediaType = APPLICATION_OCTET_STREAM))
+    @APIResponse(responseCode = "404", description = "The family or icon is not found",
+            content = @Content(mediaType = APPLICATION_JSON))
+    public Response icon(@PathParam("id") @Parameter(name = "id", description = "the component icon identifier",
+            in = PATH) final String id) {
         // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta.BaseMeta<Object> meta = componentDao.findById(id);
         if (meta == null) {
@@ -349,18 +358,22 @@ public class ComponentResource {
         return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
     }
 
-    /**
-     * Allows to migrate a component configuration without calling any component execution.
-     *
-     * @param id the component identifier.
-     * @param version the configuration version you send.
-     * @param config the actual configuration in key/value form.
-     * @return the new configuration for that component (or the same if no migration was needed).
-     */
     @POST
     @Path("migrate/{id}/{configurationVersion}")
-    public Map<String, String> migrate(@PathParam("id") final String id,
-            @PathParam("configurationVersion") final int version, final Map<String, String> config) {
+    @Operation(description = "Allows to migrate a component configuration without calling any component execution.")
+    @APIResponse(responseCode = "200",
+            description = "the new configuration for that component (or the same if no migration was needed).",
+            content = @Content(mediaType = APPLICATION_JSON))
+    @APIResponse(responseCode = "404", description = "The component is not found",
+            content = @Content(mediaType = APPLICATION_JSON))
+    public Map<String, String>
+            migrate(@PathParam("id") @Parameter(name = "id", description = "the component identifier",
+                    in = PATH) final String id,
+                    @PathParam("configurationVersion") @Parameter(name = "configurationVersion",
+                            description = "the configuration version you send", in = PATH) final int version,
+                    @RequestBody(description = "the actual configuration in key/value form.", required = true,
+                            content = @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(type = OBJECT))) final Map<String, String> config) {
         return ofNullable(componentDao.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)
@@ -370,17 +383,19 @@ public class ComponentResource {
                 .migrate(version, config);
     }
 
-    /**
-     * Returns the set of metadata about a few components identified by their 'id'.
-     *
-     * @param language the language for display names/placeholders/....
-     * @param ids the component identifiers to request.
-     * @return the list of details for the requested components.
-     */
     @GET // TODO: max ids.length
     @Path("details") // bulk mode to avoid to fetch components one by one when reloading a pipeline/job
-    public ComponentDetailList getDetail(@QueryParam("language") @DefaultValue("en") final String language,
-            @QueryParam("identifiers") final String[] ids) {
+    @Operation(description = "Returns the set of metadata about a few components identified by their 'id'.")
+    @APIResponse(responseCode = "200", description = "the list of details for the requested components.",
+            content = @Content(mediaType = APPLICATION_JSON))
+    @APIResponse(responseCode = "400", description = "Some identifiers were not valid.",
+            content = @Content(mediaType = APPLICATION_JSON))
+    public ComponentDetailList getDetail(
+            @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
+                    description = "the language for display names.", in = QUERY,
+                    schema = @Schema(type = STRING, defaultValue = "en")) final String language,
+            @QueryParam("identifiers") @Parameter(name = "identifiers",
+                    description = "the component identifiers to request.", in = QUERY) final String[] ids) {
 
         if (ids == null || ids.length == 0) {
             return new ComponentDetailList(emptyList());
@@ -459,7 +474,9 @@ public class ComponentResource {
                 .map(vals -> vals
                         .stream()
                         .map(this::normalizeCategory)
-                        .map(category -> category.replace("${family}", meta.getParent().getName())) // not i18n-ed yet
+                        .map(category -> category.replace("${family}", meta.getParent().getName())) // not
+                                                                                                    // i18n-ed
+                                                                                                    // yet
                         .map(category -> meta
                                 .getParent()
                                 .findBundle(loader, locale)
