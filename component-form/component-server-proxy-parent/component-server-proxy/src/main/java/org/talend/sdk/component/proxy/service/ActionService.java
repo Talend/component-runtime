@@ -139,7 +139,7 @@ public class ActionService {
             return findBuiltInAction(action, context, params);
         }
         if ("dynamic_values".equals(type)) {
-            return self.findProposable(family, type, action, context.getLanguage(), context.getPlaceholderProvider());
+            return self.findProposable(family, type, action, context);
         }
         return client.action(family, type, action, context.getLanguage(), params, context);
     }
@@ -147,9 +147,9 @@ public class ActionService {
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.actions.proposables",
             cacheResolverFactory = CacheResolverManager.class, cacheKeyGenerator = ProxyCacheKeyGenerator.class)
     public CompletionStage<Map<String, Object>> findProposable(final String family, final String type,
-            final String action, final String lang, final Function<String, String> placeholders) {
+            final String action, final UiSpecContext context) {
         // we recreate the context and don't pass it as a param to ensure the cache key is right
-        return client.action(family, type, action, lang, emptyMap(), new UiSpecContext(lang, placeholders));
+        return client.action(family, type, action, context.getLanguage(), emptyMap(), context);
     }
 
     public boolean isBuiltin(final String action) {
@@ -314,8 +314,7 @@ public class ActionService {
             return CompletableFuture
                     .completedFuture(datastoreNode)
                     .thenApply(node -> modelEnricherService.enrich(node, context.getLanguage()))
-                    .thenCompose(detail -> toUiNode(context.getLanguage(), context.getPlaceholderProvider(), detail,
-                            null, noFamily));
+                    .thenCompose(detail -> toUiNode(context, detail, null, noFamily));
         }
         final CompletionStage<ComponentIndices> allComponents =
                 componentClient.getAllComponents(context.getLanguage(), context.getPlaceholderProvider());
@@ -323,8 +322,7 @@ public class ActionService {
                 .getAllConfigurations(context.getLanguage(), context.getPlaceholderProvider())
                 .thenCompose(configs -> allComponents.thenCompose(components -> {
                     final ConfigTypeNode family = configurationService.getFamilyOf(id, configs);
-                    return toUiNode(context.getLanguage(), context.getPlaceholderProvider(), detail, components,
-                            family);
+                    return toUiNode(context, detail, components, family);
                 })));
     }
 
@@ -338,15 +336,12 @@ public class ActionService {
                         }));
     }
 
-    private CompletionStage<UiNode> toUiNode(final String lang, final Function<String, String> placeholderProvider,
-            final ConfigTypeNode detail, final ComponentIndices iconComponents, final ConfigTypeNode family) {
-        return toUiSpec(detail, family, new UiSpecContext(lang, placeholderProvider))
-                .thenApply(ui -> new UiNode(ui,
-                        new Node(detail.getId(), detail.getDisplayName(), family.getId(), family.getDisplayName(),
-                                ofNullable(family.getId())
-                                        .map(id -> configurationService.findIcon(id, iconComponents))
-                                        .orElse(null),
-                                detail.getEdges(), detail.getVersion(), detail.getName())));
+    private CompletionStage<UiNode> toUiNode(final UiSpecContext context, final ConfigTypeNode detail,
+            final ComponentIndices iconComponents, final ConfigTypeNode family) {
+        return toUiSpec(detail, family, context).thenApply(ui -> new UiNode(ui, new Node(detail.getId(),
+                detail.getDisplayName(), family.getId(), family.getDisplayName(),
+                ofNullable(family.getId()).map(id -> configurationService.findIcon(id, iconComponents)).orElse(null),
+                detail.getEdges(), detail.getVersion(), detail.getName())));
     }
 
     private CompletionStage<ConfigTypeNode> getNode(final String id, final String lang,
