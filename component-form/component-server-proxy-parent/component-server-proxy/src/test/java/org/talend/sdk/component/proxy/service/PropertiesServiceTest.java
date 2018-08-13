@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -206,6 +207,7 @@ class PropertiesServiceTest {
                                     }
                                 })))
                 .thenApply(props -> {
+                    assertNotNull(props.remove("configuration.something.$selfReference"));
                     assertEquals(new HashMap<String, String>() {
 
                         {

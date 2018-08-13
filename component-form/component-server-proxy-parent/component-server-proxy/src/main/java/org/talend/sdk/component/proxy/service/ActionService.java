@@ -286,8 +286,10 @@ public class ActionService {
                     .orElseThrow(() -> new IllegalStateException(
                             "No parent matched for form " + node.getId() + "(entity=" + refId + ")"));
             configInstance.put(refProp.getPath() + ".$selfReference", refId); // assumed not in an array
-            return propertiesService.replaceReferences(context, node.getProperties(), configInstance).thenApply(
-                    props -> {
+            return propertiesService
+                    .filterProperties(node.getProperties(), context)
+                    .thenCompose(props -> propertiesService.replaceReferences(context, props, configInstance))
+                    .thenApply(props -> {
                         if (node.getProperties() != null && !node.getProperties().isEmpty()) {
                             newForm.setProperties(formatter.unflatten(node.getProperties(), props));
                         }
@@ -351,7 +353,8 @@ public class ActionService {
             final Function<String, String> placeholderProvider) {
         return id.isEmpty()
                 // todo: drop that hardcoded datastore string
-                ? CompletableFuture.completedFuture(new ConfigTypeNode("datastore", 0, null, "datastore", "datastore",
+                ? CompletableFuture.completedFuture(new ConfigTypeNode(
+                        "datastore", 0, null, "datastore", "datastore",
                         "datastore", emptySet(), new ArrayList<>(), new ArrayList<>()))
                 : configurationClient.getDetails(lang, id, placeholderProvider);
     }
