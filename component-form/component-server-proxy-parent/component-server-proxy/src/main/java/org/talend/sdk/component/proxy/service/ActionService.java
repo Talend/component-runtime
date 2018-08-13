@@ -360,15 +360,8 @@ public class ActionService {
 
     private CompletionStage<Ui> toUiSpec(final ConfigTypeNode detail, final ConfigTypeNode family,
             final UiSpecContext context) {
-        return configurationService
-                .filterNestedConfigurations(detail, context)
-                .thenCompose(newDetail -> uiSpecService
-                        .convert(family.getName(), context.getLanguage(), newDetail, context)
-                        .thenApply(ui -> {
-                            // drop properties, we handle them specifically
-                            ui.setProperties(null); // TODO
-                            return ui;
-                        }));
+        return configurationService.filterNestedConfigurations(detail, context).thenCompose(
+                newDetail -> uiSpecService.convert(family.getName(), context.getLanguage(), newDetail, context));
     }
 
     private CompletableFuture<Map<String, Object>> findRoots(final String lang,
