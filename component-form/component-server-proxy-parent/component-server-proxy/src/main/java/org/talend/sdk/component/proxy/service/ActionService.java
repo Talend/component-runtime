@@ -353,8 +353,7 @@ public class ActionService {
             final Function<String, String> placeholderProvider) {
         return id.isEmpty()
                 // todo: drop that hardcoded datastore string
-                ? CompletableFuture.completedFuture(new ConfigTypeNode(
-                        "datastore", 0, null, "datastore", "datastore",
+                ? CompletableFuture.completedFuture(new ConfigTypeNode("datastore", 0, null, "datastore", "datastore",
                         "datastore", emptySet(), new ArrayList<>(), new ArrayList<>()))
                 : configurationClient.getDetails(lang, id, placeholderProvider);
     }
@@ -436,10 +435,10 @@ public class ActionService {
                 return 0;
             }
             if (isNested(this, o)) {
-                return 1;
+                return -1;
             }
             if (isNested(o, this)) {
-                return -1;
+                return 1;
             }
             // just to sort globally
             return delegate.getId().compareTo(o.getDelegate().getId());
