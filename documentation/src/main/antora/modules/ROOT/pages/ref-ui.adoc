@@ -1,4 +1,5 @@
 = User Interface API
 :page-partial:
+:page-talend_skipindexation:
 
 include::{partialsdir}/generated_ui.adoc[leveloffset=+1]

@@ -1,5 +1,7 @@
 = xref:component-processor.adoc[Defining a processor]
 :page-partial:
+:description: How to develop a processor component with Talend Component Kit
+:keywords: component type, processor, output
 
 [[component-type-processor]]
 == What is a processor

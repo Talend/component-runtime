@@ -1,5 +1,7 @@
 = Wrapping a Beam I/O
 :page-partial:
+:description: Learn how to wrap Beam inputs and outputs
+:keywords: Beam, input, output
 
 [[wrapping-a-beam-io__start]]
 == Limitations

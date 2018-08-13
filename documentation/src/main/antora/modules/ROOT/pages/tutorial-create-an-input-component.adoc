@@ -1,5 +1,7 @@
 = Implementing an input component
 :page-partial:
+:description: Example of input component implementation with Talend Component Kit
+:keywords: tutorial, example, partition mapper, producer, source, hazelcast
 
 [[tutorial-create-an-input-component]]
 This tutorial shows how to create a complete working input component for https://hazelcast.org[Hazelcast], including:

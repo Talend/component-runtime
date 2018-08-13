@@ -1,5 +1,7 @@
 = component-runtime-testing
 :page-partial:
+:description: Testing component logic using Talend Component Kit tooling
+:keywords: runtime, testing, JUnit, Spark, HTTP
 
 include::testing-junit.adoc[]
 

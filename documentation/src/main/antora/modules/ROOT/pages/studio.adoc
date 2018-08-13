@@ -1,5 +1,7 @@
 = Integrating components into Talend Studio
 :page-partial:
+:description: How to install and configure components developed with Talend Component Kit in Talend Open Studio
+:keywords: component server, deploy, install
 
 Before integrating your components into the Studio, learn how to build and deploy them using xref:build-tools-maven.adoc[Maven] or xref:build-tools-gradle.adoc[Gradle] Talend Component Kit plugins.
 

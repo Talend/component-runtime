@@ -1,5 +1,7 @@
-= Generating a project using intelliJ plugin
+= Generating a project using IntelliJ plugin
 :page-partial:
+:description: Use the Talend Component Kit plugin for IntelliJ to generate a component project
+:keywords: starter, IDE
 
 Once the plugin xref:installing-talend-intellij-plugin.adoc[installed], you can generate a component project.
 

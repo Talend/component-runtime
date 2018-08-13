@@ -1,5 +1,7 @@
 = Defining an input component logic
 :page-partial:
+:description: How to develop an input component with Talend Component Kit
+:keywords: input, partition mapper, producer, emitter
 
 Input components are the components generally placed at the beginning of a Talend job. They are in charge of retrieving the data that will later be processed in the job.
 

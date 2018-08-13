@@ -1,5 +1,7 @@
 = Internationalizing components
 :page-partial:
+:description: How to implement internationalization with Talend Component Kit
+:keywords: messages, internationalization
 
 In common cases, you can store messages using a properties file in your component module to use internationalization.
 
