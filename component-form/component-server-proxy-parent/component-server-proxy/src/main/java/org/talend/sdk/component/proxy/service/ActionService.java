@@ -429,7 +429,12 @@ public class ActionService {
                 return 1;
             }
             // just to sort globally
-            return delegate.getId().compareTo(o.getDelegate().getId());
+            final int myPropCount = delegate.getProperties().size();
+            final int otherPropCount = o.getDelegate().getProperties().size();
+            if (myPropCount == otherPropCount) {
+                return delegate.getId().compareTo(o.getDelegate().getId());
+            }
+            return myPropCount - otherPropCount;
         }
 
         private boolean isNested(final ComparableConfigTypeNode o1, final ComparableConfigTypeNode o2) {
