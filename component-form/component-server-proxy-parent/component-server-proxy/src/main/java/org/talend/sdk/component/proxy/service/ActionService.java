@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 import javax.cache.annotation.CacheResult;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.ws.rs.client.CompletionStageRxInvoker;
 import javax.ws.rs.client.Invocation;
@@ -128,6 +129,10 @@ public class ActionService {
 
     @Inject
     private PropertiesService propertiesService;
+
+    @Inject
+    @UiSpecProxy
+    private JsonBuilderFactory builderFactory;
 
     private final GenericType<List<Map<String, Object>>> listType = new GenericType<List<Map<String, Object>>>() {
     };
@@ -293,9 +298,18 @@ public class ActionService {
                         if (node.getProperties() != null && !node.getProperties().isEmpty()) {
                             newForm.setProperties(formatter.unflatten(node.getProperties(), props));
                         }
-                        return newForm;
+                        return addFormId(node.getId(), newForm);
                     });
         });
+    }
+
+    private NewForm addFormId(final String nodeId, final NewForm newForm) {
+        newForm.setProperties(ofNullable(newForm.getProperties())
+                .map(builderFactory::createObjectBuilder)
+                .orElseGet(builderFactory::createObjectBuilder)
+                .add("$formId", nodeId)
+                .build());
+        return newForm;
     }
 
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.actions.getnewform",
@@ -305,7 +319,11 @@ public class ActionService {
     }
 
     private CompletableFuture<Map<String, Object>> createNewFormFromId(final String id, final UiSpecContext context) {
-        return self.getNewForm(context, id).thenApply(jsonMapService::toJsonMap).toCompletableFuture();
+        return self
+                .getNewForm(context, id)
+                .thenApply(f -> addFormId(id, f))
+                .thenApply(jsonMapService::toJsonMap)
+                .toCompletableFuture();
     }
 
     private NewForm toNewFormResponse(final UiNode uiNode) {
