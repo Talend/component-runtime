@@ -413,7 +413,7 @@ public class ActionService {
     }
 
     @Data
-    private static class ComparableConfigTypeNode implements Comparable<ComparableConfigTypeNode> {
+    static class ComparableConfigTypeNode implements Comparable<ComparableConfigTypeNode> {
 
         private final ConfigTypeNode delegate;
 
