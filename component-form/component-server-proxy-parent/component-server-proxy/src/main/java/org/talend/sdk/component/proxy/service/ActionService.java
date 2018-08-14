@@ -273,7 +273,7 @@ public class ActionService {
 
     private CompletionStage<NewForm> toNewForm(final UiSpecContext context, final ConfigTypeNode node,
             final String refId, final ConfigTypeNode parentFormSpec) {
-        return findUiSpec(node.getId(), context).thenApply(this::toNewFormResponse).thenCompose(newForm -> {
+        return self.getNewForm(context, node.getId()).thenCompose(newForm -> {
             final Map<String, String> configInstance = new HashMap<>();
             final SimplePropertyDefinition refProp = node
                     .getProperties()
@@ -298,11 +298,14 @@ public class ActionService {
         });
     }
 
+    @CacheResult(cacheName = "org.talend.sdk.component.proxy.actions.getnewform",
+            cacheResolverFactory = CacheResolverManager.class, cacheKeyGenerator = ProxyCacheKeyGenerator.class)
+    public CompletionStage<NewForm> getNewForm(final UiSpecContext context, final String id) {
+        return findUiSpec(id, context).thenApply(this::toNewFormResponse);
+    }
+
     private CompletableFuture<Map<String, Object>> createNewFormFromId(final String id, final UiSpecContext context) {
-        return findUiSpec(id, context)
-                .thenApply(this::toNewFormResponse)
-                .thenApply(jsonMapService::toJsonMap)
-                .toCompletableFuture();
+        return self.getNewForm(context, id).thenApply(jsonMapService::toJsonMap).toCompletableFuture();
     }
 
     private NewForm toNewFormResponse(final UiNode uiNode) {
