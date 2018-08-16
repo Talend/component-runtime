@@ -209,7 +209,7 @@ public class ActionService {
                 .compile(requireNonNull(String.class.cast(params.get("url")), "No url specificed for a http trigger"))
                 .apply(placeholderProvider);
         final List<String> headers = Stream
-                .of(String.class.cast(params.getOrDefault("headers", "")).split(","))
+                .of(String.class.cast(params.getOrDefault("headers", "")).split(";"))
                 .map(String::trim)
                 .filter(it -> !it.isEmpty())
                 .collect(toList());

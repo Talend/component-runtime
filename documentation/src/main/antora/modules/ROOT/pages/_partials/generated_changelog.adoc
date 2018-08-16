@@ -2,6 +2,11 @@
 
 == Version 1.0.5
 
+=== Backlog Task
+
+- link:https://jira.talendforge.org/browse/TCOMP-936[TCOMP-936^]: Fix/add support for Enum and List parameters in suggestions method
+
+
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-970[TCOMP-970^]: Add support for complex parameter types for AsyncValidation methods
