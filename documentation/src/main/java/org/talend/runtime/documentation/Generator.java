@@ -513,7 +513,7 @@ public class Generator {
                                                             .append(i.getKey())
                                                             .append("^]")
                                                             .append(": ")
-                                                            .append(i.getFields().getSummary())
+                                                            .append(i.getFields().getSummary().trim())
                                                             .append("\n"),
                                                     StringBuilder::append)),
                                     StringBuilder::append)))
