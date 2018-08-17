@@ -79,8 +79,8 @@ class ConfigurationMapperTest {
         assertEquals(new HashMap<String, String>() {
 
             {
-                put("configuration.flat.name", "foo");
-                put("configuration.flat.age", "0");
+                put("configuration.nested.name", "foo");
+                put("configuration.nested.age", "0");
             }
         }, configurationByExample(root));
     }
@@ -95,8 +95,8 @@ class ConfigurationMapperTest {
         assertEquals(new HashMap<String, String>() {
 
             {
-                put("configuration.list[0]", "a");
-                put("configuration.list[1]", "b");
+                put("configuration.array[0]", "a");
+                put("configuration.array[1]", "b");
             }
         }, configurationByExample(root));
     }
@@ -111,11 +111,11 @@ class ConfigurationMapperTest {
         assertEquals(new HashMap<String, String>() {
 
             {
-                put("configuration.list[0].name", "a");
-                put("configuration.list[0].age", "1");
+                put("configuration.array[0].name", "a");
+                put("configuration.array[0].age", "1");
 
-                put("configuration.list[1].name", "b");
-                put("configuration.list[1].age", "2");
+                put("configuration.array[1].name", "b");
+                put("configuration.array[1].age", "2");
             }
         }, configurationByExample(root));
     }
@@ -130,11 +130,11 @@ class ConfigurationMapperTest {
         assertEquals(new HashMap<String, String>() {
 
             {
-                put("configuration.list[0].flat.name", "a");
-                put("configuration.list[0].flat.age", "1");
+                put("configuration.array[0].nested.name", "a");
+                put("configuration.array[0].nested.age", "1");
 
-                put("configuration.list[1].flat.name", "b");
-                put("configuration.list[1].flat.age", "2");
+                put("configuration.array[1].nested.name", "b");
+                put("configuration.array[1].nested.age", "2");
             }
         }, configurationByExample(root));
     }
@@ -160,17 +160,17 @@ class ConfigurationMapperTest {
         assertEquals(new HashMap<String, String>() {
 
             {
-                put("configuration.list[0].list[0].flat.name", "a");
-                put("configuration.list[0].list[0].flat.age", "1");
+                put("configuration.array[0].array[0].nested.name", "a");
+                put("configuration.array[0].array[0].nested.age", "1");
 
-                put("configuration.list[0].list[1].flat.name", "b");
-                put("configuration.list[0].list[1].flat.age", "2");
+                put("configuration.array[0].array[1].nested.name", "b");
+                put("configuration.array[0].array[1].nested.age", "2");
 
-                put("configuration.list[1].list[0].flat.name", "c");
-                put("configuration.list[1].list[0].flat.age", "3");
+                put("configuration.array[1].array[0].nested.name", "c");
+                put("configuration.array[1].array[0].nested.age", "3");
 
-                put("configuration.list[1].list[1].flat.name", "d");
-                put("configuration.list[1].list[1].flat.age", "4");
+                put("configuration.array[1].array[1].nested.name", "d");
+                put("configuration.array[1].array[1].nested.age", "4");
             }
         }, configurationByExample(root));
     }

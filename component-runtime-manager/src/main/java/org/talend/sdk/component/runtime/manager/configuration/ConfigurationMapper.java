@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.manager.configuration;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -27,9 +28,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 public class ConfigurationMapper {
@@ -93,12 +96,20 @@ public class ConfigurationMapper {
         Field declaredField = null;
         Class<?> current = instance.getClass();
         while (current != null && current != Object.class) {
-            try {
-                declaredField = current.getDeclaredField(name);
-                break;
-            } catch (final NoSuchFieldException e) {
+            final Optional<Field> field = Stream
+                    .of(current.getDeclaredFields())
+                    .filter(it -> ofNullable(it.getAnnotation(Option.class))
+                            .map(Option::value)
+                            .filter(val -> !val.isEmpty())
+                            .orElseGet(it::getName)
+                            .equals(name))
+                    .findFirst();
+            if (!field.isPresent()) {
                 current = current.getSuperclass();
+                continue;
             }
+            declaredField = field.get();
+            break;
         }
         if (declaredField == null) {
             throw new IllegalArgumentException("No field '" + name + "' in " + instance);

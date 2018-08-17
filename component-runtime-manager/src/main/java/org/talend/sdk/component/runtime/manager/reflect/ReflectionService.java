@@ -90,7 +90,7 @@ public class ReflectionService {
         };
         final Collection<Function<Map<String, String>, Object>> factories =
                 Stream.of(executable.getParameters()).map(parameter -> {
-                    final String name = parameterModelService.findName(parameter);
+                    final String name = parameterModelService.findName(parameter, parameter.getName());
                     final Type parameterizedType = parameter.getParameterizedType();
                     if (Class.class.isInstance(parameterizedType)) {
                         final Object value = precomputed.get(parameterizedType);
