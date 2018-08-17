@@ -140,11 +140,17 @@ public class ConfigurationService {
     public ConfigTypeNode enforceFormIdInTriggersIfPresent(final ConfigTypeNode it) {
         final Optional<SimplePropertyDefinition> idPropOpt = findFormId(it);
         if (!idPropOpt.isPresent()) {
+            enrichTriggers(it, "$formId");
             return it;
         }
 
         // H: we assume the id uses a simple path (no array etc), should be the case generally
         final String idProp = idPropOpt.get().getPath();
+        enrichTriggers(it, idProp + ",$formId\n\n");
+        return it;
+    }
+
+    private void enrichTriggers(final ConfigTypeNode it, final String appended) {
         it.getProperties().forEach(prop -> {
             final Map<String, String> metadata = prop.getMetadata();
             metadata.keySet().stream().filter(k -> k.startsWith("action::") && k.split("::").length == 2).forEach(
@@ -153,15 +159,14 @@ public class ConfigurationService {
                         final String originalValue = metadata.get(key);
                         final Map<String, String> newMetadata = new HashMap<>(metadata);
                         final String newValue = (originalValue == null || originalValue.trim().isEmpty()
-                                ? ("action::healthcheck".equals(key) || "action::schema".equals(key)
+                                ? ("action::healthcheck".equals(act) || "action::schema".equals(act)
                                         ? prop.getPath() + ","
-                                        : "") + idProp
-                                : (originalValue + ',' + idProp)) + ",$formId";
+                                        : "") + appended
+                                : (originalValue + ',' + appended));
                         newMetadata.put(key, newValue);
                         prop.setMetadata(newMetadata);
                     });
         });
-        return it;
     }
 
     public Optional<SimplePropertyDefinition> findFormId(final ConfigTypeNode node) {

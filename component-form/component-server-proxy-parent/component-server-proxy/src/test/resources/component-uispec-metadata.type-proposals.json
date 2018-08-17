@@ -1,11 +1,11 @@
 {
   "prependProperties": [
     {
-      "path": "_datasetMetadata",
+      "path": "$datasetMetadata",
       "type": "OBJECT"
     },
     {
-      "path": "_datasetMetadata.type",
+      "path": "$datasetMetadata.type",
       "displayName": "Types",
       "type": "ENUM",
       "metadata": {

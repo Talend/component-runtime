@@ -92,7 +92,7 @@ class ConfigurationResourceTest {
                 .post(entity(factory
                         .createObjectBuilder()
                         .add("url", "http://")
-                        .add("_datasetMetadata", factory.createObjectBuilder().add("name", "New Connection"))
+                        .add("$datasetMetadata", factory.createObjectBuilder().add("name", "New Connection"))
                         .build(), APPLICATION_JSON_TYPE), EntityRef.class);
         assertNotNull(ref.getId());
         assertEquals(1, database.getPersist().size());
@@ -123,7 +123,7 @@ class ConfigurationResourceTest {
                 .post(entity(factory
                         .createObjectBuilder()
                         .add("url", "http://")
-                        .add("_datasetMetadata", factory.createObjectBuilder().add("name", config.getId()))
+                        .add("$datasetMetadata", factory.createObjectBuilder().add("name", config.getId()))
                         .build(), APPLICATION_JSON_TYPE), EntityRef.class);
         assertNotNull(ref.getId());
         assertEquals(1, database.getPersist().size());
@@ -147,7 +147,7 @@ class ConfigurationResourceTest {
                 .post(entity(factory
                         .createObjectBuilder()
                         .add("url", "http://")
-                        .add("_datasetMetadata", factory.createObjectBuilder().add("name", "Edited Connection"))
+                        .add("$datasetMetadata", factory.createObjectBuilder().add("name", "Edited Connection"))
                         .build(), APPLICATION_JSON_TYPE), EntityRef.class);
         assertEquals(id, ref.getId());
         assertEquals(1, database.getEdit().size());
@@ -231,7 +231,7 @@ class ConfigurationResourceTest {
     @Data
     public static class EnrichmentTestModel {
 
-        @JsonbProperty("_datasetMetadata")
+        @JsonbProperty("$datasetMetadata")
         private MetadataTestModel metadata;
     }
 
