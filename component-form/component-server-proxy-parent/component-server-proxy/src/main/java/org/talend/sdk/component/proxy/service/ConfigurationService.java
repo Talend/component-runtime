@@ -152,11 +152,11 @@ public class ConfigurationService {
                         final String key = act + "::parameters";
                         final String originalValue = metadata.get(key);
                         final Map<String, String> newMetadata = new HashMap<>(metadata);
-                        final String newValue = originalValue == null || originalValue.trim().isEmpty()
+                        final String newValue = (originalValue == null || originalValue.trim().isEmpty()
                                 ? ("action::healthcheck".equals(key) || "action::schema".equals(key)
                                         ? prop.getPath() + ","
                                         : "") + idProp
-                                : (originalValue + ',' + idProp);
+                                : (originalValue + ',' + idProp)) + ",$formId";
                         newMetadata.put(key, newValue);
                         prop.setMetadata(newMetadata);
                     });
