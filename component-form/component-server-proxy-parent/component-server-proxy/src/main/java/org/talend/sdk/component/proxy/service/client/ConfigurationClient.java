@@ -15,6 +15,12 @@
  */
 package org.talend.sdk.component.proxy.service.client;
 
+import static java.util.Comparator.comparing;
+import static java.util.concurrent.CompletableFuture.completedFuture;
+import static javax.ws.rs.client.Entity.entity;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -65,6 +71,35 @@ public class ConfigurationClient {
                 .async()
                 .get(new RxInvocationCallback<ConfigTypeNodes>(result) {
                 });
+        return result;
+    }
+
+    public CompletionStage<Map<String, String>> migrate(final String id, final Map<String, String> configuration,
+            final Function<String, String> placeholderProvider) {
+        if (configuration == null) {
+            return completedFuture(new HashMap<>());
+        }
+        final String version = configuration
+                .entrySet()
+                .stream()
+                .filter(it -> !it.getKey().startsWith("$") && !it.getKey().startsWith(".$"))
+                .filter(it -> it.getKey().endsWith(".__version") || it.getKey().equals("__version"))
+                .min(comparing(Map.Entry::getKey))
+                .orElseThrow(() -> new IllegalArgumentException("No __version in the configuration, "
+                        + "ensure to save versionned configurations to be able to migrate them"))
+                .getValue();
+        final CompletableFuture<Map<String, String>> result = new CompletableFuture<>();
+        this.configuration
+                .getHeaderAppender()
+                .apply(this.webTarget
+                        .path("configurationtype/migrate/{id}/{version}")
+                        .resolveTemplate("id", id)
+                        .resolveTemplate("version", version)
+                        .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
+                .async()
+                .post(entity(configuration, MediaType.APPLICATION_JSON_TYPE),
+                        new RxInvocationCallback<Map<String, String>>(result) {
+                        });
         return result;
     }
 
