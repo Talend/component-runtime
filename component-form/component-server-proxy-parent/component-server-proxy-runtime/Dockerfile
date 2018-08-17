@@ -71,7 +71,7 @@ ENV MEECROWAVE_BASE /opt/talend/component-server-proxy-runtime
 ENV CONNECTOR_REPOSITORY /opt/talend/connectors-se
 RUN mkdir -p $MEECROWAVE_BASE $CONNECTOR_REPOSITORY
 
-COPY --from=registry.datapwn.com/talend/connectors-se:1.0.0_20180817074335 $CONNECTOR_REPOSITORY $CONNECTOR_REPOSITORY
+COPY --from=registry.datapwn.com/talend/connectors-se:1.0.0_20180817023752 $CONNECTOR_REPOSITORY $CONNECTOR_REPOSITORY
 COPY --from=staging $MEECROWAVE_BASE $MEECROWAVE_BASE
 
 WORKDIR $MEECROWAVE_BASE
