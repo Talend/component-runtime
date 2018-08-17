@@ -18,13 +18,11 @@ package org.talend.sdk.component.proxy.service;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static org.talend.sdk.component.proxy.model.ProxyErrorDictionary.NO_FAMILY_FOR_CONFIGURATION;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -149,19 +147,19 @@ public class ConfigurationService {
         final String idProp = idPropOpt.get().getPath();
         it.getProperties().forEach(prop -> {
             final Map<String, String> metadata = prop.getMetadata();
-            final List<String> actions = metadata
-                    .keySet()
-                    .stream()
-                    .filter(k -> k.startsWith("action::") && k.split("::").length == 2)
-                    .collect(toList());
-            actions.forEach(act -> {
-                final String key = act + "::parameters";
-                final String originalValue = metadata.get(key);
-                final Map<String, String> newMetadata = new HashMap<>(metadata);
-                newMetadata.put(key, originalValue == null || originalValue.trim().isEmpty() ? idProp
-                        : (originalValue + ',' + idProp));
-                prop.setMetadata(newMetadata);
-            });
+            metadata.keySet().stream().filter(k -> k.startsWith("action::") && k.split("::").length == 2).forEach(
+                    act -> {
+                        final String key = act + "::parameters";
+                        final String originalValue = metadata.get(key);
+                        final Map<String, String> newMetadata = new HashMap<>(metadata);
+                        final String newValue = originalValue == null || originalValue.trim().isEmpty()
+                                ? ("action::healthcheck".equals(key) || "action::schema".equals(key)
+                                        ? prop.getPath() + ","
+                                        : "") + idProp
+                                : (originalValue + ',' + idProp);
+                        newMetadata.put(key, newValue);
+                        prop.setMetadata(newMetadata);
+                    });
         });
         return it;
     }
