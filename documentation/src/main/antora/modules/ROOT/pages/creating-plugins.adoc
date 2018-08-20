@@ -1,5 +1,7 @@
 = Creating plugins
 :page-partial:
+:description: learn how to create plugins for your components
+:keywords: ContainerManager, ContainerListener
 
 == Defining the ContainerManager or the classloader manager
 

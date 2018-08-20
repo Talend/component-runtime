@@ -1,8 +1,10 @@
 = Providing actions for consumers
 :page-partial:
+:description: How to define actions in a service
+:keywords: service, action
 
 In some cases you can need to add some actions that are not related to the runtime. For example,
-enabling clients - the users of the plugin/library - to test if a connection works properly.
+enabling users of the plugin/library to test if a connection works properly.
 
 To do so, you need to define an `@Action`, which is a method with a name (representing the event name), in a class decorated with `@Service`:
 

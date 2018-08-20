@@ -94,11 +94,11 @@ class ActionResourceTest {
                         singletonMap("id", "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ"),
                         APPLICATION_JSON_TYPE), mapType);
 
-        assertEquals(3, wrapper.size());
+        assertEquals(4, wrapper.size());
         final Map<String, Object> meta = Map.class.cast(wrapper.get("metadata"));
         assertEquals("myicon", meta.get("icon"));
         final Ui ui = jsonb.fromJson(jsonb.toJson(wrapper), Ui.class);
-        assertNull(ui.getProperties());
+        assertNotNull(ui.getProperties());
         assertNotNull(ui.getJsonSchema());
         assertNotNull(ui.getUiSchema());
         // just some sanity checks, we assume the serialization works here and form-core already tested that part
@@ -116,9 +116,9 @@ class ActionResourceTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(entity(singletonMap("id", ""), APPLICATION_JSON_TYPE), mapType);
 
-        assertEquals(3, wrapper.size());
+        assertEquals(4, wrapper.size());
         final Ui ui = jsonb.fromJson(jsonb.toJson(wrapper), Ui.class);
-        assertNull(ui.getProperties());
+        assertNotNull(ui.getProperties());
         assertNotNull(ui.getJsonSchema());
         assertNotNull(ui.getUiSchema());
         assertTrue(ui.getUiSchema().isEmpty()); // no enrichment in tests for datastore (other types are used)

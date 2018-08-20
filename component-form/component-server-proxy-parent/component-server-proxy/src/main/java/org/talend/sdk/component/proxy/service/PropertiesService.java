@@ -166,10 +166,11 @@ public class PropertiesService {
                 return completedFuture(null);
             }
             final String sanitizedPath = it.getPath().replace(".$selfReference", "");
+            ofNullable(instance.get(it.getPath())).ifPresent(val -> config.put(it.getPath(), val));
             return referenceService.findPropertiesById(id, context).thenCompose(form -> configurations
                     .getDetails(context.getLanguage(), form.getFormId(), context.getPlaceholderProvider())
-                    .thenApply(detail -> replaceReferences(context, detail.getProperties(), form.getProperties())
-                            .thenApply(nestedProps -> {
+                    .thenCompose(detail -> filterProperties(detail.getProperties(), context).thenCompose(
+                            props -> replaceReferences(context, props, form.getProperties()).thenApply(nestedProps -> {
                                 final String root = detail
                                         .getProperties()
                                         .stream()
@@ -177,11 +178,14 @@ public class PropertiesService {
                                         .sorted()
                                         .iterator()
                                         .next();
-                                config.putAll(nestedProps.entrySet().stream().collect(
-                                        toMap(e -> sanitizedPath + e.getKey().substring(root.length()),
-                                                Map.Entry::getValue)));
+                                config.putAll(nestedProps
+                                        .entrySet()
+                                        .stream()
+                                        .collect(toMap(e -> e.getKey().startsWith(root)
+                                                ? sanitizedPath + e.getKey().substring(root.length())
+                                                : e.getKey(), Map.Entry::getValue)));
                                 return null;
-                            })));
+                            }))));
         }).toArray(CompletableFuture[]::new)).thenApply(ignored -> config);
     }
 }

@@ -1,5 +1,7 @@
 = Creating components for a REST API
 :page-partial:
+:description: Example of REST API component implementation with Talend Component Kit
+:keywords: tutorial, example, zendesk
 
 [[tutorial-create-components-rest-api]]
 

@@ -1,5 +1,7 @@
 = Widget and validation gallery
 :page-partial:
+:description: Sample screenshots of the Talend Component Kit available widgets and validation methods
+:keywords: Widget, validation
 
 == Widgets
 

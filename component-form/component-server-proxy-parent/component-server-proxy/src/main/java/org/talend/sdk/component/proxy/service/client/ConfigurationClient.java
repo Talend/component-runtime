@@ -48,6 +48,9 @@ public class ConfigurationClient {
     @Inject
     private ProxyConfiguration configuration;
 
+    @Inject
+    private ConfigurationClient self;
+
     @CacheResult(cacheName = "org.talend.sdk.component.proxy.configurations.all")
     public CompletionStage<ConfigTypeNodes> getAllConfigurations(final String language,
             final Function<String, String> placeholderProvider) {
@@ -57,7 +60,7 @@ public class ConfigurationClient {
                 .apply(this.webTarget
                         .path("configurationtype/index")
                         .queryParam("language", language)
-                        .queryParam("lightPayload", true)
+                        .queryParam("lightPayload", false)
                         .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
                 .async()
                 .get(new RxInvocationCallback<ConfigTypeNodes>(result) {
@@ -65,29 +68,18 @@ public class ConfigurationClient {
         return result;
     }
 
-    @CacheResult(cacheName = "org.talend.sdk.component.proxy.configurations.detail")
     public CompletionStage<ConfigTypeNode> getDetails(final String language, final String id,
             final Function<String, String> placeholderProvider) {
-        final CompletableFuture<ConfigTypeNodes> result = new CompletableFuture<>();
-        configuration
-                .getHeaderAppender()
-                .apply(this.webTarget
-                        .path("configurationtype/details")
-                        .queryParam("language", language)
-                        .queryParam("identifiers", id)
-                        .request(MediaType.APPLICATION_JSON_TYPE), placeholderProvider)
-                .async()
-                .get(new RxInvocationCallback<ConfigTypeNodes>(result) {
-                });
-        return result.thenApply(configNodes -> {
-            if (configNodes.getNodes().size() != 1) {
+        return getAllConfigurations(language, placeholderProvider).thenApply(configNodes -> {
+            final ConfigTypeNode node = configNodes.getNodes().get(id);
+            if (node == null) {
                 throw new WebApplicationException(Response
                         .status(Response.Status.BAD_REQUEST)
                         .entity(new ProxyErrorPayload(ProxyErrorDictionary.CONFIGURATION_NOT_FOUND.name(),
                                 "Configuration not found"))
                         .build());
             }
-            return configNodes.getNodes().values().iterator().next();
+            return node;
         });
     }
 }

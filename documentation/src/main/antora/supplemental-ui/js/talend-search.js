@@ -20,6 +20,12 @@ $(document).ready(function () {
              name:'lvl0',
              weight: 1
            }, {
+             name:'keywords',
+             weight: 1
+           },  {
+             name:'description',
+             weight: 1
+           }, {
              name:'lvl1',
              weight: 0.3
            }, {

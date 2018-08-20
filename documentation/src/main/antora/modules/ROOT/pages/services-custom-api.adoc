@@ -1,5 +1,7 @@
 = Defining a custom API
 :page-partial:
+:description: Extend the Talend Component Kit API with custom features
+:keywords: component API
 
 It is possible to extend the https://talend.github.io/component-runtime/apidocs/api/index.html[Component API] for custom front features.
 

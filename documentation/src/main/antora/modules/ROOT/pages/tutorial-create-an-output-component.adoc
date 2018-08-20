@@ -1,5 +1,7 @@
 = Implementing an Output component
 :page-partial:
+:description: Example of output component implementation with Talend Component Kit
+:keywords: tutorial, example, output, processor, hazelcast
 
 [[tutorial-create-an-output-component]]
 This tutorial shows how to create a complete working output component for https://hazelcast.org[Hazelcast], including:

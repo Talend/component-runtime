@@ -1,6 +1,7 @@
 = Talend Component Kit Developer Guide
 :page-talend_documentationindex: true
-:page-talend_skipindexation:
+:description: Talend Component Kit documentation for developers
+:keywords: Talend Component Kit, Talend Component, documentation
 
 Talend Component Kit is a framework designed to help you create Talend components for both Talend Studio and Cloud applications. +
 This framework unifies the way components are built to ensure they are standardized and easy to deploy in different environments, as well as 'upgrade-compliant' as Talend applications are getting updated on a regular basis.

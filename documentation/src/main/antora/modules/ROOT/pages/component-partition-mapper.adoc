@@ -1,5 +1,7 @@
 = xref:component-partition-mapper.adoc[Defining a partition mapper]
 :page-partial:
+:description: How to develop a partition mapper with Talend Component Kit
+:keywords: component type, partition mapper, input
 
 [[partition-mapper]]
 

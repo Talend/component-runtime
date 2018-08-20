@@ -1,5 +1,7 @@
 = Registering components
 :page-partial:
+:description: How to define component and component family metadata
+:keywords: icon, component version, component name, family, category
 
 Before implementing a component logic and configuration, you need to specify the family and the category it belongs to, the component type and name, as well as its name and a few other generic parameters. This set of metadata, and more particularly the family, categories and component type, is mandatory to recognize and load the component to Talend Studio or Cloud applications.
 

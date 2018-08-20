@@ -1,5 +1,7 @@
 = Creating a job pipeline
 :page-partial:
+:description: How to create a job pipeline using Talend Component Kit
+:keywords: job builder, service
 
 == Job Builder
 

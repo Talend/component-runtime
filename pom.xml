@@ -76,7 +76,7 @@
     <batik.version>1.9.1</batik.version>
     <beam.version>2.6.0</beam.version>
     <commons-codec.version>1.11</commons-codec.version>
-    <commons-compress.version>1.17</commons-compress.version>
+    <commons-compress.version>1.18</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
     <commons-cli.version>1.4</commons-cli.version>
     <geronimo-jaxrs.version>1.0</geronimo-jaxrs.version>
@@ -920,10 +920,6 @@
 
   <repositories>
     <repository>
-      <id>openapi-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1067/</url>
-    </repository>
-    <repository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
@@ -970,10 +966,6 @@
   </repositories>
 
   <pluginRepositories>
-    <pluginRepository>
-      <id>openapi-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1067/</url>
-    </pluginRepository>
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>

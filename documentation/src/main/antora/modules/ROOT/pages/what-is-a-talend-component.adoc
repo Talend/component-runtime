@@ -1,5 +1,7 @@
 = What is a Talend Component
 :page-partial:
+:description: Talend Component Kit helps you creating Talend components
+:keywords: component, definition
 
 Basically, a component (or connector) is a functional piece that performs a single operation from a Talend application. For example, *tMysqlInput* extracts data from a MySQL table, *tFilterRow* filters data based on a condition.
 

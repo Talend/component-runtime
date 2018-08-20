@@ -1,5 +1,6 @@
 = HTTP API
 :page-partial:
 :page-talend_swaggerui: true
+:page-talend_skipindexation:
 
 include::{partialsdir}/generated_rest-resources.adoc[leveloffset=+1]

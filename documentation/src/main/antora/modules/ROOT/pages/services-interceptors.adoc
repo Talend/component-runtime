@@ -1,5 +1,7 @@
 = Services and interceptors
 :page-partial:
+:description: How to define an interceptor using Talend Component Kit services
+:keywords: service, interceptor
 
 For common concerns such as caching, auditing, and so on, you can use an interceptor-like API. It is enabled on services by the framework.
 

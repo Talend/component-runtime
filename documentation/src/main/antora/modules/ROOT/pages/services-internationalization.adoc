@@ -1,5 +1,7 @@
 = Internationalizing services
 :page-partial:
+:description: How to internationalize a service using Talend Component Kit
+:keywords: service, internationalization
 
 Internationalization requires following several best practices:
 

@@ -1,5 +1,7 @@
 = Processor components and batch processing
 :page-partial:
+:description: Optimize the way your component handle records using groups
+:keywords: bulk, chunk, maxBatchSize, bulking
 
 Depending on several requirements, including the system capacity and business needs, a processor can process records differently.
 

@@ -133,7 +133,10 @@ class ActionServiceTest {
         assertEquals("dataset-1", form.getJsonSchema().getTitle());
         assertEquals(3, form.getJsonSchema().getProperties().size()); // testConfig, config, $datasetMetadata
         assertEquals(3, form.getUiSchema().size());
-        assertEquals("{\"config\":{\"connection\":{\"$selfReference\":\"actionServices.reloadFromParentId\"}}}",
+        assertEquals(
+                "{\"config\":{\"connection\":{"
+                        + "\"$selfReference\":\"actionServices.reloadFromParentId\",\"url\":\"http://foo\"}},"
+                        + "\"$formId\":\"dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE\"}",
                 form.getProperties().toString());
     }
 }
