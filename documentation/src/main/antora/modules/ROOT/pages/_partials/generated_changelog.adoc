@@ -22,9 +22,10 @@
 
 === Work Item
 
-- link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]:  [documentation] Sample implementation of bulk/batch/commit-interval using groups
+- link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]: [documentation] Sample implementation of bulk/batch/commit-interval using groups
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
 - link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard
+- link:https://jira.talendforge.org/browse/TCOMP-998[TCOMP-998^]: [dependency upgrade] Apache Commons Compress 1.18
 
 
 == Version 1.0.4
@@ -85,8 +86,8 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-888[TCOMP-888^]: Designer pipeline records counter are wrong for tacokit components with multiples outputs
 - link:https://jira.talendforge.org/browse/TCOMP-899[TCOMP-899^]: Update Beam 2.5.0 compatibility
-- link:https://jira.talendforge.org/browse/TCOMP-903[TCOMP-903^]: [tacokit studio integration] - Guess schema - better handling of number types recognition 
-- link:https://jira.talendforge.org/browse/TCOMP-904[TCOMP-904^]: [tacokit studio integration] - fix job classpath generation 
+- link:https://jira.talendforge.org/browse/TCOMP-903[TCOMP-903^]: [tacokit studio integration] - Guess schema - better handling of number types recognition
+- link:https://jira.talendforge.org/browse/TCOMP-904[TCOMP-904^]: [tacokit studio integration] - fix job classpath generation
 - link:https://jira.talendforge.org/browse/TCOMP-913[TCOMP-913^]: Fix absolute path resolution for child of child use-case
 
 
@@ -219,7 +220,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-770[TCOMP-770^]: Removing component from web UI causes wrong number of components in summary
 - link:https://jira.talendforge.org/browse/TCOMP-775[TCOMP-775^]: Starter - Fix properties keys generation
 - link:https://jira.talendforge.org/browse/TCOMP-776[TCOMP-776^]: component-kit.js ignore credentials
-- link:https://jira.talendforge.org/browse/TCOMP-783[TCOMP-783^]: ActiveIfs doesn't make option visible 
+- link:https://jira.talendforge.org/browse/TCOMP-783[TCOMP-783^]: ActiveIfs doesn't make option visible
 - link:https://jira.talendforge.org/browse/TCOMP-796[TCOMP-796^]: Datastore check (@Checkable) should default meta parameters to "datastore" if none is found
 
 

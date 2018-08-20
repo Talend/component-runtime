@@ -69,7 +69,11 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
         @ProcessElement
         public void onRecord(final ProcessContext context) {
             final JsonObject element = context.element();
-            context.output(new JsonIndexedRecord(element, guessSchema(rootRecordName, element)));
+            context.output(toAvro(element));
+        }
+
+        public JsonIndexedRecord toAvro(final JsonObject element) {
+            return new JsonIndexedRecord(element, guessSchema(rootRecordName, element));
         }
 
         private Schema guessSchema(final String recordName, final JsonValue element) {

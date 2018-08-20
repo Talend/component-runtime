@@ -66,10 +66,10 @@ class ModelEnricherServiceTest {
                         .add("url", "http://foo")
                         .add("userId", "bar")
                         .add("nested", builderFactory.createObjectBuilder().add("open", false))
-                        .add("_datasetMetadata", builderFactory.createObjectBuilder().add("name", "simple"))
+                        .add("$datasetMetadata", builderFactory.createObjectBuilder().add("name", "simple"))
                         .build());
         assertEquals(1, object.size());
-        assertEquals("simple", object.getJsonObject("_datasetMetadata").getString("name"));
+        assertEquals("simple", object.getJsonObject("$datasetMetadata").getString("name"));
     }
 
     @Test
@@ -80,7 +80,7 @@ class ModelEnricherServiceTest {
                         .add("url", "http://foo")
                         .add("userId", "bar")
                         .add("nested", builderFactory.createObjectBuilder().add("open", false))
-                        .add("_datasetMetadata", builderFactory.createObjectBuilder().add("name", "simple"))
+                        .add("$datasetMetadata", builderFactory.createObjectBuilder().add("name", "simple"))
                         .build());
         assertTrue(object.isEmpty());
     }
@@ -102,9 +102,9 @@ class ModelEnricherServiceTest {
         final SimplePropertyDefinition def = enriched
                 .getProperties()
                 .stream()
-                .filter(it -> it.getPath().equals("_datasetMetadata.name"))
+                .filter(it -> it.getPath().equals("$datasetMetadata.name"))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No property for _datasetMetadata.name"));
+                .orElseThrow(() -> new IllegalStateException("No property for $datasetMetadata.name"));
         assertEquals("name", def.getName());
         assertEquals("STRING", def.getType());
         assertTrue(def.getValidation().getRequired());

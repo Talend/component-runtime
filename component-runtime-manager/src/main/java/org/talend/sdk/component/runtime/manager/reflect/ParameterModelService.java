@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -75,7 +76,7 @@ public class ParameterModelService {
     private List<ParameterMeta> doBuildParameterMetas(final Executable executable, final String i18nPackage,
             final boolean ignoreI18n) {
         return Stream.of(executable.getParameters()).filter(p -> !isService(p)).map(parameter -> {
-            final String name = findName(parameter);
+            final String name = findName(parameter, parameter.getName());
             return buildParameter(name, name, new ParameterMeta.Source() {
 
                 @Override
@@ -249,8 +250,9 @@ public class ParameterModelService {
                             && (f.getModifiers() & 0x00001000/* SYNTHETIC */) == 0)
                     .filter(f -> fields.putIfAbsent(f.getName(), f) == null)
                     .map(f -> {
-                        final String path = prefix + f.getName();
-                        return buildParameter(f.getName(), path + ".", new ParameterMeta.Source() {
+                        final String name = findName(f, f.getName());
+                        final String path = prefix + name;
+                        return buildParameter(name, path + ".", new ParameterMeta.Source() {
 
                             @Override
                             public String name() {
@@ -269,9 +271,9 @@ public class ParameterModelService {
         return out;
     }
 
-    public String findName(final Parameter parameter) {
-        return ofNullable(parameter.getAnnotation(Option.class)).map(Option::value).filter(v -> !v.isEmpty()).orElseGet(
-                parameter::getName);
+    public String findName(final AnnotatedElement parameter, final String defaultName) {
+        return ofNullable(parameter.getAnnotation(Option.class)).map(Option::value).filter(v -> !v.isEmpty()).orElse(
+                defaultName);
     }
 
     private ParameterMeta.Type findType(final Type type) {

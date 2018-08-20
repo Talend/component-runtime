@@ -1,7 +1,7 @@
-= Processor components and batch processing
+= Implementing batch processing
 :page-partial:
-:description: Optimize the way your component handle records using groups
-:keywords: bulk, chunk, maxBatchSize, bulking
+:description: Optimize the way your processor component handle records using groups
+:keywords: bulk, bulking, chunk, group, maxBatchSize, bulking
 
 Depending on several requirements, including the system capacity and business needs, a processor can process records differently.
 
@@ -63,3 +63,12 @@ public class BulkProcessor implements Serializable {
 ----
 
 You can learn more about processors in xref:component-define-processor-output.adoc[this document].
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:component-define-processor-output.adoc[Defining a processor/output logic]
+- xref:component-execution.adoc[General component execution logic]
+- xref:concept-processor-and-batch-processing.adoc[Implementing bulk processing]
+- xref:best-practices.adoc[Best practices]
+endif::[]
