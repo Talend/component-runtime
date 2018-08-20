@@ -1,4 +1,6 @@
-= Contributing to the Talend Component Kit documentation
+= Contributing to Talend Component Kit documentation
+:page-talend_skipindexation:
+:page-talend_stage: draft
 
 == List of metadata attributes
 
@@ -8,6 +10,7 @@ For all pages:
 * `:page-talend_skipindexation:` indicates that the current .adoc file must not be indexed. This attribute has no value. Add it to files that should not be returned in the search, like index files that only contain includes.
 * `:description:` is the meta description of the file. Each .adoc file is rendered as an HTML file.
 * `:keywords:` is the list of meta keywords relevant for the current .adoc file. Separate keywords using simple commas.
+* `:page-talend_stage: draft` indicates that the current document is a draft and is not final even if published. It triggers the display of a small banner indicating the status of the page. Remove this attribute once the page is final.
 
 For pages that should appear as a tile on the index page:
 
