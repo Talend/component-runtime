@@ -124,7 +124,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                     .collect(toList());
 
             // if we are empty and there was no "empty" object then fail
-            if (resolvedParams.isEmpty() && properties.stream().noneMatch(p -> p.getPath().equals(propertiesPrefix))) {
+            if (!propertiesPrefix.startsWith("$") && resolvedParams.isEmpty()
+                    && properties.stream().noneMatch(p -> p.getPath().equals(propertiesPrefix))) {
                 throw new IllegalArgumentException("No resolved parameters for " + prop.getPath() + " in "
                         + ref.getFamily() + "/" + ref.getType() + "/" + ref.getName());
             }

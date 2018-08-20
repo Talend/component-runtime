@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.proxy.test.component;
+package org.talend.sdk.component.proxy.runtime;
 
-import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.constraint.Required;
-import org.talend.sdk.component.api.configuration.type.DataSet;
+import javax.enterprise.context.Dependent;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
 
-@DataSet("dataset-2")
-public class DataSet2 {
-
-    @Option
-    @Required
-    private Connection2 connection;
-
-    @Option
-    private int limit = 1000;
+@Dependent
+@ApplicationPath("api")
+public class RuntimeApplication extends Application {
 }
