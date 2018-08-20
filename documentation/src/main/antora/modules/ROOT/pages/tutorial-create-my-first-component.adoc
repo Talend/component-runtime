@@ -1,5 +1,7 @@
 = Creating your first component
 :page-partial:
+:description: Create your first component using Talend Component Kit and integrate it to Talend Opend Studio to build a job
+:keywords: first, start, Studio, integration, palette
 
 This tutorial walks you through all the required steps to get started with *Talend Component Kit*, from the creation of a simple component to its integration into *Talend Open Studio*.
 
