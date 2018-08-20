@@ -40,6 +40,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
 import javax.ws.rs.client.CompletionStageRxInvoker;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
@@ -133,6 +134,10 @@ public class ActionService {
     @Inject
     @UiSpecProxy
     private JsonBuilderFactory builderFactory;
+
+    @Inject
+    @UiSpecProxy
+    private Jsonb jsonb;
 
     private final GenericType<List<Map<String, Object>>> listType = new GenericType<List<Map<String, Object>>>() {
     };
@@ -296,7 +301,11 @@ public class ActionService {
                     .thenCompose(props -> propertiesService.replaceReferences(context, props, configInstance))
                     .thenApply(props -> {
                         if (node.getProperties() != null && !node.getProperties().isEmpty()) {
-                            newForm.setProperties(formatter.unflatten(node.getProperties(), props));
+                            final Map<String, String> mergedWithDefaults =
+                                    new HashMap<>(formatter.flatten(newForm.getProperties()));
+                            mergedWithDefaults.putAll(props);
+                            final JsonObject properties = formatter.unflatten(node.getProperties(), mergedWithDefaults);
+                            newForm.setProperties(properties);
                         }
                         return addFormId(node.getId(), newForm);
                     });
@@ -327,7 +336,8 @@ public class ActionService {
     }
 
     private NewForm toNewFormResponse(final UiNode uiNode) {
-        return new NewForm(uiNode.getUi().getJsonSchema(), uiNode.getUi().getUiSchema(), null, uiNode.getMetadata());
+        return new NewForm(uiNode.getUi().getJsonSchema(), uiNode.getUi().getUiSchema(),
+                jsonb.fromJson(jsonb.toJson(uiNode.getUi().getProperties()), JsonObject.class), uiNode.getMetadata());
     }
 
     private CompletionStage<UiNode> findUiSpec(final String id, final UiSpecContext context) {
