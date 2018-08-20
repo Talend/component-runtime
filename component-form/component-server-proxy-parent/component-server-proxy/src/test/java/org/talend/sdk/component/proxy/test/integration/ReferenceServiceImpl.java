@@ -16,6 +16,7 @@
 package org.talend.sdk.component.proxy.test.integration;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonMap;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import javax.inject.Inject;
 import org.talend.sdk.component.proxy.api.integration.application.ReferenceService;
 import org.talend.sdk.component.proxy.api.integration.application.Values;
 import org.talend.sdk.component.proxy.api.persistence.OnPersist;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.proxy.test.InMemoryTestPersistence;
 
@@ -39,18 +41,19 @@ public class ReferenceServiceImpl implements ReferenceService {
     private InMemoryTestPersistence persistence;
 
     @Override
-    public CompletionStage<Values> findReferencesByTypeAndName(final String type, final String name) {
+    public CompletionStage<Values> findReferencesByTypeAndName(final String type, final String name,
+            final UiSpecContext context) {
         return CompletableFuture.completedFuture(
                 new Values(asList(new Values.Item(type + "1", name + "1"), new Values.Item(type + "2", name + "2"))));
     }
 
     @Override
-    public CompletionStage<Form> findPropertiesById(final String id) {
+    public CompletionStage<Form> findPropertiesById(final String id, final UiSpecContext context) {
         if (id.equals("actionServices.reloadFromParentId")) {
             return completedFuture(Form
                     .builder()
                     .formId("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXN0b3JlI0Nvbm5lY3Rpb24tMQ")
-                    .properties(new HashMap<>())
+                    .properties(singletonMap("connection.url", "http://foo"))
                     .build());
         }
         final OnPersist byId = persistence.findById(id);

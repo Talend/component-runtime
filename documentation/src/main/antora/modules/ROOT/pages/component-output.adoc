@@ -1,5 +1,7 @@
 = xref:component-output.adoc[Defining an output]
 :page-partial:
+:description: How to develop an output component with Talend Component Kit
+:keywords: component type, output, processor
 
 == What is an output
 

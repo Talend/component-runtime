@@ -1,4 +1,5 @@
 = Actions
 :page-partial:
+:page-talend_skipindexation:
 
 include::{partialsdir}/generated_actions.adoc[leveloffset=+1]

@@ -1,5 +1,7 @@
 = Masking sensitive data in your configuration
 :page-partial:
+:description: Learn how to mark sensitive data such as credentials when developing components using Talend Component Kit
+:keywords: tutorial, example, credentials, password
 
 [[tutorial-configuration-sensitive-data]]
 This tutorial shows how to correctly mask the sensitive data of a component configuration.

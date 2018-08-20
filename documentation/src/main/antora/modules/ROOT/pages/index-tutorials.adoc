@@ -4,7 +4,7 @@
 :page-documentationindex-label: Tutorials
 :page-documentationindex-icon: book-open
 :page-documentationindex-description: Follow these guided examples to get used to the framework
-
+:page-talend_skipindexation:
 
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project from the starter]
 

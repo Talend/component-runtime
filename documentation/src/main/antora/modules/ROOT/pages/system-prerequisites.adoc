@@ -1,16 +1,21 @@
 = System prerequisites
 :page-partial:
+:description: Get ready to develop components by setting up your environment with the right tools
+:keywords: install, installation, tool
 
 [[getting-started-system-requirements]]
 
 In order to use Talend Component Kit, you need the following tools installed on your machine:
 
 * Java JDK 1.8.x. You can download it from http://www.oracle.com/technetwork/pt/java/javase/downloads/jdk8-downloads-2133151.html[Oracle] website.
-* A build tool:
-- Apache Maven 3.5.4 is recommended to develop a component or the project itself. You can download it from https://maven.apache.org/download.cgi?Preferred=ftp%3A%2F%2Fmirror.reverse.net%2Fpub%2Fapache%2F[Apache Maven] website. +
-- You can also use Gradle, but at the moment certain features are not supported, such as validations.
+* Talend Open Studio 7.0 or greater to integrate your components.
 * A Java Integrated Development Environment such as Eclipse or IntelliJ. IntelliJ is recommended as a Talend Component Kit plugin is available.
-* The version of your Studio is 7.0.
+* Optional: If you use IntelliJ, you can install the xref:installing-talend-intellij-plugin.adoc[Talend Component Kit plugin for IntelliJ].
+* Optional: A build tool:
+- Apache Maven 3.5.4 is recommended to develop a component or the project itself. You can download it from https://maven.apache.org/download.cgi?Preferred=ftp%3A%2F%2Fmirror.reverse.net%2Fpub%2Fapache%2F[Apache Maven] website. +
+- You can also use Gradle, but at the moment certain features are not supported, such as validations. +
++
+NOTE:  It is optional to install a build tool independently since Maven and Gradle wrappers are already available with Talend Component Kit.
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]

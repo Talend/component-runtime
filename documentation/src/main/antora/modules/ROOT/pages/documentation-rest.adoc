@@ -1,6 +1,8 @@
 = Component server and HTTP API
 :page-partial:
 :page-talend_swaggerui: true
+:description: Learn about Talend Component Kit HTTP API and the component server
+:keywords: REST API
 
 TIP: A test environment is available on Heroku and can be browsed using Talend Component Kit Server instance on link:https://talend-component-kit.restlet.io[Restlet Studio^].
 

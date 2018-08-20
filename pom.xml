@@ -64,7 +64,7 @@
     <meecrowave.version>1.2.3</meecrowave.version>
     <owb.version>2.0.6</owb.version>
     <tomcat.version>9.0.10</tomcat.version>
-    <cxf.version>3.2.5</cxf.version>
+    <cxf.version>3.2.6</cxf.version>
     <log4j2.version>2.11.0</log4j2.version>
     <geronimo-jcdi.version>1.0.1</geronimo-jcdi.version>
     <geronimo-atinject.version>1.0</geronimo-atinject.version>
@@ -76,7 +76,7 @@
     <batik.version>1.9.1</batik.version>
     <beam.version>2.6.0</beam.version>
     <commons-codec.version>1.11</commons-codec.version>
-    <commons-compress.version>1.17</commons-compress.version>
+    <commons-compress.version>1.18</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
     <commons-cli.version>1.4</commons-cli.version>
     <geronimo-jaxrs.version>1.0</geronimo-jaxrs.version>
@@ -920,10 +920,6 @@
 
   <repositories>
     <repository>
-      <id>openapi-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1067/</url>
-    </repository>
-    <repository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
@@ -970,10 +966,6 @@
   </repositories>
 
   <pluginRepositories>
-    <pluginRepository>
-      <id>openapi-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapachegeronimo-1067/</url>
-    </pluginRepository>
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>

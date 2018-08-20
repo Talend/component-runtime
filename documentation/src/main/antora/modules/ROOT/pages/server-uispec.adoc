@@ -1,4 +1,7 @@
 = UiSpec Server
+:page-partial:
+:description: The UiSpec server is a companion application for the Component Server
+:keywords: client, UiForm
 
 The UiSpec server is a companion application for the Component Server.
 It provides a client to the Component Server which serves UiSpec payload to integrate with the client JavaScript `UiForm` library.
@@ -106,7 +109,7 @@ The configuration entries are the following ones:
 |====
 |Name|Description|Sample
 |url|The target server to call. Note that placeholder are supported and filled from request headers (`placeholderProvider`).|`http://proposals.service.com`
-|headers|Comma separated list of headers to propagate (using `placeholderProvider`).|`cookie,Authorization`
+|headers|`;` separated list of headers to propagate (using `placeholderProvider`).|`cookie,Authorization`
 |accept|The `Accept` header. Note that current we only support to parse JSON output and it defaults to `application/json`.|`application/v1+json`
 |object|Boolean (default to `false`) to set to `true` if the response payload is an object and not a list.|`true`
 |objectKey|If `object` is `true`, the key to extract to get the list to process.|`items`

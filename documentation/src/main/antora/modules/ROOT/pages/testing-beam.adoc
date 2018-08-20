@@ -1,5 +1,7 @@
 = Beam testing
 :page-partial:
+:description: Learn how to test components in Beam
+:keywords: test, Beam, Big Data
 
 If you want to make sure that your component works in Beam and don't want to use Spark, you can try with the Direct Runner.
 

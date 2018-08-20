@@ -2,10 +2,22 @@
 
 == Version 1.0.5
 
+=== Backlog Task
+
+- link:https://jira.talendforge.org/browse/TCOMP-936[TCOMP-936^]: Fix/add support for Enum and List parameters in suggestions method
+
+
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-970[TCOMP-970^]: Add support for complex parameter types for AsyncValidation methods
 - link:https://jira.talendforge.org/browse/TCOMP-984[TCOMP-984^]: Integrate ParameterizedTest with component-runtime-http-junit capture mode
+- link:https://jira.talendforge.org/browse/TCOMP-989[TCOMP-989^]: .car studio install command breaks config.ini of the studio
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-993[TCOMP-993^]: [proxy] Propagate UiSpecContext in referenceservice#findByTypeAndName
+- link:https://jira.talendforge.org/browse/TCOMP-994[TCOMP-994^]: [dependency upgrade] CXF 3.2.6
 
 
 === Work Item

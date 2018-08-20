@@ -1,5 +1,6 @@
 = Talend Component Kit Release Process
 :page-partial:
+:page-talend_skipindexation:
 
 Version: {page-component-version}
 

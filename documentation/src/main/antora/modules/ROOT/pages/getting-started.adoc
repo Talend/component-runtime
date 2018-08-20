@@ -1,5 +1,6 @@
 = Getting started with Talend Component Kit
 :page-partial:
+:page-talend_skipindexation:
 
 [[getting-started-introducing-talend-component]]
 //== Introducing Talend Component Kit

@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,7 +38,7 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.proxy.api.persistence.OnPersist;
-import org.talend.sdk.component.proxy.service.impl.HttpRequestContext;
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
 import org.talend.sdk.component.proxy.test.CdiInject;
 import org.talend.sdk.component.proxy.test.InMemoryTestPersistence;
 import org.talend.sdk.component.proxy.test.WithServer;
@@ -66,14 +67,15 @@ class PropertiesServiceTest {
     void filterDatasetDatastore() throws ExecutionException, InterruptedException {
         assertDatastoreDataset(
                 service
-                        .filterProperties("en", k -> null,
+                        .filterProperties(
                                 asList(newProperty("configuration", "OBJECT", metadata("thedataset", "dataset")),
                                         newProperty("configuration.param", "NUMBER", emptyMap()),
                                         newProperty("configuration.something", "OBJECT",
                                                 metadata("thedatastore", "datastore")),
                                         newProperty("configuration.something.value", "STRING", emptyMap()),
                                         newProperty("configuration.nested", "OBJECT", emptyMap()),
-                                        newProperty("configuration.nested.value", "STRING", emptyMap())))
+                                        newProperty("configuration.nested.value", "STRING", emptyMap())),
+                                new UiSpecContext("en", k -> null))
                         .toCompletableFuture()
                         .get());
     }
@@ -81,7 +83,7 @@ class PropertiesServiceTest {
     @Test
     void filterNestedRefs() throws ExecutionException, InterruptedException {
         assertDatastoreDataset(service
-                .filterProperties("en", k -> null,
+                .filterProperties(
                         asList(newProperty("configuration", "OBJECT", metadata("thedataset", "dataset")),
                                 newProperty("configuration.param", "NUMBER", emptyMap()),
                                 newProperty("configuration.something", "OBJECT", metadata("thedatastore", "datastore")),
@@ -91,7 +93,8 @@ class PropertiesServiceTest {
                                 newProperty("configuration.something.else.whatever1", "STRING", emptyMap()),
                                 newProperty("configuration.something.else.whatever2", "BOOLEAN", emptyMap()),
                                 newProperty("configuration.nested", "OBJECT", emptyMap()),
-                                newProperty("configuration.nested.value", "STRING", emptyMap())))
+                                newProperty("configuration.nested.value", "STRING", emptyMap())),
+                        new UiSpecContext("en", k -> null))
                 .toCompletableFuture()
                 .get());
     }
@@ -99,7 +102,7 @@ class PropertiesServiceTest {
     @Test
     void filterMultipleRefs() throws ExecutionException, InterruptedException {
         final List<SimplePropertyDefinition> filtered = service
-                .filterProperties("en", k -> null,
+                .filterProperties(
                         asList(newProperty("configuration", "OBJECT", metadata("thedataset", "dataset")),
                                 newProperty("configuration.param", "NUMBER", emptyMap()),
                                 newProperty("configuration.something", "OBJECT", metadata("thedatastore", "datastore")),
@@ -109,7 +112,8 @@ class PropertiesServiceTest {
                                 newProperty("configuration.something.else.whatever1", "STRING", emptyMap()),
                                 newProperty("configuration.something.else.whatever2", "BOOLEAN", emptyMap()),
                                 newProperty("configuration.nested", "OBJECT", metadata("something", "whatever")),
-                                newProperty("configuration.nested.value", "STRING", emptyMap())))
+                                newProperty("configuration.nested.value", "STRING", emptyMap())),
+                        new UiSpecContext("en", k -> null))
                 .toCompletableFuture()
                 .get();
         assertEquals(4, filtered.size());
@@ -149,15 +153,16 @@ class PropertiesServiceTest {
 
         persistEvent
                 .fireAsync(event)
-                .thenCompose(result -> service.filterProperties("en", k -> null, srcProps).thenApply(props -> {
-                    final Collection<String> values = props.get(2).getProposalDisplayNames().values();
-                    assertEquals(2, values.size());
-                    assertEquals(Stream
-                            .of("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE1",
-                                    "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE2")
-                            .collect(toSet()), new HashSet<>(values));
-                    return null;
-                }))
+                .thenCompose(result -> service.filterProperties(srcProps, new UiSpecContext("en", k -> null)).thenApply(
+                        props -> {
+                            final Collection<String> values = props.get(2).getProposalDisplayNames().values();
+                            assertEquals(2, values.size());
+                            assertEquals(Stream
+                                    .of("dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE1",
+                                            "dGVzdC1jb21wb25lbnQjVGhlVGVzdEZhbWlseTIjZGF0YXNldCNkYXRhc2V0LTE2")
+                                    .collect(toSet()), new HashSet<>(values));
+                            return null;
+                        }))
                 .toCompletableFuture()
                 .get();
     }
@@ -192,8 +197,8 @@ class PropertiesServiceTest {
         persistEvent
                 .fireAsync(event)
                 .thenCompose(OnPersist::getId)
-                .thenCompose(id -> service.filterProperties("en", k -> null, srcProps).thenCompose(
-                        props -> service.replaceReferences(new HttpRequestContext("en", k -> null, null), props,
+                .thenCompose(id -> service.filterProperties(srcProps, new UiSpecContext("en", k -> null)).thenCompose(
+                        props -> service.replaceReferences(new UiSpecContext("en", k -> null), props,
                                 new HashMap<String, String>() {
 
                                     {
@@ -202,6 +207,7 @@ class PropertiesServiceTest {
                                     }
                                 })))
                 .thenApply(props -> {
+                    assertNotNull(props.remove("configuration.something.$selfReference"));
                     assertEquals(new HashMap<String, String>() {
 
                         {

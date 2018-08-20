@@ -1,5 +1,7 @@
 = Talend Component Kit Overview
 :page-partial:
+:description: Learn the basic concepts of the Talend Component Kit framework
+:keywords: framework
 
 _Talend Component Kit_ is a toolkit based on Java and designed to simplify the development of components at two levels:
 

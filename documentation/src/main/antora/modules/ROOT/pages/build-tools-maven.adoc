@@ -1,5 +1,7 @@
 = Building components with Maven
 :page-partial:
+:description: Use Maven or the Maven wrapper as build tool to develop components
+:keywords: mvn, mvnw, maven
 
 To develop new components, Talend Component Kit requires a build tool in which you will import the component project generated from the starter.
 

@@ -18,14 +18,16 @@ package org.talend.sdk.component.proxy.api.integration.application;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
+import org.talend.sdk.component.proxy.service.client.UiSpecContext;
+
 import lombok.Builder;
 import lombok.Data;
 
 public interface ReferenceService {
 
-    CompletionStage<Values> findReferencesByTypeAndName(String type, String name);
+    CompletionStage<Values> findReferencesByTypeAndName(String type, String name, UiSpecContext context);
 
-    CompletionStage<Form> findPropertiesById(String id);
+    CompletionStage<Form> findPropertiesById(String id, UiSpecContext context);
 
     @Data
     @Builder

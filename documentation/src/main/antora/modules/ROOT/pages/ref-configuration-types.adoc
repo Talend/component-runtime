@@ -1,4 +1,5 @@
 = Configuration types
 :page-partial:
+:page-talend_skipindexation:
 
 include::{partialsdir}/generated_configuration-types.adoc[leveloffset=+1]

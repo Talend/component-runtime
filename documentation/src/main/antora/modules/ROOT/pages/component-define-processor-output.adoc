@@ -1,5 +1,7 @@
 = Defining a processor or an output component logic
 :page-partial:
+:description: How to develop an output component with Talend Component Kit
+:keywords: output, processor
 
 Processors and output components are the components in charge of reading, processing and transforming data in a Talend job, as well as passing it to its required destination.
 

@@ -1,5 +1,7 @@
 = Testing best practices
 :page-partial:
+:description: Learn the best practices for testing components developed with Talend Component Kit
+:keywords: test
 
 This section mainly concerns tools that can be used with JUnit. You can use most of these best practices with TestNG as well.
 
