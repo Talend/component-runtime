@@ -18,6 +18,7 @@
 ** xref:component-internationalization.adoc[Internationalizing a component]
 ** xref:component-versions-and-migration.adoc[Managing component versions]
 ** xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+** xref:concept-processor-and-batch-processing.adoc[Implementing batch processing]
 ** xref:best-practices.adoc[Best practices]
 ** xref:component-loading.adoc[Loading a component]
 ** xref:build-tools-maven.adoc[Building components with Maven]
