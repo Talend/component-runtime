@@ -5,120 +5,172 @@
 
 == Widgets
 
-[cols="1,3a,4a,4a",role="table gallery",options="header,autowidth"]
-|===
-| Name | Code | Studio Rendering | Web Rendering
+=== Input/Text
 
-| Input/Text
-|[source,java]
+[source,java]
 ----
 @Option
 String config;
 ----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
 |image::gallery/widgets/studio/input.png[Studio Input,window="_blank",link="_images/gallery/widgets/studio/input.png"]
 |image::gallery/widgets/web/input.png[Web Input,window="_blank",link="_images/gallery/widgets/web/input.png"]
+|===
 
+=== Password
 
-| Password
-|[source,java]
+[source,java]
 ----
 @Option
 @Credential
 String config;
 ----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
 |image::gallery/widgets/studio/password.png[Studio Password,window="_blank",link="_images/gallery/widgets/studio/password.png"]
 |image::gallery/widgets/web/password.png[Web Password,window="_blank",link="_images/gallery/widgets/web/password.png"]
+|===
 
-| Textarea
-|[source,java]
+=== Textarea
+
+[source,java]
 ----
 @Option
 @Textarea
 String config;
 ----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
 |image::gallery/widgets/studio/textarea.png[Studio Textarea,window="_blank",link="_images/gallery/widgets/studio/textarea.png"]
 |image::gallery/widgets/web/textarea.png[Web Textarea,window="_blank",link="_images/gallery/widgets/web/textarea.png"]
+|===
 
-| Checkbox
-|[source,java]
+
+=== Checkbox
+
+[source,java]
 ----
 @Option
 Boolean config;
 ----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
 |image::gallery/widgets/studio/checkbox.png[Studio Checkbox,window="_blank",link="_images/gallery/widgets/studio/checkbox.png"]
 |image::gallery/widgets/web/checkbox.png[Web Checkbox,window="_blank",link="_images/gallery/widgets/web/checkbox.png"]
+|===
 
-| List
-|[source,java]
+
+=== List
+
+[source,java]
 ----
 @Option
 @Proposable("valuesProvider")
 String config;
 /** service class */
 @DynamicValues("valuesProvider")
-public Values vendors(){
-    return new Values(asList(new Values.Item("1", "Delete"),
-                      new Values.Item("2", "Insert")
-                      new Values.Item("3", "Update")));
- }
+public Values actions(){
+  return new Values(asList(new Values.Item("1", "Delete"),
+                    new Values.Item("2", "Insert"),
+                    new Values.Item("3", "Update")));
+}
 ----
-|image::gallery/widgets/studio/list.png[Studio List,window="_blank",link="_images/gallery/widgets/studio/list.png"]
-|image::gallery/widgets/web/list.png[Web List,window="_blank",link="_images/gallery/widgets/web/list.png"]
 
-| List
-|[source,java]
+or
+
+[source,java]
 ----
 @Option
 ActionEnum config;
+
 /** Define enum */
-enum ActionEnum {Delete,
+enum ActionEnum {
+    Delete,
     Insert,
-    Update}
+    Update
+    }
 ----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
 |image::gallery/widgets/studio/list.png[Studio List,window="_blank",link="_images/gallery/widgets/studio/list.png"]
 |image::gallery/widgets/web/list.png[Web List,window="_blank",link="_images/gallery/widgets/web/list.png"]
+|===
 
-| Table
-|[source,java]
+
+=== Table
+
+[source,java]
 ----
 @Option
 Object config;
 ----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
 |image::gallery/widgets/studio/table.png[Studio Table,window="_blank",link="_images/gallery/widgets/studio/table.png"]
 |image::gallery/widgets/web/table.png[Web Table,window="_blank",link="_images/gallery/widgets/web/table.png"]
+|===
 
 
-| Code
-|[source,java]
+=== Code
+
+[source,java]
 ----
 @Code("java")
 @Option
 String config;
 ----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
 |image::gallery/widgets/studio/javaCode.png[Studio Code,window="_blank",link="_images/gallery/widgets/studio/javaCode.png"]
 |image::gallery/widgets/web/javaCode.png[Web Code,window="_blank",link="_images/gallery/widgets/web/javaCode.png"]
+|===
 
-| Schema
-|[source,java]
+
+=== Schema
+
+[source,java]
 ----
 @Option
 @Structure
 List<String> config;
 ----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
 |image::gallery/widgets/studio/schema.png[Studio Schema,window="_blank",link="_images/gallery/widgets/studio/schema.png"]
 |image::gallery/widgets/web/schema.png[Web Schema,window="_blank",link="_images/gallery/widgets/web/schema.png"]
-
 |===
 
 
 == Validations
 
-[cols="1,3a,4a,4a",role="table gallery",options="header,autowidth"]
-|===
-| Name | Code | Studio Rendering | Web Rendering
+=== Property validation
 
-| Property validation
-|[source,java]
+[source,java]
 ----
 /** configuration class */
 @Option
@@ -131,24 +183,37 @@ ValidationResult doValidate(String url) {
 //validate the property
 }
 ----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
 |image::gallery/widgets/studio/validation_property.png[Studio Code,window="_blank",link="_images/gallery/widgets/studio/validation_property.png"]
 |image::gallery/widgets/web/validation_property.png[Web Code,window="_blank",link="_images/gallery/widgets/web/validation_property.png"]
+|===
 
 
-| Property validation with Pattern
-|[source,java]
+=== Property validation with Pattern
+
+[source,java]
 ----
 /** configuration class */
 @Option
 @Pattern("/^[a-zA-Z\\-]+$/")
 String username;
 ----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
 |image::gallery/widgets/studio/validation_pattern.png[Studio Code,window="_blank",link="_images/gallery/widgets/studio/validation_pattern.png"]
 |image::gallery/widgets/web/validation_pattern.png[Web Code,window="_blank",link="_images/gallery/widgets/web/validation_pattern.png"]
+|===
 
+=== Data store validation
 
-| Data store validation
-|[source,java]
+[source,java]
 ----
 @Datastore
 @Checkable
@@ -163,9 +228,13 @@ public HealthCheckStatus testConnection(){
 //validate the connection
 }
 ----
+
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
 |image::gallery/widgets/studio/validation_datastore.png[Studio Code,window="_blank",link="_images/gallery/widgets/studio/prop_validation.png"]
 |image::gallery/widgets/web/validation_datastore.png[Web Code,window="_blank",link="_images/gallery/widgets/web/prop_validation.png"]
-
 |===
 
 You can also use other types of validation that are similar to `@Pattern`:
