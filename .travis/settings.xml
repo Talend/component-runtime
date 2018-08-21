@@ -29,6 +29,18 @@
       <username>${env.WEBHOST_LOGIN}</username>
       <password>${env.WEBHOST_PASS}</password>
     </server>
+    <server>
+      <id>TalendOpenSourceRelease</id>
+      <configuration>
+        <timeout>30000</timeout>
+      </configuration>
+    </server>
+    <server>
+      <id>TalendOpenSourceSnapshot</id>
+      <configuration>
+        <timeout>30000</timeout>
+      </configuration>
+    </server>
 
     <!-- no more used ATM -->
     <server>
