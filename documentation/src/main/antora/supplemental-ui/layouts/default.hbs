@@ -32,6 +32,9 @@
             <main class="main">
               {{> navigation}}
               <div class="col-xs-12 col-sm-10 maincontent">
+                {{#cond page.attributes.talend_stage '===' 'draft'}}
+                    <p class="bg-warning">This page is a draft, its content can be incorrect or unfinished.</p>
+                {{/cond}}
                 {{> toolbar}}
                 {{> article}}
               </div>

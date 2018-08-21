@@ -1,0 +1,24 @@
+= Contributing to Talend Component Kit documentation
+:page-talend_skipindexation:
+:page-talend_stage: draft
+
+== List of metadata attributes
+
+For all pages:
+
+* `:page-partial` indicates that the current .adoc file can be included in another document using an `include::`. This attribute has no value.
+* `:page-talend_skipindexation:` indicates that the current .adoc file must not be indexed. This attribute has no value. Add it to files that should not be returned in the search, like index files that only contain includes.
+* `:description:` is the meta description of the file. Each .adoc file is rendered as an HTML file.
+* `:keywords:` is the list of meta keywords relevant for the current .adoc file. Separate keywords using simple commas.
+* `:page-talend_stage: draft` indicates that the current document is a draft and is not final even if published. It triggers the display of a small banner indicating the status of the page. Remove this attribute once the page is final.
+
+For pages that should appear as a tile on the index page:
+
+* `:page-documentationindex-index:` is the weight of the page. A low weight indicates that the page should be one of the first tiles to appear. A high weight will push the tile towards the end of the list in the index page.
+* `:page-documentationindex-label:` is the title of the tile in the index page.
+* `:page-documentationindex-icon:` is the icon of the tile in the index page. The value of this attribute should be the name of a free icon on fontawesome.
+* `:page-documentationindex-description:` is a short description of the page that will be displayed in the tile under its title.
+
+For pages containing API descriptions:
+
+* `:page-talend_swaggerui: true` indicates that the page contains some API reference that should be displayed using Swagger UI

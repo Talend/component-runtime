@@ -27,5 +27,5 @@ public class DataSet2 {
     private Connection2 connection;
 
     @Option
-    private int limit;
+    private int limit = 1000;
 }
