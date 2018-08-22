@@ -3,7 +3,7 @@
 :page-documentationindex-index: 2500
 :page-documentationindex-label: Tutorials
 :page-documentationindex-icon: book-open
-:page-documentationindex-description: Follow guided and practical examples to know more about the framework
+:page-documentationindex-description: Follow these guided examples to get your hands on specific cases
 :description: Guided implementation examples to get your hands on Talend Component Kit
 :keywords: tutorial, example, implement, test, dev
 
@@ -17,8 +17,6 @@ With this set of tutorials, get your hands on project creation using the Compone
 - xref:tutorial-create-an-input-component.adoc[Creating a Hazelcast input component]
 - xref:tutorial-create-an-output-component.adoc[Creating a Hazelcast output component]
 - xref:tutorial-create-components-rest-api.adoc[Creating a Zendesk REST API connector]
-- xref:tutorial-handle-talend-component-migration.adoc[Handling component version migration]
-
 
 == Testing tutorials
 

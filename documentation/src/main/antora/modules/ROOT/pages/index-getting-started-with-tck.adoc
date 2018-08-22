@@ -4,24 +4,14 @@
 :page-documentationindex-label: Getting Started
 :page-documentationindex-icon: play-circle
 :page-documentationindex-description: Get an overview of the framework and create your first component
-:description: Get an overview of the Talend Component Kit framework and create your first component
-:keywords: quickstart, overview, principle, description
 
-Talend components are functional objects that let you easily perform operations on given sets of data, through a comprehensive graphical environment.
+If you are new to Talend component development or with the Talend Component Kit framework, you can start by reading the following articles to get a better overview of the framework design and Talend components in general.
 
-*Talend Component Kit* is a framework designed to help you developing new Talend components. From generating a Java project and coding until testing and using them in Talend applications, use this toolkit to ensure your components fit your needs.
-
-If you are new to Talend component development or with the Talend Component Kit framework, you can start by reading the following articles to get a better overview of the framework design.
-
-* xref:methodology-creating-components.adoc[Development methodology]
-* xref:component-execution.adoc[General component execution logic]
+* xref:what-is-a-talend-component.adoc[What is a Talend Component]
+* xref:methodology-creating-components.adoc[Methodology]
 * xref:tck-framework-overview.adoc[Framework Overview]
+* xref:component-execution.adoc[General component execution logic]
 
 You can also learn the basics of component development by following this tutorial:
 
 * xref:tutorial-create-my-first-component.adoc[Creating your first component]
-
-To learn more about Talend components in general and about existing components that you can already use, refer to the following documents:
-
-* https://help.talend.com/reader/PEtNf6RuyCZnH5XfH7jFow/Ugo4XS8FxBvZflLNsWADCQ[Talend Help Center component reference documentation]
-* https://help.talend.com/reader/lhC9imUQ7u4EsF\~HDa3SDw/t7TqdnMHAfPh98E~h0zTjg[What is a Talend Component]

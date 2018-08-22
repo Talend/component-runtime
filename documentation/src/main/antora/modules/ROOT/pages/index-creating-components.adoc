@@ -2,7 +2,7 @@
 :page-partial:
 :page-documentationindex-index: 5000
 :page-documentationindex-label: Implementing components
-:page-documentationindex-icon: code
+:page-documentationindex-icon: wrench
 :page-documentationindex-description: Define the logic and UI of your components using a Java IDE
 :description: Get an overview of the main steps to code the logic of your custom Talend Componit Kit components
 :keywords: create, code, class, logic, layout, configuration, dev, overview
@@ -15,7 +15,7 @@ Once you have generated a project, you can start implementing the logic and layo
 * xref:component-define-processor-output.adoc[Defining a processor/output logic]
 * xref:component-configuration.adoc[Defining component layout and configuration]
 
-image:implementing-components.png[Implementing component,50%]
+image:implementing-components.png[Implementing component,400]
 
 In some cases, you will require specific implementations to handle more advanced cases, such as:
 
@@ -33,6 +33,5 @@ Using your Java IDE along with a build tool supported by the framework, you can 
 
 In any case, follow these xref:best-practices.adoc[best practices] to ensure the components you develop are optimized.
 
-You can also learn more about component loading and plugins here:
 
 * xref:component-loading.adoc[Loading a component]

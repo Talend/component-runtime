@@ -8,7 +8,7 @@
     "link":"index-getting-started-with-tck.html"
   },
   {
-    "description":"Follow guided and practical examples to know more about the framework",
+    "description":"Follow these guided examples to get your hands on specific cases",
     "icon":"book-open",
     "index":2500,
     "label":"Tutorials",
@@ -30,7 +30,7 @@
   },
   {
     "description":"Define the logic and UI of your components using a Java IDE",
-    "icon":"code",
+    "icon":"wrench",
     "index":5000,
     "label":"Implementing components",
     "link":"index-creating-components.html"
@@ -50,18 +50,18 @@
     "link":"index-testing-components.html"
   },
   {
-    "description":"Learn how to deploy your custom components to Talend Studio",
+    "description":"Learn how to deploy your custom components to the Studio and Talend applications",
     "icon":"share-square",
     "index":7500,
-    "label":"Studio integration",
+    "label":"Integrating components",
     "link":"index-deploying-components.html"
   },
   {
-    "description":"Integrate components into Talend Cloud and learn about the component server",
-    "icon":"cloud",
+    "description":"Learn about the component web server",
+    "icon":"code",
     "index":8000,
-    "label":"Cloud integration",
-    "link":"index-cloud-integration.html"
+    "label":"Web",
+    "link":"index-web-component-server.html"
   },
   {
     "description":"Read advanced articles about Talend Component Kit",
