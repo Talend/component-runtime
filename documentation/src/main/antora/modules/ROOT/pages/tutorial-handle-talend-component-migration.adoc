@@ -4,9 +4,10 @@
 [[tutorial-handle-talend-component-migration]]
 
 In this tutorial we will walk through migration handler creation for a component that we will upgrade from a version 1 to a version 2 by adding some new options.
+
 Talend Component Kit provide a migration mechanism between two versions of a component to let you ensure backward compatibility.
 
-For example a new version of a component may have some new options that we need to give some them default value in the old versions or that we need to deactivate.
+For example, a new version of a component can add/remove/rename some options. Those options need to be set to a specific value or need to be deactivated or remapped from the old versions. In this tutorial we will see how to do that in details.
 
 == Requirements
 * Java 8.
