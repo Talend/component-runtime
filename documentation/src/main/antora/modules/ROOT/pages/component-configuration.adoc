@@ -1,4 +1,4 @@
-= Defining component parameters and configuration
+= Defining component layout and configuration
 :page-partial:
 :description: How to define the layout and configurable options of a component
 :keywords: layout, option, field

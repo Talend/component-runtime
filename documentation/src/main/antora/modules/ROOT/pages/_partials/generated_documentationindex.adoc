@@ -1,11 +1,18 @@
 ++++
 <jsonArray>[
   {
-    "description":"Learn the basics about Talend Component Kit",
+    "description":"Get an overview of the framework and create your first component",
     "icon":"play-circle",
     "index":2000,
     "label":"Getting Started",
     "link":"index-getting-started-with-tck.html"
+  },
+  {
+    "description":"Follow these guided examples to get your hands on specific cases",
+    "icon":"book-open",
+    "index":2500,
+    "label":"Tutorials",
+    "link":"index-tutorials.html"
   },
   {
     "description":"Install the right tools and set up your environment",
@@ -50,18 +57,11 @@
     "link":"index-deploying-components.html"
   },
   {
-    "description":"The detailed references for building your components",
+    "description":"Learn about the component web server",
     "icon":"code",
     "index":8000,
-    "label":"Reference Guide",
-    "link":"index-reference-guide.html"
-  },
-  {
-    "description":"Follow these guided examples to get used to the framework",
-    "icon":"book-open",
-    "index":8500,
-    "label":"Tutorials",
-    "link":"index-tutorials.html"
+    "label":"Web",
+    "link":"index-web-component-server.html"
   },
   {
     "description":"Read advanced articles about Talend Component Kit",

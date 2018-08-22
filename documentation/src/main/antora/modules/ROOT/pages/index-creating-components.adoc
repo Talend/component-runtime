@@ -1,31 +1,37 @@
 = Implementing components
 :page-partial:
-:page-talend_skipindexation:
 :page-documentationindex-index: 5000
 :page-documentationindex-label: Implementing components
 :page-documentationindex-icon: wrench
 :page-documentationindex-description: Define the logic and UI of your components using a Java IDE
+:description: Get an overview of the main steps to code the logic of your custom Talend Componit Kit components
+:keywords: create, code, class, logic, layout, configuration, dev, overview
 
-include::component-registering.adoc[leveloffset=+1]
 
-include::component-define-input.adoc[leveloffset=+1]
+Once you have generated a project, you can start implementing the logic and layout of your components and iterate on it. Depending on the type of component you want to create, the logic implementation can differ. However, the layout and component metadata are defined the same way for all types of components in your project. The main steps are:
 
-include::component-define-processor-output.adoc[leveloffset=+1]
+* xref:component-registering.adoc[Defining family and component metadata]
+* xref:component-define-input.adoc[Defining an input component logic]
+* xref:component-define-processor-output.adoc[Defining a processor/output logic]
+* xref:component-configuration.adoc[Defining component layout and configuration]
 
-include::component-configuration.adoc[leveloffset=+1]
+image:implementing-components.png[Implementing component,400]
 
-include::component-internationalization.adoc[leveloffset=+1]
+In some cases, you will require specific implementations to handle more advanced cases, such as:
 
-include::component-versions-and-migration.adoc[leveloffset=+1]
+* xref:component-internationalization.adoc[Internationalizing a component]
+* xref:component-versions-and-migration.adoc[Managing component versions]
+* xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+* xref:concept-processor-and-batch-processing.adoc[Implementing batch processing]
 
-include::tutorial-configuration-sensitive-data.adoc[leveloffset=+1]
+You can also make certain configurations reusable across your project by xref:index-defining-services.adoc[defining services].
+Using your Java IDE along with a build tool supported by the framework, you can then compile your components to xref:index-testing-components.adoc[test] and xref:index-deploying-components.adoc[deploy] them to Talend Studio or other Talend applications:
 
-include::best-practices.adoc[leveloffset=+1]
+* xref:build-tools-maven.adoc[Building components with Maven]
+* xref:build-tools-gradle.adoc[Building components with Gradle]
+* xref:wrapping-a-beam-io.adoc[Wrapping a Beam I/O]
 
-include::build-tools-maven.adoc[leveloffset=+1]
+In any case, follow these xref:best-practices.adoc[best practices] to ensure the components you develop are optimized.
 
-include::build-tools-gradle.adoc[leveloffset=+1]
 
-include::wrapping-a-beam-io.adoc[leveloffset=+1]
-
-include::concept-processor-and-batch-processing.adoc[leveloffset=+1]
+* xref:component-loading.adoc[Loading a component]

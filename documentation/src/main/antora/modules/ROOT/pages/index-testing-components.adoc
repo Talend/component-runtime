@@ -1,23 +1,19 @@
 = Testing components
 :page-partial:
-:page-talend_skipindexation:
 :page-documentationindex-index: 7000
 :page-documentationindex-label: Testing components
 :page-documentationindex-icon: check-circle
 :page-documentationindex-description: Learn how to test your component logic in the environment you need
+:description: Learn how to test your component logic in the environment you need using Talend Component Kit
+:keywords: test, overview, environment, beam, runtime
 
-:toc:
+Developing new components includes testing them in the required execution environments. Use the following articles to learn about the best practices and the available options to fully test your components.
 
-include::testing-best-practices.adoc[leveloffset=+1]
-
-include::index-sub-testing-runtime.adoc[leveloffset=+1]
-
-include::testing-beam.adoc[leveloffset=+1]
-
-include::testing-multiple-envs.adoc[leveloffset=+1]
-
-include::testing-maven-passwords.adoc[leveloffset=+1]
-
-include::testing-generating-data.adoc[leveloffset=+1]
-
-include::services-pipeline.adoc[leveloffset=+1]
+* xref:testing-best-practices.adoc[Component testing best practices]
+* xref:index-sub-testing-runtime.adoc[Testing component runtime]
+* xref:testing-beam.adoc[Beam testing]
+* xref:testing-multiple-envs.adoc[Testing in multiple environments]
+* xref:testing-maven-passwords.adoc[Reusing Maven credentials]
+* xref:testing-generating-data.adoc[Generating data for testing]
+* xref:services-pipeline.adoc[Simple/Test Pipeline API]
+* https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline[Beam Pipeline API]

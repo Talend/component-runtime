@@ -1,21 +1,27 @@
 = Tutorials
 :page-partial:
-:page-documentationindex-index: 8500
+:page-documentationindex-index: 2500
 :page-documentationindex-label: Tutorials
 :page-documentationindex-icon: book-open
-:page-documentationindex-description: Follow these guided examples to get used to the framework
-:page-talend_skipindexation:
+:page-documentationindex-description: Follow these guided examples to get your hands on specific cases
+:description: Guided implementation examples to get your hands on Talend Component Kit
+:keywords: tutorial, example, implement, test, dev
+
+The following tutorials are designed to help you understand the main principles of component development using Talend Component Kit.
+
+== Creation tutorials
+
+With this set of tutorials, get your hands on project creation using the Component Kit Starter and implement the logic of different types of components.
 
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project from the starter]
-
 - xref:tutorial-create-an-input-component.adoc[Creating a Hazelcast input component]
-
 - xref:tutorial-create-an-output-component.adoc[Creating a Hazelcast output component]
-
 - xref:tutorial-create-components-rest-api.adoc[Creating a Zendesk REST API connector]
 
+== Testing tutorials
+
+With this set of tutorials, learn the different approaches to test the components created in the previous tutorials.
+
 - xref:tutorial-test-rest-api.adoc[Testing a Zendesk REST API connector]
-
 - xref:tutorial-test-your-components.adoc[Testing a Hazelcast component]
-
 - xref:tutorial-dev-vs-ci-setup.adoc[Testing in a continuous integration environment]
