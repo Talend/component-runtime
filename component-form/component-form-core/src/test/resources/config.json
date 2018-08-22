@@ -701,7 +701,7 @@
           "metadata": {
             "condition::if::value": "true",
             "condition::if::target": "ordered",
-            "ui::gridlayout::Main::value": "field|order"
+            "ui::gridlayout::Main::value": "order,field"
           },
           "name": "orderBuilder",
           "path": "tableDataSet.orderBuilder",

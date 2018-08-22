@@ -83,6 +83,31 @@ class UiSpecServiceTest {
     });
 
     @Test
+    void optionsOrderInArray() throws Exception {
+        final ConfigTypeNode node =
+                load("config.json", ConfigTypeNodes.class).getNodes().get("U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl");
+        final Ui payload = service.convert("Jdbc", "en", node, null).toCompletableFuture().get();
+        final Iterator<UiSchema> items =
+                payload.getUiSchema().iterator().next().getItems().iterator().next().getItems().iterator();
+        items.next();
+        items.next();
+        items.next();
+        assertEquals(asList("Order", "Field"),
+                items
+                        .next()
+                        .getItems()
+                        .iterator()
+                        .next()
+                        .getItems()
+                        .iterator()
+                        .next()
+                        .getItems()
+                        .stream()
+                        .map(UiSchema::getTitle)
+                        .collect(toList()));
+    }
+
+    @Test
     void optionsOrder() throws Exception {
         final ConfigTypeNode node = load("optionsorder.json", ConfigTypeNode.class);
         final SimplePropertyDefinition root = node
