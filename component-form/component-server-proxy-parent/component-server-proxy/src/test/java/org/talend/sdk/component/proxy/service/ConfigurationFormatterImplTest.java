@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -234,6 +235,6 @@ class ConfigurationFormatterImplTest {
 
     private SimplePropertyDefinition prop(final String path, final String type) {
         return new SimplePropertyDefinition(path, path.substring(path.lastIndexOf('.') + 1), null, type, null, null,
-                emptyMap(), null, emptyMap());
+                emptyMap(), null, new LinkedHashMap<>());
     }
 }

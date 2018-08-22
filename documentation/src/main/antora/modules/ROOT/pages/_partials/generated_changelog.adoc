@@ -10,6 +10,8 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1000[TCOMP-1000^]: @Option name value is not respected on fields
+- link:https://jira.talendforge.org/browse/TCOMP-779[TCOMP-779^]: Drop down list Java type in configuration class
+- link:https://jira.talendforge.org/browse/TCOMP-968[TCOMP-968^]: Trigger AsyncValidation call only when option annotated with Validable is changed
 - link:https://jira.talendforge.org/browse/TCOMP-970[TCOMP-970^]: Add support for complex parameter types for AsyncValidation methods
 - link:https://jira.talendforge.org/browse/TCOMP-984[TCOMP-984^]: Integrate ParameterizedTest with component-runtime-http-junit capture mode
 - link:https://jira.talendforge.org/browse/TCOMP-989[TCOMP-989^]: .car studio install command breaks config.ini of the studio
