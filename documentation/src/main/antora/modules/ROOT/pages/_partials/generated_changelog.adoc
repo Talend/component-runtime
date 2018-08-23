@@ -10,6 +10,8 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1000[TCOMP-1000^]: @Option name value is not respected on fields
+- link:https://jira.talendforge.org/browse/TCOMP-1008[TCOMP-1008^]: Enum order is lost
+- link:https://jira.talendforge.org/browse/TCOMP-1009[TCOMP-1009^]: (web) OptionsOrder ignored for tables (List<MyClass>), fields located in random order
 - link:https://jira.talendforge.org/browse/TCOMP-779[TCOMP-779^]: Drop down list Java type in configuration class
 - link:https://jira.talendforge.org/browse/TCOMP-968[TCOMP-968^]: Trigger AsyncValidation call only when option annotated with Validable is changed
 - link:https://jira.talendforge.org/browse/TCOMP-970[TCOMP-970^]: Add support for complex parameter types for AsyncValidation methods

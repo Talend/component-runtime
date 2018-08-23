@@ -53,6 +53,7 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
+import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
@@ -531,11 +532,16 @@ public class ComponentValidator extends BaseTask {
                 .map(e -> "No @HealthCheck for dataStore: '" + e.getKey() + "' with checkable: '" + e.getValue() + "'")
                 .sorted()
                 .collect(toSet()));
+
+        errors.addAll(datastoreClasses.stream()
+                                    .map(clazz -> validateFamilyI18nKey(clazz, "${family}.datastore." + clazz.getAnnotation(DataStore.class).value() + "._displayName"))
+                                    .filter(Objects::nonNull)
+                                    .collect(toList()));
     }
 
     private void validateDataSet(final AnnotationFinder finder, final Set<String> errors) {
-        final List<String> datasets = finder
-                .findAnnotatedClasses(DataSet.class)
+        final List<Class<?>> datasetClasses = finder.findAnnotatedClasses(DataSet.class);
+        final List<String> datasets = datasetClasses
                 .stream()
                 .map(d -> d.getAnnotation(DataSet.class).value())
                 .collect(toList());
@@ -550,6 +556,30 @@ public class ComponentValidator extends BaseTask {
                     .map(Map.Entry::getKey)
                     .collect(joining(", ")));
         }
+        errors.addAll(datasetClasses.stream()
+                           .map(clazz -> validateFamilyI18nKey(clazz, "${family}.dataset." + clazz.getAnnotation(DataSet.class).value() + "._displayName"))
+                           .filter(Objects::nonNull)
+                           .collect(toList()));
+    }
+
+    private String validateFamilyI18nKey(final Class<?> clazz, final String... keys) {
+        final Class<?> pck = findPackageOrFail(clazz, Components.class);
+        final String family = pck.getAnnotation(Components.class).family();
+        final String baseName = ofNullable(pck.getPackage()).map(p -> p.getName() + ".").orElse("") + "Messages";
+        final ResourceBundle bundle = findResourceBundle(pck);
+        if (bundle == null) {
+            return "No resource bundle for " + clazz.getName() + " translations, you should create a "
+                    + baseName.replace('.', '/') + ".properties at least.";
+        }
+
+        final Collection<String> missingKeys = of(keys)
+                .map(key -> key.replace("${family}", family))
+                .filter(k -> !bundle.containsKey(k))
+                .collect(toList());
+        if (!missingKeys.isEmpty()) {
+            return baseName + " is missing the key(s): " + String.join("\n", missingKeys);
+        }
+        return null;
     }
 
     private void validateActions(final AnnotationFinder finder, final Set<String> errors) {
