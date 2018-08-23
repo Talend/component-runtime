@@ -30,7 +30,7 @@
   },
   {
     "description":"Define the logic and UI of your components using a Java IDE",
-    "icon":"wrench",
+    "icon":"code",
     "index":5000,
     "label":"Implementing components",
     "link":"index-creating-components.html"
@@ -58,7 +58,7 @@
   },
   {
     "description":"Learn about the component web server",
-    "icon":"code",
+    "icon":"server",
     "index":8000,
     "label":"Web",
     "link":"index-web-component-server.html"

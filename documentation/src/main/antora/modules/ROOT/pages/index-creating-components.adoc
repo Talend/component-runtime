@@ -2,7 +2,7 @@
 :page-partial:
 :page-documentationindex-index: 5000
 :page-documentationindex-label: Implementing components
-:page-documentationindex-icon: wrench
+:page-documentationindex-icon: code
 :page-documentationindex-description: Define the logic and UI of your components using a Java IDE
 :description: Get an overview of the main steps to code the logic of your custom Talend Componit Kit components
 :keywords: create, code, class, logic, layout, configuration, dev, overview
