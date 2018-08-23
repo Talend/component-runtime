@@ -116,8 +116,7 @@ public class RuntimeEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces("application/avro-binary")
     public Collection<IndexedRecord> read(@PathParam("id") final String id,
-            @PathParam("version") final int configVersion,
-            @QueryParam("limit") @DefaultValue("50") final String limit,
+            @PathParam("version") final int configVersion, @QueryParam("limit") @DefaultValue("50") final String limit,
             @QueryParam("instantiation-type") @DefaultValue("configurationtype") final String instantiationType,
             final Map<String, String> configuration) {
         final ComponentFamilyMeta.BaseMeta<?> componentMeta = findComponent(instantiationType, id);
@@ -129,82 +128,90 @@ public class RuntimeEndpoint {
         // - etc...
 
         if (!componentMeta.isValidated()) { // assume this is because it is beam
-            return runBeam(
-                    PTransform.class.cast(manager
-                            .createComponent(componentMeta.getParent().getName(), componentMeta.getName(),
-                                    ComponentFamilyMeta.PartitionMapperMeta.class.isInstance(componentMeta)
-                                            ? ComponentManager.ComponentType.MAPPER
-                                            : ComponentManager.ComponentType.PROCESSOR,
-                                    configVersion, mutatedConfig)
-                            .orElseThrow(
-                                    () -> new IllegalArgumentException("Can't find component '" + componentMeta.getId() + "'"))),
+            return runBeam(PTransform.class.cast(manager
+                    .createComponent(componentMeta.getParent().getName(), componentMeta.getName(),
+                            ComponentFamilyMeta.PartitionMapperMeta.class.isInstance(componentMeta)
+                                    ? ComponentManager.ComponentType.MAPPER
+                                    : ComponentManager.ComponentType.PROCESSOR,
+                            configVersion, mutatedConfig)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Can't find component '" + componentMeta.getId() + "'"))),
                     Integer.parseInt(limit));
         }
         // create the component using the native API
-        return runNative(
-                manager
-                        .findMapper(componentMeta.getParent().getName(), componentMeta.getName(), configVersion,
-                                mutatedConfig)
-                        .orElseThrow(() -> new IllegalArgumentException("Can't find component '" + componentMeta.getId() + "'")),
+        return runNative(manager
+                .findMapper(componentMeta.getParent().getName(), componentMeta.getName(), configVersion, mutatedConfig)
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Can't find component '" + componentMeta.getId() + "'")),
                 Integer.parseInt(limit));
     }
 
     private ComponentFamilyMeta.BaseMeta<?> findComponent(final String instantiationType, final String id) {
         switch (instantiationType) {
-            case "configurationtype":
-                final Config config = manager.find(container -> Stream.of(container.get(RepositoryModel.class)))
-                                             .filter(Objects::nonNull)
-                                             .flatMap(model -> model.getFamilies().stream())
-                                             .flatMap(family -> family.getConfigs().stream())
-                                             .filter(it -> it.getId().equals(id))
-                                             .findFirst()
-                        .orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                                                                               .entity("{\"message\":\"No config for this id\"}")
-                                                                               .build()));
+        case "configurationtype":
+            final Config config = manager
+                    .find(container -> Stream.of(container.get(RepositoryModel.class)))
+                    .filter(Objects::nonNull)
+                    .flatMap(model -> model.getFamilies().stream())
+                    .flatMap(family -> family.getConfigs().stream())
+                    .filter(it -> it.getId().equals(id))
+                    .findFirst()
+                    .orElseThrow(() -> new WebApplicationException(Response
+                            .status(Response.Status.BAD_REQUEST)
+                            .entity("{\"message\":\"No config for this id\"}")
+                            .build()));
 
-                final Map<String, ComponentFamilyMeta.PartitionMapperMeta> mappers =
-                        manager.find(c -> c.get(ContainerComponentRegistry.class).getComponents().entrySet().stream())
-                               .filter(e -> e.getKey().equals(config.getKey().getFamily()))
-                               .map(Map.Entry::getValue)
-                               .map(ComponentFamilyMeta::getPartitionMappers)
-                               .findFirst()
-                               .orElseThrow(() -> new WebApplicationException(
-                                       Response.status(Response.Status.BAD_REQUEST)
-                                               .entity("{\"message\":\"Plugin not found\"}")
-                                               .build()));
-                if (mappers.isEmpty()) {
-                    throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                                                              .entity("{\"message\":\"No source for this configuration\"}")
-                                                              .build());
-                }
+            final Map<String, ComponentFamilyMeta.PartitionMapperMeta> mappers = manager
+                    .find(c -> c.get(ContainerComponentRegistry.class).getComponents().entrySet().stream())
+                    .filter(e -> e.getKey().equals(config.getKey().getFamily()))
+                    .map(Map.Entry::getValue)
+                    .map(ComponentFamilyMeta::getPartitionMappers)
+                    .findFirst()
+                    .orElseThrow(() -> new WebApplicationException(Response
+                            .status(Response.Status.BAD_REQUEST)
+                            .entity("{\"message\":\"Plugin not found\"}")
+                            .build()));
+            if (mappers.isEmpty()) {
+                throw new WebApplicationException(Response
+                        .status(Response.Status.BAD_REQUEST)
+                        .entity("{\"message\":\"No source for this configuration\"}")
+                        .build());
+            }
             return mappers.values().stream().filter(meta -> {
                 final Collection<ParameterMeta> sourceMeta = flatten(meta.getParameterMetas()).collect(toList());
-                final Optional<ParameterMeta> nestedConfig = sourceMeta.stream()
-                        .filter(it -> config.getKey().getConfigType()
-                                .equals(it.getMetadata().getOrDefault("tcomp::configurationtype::type", ""))
-                                && config.getKey().getConfigName()
-                                        .equals(it.getMetadata().getOrDefault("tcomp::configurationtype::name", "")))
+                final Optional<ParameterMeta> nestedConfig = sourceMeta
+                        .stream()
+                        .filter(it -> config.getKey().getConfigType().equals(
+                                it.getMetadata().getOrDefault("tcomp::configurationtype::type", ""))
+                                && config.getKey().getConfigName().equals(
+                                        it.getMetadata().getOrDefault("tcomp::configurationtype::name", "")))
                         .findFirst();
-                return nestedConfig.isPresent() && sourceMeta.stream()
-                        .filter(it -> !it.getPath().startsWith(nestedConfig.get().getPath() + '.')).noneMatch(it -> Boolean
-                                .parseBoolean(it.getMetadata().getOrDefault("tcomp::validation" + "::required", "false")));
-            }).min(comparing(ComponentFamilyMeta.PartitionMapperMeta::getName)) // deterministic selection, can be sthg else
-                    .orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                            .entity("{\"message\":\"No source " + "found for this " + "configuration\"}").build()));
+                return nestedConfig.isPresent() && sourceMeta
+                        .stream()
+                        .filter(it -> !it.getPath().startsWith(nestedConfig.get().getPath() + '.'))
+                        .noneMatch(it -> Boolean.parseBoolean(
+                                it.getMetadata().getOrDefault("tcomp::validation" + "::required", "false")));
+            })
+                    .min(comparing(ComponentFamilyMeta.PartitionMapperMeta::getName)) // deterministic selection, can be
+                                                                                      // sthg else
+                    .orElseThrow(() -> new WebApplicationException(Response
+                            .status(Response.Status.BAD_REQUEST)
+                            .entity("{\"message\":\"No source " + "found for this " + "configuration\"}")
+                            .build()));
 
-            default:
-                return manager
-                        .find(container -> Stream.of(container.get(ContainerComponentRegistry.class)))
-                        .filter(Objects::nonNull)
-                        .flatMap(registry -> registry.getComponents().values().stream())
-                        .flatMap(comp -> Stream.concat(comp.getPartitionMappers().values().stream(),
-                                comp.getProcessors().values().stream()))
-                        .filter(comp -> comp.getId().equals(id))
-                        .findFirst()
-                        .orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                                                                               .entity("{\"message\":\"No component " +
-                                                                                       "for this id\"}")
-                                                                               .build()));
+        default:
+            return manager
+                    .find(container -> Stream.of(container.get(ContainerComponentRegistry.class)))
+                    .filter(Objects::nonNull)
+                    .flatMap(registry -> registry.getComponents().values().stream())
+                    .flatMap(comp -> Stream.concat(comp.getPartitionMappers().values().stream(),
+                            comp.getProcessors().values().stream()))
+                    .filter(comp -> comp.getId().equals(id))
+                    .findFirst()
+                    .orElseThrow(() -> new WebApplicationException(Response
+                            .status(Response.Status.BAD_REQUEST)
+                            .entity("{\"message\":\"No component " + "for this id\"}")
+                            .build()));
         }
     }
 

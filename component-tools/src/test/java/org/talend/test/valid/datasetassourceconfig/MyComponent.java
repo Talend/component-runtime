@@ -35,8 +35,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 @Emitter(family = "test", name = "my")
 public class MyComponent implements Serializable {
 
-    public MyComponent(
-            @Option("configuration") final MyDataSet config) {
+    public MyComponent(@Option("configuration") final MyDataSet config) {
         // no-op
     }
 

@@ -100,12 +100,12 @@ class RuntimeEndpointTest {
 
     @Test
     void beamRun() throws IOException {
-        doRun("dGVzdC1jbGFzc2VzI3Rlc3QjYmVhbUlucHV0", "component",30);
+        doRun("dGVzdC1jbGFzc2VzI3Rlc3QjYmVhbUlucHV0", "component", 30);
     }
 
     @Test
     void nativeRun() throws IOException {
-        doRun("dGVzdC1jbGFzc2VzI3Rlc3QjTmF0aXZlSW5wdXQ", "component",50);
+        doRun("dGVzdC1jbGFzc2VzI3Rlc3QjTmF0aXZlSW5wdXQ", "component", 50);
     }
 
     private void doRun(final String id, final String instantiation, final int sizeAssert) throws IOException {
@@ -180,6 +180,7 @@ class RuntimeEndpointTest {
     @Data
     @org.talend.sdk.component.api.configuration.type.DataSet("ds")
     public static class DataSet implements Serializable {
+
         @Option
         private String namePrefix;
     }

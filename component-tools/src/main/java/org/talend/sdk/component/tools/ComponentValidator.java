@@ -565,8 +565,10 @@ public class ComponentValidator extends BaseTask {
                     return !datasetProperties.isEmpty() && allProps
                             .stream()
                             // .filter(it -> it.getType() != OBJECT && it.getType() != ARRAY) // should it be done?
-                            .filter(it -> datasetProperties.stream().noneMatch(
-                                    dit -> it.getPath().equals(dit.getPath()) || it.getPath().startsWith(dit.getPath() + '.')))
+                            .filter(it -> datasetProperties
+                                    .stream()
+                                    .noneMatch(dit -> it.getPath().equals(dit.getPath())
+                                            || it.getPath().startsWith(dit.getPath() + '.')))
                             .anyMatch(this::isRequired);
                 }))
                 .map(dataset -> "No source instantiable without adding parameters for @DataSet(\"" + dataset.getValue()
