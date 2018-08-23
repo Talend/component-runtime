@@ -2,7 +2,7 @@
 :page-partial:
 :page-documentationindex-index: 8000
 :page-documentationindex-label: Web
-:page-documentationindex-icon: code
+:page-documentationindex-icon: server
 :page-documentationindex-description: Learn about the component web server
 :description: Learn about the component web server
 :keywords: web, component server
