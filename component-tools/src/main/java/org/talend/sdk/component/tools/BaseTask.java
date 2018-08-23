@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.tools;
 
-import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 
 import java.io.File;
