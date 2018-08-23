@@ -340,6 +340,12 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage(value = "org.talend.test.valid.datasetassourceconfig", success = true)
+    void testValidDataSetIsSourceConfig() {
+        // no-op
+    }
+
+    @Test
     @ComponentPackage("org.talend.test.failure.noi18ndatastorewithbundle")
     void testFailureI18nDatastoreWithBundle(final ExceptionSpec expectedException) {
         expectedException

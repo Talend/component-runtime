@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.proxy.runtime;
 
+import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -65,6 +67,8 @@ import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
 import org.joda.time.Duration;
+import org.talend.sdk.component.design.extension.RepositoryModel;
+import org.talend.sdk.component.design.extension.repository.Config;
 import org.talend.sdk.component.runtime.beam.transform.avro.SchemalessJsonToIndexedRecord;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -111,18 +115,12 @@ public class RuntimeEndpoint {
     @Path("read/{id}/{version}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces("application/avro-binary")
-    public Collection<IndexedRecord> read(@PathParam("id") final String componentId,
-            @PathParam("version") final int configVersion, @QueryParam("limit") @DefaultValue("50") final String limit,
+    public Collection<IndexedRecord> read(@PathParam("id") final String id,
+            @PathParam("version") final int configVersion,
+            @QueryParam("limit") @DefaultValue("50") final String limit,
+            @QueryParam("instantiation-type") @DefaultValue("configurationtype") final String instantiationType,
             final Map<String, String> configuration) {
-        final ComponentFamilyMeta.BaseMeta<?> componentMeta = manager
-                .find(container -> Stream.of(container.get(ContainerComponentRegistry.class)))
-                .filter(Objects::nonNull)
-                .flatMap(registry -> registry.getComponents().values().stream())
-                .flatMap(comp -> Stream.concat(comp.getPartitionMappers().values().stream(),
-                        comp.getProcessors().values().stream()))
-                .filter(comp -> comp.getId().equals(componentId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No component: '" + componentId + "'"));
+        final ComponentFamilyMeta.BaseMeta<?> componentMeta = findComponent(instantiationType, id);
         final Map<String, String> mutatedConfig = ofNullable(configuration).map(HashMap::new).orElseGet(HashMap::new);
         setLimit(componentMeta.getParameterMetas(), mutatedConfig, limit);
 
@@ -139,7 +137,7 @@ public class RuntimeEndpoint {
                                             : ComponentManager.ComponentType.PROCESSOR,
                                     configVersion, mutatedConfig)
                             .orElseThrow(
-                                    () -> new IllegalArgumentException("Can't find component '" + componentId + "'"))),
+                                    () -> new IllegalArgumentException("Can't find component '" + componentMeta.getId() + "'"))),
                     Integer.parseInt(limit));
         }
         // create the component using the native API
@@ -147,8 +145,71 @@ public class RuntimeEndpoint {
                 manager
                         .findMapper(componentMeta.getParent().getName(), componentMeta.getName(), configVersion,
                                 mutatedConfig)
-                        .orElseThrow(() -> new IllegalArgumentException("Can't find component '" + componentId + "'")),
+                        .orElseThrow(() -> new IllegalArgumentException("Can't find component '" + componentMeta.getId() + "'")),
                 Integer.parseInt(limit));
+    }
+
+    private ComponentFamilyMeta.BaseMeta<?> findComponent(final String instantiationType, final String id) {
+        switch (instantiationType) {
+            case "configurationtype":
+                final Config config = manager.find(container -> Stream.of(container.get(RepositoryModel.class)))
+                                             .filter(Objects::nonNull)
+                                             .flatMap(model -> model.getFamilies().stream())
+                                             .flatMap(family -> family.getConfigs().stream())
+                                             .filter(it -> it.getId().equals(id))
+                                             .findFirst()
+                        .orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                                                                               .entity("{\"message\":\"No config for this id\"}")
+                                                                               .build()));
+
+                final Map<String, ComponentFamilyMeta.PartitionMapperMeta> mappers =
+                        manager.find(c -> c.get(ContainerComponentRegistry.class).getComponents().entrySet().stream())
+                               .filter(e -> e.getKey().equals(config.getKey().getFamily()))
+                               .map(Map.Entry::getValue)
+                               .map(ComponentFamilyMeta::getPartitionMappers)
+                               .findFirst()
+                               .orElseThrow(() -> new WebApplicationException(
+                                       Response.status(Response.Status.BAD_REQUEST)
+                                               .entity("{\"message\":\"Plugin not found\"}")
+                                               .build()));
+                if (mappers.isEmpty()) {
+                    throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                                                              .entity("{\"message\":\"No source for this configuration\"}")
+                                                              .build());
+                }
+            return mappers.values().stream().filter(meta -> {
+                final Collection<ParameterMeta> sourceMeta = flatten(meta.getParameterMetas()).collect(toList());
+                final Optional<ParameterMeta> nestedConfig = sourceMeta.stream()
+                        .filter(it -> config.getKey().getConfigType()
+                                .equals(it.getMetadata().getOrDefault("tcomp::configurationtype::type", ""))
+                                && config.getKey().getConfigName()
+                                        .equals(it.getMetadata().getOrDefault("tcomp::configurationtype::name", "")))
+                        .findFirst();
+                return nestedConfig.isPresent() && sourceMeta.stream()
+                        .filter(it -> !it.getPath().startsWith(nestedConfig.get().getPath() + '.')).noneMatch(it -> Boolean
+                                .parseBoolean(it.getMetadata().getOrDefault("tcomp::validation" + "::required", "false")));
+            }).min(comparing(ComponentFamilyMeta.PartitionMapperMeta::getName)) // deterministic selection, can be sthg else
+                    .orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                            .entity("{\"message\":\"No source " + "found for this " + "configuration\"}").build()));
+
+            default:
+                return manager
+                        .find(container -> Stream.of(container.get(ContainerComponentRegistry.class)))
+                        .filter(Objects::nonNull)
+                        .flatMap(registry -> registry.getComponents().values().stream())
+                        .flatMap(comp -> Stream.concat(comp.getPartitionMappers().values().stream(),
+                                comp.getProcessors().values().stream()))
+                        .filter(comp -> comp.getId().equals(id))
+                        .findFirst()
+                        .orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                                                                               .entity("{\"message\":\"No component " +
+                                                                                       "for this id\"}")
+                                                                               .build()));
+        }
+    }
+
+    private Stream<ParameterMeta> flatten(final Collection<ParameterMeta> metas) {
+        return metas.stream().flatMap(meta -> Stream.concat(Stream.of(meta), meta.getNestedParameters().stream()));
     }
 
     // H: the limit is not in an array or so, => we can use the path directly

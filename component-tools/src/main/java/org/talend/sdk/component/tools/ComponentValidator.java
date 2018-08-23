@@ -559,14 +559,15 @@ public class ComponentValidator extends BaseTask {
                 .entrySet()
                 .stream()
                 .filter(dataset -> inputs.isEmpty() || inputs.entrySet().stream().anyMatch(input -> {
+                    final Collection<ParameterMeta> allProps = flatten(input.getValue()).collect(toList());
                     final Collection<ParameterMeta> datasetProperties =
-                            findNestedDataSets(input.getValue(), dataset.getValue()).collect(toList());
-                    return !datasetProperties.isEmpty() && input
-                            .getValue()
+                            findNestedDataSets(allProps, dataset.getValue()).collect(toList());
+                    return !datasetProperties.isEmpty() && allProps
                             .stream()
+                            // .filter(it -> it.getType() != OBJECT && it.getType() != ARRAY) // should it be done?
                             .filter(it -> datasetProperties.stream().noneMatch(
-                                    dit -> it.getPath().startsWith(dit.getPath() + '.')))
-                            .noneMatch(this::isRequired);
+                                    dit -> it.getPath().equals(dit.getPath()) || it.getPath().startsWith(dit.getPath() + '.')))
+                            .anyMatch(this::isRequired);
                 }))
                 .map(dataset -> "No source instantiable without adding parameters for @DataSet(\"" + dataset.getValue()
                         + "\") (" + dataset.getKey().getName() + "), please ensure at least a source using this "
@@ -584,7 +585,7 @@ public class ComponentValidator extends BaseTask {
     }
 
     private Stream<ParameterMeta> findNestedDataSets(final Collection<ParameterMeta> options, final String name) {
-        return flatten(options).filter(it -> "dataset".equals(it.getMetadata().get("tcomp::configurationtype::type"))
+        return options.stream().filter(it -> "dataset".equals(it.getMetadata().get("tcomp::configurationtype::type"))
                 && name.equals(it.getMetadata().get("tcomp::configurationtype::name")));
     }
 

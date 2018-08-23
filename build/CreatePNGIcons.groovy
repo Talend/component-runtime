@@ -70,9 +70,12 @@ if (!icons.exists()) {
 
 def rootOutput = new File(project.properties.containsKey('talend.icon.output') ? project.properties['talend.icon.output'] : project.build.directory)
 
+// buggy icons
+def exclusions = [ 'icons/filters/colormapping.svg', 'icons/filters/grayscale.svg' ]
+
 def jar = new JarFile(icons)
 jar.entries().findAll {
-    !it.isDirectory() && it.name.startsWith("icons/") && it.name.endsWith(".svg")
+    !it.isDirectory() && it.name.startsWith("icons/") && it.name.endsWith(".svg") && !exclusions.contains(it.name)
 }.each {
     def png = new File(rootOutput, it.name.substring(0, it.name.lastIndexOf('.')) + '_icon32.png')
     png.parentFile.mkdirs()
