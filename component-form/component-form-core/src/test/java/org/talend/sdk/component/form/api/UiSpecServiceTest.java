@@ -185,7 +185,7 @@ class UiSpecServiceTest {
     void condition() throws Exception {
         final Ui payload = service.convert(load("rest-api.json"), "en", null).toCompletableFuture().get();
         final UiSchema root = payload.getUiSchema().iterator().next();
-        final Collection<UiSchema.Condition> conditions = root
+        final UiSchema.Condition condition = root
                 .getItems()
                 .stream()
                 .filter(i -> i.getTitle().equals("Main"))
@@ -196,19 +196,38 @@ class UiSpecServiceTest {
                 .filter(i -> i.getTitle().equals("Order"))
                 .findFirst()
                 .get()
-                .getConditions();
-        assertEquals(1, conditions.size());
+                .getCondition();
+        assertNotNull(condition);
+        assertEquals(1, condition.getChildren().size());
+        assertNull(condition.getChildrenOperator());
 
-        final UiSchema.Condition condition = conditions.iterator().next();
-        assertEquals("tableDataSet.ordered", condition.getPath());
-        assertEquals(singletonList(true), condition.getValues());
+        final UiSchema.Condition child = condition.getChildren().iterator().next();
+        assertEquals("tableDataSet.ordered", child.getPath());
+        assertEquals(singletonList(true), child.getValues());
 
         // typed serialization
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
             assertEquals("{\"path\":\"tableDataSet.ordered\",\"shouldBe\":true,\"values\":[true]}",
-                    jsonb.toJson(condition));
+                    jsonb.toJson(child));
         }
+    }
+
+    @Test
+    void conditionWithOperator() throws Exception {
+        final ConfigTypeNode node = load("optionsorder.json", ConfigTypeNode.class);
+        final Ui payload = service.convert("test", "en", node, null).toCompletableFuture().get();
+        final UiSchema root = payload.getUiSchema().iterator().next();
+        final UiSchema.Condition condition = root
+                .getItems()
+                .stream()
+                .filter(i -> i.getTitle().equals("specificRecordDelimiter"))
+                .findFirst()
+                .get()
+                .getCondition();
+        assertNotNull(condition);
+        assertEquals(2, condition.getChildren().size());
+        assertEquals("OR", condition.getChildrenOperator().name());
     }
 
     @Test

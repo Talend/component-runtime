@@ -21,9 +21,11 @@ import static java.util.stream.Collectors.toMap;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
@@ -41,31 +43,39 @@ public class ConditionParameterEnricher implements ParameterExtensionEnricher {
         if (condition != null) {
             final String type = condition.value();
             if (ActiveIfs.class.isInstance(annotation)) {
-                return Stream
-                        .of(ActiveIfs.class.cast(annotation).value())
+                final ActiveIfs activeIfs = ActiveIfs.class.cast(annotation);
+                final Map<String, String> metas = Stream
+                        .of(activeIfs.value())
                         .map(ai -> onParameterAnnotation(parameterName, parameterType, ai))
                         .collect(HashMap::new, (map, entry) -> {
                             final String suffix = "::" + (map.size() / 4);
                             map.putAll(entry.entrySet().stream().collect(
                                     toMap(e -> e.getKey() + suffix, Map.Entry::getValue)));
                         }, HashMap::putAll);
+                metas.putAll(toMeta(annotation, type, m -> !"value".equals(m.getName())));
+                return metas;
             }
-            return Stream
-                    .of(annotation.annotationType().getMethods())
-                    .filter(m -> m.getDeclaringClass() == annotation.annotationType())
-                    .collect(toMap(m -> META_PREFIX + type + "::" + m.getName(), m -> {
-                        try {
-                            final Object invoke = m.invoke(annotation);
-                            if (String[].class.isInstance(invoke)) {
-                                return Stream.of(String[].class.cast(invoke)).collect(joining(","));
-                            }
-                            return String.valueOf(invoke);
-                        } catch (final InvocationTargetException | IllegalAccessException e) {
-                            throw new IllegalStateException(e);
-                        }
-                    }));
+            return toMeta(annotation, type, m -> true);
 
         }
         return emptyMap();
+    }
+
+    private Map<String, String> toMeta(final Annotation annotation, final String type, final Predicate<Method> filter) {
+        return Stream
+                .of(annotation.annotationType().getMethods())
+                .filter(m -> m.getDeclaringClass() == annotation.annotationType())
+                .filter(filter)
+                .collect(toMap(m -> META_PREFIX + type + "::" + m.getName(), m -> {
+                    try {
+                        final Object invoke = m.invoke(annotation);
+                        if (String[].class.isInstance(invoke)) {
+                            return Stream.of(String[].class.cast(invoke)).collect(joining(","));
+                        }
+                        return String.valueOf(invoke);
+                    } catch (final InvocationTargetException | IllegalAccessException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }));
     }
 }
