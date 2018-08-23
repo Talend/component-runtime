@@ -82,34 +82,10 @@ public class UiSchemaConverter implements PropertyConverter {
                 .orElseGet(() -> {
                     final SimplePropertyDefinition property = context.getProperty();
                     final String type = property.getType().toLowerCase(Locale.ROOT);
+                    final Map<String, String> metadata = property.getMetadata();
                     switch (type) {
                     case "object":
-                        final Map<String, String> gridLayouts = property
-                                .getMetadata()
-                                .entrySet()
-                                .stream()
-                                .filter(e -> e.getKey().startsWith("ui::gridlayout::") && e
-                                        .getKey()
-
-                                        .endsWith("::value"))
-                                .collect(toMap(
-                                        e -> e.getKey().substring("ui::gridlayout::".length(),
-                                                e.getKey().length() - "::value".length()),
-                                        Map.Entry::getValue, (a, b) -> {
-                                            throw new IllegalArgumentException("Can't merge " + a + " and " + b);
-                                        }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
-                        if (!gridLayouts.isEmpty()) {
-                            return new GridLayoutWidgetConverter(schemas, properties, actions, client, family,
-                                    gridLayoutFilter != null && gridLayouts.containsKey(gridLayoutFilter)
-                                            ? singletonMap(gridLayoutFilter, gridLayouts.get(gridLayoutFilter))
-                                            : gridLayouts,
-                                    jsonSchema, lang, customConverters)
-                                            .convert(CompletableFuture.completedFuture(context));
-                        }
-                        final String forcedOrder = property.getMetadata().get("ui::optionsorder::value");
-                        return new FieldSetWidgetConverter(schemas, properties, actions, client, family, jsonSchema,
-                                forcedOrder, lang, customConverters)
-                                        .convert(CompletableFuture.completedFuture(context));
+                        return convertObject(context, metadata);
                     case "boolean":
                         includedProperties.add(property);
                         return new ToggleWidgetConverter(schemas, properties, actions, jsonSchema, lang)
@@ -132,8 +108,8 @@ public class UiSchemaConverter implements PropertyConverter {
                                         && prop.getPath().indexOf('.', from) < 0)
                                 .collect(toList());
                         if (!nested.isEmpty()) {
-                            return new ObjectArrayWidgetConverter(schemas, properties, actions, nested, family, client,
-                                    gridLayoutFilter, jsonSchema, lang, customConverters)
+                            return new ObjectArrayWidgetConverter(schemas, properties, actions, family, client,
+                                    gridLayoutFilter, jsonSchema, lang, customConverters, metadata)
                                             .convert(CompletableFuture.completedFuture(context));
                         }
                         return new MultiSelectTagWidgetConverter(schemas, properties, actions, client, family,
@@ -144,20 +120,20 @@ public class UiSchemaConverter implements PropertyConverter {
                             return CompletableFuture.completedFuture(context);
                         }
                         includedProperties.add(property);
-                        if ("true".equalsIgnoreCase(property.getMetadata().get("ui::credential"))) {
+                        if ("true".equalsIgnoreCase(metadata.get("ui::credential"))) {
                             return new CredentialWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                                     .convert(CompletableFuture.completedFuture(context));
-                        } else if (property.getMetadata().containsKey("ui::code::value")) {
+                        } else if (metadata.containsKey("ui::code::value")) {
                             return new CodeWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                                     .convert(CompletableFuture.completedFuture(context));
-                        } else if (property.getMetadata().containsKey("action::suggestions")) {
+                        } else if (metadata.containsKey("action::suggestions")) {
                             return new SuggestionWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                                     .convert(CompletableFuture.completedFuture(context));
-                        } else if (property.getMetadata().containsKey("action::dynamic_values")) {
+                        } else if (metadata.containsKey("action::dynamic_values")) {
                             return new DataListWidgetConverter(schemas, properties, actions, client, family, jsonSchema,
                                     lang).convert(CompletableFuture.completedFuture(context));
-                        } else if (property.getMetadata().containsKey("ui::textarea")
-                                && Boolean.valueOf(property.getMetadata().get("ui::textarea"))) {
+                        } else if (metadata.containsKey("ui::textarea")
+                                && Boolean.valueOf(metadata.get("ui::textarea"))) {
                             return new TextAreaWidgetConverter(schemas, properties, actions, jsonSchema, lang)
                                     .convert(CompletableFuture.completedFuture(context));
                         }
@@ -165,5 +141,30 @@ public class UiSchemaConverter implements PropertyConverter {
                                 .convert(CompletableFuture.completedFuture(context));
                     }
                 }));
+    }
+
+    public CompletionStage<PropertyContext<?>> convertObject(final PropertyContext<?> outputContext,
+            final Map<String, String> metadata) {
+        final Map<String, String> gridLayouts = metadata
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey().startsWith("ui::gridlayout::") && e
+                        .getKey()
+
+                        .endsWith("::value"))
+                .collect(toMap(e -> e.getKey().substring("ui::gridlayout::".length(),
+                        e.getKey().length() - "::value".length()), Map.Entry::getValue, (a, b) -> {
+                            throw new IllegalArgumentException("Can't merge " + a + " and " + b);
+                        }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
+        if (!gridLayouts.isEmpty()) {
+            return new GridLayoutWidgetConverter(schemas, properties, actions, client, family,
+                    gridLayoutFilter != null && gridLayouts.containsKey(gridLayoutFilter)
+                            ? singletonMap(gridLayoutFilter, gridLayouts.get(gridLayoutFilter))
+                            : gridLayouts,
+                    jsonSchema, lang, customConverters).convert(CompletableFuture.completedFuture(outputContext));
+        }
+        final String forcedOrder = metadata.get("ui::optionsorder::value");
+        return new FieldSetWidgetConverter(schemas, properties, actions, client, family, jsonSchema, forcedOrder, lang,
+                customConverters).convert(CompletableFuture.completedFuture(outputContext));
     }
 }

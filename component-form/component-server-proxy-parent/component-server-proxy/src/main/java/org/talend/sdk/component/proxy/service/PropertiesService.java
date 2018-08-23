@@ -24,8 +24,8 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -76,7 +76,7 @@ public class PropertiesService {
                     return new SimplePropertyDefinition(ref.getPath(), ref.getName(), ref.getDisplayName(), "STRING",
                             null,
                             new PropertyValidation(true, null, null, null, null, null, null, null, null, emptySet()),
-                            enrichedMetadata, null, emptyMap());
+                            enrichedMetadata, null, new LinkedHashMap<>());
                 })
                 .collect(toList()));
 
@@ -94,7 +94,7 @@ public class PropertiesService {
                                 .filter(node -> type.equals(node.getConfigurationType()) && name.equals(node.getName()))
                                 .findFirst()
                                 .map(node -> findPotentialIdsAndNames(node, context))
-                                .orElseGet(() -> completedFuture(emptyMap()))
+                                .orElseGet(() -> completedFuture(new LinkedHashMap<>()))
                                 .thenApply(potentialIdsAndNames -> {
                                     it.getValidation().setEnumValues(potentialIdsAndNames.keySet());
                                     it.setProposalDisplayNames(potentialIdsAndNames);
@@ -130,13 +130,16 @@ public class PropertiesService {
                 .collect(toList());
     }
 
-    private CompletionStage<Map<String, String>> findPotentialIdsAndNames(final ConfigTypeNode node,
+    private CompletionStage<LinkedHashMap<String, String>> findPotentialIdsAndNames(final ConfigTypeNode node,
             final UiSpecContext context) {
         return referenceService
                 .findReferencesByTypeAndName(node.getConfigurationType(), node.getId(), context)
                 .thenApply(values -> ofNullable(values.getItems())
-                        .map(items -> items.stream().collect(toMap(Values.Item::getId, Values.Item::getLabel)))
-                        .orElseGet(Collections::emptyMap));
+                        .map(items -> items.stream().collect(
+                                toMap(Values.Item::getId, Values.Item::getLabel, (a, b) -> {
+                                    throw new IllegalArgumentException("Conflict is not possible here");
+                                }, LinkedHashMap::new)))
+                        .orElseGet(LinkedHashMap::new));
     }
 
     public CompletionStage<Map<String, String>> replaceReferences(final UiSpecContext context,

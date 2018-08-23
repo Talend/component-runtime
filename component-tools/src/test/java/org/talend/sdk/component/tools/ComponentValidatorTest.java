@@ -324,6 +324,22 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage("org.talend.test.failure.noi18ndatastorewithbundle")
+    void testFailureI18nDatastoreWithBundle(final ExceptionSpec expectedException) {
+        expectedException.expectMessage(
+                "- org.talend.test.failure.noi18ndatastorewithbundle.Messages is missing the key(s): " +
+                        "demo.datastore.default._displayName");
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.noi18ndatastore")
+    void testFailureI18nDatastore(final ExceptionSpec expectedException) {
+        expectedException.expectMessage(
+                "- No resource bundle for org.talend.test.failure.noi18ndatastore.MyDataStore translations, " +
+                        "you should create a org/talend/test/failure/noi18ndatastore/Messages.properties at least.");
+    }
+
+    @Test
     @ComponentPackage("org.talend.test.failure.aftergroup")
     void testFailureAfterGroup(final ExceptionSpec expectedException) {
         expectedException.expectMessage("- @Output parameter must be of type OutputEmitter\n"

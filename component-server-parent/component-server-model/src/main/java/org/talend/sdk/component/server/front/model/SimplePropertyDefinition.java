@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.server.front.model;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -42,5 +43,7 @@ public class SimplePropertyDefinition {
 
     private String placeholder;
 
-    private Map<String, String> proposalDisplayNames;
+    // here the order is important so don't use Map and SortedMap
+    // requires some definition on unmarshalling so not usable too
+    private LinkedHashMap<String, String> proposalDisplayNames;
 }

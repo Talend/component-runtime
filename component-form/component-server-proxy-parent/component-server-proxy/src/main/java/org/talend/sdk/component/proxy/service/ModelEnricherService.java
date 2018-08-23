@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -77,33 +78,30 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class ModelEnricherService {
 
-    private static final Collection<ActionReference> BUILTIN_ACTIONS =
-            Stream
-                    .of(new ActionReference("builtin::family", "builtin::root::reloadFromId", "reloadForm",
+    private static final Collection<ActionReference> BUILTIN_ACTIONS = Stream
+            .of(new ActionReference("builtin::family", "builtin::root::reloadFromId", "reloadForm",
+                    new ArrayList<>(singleton(
+                            new SimplePropertyDefinition("id", "id", "Configuration Identifier", "STRING", null, null,
+                                    singletonMap("definition::parameter::index", "0"), null, new LinkedHashMap<>())))),
+                    new ActionReference("builtin::family", "builtin::root::reloadFromParentEntityId",
+                            "reloadFromParentEntityId",
                             new ArrayList<>(singleton(new SimplePropertyDefinition("id", "id",
                                     "Configuration Identifier", "STRING", null, null,
-                                    singletonMap("definition::parameter::index", "0"), null, emptyMap())))),
-                            new ActionReference("builtin::family", "builtin::root::reloadFromParentEntityId",
-                                    "reloadFromParentEntityId",
-                                    new ArrayList<>(singleton(new SimplePropertyDefinition("id", "id",
-                                            "Configuration Identifier", "STRING", null, null,
-                                            singletonMap("definition::parameter::index", "0"), null, emptyMap())))),
-                            new ActionReference("builtin::family", "builtin::roots", "dynamic_values",
-                                    new ArrayList<>()),
-                            // these ones are configured from the definition (xxxx=yyy) and not the form params
-                            new ActionReference("builtin::family", "builtin::http::dynamic_values", "dynamic_values",
-                                    new ArrayList<>()),
-                            new ActionReference("builtin::family", "builtin::references", "suggestions",
-                                    new ArrayList<>()))
-                    .map(act -> new ActionReference(act.getFamily(), act.getName(), act.getType(), Stream
-                            .concat(act.getProperties().stream(), Stream.of(new SimplePropertyDefinition("$formId",
-                                    "$formId", "$formId", "STRING", null,
+                                    singletonMap("definition::parameter::index", "0"), null, new LinkedHashMap<>())))),
+                    new ActionReference("builtin::family", "builtin::roots", "dynamic_values", new ArrayList<>()),
+                    // these ones are configured from the definition (xxxx=yyy) and not the form params
+                    new ActionReference("builtin::family", "builtin::http::dynamic_values", "dynamic_values",
+                            new ArrayList<>()),
+                    new ActionReference("builtin::family", "builtin::references", "suggestions", new ArrayList<>()))
+            .map(act -> new ActionReference(act.getFamily(), act.getName(), act.getType(), Stream
+                    .concat(act.getProperties().stream(),
+                            Stream.of(new SimplePropertyDefinition("$formId", "$formId", "$formId", "STRING", null,
                                     new PropertyValidation(false, null, null, null, null, null, null, null, null, null),
                                     singletonMap("definition::parameter::index",
                                             Integer.toString(act.getProperties().size())),
                                     null, null)))
-                            .collect(toList())))
-                    .collect(toList());
+                    .collect(toList())))
+            .collect(toList());
 
     private final Patches skip = new Patches(null) {
 
@@ -233,7 +231,9 @@ public class ModelEnricherService {
         } else if (prop.getValidation() != null && prop.getValidation().getEnumValues() != null
                 && prop.getProposalDisplayNames() == null) {
             prop.setProposalDisplayNames(
-                    prop.getValidation().getEnumValues().stream().collect(toMap(identity(), identity())));
+                    prop.getValidation().getEnumValues().stream().collect(toMap(identity(), identity(), (a, b) -> {
+                        throw new IllegalArgumentException("Conflict is not possible here");
+                    }, LinkedHashMap::new)));
         }
 
         if (prop.getMetadata() == null) {
@@ -374,8 +374,10 @@ public class ModelEnricherService {
                                     .orElse(null),
                             findTranslation(bundle, p.getPlaceholder()),
                             ofNullable(p.getProposalDisplayNames())
-                                    .map(proposals -> proposals.entrySet().stream().collect(
-                                            toMap(Map.Entry::getKey, e -> findTranslation(bundle, e.getValue()))))
+                                    .map(proposals -> proposals.entrySet().stream().collect(toMap(Map.Entry::getKey,
+                                            e -> findTranslation(bundle, e.getValue()), (a, b) -> {
+                                                throw new IllegalArgumentException("can't happen");
+                                            }, LinkedHashMap::new)))
                                     .orElse(null)))
                     .collect(toList());
         }

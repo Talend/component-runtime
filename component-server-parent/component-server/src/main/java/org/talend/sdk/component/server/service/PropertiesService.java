@@ -17,7 +17,7 @@ package org.talend.sdk.component.server.service;
 
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.server.lang.CustomCollectors.toLinkedMap;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -95,7 +95,7 @@ public class PropertiesService {
                             .entrySet()
                             .stream()
                             .filter(e -> !e.getKey().startsWith(ValidationParameterEnricher.META_PREFIX))
-                            .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)))
+                            .collect(toLinkedMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)))
                     .orElse(null);
             final Map<String, String> metadata;
             if (parent != null) {
@@ -112,7 +112,7 @@ public class PropertiesService {
                             bundle.displayName(parentBundle).orElse(p.getName()), type, toDefault(instance, p),
                             validation, metadata, bundle.placeholder(parentBundle).orElse(p.getName()),
                             !isEnum ? null
-                                    : p.getProposals().stream().collect(toMap(identity(),
+                                    : p.getProposals().stream().collect(toLinkedMap(identity(),
                                             key -> bundle.enumDisplayName(parentBundle, key).orElse(key))))),
                     buildProperties(p.getNestedParameters(), loader, locale, instance, p));
         }).sorted(Comparator.comparing(SimplePropertyDefinition::getPath)); // important cause it is the way you want to
