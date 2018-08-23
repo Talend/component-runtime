@@ -22,6 +22,7 @@
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1001[TCOMP-1001^]: [proxy] ConfigurationClient should expose a migrate method
+- link:https://jira.talendforge.org/browse/TCOMP-1011[TCOMP-1011^]: Ensure datastore/dataset i18n names are validated by the maven/gradle plugins
 - link:https://jira.talendforge.org/browse/TCOMP-993[TCOMP-993^]: [proxy] Propagate UiSpecContext in referenceservice#findByTypeAndName
 - link:https://jira.talendforge.org/browse/TCOMP-994[TCOMP-994^]: [dependency upgrade] CXF 3.2.6
 
