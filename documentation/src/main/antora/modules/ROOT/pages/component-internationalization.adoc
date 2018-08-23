@@ -18,7 +18,7 @@ Out of the box components are internationalized using the same location logic fo
 |Name Pattern|Description
 |${family}._displayName| Display name of the family
 |${family}.${category}._category| Display name of the category `${category}` in the family `${family}`.
-|${family}.${configurationType}.${name}._displayName| Display name of a configuration type (dataStore or dataSet). Important: this is read from the family package, not the class package to unify the localization of these metadata.
+|${family}.${configurationType}.${name}._displayName| Display name of a configuration type (dataStore or dataSet). Important: this key is read from the family package (not the class package), to unify the localization of the metadata.
 |${family}.${component_name}._displayName| Display name of the component (used by the GUIs)
 |${property_path}._displayName| Display name of the option.
 |${simple_class_name}.${property_name}._displayName| Display name of the option using its class name.
