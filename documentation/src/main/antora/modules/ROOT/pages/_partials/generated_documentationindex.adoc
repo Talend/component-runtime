@@ -8,7 +8,7 @@
     "link":"index-getting-started-with-tck.html"
   },
   {
-    "description":"Follow these guided examples to get your hands on specific cases",
+    "description":"Follow guided and practical examples to know more about the framework",
     "icon":"book-open",
     "index":2500,
     "label":"Tutorials",
