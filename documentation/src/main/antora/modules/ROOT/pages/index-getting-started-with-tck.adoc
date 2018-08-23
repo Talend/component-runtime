@@ -8,7 +8,7 @@
 If you are new to Talend component development or with the Talend Component Kit framework, you can start by reading the following articles to get a better overview of the framework design and Talend components in general.
 
 * xref:what-is-a-talend-component.adoc[What is a Talend Component]
-* xref:methodology-creating-components.adoc[Methodology]
+* xref:methodology-creating-components.adoc[Development methodology]
 * xref:tck-framework-overview.adoc[Framework Overview]
 * xref:component-execution.adoc[General component execution logic]
 

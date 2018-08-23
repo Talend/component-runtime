@@ -1,4 +1,4 @@
-= Deploying components to Talend applications
+= Integrating components into Talend applications
 :page-partial:
 :page-documentationindex-index: 7500
 :page-documentationindex-label: Integrating components
@@ -9,6 +9,6 @@
 
 To be able to see and use your newly developed components, you need to integrate them to the right application.
 
-Currently, you can deploy your components created using Talend Component Kit in the following applications: 
+Currently, you can deploy your components created using Talend Component Kit in the following applications:
 
 * xref:studio.adoc[Integrating components to Talend Studio]
