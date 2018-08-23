@@ -62,6 +62,8 @@ import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.ActionType;
@@ -147,7 +149,7 @@ public class ComponentValidator extends BaseTask {
         }
 
         if (configuration.isValidateDataSet()) {
-            validateDataSet(finder, errors);
+            validateDataSet(finder, components, errors);
         }
 
         if (configuration.isValidateActions()) {
@@ -171,12 +173,6 @@ public class ComponentValidator extends BaseTask {
             throw new IllegalStateException(
                     "Some error were detected:" + errors.stream().collect(joining("\n- ", "\n- ", "")));
         }
-    }
-
-    private boolean hasNestedDataSet(final List<ParameterMeta> options) {
-        return options.stream().anyMatch(
-                option -> "dataset".equals(option.getMetadata().get("tcomp::configurationtype::type"))
-                        || this.hasNestedDataSet(option.getNestedParameters()));
     }
 
     private void validateLayout(final AnnotationFinder finder, final List<Class<?>> components,
@@ -430,17 +426,6 @@ public class ComponentValidator extends BaseTask {
                 .sorted()
                 .collect(toSet()));
 
-        errors.addAll(components
-                .stream()
-                .flatMap(c -> parameterModelService
-                        .buildParameterMetas(findConstructor(c),
-                                ofNullable(c.getPackage()).map(Package::getName).orElse(""))
-                        .stream())
-                .filter(option -> this.hasNestedDataSet(option.getNestedParameters()))
-                .map(option -> "Root configuration can't contains a nested DataSet `" + option.getJavaType() + "`")
-                .sorted()
-                .collect(toSet()));
-
         final ModelVisitor modelVisitor = new ModelVisitor();
         final ModelListener noop = new ModelListener() {
 
@@ -541,13 +526,15 @@ public class ComponentValidator extends BaseTask {
                 .collect(toList()));
     }
 
-    private void validateDataSet(final AnnotationFinder finder, final Set<String> errors) {
+    private void validateDataSet(final AnnotationFinder finder, final List<Class<?>> components,
+            final Set<String> errors) {
         final List<Class<?>> datasetClasses = finder.findAnnotatedClasses(DataSet.class);
-        final List<String> datasets =
-                datasetClasses.stream().map(d -> d.getAnnotation(DataSet.class).value()).collect(toList());
-        final Set<String> uniqueDatasets = new HashSet<>(datasets);
+        final Map<Class<?>, String> datasets =
+                datasetClasses.stream().collect(toMap(identity(), d -> d.getAnnotation(DataSet.class).value()));
+        final Set<String> uniqueDatasets = new HashSet<>(datasets.values());
         if (datasets.size() != uniqueDatasets.size()) {
             errors.add("Duplicated DataSet found : " + datasets
+                    .values()
                     .stream()
                     .collect(groupingBy(identity()))
                     .entrySet()
@@ -556,12 +543,53 @@ public class ComponentValidator extends BaseTask {
                     .map(Map.Entry::getKey)
                     .collect(joining(", ")));
         }
-        errors.addAll(datasetClasses
+        errors.addAll(datasets
+                .entrySet()
                 .stream()
-                .map(clazz -> validateFamilyI18nKey(clazz,
-                        "${family}.dataset." + clazz.getAnnotation(DataSet.class).value() + "._displayName"))
+                .map(entry -> validateFamilyI18nKey(entry.getKey(),
+                        "${family}.dataset." + entry.getValue() + "._displayName"))
                 .filter(Objects::nonNull)
                 .collect(toList()));
+
+        // ensure there is always a source with a config matching without user entries each dataset
+        final Map<Class<?>, Collection<ParameterMeta>> inputs = components.stream().filter(this::isSource).collect(
+                toMap(identity(), c -> parameterModelService.buildParameterMetas(findConstructor(c),
+                        ofNullable(c.getPackage()).map(Package::getName).orElse(""))));
+        errors.addAll(datasets
+                .entrySet()
+                .stream()
+                .filter(dataset -> inputs.isEmpty() || inputs.entrySet().stream().anyMatch(input -> {
+                    final Collection<ParameterMeta> datasetProperties =
+                            findNestedDataSets(input.getValue(), dataset.getValue()).collect(toList());
+                    return !datasetProperties.isEmpty() && input
+                            .getValue()
+                            .stream()
+                            .filter(it -> datasetProperties.stream().noneMatch(
+                                    dit -> it.getPath().startsWith(dit.getPath() + '.')))
+                            .noneMatch(this::isRequired);
+                }))
+                .map(dataset -> "No source instantiable without adding parameters for @DataSet(\"" + dataset.getValue()
+                        + "\") (" + dataset.getKey().getName() + "), please ensure at least a source using this "
+                        + "dataset can be use just filling the dataset informations.")
+                .sorted()
+                .collect(toSet()));
+    }
+
+    private boolean isRequired(final ParameterMeta parameterMeta) {
+        return Boolean.parseBoolean(parameterMeta.getMetadata().getOrDefault("tcomp::validation::required", "false"));
+    }
+
+    private boolean isSource(final Class<?> component) {
+        return component.isAnnotationPresent(PartitionMapper.class) || component.isAnnotationPresent(Emitter.class);
+    }
+
+    private Stream<ParameterMeta> findNestedDataSets(final Collection<ParameterMeta> options, final String name) {
+        return flatten(options).filter(it -> "dataset".equals(it.getMetadata().get("tcomp::configurationtype::type"))
+                && name.equals(it.getMetadata().get("tcomp::configurationtype::name")));
+    }
+
+    private Stream<ParameterMeta> flatten(final Collection<ParameterMeta> options) {
+        return options.stream().flatMap(it -> Stream.concat(Stream.of(it), it.getNestedParameters().stream()));
     }
 
     private String validateFamilyI18nKey(final Class<?> clazz, final String... keys) {
@@ -719,5 +747,13 @@ public class ComponentValidator extends BaseTask {
         private boolean validateLayout;
 
         private boolean validateOptionNames;
+    }
+
+    @Data
+    private static class InputWithDataSet {
+
+        private final Collection<ParameterMeta> datasets;
+
+        private final Map.Entry<Class<?>, Collection<ParameterMeta>> input;
     }
 }

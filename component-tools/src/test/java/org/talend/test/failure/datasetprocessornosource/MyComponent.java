@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.test.failure.nesteddataset;
+package org.talend.test.failure.datasetprocessornosource;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
@@ -22,6 +22,8 @@ import java.io.Serializable;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.constraint.Required;
+import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
@@ -29,10 +31,10 @@ import org.talend.sdk.component.api.processor.Processor;
 @Documentation("super my component")
 @Version
 @Icon(FILE_JOB_O)
-@Processor(family = "test4", name = "my")
-public class MyComponent4 implements Serializable {
+@Processor(family = "test", name = "my")
+public class MyComponent implements Serializable {
 
-    public MyComponent4(@Option("configuration") final MyComponent.MyDataSet config) {
+    public MyComponent(@Option("configuration") final Conf config) {
         // no-op
     }
 
@@ -45,4 +47,23 @@ public class MyComponent4 implements Serializable {
 
     }
 
+    public static class Conf implements Serializable {
+
+        @Option
+        @Required
+        @Documentation("the input value")
+        private String input;
+
+        @Option
+        private MyDataSet dataset;
+
+    }
+
+    @DataSet("dataset")
+    public static class MyDataSet implements Serializable {
+
+        @Option
+        @Documentation("the user to log in")
+        private String user;
+    }
 }

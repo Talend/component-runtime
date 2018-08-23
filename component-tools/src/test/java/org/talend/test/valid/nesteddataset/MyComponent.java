@@ -13,37 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.test.failure.nesteddataset;
+package org.talend.test.valid.nesteddataset;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
 import java.io.Serializable;
 
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.Processor;
 
 @Documentation("super my component")
 @Version
 @Icon(FILE_JOB_O)
-@Processor(family = "test2", name = "my")
-public class MyComponent2 implements Serializable {
+@Emitter(family = "test", name = "my")
+public class MyComponent implements Serializable {
 
-    public MyComponent2(@Option("configuration") final MyComponent.DataSetWithNestedDataSet config) {
+    public MyComponent(
+            @Option("configuration") final org.talend.test.failure.datasetrequiredinsource.MyComponent.Conf config) {
         // no-op
     }
 
-    @ElementListener
-    public Foo passthrough(final Foo item) {
-        return item;
+    @Producer
+    public JsonObject stop() {
+        return null;
     }
 
-    public static class Foo {
+    public static class Conf implements Serializable {
+
+        @Option
+        @Documentation("the input value")
+        private String input;
+
+        @Option
+        private MyDataSet dataset;
 
     }
 
+    @DataSet("dataset-2")
+    public static class MyDataSet implements Serializable {
+
+        @Option
+        @Documentation("the user to log in")
+        private String user;
+    }
 }
