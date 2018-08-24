@@ -33,5 +33,6 @@ Using your Java IDE along with a build tool supported by the framework, you can 
 
 In any case, follow these xref:best-practices.adoc[best practices] to ensure the components you develop are optimized.
 
+You can also learn more about component loading and plugins here:
 
 * xref:component-loading.adoc[Loading a component]
