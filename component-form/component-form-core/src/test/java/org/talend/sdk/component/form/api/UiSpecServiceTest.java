@@ -108,6 +108,23 @@ class UiSpecServiceTest {
     }
 
     @Test
+    void enumAsRestrictedList() throws Exception {
+        final ConfigTypeNode node =
+                load("config.json", ConfigTypeNodes.class).getNodes().get("U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl");
+        final Ui payload = service.convert("Jdbc", "en", node, null).toCompletableFuture().get();
+        final Iterator<UiSchema> items =
+                payload.getUiSchema().iterator().next().getItems().iterator().next().getItems().iterator();
+        items.next();
+        items.next();
+        items.next();
+        // grab order and fields which are enums
+        final Collection<UiSchema> enumItems =
+                items.next().getItems().iterator().next().getItems().iterator().next().getItems();
+        assertEquals(2, enumItems.size());
+        enumItems.forEach(it -> assertTrue(it.getRestricted()));
+    }
+
+    @Test
     void optionsOrder() throws Exception {
         final ConfigTypeNode node = load("optionsorder.json", ConfigTypeNode.class);
         final SimplePropertyDefinition root = node
