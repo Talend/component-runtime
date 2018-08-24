@@ -1,11 +1,11 @@
-= Integrating components into Talend applications
+= Integrating components into Talend Studio
 :page-partial:
 :page-documentationindex-index: 7500
-:page-documentationindex-label: Integrating components
+:page-documentationindex-label: Studio integration
 :page-documentationindex-icon: share-square
-:page-documentationindex-description: Learn how to deploy your custom components to the Studio and Talend applications
-:description: Get an overview of how to integrate your components created using Talend Component Kit to Talend Studio or to other Talend applications.
-:keywords: integration, deployment
+:page-documentationindex-description: Learn how to deploy your custom components to Talend Studio
+:description: Get an overview of how to integrate your components created using Talend Component Kit to Talend Studio
+:keywords: integration, deployment, open studio
 
 To be able to see and use your newly developed components, you need to integrate them to the right application.
 
