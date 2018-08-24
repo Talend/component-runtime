@@ -1,0 +1,16 @@
+= Integrating components into Talend Cloud
+:page-partial:
+:page-documentationindex-index: 8000
+:page-documentationindex-label: Cloud integration
+:page-documentationindex-icon: cloud
+:page-documentationindex-description: Integrate components into Talend Cloud and learn about the component server
+:description: Integrate components into Talend Cloud and learn about the component server
+:keywords: web, component server, cloud
+
+Learn about the component server with the following articles:
+
+* xref:documentation-rest.adoc[Component server and HTTP API]
+
+For more advanced cases, you can check the UiSpec Server documentation. The UiSpec server is a companion application for the Component Server. It provides a client to the Component Server which serves UiSpec payload to integrate with the client JavaScript UiForm library.
+
+* xref:server-uispec.adoc[UiSpec Server]

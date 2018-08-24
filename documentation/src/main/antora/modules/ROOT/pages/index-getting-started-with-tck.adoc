@@ -4,6 +4,8 @@
 :page-documentationindex-label: Getting Started
 :page-documentationindex-icon: play-circle
 :page-documentationindex-description: Get an overview of the framework and create your first component
+:description: Get an overview of the Talend Component Kit framework and create your first component
+:keywords: quickstart, overview, principle, description
 
 If you are new to Talend component development or with the Talend Component Kit framework, you can start by reading the following articles to get a better overview of the framework design and Talend components in general.
 
