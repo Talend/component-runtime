@@ -6,6 +6,21 @@ This document explains how Asciidoctor is used in the context of Talend Componen
 
 For general guidelines about Asciidoctor, refer to the https://asciidoctor.org/docs/asciidoc-syntax-quick-reference[Asciidoc Syntax quick reference] page.
 
+== General organization guidelines
+
+The documentation is made of:
+
+- Documentation files manually are written under  `Documentation\src\main\antora\modules\ROOT\pages`.
+- Documentation files automatically generated from the source code under `Documentation\src\main\antora\modules\ROOT\pages\_partials`. These files are individually called in manually written files through includes.
+- Assets, especially images, stored in the `Documentation\src\main\antora\modules\ROOT\assets` folder. Some subfolders exist to categorize the assets.
+
+Each file has a unique name and is rendered as a unique HTML page.
+Some of the files are prefixed to halp identifying the type of content it contains. Most common examples are:
+
+- `index-` for pages referenced from the main index page. These pages also contain specific attributes to be correctly rendered on the main index page (see 'List of metadata attributes' below).
+- `tutorial_` for tutorials/guided examples.
+_ `generated_` for pages generated from the source code. These pages are generally stored in the '_partials' folder.
+
 == List of metadata attributes
 
 For all pages:
@@ -35,29 +50,31 @@ To avoid this, it is possible to define some conditionality to have some content
 
 [source]
 ----
-ifeval::["{backend}" == "html5"]
+\ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
 - xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
 - xref:component-configuration.adoc[Defining component layout and configuration]
 - xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
 - xref:best-practices.adoc[Best practices]
-endif::[]
+\endif::[]
 ----
 
-== Adding images
+== Content
+
+=== Adding images
 
 All images are stored under documentation > src > main > antora > modules > ROOT > assets > images.
 Relatively to .adoc files, it can be ../assets/images/ or ../../assets/images for _partials (automatically generated from code) pages.
 To avoid handling different relative paths, a variable is available and resolves directly `image:` to the *image* folder. Hence, paths to images should start with the following:
 
-`image:(<subfolder>/)<image_name>.png[<image_name>(,parameters)]`
+`\image:(<subfolder>/)<image_name>.png[<image_name>(,parameters)]`
 
 If there is no subfolder, type the image name right away.
 Adding an image title is mandatory to avoid empty broken spaces in the content.
 If necessary, you can add more parameters separated by a comma between the same brackets as the image title, such as the desired width, height, etc.
 
-== Tables
+=== Tables
 
 In a general manner, avoid using tables if there are other solutions available. This is especially the case for complex tables that include assets or big code samples can lead to display issues.
 
@@ -66,11 +83,33 @@ In a general manner, avoid using tables if there are other solutions available. 
 |====
 |API|Type|Description
 
-|@o.t.s.c.api.service.completion.DynamicValues|dynamic_values|Mark a method as being useful to fill potential values of a string option for a property denoted by its value. You can link a field as being completable using @Proposable(value). The resolution of the completion action is then done through the component family and value of the action. The callback doesn't take any parameter.
+|@o.t.s.c.api.service.completion.DynamicValues|dynamic_values|Mark a method as being useful to fill potential values of a string option for a property denoted by its value.
 
 |@o.t.s.c.api.service.healthcheck.HealthCheck|healthcheck|This class marks an action doing a connection test
 
 |====
+
+=== Admonition blocks
+
+The following elements can be used. However, avoid using them one after another as it can make reading more difficult:
+
+- `NOTE:` for a simple information note
+- `IMPORTANT:` for a warning. Warnings should include information that lead to important errors if not taken into account
+- `TIP:` for alternative ways or shortcuts to ease a process or procedure
+
+Admonition blocks should be kept as simple and short as possible. In some niche cases, it may be required to insert more complex content in an admonition block, such as a bullet list. In these cases, they should be formatted as follows:
+
+[source]
+----
+[IMPORTANT]
+====
+The model allows you to define meta information without restrictions. However, it is highly recommended to ensure that:
+
+- a datastore is used in each dataset.
+- each dataset has a corresponding source (mapper or emitter) which has a configuration that is usable if the software only fills the dataset part. All other properties must not be required.
+====
+
+----
 
 == Sample page
 
