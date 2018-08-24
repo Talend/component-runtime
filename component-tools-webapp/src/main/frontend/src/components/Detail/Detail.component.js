@@ -18,7 +18,7 @@ import React from 'react';
 import { Inject } from '@talend/react-cmf';
 import errors from '@talend/react-forms/lib/UIForm/utils/errors';
 import kit from '@talend/react-containers/lib/ComponentForm/kit';
-import service from '@talend/react-containers/lib/ComponentForm/kit/service';
+import service from '@talend/react-containers/lib/ComponentForm/kit/defaultRegistry';
 
 function NoSelectedComponent() {
 	return (

@@ -415,7 +415,8 @@
         "condition::if::target::0": "../format",
         "condition::if::value::1": "OTHER",
         "condition::if::target::1": "../fieldDelimiter",
-        "condition::if::value::0": "CSV"
+        "condition::if::value::0": "CSV",
+        "condition::ifs::operator": "OR"
       },
       "name": "specificFieldDelimiter",
       "path": "configuration.specificFieldDelimiter",
@@ -429,7 +430,8 @@
         "condition::if::target::0": "../format",
         "condition::if::value::1": "OTHER",
         "condition::if::target::1": "../recordDelimiter",
-        "condition::if::value::0": "CSV"
+        "condition::if::value::0": "CSV",
+        "condition::ifs::operator": "OR"
       },
       "name": "specificRecordDelimiter",
       "path": "configuration.specificRecordDelimiter",

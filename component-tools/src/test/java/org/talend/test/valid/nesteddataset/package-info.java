@@ -15,7 +15,7 @@
  */
 @Components(family = "demo")
 @Icon(Icon.IconType.DEFAULT)
-package org.talend.test.failure.nesteddataset;
+package org.talend.test.valid.nesteddataset;
 
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;

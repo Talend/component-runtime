@@ -194,6 +194,11 @@ As an illustration, a configuration type index for the example above can be defi
 }
 ----
 
+IMPORTANT: Even if the model let's you define these meta information as you want,
+it is more than encouraged to ensure a datastore is used in a dataset and that a dataset
+has a corresponding source (mapper or emitter) which has a configuration usable
+if the software fills the dataset part but not all other properties (which must not be required).
+
 == Defining links between properties
 
 If you need to define a binding between properties, you can use a set of annotations:

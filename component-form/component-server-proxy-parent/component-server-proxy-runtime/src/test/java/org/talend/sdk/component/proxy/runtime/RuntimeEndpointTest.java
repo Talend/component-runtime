@@ -20,6 +20,7 @@ import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -36,6 +37,7 @@ import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -56,6 +58,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.Producer;
@@ -91,25 +94,35 @@ class RuntimeEndpointTest {
     }
 
     @Test
+    void configRun() throws IOException {
+        doRun("dGVzdC1jbGFzc2VzI3Rlc3QjZGF0YXNldCNkcw", "configurationtype", 30);
+    }
+
+    @Test
     void beamRun() throws IOException {
-        doRun("dGVzdC1jbGFzc2VzI3Rlc3QjYmVhbUlucHV0", 30);
+        doRun("dGVzdC1jbGFzc2VzI3Rlc3QjYmVhbUlucHV0", "component", 30);
     }
 
     @Test
     void nativeRun() throws IOException {
-        doRun("dGVzdC1jbGFzc2VzI3Rlc3QjTmF0aXZlSW5wdXQ", 50);
+        doRun("dGVzdC1jbGFzc2VzI3Rlc3QjTmF0aXZlSW5wdXQ", "component", 50);
     }
 
-    private void doRun(final String id, final int sizeAssert) throws IOException {
+    private void doRun(final String id, final String instantiation, final int sizeAssert) throws IOException {
         final Map<String, String> config = new HashMap<>();
         config.put("config.$limit", "10"); // overrided by the ?limit query param
-        config.put("config.namePrefix", "Record");
-        final byte[] bytes = base
+        config.put("config.dataset.namePrefix", "Record");
+        final Response response = base
                 .path("read/{id}/{version}")
                 .resolveTemplate("id", id)
                 .resolveTemplate("version", 1)
+                .queryParam("instantiation-type", instantiation)
                 .request("application/avro-binary")
-                .post(entity(config, APPLICATION_JSON_TYPE), byte[].class);
+                .post(entity(config, APPLICATION_JSON_TYPE));
+        if (Response.Status.OK.getStatusCode() != response.getStatus()) {
+            fail(response.readEntity(String.class));
+        }
+        final byte[] bytes = response.readEntity(byte[].class);
         final List<IndexedRecord> records;
         try (final DataFileReader<IndexedRecord> reader =
                 new DataFileReader<>(new SeekableByteArrayInput(bytes), new GenericDatumReader<>())) {
@@ -149,7 +162,7 @@ class RuntimeEndpointTest {
         private GenericRecord newRecord(final int i) {
             final GenericData.Record record = new GenericData.Record(SCHEMA);
             record.put("index", i);
-            record.put("name", config.getNamePrefix() + " " + i);
+            record.put("name", config.getDataset().getNamePrefix() + " " + i);
             return record;
         }
     }
@@ -159,6 +172,14 @@ class RuntimeEndpointTest {
 
         @Option("$limit")
         private int limit = 50;
+
+        @Option
+        private DataSet dataset;
+    }
+
+    @Data
+    @org.talend.sdk.component.api.configuration.type.DataSet("ds")
+    public static class DataSet implements Serializable {
 
         @Option
         private String namePrefix;
@@ -186,7 +207,7 @@ class RuntimeEndpointTest {
             }
             return factory
                     .createObjectBuilder()
-                    .add("name", config.getNamePrefix() + " " + remaining)
+                    .add("name", config.getDataset().getNamePrefix() + " " + remaining)
                     .add("index", remaining)
                     .build();
         }

@@ -156,7 +156,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 schema.setTriggers(triggers);
             }
         }
-        schema.setConditions(createConditions(ctx));
+        schema.setCondition(createCondition(ctx));
         return schema;
     }
 
@@ -228,8 +228,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 || key.equals("action::validation") || key.equals("action::suggestions");
     }
 
-    protected List<UiSchema.Condition> createConditions(final PropertyContext ctx) {
-        return ctx
+    protected UiSchema.Condition createCondition(final PropertyContext ctx) {
+        final List<UiSchema.Condition> conditions = ctx
                 .getProperty()
                 .getMetadata()
                 .entrySet()
@@ -258,6 +258,15 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                             .build();
                 })
                 .collect(toList());
+        if (conditions.isEmpty()) {
+            return null;
+        }
+        final UiSchema.Condition condition = new UiSchema.Condition();
+        condition.setChildren(conditions);
+        condition.setChildrenOperator(ofNullable(ctx.getProperty().getMetadata().get("condition::ifs::operator"))
+                .map(it -> UiSchema.ConditionOperator.valueOf(it.toUpperCase(ROOT)))
+                .orElse(null));
+        return condition;
     }
 
     private Function<String, Object> findStringValueMapper(final SimplePropertyDefinition definition) {

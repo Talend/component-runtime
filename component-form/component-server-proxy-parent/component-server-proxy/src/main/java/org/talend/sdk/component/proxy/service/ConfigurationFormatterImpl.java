@@ -157,7 +157,7 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
             ofNullable(definitions
                     .stream()
                     // primitive arrays
-                    .filter(it -> it.getPath().equals(definition.getPath() + "[${index}]"))
+                    .filter(it -> it.getPath().equals(definition.getPath() + "[]"))
                     .findFirst()
                     .map(itemDef -> config
                             .entrySet()
@@ -196,7 +196,7 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
     private JsonArray onArrayObjectItem(final Collection<SimplePropertyDefinition> definitions,
             final Map<String, String> config, final SimplePropertyDefinition definition) {
         final List<SimplePropertyDefinition> objectOptions = definitions.stream().filter(it -> {
-            final String leadingStr = definition.getPath() + "[${index}].";
+            final String leadingStr = definition.getPath() + "[].";
             return it.getPath().startsWith(leadingStr) && it.getPath().indexOf('.', leadingStr.length() + 1) < 0;
         }).collect(toList());
         if (objectOptions.isEmpty()) {
@@ -212,7 +212,7 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
                 // sort by index
                 .sorted(comparing(identity()))
                 .map(index -> {
-                    final String itemPrefix = definition.getPath() + "[${index}].";
+                    final String itemPrefix = definition.getPath() + "[].";
                     final String configFilter = definition.getName() + "[" + index + "].";
                     return unflatten(itemPrefix, objectOptions,
                             config.entrySet().stream().filter(sc -> sc.getKey().startsWith(configFilter)).collect(

@@ -31,6 +31,8 @@ class ConditionParameterEnricherTest {
         assertEquals(new HashMap<String, String>() {
 
             {
+                put("tcomp::condition::ifs::operator", "AND");
+
                 put("tcomp::condition::if::target::0", "foo.bar");
                 put("tcomp::condition::if::value::0", "true,false");
                 put("tcomp::condition::if::negate::0", "false");
@@ -42,6 +44,11 @@ class ConditionParameterEnricherTest {
                 put("tcomp::condition::if::evaluationStrategy::1", "DEFAULT");
             }
         }, new ConditionParameterEnricher().onParameterAnnotation("testParam", String.class, new ActiveIfs() {
+
+            @Override
+            public Operator operator() {
+                return Operator.AND;
+            }
 
             @Override
             public ActiveIf[] value() {

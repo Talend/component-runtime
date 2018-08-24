@@ -62,7 +62,7 @@ public class UiSchema {
 
     private Collection<NameValue> titleMap;
 
-    private Collection<Condition> conditions;
+    private Condition condition;
 
     public static Builder uiSchema() {
         return new Builder();
@@ -84,6 +84,11 @@ public class UiSchema {
         return new Condition.Builder();
     }
 
+    public enum ConditionOperator {
+        AND,
+        OR
+    }
+
     @Data
     public static class Condition {
 
@@ -95,6 +100,10 @@ public class UiSchema {
 
         private String strategy;
 
+        private Collection<Condition> children;
+
+        private ConditionOperator childrenOperator;
+
         public static final class Builder {
 
             private String path;
@@ -104,6 +113,31 @@ public class UiSchema {
             private boolean shouldBe;
 
             private String strategy;
+
+            private Collection<Condition> children;
+
+            private ConditionOperator childrenOperator;
+
+            public Builder withChildren(final Condition... children) {
+                if (this.children == null) {
+                    this.children = new ArrayList<>();
+                }
+                this.children.addAll(asList(children));
+                return this;
+            }
+
+            public Builder withChildren(final Collection<Condition> children) {
+                if (this.children == null) {
+                    this.children = new ArrayList<>();
+                }
+                this.children.addAll(children);
+                return this;
+            }
+
+            public Builder withChildrenOperator(final ConditionOperator childrenOperator) {
+                this.childrenOperator = childrenOperator;
+                return this;
+            }
 
             public Builder withShouldBe(final boolean value) {
                 this.shouldBe = value;
@@ -143,6 +177,8 @@ public class UiSchema {
                 nameValue.setValues(values);
                 nameValue.setShouldBe(shouldBe);
                 nameValue.setStrategy(strategy);
+                nameValue.setChildren(children);
+                nameValue.setChildrenOperator(childrenOperator);
                 return nameValue;
             }
         }

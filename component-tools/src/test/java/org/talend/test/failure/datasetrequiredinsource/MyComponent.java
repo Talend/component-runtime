@@ -13,38 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.test.failure.nesteddataset;
+package org.talend.test.failure.datasetrequiredinsource;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
-import sun.security.krb5.Config;
-
 import java.io.Serializable;
+
+import javax.json.JsonObject;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.constraint.Required;
+import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.Processor;
 
 @Documentation("super my component")
 @Version
 @Icon(FILE_JOB_O)
-@Processor(family = "test3", name = "my")
-public class MyComponent3 implements Serializable {
+@Emitter(family = "test", name = "my")
+public class MyComponent implements Serializable {
 
-    public MyComponent3(@Option("configuration") final MyComponent.SimpleWithNested config) {
+    public MyComponent(@Option("configuration") final Conf config) {
         // no-op
     }
 
-    @ElementListener
-    public Foo passthrough(final Foo item) {
-        return item;
+    @Producer
+    public JsonObject stop() {
+        return null;
     }
 
-    public static class Foo {
+    public static class Conf implements Serializable {
+
+        @Option
+        @Required
+        @Documentation("the input value")
+        private String input;
+
+        @Option
+        private MyDataSet dataset;
 
     }
 
+    @DataSet("dataset")
+    public static class MyDataSet implements Serializable {
+
+        @Option
+        @Documentation("the user to log in")
+        private String user;
+    }
 }

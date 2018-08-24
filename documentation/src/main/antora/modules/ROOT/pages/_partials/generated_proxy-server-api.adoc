@@ -468,6 +468,10 @@ __Type__ : object
 [options="header", cols=".^3a,.^4a"]
 |===
 |Name|Schema
+|**children** +
+__optional__|< <<_condition,Condition>> > array
+|**childrenOperator** +
+__optional__|enum (AND, OR)
 |**path** +
 __optional__|string
 |**shouldBe** +
@@ -682,8 +686,8 @@ __optional__|The ui specification corresponding to the requested node. It is lit
 |Name|Schema
 |**autoFocus** +
 __optional__|boolean
-|**conditions** +
-__optional__|< <<_condition,Condition>> > array
+|**condition** +
+__optional__|<<_condition,Condition>>
 |**description** +
 __optional__|string
 |**disabled** +

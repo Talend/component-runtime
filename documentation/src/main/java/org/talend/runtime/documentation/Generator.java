@@ -84,6 +84,7 @@ import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.Section;
 import org.asciidoctor.ast.StructuralNode;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
+import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
 import org.talend.sdk.component.api.configuration.condition.meta.Condition;
 import org.talend.sdk.component.api.configuration.constraint.meta.Validation;
 import org.talend.sdk.component.api.configuration.constraint.meta.Validations;
@@ -908,6 +909,9 @@ public class Generator {
                     }
                     if (ActiveIf.EvaluationStrategy.class == returnType) {
                         return ActiveIf.EvaluationStrategy.DEFAULT;
+                    }
+                    if (ActiveIfs.Operator.class == returnType) {
+                        return ActiveIfs.Operator.AND;
                     }
                     if (Structure.Type.class == returnType) {
                         return Structure.Type.IN;

@@ -72,7 +72,7 @@ def rootOutput = new File(project.properties.containsKey('talend.icon.output') ?
 
 def jar = new JarFile(icons)
 jar.entries().findAll {
-    !it.isDirectory() && it.name.startsWith("icons/") && it.name.endsWith(".svg")
+    !it.isDirectory() && it.name.startsWith("icons/") && it.name.endsWith(".svg") && !it.name.startsWith('icons/filters/')
 }.each {
     def png = new File(rootOutput, it.name.substring(0, it.name.lastIndexOf('.')) + '_icon32.png')
     png.parentFile.mkdirs()
