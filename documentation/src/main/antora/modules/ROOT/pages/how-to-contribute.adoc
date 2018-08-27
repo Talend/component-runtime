@@ -74,6 +74,8 @@ If there is no subfolder, type the image name right away.
 Adding an image title is mandatory to avoid empty broken spaces in the content.
 If necessary, you can add more parameters separated by a comma between the same brackets as the image title, such as the desired width, height, etc.
 
+NOTE: use values in % for image size. For example; `\image:landscape.png[Landscape,70%]`
+
 === Tables
 
 In a general manner, avoid using tables if there are other solutions available. This is especially the case for complex tables that include assets or big code samples can lead to display issues.
