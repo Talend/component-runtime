@@ -1,11 +1,21 @@
 = Generating a project
 :page-partial:
-:page-talend_skipindexation:
 :page-documentationindex-index: 4000
 :page-documentationindex-label: Generating a project
 :page-documentationindex-icon: power-off
 :page-documentationindex-description: Define the skeleton and general settings of your components
+:description: Get an overview of the first step to create a new component, which consists in building a project using the Component Kit Starter or the Component Kit plugin for IntelliJ
+:keywords: starter, overview, component project, intelliJ
 
-include::tutorial-generate-project-using-starter.adoc[leveloffset=+1]
+The first step when developing new components is to create a project that will contain the skeleton of your components and set you on the right track.
 
-include::generate-project-using-intellij-plugin.adoc[leveloffset=+1]
+The project generation can be achieved using the https://starter-toolkit.talend.io[Talend Component Kit Starter] or the Talend Component Kit plugin for IntelliJ.
+
+Through a user-friendly interface, you can define the main lines of your project and of your component(s), including their name, family, type, configuration model, and so on.
+
+Once completed, all the information filled are used to generate a project that you will use as starting point to implement the logic and layout of your components, and to iterate on them.
+
+* xref:tutorial-generate-project-using-starter.adoc[Using the starter]
+* xref:generate-project-using-intellij-plugin.adoc[Using the IntelliJ plugin]
+
+Once your project is generated, you can start xref:index-creating-components.adoc[implementing the component logic].

@@ -2,6 +2,25 @@
 :page-talend_skipindexation:
 :page-talend_stage: draft
 
+This document explains how Asciidoctor is used in the context of Talend Component Kit as well as the specific processes in place.
+
+For general guidelines about Asciidoctor, refer to the https://asciidoctor.org/docs/asciidoc-syntax-quick-reference[Asciidoc Syntax quick reference] page.
+
+== General organization guidelines
+
+The documentation is made of:
+
+- Documentation files manually are written under  `Documentation\src\main\antora\modules\ROOT\pages`.
+- Documentation files automatically generated from the source code under `Documentation\src\main\antora\modules\ROOT\pages\_partials`. These files are individually called in manually written files through includes.
+- Assets, especially images, stored in the `Documentation\src\main\antora\modules\ROOT\assets` folder. Some subfolders exist to categorize the assets.
+
+Each file has a unique name and is rendered as a unique HTML page.
+Some of the files are prefixed to halp identifying the type of content it contains. Most common examples are:
+
+- `index-` for pages referenced from the main index page. These pages also contain specific attributes to be correctly rendered on the main index page (see 'List of metadata attributes' below).
+- `tutorial_` for tutorials/guided examples.
+_ `generated_` for pages generated from the source code. These pages are generally stored in the '_partials' folder.
+
 == List of metadata attributes
 
 For all pages:
@@ -22,3 +41,130 @@ For pages that should appear as a tile on the index page:
 For pages containing API descriptions:
 
 * `:page-talend_swaggerui: true` indicates that the page contains some API reference that should be displayed using Swagger UI
+
+== Conditionality regarding output formats
+
+The Talend Component Kit documentation is published as HTML and PDF. Links can be troublesome in some cases, making pure lists of links (such as "Related links" sections) rather useless in the PDF output.
+
+To avoid this, it is possible to define some conditionality to have some content only displaying in one of the output formats only. For example:
+
+[source]
+----
+\ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:tutorial-generate-project-using-starter.adoc[Generating a project using the starter]
+- xref:component-configuration.adoc[Defining component layout and configuration]
+- xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
+- xref:best-practices.adoc[Best practices]
+\endif::[]
+----
+
+== Content
+
+=== Adding images
+
+All images are stored under documentation > src > main > antora > modules > ROOT > assets > images.
+Relatively to .adoc files, it can be ../assets/images/ or ../../assets/images for _partials (automatically generated from code) pages.
+To avoid handling different relative paths, a variable is available and resolves directly `image:` to the *image* folder. Hence, paths to images should start with the following:
+
+`\image:(<subfolder>/)<image_name>.png[<image_name>(,parameters)]`
+
+If there is no subfolder, type the image name right away.
+Adding an image title is mandatory to avoid empty broken spaces in the content.
+If necessary, you can add more parameters separated by a comma between the same brackets as the image title, such as the desired width, height, etc.
+
+NOTE: use values in % for image size. For example; `\image:landscape.png[Landscape,70%]`
+
+=== Tables
+
+In a general manner, avoid using tables if there are other solutions available. This is especially the case for complex tables that include assets or big code samples can lead to display issues.
+
+.Table example
+[role="table-striped table-hover table-ordered",options="header,autowidth"]
+|====
+|API|Type|Description
+
+|@o.t.s.c.api.service.completion.DynamicValues|dynamic_values|Mark a method as being useful to fill potential values of a string option for a property denoted by its value.
+
+|@o.t.s.c.api.service.healthcheck.HealthCheck|healthcheck|This class marks an action doing a connection test
+
+|====
+
+=== Admonition blocks
+
+The following elements can be used. However, avoid using them one after another as it can make reading more difficult:
+
+- `NOTE:` for a simple information note
+- `IMPORTANT:` for a warning. Warnings should include information that lead to important errors if not taken into account
+- `TIP:` for alternative ways or shortcuts to ease a process or procedure
+
+Admonition blocks should be kept as simple and short as possible. In some niche cases, it may be required to insert more complex content in an admonition block, such as a bullet list. In these cases, they should be formatted as follows:
+
+[source]
+----
+[IMPORTANT]
+====
+The model allows you to define meta information without restrictions. However, it is highly recommended to ensure that:
+
+- a datastore is used in each dataset.
+- each dataset has a corresponding source (mapper or emitter) which has a configuration that is usable if the software only fills the dataset part. All other properties must not be required.
+====
+
+----
+
+== Sample page
+
+[source]
+----
+= Page title
+:description: This is a sample Asciidoctor page
+:keywords: Ascii, asciidoc, sample, documentation
+:attribute1:
+:attribute2:
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+== Section 1 title
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+=== Section 2 title
+
+Some *bold* or _italic_ or `command` to highlight specific parts of the content
+
+.Some code block (remove the extra \ characters)
+[source]
+\----
+some code
+for my
+code codeblock
+    with indentation
+    if needed
+\----
+
+=== Section 2 title
+
+image:my_image.png[The image,300]
+
+.Table title for a table with 2 columns that contain images
+[cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
+|===
+|Studio Rendering | Web Rendering
+
+|image::gallery/widgets/studio/list.png[Studio List,window="_blank",link="_images/gallery/widgets/studio/list.png"]
+|image::gallery/widgets/web/list.png[Web List,window="_blank",link="_images/gallery/widgets/web/list.png"]
+|===
+
+== Section 1 title
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Section 1 title only displaying in HTML
+- xref:file1.adoc[Xref1 only displaying in HTML]
+- xref:file2.adoc[Xref2 only displaying in HTML]
+endif::[]
+
+----

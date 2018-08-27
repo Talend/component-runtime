@@ -1,19 +1,19 @@
-= Services
+= Defining services
 :page-partial:
-:page-talend_skipindexation:
 :page-documentationindex-index: 6000
 :page-documentationindex-label: Defining services
 :page-documentationindex-icon: share-alt
 :page-documentationindex-description: Create configurations that can be reused across several components
+:description: Get an overview of what are services and how to use services with Talend Component Kit
+:keywords: service, reuse configuration, overview
 
-:toc:
+Services are configurations that can be reused across several classes.
+Talend Component Kit comes with a predefined set of services that you can easily use.
 
-include::services-internationalization.adoc[leveloffset=+1]
+You can still define your own services under the *service* node of your component project. By default, the Component Kit Starter generates a dedicated class in your project in which you can implement services.
 
-include::services-actions.adoc[leveloffset=+1]
-
-include::services-built-in.adoc[leveloffset=+1]
-
-include::services-interceptors.adoc[leveloffset=+1]
-
-include::services-custom-api.adoc[leveloffset=+1]
+** xref:services-built-in.adoc[Built-in services]
+** xref:services-internationalization.adoc[Internationalizing a service]
+** xref:services-actions.adoc[Providing actions through a service]
+** xref:services-interceptors.adoc[Services and interceptors]
+** xref:services-custom-api.adoc[Defining a custom API]
