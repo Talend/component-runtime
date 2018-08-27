@@ -49,6 +49,7 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
         return cs.thenCompose(context -> {
             final UiSchema schema = newUiSchema(context);
             schema.setWidget("datalist");
+            schema.setRestricted("ENUM".equalsIgnoreCase(context.getProperty().getType()));
 
             final JsonSchema jsonSchema = findJsonSchema(context);
             if (jsonSchema == null) { // unexpected
