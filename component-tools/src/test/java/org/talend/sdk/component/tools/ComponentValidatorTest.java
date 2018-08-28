@@ -316,11 +316,49 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage("org.talend.test.failure.nesteddataset")
-    void testFailureNestedDataSet(final ExceptionSpec expectedException) {
+    @ComponentPackage("org.talend.test.failure.datasetprocessornosource")
+    void testFailureDataSetNoSource(final ExceptionSpec expectedException) {
         expectedException.expectMessage(
-                "- Root configuration can't contains a nested DataSet `class org.talend.test.failure.nesteddataset.MyComponent$DataSetWithNestedDataSet`\n"
-                        + "- Root configuration can't contains a nested DataSet `class org.talend.test.failure.nesteddataset.MyComponent$SimpleWithNested`");
+                "- No source instantiable without adding parameters for @DataSet(\"dataset\") (org.talend.test"
+                        + ".failure.datasetprocessornosource.MyComponent$MyDataSet), please ensure at least a source using this "
+                        + "dataset can be use just filling the dataset informations.");
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.datasetrequiredinsource")
+    void testFailureDataSetSourceHasRequired(final ExceptionSpec expectedException) {
+        expectedException.expectMessage(
+                "- No source instantiable without adding parameters for @DataSet(\"dataset\") (org.talend.test"
+                        + ".failure.datasetrequiredinsource.MyComponent$MyDataSet), please ensure at least a source using this "
+                        + "dataset can be use just filling the dataset informations.");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.nesteddataset", success = true)
+    void testValidDataSetHasInstantiableSource() {
+        // no-op
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.datasetassourceconfig", success = true)
+    void testValidDataSetIsSourceConfig() {
+        // no-op
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.noi18ndatastorewithbundle")
+    void testFailureI18nDatastoreWithBundle(final ExceptionSpec expectedException) {
+        expectedException
+                .expectMessage("- org.talend.test.failure.noi18ndatastorewithbundle.Messages is missing the key(s): "
+                        + "demo.datastore.default._displayName");
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.noi18ndatastore")
+    void testFailureI18nDatastore(final ExceptionSpec expectedException) {
+        expectedException.expectMessage(
+                "- No resource bundle for org.talend.test.failure.noi18ndatastore.MyDataStore translations, "
+                        + "you should create a org/talend/test/failure/noi18ndatastore/Messages.properties at least.");
     }
 
     @Test

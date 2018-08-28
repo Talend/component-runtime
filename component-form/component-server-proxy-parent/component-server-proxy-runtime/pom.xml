@@ -37,6 +37,11 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-runtime-design-extension</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
     </dependency>

@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.util;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Field;
@@ -86,7 +87,7 @@ public class DefaultValueInspector {
         Class<?> current = rootInstance.getClass();
         while (current != null) {
             try {
-                final Field declaredField = current.getDeclaredField(param.getName());
+                final Field declaredField = current.getDeclaredField(findName(param));
                 if (!declaredField.isAccessible()) {
                     declaredField.setAccessible(true);
                 }
@@ -104,6 +105,10 @@ public class DefaultValueInspector {
             return null;
         }
         throw new IllegalArgumentException("Didn't find field '" + param.getName() + "' in " + rootInstance);
+    }
+
+    private String findName(final ParameterMeta meta) {
+        return ofNullable(meta.getSource()).map(ParameterMeta.Source::name).orElse(meta.getName());
     }
 
     private Object tryCreatingObjectInstance(final Type javaType) {

@@ -134,7 +134,7 @@ public class ParameterModelService {
             proposals.addAll(Stream
                     .of(((Class<? extends Enum<?>>) genericType).getEnumConstants())
                     .map(Enum::name)
-                    .sorted()
+                    // sorted() // don't sort, let the dev use the order he wants
                     .collect(toList()));
             break;
         default:

@@ -17,7 +17,7 @@ package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 import org.talend.sdk.component.form.api.Client;
@@ -37,39 +37,39 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
 
     private final String family;
 
-    private final Collection<SimplePropertyDefinition> nestedProperties;
-
     private final Collection<CustomPropertyConverter> customPropertyConverters;
+
+    private final Map<String, String> metaToPropagate;
 
     public ObjectArrayWidgetConverter(final Collection<UiSchema> schemas,
             final Collection<SimplePropertyDefinition> properties, final Collection<ActionReference> actions,
-            final Collection<SimplePropertyDefinition> nested, final String family, final Client client,
-            final String gridLayoutFilter, final JsonSchema jsonSchema, final String lang,
-            final Collection<CustomPropertyConverter> customPropertyConverters) {
+            final String family, final Client client, final String gridLayoutFilter, final JsonSchema jsonSchema,
+            final String lang, final Collection<CustomPropertyConverter> customPropertyConverters,
+            final Map<String, String> metaToPropagate) {
         super(schemas, properties, actions, jsonSchema, lang);
-        this.nestedProperties = nested;
         this.family = family;
         this.client = client;
         this.gridLayoutFilter = gridLayoutFilter;
         this.customPropertyConverters = customPropertyConverters;
+        this.metaToPropagate = metaToPropagate;
     }
 
     @Override
     public CompletionStage<PropertyContext<?>> convert(final CompletionStage<PropertyContext<?>> cs) {
         return cs.thenCompose(context -> {
             final UiSchema arraySchema = newUiSchema(context);
-            arraySchema.setTitle(context.getProperty().getDisplayName());
+            final SimplePropertyDefinition original = context.getProperty();
+            arraySchema.setTitle(original.getDisplayName());
             arraySchema.setItems(new ArrayList<>());
             arraySchema.setItemWidget("collapsibleFieldset");
             final UiSchemaConverter converter = new UiSchemaConverter(gridLayoutFilter, family, arraySchema.getItems(),
                     new ArrayList<>(), client, jsonSchema, properties, actions, lang, customPropertyConverters);
-            return CompletableFuture
-                    .allOf(nestedProperties
-                            .stream()
-                            .map(p -> converter.convert(CompletableFuture
-                                    .completedFuture(new PropertyContext<>(p, context.getRootContext()))))
-                            .toArray(CompletableFuture[]::new))
-                    .thenApply(r -> context);
+            return converter
+                    .convertObject(new PropertyContext<>(
+                            new SimplePropertyDefinition(original.getPath() + "[]", original.getName(), null,
+                                    original.getType(), original.getDefaultValue(), original.getValidation(),
+                                    metaToPropagate, original.getPlaceholder(), original.getProposalDisplayNames()),
+                            context.getRootContext()), metaToPropagate);
         });
     }
 }

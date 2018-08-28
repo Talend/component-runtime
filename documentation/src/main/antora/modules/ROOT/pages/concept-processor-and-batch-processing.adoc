@@ -7,7 +7,7 @@ Depending on several requirements, including the system capacity and business ne
 
 For example, for real-time or near-real time processing, it is more interesting to process small batches of data more often. On the other hand, in case of one-time processing, it is more optimal to adapt the way the component handles batches of data according to the system capacity.
 
-By default, the runtime automatically estimates a group size that it considers good, according to the system capacity, to process the data. This group size can sometimes be too big and not optimal for your system to handle effectively and correctly.
+By default, the runtime automatically estimates a group size that it considers good, according to the system capacity, to process the data. This group size can sometimes be too big and not optimal for your needs or for your system to handle effectively and correctly.
 
 Users can then customize this size from the component settings in Talend Studio, by specifying a `maxBatchSize` that adapts the size of each group of data to be processed.
 
@@ -19,11 +19,17 @@ The component batch processes the data as follows:
 
 - Case 2 - The runtime estimates a group size of 4 but a `maxBatchSize` of 3 is specified in the component configuration. The system adapts the group size to 3. Records are processed by groups of 3.
 
+.*Processing schema (values are examples):*
+image:batch-processing-maxbatchsize.png[Batch processing,80%]
+
 Each group is processed as follows until there is no record left:
 
 . The `@BeforeGroup` method resets a record buffer at the beginning of each group.
 . The records of the group are assessed one by one and placed in the buffer as follows: The @ElementListener method tests if the buffer size is greater or equal to the defined `maxBatchSize`. If it is, the records are processed. If not, then the current record is buffered.
 . The previous step happens for all records of the group. Then the `@AfterGroup` method tests if the buffer is empty.
+
+.*Group execution detail (values are examples):*
+image:batch-processing-group.png[Group batch processing,80%]
 
 You can define the following logic in the processor configuration:
 

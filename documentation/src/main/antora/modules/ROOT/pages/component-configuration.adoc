@@ -1,4 +1,4 @@
-= Defining component parameters and configuration
+= Defining component layout and configuration
 :page-partial:
 :description: How to define the layout and configurable options of a component
 :keywords: layout, option, field
@@ -193,6 +193,14 @@ As an illustration, a configuration type index for the example above can be defi
     }
 }
 ----
+
+[IMPORTANT]
+====
+The model allows you to define meta information without restrictions. However, it is highly recommended to ensure that:
+
+- a datastore is used in each dataset.
+- each dataset has a corresponding source (mapper or emitter) which has a configuration that is usable if the software only fills the dataset part. All other properties must not be required.
+====
 
 == Defining links between properties
 

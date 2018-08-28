@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -119,7 +120,7 @@ class ConfigurationFormatterImplTest {
     @Test
     void unflattenTable() {
         final JsonObject object = formatter.unflatten(
-                asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"), prop("root.table[${index}]", "STRING")),
+                asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"), prop("root.table[]", "STRING")),
                 new HashMap<String, String>() {
 
                     {
@@ -138,7 +139,7 @@ class ConfigurationFormatterImplTest {
     @Test
     void unflattenTableOfObject() {
         final JsonObject object = formatter.unflatten(asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"),
-                prop("root.table[${index}].name", "STRING"), prop("root.table[${index}].age", "NUMBER")),
+                prop("root.table[].name", "STRING"), prop("root.table[].age", "NUMBER")),
                 new HashMap<String, String>() {
 
                     {
@@ -160,7 +161,7 @@ class ConfigurationFormatterImplTest {
     @Test
     void unflattenComplex() {
         final JsonObject object = formatter.unflatten(asList(prop("root", "OBJECT"), prop("root.table", "ARRAY"),
-                prop("root.table[${index}].urls", "ARRAY"), prop("root.table[${index}].urls[${index}]", "STRING")),
+                prop("root.table[].urls", "ARRAY"), prop("root.table[].urls[]", "STRING")),
                 new HashMap<String, String>() {
 
                     {
@@ -234,6 +235,6 @@ class ConfigurationFormatterImplTest {
 
     private SimplePropertyDefinition prop(final String path, final String type) {
         return new SimplePropertyDefinition(path, path.substring(path.lastIndexOf('.') + 1), null, type, null, null,
-                emptyMap(), null, emptyMap());
+                emptyMap(), null, new LinkedHashMap<>());
     }
 }

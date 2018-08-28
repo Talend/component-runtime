@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.tools;
 
-import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 
 import java.io.File;
@@ -85,12 +84,12 @@ abstract class BaseTask implements Runnable {
                 this::asComponent);
     }
 
-    protected String findFamily(final ComponentValidator.Component c, final Class<?> component) {
-        return of(c.family()).filter(name -> !name.isEmpty()).orElseGet(
-                () -> findPackageOrFail(component, Components.class).family());
+    protected String findFamily(final ComponentValidator.Component c, final Class<?> pckMarker) {
+        return ofNullable(c).map(Component::family).filter(name -> !name.isEmpty()).orElseGet(
+                () -> findPackageOrFail(pckMarker, Components.class).getAnnotation(Components.class).family());
     }
 
-    protected <A extends Annotation> A findPackageOrFail(final Class<?> component, final Class<A> api) {
+    protected Class<?> findPackageOrFail(final Class<?> component, final Class<? extends Annotation> api) {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         final String pck = component.getPackage() == null ? null : component.getPackage().getName();
         if (pck != null) {
@@ -99,7 +98,7 @@ abstract class BaseTask implements Runnable {
                 try {
                     final Class<?> pckInfo = loader.loadClass(currentPackage + ".package-info");
                     if (pckInfo.isAnnotationPresent(api)) {
-                        return pckInfo.getAnnotation(api);
+                        return pckInfo;
                     }
                 } catch (final ClassNotFoundException e) {
                     // no-op

@@ -1,17 +1,19 @@
 = Getting Started with Talend Component Kit
 :page-partial:
-:page-talend_skipindexation:
 :page-documentationindex-index: 2000
 :page-documentationindex-label: Getting Started
 :page-documentationindex-icon: play-circle
-:page-documentationindex-description: Learn the basics about Talend Component Kit
+:page-documentationindex-description: Get an overview of the framework and create your first component
+:description: Get an overview of the Talend Component Kit framework and create your first component
+:keywords: quickstart, overview, principle, description
 
-include::what-is-a-talend-component.adoc[leveloffset=+1]
+If you are new to Talend component development or with the Talend Component Kit framework, you can start by reading the following articles to get a better overview of the framework design and Talend components in general.
 
-include::methodology-creating-components.adoc[leveloffset=+1]
+* xref:what-is-a-talend-component.adoc[What is a Talend Component]
+* xref:methodology-creating-components.adoc[Development methodology]
+* xref:tck-framework-overview.adoc[Framework Overview]
+* xref:component-execution.adoc[General component execution logic]
 
-include::tck-framework-overview.adoc[leveloffset=+1]
+You can also learn the basics of component development by following this tutorial:
 
-include::component-execution.adoc[leveloffset=+1]
-
-include::tutorial-create-my-first-component.adoc[leveloffset=+1]
+* xref:tutorial-create-my-first-component.adoc[Creating your first component]

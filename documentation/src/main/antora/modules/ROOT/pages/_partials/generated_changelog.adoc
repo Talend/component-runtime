@@ -10,6 +10,10 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-1000[TCOMP-1000^]: @Option name value is not respected on fields
+- link:https://jira.talendforge.org/browse/TCOMP-1008[TCOMP-1008^]: Enum order is lost
+- link:https://jira.talendforge.org/browse/TCOMP-1009[TCOMP-1009^]: (web) OptionsOrder ignored for tables (List<MyClass>), fields located in random order
+- link:https://jira.talendforge.org/browse/TCOMP-779[TCOMP-779^]: Drop down list Java type in configuration class
+- link:https://jira.talendforge.org/browse/TCOMP-968[TCOMP-968^]: Trigger AsyncValidation call only when option annotated with Validable is changed
 - link:https://jira.talendforge.org/browse/TCOMP-970[TCOMP-970^]: Add support for complex parameter types for AsyncValidation methods
 - link:https://jira.talendforge.org/browse/TCOMP-984[TCOMP-984^]: Integrate ParameterizedTest with component-runtime-http-junit capture mode
 - link:https://jira.talendforge.org/browse/TCOMP-989[TCOMP-989^]: .car studio install command breaks config.ini of the studio
@@ -18,6 +22,9 @@
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1001[TCOMP-1001^]: [proxy] ConfigurationClient should expose a migrate method
+- link:https://jira.talendforge.org/browse/TCOMP-1011[TCOMP-1011^]: Ensure datastore/dataset i18n names are validated by the maven/gradle plugins
+- link:https://jira.talendforge.org/browse/TCOMP-1013[TCOMP-1013^]: Add an operator support in @ActiveIfs (OR/AND switch)
+- link:https://jira.talendforge.org/browse/TCOMP-1014[TCOMP-1014^]: Ensure a dataset has a source which has no other required parameters in the validator
 - link:https://jira.talendforge.org/browse/TCOMP-993[TCOMP-993^]: [proxy] Propagate UiSpecContext in referenceservice#findByTypeAndName
 - link:https://jira.talendforge.org/browse/TCOMP-994[TCOMP-994^]: [dependency upgrade] CXF 3.2.6
 
@@ -26,6 +33,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1003[TCOMP-1003^]: [dependency upgrade] Tomcat 9.0.11
 - link:https://jira.talendforge.org/browse/TCOMP-1004[TCOMP-1004^]: [dependency upgrade] Log4j2 2.11.1
+- link:https://jira.talendforge.org/browse/TCOMP-1015[TCOMP-1015^]: Upgrade icons to 0.206.0-2
 - link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]: [documentation] Sample implementation of bulk/batch/commit-interval using groups
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
 - link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard
