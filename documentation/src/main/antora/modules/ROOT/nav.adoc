@@ -1,6 +1,5 @@
 * xref:index-getting-started-with-tck.adoc[Getting Started]
 ** xref:index-getting-started-with-tck.adoc[Getting Started overview]
-** xref:what-is-a-talend-component.adoc[What is a Talend Component]
 ** xref:methodology-creating-components.adoc[Development methodology]
 ** xref:tck-framework-overview.adoc[Framework Overview]
 ** xref:component-execution.adoc[General component execution logic]
