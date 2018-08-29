@@ -15,7 +15,7 @@
  */
 
 import React from 'react';
-import { Inject } from '@talend/react-cmf';
+import { Inject, cmfConnect } from '@talend/react-cmf';
 import errors from '@talend/react-forms/lib/UIForm/utils/errors';
 import kit from '@talend/react-containers/lib/ComponentForm/kit';
 import service from '@talend/react-containers/lib/ComponentForm/kit/defaultRegistry';
@@ -41,55 +41,56 @@ function parseQuery() {
 }
 
 function Detail(props) {
-	let notSelected = null;
-	let submitted = null;
-	let form = null;
+    let notSelected = null;
+    let submitted = null;
+    let form = null;
 
     const validationWithSuccessFeedback = ({ trigger, schema, body, errors }) => {
         if (body.status === 'OK' && trigger.type === 'healthcheck') {
             props.onNotification({
+                id: `healthcheck_${new Date().getTime()}`,
                 title: 'Success',
                 message: body.comment || `Trigger ${trigger.type} / ${trigger.family} / ${trigger.action} succeeded`,
             });
         }
-    	return service.validation({ schema, body, errors });
+        return service.validation({ schema, body, errors });
     };
     const registry = {
         healthcheck: validationWithSuccessFeedback,
     };
 
-	if (!props.definitionURL) {
-		notSelected = (<NoSelectedComponent/>);
-	}  else {
-		form = (
-			<Inject
-				component="ComponentForm"
-				definitionURL={`/api/v1${props.definitionURL}`}
-				triggerURL="/api/v1/application/action"
-				onSubmit={props.onSubmit}
-				customTriggers={registry}
-			/>
-		);
-		if (props.submitted) {
-			const configuration = kit.flatten(props.uiSpec.properties);
-			submitted = (
-				<div>
-					<pre>{JSON.stringify(configuration, undefined, 2)}</pre>
-				</div>
-			);
-		}
-	}
-	return (
-		<div>
-			<div className="col-md-6">
-				{notSelected}
-				{form}
-			</div>
-			<div className="col-md-6">
-				{submitted}
-			</div>
-		</div>
-	);
+    if (!props.definitionURL) {
+        notSelected = (<NoSelectedComponent/>);
+    }  else {
+        form = (
+            <Inject
+                componentId="detail-form"
+                component="ComponentForm"
+                definitionURL={`/api/v1${props.definitionURL}`}
+                triggerURL="/api/v1/application/action"
+                customTriggers={registry}
+            />
+        );
+        if (props.submitted) {
+            const configuration = kit.flatten(props.uiSpec.properties);
+            submitted = (
+                <div>
+                    <pre>{JSON.stringify(configuration, undefined, 2)}</pre>
+                </div>
+            );
+        }
+    }
+    return (
+        <div>
+            <div className="col-md-6">
+                {notSelected}
+                {form}
+            </div>
+            <div className="col-md-6">
+                {submitted}
+            </div>
+        </div>
+    );
 }
 
 export default Detail;
