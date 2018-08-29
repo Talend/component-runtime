@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-import { connect } from 'react-redux';
+import { cmfConnect } from '@talend/react-cmf';
 import { bindActionCreators } from 'redux';
 import get from 'lodash/get';
 import {
@@ -24,6 +24,7 @@ import {
 	submitComponent,
 	onNotification,
 } from '../../store/component/actions';
+import startSaga from './Detail.saga';
 
 import Detail from './Detail.component';
 
@@ -39,9 +40,12 @@ function mapDispatchToProps(dispatch) {
 		backToComponentEdit: bindActionCreators(backToComponentEdit, dispatch),
 		onChange: bindActionCreators(onComponentPropertiesChange, dispatch),
 		onErrors: bindActionCreators(onComponentErrorsChange, dispatch),
-		onSubmit: bindActionCreators(submitComponent, dispatch),
 		onNotification: bindActionCreators(onNotification, dispatch),
 	};
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Detail);
+Detail.displayName = 'Detail';
+Detail.sagas = {
+    'Detail::start': startSaga,
+};
+export default cmfConnect({ mapStateToProps, mapDispatchToProps })(Detail);
