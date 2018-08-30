@@ -910,6 +910,9 @@ public class Generator {
                     if (ActiveIf.EvaluationStrategy.class == returnType) {
                         return ActiveIf.EvaluationStrategy.DEFAULT;
                     }
+                    if (ActiveIf.EvaluationStrategyOption[].class == returnType) {
+                        return new ActiveIf.EvaluationStrategyOption[0];
+                    }
                     if (ActiveIfs.Operator.class == returnType) {
                         return ActiveIfs.Operator.AND;
                     }
@@ -945,6 +948,11 @@ public class Generator {
                         return new ActiveIf[] { new ActiveIf() {
 
                             @Override
+                            public EvaluationStrategyOption[] evaluationStrategyOptions() {
+                                return new EvaluationStrategyOption[0];
+                            }
+
+                            @Override
                             public String target() {
                                 return "sibling1";
                             }
@@ -969,6 +977,11 @@ public class Generator {
                                 return ActiveIf.class;
                             }
                         }, new ActiveIf() {
+
+                            @Override
+                            public EvaluationStrategyOption[] evaluationStrategyOptions() {
+                                return new EvaluationStrategyOption[0];
+                            }
 
                             @Override
                             public String target() {
