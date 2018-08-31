@@ -143,7 +143,7 @@ IMPORTANT: Avoid using the Map type. Instead, prefer configuring your component 
 
 You can use metadata to specify that a field is required or has a minimum size, and so on. This is done using the `validation` metadata in the `org.talend.sdk.component.api.configuration.constraint` package:
 
-include::{partialsdir}/generated_constraints.adoc[]
+include::{partialsdir}/generated_constraints.adoc[leveloffset=+2]
 
 IMPORTANT: When using the programmatic API, metadata is prefixed by `tcomp::`. This prefix is stripped in the web for convenience, and the table above uses the web keys.
 
@@ -158,7 +158,7 @@ It is common to classify the incoming data. It is similar to tagging data with s
 - Datastore: The data you need to connect to the backend.
 - Dataset: A datastore coupled with the data you need to execute an action.
 
-include::{partialsdir}/generated_configuration-types.adoc[]
+include::{partialsdir}/generated_configuration-types.adoc[leveloffset=+2]
 
 IMPORTANT: The component family associated with a configuration type (datastore/dataset) is always the one related to the component using that configuration.
 
@@ -206,7 +206,7 @@ The model allows you to define meta information without restrictions. However, i
 
 If you need to define a binding between properties, you can use a set of annotations:
 
-include::{partialsdir}/generated_conditions.adoc[]
+include::{partialsdir}/generated_conditions.adoc[leveloffset=+2]
 
 The target element location is specified as a relative path to the current location, using Unix path characters.
 The configuration class delimiter is `/`. +
@@ -221,7 +221,7 @@ IMPORTANT: When using the programmatic API, metadata is prefixed with `tcomp::`.
 In some cases, you may need to add metadata about the configuration to let the UI render that configuration properly. +
 For example, a password value that must be hidden and not a simple clear input box. For these cases - if you want to change the UI rendering - you can use a particular set of annotations:
 
-include::{partialsdir}/generated_ui.adoc[]
+include::{partialsdir}/generated_ui.adoc[leveloffset=+2]
 
 IMPORTANT: When using the programmatic API, metadata is prefixed with `tcomp::`. This prefix is stripped in the web for convenience, and the previous table uses the web keys.
 

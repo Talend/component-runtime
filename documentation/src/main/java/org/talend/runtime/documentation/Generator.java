@@ -74,6 +74,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.text.WordUtils;
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.FileArchive;
@@ -622,9 +623,6 @@ public class Generator {
         final File file = new File(generatedDir, "generated_actions.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println();
-            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
-            stream.println("|====");
-            stream.println("|API|Type|Description|Return type|Sample returned type");
             final File api = jarLocation(ActionType.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
@@ -638,29 +636,39 @@ public class Generator {
                         .forEach(type -> {
                             final ActionType actionType = type.getAnnotation(ActionType.class);
                             final Class<?> returnedType = actionType.expectedReturnedType();
-                            stream.println("|@" + sanitizeType(type.getName()) + "|" + actionType.value() + "|"
-                                    + extractDoc(type) + "|"
-                                    + (returnedType == Object.class ? "any" : returnedType.getSimpleName()) + " a|"
-                                    + (returnedType != Object.class
-                                            ? "\n[source,js]\n----\n" + sample(jsonb, returnedType).replace("\n", "")
-                                                    + "\n----\n"
-                                            : "`-`"));
+                            final String actionTypeValue = actionType.value();
+                            stream.println();
+                            stream.println("= " + capitalizeWords(actionTypeValue));
+                            stream.println();
+                            stream.println(extractDoc(type));
+                            stream.println();
+                            stream.println("- Type: `" + actionTypeValue + "`");
+                            stream.println("- API: `@" + type.getName() + "`");
+                            if (returnedType != Object.class) {
+                                stream.println("- Returned type: `" + returnedType.getName() + "`");
+                                stream.println("- Sample:");
+                                stream.println();
+                                stream.println("[source,js]");
+                                stream.println("----");
+                                stream.println(sample(jsonb, returnedType));
+                                stream.println("----");
+                            }
+                            stream.println();
                         });
             }
-            stream.println("|====");
             stream.println();
 
         }
+    }
+
+    private static String capitalizeWords(final String actionTypeValue) {
+        return Stream.of(actionTypeValue.replace("_", " ").split(" ")).map(WordUtils::capitalize).collect(joining(" "));
     }
 
     private static void generatedUi(final File generatedDir) throws Exception {
         final File file = new File(generatedDir, "generated_ui.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println();
-            stream.println(
-                    "[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\",separator=#]");
-            stream.println("|====");
-            stream.println("#API#Description#Generated property metadata");
             final File api = jarLocation(Ui.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
@@ -674,11 +682,22 @@ public class Generator {
                                     .entrySet()
                                     .stream()
                                     .collect(toMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)));
-                            stream.println("#@" + sanitizeType(type.getName()) + "#" + extractDoc(type)
-                                    + " a#\n[source,js]\n----\n" + jsonb.toJson(meta) + "\n----\n");
+                            stream.println();
+                            stream.println("= @" + type.getSimpleName());
+                            stream.println();
+                            stream.println(extractDoc(type));
+                            stream.println();
+                            stream.println("- API: `@" + type.getName() + "`");
+                            stream.println();
+                            stream.println("Sample:");
+                            stream.println();
+                            stream.println("[source,js]");
+                            stream.println("----");
+                            stream.println(jsonb.toJson(meta));
+                            stream.println("----");
+                            stream.println();
                         });
             }
-            stream.println("|====");
             stream.println();
 
         }
@@ -747,28 +766,32 @@ public class Generator {
         final File file = new File(generatedDir, "generated_conditions.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println();
-            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
-            stream.println("|====");
-            stream.println("|API|Name|Description|Metadata Sample");
             final File api = jarLocation(Condition.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final ConditionParameterEnricher enricher = new ConditionParameterEnricher();
             try (final Jsonb jsonb = newJsonb()) {
                 final AnnotationFinder finder = new AnnotationFinder(
                         api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
-                finder
-                        .findAnnotatedClasses(Condition.class)
-                        .stream()
-                        .sorted(comparing(Class::getName))
-                        .forEach(type -> stream.println(
-                                "|@" + sanitizeType(type.getName()) + "|" + type.getAnnotation(Condition.class).value()
-                                        + "|" + extractDoc(type) + " a|\n[source,js]\n----\n"
-                                        + jsonb
-                                                .toJson(enricher.onParameterAnnotation("test", String.class,
-                                                        generateAnnotation(type)))
-                                                .replace("tcomp::", "")
-                                        + "\n----\n"));
-                stream.println("|====");
+                finder.findAnnotatedClasses(Condition.class).stream().sorted(comparing(Class::getName)).forEach(
+                        type -> {
+                            stream.println();
+                            stream.println("= " + capitalizeWords(type.getSimpleName()));
+                            stream.println();
+                            stream.println(extractDoc(type));
+                            stream.println();
+                            stream.println("- API: `@" + type.getName() + "`");
+                            stream.println("- Type: `" + type.getAnnotation(Condition.class).value() + "`");
+                            stream.println("- Sample:");
+                            stream.println();
+                            stream.println("[source,js]");
+                            stream.println("----");
+                            stream.println(jsonb
+                                    .toJson(enricher.onParameterAnnotation("test", String.class,
+                                            generateAnnotation(type)))
+                                    .replace("tcomp::", ""));
+                            stream.println("----");
+                            stream.println();
+                        });
                 stream.println();
             }
 
@@ -778,28 +801,30 @@ public class Generator {
     private static void generatedTypes(final File generatedDir) throws Exception {
         final File file = new File(generatedDir, "generated_configuration-types.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println();
-            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
-            stream.println("|====");
-            stream.println("|API|Type|Description|Metadata sample");
             final File api = jarLocation(ConfigurationType.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final ConfigurationTypeParameterEnricher enricher = new ConfigurationTypeParameterEnricher();
             final AnnotationFinder finder = new AnnotationFinder(
                     api.isDirectory() ? new FileArchive(loader, api) : new JarArchive(loader, api.toURI().toURL()));
             try (final Jsonb jsonb = newJsonb()) {
-                finder
-                        .findAnnotatedClasses(ConfigurationType.class)
-                        .stream()
-                        .sorted(comparing(Class::getName))
-                        .forEach(
-                                type -> stream.println("|" + sanitizeType(type.getName()) + "|"
-                                        + type.getAnnotation(ConfigurationType.class).value() + "|" + extractDoc(type)
-                                        + " a|\n[source,js]\n----\n" + jsonb.toJson(enricher
-                                                .onParameterAnnotation("value", String.class, generateAnnotation(type)))
-                                        + "\n----\n"));
+                finder.findAnnotatedClasses(ConfigurationType.class).stream().sorted(comparing(Class::getName)).forEach(
+                        type -> {
+                            stream.println();
+                            stream.println("= " + capitalizeWords(type.getAnnotation(ConfigurationType.class).value()));
+                            stream.println();
+                            stream.println(extractDoc(type));
+                            stream.println();
+                            stream.println("- API: @" + type.getName());
+                            stream.println("- Sample:");
+                            stream.println();
+                            stream.println("[source,js]");
+                            stream.println("----");
+                            stream.println(jsonb.toJson(
+                                    enricher.onParameterAnnotation("value", String.class, generateAnnotation(type))));
+                            stream.println("----");
+                            stream.println();
+                        });
             }
-            stream.println("|====");
             stream.println();
 
         }
@@ -809,9 +834,6 @@ public class Generator {
         final File file = new File(generatedDir, "generated_constraints.adoc");
         try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
             stream.println();
-            stream.println("[role=\"table-striped table-hover table-ordered\",options=\"header,autowidth\"]");
-            stream.println("|====");
-            stream.println("|API|Name|Parameter Type|Description|Supported Types|Metadata sample");
             final File api = jarLocation(Validation.class);
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             final AnnotationFinder finder = new AnnotationFinder(
@@ -833,25 +855,33 @@ public class Generator {
                             }
                             return types;
                         })
-                        .forEach(constraint -> stream.println("|@" + constraint.marker.getName() + "|" + constraint.name
-                                + "|" + sanitizeType(constraint.paramType) + "|" + constraint.description + "|"
-                                + Stream.of(constraint.types).map(Class::getName).map(Generator::sanitizeType).collect(
-                                        joining(", "))
-                                + " a|\n[source,js]\n----\n"
-                                + jsonb
-                                        .toJson(enricher.onParameterAnnotation("test", constraint.types[0],
-                                                generateAnnotation(constraint.marker)))
-                                        .replace("tcomp::", "")
-                                + "\n----\n"));
+                        .forEach(constraint -> {
+                            stream.println();
+                            stream.println("= " + capitalizeWords(constraint.name));
+                            stream.println();
+                            stream.println(constraint.description);
+                            stream.println();
+                            stream.println("- API: `@" + constraint.marker.getName() + "`");
+                            stream.println("- Name: `" + constraint.name + "`");
+                            stream.println("- Parameter Type: `" + constraint.paramType + "`");
+                            stream.println("- Supported Types:");
+                            Stream.of(constraint.types).map(Class::getName).map(it -> "-- `" + it + "`").forEach(
+                                    stream::println);
+                            stream.println("- Sample:");
+                            stream.println();
+                            stream.println("[source,js]");
+                            stream.println("----");
+                            stream.println(jsonb
+                                    .toJson(enricher.onParameterAnnotation("test", constraint.types[0],
+                                            generateAnnotation(constraint.marker)))
+                                    .replace("tcomp::", ""));
+                            stream.println("----");
+                            stream.println();
+                        });
             }
-            stream.println("|====");
             stream.println();
 
         }
-    }
-
-    private static String sanitizeType(final String s) {
-        return s.replace("java.lang.", "").replace("java.util.", "").replace("org.talend.sdk.component", "o.t.s.c");
     }
 
     private static Constraint createConstraint(final Class<?> validation, final Validation val) {
