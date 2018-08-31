@@ -920,10 +920,6 @@
 
   <repositories>
     <repository>
-      <id>owb-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1045</url>
-    </repository>
-    <repository>
       <id>johnzon-staging</id>
       <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1029/</url>
     </repository>
@@ -977,10 +973,6 @@
     <pluginRepository>
       <id>johnzon-staging</id>
       <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1029/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>owb-staging</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1045</url>
     </pluginRepository>
     <pluginRepository>
       <id>TalendOpenSourceRelease</id>
