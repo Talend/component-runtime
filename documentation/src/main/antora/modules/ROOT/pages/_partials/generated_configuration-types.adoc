@@ -1,8 +1,11 @@
 
-[role="table-striped table-hover table-ordered",options="header,autowidth"]
-|====
-|API|Type|Description|Metadata sample
-|o.t.s.c.api.configuration.type.DataSet|dataset|Mark a model (complex object) as being a dataset. a|
+= Dataset
+
+Mark a model (complex object) as being a dataset.
+
+- API: @org.talend.sdk.component.api.configuration.type.DataSet
+- Sample:
+
 [source,js]
 ----
 {
@@ -11,7 +14,14 @@
 }
 ----
 
-|o.t.s.c.api.configuration.type.DataStore|datastore|Mark a model (complex object) as being a datastore (connection to a backend). a|
+
+= Datastore
+
+Mark a model (complex object) as being a datastore (connection to a backend).
+
+- API: @org.talend.sdk.component.api.configuration.type.DataStore
+- Sample:
+
 [source,js]
 ----
 {
@@ -20,5 +30,4 @@
 }
 ----
 
-|====
 

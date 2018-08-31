@@ -6,31 +6,31 @@ include::gallery.adoc[leveloffset=+1]
 
 == Actions
 
-include::{partialsdir}/generated_actions.adoc[leveloffset=+1]
+include::{partialsdir}/generated_actions.adoc[leveloffset=+2]
 
 == Conditions
 
-include::{partialsdir}/generated_conditions.adoc[leveloffset=+1]
+include::{partialsdir}/generated_conditions.adoc[leveloffset=+2]
 
 == Configuration types
 
-include::{partialsdir}/generated_configuration-types.adoc[leveloffset=+1]
+include::{partialsdir}/generated_configuration-types.adoc[leveloffset=+2]
 
 == Constraints
 
-include::{partialsdir}/generated_constraints.adoc[leveloffset=+1]
+include::{partialsdir}/generated_constraints.adoc[leveloffset=+2]
 
 == Junit environments
 
-include::{partialsdir}/generated_junit-environments.adoc[leveloffset=+1]
+include::{partialsdir}/generated_junit-environments.adoc[]
 
 == Proxy server API
 
-include::{partialsdir}/generated_proxy-server-api.adoc[leveloffset=+2]
+include::{partialsdir}/generated_proxy-server-api.adoc[]
 
 == Proxy server configuration
 
-include::{partialsdir}/generated_proxy-server-configuration.adoc[leveloffset=+1]
+include::{partialsdir}/generated_proxy-server-configuration.adoc[]
 
 include::{partialsdir}/generated_rest-resources.adoc[leveloffset=+1]
 
@@ -40,8 +40,8 @@ include::{partialsdir}/generated_scanning-exclusions.adoc[leveloffset=+2]
 
 == Server configuration
 
-include::{partialsdir}/generated_server-configuration.adoc[leveloffset=+1]
+include::{partialsdir}/generated_server-configuration.adoc[]
 
 == User Interface API
 
-include::{partialsdir}/generated_ui.adoc[leveloffset=+1]
+include::{partialsdir}/generated_ui.adoc[leveloffset=+2]

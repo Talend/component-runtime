@@ -65,7 +65,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>4.3.10.RELEASE</version>
+      <version>5.0.8.RELEASE</version>
       <scope>provided</scope>
     </dependency>
 

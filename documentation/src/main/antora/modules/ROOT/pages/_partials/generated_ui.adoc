@@ -1,8 +1,13 @@
 
-[role="table-striped table-hover table-ordered",options="header,autowidth",separator=#]
-|====
-#API#Description#Generated property metadata
-#@o.t.s.c.api.configuration.ui.DefaultValue#Provide a default value the UI can use - only for primitive fields. a#
+
+= @DefaultValue
+
+Provide a default value the UI can use - only for primitive fields.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.DefaultValue`
+
+Sample:
+
 [source,js]
 ----
 {
@@ -10,7 +15,15 @@
 }
 ----
 
-#@o.t.s.c.api.configuration.ui.OptionsOrder#Allows to sort a class properties. a#
+
+= @OptionsOrder
+
+Allows to sort a class properties.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.OptionsOrder`
+
+Sample:
+
 [source,js]
 ----
 {
@@ -18,7 +31,15 @@
 }
 ----
 
-#@o.t.s.c.api.configuration.ui.layout.AutoLayout#Request the rendered to do what it thinks is best. a#
+
+= @AutoLayout
+
+Request the rendered to do what it thinks is best.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.layout.AutoLayout`
+
+Sample:
+
 [source,js]
 ----
 {
@@ -26,7 +47,15 @@
 }
 ----
 
-#@o.t.s.c.api.configuration.ui.layout.GridLayout#Advanced layout to place properties by row, this is exclusive with `@OptionsOrder`. a#
+
+= @GridLayout
+
+Advanced layout to place properties by row, this is exclusive with `@OptionsOrder`.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.layout.GridLayout`
+
+Sample:
+
 [source,js]
 ----
 {
@@ -35,7 +64,15 @@
 }
 ----
 
-#@o.t.s.c.api.configuration.ui.layout.GridLayouts#Allow to configure multiple grid layouts on the same class, qualified with a classifier (name) a#
+
+= @GridLayouts
+
+Allow to configure multiple grid layouts on the same class, qualified with a classifier (name)
+
+- API: `@org.talend.sdk.component.api.configuration.ui.layout.GridLayouts`
+
+Sample:
+
 [source,js]
 ----
 {
@@ -44,7 +81,15 @@
 }
 ----
 
-#@o.t.s.c.api.configuration.ui.layout.HorizontalLayout#Put on a configuration class it notifies the UI an horizontal layout is preferred. a#
+
+= @HorizontalLayout
+
+Put on a configuration class it notifies the UI an horizontal layout is preferred.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.layout.HorizontalLayout`
+
+Sample:
+
 [source,js]
 ----
 {
@@ -52,7 +97,15 @@
 }
 ----
 
-#@o.t.s.c.api.configuration.ui.layout.VerticalLayout#Put on a configuration class it notifies the UI a vertical layout is preferred. a#
+
+= @VerticalLayout
+
+Put on a configuration class it notifies the UI a vertical layout is preferred.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.layout.VerticalLayout`
+
+Sample:
+
 [source,js]
 ----
 {
@@ -60,7 +113,15 @@
 }
 ----
 
-#@o.t.s.c.api.configuration.ui.widget.Code#Mark a field as being represented by some code widget (vs textarea for instance). a#
+
+= @Code
+
+Mark a field as being represented by some code widget (vs textarea for instance).
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.Code`
+
+Sample:
+
 [source,js]
 ----
 {
@@ -68,7 +129,15 @@
 }
 ----
 
-#@o.t.s.c.api.configuration.ui.widget.Credential#Mark a field as being a credential. It is typically used to hide the value in the UI. a#
+
+= @Credential
+
+Mark a field as being a credential. It is typically used to hide the value in the UI.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.Credential`
+
+Sample:
+
 [source,js]
 ----
 {
@@ -76,7 +145,15 @@
 }
 ----
 
-#@o.t.s.c.api.configuration.ui.widget.Structure#Mark a List<String> or Map<String, String> field as being represented as the component data selector (field names generally or field names as key and type as value). a#
+
+= @Structure
+
+Mark a List<String> or Map<String, String> field as being represented as the component data selector (field names generally or field names as key and type as value).
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.Structure`
+
+Sample:
+
 [source,js]
 ----
 {
@@ -86,7 +163,15 @@
 }
 ----
 
-#@o.t.s.c.api.configuration.ui.widget.TextArea#Mark a field as being represented by a textarea(multiline text input). a#
+
+= @TextArea
+
+Mark a field as being represented by a textarea(multiline text input).
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.TextArea`
+
+Sample:
+
 [source,js]
 ----
 {
@@ -94,5 +179,4 @@
 }
 ----
 
-|====
 

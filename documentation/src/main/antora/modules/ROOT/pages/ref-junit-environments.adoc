@@ -2,4 +2,4 @@
 :page-partial:
 :page-talend_skipindexation:
 
-include::{partialsdir}/generated_junit-environments.adoc[leveloffset=+1]
+include::{partialsdir}/generated_junit-environments.adoc[]

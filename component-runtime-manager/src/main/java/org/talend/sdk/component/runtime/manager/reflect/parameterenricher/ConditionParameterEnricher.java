@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
 import org.talend.sdk.component.api.configuration.condition.meta.Condition;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
@@ -64,6 +65,7 @@ public class ConditionParameterEnricher implements ParameterExtensionEnricher {
     private Map<String, String> toMeta(final Annotation annotation, final String type, final Predicate<Method> filter) {
         return Stream
                 .of(annotation.annotationType().getMethods())
+                .filter(m -> !m.getName().endsWith("evaluationStrategyOptions"))
                 .filter(m -> m.getDeclaringClass() == annotation.annotationType())
                 .filter(filter)
                 .collect(toMap(m -> META_PREFIX + type + "::" + m.getName(), m -> {
@@ -71,6 +73,15 @@ public class ConditionParameterEnricher implements ParameterExtensionEnricher {
                         final Object invoke = m.invoke(annotation);
                         if (String[].class.isInstance(invoke)) {
                             return Stream.of(String[].class.cast(invoke)).collect(joining(","));
+                        }
+                        if (ActiveIf.class == m.getDeclaringClass() && "evaluationStrategy".equals(m.getName())) {
+                            final ActiveIf.EvaluationStrategyOption[] options =
+                                    ActiveIf.class.cast(annotation).evaluationStrategyOptions();
+                            if (options.length > 0) {
+                                return String.valueOf(invoke)
+                                        + Stream.of(options).map(o -> o.name() + '=' + o.value()).collect(
+                                                joining(",", "(", ")"));
+                            }
                         }
                         return String.valueOf(invoke);
                     } catch (final InvocationTargetException | IllegalAccessException e) {
