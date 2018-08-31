@@ -60,7 +60,7 @@
     <slf4j.version>1.7.25</slf4j.version>
     <junit.version>4.12</junit.version>
     <ziplock.version>7.0.5</ziplock.version>
-    <johnzon.version>1.1.8</johnzon.version>
+    <johnzon.version>1.1.9</johnzon.version>
     <meecrowave.version>1.2.3</meecrowave.version>
     <owb.version>2.0.7</owb.version>
     <tomcat.version>9.0.11</tomcat.version>
@@ -924,6 +924,10 @@
       <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1045</url>
     </repository>
     <repository>
+      <id>johnzon-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1029/</url>
+    </repository>
+    <repository>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
@@ -970,6 +974,10 @@
   </repositories>
 
   <pluginRepositories>
+    <pluginRepository>
+      <id>johnzon-staging</id>
+      <url>https://repository.apache.org/content/repositories/orgapachejohnzon-1029/</url>
+    </pluginRepository>
     <pluginRepository>
       <id>owb-staging</id>
       <url>https://repository.apache.org/content/repositories/orgapacheopenwebbeans-1045</url>
