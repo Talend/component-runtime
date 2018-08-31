@@ -57,8 +57,10 @@ div.documentationindex-before {
   padding: 0;
 }
 .documentationindex-before .admonitionblocks {
+  margin-top: 2rem;
   display: flex;
   justify-content: space-around;
+  align-items: center;
 }
 .documentationindex-before .admonitionblocks > .admonitionblock {
   flex: 1;
@@ -449,46 +451,26 @@ pre {
   margin-bottom: 1rem;
 }
 .admonitionblock > table {
-  margin: 1.4rem 0 0;
-  padding: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
   width: 100%;
   height: 100%;
   position: relative;
   display: block;
-  border: 1px solid #c6c6c6;
-  border-radius: 5px;
+  /*border: 1px solid #c6c6c6;
+  border-radius: 5px;*/
+}
+.admonitionblock td.content > code {
+  background-color: unset !important;
 }
 .admonitionblock td.content {
-  padding-top: 1rem;
   display: block;
-  background: inherit !important;
   width: 100%;
+  padding: 0.5rem;
 }
 .admonitionblock .icon {
-  position: absolute;
-  top: 0;
-  left: 2.5rem;
-  padding: 0 0.5rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  border-radius: 0.45rem;
-  color: #fff;
-  transform: translate(-0.5rem, -50%);
-}
-.admonitionblock.caution .icon {
-  background-color: #a0439c;
-}
-.admonitionblock.important .icon {
-  background-color: #d32f2f;
-}
-.admonitionblock.note .icon {
-  background-color: #217ee7;
-}
-.admonitionblock.tip .icon {
-  background-color: #f3c446;
-}
-.admonitionblock.warning .icon {
-  background-color: #e18114;
+  padding-right: 0.6rem;
+  padding-top: 0.5rem;
 }
 .admonitionblock .icon i {
   display: inline-flex;
@@ -498,6 +480,24 @@ pre {
 .admonitionblock .icon i::after {
   content: attr(title);
   hyphens: none;
+}
+.icon-important:before, .icon-note:before, .icon-tip:before {
+    font-size: 1.3em;
+}
+.icon-important:before {
+    content: "\f06a";
+    font-family: "Font Awesome 5 Free";
+    color: #e96065;
+}
+.icon-note:before {
+    content: "\f05a";
+    font-family: "Font Awesome 5 Free";
+    color: #0675c1;
+}
+.icon-tip:before {
+    content: "\f059";
+    font-family: "Font Awesome 5 Free";
+    color: #6ec01e;
 }
 
 .article-content {

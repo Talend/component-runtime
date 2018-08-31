@@ -27,13 +27,14 @@ To create encrypted server credentials for the Zendesk instance:
 2. Store this master password in the `settings-security.xml` file of the `~/.m2` folder.
 3. Encrypt the Zendesk instance password using the command: `mvn --encrypt-password <zendesk-password>`.
 4. Create a server entry under *servers* in Maven `settings.xml` file located in the `~/.m2` folder.
+
 [source,xml]
 ----
-    <server>
-      <id>zendesk</id>
-      <username>username@email.com</username>
-      <password>The encrypted password {oL37x/xiSvwtlhrMQ=}</password>
-    </server>
+<server>
+  <id>zendesk</id>
+  <username>username@email.com</username>
+  <password>The encrypted password {oL37x/xiSvwtlhrMQ=}</password>
+</server>
 ----
 
 NOTE: You can store the `settings-security.xml` and `settings.xml` files elsewhere that the default location (`~/.m2`). To do that, set the path of the directory containing the files
