@@ -2,18 +2,20 @@
 v{page-component-version}
 :page-talend_skipindexation:
 
-include::index-getting-started-with-tck.adoc[leveloffset=+1]
+include::pdf-getting-started-with-tck.adoc[leveloffset=+1]
 
-include::index-setup-environment.adoc[leveloffset=+1]
+include::pdf-setup-environment.adoc[leveloffset=+1]
 
-include::index-generating-project.adoc[leveloffset=+1]
+include::pdf-generating-project.adoc[leveloffset=+1]
 
-include::index-creating-components.adoc[leveloffset=+1]
+include::pdf-creating-components.adoc[leveloffset=+1]
 
-include::index-testing-components.adoc[leveloffset=+1]
+include::pdf-testing-components.adoc[leveloffset=+1]
 
-include::index-defining-services.adoc[leveloffset=+1]
+include::pdf-defining-services.adoc[leveloffset=+1]
 
-include::index-deploying-components.adoc[leveloffset=+1]
+include::pdf-deploying-components.adoc[leveloffset=+1]
 
-include::index-pdf-tutorials.adoc[leveloffset=+1]
+include::pdf-cloud-integration.adoc[leveloffset=+1]
+
+include::pdf-tutorials.adoc[leveloffset=+1]

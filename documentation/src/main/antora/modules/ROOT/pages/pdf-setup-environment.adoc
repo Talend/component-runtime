@@ -1,0 +1,8 @@
+:page-partial:
+:page-talend_skipindexation:
+
+include::index-setup-environment.adoc[]
+
+include::system-prerequisites.adoc[leveloffset=+1]
+
+include::installing-talend-intellij-plugin.adoc[leveloffset=+1]

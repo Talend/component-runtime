@@ -1,0 +1,8 @@
+:page-partial:
+:page-talend_skipindexation:
+
+include::index-generating-project.adoc[]
+
+include::tutorial-generate-project-using-starter.adoc[leveloffset=+1]
+
+include::generate-project-using-intellij-plugin.adoc[leveloffset=+1]
