@@ -1,0 +1,6 @@
+:page-partial:
+:page-talend_skipindexation:
+
+include::index-deploying-components.adoc[]
+
+include::studio.adoc[leveloffset=+1]
