@@ -1,19 +1,29 @@
-= Handle Talend component migration
+= Handling Talend component migration
 :page-partial:
 
 [[tutorial-handle-talend-component-migration]]
 
-In this tutorial we will walk through migration handler creation for a component that we will upgrade from a version 1 to a version 2 by adding some new options.
-Talend Component Kit provide a migration mechanism between two versions of a component to let you ensure backward compatibility.
+Talend Component Kit provides a migration mechanism between two versions of a component to let you ensure backward compatibility.
 
-For example a new version of a component may have some new options that we need to give some them default value in the old versions or that we need to deactivate.
+For example a new version of a component may have some new options that need to be set with a default value in the older versions or that need to be disabled.
+
+This tutorial shows how to create a migration handler for a component that needs to be upgraded from a version 1 to a version 2. The upgrade to the newer version includes adding new options to the component.
+
+This tutorial assumes that you know xref:methodology-creating-components.adoc[the basics] about component development and are familiar with component project xref:index-generating-project.adoc[generation] and xref:index-creating-components.adoc[implementation].
 
 == Requirements
-* Java 8.
-* Talend component development using Talend Component Kit.
 
-== Create the version 1 of the component
-Let's start by creating a very simple configuration class that will represent a basic authentication that can be used in any component that need this kind of authentication.
+In order to follow this tutorial, you need:
+
+* Java 8
+* A Talend component development environment using Talend Component Kit. Refer to xref:system-prerequisites.adoc[this document].
+* Have generated a project containing a simple processor component using the Talend Component Kit Starter.
+
+
+== Creating the version 1 of the component
+First, create a simple processor component configured as follows:
+
+1. Create a simple configuration class that represents a basic authentication and that can be used in any component requiring this kind of authentication.
 
 [source,java,indent=0,subs="verbatim,quotes,attributes",]
 ----
@@ -33,7 +43,8 @@ public class BasicAuth {
 }
 ----
 
-Now let's create a simple output component that will use our configuration. the component configuration is injected into the component constructor.
+[start="2"]
+. Create a simple output component that uses the configuration defined earlier. The component configuration is injected into the component constructor.
 
 [source,java,indent=0,subs="verbatim,quotes,attributes",]
 ----
@@ -55,7 +66,7 @@ public class MyOutput implements Serializable {
 }
 ----
 
-NOTE: Configuration version is aligned on the component version, as the configuration will be consumed by the component, it inherit from it version.
+NOTE: The version of the configuration class is aligned with the component version. The configuration class is consumed by the component and inherits its version.
 
 Here we have defined the first version of our simple component that use our basic authentication configuration.
 Now let's add some new authentication mode into version 2 and handle the migration from the first version.
