@@ -1,0 +1,8 @@
+:page-partial:
+:page-talend_skipindexation:
+
+include::index-cloud-integration.adoc[]
+
+include::documentation-rest.adoc[leveloffset=+1]
+
+include::server-uispec.adoc[leveloffset=+1]
