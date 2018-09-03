@@ -59,12 +59,12 @@ class ConfigurationFormatterImplTest {
 
     @Test
     void flattenMarketo() {
-        final Map<String, String> properties = formatter.flatten(factory.createObjectBuilder()
-            .add("dataStore", factory.createObjectBuilder()
-                .add("clientId", "xxxx")
-                .add("clientSecret", "yyyy")
-                .add("endpoint", "https://foo.bar.colm"))
-           .build());
+        final Map<String, String> properties = formatter.flatten(factory
+                .createObjectBuilder()
+                .add("dataStore",
+                        factory.createObjectBuilder().add("clientId", "xxxx").add("clientSecret", "yyyy").add(
+                                "endpoint", "https://foo.bar.colm"))
+                .build());
         assertEquals(3, properties.size());
         assertEquals(properties.get("dataStore.clientId"), "xxxx");
         assertEquals(properties.get("dataStore.clientSecret"), "yyyy");
@@ -74,8 +74,8 @@ class ConfigurationFormatterImplTest {
     @Test
     void unflattenMarketo() throws IOException {
         final ComponentDetail detail;
-        try (final InputStream  stream =
-                     Thread.currentThread().getContextClassLoader().getResourceAsStream("marketo.form.json")) {
+        try (final InputStream stream =
+                Thread.currentThread().getContextClassLoader().getResourceAsStream("marketo.form.json")) {
             detail = jsonb.fromJson(stream, ComponentDetail.class);
         }
 

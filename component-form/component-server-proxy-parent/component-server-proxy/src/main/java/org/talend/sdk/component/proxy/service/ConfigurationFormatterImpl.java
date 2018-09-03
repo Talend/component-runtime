@@ -200,7 +200,9 @@ public class ConfigurationFormatterImpl implements ConfigurationFormatter {
             return it.getPath().startsWith(leadingStr) && it.getPath().indexOf('.', leadingStr.length() + 1) < 0;
         }).collect(toList());
         if (objectOptions.isEmpty()) {
-            throw new IllegalArgumentException("Invalid model: " + definition + ", didn't find nested structure");
+            throw new IllegalArgumentException(
+                    "Invalid model: " + definition + ", didn't find nested structure, available: "
+                            + definitions.stream().map(SimplePropertyDefinition::getPath).collect(toList()));
         }
 
         return config
