@@ -1,0 +1,14 @@
+:page-partial:
+:page-talend_skipindexation:
+
+include::index-defining-services.adoc[]
+
+include::services-built-in.adoc[leveloffset=+1]
+
+include::services-internationalization.adoc[leveloffset=+1]
+
+include::services-actions.adoc[leveloffset=+1]
+
+include::services-interceptors.adoc[leveloffset=+1]
+
+include::services-custom-api.adoc[leveloffset=+1]
