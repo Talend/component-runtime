@@ -13,7 +13,7 @@ ifeval::["{page-origin-refname}" == "master"]
 
 IMPORTANT: This is a version under development which has not yet been deployed. You can however use it using the `-SNAPSHOT` version and Sonatype snapshot https://oss.sonatype.org/content/repositories/snapshots/[repository].
 
-TIP: If you want a PDF version of that page you can find it in our snapshots: https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation&v={page-component-version}-SNAPSHOT&e=pdf&c=all-in-one[PDF].
+TIP: A PDF version of the documentation is available https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.talend.sdk.component&a=documentation&v={page-component-version}-SNAPSHOT&e=pdf&c=all-in-one[here].
 endif::[]
 
 ifeval::["{page-origin-refname}" != "master"]
