@@ -2,5 +2,11 @@
   "routes": {
     "path": "/",
     "component": "App"
+  },
+
+  "props": {
+    "Detail#default": {
+      "saga": "Detail::start"
+    }
   }
 }

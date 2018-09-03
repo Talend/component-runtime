@@ -50,7 +50,7 @@ The service is automatically passed to the constructor. It can be used as a bean
 
 Some common actions need a clear contract so they are defined as API first-class citizen. For example, this is the case for wizards or health checks. Here is the list of the available actions:
 
-include::{partialsdir}/generated_actions.adoc[]
+include::{partialsdir}/generated_actions.adoc[leveloffset=+2]
 
 == Internationalization
 

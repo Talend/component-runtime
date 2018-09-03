@@ -1,8 +1,13 @@
 
-[role="table-striped table-hover table-ordered",options="header,autowidth"]
-|====
-|API|Name|Description|Metadata Sample
-|@o.t.s.c.api.configuration.condition.ActiveIf|if|If the evaluation of the element at the location matches value then the element is considered active, otherwise it is deactivated. a|
+
+= ActiveIf
+
+If the evaluation of the element at the location matches value then the element is considered active, otherwise it is deactivated.
+
+- API: `@org.talend.sdk.component.api.configuration.condition.ActiveIf`
+- Type: `if`
+- Sample:
+
 [source,js]
 ----
 {
@@ -13,7 +18,15 @@
 }
 ----
 
-|@o.t.s.c.api.configuration.condition.ActiveIfs|ifs|Allows to set multiple visibility conditions on the same property. a|
+
+= ActiveIfs
+
+Allows to set multiple visibility conditions on the same property.
+
+- API: `@org.talend.sdk.component.api.configuration.condition.ActiveIfs`
+- Type: `ifs`
+- Sample:
+
 [source,js]
 ----
 {
@@ -29,5 +42,4 @@
 }
 ----
 
-|====
 

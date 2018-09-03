@@ -1,8 +1,16 @@
 
-[role="table-striped table-hover table-ordered",options="header,autowidth"]
-|====
-|API|Name|Parameter Type|Description|Supported Types|Metadata sample
-|@org.talend.sdk.component.api.configuration.constraint.Max|maxLength|double|Ensure the decorated option size is validated with a higher bound.|CharSequence a|
+
+= MaxLength
+
+Ensure the decorated option size is validated with a higher bound.
+
+- API: `@org.talend.sdk.component.api.configuration.constraint.Max`
+- Name: `maxLength`
+- Parameter Type: `double`
+- Supported Types:
+-- `java.lang.CharSequence`
+- Sample:
+
 [source,js]
 ----
 {
@@ -10,7 +18,18 @@
 }
 ----
 
-|@org.talend.sdk.component.api.configuration.constraint.Min|minLength|double|Ensure the decorated option size is validated with a lower bound.|CharSequence a|
+
+= MinLength
+
+Ensure the decorated option size is validated with a lower bound.
+
+- API: `@org.talend.sdk.component.api.configuration.constraint.Min`
+- Name: `minLength`
+- Parameter Type: `double`
+- Supported Types:
+-- `java.lang.CharSequence`
+- Sample:
+
 [source,js]
 ----
 {
@@ -18,7 +37,18 @@
 }
 ----
 
-|@org.talend.sdk.component.api.configuration.constraint.Pattern|pattern|string|Validate the decorated string with a *javascript* pattern (even into the Studio).|CharSequence a|
+
+= Pattern
+
+Validate the decorated string with a *javascript* pattern (even into the Studio).
+
+- API: `@org.talend.sdk.component.api.configuration.constraint.Pattern`
+- Name: `pattern`
+- Parameter Type: `java.lang.string`
+- Supported Types:
+-- `java.lang.CharSequence`
+- Sample:
+
 [source,js]
 ----
 {
@@ -26,7 +56,24 @@
 }
 ----
 
-|@org.talend.sdk.component.api.configuration.constraint.Max|max|double|Ensure the decorated option size is validated with a higher bound.|Number, int, short, byte, long, double, float a|
+
+= Max
+
+Ensure the decorated option size is validated with a higher bound.
+
+- API: `@org.talend.sdk.component.api.configuration.constraint.Max`
+- Name: `max`
+- Parameter Type: `double`
+- Supported Types:
+-- `java.lang.Number`
+-- `int`
+-- `short`
+-- `byte`
+-- `long`
+-- `double`
+-- `float`
+- Sample:
+
 [source,js]
 ----
 {
@@ -34,7 +81,24 @@
 }
 ----
 
-|@org.talend.sdk.component.api.configuration.constraint.Min|min|double|Ensure the decorated option size is validated with a lower bound.|Number, int, short, byte, long, double, float a|
+
+= Min
+
+Ensure the decorated option size is validated with a lower bound.
+
+- API: `@org.talend.sdk.component.api.configuration.constraint.Min`
+- Name: `min`
+- Parameter Type: `double`
+- Supported Types:
+-- `java.lang.Number`
+-- `int`
+-- `short`
+-- `byte`
+-- `long`
+-- `double`
+-- `float`
+- Sample:
+
 [source,js]
 ----
 {
@@ -42,7 +106,18 @@
 }
 ----
 
-|@org.talend.sdk.component.api.configuration.constraint.Required|required|-|Mark the field as being mandatory.|Object a|
+
+= Required
+
+Mark the field as being mandatory.
+
+- API: `@org.talend.sdk.component.api.configuration.constraint.Required`
+- Name: `required`
+- Parameter Type: `-`
+- Supported Types:
+-- `java.lang.Object`
+- Sample:
+
 [source,js]
 ----
 {
@@ -50,7 +125,18 @@
 }
 ----
 
-|@org.talend.sdk.component.api.configuration.constraint.Max|maxItems|double|Ensure the decorated option size is validated with a higher bound.|Collection a|
+
+= MaxItems
+
+Ensure the decorated option size is validated with a higher bound.
+
+- API: `@org.talend.sdk.component.api.configuration.constraint.Max`
+- Name: `maxItems`
+- Parameter Type: `double`
+- Supported Types:
+-- `java.util.Collection`
+- Sample:
+
 [source,js]
 ----
 {
@@ -58,7 +144,18 @@
 }
 ----
 
-|@org.talend.sdk.component.api.configuration.constraint.Min|minItems|double|Ensure the decorated option size is validated with a lower bound.|Collection a|
+
+= MinItems
+
+Ensure the decorated option size is validated with a lower bound.
+
+- API: `@org.talend.sdk.component.api.configuration.constraint.Min`
+- Name: `minItems`
+- Parameter Type: `double`
+- Supported Types:
+-- `java.util.Collection`
+- Sample:
+
 [source,js]
 ----
 {
@@ -66,7 +163,18 @@
 }
 ----
 
-|@org.talend.sdk.component.api.configuration.constraint.Uniques|uniqueItems|-|Ensure the elements of the collection must be distinct (kind of set).|Collection a|
+
+= UniqueItems
+
+Ensure the elements of the collection must be distinct (kind of set).
+
+- API: `@org.talend.sdk.component.api.configuration.constraint.Uniques`
+- Name: `uniqueItems`
+- Parameter Type: `-`
+- Supported Types:
+-- `java.util.Collection`
+- Sample:
+
 [source,js]
 ----
 {
@@ -74,5 +182,4 @@
 }
 ----
 
-|====
 

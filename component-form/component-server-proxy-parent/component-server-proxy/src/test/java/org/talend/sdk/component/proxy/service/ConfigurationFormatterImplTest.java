@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,11 +33,13 @@ import javax.json.JsonArray;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonString;
+import javax.json.bind.Jsonb;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 import org.talend.sdk.component.proxy.test.CdiInject;
 import org.talend.sdk.component.proxy.test.WithServer;
+import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 @CdiInject
@@ -48,6 +52,39 @@ class ConfigurationFormatterImplTest {
     @Inject
     @UiSpecProxy
     private JsonBuilderFactory factory;
+
+    @Inject
+    @UiSpecProxy
+    private Jsonb jsonb;
+
+    @Test
+    void flattenMarketo() {
+        final Map<String, String> properties = formatter.flatten(factory
+                .createObjectBuilder()
+                .add("dataStore",
+                        factory.createObjectBuilder().add("clientId", "xxxx").add("clientSecret", "yyyy").add(
+                                "endpoint", "https://foo.bar.colm"))
+                .build());
+        assertEquals(3, properties.size());
+        assertEquals(properties.get("dataStore.clientId"), "xxxx");
+        assertEquals(properties.get("dataStore.clientSecret"), "yyyy");
+        assertEquals(properties.get("dataStore.endpoint"), "https://foo.bar.colm");
+    }
+
+    @Test
+    void unflattenMarketo() throws IOException {
+        final ComponentDetail detail;
+        try (final InputStream stream =
+                Thread.currentThread().getContextClassLoader().getResourceAsStream("marketo.form.json")) {
+            detail = jsonb.fromJson(stream, ComponentDetail.class);
+        }
+
+        final Map<String, String> properties = new HashMap<>();
+        properties.put("configuration.activityTypeIds[0].activity", "FOO");
+
+        final JsonObject object = formatter.unflatten(detail.getProperties(), properties);
+        assertEquals(1, object.size());
+    }
 
     @Test
     void flattenFlatObject() {
