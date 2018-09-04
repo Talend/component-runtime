@@ -76,7 +76,7 @@ public class FieldSetWidgetConverter extends ObjectWidgetConverter {
                             : nestedProperties.sorted(comparing(it -> order.indexOf(it.getName())));
             return CompletableFuture
                     .allOf(sortedProperties
-                            .map(it -> new PropertyContext<>(it, context.getRootContext()))
+                            .map(it -> new PropertyContext<>(it, context.getRootContext(), context.getConfiguration()))
                             .map(CompletionStages::toStage)
                             .map(uiSchemaConverter::convert)
                             .toArray(CompletableFuture[]::new))

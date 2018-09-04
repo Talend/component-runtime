@@ -64,12 +64,11 @@ public class ObjectArrayWidgetConverter extends AbstractWidgetConverter {
             arraySchema.setItemWidget("collapsibleFieldset");
             final UiSchemaConverter converter = new UiSchemaConverter(gridLayoutFilter, family, arraySchema.getItems(),
                     new ArrayList<>(), client, jsonSchema, properties, actions, lang, customPropertyConverters);
-            return converter
-                    .convertObject(new PropertyContext<>(
-                            new SimplePropertyDefinition(original.getPath() + "[]", original.getName(), null,
-                                    original.getType(), original.getDefaultValue(), original.getValidation(),
-                                    metaToPropagate, original.getPlaceholder(), original.getProposalDisplayNames()),
-                            context.getRootContext()), metaToPropagate);
+            return converter.convertObject(new PropertyContext<>(
+                    new SimplePropertyDefinition(original.getPath() + "[]", original.getName(), null,
+                            original.getType(), original.getDefaultValue(), original.getValidation(), metaToPropagate,
+                            original.getPlaceholder(), original.getProposalDisplayNames()),
+                    context.getRootContext(), context.getConfiguration()), metaToPropagate);
         });
     }
 }

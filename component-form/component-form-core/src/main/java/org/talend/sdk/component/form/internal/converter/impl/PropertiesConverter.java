@@ -55,7 +55,8 @@ public class PropertiesConverter implements PropertyConverter {
                         .allOf(properties
                                 .stream()
                                 .filter(context::isDirectChild)
-                                .map(it -> new PropertyContext<>(it, context.getRootContext()))
+                                .map(it -> new PropertyContext<>(it, context.getRootContext(),
+                                        context.getConfiguration()))
                                 .map(CompletionStages::toStage)
                                 .map(propertiesConverter::convert)
                                 .toArray(CompletableFuture[]::new))

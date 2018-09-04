@@ -19,6 +19,7 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
@@ -27,6 +28,8 @@ public class PropertyContext<T> {
     private final SimplePropertyDefinition property;
 
     private final T rootContext;
+
+    private final Configuration configuration;
 
     public boolean isRequired() {
         return property.getValidation() != null && property.getValidation().getRequired() != null
@@ -37,5 +40,12 @@ public class PropertyContext<T> {
         final String prefix = property.getPath() + ".";
         return child.getPath().startsWith(prefix) && child.getPath().indexOf('.', prefix.length()) < 0
                 && !child.getPath().endsWith("[]");
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static final class Configuration {
+
+        private boolean includeDocumentationMetadata;
     }
 }

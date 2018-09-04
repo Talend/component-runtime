@@ -38,6 +38,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1019[TCOMP-1019^]: (form) enum should lead to restricted datalist
 - link:https://jira.talendforge.org/browse/TCOMP-1037[TCOMP-1037^]: [dependency upgrade] Johnzon 1.1.9
 - link:https://jira.talendforge.org/browse/TCOMP-1038[TCOMP-1038^]: Drop spring client from component-form-core
+- link:https://jira.talendforge.org/browse/TCOMP-1041[TCOMP-1041^]: HttpClient should enable to process InputStream directly
+- link:https://jira.talendforge.org/browse/TCOMP-1042[TCOMP-1042^]: Upgrade to JUnit 5.3.0
 - link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]: [documentation] Sample implementation of bulk/batch/commit-interval using groups
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy
 - link:https://jira.talendforge.org/browse/TCOMP-985[TCOMP-985^]: Align docker git metada on out Standard
