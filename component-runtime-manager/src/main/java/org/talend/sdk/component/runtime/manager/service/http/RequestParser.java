@@ -414,7 +414,9 @@ public class RequestParser {
             })
                     .filter(Objects::nonNull)
                     .filter(e -> e.getValue() != null) // ignore null values
-                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> {
+                        throw new IllegalArgumentException("conflictings keys: " + a + '/' + b);
+                    }, LinkedHashMap::new));
         }
     }
 
@@ -436,7 +438,9 @@ public class RequestParser {
             })
                     .filter(Objects::nonNull)
                     .filter(e -> e.getValue() != null) // ignore null values
-                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> {
+                        throw new IllegalArgumentException("conflictings keys: " + a + '/' + b);
+                    }, LinkedHashMap::new));
         }
     }
 
