@@ -132,6 +132,21 @@ public interface APIClient extends HttpClient {
 }
 ----
 
+=== Big data streams
+
+By default the client will load in memory the payload, for big payloads it can consume too much memory.
+For these cases you can get the payload as an `InputStream` - using the `Response` wrapper or not:
+
+[source,java]
+----
+public interface APIClient extends HttpClient {
+    @Request(path = "/big/http/data")
+    InputStream getData();
+}
+----
+
+===
+
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
