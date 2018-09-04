@@ -17,6 +17,8 @@ With this set of tutorials, get your hands on project creation using the Compone
 - xref:tutorial-create-an-input-component.adoc[Creating a Hazelcast input component]
 - xref:tutorial-create-an-output-component.adoc[Creating a Hazelcast output component]
 - xref:tutorial-create-components-rest-api.adoc[Creating a Zendesk REST API connector]
+- xref:tutorial-handle-talend-component-migration.adoc[Handling component version migration]
+
 
 == Testing tutorials
 
