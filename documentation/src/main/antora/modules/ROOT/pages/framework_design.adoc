@@ -1,0 +1,137 @@
+= Talend Component Kit design overview
+:page-partial:
+:talend_skipindexation:
+
+== Component API
+
+The component API is declarative (through annotations) to ensure it is:
+
+. Evolutive. It can get new features without breaking old code.
+. As static as possible.
+
+=== Evolutive
+
+Because it is fully declarative, any new API can be added iteratively without requiring
+any change to existing components.
+
+For example, in the case of Beam potential evolution:
+
+[source,java]
+----
+@ElementListener
+public MyOutput onElement(MyInput data) {
+    return ...;
+}
+----
+
+would not be affected by the addition of the new Timer API, which can be used as follows:
+
+[source,java]
+----
+@ElementListener
+public MyOutput onElement(MyInput data,
+                          @Timer("my-timer") Timer timer) {
+    return ...;
+}
+----
+
+=== Static
+
+==== UI-friendly
+
+The intent of the framework is to be able to fit in a Java UI as well as in a web UI.
+
+It must be understood as colocalized and remote UI. The goal is to move as much as possible the logic to the UI side for UI-related actions. For example, validating a pattern, a size, and so on, should be done on the client side rather than on the server side. Being static encourages this practice.
+
+==== Auditable and with clear expectations
+
+The other goal of being static in the API definition is to ensure that the model will not be mutated at runtime and that all the auditing and modeling can be done before, at the design phase.
+
+==== Dev-friendly
+
+Being static also ensures that the development can be validated as much as possible through build tools. +
+This does not replace the requirement to test the components but helps developers to maintain components with automated tools.
+
+=== Flexible data modeling
+
+=== Generic and specific
+
+The processor API supports `JsonObject` as well as any custom model. The goal is to support generic component development that need to access configured "object paths", as well as specific components that rely on a defined path from the input.
+
+A generic component can look like:
+
+[source,java]
+----
+@ElementListener
+public MyOutput onElement(JsonObject input) {
+    return ...;
+}
+----
+
+A specific component can look like (with `MyInput` a POJO):
+
+[source,java]
+----
+@ElementListener
+public MyOutput onElement(MyInput input) {
+    return ...;
+}
+----
+
+==== No runtime assumption
+
+By design, the framework must run in DI (plain standalone Java program) and in Beam pipelines. +
+It is out of scope of the framework to handle the way the runtime serializes - if needed - the data.
+
+For that reason, it is critical not to import serialization constraints to the stack. As an example, this is the reason why `JsonObject` is not an `IndexedRecord` from Avro.
+
+Any serialization concern should either be hidden in the framework runtime (outside of the component developer scope) or in the runtime integration with the framework (for example, Beam integration).
+
+In this context, JSON-P can be good compromise because it brings a powerful API with very few constraints.
+
+== Isolated
+
+The components must be able to execute even if they have conflicting libraries. For that purpose,
+classloaders must be isolated. A component defines its dependencies based on a Maven format and is  always bound to its own classloader.
+
+== REST
+
+=== Consumable model
+
+The definition payload is as flat as possible and _strongly_ typed to ensure it can be manipulated by consumers.
+This way, consumers can add or remove fields with simple mapping rules, without any abstract tree handling.
+
+The execution (runtime) configuration is the concatenation of framework metadata (only the version) and a key/value model of the instance of the configuration based on the definition properties paths for the keys. It enables consumers to maintain and work with the keys/values according to their need.
+
+The framework not being responsible for any persistence, it is very important to make sure that consumers can handle it from end to end, with the ability to search for values (update a machine, update a port and so on) and keys (for example, a new encryption rule on key `certificate`).
+
+Talend Component Kit is a metamodel provider (to build forms) and a runtime *execution* platform. It takes a configuration instance and uses it volatilely to execute a component logic. This implies it cannot own the data nor define the contract it has for these two endpoints and must let the consumers handle the data lifecycle (creation, encryption, deletion, and so on).
+
+=== Execution with streaming
+
+A new mime type called `talend/stream` is introduced to define a streaming format.
+
+It matches a JSON object per line:
+
+[source,javascript]
+----
+{"key1":"value1"}
+{"key2":"value2"}
+{"key1":"value11"}
+{"key1":"value111"}
+{"key2":"value2"}
+----
+
+== Fixed set of icons
+
+Icons (`@Icon`) are based on a fixed set. Custom icons can be used but their display cannot be guaranteed. Components can be used in any environment and require a consistent look that cannot be guaranteed outside of the UI itself. Defining keys only is the best way to communicate this information.
+
+TIP: Once you know exactly how you will deploy your component in the Studio, then you
+can use `@Icon(value = CUSTOM, custom = "...") to use a custom icon file.
+
+ifeval::["{backend}" == "html5"]
+[role="relatedlinks"]
+== Related articles
+- xref:methodology-creating-components.adoc[Methodology for creating components]
+- xref:component-execution.adoc[General component execution logic]
+endif::[]

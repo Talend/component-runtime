@@ -14,7 +14,7 @@
 ** xref:tutorial-test-rest-api.adoc[Testing a Zendesk REST API connector]
 ** xref:tutorial-test-your-components.adoc[Testing a Hazelcast component]
 ** xref:tutorial-dev-vs-ci-setup.adoc[Testing in a continuous integration environment]
-** xref:tutorial-handle-talend-component-migration.adoc[Handle Talend component migration]
+** xref:tutorial-handle-talend-component-migration.adoc[Handling component version migration]
 * xref:index-setup-environment.adoc[Setting up your environment]
 ** xref:index-setup-environment.adoc[Setup overview]
 ** xref:system-prerequisites.adoc.adoc[System requirements]

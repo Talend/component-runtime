@@ -134,8 +134,8 @@ public interface APIClient extends HttpClient {
 
 === Big data streams
 
-By default the client will load in memory the payload, for big payloads it can consume too much memory.
-For these cases you can get the payload as an `InputStream` - using the `Response` wrapper or not:
+By default, the client loads in memory the payload. In case of big payloads, it can consume too much memory.
+For these cases, you can get the payload as an `InputStream`:
 
 [source,java]
 ----
@@ -144,6 +144,8 @@ public interface APIClient extends HttpClient {
     InputStream getData();
 }
 ----
+
+TIP: You can use the `Response` wrapper, or not.
 
 ===
 

@@ -6,20 +6,28 @@ This document explains how Asciidoctor is used in the context of Talend Componen
 
 For general guidelines about Asciidoctor, refer to the https://asciidoctor.org/docs/asciidoc-syntax-quick-reference[Asciidoc Syntax quick reference] page.
 
+== How to contribute
+
+There are two ways for external contributors to suggest modifications or new content. Both of options below require you to have a GitHub account created.
+
+* On every page of the *Talend Component Kit* Developer Guide, a *Suggest and edit* button is available. It allows to access the corresponding source file on GitHub and to create a pull request with the suggested edits. The pull request is then assessed by the team in charge of the project.
+
+* Fork the https://github.com/talend/component-runtime[Runtime] repository of the *Talend Component Kit* project and edit .adoc files located under `documentation\src\main\antora\modules\ROOT\pages`. Make sure to follow the guidelines outlined in the current document, especially for large modifications or new content, to make sure it can properly be rendered. When done, create a pull request that will be assessed by the team in charge of the project.
+
 == General organization guidelines
 
 The documentation is made of:
 
-- Documentation files manually are written under  `Documentation\src\main\antora\modules\ROOT\pages`.
-- Documentation files automatically generated from the source code under `Documentation\src\main\antora\modules\ROOT\pages\_partials`. These files are individually called in manually written files through includes.
-- Assets, especially images, stored in the `Documentation\src\main\antora\modules\ROOT\assets` folder. Some subfolders exist to categorize the assets.
+- Documentation files manually are written under  `documentation\src\main\antora\modules\ROOT\pages`.
+- Documentation files automatically generated from the source code under `documentation\src\main\antora\modules\ROOT\pages\_partials`. These files are individually called in manually written files through includes.
+- Assets, especially images, stored in the `documentation\src\main\antora\modules\ROOT\assets` folder. Some subfolders exist to categorize the assets.
 
 Each file has a unique name and is rendered as a unique HTML page.
-Some of the files are prefixed to halp identifying the type of content it contains. Most common examples are:
+Some of the files are prefixed to help identifying the type of content it contains. Most common examples are:
 
 - `index-` for pages referenced from the main index page. These pages also contain specific attributes to be correctly rendered on the main index page (see 'List of metadata attributes' below).
-- `tutorial_` for tutorials/guided examples.
-_ `generated_` for pages generated from the source code. These pages are generally stored in the '_partials' folder.
+- `tutorial-` for tutorials/guided examples.
+- `generated_` for pages generated from the source code. These pages are generally stored in the `_partials` folder.
 
 == List of metadata attributes
 
@@ -62,6 +70,47 @@ To avoid this, it is possible to define some conditionality to have some content
 
 == Content
 
+=== Page and section levels
+
+Every .adoc file can only contain one 'level 1' title (`=`), located at the top of the page.
+It is a best practices that all sublevels added to the document should be kept consistent. For example, don't use a 'level 3' (`===`) section directly inside a 'level 1'.
+
+[source]
+----
+= Document title
+  == Section 1 title
+    === Section 2 title
+    === Section 2 title
+      ==== Section 3 title
+      ==== Section 3 title
+  == Section 1 title
+  == Section 1 title
+----
+
+When possible, avoid going lower than section 2 (`===`) to keep the page readable.
+In the HTML output, document title is rendered as <h1>, section 1 title as <h2>, etc.
+The "in-page" navigation available on the right side of the HTML rendering only considers <h2> and <h3> elements. Other levels are ignored to keep the navigation readable and simple.
+
+=== Reusing content with includes
+
+It is possible to reuse content through "includes". Includes can be user to reuse entire files in other files, allowing to avoid copy pasting.
+
+When using an 'include' (calling an .adoc file from another .adoc file), you can specify a level offset. Avoid using includes if not absolutely necessary. If the case happens, remember the above note to think about the rendering.
+An include can be done as follows:
+
+[source]
+----
+= Document title
+
+\include::doc1.adoc[leveloffset=+1]
+
+\include::doc2.adoc[leveloffset=+1]
+----
+
+In this case, both doc1.adoc and doc2.adoc are rendered in the same page and their content is offset by one level, meaning that the document title of doc1 becomes a <h2> instead of an <h1> in the final rendering, and so on.
+
+Note that both doc1.adoc and doc2.adoc will in addition be rendered as standalone pages (doc1.html and doc2.html).
+
 === Adding images
 
 All images are stored under documentation > src > main > antora > modules > ROOT > assets > images.
@@ -74,7 +123,7 @@ If there is no subfolder, type the image name right away.
 Adding an image title is mandatory to avoid empty broken spaces in the content.
 If necessary, you can add more parameters separated by a comma between the same brackets as the image title, such as the desired width, height, etc.
 
-NOTE: use values in % for image size. For example; `\image:landscape.png[Landscape,70%]`
+NOTE: Use values in % for image size. For example; `\image:landscape.png[Landscape,70%]`
 
 === Tables
 
@@ -133,8 +182,9 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 Some *bold* or _italic_ or `command` to highlight specific parts of the content
 
-.Some code block (remove the extra \ characters)
+.Some code block
 [source]
+\\ remove the extra '\' characters
 \----
 some code
 for my
