@@ -51,6 +51,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -194,8 +195,12 @@ public class ComponentValidator extends BaseTask {
 
     private void validateLocalConfiguration(final Collection<Class<?>> components, final AnnotationFinder finder,
             final Set<String> errors) {
-        final String family =
-                components.stream().map(c -> findFamily(components(c).orElse(null), c)).findFirst().orElse("");
+        final String family = components
+                .stream()
+                .map(c -> findFamily(components(c).orElse(null), c))
+                .findFirst()
+                .map(s -> s.toLowerCase(Locale.ROOT))
+                .orElse("");
 
         // first check TALEND-INF/local-configuration.properties
         errors.addAll(Stream
@@ -209,8 +214,11 @@ public class ComponentValidator extends BaseTask {
                     } catch (final IOException e) {
                         throw new IllegalStateException(e);
                     }
-                    return properties.stringPropertyNames().stream().filter(it -> !it.startsWith(family + ".")).map(
-                            it -> "'" + it + "' does not start with '" + family + "', "
+                    return properties
+                            .stringPropertyNames()
+                            .stream()
+                            .filter(it -> !it.toLowerCase(Locale.ROOT).startsWith(family + "."))
+                            .map(it -> "'" + it + "' does not start with '" + family + "', "
                                     + "it is recommended to prefix all keys by the family");
                 })
                 .collect(toSet()));
@@ -222,7 +230,8 @@ public class ComponentValidator extends BaseTask {
                 .map(d -> {
                     final DefaultValue annotation = d.getAnnotation(DefaultValue.class);
                     if (annotation.value().startsWith("local_configuration:")
-                            && !annotation.value().startsWith("local_configuration:" + family + ".")) {
+                            && !annotation.value().toLowerCase(Locale.ROOT).startsWith(
+                                    "local_configuration:" + family + ".")) {
                         return d + " does not start with family name (followed by a dot): '" + family + "'";
                     }
                     return null;
