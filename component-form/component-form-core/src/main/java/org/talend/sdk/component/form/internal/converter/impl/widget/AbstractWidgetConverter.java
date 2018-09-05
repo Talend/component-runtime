@@ -147,6 +147,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         schema.setKey(ctx.getProperty().getPath());
         schema.setRequired(ctx.isRequired());
         schema.setPlaceholder(ctx.getProperty().getPlaceholder());
+        schema.setDescription(ctx.getProperty().getMetadata().get("documentation::value"));
         if (actions != null) {
             final List<UiSchema.Trigger> triggers = Stream
                     .concat(Stream.concat(createValidationTrigger(ctx.getProperty()),

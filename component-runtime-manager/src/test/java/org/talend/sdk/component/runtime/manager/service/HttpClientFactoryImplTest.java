@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -245,8 +246,8 @@ public class HttpClientFactoryImplTest {
         final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
         server.createContext("/").setHandler(httpExchange -> {
             final String query = httpExchange.getRequestURI().getQuery();
-            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, query.getBytes("utf-8").length);
-            httpExchange.getResponseBody().write(query.getBytes("utf-8"));
+            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, query.getBytes(StandardCharsets.UTF_8).length);
+            httpExchange.getResponseBody().write(query.getBytes(StandardCharsets.UTF_8));
             httpExchange.close();
         });
         try {
@@ -275,6 +276,15 @@ public class HttpClientFactoryImplTest {
         Response<byte[]> doRequest(@Path(value = "userId") String id);
     }
 
+    interface RawClient extends HttpClient {
+
+        @Request(path = "/api/{userId}")
+        Response<InputStream> doRequest(@Path(value = "userId") String id);
+
+        @Request(path = "/api/{userId}")
+        InputStream doRequestNoWrapper(@Path(value = "userId") String id);
+    }
+
     @Test
     void pathPlaceholder() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
@@ -290,17 +300,42 @@ public class HttpClientFactoryImplTest {
     }
 
     @Test
+    void rawClient() throws IOException {
+        final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
+        try {
+            server.start();
+            final RawClient httpClient = newDefaultFactory().create(RawClient.class, null);
+            httpClient.base("http://localhost:" + server.getAddress().getPort());
+            {
+                final Response<InputStream> response = httpClient.doRequest("ABC123");
+                assertEquals("GET@Connection=keep-alive@/api/ABC123@",
+                        new BufferedReader(new InputStreamReader(response.body(), StandardCharsets.UTF_8))
+                                .lines()
+                                .collect(joining("\n")));
+            }
+            {
+                final InputStream response = httpClient.doRequestNoWrapper("ABC123");
+                assertEquals("GET@Connection=keep-alive@/api/ABC123@",
+                        new BufferedReader(new InputStreamReader(response, StandardCharsets.UTF_8)).lines().collect(
+                                joining("\n")));
+            }
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
     void requestGeneric() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
-            HashMap<String, String> headers = new HashMap<String, String>() {
+            final Map<String, String> headers = new HashMap<String, String>() {
 
                 {
                     put("Content-type", "application/json");
                 }
             };
 
-            HashMap<String, String> queries = new HashMap<String, String>() {
+            final Map<String, String> queries = new HashMap<String, String>() {
 
                 {
                     put("param", "value to be encoded");
@@ -342,7 +377,7 @@ public class HttpClientFactoryImplTest {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
         try {
             server.start();
-            HashMap<String, String> queries = new HashMap<String, String>() {
+            final Map<String, String> queries = new HashMap<String, String>() {
 
                 {
                     put("param", "value v2");

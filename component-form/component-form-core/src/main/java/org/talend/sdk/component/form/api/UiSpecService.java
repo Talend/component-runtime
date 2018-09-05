@@ -45,6 +45,7 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -57,6 +58,9 @@ public class UiSpecService<T> implements AutoCloseable {
     private final boolean closeJsonb;
 
     private final Collection<CustomPropertyConverter> customPropertyConverters = new ArrayList<>();
+
+    @Setter // optional config, false by default until it is on by default in the UI
+    private PropertyContext.Configuration configuration = new PropertyContext.Configuration(false);
 
     public UiSpecService(final Client client) {
         this.client = client;
@@ -148,7 +152,7 @@ public class UiSpecService<T> implements AutoCloseable {
                 .setRequired(props
                         .stream()
                         .filter(isRootProperty)
-                        .filter(p -> new PropertyContext<>(p, context).isRequired())
+                        .filter(p -> new PropertyContext<>(p, context, configuration).isRequired())
                         .map(SimplePropertyDefinition::getName)
                         .collect(toSet()));
 
@@ -163,7 +167,7 @@ public class UiSpecService<T> implements AutoCloseable {
                         .stream()
                         .filter(Objects::nonNull)
                         .filter(isRootProperty)
-                        .map(it -> new PropertyContext<>(it, context))
+                        .map(it -> new PropertyContext<>(it, context, configuration))
                         .map(CompletionStages::toStage)
                         .map(jsonSchemaConverter::convert)
                         .map(uiSchemaConverter::convert)

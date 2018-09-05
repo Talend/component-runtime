@@ -45,6 +45,9 @@ import org.talend.sdk.component.proxy.service.qualifier.UiSpecProxy;
 @CacheDefaults(cacheResolverFactory = CacheResolverManager.class, cacheKeyGenerator = ProxyCacheKeyGenerator.class)
 public class ValidationServiceImpl implements ValidationService {
 
+    private static final PropertyContext.Configuration LIGHT_CONTEXT_CONFIGURATION =
+            new PropertyContext.Configuration(false);
+
     @Inject
     private ConfigurationClient configurations;
 
@@ -79,7 +82,7 @@ public class ValidationServiceImpl implements ValidationService {
                             .stream()
                             .filter(Objects::nonNull)
                             .filter(p -> p.getName().equals(p.getPath()))
-                            .map(it -> new PropertyContext<>(it, context))
+                            .map(it -> new PropertyContext<>(it, context, LIGHT_CONTEXT_CONFIGURATION))
                             .map(CompletionStages::toStage)
                             .map(converter::convert)
                             .toArray(CompletableFuture[]::new))
