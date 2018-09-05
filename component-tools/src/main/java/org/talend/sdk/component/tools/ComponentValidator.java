@@ -32,7 +32,9 @@ import static org.talend.sdk.component.runtime.manager.reflect.Constructors.find
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -59,6 +61,7 @@ import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.action.Proposable;
+import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
@@ -74,6 +77,7 @@ import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
@@ -397,6 +401,23 @@ public class ComponentValidator extends BaseTask {
                 errors.add("No resource bundle for " + i);
             }
         }
+
+        errors.addAll(getActionsStream().flatMap(action -> finder.findAnnotatedMethods(action).stream()).map(action -> {
+            final Annotation actionAnnotation = Stream
+                    .of(action.getAnnotations())
+                    .filter(a -> a.annotationType().isAnnotationPresent(ActionType.class))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("No action annotation on " + action));
+            final String key;
+            try {
+                final Class<? extends Annotation> annotationType = actionAnnotation.annotationType();
+                key = "actions.${family}." + annotationType.getAnnotation(ActionType.class).value() + "."
+                        + annotationType.getMethod("value").invoke(actionAnnotation).toString() + "._displayName";
+            } catch (final IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                return null;
+            }
+            return validateFamilyI18nKey(action.getDeclaringClass(), key);
+        }).filter(Objects::nonNull).collect(toSet()));
     }
 
     private void validateHttpClient(final AnnotationFinder finder, final Set<String> errors) {
@@ -616,21 +637,18 @@ public class ComponentValidator extends BaseTask {
 
     private void validateActions(final AnnotationFinder finder, final Set<String> errors) {
         // returned types
-        errors.addAll(of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class,
-                Suggestions.class).flatMap(action -> {
-                    final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
-                    final List<Method> annotatedMethods = finder.findAnnotatedMethods(action);
-                    return Stream.concat(
-                            annotatedMethods
-                                    .stream()
-                                    .filter(m -> !returnedType.isAssignableFrom(m.getReturnType()))
-                                    .map(m -> m + " doesn't return a " + returnedType + ", please fix it"),
-                            annotatedMethods
-                                    .stream()
-                                    .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class)
-                                            && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
-                                    .map(m -> m + " is not declared into a service class"));
-                }).sorted().collect(toSet()));
+        errors.addAll(getActionsStream().flatMap(action -> {
+            final Class<?> returnedType = action.getAnnotation(ActionType.class).expectedReturnedType();
+            final List<Method> annotatedMethods = finder.findAnnotatedMethods(action);
+            return Stream.concat(
+                    annotatedMethods.stream().filter(m -> !returnedType.isAssignableFrom(m.getReturnType())).map(
+                            m -> m + " doesn't return a " + returnedType + ", please fix it"),
+                    annotatedMethods
+                            .stream()
+                            .filter(m -> !m.getDeclaringClass().isAnnotationPresent(Service.class)
+                                    && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
+                            .map(m -> m + " is not declared into a service class"));
+        }).sorted().collect(toSet()));
 
         // parameters for @DynamicValues
         errors.addAll(finder
@@ -656,6 +674,22 @@ public class ComponentValidator extends BaseTask {
                 .stream()
                 .filter(m -> countParameters(m) != 1 || !m.getParameterTypes()[0].isAnnotationPresent(DataSet.class))
                 .map(m -> m + " should have its first parameter being a dataset (marked with @Config)")
+                .sorted()
+                .collect(toSet()));
+
+        // returned type for @Update, for now limit it on objects and not primitives
+        errors.addAll(finder
+                .findAnnotatedMethods(Update.class)
+                .stream()
+                .filter(m -> isPrimitiveLike(m.getReturnType()))
+                .map(m -> m + " should return an object")
+                .sorted()
+                .collect(toSet()));
+        errors.addAll(finder
+                .findAnnotatedFields(Updatable.class)
+                .stream()
+                .filter(f -> isPrimitiveLike(f.getType()))
+                .map(f -> "@Updatable should not be used on primitives: " + f)
                 .sorted()
                 .collect(toSet()));
 
@@ -688,6 +722,15 @@ public class ComponentValidator extends BaseTask {
                 .collect(toSet()));
     }
 
+    private Stream<Class<? extends Annotation>> getActionsStream() {
+        return of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class,
+                Suggestions.class, Update.class);
+    }
+
+    private boolean isPrimitiveLike(final Class<?> type) {
+        return type.isPrimitive() || type == String.class;
+    }
+
     private int countParameters(final Method m) {
         return countParameters(m.getParameters());
     }
@@ -709,7 +752,7 @@ public class ComponentValidator extends BaseTask {
         final Collection<String> missingKeys =
                 of("_displayName").map(n -> prefix + "." + n).filter(k -> !bundle.containsKey(k)).collect(toList());
         if (!missingKeys.isEmpty()) {
-            return baseName + " is missing the key(s): " + missingKeys.stream().collect(joining("\n"));
+            return baseName + " is missing the key(s): " + String.join("\n", missingKeys);
         }
         return null;
     }
@@ -750,13 +793,5 @@ public class ComponentValidator extends BaseTask {
         private boolean validateLayout;
 
         private boolean validateOptionNames;
-    }
-
-    @Data
-    private static class InputWithDataSet {
-
-        private final Collection<ParameterMeta> datasets;
-
-        private final Map.Entry<Class<?>, Collection<ParameterMeta>> input;
     }
 }

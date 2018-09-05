@@ -23,8 +23,36 @@ import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Suggestable;
+import org.talend.sdk.component.api.configuration.action.Updatable;
 
 class ActionParameterEnricherTest {
+
+    @Test
+    void update() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::action::update", "test");
+                put("tcomp::action::update::parameters", ".,foo,/bar/dummy");
+            }
+        }, new ActionParameterEnricher().onParameterAnnotation("testParam", String.class, new Updatable() {
+
+            @Override
+            public String value() {
+                return "test";
+            }
+
+            @Override
+            public String[] parameters() {
+                return new String[] { ".", "foo", "/bar/dummy" };
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Updatable.class;
+            }
+        }));
+    }
 
     @Test
     void suggestion() {

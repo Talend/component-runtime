@@ -85,9 +85,17 @@ Mark a method as being useful to fill potential values of a string option. You c
 ----
 
 
+= Update
+
+This class marks an action returning a new instance replacing part of a form/configuration.
+
+- Type: `update`
+- API: `@org.talend.sdk.component.api.service.update.Update`
+
+
 = User
 
--
+Extension point for custom UI integrations and custom actions.
 
 - Type: `user`
 - API: `@org.talend.sdk.component.api.service.Action`
@@ -95,7 +103,9 @@ Mark a method as being useful to fill potential values of a string option. You c
 
 = Validation
 
-Mark a method as being used to validate a configuration. IMPORTANT: this is a server validation so only use it if you can't use other client side validation to implement it.
+Mark a method as being used to validate a configuration.
+
+IMPORTANT: this is a server validation so only use it if you can't use other client side validation to implement it.
 
 - Type: `validation`
 - API: `@org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation`

@@ -188,7 +188,7 @@ public class ConfigurationTypeResource {
                         .configurationDisplayName(c.getKey().getConfigType(), c.getKey().getConfigName())
                         .orElse(c.getKey().getConfigName()));
                 if (!lightPayload) {
-                    node.setActions(actionsService.findActions(family, container, locale, c));
+                    node.setActions(actionsService.findActions(family, container, locale, c, resourcesBundle));
 
                     // force configuration as root prefix
                     final int prefixLen = c.getMeta().getPath().length();

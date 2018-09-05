@@ -52,7 +52,7 @@ public class UiSchema {
 
     private Boolean readOnly;
 
-    private Boolean required;
+    private Boolean required; // warn: the uischema parsing handles it but it is preferred to use jsonSchema syntax
 
     private Boolean restricted;
 

@@ -439,8 +439,8 @@ public class ComponentResource {
                     componentDetail.setProperties(propertiesService
                             .buildProperties(meta.getParameterMetas(), container.getLoader(), locale, null)
                             .collect(toList()));
-                    componentDetail.setActions(
-                            actionsService.findActions(meta.getParent().getName(), container, locale, meta));
+                    componentDetail.setActions(actionsService.findActions(meta.getParent().getName(), container, locale,
+                            meta, meta.getParent().findBundle(container.getLoader(), locale)));
 
                     return componentDetail;
                 }).filter(Objects::nonNull).collect(toList());

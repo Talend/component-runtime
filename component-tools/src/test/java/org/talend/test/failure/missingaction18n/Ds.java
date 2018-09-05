@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,26 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+package org.talend.test.failure.missingaction18n;
 
-import java.util.Collection;
+import java.io.Serializable;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.talend.sdk.component.api.configuration.action.Checkable;
+import org.talend.sdk.component.api.configuration.type.DataStore;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ActionReference {
-
-    private String family;
-
-    private String name;
-
-    private String type;
-
-    private String displayName;
-
-    private Collection<SimplePropertyDefinition> properties;
+@Checkable
+@DataStore("Ds")
+public class Ds implements Serializable {
 }

@@ -303,8 +303,15 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage(value = "org.talend.test.failure.missingaction18n")
+    void testMissingActionI18n(final ExceptionSpec spec) {
+        spec.expectMessage("org.talend.test.failure.missingaction18n.Messages is missing the key(s): "
+                + "actions.demo.healthcheck.default._displayName");
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.valid.datastore", success = true)
-    void testSucessDataStore() {
+    void testSuccessDataStore() {
         // no-op
     }
 

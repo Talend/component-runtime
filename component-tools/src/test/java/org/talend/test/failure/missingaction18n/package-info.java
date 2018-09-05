@@ -13,26 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+@Components(family = "demo")
+@Icon(Icon.IconType.DEFAULT)
+package org.talend.test.failure.missingaction18n;
 
-import java.util.Collection;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ActionReference {
-
-    private String family;
-
-    private String name;
-
-    private String type;
-
-    private String displayName;
-
-    private Collection<SimplePropertyDefinition> properties;
-}
+import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.Icon;

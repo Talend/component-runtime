@@ -1,0 +1,76 @@
+{
+  "configurationType": "dataset",
+  "displayName": "UpdatableDataSet",
+  "edges": [],
+  "id": "update-id",
+  "name": "UpdatableDataSet",
+  "version": -1,
+  "actions": [
+    {
+      "family": "test",
+      "name": "guessMe",
+      "type": "update",
+      "properties": [
+        {
+          "displayName": "arg0",
+          "name": "arg0",
+          "path": "arg0",
+          "placeholder": "arg0",
+          "type": "STRING",
+          "metadata": {
+            "definition::parameter::index": "0"
+          }
+        }
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "displayName": "root",
+      "name": "root",
+      "path": "root",
+      "type": "OBJECT",
+      "metadata": {
+        "configurationtype::type": "dataset",
+        "configurationtype::name": "updateble-ds",
+        "ui::gridlayout::Main::value": "datastore|updatable_config"
+      }
+    },
+    {
+      "displayName": "datastore",
+      "name": "datastore",
+      "path": "root.datastore",
+      "type": "OBJECT",
+      "metadata": {
+        "ui::gridlayout::Main::value": "name"
+      }
+    },
+    {
+      "displayName": "Name",
+      "name": "name",
+      "path": "root.datastore.name",
+      "type": "STRING",
+      "metadata": {},
+      "validation": {}
+    },
+    {
+      "displayName": "updatable_config",
+      "name": "updatable_config",
+      "path": "root.updatable_config",
+      "type": "OBJECT",
+      "metadata": {
+        "ui::gridlayout::Main::value": "name",
+        "action::update": "guessMe",
+        "action::update::parameters": "."
+      }
+    },
+    {
+      "displayName": "Name",
+      "name": "name",
+      "path": "root.updatable_config.name",
+      "type": "STRING",
+      "metadata": {},
+      "validation": {}
+    }
+  ]
+}

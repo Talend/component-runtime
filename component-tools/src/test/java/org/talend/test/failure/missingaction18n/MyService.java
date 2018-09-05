@@ -13,26 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model;
+package org.talend.test.failure.missingaction18n;
 
-import java.util.Collection;
+import java.io.Serializable;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ActionReference {
+@Service
+public class MyService implements Serializable {
 
-    private String family;
-
-    private String name;
-
-    private String type;
-
-    private String displayName;
-
-    private Collection<SimplePropertyDefinition> properties;
+    @HealthCheck
+    public HealthCheckStatus test(final Ds datastore) {
+        return null;
+    }
 }
