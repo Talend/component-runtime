@@ -389,7 +389,7 @@ public class RequestParser {
 
     private static class QueryParamsProvider implements Function<Object[], Map<String, String>> {
 
-        private final Map<Integer, Encodable> queries = new HashMap<>();
+        private final Map<Integer, Encodable> queries = new LinkedHashMap<>();
 
         @Override
         public Map<String, String> apply(final Object[] args) {
@@ -422,7 +422,7 @@ public class RequestParser {
 
     private static class HeadersProvider implements Function<Object[], Map<String, String>> {
 
-        private final Map<Integer, String> headers = new HashMap<>();
+        private final Map<Integer, String> headers = new LinkedHashMap<>();
 
         @Override
         public Map<String, String> apply(final Object[] args) {
@@ -447,7 +447,7 @@ public class RequestParser {
     @RequiredArgsConstructor
     private static class PathProvider implements BiFunction<String, Object[], String> {
 
-        private final Map<Integer, Encodable> pathParams = new HashMap<>();
+        private final Map<Integer, Encodable> pathParams = new LinkedHashMap<>();
 
         /**
          * @param original : string with placeholders

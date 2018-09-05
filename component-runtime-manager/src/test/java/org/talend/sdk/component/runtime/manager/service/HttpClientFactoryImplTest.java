@@ -62,6 +62,7 @@ import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.api.service.http.Response;
 import org.talend.sdk.component.api.service.http.Url;
 import org.talend.sdk.component.api.service.http.UseConfigurer;
+import org.talend.sdk.component.api.service.http.configurer.oauth1.OAuth1;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
@@ -70,7 +71,36 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-public class HttpClientFactoryImplTest {
+class HttpClientFactoryImplTest {
+
+    @Test
+    void oauth1() throws IOException {
+        final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
+        try {
+            server.start();
+            final OAuth1Client client =
+                    newDefaultFactory().create(OAuth1Client.class, "http://localhost:" + server.getAddress().getPort());
+            final String result = client.call(OAuth1.Configuration
+                    .builder()
+                    .consumerKey("efrzfrf")
+                    .consumerSecret("frzfrgtgt")
+                    .token("gertgteg")
+                    .tokenSecret("frzeefezfrf")
+                    .timestamp(1736297329L)
+                    .nonce("firjfirjiefjpfr")
+                    .build());
+            assertTrue(result.startsWith("GET@Authorization=OAuth oauth_consumer_key=\"efrzfrf\", "
+                    + "oauth_nonce=\"firjfirjiefjpfr\", oauth_signature=\""));
+            // signature changes cause we have a dynamic port so don't test it
+            assertTrue(result
+                    .trim()
+                    .endsWith("oauth_signature_method=\"HMAC-SHA1\", "
+                            + "oauth_timestamp=\"1736297329\", oauth_token=\"gertgteg\", "
+                            + "oauth_version=\"1.0\"/Connection=keep-alive@/1.1/statuses/user_timeline.json@"));
+        } finally {
+            server.stop(0);
+        }
+    }
 
     @Test
     void ok() {
@@ -276,15 +306,6 @@ public class HttpClientFactoryImplTest {
         Response<byte[]> doRequest(@Path(value = "userId") String id);
     }
 
-    interface RawClient extends HttpClient {
-
-        @Request(path = "/api/{userId}")
-        Response<InputStream> doRequest(@Path(value = "userId") String id);
-
-        @Request(path = "/api/{userId}")
-        InputStream doRequestNoWrapper(@Path(value = "userId") String id);
-    }
-
     @Test
     void pathPlaceholder() throws IOException {
         final HttpServer server = createTestServer(HttpURLConnection.HTTP_OK);
@@ -392,31 +413,6 @@ public class HttpClientFactoryImplTest {
         }
     }
 
-    private interface GenericClient extends HttpClient {
-
-        @Request
-        @UseConfigurer(value = MonConfigurer.class)
-        Response<byte[]> execute(@ConfigurerOption("readTimeout") Integer readTimeout,
-                @ConfigurerOption("connectionTimeout") Integer connectionTimeout, @Url String url,
-                @HttpMethod String method,
-                @org.talend.sdk.component.api.service.http.Headers Map<String, String> headers,
-                @QueryParams Map<String, String> queryParams, String payload);
-
-        @Request(method = "PUT", path = "/ignored")
-        Response<byte[]> doNotEncodeQueryParams(@Url String url,
-                @QueryParams(encode = false) Map<String, String> queryParams);
-
-        class MonConfigurer implements Configurer {
-
-            @Override
-            public void configure(final Connection connection, final ConfigurerConfiguration configuration) {
-                connection.withHeader("Authorization", "Basic ABCD");
-                connection.withReadTimeout(configuration.get("readTimeout", Integer.class));
-                connection.withConnectionTimeout(configuration.get("connectionTimeout", Integer.class));
-            }
-        }
-    }
-
     private HttpClientFactoryImpl newDefaultFactory() {
         return new HttpClientFactoryImpl("test", new ReflectionService(new ParameterModelService()),
                 JsonbBuilder.create(), emptyMap());
@@ -450,6 +446,47 @@ public class HttpClientFactoryImplTest {
         });
 
         return server;
+    }
+
+    public interface OAuth1Client extends HttpClient {
+
+        @Request(path = "/1.1/statuses/user_timeline.json")
+        @UseConfigurer(OAuth1.class)
+        String call(@ConfigurerOption("oauth1") final OAuth1.Configuration configuration);
+    }
+
+    interface RawClient extends HttpClient {
+
+        @Request(path = "/api/{userId}")
+        Response<InputStream> doRequest(@Path(value = "userId") String id);
+
+        @Request(path = "/api/{userId}")
+        InputStream doRequestNoWrapper(@Path(value = "userId") String id);
+    }
+
+    private interface GenericClient extends HttpClient {
+
+        @Request
+        @UseConfigurer(value = MonConfigurer.class)
+        Response<byte[]> execute(@ConfigurerOption("readTimeout") Integer readTimeout,
+                @ConfigurerOption("connectionTimeout") Integer connectionTimeout, @Url String url,
+                @HttpMethod String method,
+                @org.talend.sdk.component.api.service.http.Headers Map<String, String> headers,
+                @QueryParams Map<String, String> queryParams, String payload);
+
+        @Request(method = "PUT", path = "/ignored")
+        Response<byte[]> doNotEncodeQueryParams(@Url String url,
+                @QueryParams(encode = false) Map<String, String> queryParams);
+
+        class MonConfigurer implements Configurer {
+
+            @Override
+            public void configure(final Connection connection, final ConfigurerConfiguration configuration) {
+                connection.withHeader("Authorization", "Basic ABCD");
+                connection.withReadTimeout(configuration.get("readTimeout", Integer.class));
+                connection.withConnectionTimeout(configuration.get("connectionTimeout", Integer.class));
+            }
+        }
     }
 
     public interface ComplexOk extends HttpClient {
