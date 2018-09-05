@@ -24,9 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.sdk.component.api.configuration.type.meta.ConfigurationType;
-import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
-public class ConfigurationTypeParameterEnricher implements ParameterExtensionEnricher {
+public class ConfigurationTypeParameterEnricher extends BaseParameterEnricher {
 
     public static final String META_PREFIX = "tcomp::configurationtype::";
 

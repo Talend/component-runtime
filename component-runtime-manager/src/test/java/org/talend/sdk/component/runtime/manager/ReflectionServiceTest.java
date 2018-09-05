@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
@@ -51,6 +52,8 @@ import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.test.MethodsHolder;
 
@@ -394,8 +397,10 @@ class ReflectionServiceTest {
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param)
             throws NoSuchMethodException {
         final Constructor<FakeComponent> constructor = FakeComponent.class.getConstructor(param);
-        return reflectionService.parameterFactory(constructor, emptyMap(), parameterModelService
-                .buildParameterMetas(constructor, constructor.getDeclaringClass().getPackage().getName()));
+        return reflectionService.parameterFactory(constructor, emptyMap(),
+                parameterModelService.buildParameterMetas(constructor,
+                        constructor.getDeclaringClass().getPackage().getName(),
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test"))));
     }
 
     @Data

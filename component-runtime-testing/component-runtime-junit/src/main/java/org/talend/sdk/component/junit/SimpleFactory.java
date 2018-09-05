@@ -16,6 +16,7 @@
 package org.talend.sdk.component.junit;
 
 import static java.lang.Character.toUpperCase;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparing;
@@ -34,6 +35,8 @@ import java.util.stream.Collectors;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.configuration.ConfigurationMapper;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -57,7 +60,8 @@ public class SimpleFactory {
 
         private ParameterMeta build(final String name, final String prefix, final Type genericType,
                 final Annotation[] annotations, final Collection<String> i18nPackages) {
-            return super.buildParameter(name, prefix, null, genericType, annotations, i18nPackages, false);
+            return super.buildParameter(name, prefix, null, genericType, annotations, i18nPackages, false,
+                    new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         }
     }
 

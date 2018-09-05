@@ -28,9 +28,8 @@ import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.configuration.action.meta.ActionRef;
 import org.talend.sdk.component.api.service.ActionType;
-import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
-public class ActionParameterEnricher implements ParameterExtensionEnricher {
+public class ActionParameterEnricher extends BaseParameterEnricher {
 
     public static final String META_PREFIX = "tcomp::action::";
 

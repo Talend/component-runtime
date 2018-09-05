@@ -60,6 +60,18 @@ class LocalConfigurationServiceTest {
     }
 
     @Test
+    void readGlobal() {
+        System.setProperty("test.foo.LocalConfigurationServiceTest", "1");
+        try {
+            assertEquals("1",
+                    new LocalConfigurationService(singletonList(systemProperties), "LocalConfigurationServiceTest")
+                            .get("test.foo.LocalConfigurationServiceTest"));
+        } finally {
+            System.clearProperty("test.foo.LocalConfigurationServiceTest");
+        }
+    }
+
+    @Test
     void keys() {
         System.setProperty("LocalConfigurationServiceTest.test.foo", "1");
         System.setProperty("LocalConfigurationServiceTest.test.bar", "1");

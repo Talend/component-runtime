@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.tools;
 
+import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -30,7 +31,11 @@ import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.ENUM;
 import static org.talend.sdk.component.runtime.manager.ParameterMeta.Type.OBJECT;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -48,6 +53,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
@@ -64,6 +70,7 @@ import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -80,6 +87,8 @@ import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
 import org.talend.sdk.component.runtime.visitor.ModelVisitor;
@@ -165,11 +174,15 @@ public class ComponentValidator extends BaseTask {
         }
 
         if (configuration.isValidateLayout()) {
-            validateLayout(finder, components, errors);
+            validateLayout(components, errors);
         }
 
         if (configuration.isValidateOptionNames()) {
             validateOptionNames(finder, errors);
+        }
+
+        if (configuration.isValidateLocalConfiguration()) {
+            validateLocalConfiguration(components, finder, errors);
         }
 
         if (!errors.isEmpty()) {
@@ -179,13 +192,52 @@ public class ComponentValidator extends BaseTask {
         }
     }
 
-    private void validateLayout(final AnnotationFinder finder, final List<Class<?>> components,
+    private void validateLocalConfiguration(final Collection<Class<?>> components, final AnnotationFinder finder,
             final Set<String> errors) {
+        final String family =
+                components.stream().map(c -> findFamily(components(c).orElse(null), c)).findFirst().orElse("");
+
+        // first check TALEND-INF/local-configuration.properties
+        errors.addAll(Stream
+                .of(classes)
+                .map(root -> new File(root, "TALEND-INF/local-configuration.properties"))
+                .filter(File::exists)
+                .flatMap(props -> {
+                    final Properties properties = new Properties();
+                    try (final InputStream stream = new BufferedInputStream(new FileInputStream(props))) {
+                        properties.load(stream);
+                    } catch (final IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                    return properties.stringPropertyNames().stream().filter(it -> !it.startsWith(family + ".")).map(
+                            it -> "'" + it + "' does not start with '" + family + "', "
+                                    + "it is recommended to prefix all keys by the family");
+                })
+                .collect(toSet()));
+
+        // then check the @DefaultValue annotation
+        errors.addAll(Stream
+                .concat(finder.findAnnotatedFields(DefaultValue.class).stream(),
+                        finder.findAnnotatedConstructorParameters(DefaultValue.class).stream())
+                .map(d -> {
+                    final DefaultValue annotation = d.getAnnotation(DefaultValue.class);
+                    if (annotation.value().startsWith("local_configuration:")
+                            && !annotation.value().startsWith("local_configuration:" + family + ".")) {
+                        return d + " does not start with family name (followed by a dot): '" + family + "'";
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(toSet()));
+    }
+
+    private void validateLayout(final List<Class<?>> components, final Set<String> errors) {
 
         components
                 .stream()
                 .map(c -> parameterModelService.buildParameterMetas(findConstructor(c),
-                        ofNullable(c.getPackage()).map(Package::getName).orElse("")))
+                        ofNullable(c.getPackage()).map(Package::getName).orElse(""),
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools"))))
                 .flatMap(this::toFlatNonPrimitivConfig)
                 .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue, (p1, p2) -> p1))
                 .entrySet()
@@ -573,9 +625,12 @@ public class ComponentValidator extends BaseTask {
                 .collect(toList()));
 
         // ensure there is always a source with a config matching without user entries each dataset
-        final Map<Class<?>, Collection<ParameterMeta>> inputs = components.stream().filter(this::isSource).collect(
-                toMap(identity(), c -> parameterModelService.buildParameterMetas(findConstructor(c),
-                        ofNullable(c.getPackage()).map(Package::getName).orElse(""))));
+        final Map<Class<?>, Collection<ParameterMeta>> inputs = components
+                .stream()
+                .filter(this::isSource)
+                .collect(toMap(identity(), c -> parameterModelService.buildParameterMetas(findConstructor(c),
+                        ofNullable(c.getPackage()).map(Package::getName).orElse(""),
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "tools")))));
         errors.addAll(datasets
                 .entrySet()
                 .stream()
@@ -793,5 +848,7 @@ public class ComponentValidator extends BaseTask {
         private boolean validateLayout;
 
         private boolean validateOptionNames;
+
+        private boolean validateLocalConfiguration;
     }
 }

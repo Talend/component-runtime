@@ -254,6 +254,21 @@ public class ConfigurableClassLoader extends URLClassLoader {
         return enumeration(aggregated);
     }
 
+    public InputStream findContainedResource(final String name) {
+        return ofNullable(super.findResource(name)).map(u -> {
+            try {
+                return u.openStream();
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        })
+                .orElseGet(() -> ofNullable(resources.get(name))
+                        .filter(s -> s.size() > 0)
+                        .map(s -> s.iterator().next().resource)
+                        .map(ByteArrayInputStream::new)
+                        .orElse(null));
+    }
+
     private URL nestedResourceToURL(final String name, final Resource nestedResource) {
         try {
             return new URL("nested", null, -1, nestedResource.entry + "!/" + name, new Handler(nestedResource));

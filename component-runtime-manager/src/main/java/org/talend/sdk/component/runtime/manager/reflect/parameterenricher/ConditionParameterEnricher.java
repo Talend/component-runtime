@@ -31,9 +31,8 @@ import java.util.stream.Stream;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
 import org.talend.sdk.component.api.configuration.condition.meta.Condition;
-import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
-public class ConditionParameterEnricher implements ParameterExtensionEnricher {
+public class ConditionParameterEnricher extends BaseParameterEnricher {
 
     private static final String META_PREFIX = "tcomp::condition::";
 

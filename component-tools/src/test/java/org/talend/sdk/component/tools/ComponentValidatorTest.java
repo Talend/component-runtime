@@ -126,6 +126,7 @@ class ComponentValidatorTest {
             cfg.setValidateDataStore(true);
             cfg.setValidateLayout(true);
             cfg.setValidateOptionNames(true);
+            cfg.setValidateLocalConfiguration(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
@@ -376,6 +377,19 @@ class ComponentValidatorTest {
     }
 
     @Test
+    @ComponentPackage("org.talend.test.failure.localconfigurationwrongkey")
+    void testFailureLocalConfigurationKey(final ExceptionSpec expectedException) {
+        expectedException.expectMessage(
+                "- 'demo.conf.key' does not start with 'test', it is recommended to prefix all keys by the family");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.localconfiguration", success = true)
+    void testValidLocalConfigurationKey() {
+        // no-op
+    }
+
+    @Test
     @ComponentPackage(value = "org.talend.test.valid", success = true, validateDocumentation = true)
     void testFullValidation() {
         // no-op
@@ -384,12 +398,12 @@ class ComponentValidatorTest {
     // .properties are ok from the classpath, no need to copy them
     private static void listPackageClasses(final File pluginDir, final String sourcePackage) {
         final File root = new File(jarLocation(ComponentValidatorTest.class), sourcePackage);
-        File classDir = new File(pluginDir, sourcePackage);
+        final File classDir = new File(pluginDir, sourcePackage);
         classDir.mkdirs();
         ofNullable(root.listFiles())
                 .map(Stream::of)
                 .orElseGet(Stream::empty)
-                .filter(c -> c.getName().endsWith(".class"))
+                .filter(c -> c.getName().endsWith(".class") || c.getName().endsWith(".properties"))
                 .forEach(c -> {
                     try {
                         Files.copy(c.toPath(), new File(classDir, c.getName()).toPath());
@@ -397,5 +411,16 @@ class ComponentValidatorTest {
                         fail("cant create test plugin");
                     }
                 });
+        final String localConfRelativePath = "TALEND-INF/local-configuration.properties";
+        final File localConfig = new File(root, localConfRelativePath);
+        if (localConfig.exists()) {
+            final File output = new File(pluginDir, localConfRelativePath);
+            output.getParentFile().mkdirs();
+            try {
+                Files.copy(localConfig.toPath(), output.toPath());
+            } catch (final IOException e) {
+                fail("cant create test plugin");
+            }
+        }
     }
 }

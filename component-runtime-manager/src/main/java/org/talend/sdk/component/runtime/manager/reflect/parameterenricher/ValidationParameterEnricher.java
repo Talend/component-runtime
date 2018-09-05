@@ -28,9 +28,8 @@ import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.configuration.constraint.meta.Validation;
 import org.talend.sdk.component.api.configuration.constraint.meta.Validations;
-import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
-public class ValidationParameterEnricher implements ParameterExtensionEnricher {
+public class ValidationParameterEnricher extends BaseParameterEnricher {
 
     public static final String META_PREFIX = "tcomp::validation::";
 

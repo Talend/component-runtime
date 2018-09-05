@@ -36,6 +36,22 @@ See the <<httpclient_usage>> for more details.
 
 IMPORTANT: All these *injected* services are serializable, which is important for big data environments. If you create the instances yourself, you cannot benefit from these features, nor from the memory optimization done by the runtime. Prefer reusing the framework instances over custom ones.
 
+=== LocalConfiguration
+
+The local configuration uses system properties and the environment (replacing dots per underscores) to look up the values.
+You can also put a `TALEND-INF/local-configuration.properties` file with default values. This allows to use the `local_configuration:<key>`
+syntax in `@Ui` annotation. Here is an example to read the default value of a property from the configuration:
+
+[source,java]
+----
+@Option
+@DefaultValue("local_configuration:myfamily.model.key")
+private String value;
+----
+
+IMPORTANT: it is super important to ensure your key is unique accross all component since one usage will be to override
+it globally on the JVM. In practise we recommand you to always use the family as a prefix.
+
 [[httpclient_usage]]
 == Using HttpClient
 

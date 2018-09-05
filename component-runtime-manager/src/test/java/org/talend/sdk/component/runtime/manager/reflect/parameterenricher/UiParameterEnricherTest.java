@@ -15,13 +15,17 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayouts;
@@ -29,6 +33,7 @@ import org.talend.sdk.component.api.configuration.ui.layout.HorizontalLayout;
 import org.talend.sdk.component.api.configuration.ui.widget.Code;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
+import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 
 class UiParameterEnricherTest {
 
@@ -254,5 +259,53 @@ class UiParameterEnricherTest {
                         return OptionsOrder.class;
                     }
                 }));
+    }
+
+    @Test
+    void defaultValue() {
+        assertEquals(singletonMap("tcomp::ui::defaultvalue::value", "foo"),
+                enricher.onParameterAnnotation("testParam", Object.class, new DefaultValue() {
+
+                    @Override
+                    public String value() {
+                        return "foo";
+                    }
+
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return DefaultValue.class;
+                    }
+                }));
+    }
+
+    @Test
+    void defaultValueConfiguration() {
+        assertTrue(enricher.withContext(new BaseParameterEnricher.Context(new LocalConfiguration() {
+
+            @Override
+            public String get(final String key) {
+                return "key=" + key;
+            }
+
+            @Override
+            public Set<String> keys() {
+                return emptySet();
+            }
+        }), () -> {
+            assertEquals(singletonMap("tcomp::ui::defaultvalue::value", "key=foo"),
+                    enricher.onParameterAnnotation("testParam", Object.class, new DefaultValue() {
+
+                        @Override
+                        public String value() {
+                            return "local_configuration:foo";
+                        }
+
+                        @Override
+                        public Class<? extends Annotation> annotationType() {
+                            return DefaultValue.class;
+                        }
+                    }));
+            return true;
+        }));
     }
 }

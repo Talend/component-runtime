@@ -40,8 +40,7 @@ public class LocalConfigurationService implements LocalConfiguration, Serializab
     public String get(final String key) {
         return rawDelegates
                 .stream()
-                .map(d -> ofNullable(d.get(plugin + "." + key))
-                        .orElseGet(() -> d.get(plugin + "_" + key.replace('.', '_'))))
+                .map(d -> ofNullable(read(d, plugin + "." + key)).orElseGet(() -> read(d, key)))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
@@ -55,6 +54,10 @@ public class LocalConfigurationService implements LocalConfiguration, Serializab
                 .filter(k -> k.startsWith(plugin + '.'))
                 .map(k -> k.substring(plugin.length() + 1))
                 .collect(toSet());
+    }
+
+    private String read(final LocalConfiguration d, final String entryKey) {
+        return ofNullable(d.get(entryKey)).orElseGet(() -> d.get(entryKey.replace('.', '_')));
     }
 
     Object writeReplace() throws ObjectStreamException {
