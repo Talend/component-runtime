@@ -163,8 +163,6 @@ public interface APIClient extends HttpClient {
 
 TIP: You can use the `Response` wrapper, or not.
 
-===
-
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
