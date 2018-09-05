@@ -5,7 +5,7 @@ SERVER_VERSION=$(grep "<version>" pom.xml  | head -n 1 | sed "s/.*>\\(.*\\)<.*/\
 DOCKER_IMAGE_VERSION=${DOCKER_IMAGE_VERSION:-$SERVER_VERSION}
 # if snapshot use the date as version
 if [[ "$DOCKER_IMAGE_VERSION" = *"SNAPSHOT" ]]; then
-    DOCKER_IMAGE_VERSION=$(echo $SERVER_VERSION | sed "s/-SNAPSHOT//")_$(date +%Y%m%d%I%M%S)
+    DOCKER_IMAGE_VERSION=$(echo $SERVER_VERSION | sed "s/-SNAPSHOT//")_$(date +%Y%m%d%H%M%S)
 fi
 IMAGE=$(echo "${DOCKER_LOGIN:-tacokit}/component-server:$DOCKER_IMAGE_VERSION")
 DOCKER_TMP_DIR="$(pwd)/target/docker_workdir"
