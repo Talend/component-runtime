@@ -22,7 +22,7 @@ image:tutorial_component_configuration_model.png[Starter,75%]
 
 image:component_kit_web_tester.png[Web tester,75%]
 
-You can find more details about the framework design in xref:design_choices.adoc[this document].
+You can find more details about the framework design in xref:framework_design.adoc[this document].
 
 == Repositories
 
