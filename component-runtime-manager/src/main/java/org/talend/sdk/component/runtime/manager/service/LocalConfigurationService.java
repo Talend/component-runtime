@@ -40,10 +40,15 @@ public class LocalConfigurationService implements LocalConfiguration, Serializab
     public String get(final String key) {
         return rawDelegates
                 .stream()
-                .map(d -> ofNullable(read(d, plugin + "." + key)).orElseGet(() -> read(d, key)))
+                .map(d -> read(d, plugin + "." + key))
                 .filter(Objects::nonNull)
                 .findFirst()
-                .orElse(null);
+                .orElseGet(() -> rawDelegates // fallback on direct keys
+                        .stream()
+                        .map(d -> read(d, key))
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElse(null));
     }
 
     @Override

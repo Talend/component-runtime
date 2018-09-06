@@ -742,18 +742,26 @@ public class ComponentValidator extends BaseTask {
                 .collect(toSet()));
 
         // returned type for @Update, for now limit it on objects and not primitives
-        errors.addAll(finder
-                .findAnnotatedMethods(Update.class)
+        final Map<String, Method> updates = finder.findAnnotatedMethods(Update.class).stream().collect(
+                toMap(m -> m.getAnnotation(Update.class).value(), identity()));
+        errors.addAll(updates
+                .values()
                 .stream()
                 .filter(m -> isPrimitiveLike(m.getReturnType()))
                 .map(m -> m + " should return an object")
                 .sorted()
                 .collect(toSet()));
-        errors.addAll(finder
-                .findAnnotatedFields(Updatable.class)
+        final List<Field> updatableFields = finder.findAnnotatedFields(Updatable.class);
+        errors.addAll(updatableFields
                 .stream()
                 .filter(f -> isPrimitiveLike(f.getType()))
                 .map(f -> "@Updatable should not be used on primitives: " + f)
+                .sorted()
+                .collect(toSet()));
+        errors.addAll(updatableFields
+                .stream()
+                .filter(f -> updates.get(f.getAnnotation(Updatable.class).value()) == null)
+                .map(f -> "No @Update service found for field " + f + ", did you intend to use @Updatable?")
                 .sorted()
                 .collect(toSet()));
 

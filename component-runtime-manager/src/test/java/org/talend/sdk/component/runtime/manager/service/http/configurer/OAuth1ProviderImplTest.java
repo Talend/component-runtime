@@ -30,9 +30,16 @@ class OAuth1ProviderImplTest {
     @Test
     void oauth1Hmac() {
         final OAuth1.Configurer configurer = new OAuth1.Configurer();
-        final OAuth1.Configuration configuration = OAuth1.Configuration.builder().consumerKey("key").consumerSecret("secret")
-                .token("requestkey").tokenSecret("requestsecret").header("Auth").timestamp(1536181682L)
-                .nonce("bf5830e5b01de3a4090a32137d3e8937").build();
+        final OAuth1.Configuration configuration = OAuth1.Configuration
+                .builder()
+                .consumerKey("key")
+                .consumerSecret("secret")
+                .token("requestkey")
+                .tokenSecret("requestsecret")
+                .header("Auth")
+                .timestamp(1536181682L)
+                .nonce("bf5830e5b01de3a4090a32137d3e8937")
+                .build();
         final StringBuilder ref = new StringBuilder();
         configurer.configure(new Configurer.Connection() {
 
@@ -84,9 +91,9 @@ class OAuth1ProviderImplTest {
             }
         });
         assertEquals(
-                "Auth=OAuth oauth_consumer_key=\"key\", oauth_nonce=\"bf5830e5b01de3a4090a32137d3e8937\", " +
-                        "oauth_signature=\"6Y3OZPrZhcL3DbxOaoaIopDLDUM%3D\", oauth_signature_method=\"HMAC-SHA1\", " +
-                        "oauth_timestamp=\"1536181682\", oauth_token=\"requestkey\", oauth_version=\"1.0\"",
+                "Auth=OAuth oauth_consumer_key=\"key\", oauth_nonce=\"bf5830e5b01de3a4090a32137d3e8937\", "
+                        + "oauth_signature=\"6Y3OZPrZhcL3DbxOaoaIopDLDUM%3D\", oauth_signature_method=\"HMAC-SHA1\", "
+                        + "oauth_timestamp=\"1536181682\", oauth_token=\"requestkey\", oauth_version=\"1.0\"",
                 ref.toString());
     }
 }

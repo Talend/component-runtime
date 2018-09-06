@@ -395,6 +395,20 @@ class ComponentValidatorTest {
         // no-op
     }
 
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.update", success = true)
+    void testValidUpdate() {
+        // no-op
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.noupdatematching")
+    void testFailureUpdateMatching(final ExceptionSpec spec) {
+        spec.expectMessage("- No @Update service found for field "
+                + "private org.talend.test.failure.noupdatematching.Model org.talend.test.failure.noupdatematching.Config.model, "
+                + "did you intend to use @Updatable?");
+    }
+
     // .properties are ok from the classpath, no need to copy them
     private static void listPackageClasses(final File pluginDir, final String sourcePackage) {
         final File root = new File(jarLocation(ComponentValidatorTest.class), sourcePackage);
