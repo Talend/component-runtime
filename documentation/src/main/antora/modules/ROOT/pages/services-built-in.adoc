@@ -154,6 +154,17 @@ The framework provides in the `component-api` an `OAuth1.Configurer` which can b
 of configurer implementation. It expects a single `OAuth1.Configuration` parameter to be passed
 to the request as a `@ConfigurationOption`.
 
+Here is a sample showing how it can be used:
+
+[source,java]
+----
+public interface OAuth1Client extends HttpClient {
+    @Request(path = "/oauth1")
+    @UseConfigurer(OAuth1.Configurer.class)
+    String get(@ConfigurerOption("oauth1") final OAuth1.Configuration configuration);
+}
+----
+
 === Big data streams
 
 By default, the client loads in memory the payload. In case of big payloads, it can consume too much memory.
