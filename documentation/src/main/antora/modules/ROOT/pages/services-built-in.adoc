@@ -148,6 +148,12 @@ public interface APIClient extends HttpClient {
 }
 ----
 
+==== Built-In configurer
+
+The framework provides in the `component-api` an `OAuth1.Configurer` which can be used as an example
+of configurer implementation. It expects a single `OAuth1.Configuration` parameter to be passed
+to the request as a `@ConfigurationOption`.
+
 === Big data streams
 
 By default, the client loads in memory the payload. In case of big payloads, it can consume too much memory.

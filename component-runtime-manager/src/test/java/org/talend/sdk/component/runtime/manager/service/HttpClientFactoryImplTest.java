@@ -451,7 +451,7 @@ class HttpClientFactoryImplTest {
     public interface OAuth1Client extends HttpClient {
 
         @Request(path = "/1.1/statuses/user_timeline.json")
-        @UseConfigurer(OAuth1.class)
+        @UseConfigurer(OAuth1.Configurer.class)
         String call(@ConfigurerOption("oauth1") final OAuth1.Configuration configuration);
     }
 
