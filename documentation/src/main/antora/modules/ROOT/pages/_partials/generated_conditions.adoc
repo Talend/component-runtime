@@ -13,8 +13,8 @@ If the evaluation of the element at the location matches value then the element 
 {
   "condition::if::target":"test",
   "condition::if::evaluationStrategy":"DEFAULT",
-  "condition::if::value":"value1,value2",
-  "condition::if::negate":"false"
+  "condition::if::negate":"false",
+  "condition::if::value":"value1,value2"
 }
 ----
 
