@@ -22,6 +22,8 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -150,16 +152,34 @@ public class OAuth1ProviderImpl implements OAuth1.OAuth1Provider {
     }
 
     private String signingString(final Map<String, String> values, final String method, final String url) {
-        return method.toUpperCase(ROOT) + "&" + encode(stripQuery(url)) + "&"
+        return method.toUpperCase(ROOT) + "&" + encode(prepareUrl(url)) + "&"
                 + encode(values.entrySet().stream().map(e -> String.format("%s=%s", e.getKey(), e.getValue())).collect(
                         joining("&")));
     }
 
-    private String stripQuery(final String url) {
-        if (url.contains("?")) {
-            return url.substring(0, url.indexOf('?'));
+    private String prepareUrl(final String url) {
+        try {
+            final URL parsed = new URL(url);
+            return parsed.getProtocol() + "://" + parsed.getHost()
+                    + (shouldSkipPort(parsed) ? "" : ":" + parsed.getPort()) + stripQuery(parsed.getFile());
+        } catch (final MalformedURLException e) { // very unlikely
+            return stripQuery(url);
         }
-        return url;
+    }
+
+    private boolean shouldSkipPort(final URL parsed) {
+        return parsed.getPort() == -1 || (parsed.getPort() == 80 && "http".equals(parsed.getProtocol()))
+                || (parsed.getPort() == 443 && "https".equals(parsed.getProtocol()));
+    }
+
+    private String stripQuery(final String str) {
+        if (str == null) {
+            return "";
+        }
+        if (str.contains("?")) {
+            return str.substring(0, str.indexOf('?'));
+        }
+        return str;
     }
 
     private String encode(final String value) {
