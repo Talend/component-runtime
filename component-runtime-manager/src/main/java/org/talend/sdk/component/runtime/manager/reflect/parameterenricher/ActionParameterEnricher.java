@@ -20,6 +20,7 @@ import static java.util.Optional.ofNullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,15 +47,28 @@ public class ActionParameterEnricher extends BaseParameterEnricher {
             {
                 put(META_PREFIX + type, getValueString(ref.ref(), annotation));
                 ofNullable(getParametersString(annotation)).ifPresent(v -> put(META_PREFIX + type + "::parameters", v));
+                Stream
+                        .of(annotation.annotationType().getMethods())
+                        .filter(it -> annotation.annotationType() == it.getDeclaringClass()
+                                && Stream.of("parameters", "value").noneMatch(v -> it.getName().equalsIgnoreCase(v)))
+                        .forEach(m -> put(META_PREFIX + type + "::" + m.getName(), getString(m, annotation)));
             }
         };
     }
 
+    private String getString(final Method method, final Annotation annotation) {
+        try {
+            return String.valueOf(method.invoke(annotation));
+        } catch (final IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalArgumentException("No valid " + method + " for " + annotation);
+        }
+    }
+
     private String getValueString(final String method, final Annotation annotation) {
         try {
-            return String.valueOf(annotation.annotationType().getMethod(method).invoke(annotation));
-        } catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new IllegalArgumentException("No value for " + annotation);
+            return getString(annotation.annotationType().getMethod(method), annotation);
+        } catch (final NoSuchMethodException e) {
+            throw new IllegalArgumentException("No " + method + " for " + annotation);
         }
     }
 

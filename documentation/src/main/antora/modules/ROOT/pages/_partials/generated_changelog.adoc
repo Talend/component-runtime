@@ -36,7 +36,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1003[TCOMP-1003^]: [dependency upgrade] Tomcat 9.0.11
 - link:https://jira.talendforge.org/browse/TCOMP-1004[TCOMP-1004^]: [dependency upgrade] Log4j2 2.11.1
-- link:https://jira.talendforge.org/browse/TCOMP-1015[TCOMP-1015^]: Upgrade icons to 0.206.0-2
+- link:https://jira.talendforge.org/browse/TCOMP-1015[TCOMP-1015^]: Upgrade icons to 0.207.0
 - link:https://jira.talendforge.org/browse/TCOMP-1019[TCOMP-1019^]: (form) enum should lead to restricted datalist
 - link:https://jira.talendforge.org/browse/TCOMP-1037[TCOMP-1037^]: [dependency upgrade] Johnzon 1.1.9
 - link:https://jira.talendforge.org/browse/TCOMP-1038[TCOMP-1038^]: Drop spring client from component-form-core

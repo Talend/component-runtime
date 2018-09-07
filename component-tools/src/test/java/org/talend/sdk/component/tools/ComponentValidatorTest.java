@@ -409,6 +409,12 @@ class ComponentValidatorTest {
                 + "did you intend to use @Updatable?");
     }
 
+    @Test
+    @ComponentPackage("org.talend.test.failure.updatableafter")
+    void testFailureUpdateAfter(final ExceptionSpec spec) {
+        spec.expectMessage("- @Updatable.after should only reference direct child primitive fields");
+    }
+
     // .properties are ok from the classpath, no need to copy them
     private static void listPackageClasses(final File pluginDir, final String sourcePackage) {
         final File root = new File(jarLocation(ComponentValidatorTest.class), sourcePackage);

@@ -34,12 +34,18 @@ class ActionParameterEnricherTest {
             {
                 put("tcomp::action::update", "test");
                 put("tcomp::action::update::parameters", ".,foo,/bar/dummy");
+                put("tcomp::action::update::after", "propertyX");
             }
         }, new ActionParameterEnricher().onParameterAnnotation("testParam", String.class, new Updatable() {
 
             @Override
             public String value() {
                 return "test";
+            }
+
+            @Override
+            public String after() {
+                return "propertyX";
             }
 
             @Override

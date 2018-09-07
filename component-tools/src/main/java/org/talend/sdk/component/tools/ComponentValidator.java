@@ -754,6 +754,12 @@ public class ComponentValidator extends BaseTask {
         final List<Field> updatableFields = finder.findAnnotatedFields(Updatable.class);
         errors.addAll(updatableFields
                 .stream()
+                .filter(f -> f.getAnnotation(Updatable.class).after().contains(".") /* no '..' or '.' */)
+                .map(f -> "@Updatable.after should only reference direct child primitive fields")
+                .sorted()
+                .collect(toSet()));
+        errors.addAll(updatableFields
+                .stream()
                 .filter(f -> isPrimitiveLike(f.getType()))
                 .map(f -> "@Updatable should not be used on primitives: " + f)
                 .sorted()

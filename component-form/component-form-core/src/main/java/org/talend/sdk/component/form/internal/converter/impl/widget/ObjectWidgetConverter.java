@@ -15,12 +15,14 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +35,9 @@ import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
 
     ObjectWidgetConverter(final Collection<UiSchema> schemas, final Collection<SimplePropertyDefinition> properties,
@@ -42,25 +47,105 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
 
     protected void addActions(final PropertyContext root, final UiSchema uiSchema,
             final Collection<SimplePropertyDefinition> includedProperties) {
-        final Collection<UiSchema> items = uiSchema.getItems();
+        final Collection<UiSchema> buttons = new ArrayList<>();
 
         includedProperties
                 .stream()
                 .filter(p -> "OUT".equals(p.getMetadata().get("ui::structure::type")))
                 .findFirst()
-                .ifPresent(schemaBinding -> addGuessSchemaButton(root, schemaBinding, items));
+                .ifPresent(schemaBinding -> addGuessSchemaButton(root, schemaBinding, buttons));
+        addHealthCheck(root, buttons);
+        addUpdate(root).ifPresent(button -> {
+            final String name = root.getProperty().getMetadata().get("action::update::after");
+            if (name == null) {
+                buttons.add(button);
+            } else {
+                findChild(uiSchema, name).map(element -> {
+                    final Collection<UiSchema> items = element.getItems();
+                    if (items != null) {
+                        items.add(element);
+                        return element;
+                    }
+                    final UiSchema elementCopy = copy(element);
+                    reset(element);
+                    element.setWidget("fieldset");
+                    element.setItems(asList(elementCopy, button));
+                    return element;
+                }).orElseGet(() -> { // unlikely
+                    log.warn("Didn't find {} in {}", name, root.getProperty().getPath());
+                    buttons.add(button);
+                    return null;
+                });
+            }
+        });
 
-        addHealthCheck(root, items);
-        addUpdate(root, items);
+        uiSchema.getItems().addAll(buttons); // potentially use <Buttons />?
     }
 
-    private void addUpdate(final PropertyContext root, final Collection<UiSchema> items) {
+    private UiSchema copy(final UiSchema element) {
+        final UiSchema uiSchema = new UiSchema();
+        uiSchema.setKey(element.getKey());
+        uiSchema.setTitle(element.getTitle());
+        uiSchema.setWidget(element.getWidget());
+        uiSchema.setType(element.getType());
+        uiSchema.setItems(element.getItems());
+        uiSchema.setOptions(element.getOptions());
+        uiSchema.setAutoFocus(element.getAutoFocus());
+        uiSchema.setDisabled(element.getDisabled());
+        uiSchema.setReadOnly(element.getReadOnly());
+        uiSchema.setRequired(element.getRequired());
+        uiSchema.setRestricted(element.getRestricted());
+        uiSchema.setPlaceholder(element.getPlaceholder());
+        uiSchema.setTriggers(element.getTriggers());
+        uiSchema.setTitleMap(element.getTitleMap());
+        uiSchema.setDescription(element.getDescription());
+        return uiSchema;
+    }
+
+    private void reset(final UiSchema uiSchema) {
+        uiSchema.setKey(null);
+        uiSchema.setTitle(null);
+        uiSchema.setWidget(null);
+        uiSchema.setType(null);
+        uiSchema.setItems(null);
+        uiSchema.setOptions(null);
+        uiSchema.setAutoFocus(null);
+        uiSchema.setDisabled(null);
+        uiSchema.setReadOnly(null);
+        uiSchema.setRequired(null);
+        uiSchema.setRestricted(null);
+        uiSchema.setPlaceholder(null);
+        uiSchema.setTriggers(null);
+        uiSchema.setTitleMap(null);
+        uiSchema.setDescription(null);
+    }
+
+    protected Optional<UiSchema> findChild(final UiSchema uiSchema, final String name) {
+        return ofNullable(uiSchema.getItems())
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .flatMap(this::unwrapItems)
+                .filter(it -> it.getKey().endsWith("." + name))
+                .findFirst();
+    }
+
+    private Stream<UiSchema> unwrapItems(final UiSchema ui) {
+        if ("tabs".equals(ui.getWidget())) {
+            return ui.getItems().stream().flatMap(this::unwrapItems);
+        }
+        if (("fieldset".equals(ui.getWidget()) || "columns".equals(ui.getWidget())) && ui.getItems() != null) {
+            return ui.getItems().stream();
+        }
+        return Stream.of(ui);
+    }
+
+    private Optional<UiSchema> addUpdate(final PropertyContext root) {
         final SimplePropertyDefinition property = root.getProperty();
-        ofNullable(property.getMetadata().get("action::update"))
+        return ofNullable(property.getMetadata().get("action::update"))
                 .flatMap(v -> (actions == null ? Stream.<ActionReference> empty() : actions.stream())
                         .filter(a -> a.getName().equals(v) && "update".equals(a.getType()))
                         .findFirst())
-                .ifPresent(action -> {
+                .map(action -> {
                     final UiSchema.Trigger trigger = toTrigger(properties, root.getProperty(), action);
                     final String path = property.getPath();
                     trigger.setOptions(singletonList(new UiSchema.Option.Builder()
@@ -72,9 +157,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                             : action.getDisplayName());
                     button.setWidget("button");
                     button.setTriggers(singletonList(trigger));
-                    synchronized (items) {
-                        items.add(button);
-                    }
+                    return button;
                 });
     }
 
