@@ -329,7 +329,7 @@ class ComponentValidatorTest {
         expectedException.expectMessage(
                 "- No source instantiable without adding parameters for @DataSet(\"dataset\") (org.talend.test"
                         + ".failure.datasetprocessornosource.MyComponent$MyDataSet), please ensure at least a source using this "
-                        + "dataset can be use just filling the dataset informations.");
+                        + "dataset can be used just filling the dataset information.");
     }
 
     @Test
@@ -338,7 +338,7 @@ class ComponentValidatorTest {
         expectedException.expectMessage(
                 "- No source instantiable without adding parameters for @DataSet(\"dataset\") (org.talend.test"
                         + ".failure.datasetrequiredinsource.MyComponent$MyDataSet), please ensure at least a source using this "
-                        + "dataset can be use just filling the dataset informations.");
+                        + "dataset can be used just filling the dataset information.");
     }
 
     @Test

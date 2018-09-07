@@ -43,6 +43,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1041[TCOMP-1041^]: HttpClient should enable to process InputStream directly
 - link:https://jira.talendforge.org/browse/TCOMP-1042[TCOMP-1042^]: Upgrade to JUnit 5.3.0
 - link:https://jira.talendforge.org/browse/TCOMP-1045[TCOMP-1045^]: Add documentation in metadata and enable to use it in the UI on configuration
+- link:https://jira.talendforge.org/browse/TCOMP-1047[TCOMP-1047^]: Make Suggestable text field editable (align with web)
 - link:https://jira.talendforge.org/browse/TCOMP-1050[TCOMP-1050^]: Provide simple OAuth1 integration
 - link:https://jira.talendforge.org/browse/TCOMP-877[TCOMP-877^]: [documentation] Sample implementation of bulk/batch/commit-interval using groups
 - link:https://jira.talendforge.org/browse/TCOMP-980[TCOMP-980^]: Provide a ValidationService in server-proxy

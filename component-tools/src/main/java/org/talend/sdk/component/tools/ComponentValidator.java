@@ -658,7 +658,7 @@ public class ComponentValidator extends BaseTask {
                 }))
                 .map(dataset -> "No source instantiable without adding parameters for @DataSet(\"" + dataset.getValue()
                         + "\") (" + dataset.getKey().getName() + "), please ensure at least a source using this "
-                        + "dataset can be use just filling the dataset informations.")
+                        + "dataset can be used just filling the dataset information.")
                 .sorted()
                 .collect(toSet()));
     }
