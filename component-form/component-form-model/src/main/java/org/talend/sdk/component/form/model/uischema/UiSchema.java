@@ -23,8 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
-
 import lombok.Data;
 
 @Data
@@ -408,8 +406,6 @@ public class UiSchema {
 
         private Collection<NameValue> titleMap;
 
-        private JsonSchema schema;
-
         public Builder withKey(final String key) {
             this.key = key;
             return this;
@@ -519,11 +515,6 @@ public class UiSchema {
                 this.titleMap = new ArrayList<>();
             }
             this.titleMap.addAll(titleMap);
-            return this;
-        }
-
-        public Builder withSchema(final JsonSchema schema) {
-            this.schema = schema;
             return this;
         }
 

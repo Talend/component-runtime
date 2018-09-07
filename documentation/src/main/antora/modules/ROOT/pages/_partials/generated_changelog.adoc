@@ -13,6 +13,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1008[TCOMP-1008^]: Enum order is lost
 - link:https://jira.talendforge.org/browse/TCOMP-1009[TCOMP-1009^]: (web) OptionsOrder ignored for tables (List<MyClass>), fields located in random order
 - link:https://jira.talendforge.org/browse/TCOMP-1028[TCOMP-1028^]: [tools-webapp] submit button no more functional
+- link:https://jira.talendforge.org/browse/TCOMP-1044[TCOMP-1044^]: Fix java.lang.ClassCastException in TableActionParameter
 - link:https://jira.talendforge.org/browse/TCOMP-1046[TCOMP-1046^]: String option can't set default value from a file
 - link:https://jira.talendforge.org/browse/TCOMP-779[TCOMP-779^]: Drop down list Java type in configuration class
 - link:https://jira.talendforge.org/browse/TCOMP-968[TCOMP-968^]: Trigger AsyncValidation call only when option annotated with Validable is changed
