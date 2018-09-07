@@ -43,6 +43,7 @@ import java.util.stream.StreamSupport;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
@@ -68,6 +69,7 @@ public class ParameterModelService {
     public boolean isService(final Parameter parameter) {
         final Class<?> type = parameter.getType();
         return !parameter.isAnnotationPresent(Option.class) && (type.isAnnotationPresent(Service.class)
+                || parameter.isAnnotationPresent(Configuration.class)
                 || type.isAnnotationPresent(Internationalized.class)
                 || Stream.of(type.getMethods()).anyMatch(m -> m.isAnnotationPresent(Request.class))
                 || (type.getName().startsWith("org.talend.sdk.component.") && type.getName().contains(".service."))

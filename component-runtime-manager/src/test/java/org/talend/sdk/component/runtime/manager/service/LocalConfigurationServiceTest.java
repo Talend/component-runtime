@@ -78,7 +78,10 @@ class LocalConfigurationServiceTest {
         try {
             assertEquals(Stream.of("test.foo", "test.bar").collect(toSet()),
                     new LocalConfigurationService(singletonList(systemProperties), "LocalConfigurationServiceTest")
-                            .keys());
+                            .keys()
+                            .stream()
+                            .filter(it -> it.startsWith("test"))
+                            .collect(toSet()));
         } finally {
             System.clearProperty("LocalConfigurationServiceTest.test.foo");
             System.clearProperty("LocalConfigurationServiceTest.test.bar");

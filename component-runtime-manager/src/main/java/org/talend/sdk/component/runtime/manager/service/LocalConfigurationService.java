@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
@@ -56,8 +57,8 @@ public class LocalConfigurationService implements LocalConfiguration, Serializab
         return rawDelegates
                 .stream()
                 .flatMap(d -> d.keys().stream())
-                .filter(k -> k.startsWith(plugin + '.'))
-                .map(k -> k.substring(plugin.length() + 1))
+                .flatMap(k -> !k.startsWith(plugin + '.') ? Stream.of(k)
+                        : Stream.of(k, k.substring(plugin.length() + 1)))
                 .collect(toSet());
     }
 
